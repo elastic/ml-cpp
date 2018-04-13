@@ -102,7 +102,7 @@ CIndividualModel::CIndividualModel(bool isForPersistence, const CIndividualModel
       m_LastBucketTimes(other.m_LastBucketTimes),
       m_MemoryEstimator(other.m_MemoryEstimator) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 
     m_FeatureModels.reserve(m_FeatureModels.size());
@@ -127,7 +127,7 @@ bool CIndividualModel::isPopulation() const {
 
 CIndividualModel::TOptionalUInt64 CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return TOptionalUInt64();
     }
 
@@ -205,8 +205,8 @@ void CIndividualModel::prune(std::size_t maximumAge) {
         if (gatherer.isPersonActive(pid) && !CAnomalyDetectorModel::isTimeUnset(m_LastBucketTimes[pid])) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>((time - m_LastBucketTimes[pid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
-                LOG_TRACE(gatherer.personName(pid)
-                          << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent << ", maximumAge = " << maximumAge);
+                LOG_TRACE(<< gatherer.personName(pid) << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent
+                          << ", maximumAge = " << maximumAge);
                 peopleToRemove.push_back(pid);
             }
         }
@@ -217,7 +217,7 @@ void CIndividualModel::prune(std::size_t maximumAge) {
     }
 
     std::sort(peopleToRemove.begin(), peopleToRemove.end());
-    LOG_DEBUG("Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
+    LOG_DEBUG(<< "Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
 
     // We clear large state objects from removed people's model
     // and reinitialize it when they are recycled.
@@ -266,9 +266,9 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         }
     }
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes1 = " << core::CContainerPrinter::print(hashes1));
-    LOG_TRACE("hashes2 = " << core::CContainerPrinter::print(hashes2));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes1 = " << core::CContainerPrinter::print(hashes1));
+    LOG_TRACE(<< "hashes2 = " << core::CContainerPrinter::print(hashes2));
 
     seed = maths::CChecksum::calculate(seed, hashes1);
     return maths::CChecksum::calculate(seed, hashes2);
@@ -381,8 +381,8 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
-        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". " << resourceLimit - ourUsage
-                                       << " free bytes remaining");
+        LOG_TRACE(<< "Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". "
+                  << resourceLimit - ourUsage << " free bytes remaining");
         this->createNewModels(numberToCreate, 0);
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
@@ -393,7 +393,7 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
 
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
-        LOG_DEBUG("Not enough memory to create models");
+        LOG_DEBUG(<< "Not enough memory to create models");
         core::CStatistics::instance().stat(stat_t::E_NumberMemoryLimitModelCreationFailures).increment(numberNewPeople);
         std::size_t toRemove = gatherer.numberPeople() - numberNewPeople;
         gatherer.removePeople(toRemove);
@@ -487,7 +487,7 @@ const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::siz
 maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
     auto i = std::find_if(
         m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
-    return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : 0;
+    return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : nullptr;
 }
 
 void CIndividualModel::sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles) {

@@ -199,7 +199,7 @@ bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap& fieldValues) {
     ++m_NumberRecords;
 
     if (reportProgress(m_NumberRecords)) {
-        LOG_DEBUG("Processed " << m_NumberRecords << " records");
+        LOG_DEBUG(<< "Processed " << m_NumberRecords << " records");
     }
 
     core_t::TTime time = 0;
@@ -214,7 +214,7 @@ bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap& fieldValues) {
 }
 
 void CAutoconfigurerImpl::finalise() {
-    LOG_TRACE("CAutoconfigurerImpl::finalise...");
+    LOG_TRACE(<< "CAutoconfigurerImpl::finalise...");
 
     this->computeScores(true);
 
@@ -241,7 +241,7 @@ void CAutoconfigurerImpl::finalise() {
 
     m_ReportWriter.write();
 
-    LOG_TRACE("CAutoconfigurerImpl::finalise done");
+    LOG_TRACE(<< "CAutoconfigurerImpl::finalise done");
 }
 
 CReportWriter& CAutoconfigurerImpl::reportWriter() {
@@ -256,21 +256,20 @@ bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues, core_t::TT
     TStrStrUMapCItr i = fieldValues.find(m_Params.timeFieldName());
 
     if (i == fieldValues.end()) {
-        LOG_ERROR("No time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
-                                    << CAutoconfigurer::debugPrintRecord(fieldValues));
+        LOG_ERROR(<< "No time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
+                  << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
     if (m_Params.timeFieldFormat().empty()) {
         if (!core::CStringUtils::stringToType(i->second, time)) {
-            LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
-                                                      << CAutoconfigurer::debugPrintRecord(fieldValues));
+            LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
+                      << CAutoconfigurer::debugPrintRecord(fieldValues));
             return false;
         }
     } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time)) {
-        LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '" << m_Params.timeFieldFormat()
-                                                  << "' in record:" << core_t::LINE_ENDING
-                                                  << CAutoconfigurer::debugPrintRecord(fieldValues));
+        LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '" << m_Params.timeFieldFormat()
+                  << "' in record:" << core_t::LINE_ENDING << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
@@ -286,7 +285,7 @@ void CAutoconfigurerImpl::initializeFieldStatisticsOnce(const TStrStrUMap& field
     for (const auto& entry : fieldValues) {
         const std::string& fieldName = entry.first;
         if (fieldName != m_Params.timeFieldName() && m_Params.fieldOfInterest(fieldName)) {
-            LOG_DEBUG("Adding field '" << fieldName << "'");
+            LOG_DEBUG(<< "Adding field '" << fieldName << "'");
             m_FieldStatistics.push_back(CFieldStatistics(fieldName, m_Params));
         }
     }
@@ -322,14 +321,14 @@ void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime ti
 }
 
 void CAutoconfigurerImpl::computeScores(bool final) {
-    LOG_TRACE("CAutoconfigurerImpl::computeScores...");
+    LOG_TRACE(<< "CAutoconfigurerImpl::computeScores...");
 
     std::size_t last = 0u;
 
     for (std::size_t i = 0u; i < m_CandidateDetectors.size(); ++i) {
-        LOG_TRACE("Refreshing scores for " << m_CandidateDetectors[i].description());
+        LOG_TRACE(<< "Refreshing scores for " << m_CandidateDetectors[i].description());
         m_CandidateDetectors[i].refreshScores();
-        LOG_TRACE("score = " << m_CandidateDetectors[i].score());
+        LOG_TRACE(<< "score = " << m_CandidateDetectors[i].score());
         if (m_CandidateDetectors[i].score() > (final ? m_Params.minimumDetectorScore() : 0.0)) {
             if (i > last) {
                 m_CandidateDetectors[i].swap(m_CandidateDetectors[last]);
@@ -339,13 +338,13 @@ void CAutoconfigurerImpl::computeScores(bool final) {
     }
 
     if (last < m_CandidateDetectors.size()) {
-        LOG_DEBUG("Removing " << m_CandidateDetectors.size() - last << " detectors");
+        LOG_DEBUG(<< "Removing " << m_CandidateDetectors.size() - last << " detectors");
         m_CandidateDetectors.erase(m_CandidateDetectors.begin() + last, m_CandidateDetectors.end());
         m_DetectorRecordFactory.build(m_CandidateDetectors);
         m_DetectorCountStatistics.pruneUnsed(m_CandidateDetectors);
     }
 
-    LOG_TRACE("CAutoconfigurerImpl::computeScores done");
+    LOG_TRACE(<< "CAutoconfigurerImpl::computeScores done");
 }
 
 void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
@@ -353,7 +352,7 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
         return;
     }
 
-    LOG_DEBUG("Generate Candidate Detectors:");
+    LOG_DEBUG(<< "Generate Candidate Detectors:");
 
     using TAddField = void (CDetectorEnumerator::*)(const std::string&);
     using TCanUse = bool (CAutoconfigurerParams::*)(const std::string&) const;
@@ -391,15 +390,15 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
         const std::string& fieldName = m_FieldStatistics[i].name();
         for (std::size_t j = 0u; j < boost::size(FIELD_NAMES); ++j) {
             if ((m_Params.*CAN_USE[j])(fieldName) && scores[j] > 0.0) {
-                LOG_DEBUG(FIELD_NAMES[j] << " '" << fieldName << "' with score " << scores[j]);
+                LOG_DEBUG(<< FIELD_NAMES[j] << " '" << fieldName << "' with score " << scores[j]);
                 (enumerator.*ADD_FIELD[j])(fieldName);
             }
         }
     }
 
-    LOG_DEBUG("Generating...");
+    LOG_DEBUG(<< "Generating...");
     enumerator.generate(m_CandidateDetectors);
-    LOG_DEBUG("Got " << m_CandidateDetectors.size() << " detectors");
+    LOG_DEBUG(<< "Got " << m_CandidateDetectors.size() << " detectors");
 
     m_DetectorCountStatistics.build(m_CandidateDetectors);
     m_DetectorRecordFactory.build(m_CandidateDetectors);
@@ -417,7 +416,7 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
 void CAutoconfigurerImpl::replayBuffer() {
     for (std::size_t i = 0u; i < m_Buffer.size(); ++i) {
         if (reportProgress(i)) {
-            LOG_DEBUG("Replayed " << i << " records");
+            LOG_DEBUG(<< "Replayed " << i << " records");
         }
         this->updateStatisticsAndMaybeComputeScores(m_Buffer[i].first, m_Buffer[i].second);
     }

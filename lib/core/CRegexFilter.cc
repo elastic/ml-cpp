@@ -19,7 +19,7 @@ bool CRegexFilter::configure(const TStrVec& regularExpressions) {
     for (std::size_t i = 0; i < regularExpressions.size(); ++i) {
         if (m_Regex[i].init(regularExpressions[i]) == false) {
             m_Regex.clear();
-            LOG_ERROR("Configuration failed; no filtering will apply");
+            LOG_ERROR(<< "Configuration failed; no filtering will apply");
             return false;
         }
     }

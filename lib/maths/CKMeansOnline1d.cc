@@ -54,7 +54,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample, const CNormalMeanPrec
     maths_t::EFloatingPointErrorStatus status =
         normal.jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("Unable to compute probability for: " << sample[0]);
+        LOG_ERROR(<< "Unable to compute probability for: " << sample[0]);
         return core::constants::LOG_MIN_DOUBLE - 1.0;
     }
     if (status & maths_t::E_FpOverflowed) {
@@ -132,7 +132,7 @@ bool CKMeansOnline1d::hasCluster(std::size_t index) const {
 
 bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     result = m_Clusters[index].marginalLikelihoodMean();
@@ -141,7 +141,7 @@ bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
 
 bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     result = std::sqrt(m_Clusters[index].marginalLikelihoodVariance());
@@ -152,7 +152,7 @@ void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
     result.clear();
 
     if (m_Clusters.empty()) {
-        LOG_ERROR("No clusters");
+        LOG_ERROR(<< "No clusters");
         return;
     }
 
@@ -222,7 +222,7 @@ void CKMeansOnline1d::propagateForwardsByTime(double time) {
 
 bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     TDouble1Vec samples_;

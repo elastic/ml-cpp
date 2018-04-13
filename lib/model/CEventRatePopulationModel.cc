@@ -132,7 +132,7 @@ CEventRatePopulationModel::CEventRatePopulationModel(bool isForPersistence, cons
       m_Probabilities(0.05), // Not needed for persistence so minimally construct
       m_MemoryEstimator(other.m_MemoryEstimator) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 
     m_FeatureModels.reserve(m_FeatureModels.size());
@@ -288,7 +288,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime, 
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -305,7 +305,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
     this->currentBucketInterimCorrections().clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        LOG_TRACE("Sampling [" << time << "," << time + bucketLength << ")");
+        LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -332,7 +332,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
 
             if (feature == model_t::E_PopulationUniquePersonCountByAttribute) {
                 TDoubleVec categories;
@@ -378,7 +378,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (!model) {
-                    LOG_ERROR("Missing model for " << this->attributeName(cid));
+                    LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
 
@@ -394,8 +394,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
                     continue;
                 }
 
-                LOG_TRACE("Adding " << value << " for person = " << gatherer.personName(pid)
-                                    << " and attribute = " << gatherer.attributeName(cid));
+                LOG_TRACE(<< "Adding " << value << " for person = " << gatherer.personName(pid)
+                          << " and attribute = " << gatherer.attributeName(cid));
 
                 SValuesAndWeights& attribute = attributes[cid];
                 std::size_t duplicate = data.size() >= this->params().s_MinimumToDeduplicate ? fuzzy[cid].duplicate(sampleTime, {value})
@@ -448,8 +448,8 @@ void CEventRatePopulationModel::prune(std::size_t maximumAge) {
 
     std::sort(peopleToRemove.begin(), peopleToRemove.end());
     std::sort(attributesToRemove.begin(), attributesToRemove.end());
-    LOG_DEBUG("Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
-    LOG_DEBUG("Removing attributes {" << this->printAttributes(attributesToRemove, 20) << '}');
+    LOG_DEBUG(<< "Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
+    LOG_DEBUG(<< "Removing attributes {" << this->printAttributes(attributesToRemove, 20) << '}');
 
     // Stop collecting for these people/attributes and add them
     // to the free list.
@@ -487,15 +487,15 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
-        LOG_ERROR("Can only compute probability for single bucket");
+        LOG_ERROR(<< "Can only compute probability for single bucket");
         return false;
     }
     if (pid > gatherer.numberPeople()) {
-        LOG_TRACE("No person for pid = " << pid);
+        LOG_TRACE(<< "No person for pid = " << pid);
         return false;
     }
 
-    LOG_TRACE("computeProbability(" << gatherer.personName(pid) << ")");
+    LOG_TRACE(<< "computeProbability(" << gatherer.personName(pid) << ")");
 
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
     using TSizeProbabilityAndInfluenceUMap = boost::unordered_map<std::size_t, CProbabilityAndInfluenceCalculator>;
@@ -529,7 +529,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
 
     for (std::size_t i = 0u; i < gatherer.numberFeatures(); ++i) {
         model_t::EFeature feature = gatherer.feature(i);
-        LOG_TRACE("feature = " << model_t::print(feature));
+        LOG_TRACE(<< "feature = " << model_t::print(feature));
 
         if (feature == model_t::E_PopulationAttributeTotalCountByPerson) {
             const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, startTime);
@@ -576,8 +576,8 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                                                       params.s_Tail,
                                                       type,
                                                       mostAnomalousCorrelate)) {
-                    LOG_TRACE("P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
-                                   << ", person = " << gatherer.personName(pid) << ") = " << params.s_Probability);
+                    LOG_TRACE(<< "P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
+                              << ", person = " << gatherer.personName(pid) << ") = " << params.s_Probability);
                     CProbabilityAndInfluenceCalculator& calculator = pConditional.emplace(cid, pConditionalTemplate).first->second;
                     const auto& influenceValues = CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
                     for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
@@ -588,8 +588,8 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                     }
                     minimumProbabilityFeatures[cid].add({params.s_Probability, feature});
                 } else {
-                    LOG_ERROR("Unable to compute P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
-                                                     << ", person = " << gatherer.personName(pid) << ")");
+                    LOG_ERROR(<< "Unable to compute P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
+                              << ", person = " << gatherer.personName(pid) << ")");
                 }
             }
         }
@@ -607,7 +607,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
         if (m_AttributeProbabilities.lookup(cid, pAttribute)) {
             pPersonAndAttribute.addProbability(pAttribute);
         }
-        LOG_TRACE("P(" << gatherer.attributeName(cid) << ") = " << pAttribute);
+        LOG_TRACE(<< "P(" << gatherer.attributeName(cid) << ") = " << pAttribute);
 
         // The idea is we imagine drawing n samples from the person's total
         // attribute set, where n is the size of the person's attribute set,
@@ -619,13 +619,13 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
         if (personAttributeProbabilityPrior.probability(static_cast<double>(cid), pAttributeGivenPerson)) {
             w = maths::CCategoricalTools::probabilityOfCategory(pConditional.size(), pAttributeGivenPerson);
         }
-        LOG_TRACE("w = " << w);
+        LOG_TRACE(<< "w = " << w);
 
         pJoint.add(pPersonAndAttribute, w);
 
         auto feature = minimumProbabilityFeatures.find(cid);
         if (feature == minimumProbabilityFeatures.end()) {
-            LOG_ERROR("No feature for " << gatherer.attributeName(cid));
+            LOG_ERROR(<< "No feature for " << gatherer.attributeName(cid));
         } else {
             double p;
             pPersonAndAttribute.calculate(p);
@@ -641,16 +641,16 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     }
 
     if (pJoint.empty()) {
-        LOG_TRACE("No samples in [" << startTime << "," << endTime << ")");
+        LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
     }
 
     double p;
     if (!pJoint.calculate(p, result.s_Influences)) {
-        LOG_ERROR("Failed to compute probability of " << this->personName(pid));
+        LOG_ERROR(<< "Failed to compute probability of " << this->personName(pid));
         return false;
     }
-    LOG_TRACE("probability(" << this->personName(pid) << ") = " << p);
+    LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
     resultBuilder.probability(p);
     resultBuilder.build();
 
@@ -722,8 +722,8 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
         }
     }
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
     return maths::CChecksum::calculate(seed, hashes);
 }
@@ -780,8 +780,8 @@ const CEventRatePopulationModel::TSizeSizePrFeatureDataPrVec& CEventRatePopulati
                                                                                                      core_t::TTime time) const {
     static const TSizeSizePrFeatureDataPrVec EMPTY;
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = [" << m_CurrentBucketStats.s_StartTime << ","
-                                      << m_CurrentBucketStats.s_StartTime + this->bucketLength() << ")");
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = [" << m_CurrentBucketStats.s_StartTime << ","
+                  << m_CurrentBucketStats.s_StartTime + this->bucketLength() << ")");
         return EMPTY;
     }
     auto result = m_CurrentBucketStats.s_FeatureData.find(feature);
@@ -882,7 +882,7 @@ const maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature,
 maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) {
     auto i = std::find_if(
         m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
-    return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : 0;
+    return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : nullptr;
 }
 
 bool CEventRatePopulationModel::correlates(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {

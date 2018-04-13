@@ -25,7 +25,7 @@ bool CMockModel::acceptRestoreTraverser(core::CStateRestoreTraverser& /*traverse
 }
 
 CAnomalyDetectorModel* CMockModel::cloneForPersistence() const {
-    return 0;
+    return nullptr;
 }
 
 model_t::EModelType CMockModel::category() const {
@@ -184,7 +184,7 @@ void CMockModel::mockTimeSeriesModels(const TMathsModelPtrVec& models) {
 }
 
 CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {
-    return 0;
+    return nullptr;
 }
 
 CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model) : m_Model{&model} {

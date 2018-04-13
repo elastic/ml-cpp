@@ -198,7 +198,7 @@ public:
             case maths_t::E_ClustersFractionWeight:
                 return this->count();
             }
-            LOG_ABORT("Unexpected calculation style " << calc);
+            LOG_ABORT(<< "Unexpected calculation style " << calc);
             return 1.0;
         }
 
@@ -209,7 +209,7 @@ public:
             const TMatrixPrecise& covariances = CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
             maths_t::EFloatingPointErrorStatus status = gaussianLogLikelihood(covariances, x - mean, likelihood, false);
             if (status & maths_t::E_FpFailed) {
-                LOG_ERROR("Unable to compute likelihood for " << x << " and cluster " << m_Index);
+                LOG_ERROR(<< "Unable to compute likelihood for " << x << " and cluster " << m_Index);
                 return core::constants::LOG_MIN_DOUBLE - 1.0;
             }
             if (status & maths_t::E_FpOverflowed) {
@@ -244,7 +244,7 @@ public:
             // the BIC gain of using the multi-mode distribution verses
             // the single mode distribution.
 
-            LOG_TRACE("split");
+            LOG_TRACE(<< "split");
 
             if (m_Structure.buffering()) {
                 return TOptionalClusterClusterPr();
@@ -259,7 +259,7 @@ public:
             if (!this->splitSearch(rng, minimumCount, split)) {
                 return TOptionalClusterClusterPr();
             }
-            LOG_TRACE("split = " << core::CContainerPrinter::print(split));
+            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
 
             TCovariances covariances[2];
             TSphericalClusterVec clusters;
@@ -271,8 +271,8 @@ public:
             }
             TKMeansOnlineVec structure;
             m_Structure.split(split, structure);
-            LOG_TRACE("Splitting cluster " << this->index() << " at " << this->centre() << " left = " << structure[0].print()
-                                           << ", right = " << structure[1].print());
+            LOG_TRACE(<< "Splitting cluster " << this->index() << " at " << this->centre() << " left = " << structure[0].print()
+                      << ", right = " << structure[1].print());
 
             std::size_t index[] = {indexGenerator.next(), indexGenerator.next()};
             indexGenerator.recycle(m_Index);
@@ -365,10 +365,10 @@ public:
 
             for (;;) {
                 TKMeansOnline::kmeans(rng, node, 2, candidate);
-                LOG_TRACE("candidate = " << core::CContainerPrinter::print(candidate));
+                LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
 
                 if (candidate.size() != 2) {
-                    LOG_ERROR("Expected 2-split: " << core::CContainerPrinter::print(candidate));
+                    LOG_ERROR(<< "Expected 2-split: " << core::CContainerPrinter::print(candidate));
                     break;
                 }
                 if (candidate[0].empty() || candidate[1].empty()) {
@@ -390,12 +390,12 @@ public:
 
                 // Check the count constraint.
                 bool satisfiesCount = (nmin >= minimumCount);
-                LOG_TRACE("count = " << nmin << " (to split " << minimumCount << ")");
+                LOG_TRACE(<< "count = " << nmin << " (to split " << minimumCount << ")");
 
                 // Check the distance constraint.
                 double distance = BICGain(covariances[0], covariances[1]);
                 bool satisfiesDistance = (distance > MINIMUM_SPLIT_DISTANCE);
-                LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
+                LOG_TRACE(<< "BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                 if (!satisfiesCount) {
                     // Recurse to the (one) node with sufficient count.
@@ -410,7 +410,7 @@ public:
                         continue;
                     }
                 } else if (satisfiesDistance) {
-                    LOG_TRACE("Checking full split");
+                    LOG_TRACE(<< "Checking full split");
 
                     TSizeVec assignment(remainder.size());
                     for (std::size_t i = 0u; i < remainder.size(); ++i) {
@@ -426,10 +426,10 @@ public:
                     }
 
                     distance = BICGain(covariances[0], covariances[1]);
-                    LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
+                    LOG_TRACE(<< "BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                     if (distance > MINIMUM_SPLIT_DISTANCE) {
-                        LOG_TRACE("splitting");
+                        LOG_TRACE(<< "splitting");
 
                         result.resize(candidate.size());
                         TSphericalClusterVec clusters;
@@ -443,7 +443,8 @@ public:
                                         clusters.begin(), clusters.end(), candidate[i][j], typename CSphericalCluster<TPoint>::SLess()) -
                                     clusters.begin();
                                 if (k >= clusters.size()) {
-                                    LOG_ERROR("Missing " << candidate[i][j] << ", clusters = " << core::CContainerPrinter::print(clusters));
+                                    LOG_ERROR(<< "Missing " << candidate[i][j]
+                                              << ", clusters = " << core::CContainerPrinter::print(clusters));
                                     return false;
                                 }
                                 result[i].push_back(indexes[k]);
@@ -689,13 +690,13 @@ public:
     }
 
     //! Check if the cluster identified by \p index exists.
-    virtual bool hasCluster(std::size_t index) const { return this->cluster(index) != 0; }
+    virtual bool hasCluster(std::size_t index) const { return this->cluster(index) != nullptr; }
 
     //! Get the centre of the cluster identified by \p index.
     virtual bool clusterCentre(std::size_t index, TPointPrecise& result) const {
         const CCluster* cluster = this->cluster(index);
         if (!cluster) {
-            LOG_ERROR("Cluster " << index << " doesn't exist");
+            LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
         result = cluster->centre();
@@ -706,7 +707,7 @@ public:
     virtual bool clusterSpread(std::size_t index, double& result) const {
         const CCluster* cluster = this->cluster(index);
         if (!cluster) {
-            LOG_ERROR("Cluster " << index << " doesn't exist");
+            LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
         result = cluster->spread();
@@ -719,7 +720,7 @@ public:
         result.clear();
 
         if (m_Clusters.empty()) {
-            LOG_ERROR("No clusters");
+            LOG_ERROR(<< "No clusters");
             return;
         }
 
@@ -771,22 +772,22 @@ public:
         m_HistoryLength += 1.0;
 
         if (m_Clusters.size() == 1) {
-            LOG_TRACE("Adding " << x << " to " << m_Clusters[0].centre());
+            LOG_TRACE(<< "Adding " << x << " to " << m_Clusters[0].centre());
             m_Clusters[0].add(x, count);
             clusters.push_back(std::make_pair(m_Clusters[0].index(), count));
             if (this->maybeSplit(m_Clusters.begin())) {
                 this->cluster(x, clusters, count);
             }
         } else {
-            using TSizeDoublePr = std::pair<double, std::size_t>;
-            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>>;
+            using TDoubleSizePr = std::pair<double, std::size_t>;
+            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2, std::greater<TDoubleSizePr>>;
 
             TMaxAccumulator closest;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 closest.add(std::make_pair(m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i));
             }
             closest.sort();
-            LOG_TRACE("closest = " << closest.print());
+            LOG_TRACE(<< "closest = " << closest.print());
 
             double likelihood0 = closest[0].first;
             double likelihood1 = closest[1].first;
@@ -797,13 +798,13 @@ public:
             double normalizer = p0 + p1;
             p0 /= normalizer;
             p1 /= normalizer;
-            LOG_TRACE("probabilities = [" << p0 << "," << p1 << "]");
+            LOG_TRACE(<< "probabilities = [" << p0 << "," << p1 << "]");
 
             TClusterVecItr cluster0 = m_Clusters.begin() + closest[0].second;
             TClusterVecItr cluster1 = m_Clusters.begin() + closest[1].second;
 
             if (p1 < HARD_ASSIGNMENT_THRESHOLD * p0) {
-                LOG_TRACE("Adding " << x << " to " << cluster0->centre());
+                LOG_TRACE(<< "Adding " << x << " to " << cluster0->centre());
                 cluster0->add(x, count);
                 clusters.push_back(std::make_pair(cluster0->index(), count));
                 if (this->maybeSplit(cluster0) || this->maybeMerge(cluster0)) {
@@ -813,8 +814,8 @@ public:
                 // Get the weighted counts.
                 double count0 = count * p0;
                 double count1 = count * p1;
-                LOG_TRACE("Soft adding " << x << " " << count0 << " to " << cluster0->centre() << " and " << count1 << " to "
-                                         << cluster1->centre());
+                LOG_TRACE(<< "Soft adding " << x << " " << count0 << " to " << cluster0->centre() << " and " << count1 << " to "
+                          << cluster1->centre());
 
                 cluster0->add(x, count0);
                 cluster1->add(x, count1);
@@ -852,7 +853,7 @@ public:
     //! \note \p time must be non negative.
     virtual void propagateForwardsByTime(double time) {
         if (time < 0.0) {
-            LOG_ERROR("Can't propagate backwards in time");
+            LOG_ERROR(<< "Can't propagate backwards in time");
             return;
         }
         m_HistoryLength *= std::exp(-m_DecayRate * time);
@@ -870,7 +871,7 @@ public:
     virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
         const CCluster* cluster = this->cluster(index);
         if (!cluster) {
-            LOG_ERROR("Cluster " << index << " doesn't exist");
+            LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
         cluster->sample(numberSamples, samples);
@@ -983,7 +984,7 @@ protected:
                 return &m_Clusters[i];
             }
         }
-        return 0;
+        return nullptr;
     }
 
     //! Compute the minimum split count.
@@ -998,7 +999,7 @@ protected:
             count *= m_MinimumClusterFraction / scale;
             result = std::max(result, count);
         }
-        LOG_TRACE("minimumSplitCount = " << result);
+        LOG_TRACE(<< "minimumSplitCount = " << result);
         return result;
     }
 
@@ -1009,7 +1010,7 @@ protected:
         }
 
         if (TOptionalClusterClusterPr split = cluster->split(m_Rng, this->minimumSplitCount(), m_ClusterIndexGenerator)) {
-            LOG_TRACE("Splitting cluster " << cluster->index() << " at " << cluster->centre());
+            LOG_TRACE(<< "Splitting cluster " << cluster->index() << " at " << cluster->centre());
             std::size_t index = cluster->index();
             *cluster = split->first;
             m_Clusters.push_back(split->second);
@@ -1029,8 +1030,8 @@ protected:
         CCluster* nearest = this->nearest(*cluster);
 
         if (nearest && nearest->shouldMerge(*cluster)) {
-            LOG_TRACE("Merging cluster " << nearest->index() << " at " << nearest->centre() << " and cluster " << cluster->index() << " at "
-                                         << cluster->centre());
+            LOG_TRACE(<< "Merging cluster " << nearest->index() << " at " << nearest->centre() << " and cluster " << cluster->index()
+                      << " at " << cluster->centre());
             std::size_t index1 = nearest->index();
             std::size_t index2 = cluster->index();
             CCluster merged = nearest->merge(*cluster, m_ClusterIndexGenerator);
@@ -1067,7 +1068,7 @@ protected:
             if (prune.count() == 0) {
                 break;
             }
-            LOG_TRACE("prune = " << core::CContainerPrinter::print(prune));
+            LOG_TRACE(<< "prune = " << core::CContainerPrinter::print(prune));
 
             result = true;
 
@@ -1075,8 +1076,8 @@ protected:
             CCluster& cluster = m_Clusters[prune[0].second];
             CCluster* nearest = this->nearest(cluster);
             if (nearest) {
-                LOG_TRACE("Merging cluster " << cluster.index() << " at " << cluster.centre() << " and cluster " << nearest->index()
-                                             << " at " << nearest->centre());
+                LOG_TRACE(<< "Merging cluster " << cluster.index() << " at " << cluster.centre() << " and cluster " << nearest->index()
+                          << " at " << nearest->centre());
                 CCluster merge = nearest->merge(cluster, m_ClusterIndexGenerator);
                 (this->mergeFunc())(cluster.index(), nearest->index(), merge.index());
                 nearest->swap(merge);
@@ -1097,7 +1098,7 @@ protected:
 
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
-        CCluster* result = 0;
+        CCluster* result = nullptr;
         TMinAccumulator min;
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             if (cluster.index() == m_Clusters[i].index()) {
@@ -1109,7 +1110,7 @@ protected:
             }
         }
         if (!result) {
-            LOG_ERROR("Couldn't find nearest cluster");
+            LOG_ERROR(<< "Couldn't find nearest cluster");
         }
         return result;
     }

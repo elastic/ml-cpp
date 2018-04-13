@@ -68,10 +68,10 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 const char* CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
 CFastMutex CWordDictionary::ms_LoadMutex;
-volatile CWordDictionary* CWordDictionary::ms_Instance(0);
+volatile CWordDictionary* CWordDictionary::ms_Instance(nullptr);
 
 const CWordDictionary& CWordDictionary::instance() {
-    if (ms_Instance == 0) {
+    if (ms_Instance == nullptr) {
         CScopedFastLock lock(ms_LoadMutex);
 
         // Even if we get into this code block in more than one thread, whatever
@@ -106,7 +106,7 @@ CWordDictionary::CWordDictionary() {
     // dictionary
     std::ifstream ifs(fileToLoad.c_str());
     if (ifs.is_open()) {
-        LOG_DEBUG("Populating word dictionary from file " << fileToLoad);
+        LOG_DEBUG(<< "Populating word dictionary from file " << fileToLoad);
 
         std::string word;
         while (std::getline(ifs, word)) {
@@ -116,35 +116,35 @@ CWordDictionary::CWordDictionary() {
             }
             size_t sepPos(word.find(PART_OF_SPEECH_SEPARATOR));
             if (sepPos == std::string::npos) {
-                LOG_ERROR("Found word with no part-of-speech separator: " << word);
+                LOG_ERROR(<< "Found word with no part-of-speech separator: " << word);
                 continue;
             }
             if (sepPos == 0) {
-                LOG_ERROR("Found part-of-speech separator with no preceding word: " << word);
+                LOG_ERROR(<< "Found part-of-speech separator with no preceding word: " << word);
                 continue;
             }
             if (sepPos + 1 >= word.length()) {
-                LOG_ERROR("Found word with no part-of-speech code: " << word);
+                LOG_ERROR(<< "Found word with no part-of-speech code: " << word);
                 continue;
             }
             char partOfSpeechCode(word[sepPos + 1]);
             EPartOfSpeech partOfSpeech(partOfSpeechFromCode(partOfSpeechCode));
             if (partOfSpeech == E_NotInDictionary) {
-                LOG_ERROR("Unknown part-of-speech code (" << partOfSpeechCode << ") for word: " << word);
+                LOG_ERROR(<< "Unknown part-of-speech code (" << partOfSpeechCode << ") for word: " << word);
                 continue;
             }
             word.erase(sepPos);
             m_DictionaryWords[word] = partOfSpeech;
         }
 
-        LOG_DEBUG("Populated word dictionary with " << m_DictionaryWords.size() << " words");
+        LOG_DEBUG(<< "Populated word dictionary with " << m_DictionaryWords.size() << " words");
     } else {
-        LOG_ERROR("Failed to open dictionary file " << fileToLoad);
+        LOG_ERROR(<< "Failed to open dictionary file " << fileToLoad);
     }
 }
 
 CWordDictionary::~CWordDictionary() {
-    ms_Instance = 0;
+    ms_Instance = nullptr;
 }
 
 size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string& str) const {

@@ -80,7 +80,7 @@ void CCategoryExamplesCollectorTest::testPersist() {
         examplesCollector.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_TRACE("XML:\n" << origXml);
+    LOG_TRACE(<< "XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));

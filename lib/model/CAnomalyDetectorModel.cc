@@ -84,7 +84,7 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(const SModelParams& params,
       m_InfluenceCalculators(influenceCalculators),
       m_InterimBucketCorrector(new CInterimBucketCorrector(dataGatherer->bucketLength())) {
     if (!m_DataGatherer) {
-        LOG_ABORT("Must provide a data gatherer");
+        LOG_ABORT(<< "Must provide a data gatherer");
     }
     for (auto& calculators : m_InfluenceCalculators) {
         std::sort(calculators.begin(), calculators.end(), maths::COrderings::SFirstLess());
@@ -105,7 +105,7 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(bool isForPersistence, const CAnoma
       m_InfluenceCalculators(),
       m_InterimBucketCorrector(new CInterimBucketCorrector(*other.m_InterimBucketCorrector)) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -237,11 +237,11 @@ bool CAnomalyDetectorModel::addResults(int detector,
                                        CHierarchicalResults& results) const {
     TSizeVec personIds;
     if (!this->bucketStatsAvailable(startTime)) {
-        LOG_TRACE("No stats available for time " << startTime);
+        LOG_TRACE(<< "No stats available for time " << startTime);
         return false;
     }
     this->currentBucketPersonIds(startTime, personIds);
-    LOG_TRACE("Outputting results for " << personIds.size() << " people");
+    LOG_TRACE(<< "Outputting results for " << personIds.size() << " people");
 
     CPartitioningFields partitioningFields(m_DataGatherer->partitionFieldName(), m_DataGatherer->partitionFieldValue());
     partitioningFields.add(m_DataGatherer->personFieldName(), EMPTY);
@@ -252,7 +252,7 @@ bool CAnomalyDetectorModel::addResults(int detector,
             this->computeProbability(pid, startTime, endTime, partitioningFields, numberAttributeProbabilities, annotatedProbability);
             results.addSimpleCountResult(annotatedProbability, this, startTime);
         } else {
-            LOG_TRACE("AddResult, for time [" << startTime << "," << endTime << ")");
+            LOG_TRACE(<< "AddResult, for time [" << startTime << "," << endTime << ")");
             partitioningFields.back().second = boost::cref(this->personName(pid));
             std::for_each(m_DataGatherer->beginInfluencers(), m_DataGatherer->endInfluencers(), [&results](const std::string& influencer) {
                 results.addInfluencer(influencer);
@@ -309,8 +309,8 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
             hash = maths::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
         }
     }
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("checksums = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "checksums = " << core::CContainerPrinter::print(hashes));
     return maths::CChecksum::calculate(seed, hashes);
 }
 
@@ -396,12 +396,12 @@ double CAnomalyDetectorModel::learnRate(model_t::EFeature feature) const {
 
 const CInfluenceCalculator* CAnomalyDetectorModel::influenceCalculator(model_t::EFeature feature, std::size_t iid) const {
     if (iid >= m_InfluenceCalculators.size()) {
-        LOG_ERROR("Influencer identifier " << iid << " out of range");
-        return 0;
+        LOG_ERROR(<< "Influencer identifier " << iid << " out of range");
+        return nullptr;
     }
     const TFeatureInfluenceCalculatorCPtrPrVec& calculators{m_InfluenceCalculators[iid]};
     auto result = std::lower_bound(calculators.begin(), calculators.end(), feature, maths::COrderings::SFirstLess());
-    return result != calculators.end() && result->first == feature ? result->second.get() : 0;
+    return result != calculators.end() && result->first == feature ? result->second.get() : nullptr;
 }
 
 const CAnomalyDetectorModel::TDoubleVec& CAnomalyDetectorModel::personBucketCounts() const {
@@ -488,7 +488,7 @@ bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature, std::s
 bool CAnomalyDetectorModel::interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     if (traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, m_InterimBucketCorrector.get(), _1)) ==
         false) {
-        LOG_ERROR("Invalid interim bucket corrector");
+        LOG_ERROR(<< "Invalid interim bucket corrector");
         return false;
     }
     return true;

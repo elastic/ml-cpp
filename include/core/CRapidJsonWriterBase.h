@@ -74,7 +74,6 @@ public:
     using TValue = rapidjson::Value;
     using TDocumentWeakPtr = boost::weak_ptr<TDocument>;
     using TValuePtr = boost::shared_ptr<TValue>;
-
     using TPoolAllocatorPtr = boost::shared_ptr<CRapidJsonPoolAllocator>;
     using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
@@ -84,6 +83,18 @@ public:
 public:
     using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
+    //! Instances of this class may very well be long lived, potentially for the lifetime of the application.
+    //! Over the course of that lifetime resources will accumulate in the underlying rapidjson memory
+    //! allocator. To prevent excessive memory expansion these resources will need to be cleaned regularly.
+    //!
+    //! In preference to clients of this class explicitly clearing the allocator a helper/wrapper class -
+    //! \p CScopedRapidJsonPoolAllocator - is provided. This helper has an RAII style interface that clears the
+    //! allocator when it goes out of scope which requires that the writer provides the push/popAllocator
+    //! functions.  The intent of this approach is to make it possible to use one or two separate allocators
+    //! for the writer at nested scope.
+    //!
+    //! Note that allocators are not destroyed by the pop operation, they persist for the lifetime of the
+    //! writer in a cache for swift retrieval.
     CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
         // push a default rapidjson allocator onto our stack
         m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
@@ -94,10 +105,9 @@ public:
         m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
     }
 
-    virtual ~CRapidJsonWriterBase() {
-        // clean up resources
-        m_JsonPoolAllocators.pop();
-    }
+    // No need for an explicit destructor here as the allocators clear themselves
+    // on destruction.
+    virtual ~CRapidJsonWriterBase() = default;
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
@@ -131,14 +141,14 @@ public:
             if (allocator && (rawAllocator = allocator.get())) {
                 break;
             } else {
-                LOG_ERROR("Invalid JSON memory allocator encountered. Removing.");
+                LOG_ERROR(<< "Invalid JSON memory allocator encountered. Removing.");
                 m_JsonPoolAllocators.pop();
             }
         }
 
         // shouldn't ever happen as it indicates that the default allocator is invalid
         if (!rawAllocator) {
-            LOG_ERROR("No viable JSON memory allocator encountered. Recreating.");
+            LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
             allocator = boost::make_shared<CRapidJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
         }
@@ -323,7 +333,7 @@ public:
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addDoubleFieldToObj(const std::string& fieldName, double value, TValue& obj) const {
         if (!(boost::math::isfinite)(value)) {
-            LOG_ERROR("Adding " << value << " to the \"" << fieldName << "\" field of a JSON document");
+            LOG_ERROR(<< "Adding " << value << " to the \"" << fieldName << "\" field of a JSON document");
             // Don't return - make a best effort to add the value
             // Some writers derived from this class may defend themselves by converting to 0
         }
@@ -449,7 +459,7 @@ private:
     template<typename NUMBER>
     void checkArrayNumberFinite(NUMBER val, const std::string& fieldName, bool& considerLogging) const {
         if (considerLogging && !(boost::math::isfinite)(val)) {
-            LOG_ERROR("Adding " << val << " to the \"" << fieldName << "\" array in a JSON document");
+            LOG_ERROR(<< "Adding " << val << " to the \"" << fieldName << "\" array in a JSON document");
             // Don't return - make a best effort to add the value
             // Some writers derived from this class may defend themselves by converting to 0
             considerLogging = false;

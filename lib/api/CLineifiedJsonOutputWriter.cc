@@ -5,6 +5,7 @@
  */
 #include <api/CLineifiedJsonOutputWriter.h>
 
+#include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CSleep.h>
 #include <core/CStringUtils.h>
 
@@ -49,6 +50,9 @@ const CLineifiedJsonOutputWriter::TStrVec& CLineifiedJsonOutputWriter::fieldName
 }
 
 bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
+    TScopedAllocator scopedAllocator("CLineifiedJsonOutputWriter::writeRow", m_Writer);
+
     rapidjson::Document doc = m_Writer.makeDoc();
 
     // Write all the fields to the document as strings
@@ -90,7 +94,7 @@ void CLineifiedJsonOutputWriter::writeField(const std::string& name, const std::
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue(0.0);
         if (core::CStringUtils::stringToType(value, numericValue) == false) {
-            LOG_WARN("Non-numeric value output in numeric JSON document");
+            LOG_WARN(<< "Non-numeric value output in numeric JSON document");
             // Write a 0 instead of returning
         }
         m_Writer.addDoubleFieldToObj(name, numericValue, doc);

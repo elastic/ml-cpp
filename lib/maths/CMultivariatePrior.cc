@@ -28,7 +28,7 @@ void setDecayRate(double value, double fallback, double& result) {
     if (CMathsFuncs::isFinite(value)) {
         result = value;
     } else {
-        LOG_ERROR("Invalid decay rate " << value);
+        LOG_ERROR(<< "Invalid decay rate " << value);
         result = fallback;
     }
 }
@@ -93,7 +93,7 @@ void CMultivariatePrior::addSamples(const TWeightStyleVec& weightStyles,
                 n[j] += wi[j];
             }
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to extract sample counts: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to extract sample counts: " << e.what()); }
     this->addSamples(smallest(n));
 }
 
@@ -126,7 +126,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     tail.assign(coordinates.size(), maths_t::E_UndeterminedTail);
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
     if (!this->check(samples, weights)) {
@@ -180,17 +180,17 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
             maths_t::ETail tc[2];
 
             if (!margin->probabilityOfLessLikelySamples(calculation, weightStyles, sc, wc, lb[0], ub[0], tc[0])) {
-                LOG_ERROR("Failed to compute probability for coordinate " << coordinate);
+                LOG_ERROR(<< "Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
-            LOG_TRACE("lb(" << coordinate << ") = " << lb[0] << ", ub(" << coordinate << ") = " << ub[0]);
+            LOG_TRACE(<< "lb(" << coordinate << ") = " << lb[0] << ", ub(" << coordinate << ") = " << ub[0]);
 
             TUnivariatePriorPtr conditional(this->univariate(NO_MARGINS, condition).first);
             if (!conditional->probabilityOfLessLikelySamples(calculation, weightStyles, sc, wc, lb[1], ub[1], tc[1])) {
-                LOG_ERROR("Failed to compute probability for coordinate " << coordinate);
+                LOG_ERROR(<< "Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
-            LOG_TRACE("lb(" << coordinate << "|.) = " << lb[1] << ", ub(" << coordinate << "|.) = " << ub[1]);
+            LOG_TRACE(<< "lb(" << coordinate << "|.) = " << lb[1] << ", ub(" << coordinate << "|.) = " << ub[1]);
 
             lowerBounds_[0][i].add(lb[0]);
             upperBounds_[0][i].add(ub[0]);
@@ -203,7 +203,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     for (std::size_t i = 0; i < coordinates.size(); ++i) {
         if (!lowerBounds_[0][i].calculate(lowerBounds[0][i]) || !upperBounds_[0][i].calculate(upperBounds[0][i]) ||
             !lowerBounds_[1][i].calculate(lowerBounds[1][i]) || !upperBounds_[1][i].calculate(upperBounds[1][i])) {
-            LOG_ERROR("Failed to compute probability for coordinate " << coordinates[i]);
+            LOG_ERROR(<< "Failed to compute probability for coordinate " << coordinates[i]);
             return false;
         }
     }
@@ -255,7 +255,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         !upperBound_[1].calculate(ub[1])) {
         return false;
     }
-    LOG_TRACE("lb = " << core::CContainerPrinter::print(lb) << ", ub = " << core::CContainerPrinter::print(ub));
+    LOG_TRACE(<< "lb = " << core::CContainerPrinter::print(lb) << ", ub = " << core::CContainerPrinter::print(ub));
 
     lowerBound = std::sqrt(lb[0] * lb[1]);
     upperBound = std::sqrt(ub[0] * ub[1]);
@@ -294,7 +294,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
     boost::shared_ptr<CPrior> xMargin(this->univariate(xm, TSizeDoublePr10Vec()).first);
 
     if (x == y) {
-        return xMargin != 0 ? xMargin->printMarginalLikelihoodFunction() : std::string();
+        return xMargin != nullptr ? xMargin->printMarginalLikelihoodFunction() : std::string();
     }
 
     boost::shared_ptr<CPrior> yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
@@ -384,17 +384,17 @@ void CMultivariatePrior::addSamples(double n) {
 
 bool CMultivariatePrior::check(const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) const {
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << samples << "' and weights '" << weights << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '" << weights << "'");
         return false;
     }
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         if (samples[i].size() != this->dimension()) {
-            LOG_ERROR("Invalid sample '" << samples[i] << "'");
+            LOG_ERROR(<< "Invalid sample '" << samples[i] << "'");
             return false;
         }
         for (const auto& weight : weights[i]) {
             if (weight.size() != this->dimension()) {
-                LOG_ERROR("Invalid weight '" << weight << "'");
+                LOG_ERROR(<< "Invalid weight '" << weight << "'");
                 return false;
             }
         }
@@ -410,7 +410,7 @@ bool CMultivariatePrior::check(const TSize10Vec& marginalize, const TSizeDoubleP
                                     marginalize.end(),
                                     boost::make_transform_iterator(condition.begin(), FIRST),
                                     boost::make_transform_iterator(condition.end(), FIRST)) != 0) {
-        LOG_ERROR("Invalid variables for computing univariate distribution: "
+        LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << marginalize << "'"
                   << ", condition '" << condition << "'");
         return false;

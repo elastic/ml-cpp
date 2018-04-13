@@ -38,14 +38,14 @@ bool CLimits::init(const std::string& configFile) {
     try {
         std::ifstream strm(configFile.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening config file " << configFile);
+            LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
         this->skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading config file " << configFile << " : " << e.what());
+        LOG_ERROR(<< "Error reading config file " << configFile << " : " << e.what());
         return false;
     }
 
@@ -57,7 +57,7 @@ bool CLimits::init(const std::string& configFile) {
                              DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD,
                              m_UnusualProbabilityThreshold) == false ||
         this->processSetting(propTree, "memory.modelmemorylimit", CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB, m_MemoryLimitMB) == false) {
-        LOG_ERROR("Error processing config file " << configFile);
+        LOG_ERROR(<< "Error processing config file " << configFile);
         return false;
     }
 
@@ -99,7 +99,7 @@ void CLimits::skipUtf8Bom(std::ifstream& strm) {
     if (strm.get() == 0xEF) {
         if (strm.get() == 0xBB) {
             if (strm.get() == 0xBF) {
-                LOG_DEBUG("Skipping UTF-8 BOM");
+                LOG_DEBUG(<< "Skipping UTF-8 BOM");
                 return;
             }
         }

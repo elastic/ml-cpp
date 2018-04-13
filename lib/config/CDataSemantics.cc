@@ -73,7 +73,7 @@ public:
         for (std::size_t i = 1u; i < split.size(); ++i) {
             counts.push_back(split[i] - split[i - 1]);
         }
-        LOG_TRACE("m_Categories = " << core::CContainerPrinter::print(m_Categories));
+        LOG_TRACE(<< "m_Categories = " << core::CContainerPrinter::print(m_Categories));
 
         for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
             double ci = maths::CBasicStatistics::count(m_Categories[i]);
@@ -83,7 +83,7 @@ public:
             m_Gmm.weights().push_back(ci / m_Count);
             m_Gmm.modes().push_back(boost::math::normal_distribution<>(mi, si));
         }
-        LOG_TRACE("GMM = '" << m_Gmm.print() << "'");
+        LOG_TRACE(<< "GMM = '" << m_Gmm.print() << "'");
     }
 
     //! Get the number of parameters in the mixture.
@@ -172,7 +172,7 @@ void CDataSemantics::computeType() {
         }
     }
 
-    LOG_TRACE("count = " << m_Count);
+    LOG_TRACE(<< "count = " << m_Count);
     if (m_Count == 0.0) {
         m_Type = config_t::E_UndeterminedType;
         return;
@@ -183,13 +183,13 @@ void CDataSemantics::computeType() {
         return;
     }
 
-    LOG_TRACE("numeric proportion = " << m_NumericProportion);
+    LOG_TRACE(<< "numeric proportion = " << m_NumericProportion);
     if (!this->isNumeric() || !this->GMMGoodFit()) {
         m_Type = config_t::E_Categorical;
         return;
     }
 
-    LOG_TRACE("integer proportion = " << m_IntegerProportion);
+    LOG_TRACE(<< "integer proportion = " << m_IntegerProportion);
     m_Type = this->isInteger() ? this->integerType() : this->realType();
 }
 
@@ -229,22 +229,22 @@ bool CDataSemantics::GMMGoodFit() const {
     using TOrdinalSizeUMapCItr = TOrdinalSizeUMap::const_iterator;
 
     std::size_t N = m_EmpiricalDistribution.size();
-    LOG_TRACE("N = " << N);
+    LOG_TRACE(<< "N = " << N);
 
     double logc = std::log(m_Count);
     double smallest = m_Smallest[0].asDouble();
     double offset = std::max(-smallest + 1.0, 0.0);
-    LOG_TRACE("offset = " << offset);
+    LOG_TRACE(<< "offset = " << offset);
 
     double categoricalBIC = static_cast<double>(N - 1) * logc;
     for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin(); i != m_EmpiricalDistribution.end(); ++i) {
         double ni = static_cast<double>(i->second);
         categoricalBIC -= 2.0 * ni * std::log(ni / m_Count);
     }
-    LOG_TRACE("categorical BIC = " << categoricalBIC);
+    LOG_TRACE(<< "categorical BIC = " << categoricalBIC);
 
     std::size_t M = std::min(m_EmpiricalDistribution.size() / 2, std::size_t(100));
-    LOG_TRACE("m = " << M);
+    LOG_TRACE(<< "m = " << M);
 
     for (std::size_t m = 1u; m <= M; ++m) {
         double scale = 1.0;
@@ -257,7 +257,7 @@ bool CDataSemantics::GMMGoodFit() const {
             }
             scale = std::min(scaling.scale(m), 1.0);
         }
-        LOG_TRACE("scale = " << scale);
+        LOG_TRACE(<< "scale = " << scale);
 
         CMixtureData light(m_Count, N);
         CMixtureData heavy(m_Count, N);
@@ -282,12 +282,12 @@ bool CDataSemantics::GMMGoodFit() const {
                 lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(fx));
                 heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(gx));
             }
-            LOG_TRACE("light BIC = " << lightGmmBIC << ", heavy BIC = " << heavyGmmBIC);
+            LOG_TRACE(<< "light BIC = " << lightGmmBIC << ", heavy BIC = " << heavyGmmBIC);
 
             if (std::min(lightGmmBIC, heavyGmmBIC) < categoricalBIC) {
                 return true;
             }
-        } catch (const std::exception& e) { LOG_ERROR("Failed to compute BIC for " << m << " modes: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to compute BIC for " << m << " modes: " << e.what()); }
     }
 
     return false;

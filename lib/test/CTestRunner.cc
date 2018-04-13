@@ -39,7 +39,7 @@ namespace {
 // for line buffering as a request for full buffering, so this doesn't do what
 // it says on the tin on all platforms.  However, it still has a beneficial
 // effect on unit test performance.)
-const int DO_NOT_USE_THIS_VARIABLE(::setvbuf(stderr, 0, _IOLBF, 16384));
+const int DO_NOT_USE_THIS_VARIABLE(::setvbuf(stderr, nullptr, _IOLBF, 16384));
 
 const std::string LIB_DIR("lib");
 const std::string BIN_DIR("bin");
@@ -92,22 +92,23 @@ void CTestRunner::processCmdLine(int argc, const char** argv) {
             }
         }
         if (numSrcStrips == 1) {
-            LOG_INFO("Source file extension " << SRC_EXT << " stripped from supplied test name " << argv[lastSrcIndex]);
+            LOG_INFO(<< "Source file extension " << SRC_EXT << " stripped from supplied test name " << argv[lastSrcIndex]);
         } else if (numSrcStrips > 0) {
-            LOG_INFO("Source file extension " << SRC_EXT << " stripped from " << numSrcStrips << " supplied test names");
+            LOG_INFO(<< "Source file extension " << SRC_EXT << " stripped from " << numSrcStrips << " supplied test names");
         }
         if (numHdrStrips == 1) {
-            LOG_INFO("Header file extension " << HDR_EXT << " stripped from supplied test name " << argv[lastHdrIndex]);
+            LOG_INFO(<< "Header file extension " << HDR_EXT << " stripped from supplied test name " << argv[lastHdrIndex]);
         } else if (numHdrStrips > 0) {
-            LOG_INFO("Header file extension " << HDR_EXT << " stripped from " << numHdrStrips << " supplied test names");
+            LOG_INFO(<< "Header file extension " << HDR_EXT << " stripped from " << numHdrStrips << " supplied test names");
         }
         std::sort(m_TestCases.begin(), m_TestCases.end());
         size_t numDuplicates(m_TestCases.size());
         m_TestCases.erase(std::unique(m_TestCases.begin(), m_TestCases.end()), m_TestCases.end());
         numDuplicates -= m_TestCases.size();
         if (numDuplicates > 0) {
-            LOG_WARN(numDuplicates << " of the supplied test names were "
-                                      "duplicates - each test case will only be run once");
+            LOG_WARN(<< numDuplicates
+                     << " of the supplied test names were "
+                        "duplicates - each test case will only be run once");
         }
     }
 }
@@ -117,13 +118,13 @@ bool CTestRunner::runTests() {
     try {
         cwd = boost::filesystem::current_path();
     } catch (std::exception& e) {
-        LOG_ERROR("Unable to determine current directory: " << e.what());
+        LOG_ERROR(<< "Unable to determine current directory: " << e.what());
         return false;
     }
 
     bool passed(false);
     if (this->checkSkipFile(cwd.string(), passed) == true) {
-        LOG_WARN("Skipping tests for directory " << cwd << " and using previous test result " << std::boolalpha << passed);
+        LOG_WARN(<< "Skipping tests for directory " << cwd << " and using previous test result " << std::boolalpha << passed);
         return passed;
     }
 
@@ -151,7 +152,7 @@ bool CTestRunner::runTests() {
     passed = this->timeTests(topPath, testPath);
 
     if (this->updateSkipFile(cwd.string(), passed) == true) {
-        LOG_INFO("Added directory " << cwd << " to skip file with result " << std::boolalpha << passed);
+        LOG_INFO(<< "Added directory " << cwd << " to skip file with result " << std::boolalpha << passed);
     }
 
     return passed;
@@ -164,11 +165,11 @@ bool CTestRunner::timeTests(const std::string& topPath, const std::string& testP
     CppUnit::TestResultCollector resultCollector;
 
     // m_eventManager is a protected member in the base class
-    if (m_eventManager != 0) {
+    if (m_eventManager != nullptr) {
         m_eventManager->addListener(&testTimer);
         m_eventManager->addListener(&resultCollector);
     } else {
-        LOG_ERROR("Unexpected NULL pointer");
+        LOG_ERROR(<< "Unexpected NULL pointer");
     }
 
     if (m_TestCases.empty()) {
@@ -177,11 +178,11 @@ bool CTestRunner::timeTests(const std::string& topPath, const std::string& testP
         for (TStrVecItr itr = m_TestCases.begin(); itr != m_TestCases.end() && allPassed; ++itr) {
             try {
                 allPassed = this->run(*itr);
-            } catch (std::invalid_argument&) { LOG_ERROR("No Test called " << *itr << " in testsuite"); }
+            } catch (std::invalid_argument&) { LOG_ERROR(<< "No Test called " << *itr << " in testsuite"); }
         }
     }
 
-    if (m_eventManager != 0) {
+    if (m_eventManager != nullptr) {
         std::ofstream xmlResultFile(XML_RESULT_FILE_NAME.c_str());
         if (xmlResultFile.is_open()) {
             CppUnit::XmlOutputter xmlOutputter(&resultCollector, xmlResultFile);
@@ -220,7 +221,7 @@ bool CTestRunner::updateSkipFile(const std::string& cwd, bool passed) const {
     // Don't create the file if it doesn't already exist, and don't write to it
     // if it's not writable
     if (core::COsFileFuncs::access(fullPath.c_str(), core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) == -1) {
-        LOG_TRACE("Will not update skip file " << fullPath << " : " << ::strerror(errno));
+        LOG_TRACE(<< "Will not update skip file " << fullPath << " : " << ::strerror(errno));
         return false;
     }
 

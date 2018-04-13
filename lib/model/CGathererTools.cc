@@ -50,7 +50,7 @@ struct SSumSerializer {
     bool operator()(TSampleVec& sample, core::CStateRestoreTraverser& traverser) const {
         if (traverser.name() != SUM_SAMPLE_TAG ||
             core::CPersistUtils::fromString(traverser.value(), CSample::SFromString(), sample) == false) {
-            LOG_ERROR("Invalid sample in: " << traverser.value())
+            LOG_ERROR(<< "Invalid sample in: " << traverser.value())
             return false;
         }
         return true;
@@ -86,7 +86,7 @@ struct SInfluencerSumSerializer {
                 key = traverser.value();
             } else if (name == SUM_MAP_VALUE_TAG) {
                 if (core::CStringUtils::stringToType(traverser.value(), map[CStringStore::influencers().get(key)]) == false) {
-                    LOG_ERROR("Invalid sum in " << traverser.value());
+                    LOG_ERROR(<< "Invalid sum in " << traverser.value());
                     return false;
                 }
             }
@@ -120,7 +120,7 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
         const std::string& name = traverser.name();
         if (name == LAST_TIME_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_LastTime) == false) {
-                LOG_ERROR("Invalid last time in " << traverser.value());
+                LOG_ERROR(<< "Invalid last time in " << traverser.value());
                 continue;
             }
         }
@@ -239,13 +239,13 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
         const std::string& name = traverser.name();
         if (name == CLASSIFIER_TAG) {
             if (traverser.traverseSubLevel(boost::bind(&CDataClassifier::acceptRestoreTraverser, &m_Classifier, _1)) == false) {
-                LOG_ERROR("Invalid classifier in " << traverser.value());
+                LOG_ERROR(<< "Invalid classifier in " << traverser.value());
                 continue;
             }
         } else if (name == BUCKET_SUM_QUEUE_TAG) {
             if (traverser.traverseSubLevel(
                     boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(), boost::ref(m_BucketSums), _1)) == false) {
-                LOG_ERROR("Invalid bucket queue in " << traverser.value());
+                LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }
         } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG) {
@@ -254,7 +254,7 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
                     boost::bind<bool>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(TStoredStringPtrDoubleUMap(1)),
                                       boost::ref(m_InfluencerBucketSums[i++]),
                                       _1)) == false) {
-                LOG_ERROR("Invalid bucket queue in " << traverser.value());
+                LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }
         }

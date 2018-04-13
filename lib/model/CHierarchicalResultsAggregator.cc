@@ -127,7 +127,7 @@ void CHierarchicalResultsAggregator::visit(const CHierarchicalResults& /*results
 
 void CHierarchicalResultsAggregator::propagateForwardByTime(double time) {
     if (time < 0.0) {
-        LOG_ERROR("Can't propagate normalizer backwards in time");
+        LOG_ERROR(<< "Can't propagate normalizer backwards in time");
         return;
     }
     double factor{std::exp(-m_DecayRate * CDetectorEqualizer::largestProbabilityToCorrect() * time)};
@@ -186,20 +186,20 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode& node) {
 }
 
 void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot) {
-    LOG_TRACE("node = " << node.print() << ", pivot = " << pivot);
+    LOG_TRACE(<< "node = " << node.print() << ", pivot = " << pivot);
 
     std::size_t numberDetectors;
     TIntSizePrDouble1VecUMap partition[N];
     if (!this->partitionChildProbabilities(node, pivot, numberDetectors, partition)) {
         return;
     }
-    LOG_TRACE("partition = " << core::CContainerPrinter::print(partition));
+    LOG_TRACE(<< "partition = " << core::CContainerPrinter::print(partition));
 
     int detector;
     int aggregation;
     TDouble1Vec detectorProbabilities;
     this->detectorProbabilities(node, pivot, numberDetectors, partition, detector, aggregation, detectorProbabilities);
-    LOG_TRACE("detector = " << detector << ", aggregation = " << aggregation << ", detector probabilities = " << detectorProbabilities);
+    LOG_TRACE(<< "detector = " << detector << ", aggregation = " << aggregation << ", detector probabilities = " << detectorProbabilities);
 
     const double* params{m_Parameters[model_t::E_AggregateDetectors]};
     CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
@@ -212,7 +212,7 @@ void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot
                            node.s_AnnotatedProbability.s_Probability);
     node.s_Detector = detector;
     node.s_AggregationStyle = aggregation;
-    LOG_TRACE("probability = " << node.probability());
+    LOG_TRACE(<< "probability = " << node.probability());
 }
 
 bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode& node,
@@ -244,7 +244,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode& no
                                   node.s_Spec.s_PersonFieldValue,
                                   probability,
                                   probability)) {
-            LOG_ERROR("Couldn't find influence for " << child->print());
+            LOG_ERROR(<< "Couldn't find influence for " << child->print());
             continue;
         } else {
             key = this->hash(*child);
@@ -265,7 +265,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode& no
             partition[style][{child->s_Detector, key}].push_back(probability);
             break;
         case model_t::E_AggregateDetectors:
-            LOG_ERROR("Unexpected aggregation style for " << child->print());
+            LOG_ERROR(<< "Unexpected aggregation style for " << child->print());
             continue;
         }
     }
@@ -275,7 +275,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode& no
         node.s_SmallestDescendantProbability = maths::CTools::truncate(pMinDescendent[0], maths::CTools::smallestProbability(), 1.0);
     }
     numberDetectors = detectors.size();
-    LOG_TRACE("detector = " << core::CContainerPrinter::print(detectors));
+    LOG_TRACE(<< "detector = " << core::CContainerPrinter::print(detectors));
 
     return haveResult;
 }
@@ -287,7 +287,6 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode& node,
                                                            int& detector,
                                                            int& aggregation,
                                                            TDouble1Vec& probabilities) {
-    using TDouble1Vec = core::CSmallVector<double, 1>;
     using TIntDouble1VecFMap = boost::container::flat_map<int, TDouble1Vec>;
 
     int fallback{static_cast<int>(model_t::E_AggregatePeople)};

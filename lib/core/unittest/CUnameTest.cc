@@ -17,12 +17,12 @@ CppUnit::Test* CUnameTest::suite() {
 }
 
 void CUnameTest::testUname() {
-    LOG_DEBUG(ml::core::CUname::sysName());
-    LOG_DEBUG(ml::core::CUname::nodeName());
-    LOG_DEBUG(ml::core::CUname::release());
-    LOG_DEBUG(ml::core::CUname::version());
-    LOG_DEBUG(ml::core::CUname::machine());
-    LOG_DEBUG(ml::core::CUname::all());
-    LOG_DEBUG(ml::core::CUname::mlPlatform());
-    LOG_DEBUG(ml::core::CUname::mlOsVer());
+    LOG_DEBUG(<< ml::core::CUname::sysName());
+    LOG_DEBUG(<< ml::core::CUname::nodeName());
+    LOG_DEBUG(<< ml::core::CUname::release());
+    LOG_DEBUG(<< ml::core::CUname::version());
+    LOG_DEBUG(<< ml::core::CUname::machine());
+    LOG_DEBUG(<< ml::core::CUname::all());
+    LOG_DEBUG(<< ml::core::CUname::mlPlatform());
+    LOG_DEBUG(<< ml::core::CUname::mlOsVer());
 }

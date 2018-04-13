@@ -224,8 +224,8 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
             m -= 3;
         }
 
-        LOG_TRACE("chain = " << core::CContainerPrinter::print(chain));
-        LOG_TRACE("a = " << a << ", b = " << b << ", m = " << m);
+        LOG_TRACE(<< "chain = " << core::CContainerPrinter::print(chain));
+        LOG_TRACE(<< "a = " << a << ", b = " << b << ", m = " << m);
 
         double d;
         do {
@@ -255,8 +255,8 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
         std::size_t ra = rightmost[a];
         std::size_t rb = rightmost[b];
 
-        LOG_TRACE("chain = " << core::CContainerPrinter::print(chain));
-        LOG_TRACE("d = " << d << ", a = " << a << ", b = " << b << ", rightmost a = " << ra << ", rightmost b " << rb << ", m = " << m);
+        LOG_TRACE(<< "chain = " << core::CContainerPrinter::print(chain));
+        LOG_TRACE(<< "d = " << d << ", a = " << a << ", b = " << b << ", rightmost a = " << ra << ", rightmost b " << rb << ", m = " << m);
 
         // a and b are reciprocal nearest neighbors.
         L.emplace_back(d, std::make_pair(ra, rb));
@@ -306,13 +306,13 @@ void buildTree(TDoubleSizeSizePrPrVec& heights, TNodeVec& tree) {
     }
 
     std::stable_sort(heights.begin(), heights.end(), COrderings::SFirstLess());
-    LOG_TRACE("heights = " << core::CContainerPrinter::print(heights));
+    LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
 
     for (std::size_t i = 0u; i < n; ++i) {
         double h = heights[i].first;
         std::size_t j = heights[i].second.first;
         std::size_t k = heights[i].second.second;
-        LOG_TRACE("Joining " << j << " and " << k << " at height " << h);
+        LOG_TRACE(<< "Joining " << j << " and " << k << " at height " << h);
         TNode& parent = addNode(tree, h);
         parent.addChild(tree[j].root());
         parent.addChild(tree[k].root());
@@ -324,9 +324,9 @@ bool CAgglomerativeClusterer::initialize(TDoubleVecVec& distanceMatrix) {
     // Check that the matrix is square.
     std::size_t n = distanceMatrix.size();
     for (std::size_t i = 0u; i < n; ++i) {
-        LOG_TRACE("D = " << core::CContainerPrinter::print(distanceMatrix[i]));
+        LOG_TRACE(<< "D = " << core::CContainerPrinter::print(distanceMatrix[i]));
         if (distanceMatrix[i].size() != i + 1) {
-            LOG_ERROR("Distance matrix isn't upper triangular");
+            LOG_ERROR(<< "Distance matrix isn't upper triangular");
             return false;
         }
     }
@@ -374,7 +374,7 @@ void CAgglomerativeClusterer::run(EObjective objective, TNodeVec& tree) {
 ////// CNode //////
 
 CAgglomerativeClusterer::CNode::CNode(std::size_t index, double height)
-    : m_Parent(0), m_LeftChild(0), m_RightChild(0), m_Index(index), m_Height(height) {
+    : m_Parent(nullptr), m_LeftChild(nullptr), m_RightChild(nullptr), m_Index(index), m_Height(height) {
 }
 
 bool CAgglomerativeClusterer::CNode::addChild(CNode& child) {
@@ -389,7 +389,7 @@ bool CAgglomerativeClusterer::CNode::addChild(CNode& child) {
         return true;
     }
 
-    LOG_ERROR("Trying to add third child");
+    LOG_ERROR(<< "Trying to add third child");
 
     return false;
 }

@@ -65,7 +65,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_INDIVIDUAL_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
 
             CASE_POPULATION_COUNT:
@@ -74,7 +74,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_POPULATION_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
 
             CASE_PEERS_COUNT:
@@ -83,7 +83,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_PEERS_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
             }
             break;
@@ -94,7 +94,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
 
             switch (features[i]) {
             CASE_INDIVIDUAL_COUNT:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
                 break;
 
             CASE_INDIVIDUAL_METRIC:
@@ -103,7 +103,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_POPULATION_COUNT:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
                 break;
 
             CASE_POPULATION_METRIC:
@@ -112,7 +112,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_PEERS_COUNT:
-                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
                 break;
 
             CASE_PEERS_METRIC:
@@ -251,7 +251,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                                                boost::cref(valueFieldName),
                                                boost::cref(influenceFieldNames),
                                                _1)) == false) {
-        LOG_ERROR("Failed to correctly restore data gatherer");
+        LOG_ERROR(<< "Failed to correctly restore data gatherer");
     }
 }
 
@@ -268,7 +268,7 @@ CDataGatherer::CDataGatherer(bool isForPersistence, const CDataGatherer& other)
       m_Population(other.m_Population),
       m_UseNull(other.m_UseNull) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
     for (TBucketGathererPVecCItr i = other.m_Gatherers.begin(); i != other.m_Gatherers.end(); ++i) {
         m_Gatherers.push_back((*i)->cloneForPersistence());
@@ -553,7 +553,7 @@ double CDataGatherer::sampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return static_cast<double>(m_SampleCounts->count(id));
     } else {
-        LOG_ERROR("Sample count for non-metric gatherer");
+        LOG_ERROR(<< "Sample count for non-metric gatherer");
         return 0.0;
     }
 }
@@ -562,7 +562,7 @@ double CDataGatherer::effectiveSampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return m_SampleCounts->effectiveSampleCount(id);
     } else {
-        LOG_ERROR("Effective sample count for non-metric gatherer");
+        LOG_ERROR(<< "Effective sample count for non-metric gatherer");
         return 0.0;
     }
 }
@@ -632,7 +632,7 @@ uint64_t CDataGatherer::checksum() const {
         result = maths::CChecksum::calculate(result, (*i)->checksum());
     }
 
-    LOG_TRACE("checksum = " << result);
+    LOG_TRACE(<< "checksum = " << result);
 
     return result;
 }
@@ -712,18 +712,19 @@ void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter)
 
 bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCategories) const {
     if (m_Features.empty()) {
-        LOG_WARN("No features to determine metric category from");
+        LOG_WARN(<< "No features to determine metric category from");
         return false;
     }
 
     if (m_Features.size() > 1) {
-        LOG_WARN(m_Features.size() << " features to determine metric category "
-                                      "from - only the first will be used");
+        LOG_WARN(<< m_Features.size()
+                 << " features to determine metric category "
+                    "from - only the first will be used");
     }
 
     model_t::EMetricCategory result;
     if (model_t::metricCategory(m_Features.front(), result) == false) {
-        LOG_ERROR("Unable to map feature " << model_t::print(m_Features.front()) << " to a metric category");
+        LOG_ERROR(<< "Unable to map feature " << model_t::print(m_Features.front()) << " to a metric category");
         return false;
     }
 
@@ -733,7 +734,7 @@ bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCateg
 }
 
 bool CDataGatherer::extractCountFromField(const std::string& fieldName, const std::string* fieldValue, std::size_t& count) const {
-    if (fieldValue == 0) {
+    if (fieldValue == nullptr) {
         // Treat not present as explicit null
         count = EXPLICIT_NULL_SUMMARY_COUNT;
         return true;
@@ -748,7 +749,7 @@ bool CDataGatherer::extractCountFromField(const std::string& fieldName, const st
 
     double count_;
     if (core::CStringUtils::stringToType(fieldValueCopy, count_) == false || count_ < 0.0) {
-        LOG_ERROR("Unable to extract count " << fieldName << " from " << fieldValueCopy);
+        LOG_ERROR(<< "Unable to extract count " << fieldName << " from " << fieldValueCopy);
         return false;
     }
     count = static_cast<std::size_t>(count_ + 0.5);
@@ -762,7 +763,7 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName, std::st
 
     core::CStringUtils::trimWhitespace(fieldValue);
     if (fieldValue.empty()) {
-        LOG_WARN("Configured metric " << fieldName << " not present in event");
+        LOG_WARN(<< "Configured metric " << fieldName << " not present in event");
         return false;
     }
 
@@ -778,12 +779,12 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName, std::st
                                ? core::CStringUtils::stringToType(fieldValue, value)
                                : core::CStringUtils::stringToType(fieldValue.substr(first, last - first), value);
         if (!convertedOk) {
-            LOG_ERROR("Unable to extract " << fieldName << " from " << fieldValue);
+            LOG_ERROR(<< "Unable to extract " << fieldName << " from " << fieldValue);
             result.clear();
             return false;
         }
         if (maths::CMathsFuncs::isFinite(value) == false) {
-            LOG_ERROR("Bad value for " << fieldName << " from " << fieldValue);
+            LOG_ERROR(<< "Bad value for " << fieldName << " from " << fieldValue);
             result.clear();
             return false;
         }
@@ -799,9 +800,9 @@ core_t::TTime CDataGatherer::earliestBucketStartTime() const {
 }
 
 bool CDataGatherer::checkInvariants() const {
-    LOG_DEBUG("Checking invariants for people registry");
+    LOG_DEBUG(<< "Checking invariants for people registry");
     bool result = m_PeopleRegistry.checkInvariants();
-    LOG_DEBUG("Checking invariants for attributes registry");
+    LOG_DEBUG(<< "Checking invariants for attributes registry");
     result &= m_AttributesRegistry.checkInvariants();
     return result;
 }
@@ -833,7 +834,7 @@ bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldN
         if (name == FEATURE_TAG) {
             int feature(-1);
             if (core::CStringUtils::stringToType(traverser.value(), feature) == false || feature < 0) {
-                LOG_ERROR("Invalid feature in " << traverser.value());
+                LOG_ERROR(<< "Invalid feature in " << traverser.value());
                 return false;
             }
             m_Features.push_back(static_cast<model_t::EFeature>(feature));
@@ -873,16 +874,16 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
             CEventRateBucketGatherer* gatherer = new CEventRateBucketGatherer(
                 *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
 
-            if (gatherer == 0) {
-                LOG_ERROR("Failed to create gatherer");
+            if (gatherer == nullptr) {
+                LOG_ERROR(<< "Failed to create gatherer");
                 return false;
             }
             m_Gatherers.push_back(gatherer);
         } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
             CMetricBucketGatherer* gatherer = new CMetricBucketGatherer(
                 *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
-            if (gatherer == 0) {
-                LOG_ERROR("Failed to create gatherer");
+            if (gatherer == nullptr) {
+                LOG_ERROR(<< "Failed to create gatherer");
                 return false;
             }
             m_Gatherers.push_back(gatherer);

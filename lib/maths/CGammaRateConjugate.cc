@@ -252,37 +252,37 @@ double maximumLikelihoodShape(double oldShape,
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to bracket root: " << e.what() << ", newNumber = " << newNumber << ", newMean = " << newMean
-                                             << ", newLogMean = " << newLogMean << ", x0 = " << x0 << ", f(x0) = " << f0
-                                             << ", bracket = " << core::CContainerPrinter::print(bracket) << ", f(bracket) = "
-                                             << core::CContainerPrinter::print(fBracket) << ", bestGuess = " << bestGuess);
+        LOG_ERROR(<< "Failed to bracket root: " << e.what() << ", newNumber = " << newNumber << ", newMean = " << newMean
+                  << ", newLogMean = " << newLogMean << ", x0 = " << x0 << ", f(x0) = " << f0
+                  << ", bracket = " << core::CContainerPrinter::print(bracket)
+                  << ", f(bracket) = " << core::CContainerPrinter::print(fBracket) << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
     if (maxIterations == 0) {
-        LOG_TRACE("Failed to bracket root:"
+        LOG_TRACE(<< "Failed to bracket root:"
                   << " newNumber = " << newNumber << ", newMean = " << newMean << ", newLogMean = " << newLogMean << ", x0 = " << x0
                   << ", f(x0) = " << f0 << ", bracket = " << core::CContainerPrinter::print(bracket)
                   << ", f(bracket) = " << core::CContainerPrinter::print(fBracket) << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
-    LOG_TRACE("newNumber = " << newNumber << ", newMean = " << newMean << ", newLogMean = " << newLogMean << ", oldTarget = " << oldTarget
-                             << ", target = " << target << ", upFactor = " << upFactor << ", downFactor = " << downFactor << ", x0 = " << x0
-                             << ", f(x0) = " << f0 << ", bracket = " << core::CContainerPrinter::print(bracket)
-                             << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+    LOG_TRACE(<< "newNumber = " << newNumber << ", newMean = " << newMean << ", newLogMean = " << newLogMean
+              << ", oldTarget = " << oldTarget << ", target = " << target << ", upFactor = " << upFactor << ", downFactor = " << downFactor
+              << ", x0 = " << x0 << ", f(x0) = " << f0 << ", bracket = " << core::CContainerPrinter::print(bracket)
+              << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
 
     try {
         CEqualWithTolerance<double> tolerance(CToleranceTypes::E_AbsoluteTolerance, EPS * x0);
         CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second, derivative, maxIterations, tolerance, bestGuess);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to solve: " << e.what() << ", newNumber = " << newNumber << ", x0 = " << x0 << ", f(x0) = " << f0
-                                      << ", bracket = " << core::CContainerPrinter::print(bracket)
-                                      << ", f(bracket) = " << core::CContainerPrinter::print(fBracket) << ", bestGuess = " << bestGuess);
+        LOG_ERROR(<< "Failed to solve: " << e.what() << ", newNumber = " << newNumber << ", x0 = " << x0 << ", f(x0) = " << f0
+                  << ", bracket = " << core::CContainerPrinter::print(bracket)
+                  << ", f(bracket) = " << core::CContainerPrinter::print(fBracket) << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
-    LOG_TRACE("bracket = " << core::CContainerPrinter::print(bracket));
+    LOG_TRACE(<< "bracket = " << core::CContainerPrinter::print(bracket));
 
     return (bracket.first + bracket.second) / 2.0;
 }
@@ -327,7 +327,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
     result = RESULT();
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
 
@@ -346,7 +346,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
 
     static const double MINIMUM_GAMMA_SHAPE = 100.0;
 
-    LOG_TRACE("likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape << ", priorRate = " << priorRate);
+    LOG_TRACE(<< "likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape << ", priorRate = " << priorRate);
 
     try {
         if (isNonInformative) {
@@ -381,7 +381,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
 
             double shape = (priorShape - 2.0) / (priorShape - 1.0) * likelihoodShape;
             double rate = (priorShape - 2.0) / priorRate;
-            LOG_TRACE("shape = " << shape << ", rate = " << rate);
+            LOG_TRACE(<< "shape = " << shape << ", rate = " << rate);
 
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 // We assume the data are described by X = Y - u where, Y is
@@ -393,7 +393,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                     maths_t::seasonalVarianceScale(weightStyles, weights[i]) * maths_t::countVarianceScale(weightStyles, weights[i]);
 
                 double x = samples[i] + offset;
-                LOG_TRACE("x = " << x);
+                LOG_TRACE(<< "x = " << x);
 
                 double scaledShape = shape / varianceScale;
                 double scaledRate = rate / varianceScale;
@@ -423,19 +423,19 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                 double scaledPriorRate = varianceScale * priorRate;
                 boost::math::beta_distribution<> beta(scaledLikelihoodShape, priorShape);
                 double z = CTools::sign(x) * std::fabs(x / (scaledPriorRate + x));
-                LOG_TRACE("x = " << x << ", z = " << z);
+                LOG_TRACE(<< "x = " << x << ", z = " << z);
 
                 result = aggregate(result, func(beta, z), n);
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Error calculating joint distribution: "
-                  << e.what() << ", offset = " << offset << ", likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape
-                  << ", priorRate = " << priorRate << ", samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Error calculating joint distribution: " << e.what() << ", offset = " << offset
+                  << ", likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape << ", priorRate = " << priorRate
+                  << ", samples = " << core::CContainerPrinter::print(samples));
         return false;
     }
 
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }
@@ -535,7 +535,7 @@ public:
                 m_PriorRate,
                 probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR("Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples");
             return false;
         }
 
@@ -635,7 +635,7 @@ public:
                 sampleSum += n / varianceScale * sample;
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to calculate likelihood: " << e.what());
+            LOG_ERROR(<< "Failed to calculate likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
             return false;
         }
@@ -674,13 +674,13 @@ private:
 
             m_ImpliedShape = scaledImpliedShape + nResidual * m_LikelihoodShape + m_PriorShape;
 
-            LOG_TRACE("numberSamples = " << m_NumberSamples);
+            LOG_TRACE(<< "numberSamples = " << m_NumberSamples);
 
             m_Constant = m_PriorShape * std::log(m_PriorRate) - boost::math::lgamma(m_PriorShape) + logVarianceScaleSum -
                          logGammaScaledLikelihoodShape - nResidual * boost::math::lgamma(m_LikelihoodShape) +
                          boost::math::lgamma(m_ImpliedShape);
         } catch (const std::exception& e) {
-            LOG_ERROR("Error calculating marginal likelihood: " << e.what());
+            LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
         }
     }
@@ -807,8 +807,8 @@ void CGammaRateConjugate::addSamples(const TWeightStyleVec& weightStyles, const 
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return;
     }
 
@@ -893,7 +893,7 @@ void CGammaRateConjugate::addSamples(const TWeightStyleVec& weightStyles, const 
 
             double x = samples[i] + m_Offset;
             if (!CMathsFuncs::isFinite(x) || x <= 0.0) {
-                LOG_ERROR("Discarding " << x << " it's not gamma");
+                LOG_ERROR(<< "Discarding " << x << " it's not gamma");
                 continue;
             }
 
@@ -910,7 +910,7 @@ void CGammaRateConjugate::addSamples(const TWeightStyleVec& weightStyles, const 
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to update likelihood: " << e.what());
+        LOG_ERROR(<< "Failed to update likelihood: " << e.what());
         return;
     }
 
@@ -930,21 +930,20 @@ void CGammaRateConjugate::addSamples(const TWeightStyleVec& weightStyles, const 
 
     m_LikelihoodShape = detail::maximumLikelihoodShape(m_LikelihoodShape, logSamplesMean, m_LogSamplesMean, sampleMoments, m_SampleMoments);
 
-    LOG_TRACE("m_Offset = " << m_Offset << ", m_LikelihoodShape = " << m_LikelihoodShape << ", m_LogSamplesMean = " << m_LogSamplesMean
-                            << ", m_SampleMoments = " << m_SampleMoments << ", m_PriorShape = " << m_PriorShape
-                            << ", m_PriorRate = " << m_PriorRate);
+    LOG_TRACE(<< "m_Offset = " << m_Offset << ", m_LikelihoodShape = " << m_LikelihoodShape << ", m_LogSamplesMean = " << m_LogSamplesMean
+              << ", m_SampleMoments = " << m_SampleMoments << ", m_PriorShape = " << m_PriorShape << ", m_PriorRate = " << m_PriorRate);
 
     if (this->isBad()) {
-        LOG_ERROR("Update failed (" << this->debug() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Update failed (" << this->debug() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
 
 void CGammaRateConjugate::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
 
@@ -984,8 +983,8 @@ void CGammaRateConjugate::propagateForwardsByTime(double time) {
 
     this->numberSamples(this->numberSamples() * alpha);
 
-    LOG_TRACE("m_LikelihoodShape = " << m_LikelihoodShape << ", m_LogSamplesMean = " << m_LogSamplesMean
-                                     << ", m_SampleMoments = " << m_SampleMoments << ", numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "m_LikelihoodShape = " << m_LikelihoodShape << ", m_LogSamplesMean = " << m_LogSamplesMean
+              << ", m_SampleMoments = " << m_SampleMoments << ", numberSamples = " << this->numberSamples());
 }
 
 CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport() const {
@@ -1000,7 +999,7 @@ double CGammaRateConjugate::marginalLikelihoodMode(const TWeightStyleVec& weight
     double varianceScale = 1.0;
     try {
         varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) * maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to get variance scale: " << e.what()); }
 
     if (!this->isNonInformative()) {
         // We use the fact that the marginal likelihood is the distribution
@@ -1023,8 +1022,8 @@ double CGammaRateConjugate::marginalLikelihoodMode(const TWeightStyleVec& weight
                 double mode = boost::math::mode(beta);
                 return scaledPriorRate * mode / (1.0 - mode) - m_Offset;
             } catch (const std::exception& e) {
-                LOG_ERROR("Failed to compute marginal likelihood mode: " << e.what() << ", likelihood shape = " << m_LikelihoodShape
-                                                                         << ", prior shape = " << this->priorShape());
+                LOG_ERROR(<< "Failed to compute marginal likelihood mode: " << e.what() << ", likelihood shape = " << m_LikelihoodShape
+                          << ", prior shape = " << this->priorShape());
             }
         }
     }
@@ -1063,7 +1062,7 @@ double CGammaRateConjugate::marginalLikelihoodVariance(const TWeightStyleVec& we
     double varianceScale = 1.0;
     try {
         varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) * maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to get variance scale: " << e.what()); }
     double a = this->priorShape();
     if (a <= 2.0) {
         return varianceScale * CBasicStatistics::variance(m_SampleMoments);
@@ -1104,9 +1103,9 @@ CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodConf
             x2 = boost::math::quantile(beta, (1.0 + percentage) / 2.0);
             x2 = scaledPriorRate * x2 / (1.0 - x2) - m_Offset - (this->isInteger() ? 0.5 : 0.0);
         }
-        LOG_TRACE("x1 = " << x1 << ", x2 = " << x2);
+        LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2);
         return std::make_pair(x1, x2);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to compute confidence interval: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to compute confidence interval: " << e.what()); }
 
     return this->marginalLikelihoodSupport();
 }
@@ -1118,13 +1117,13 @@ maths_t::EFloatingPointErrorStatus CGammaRateConjugate::jointLogMarginalLikeliho
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -1156,15 +1155,15 @@ maths_t::EFloatingPointErrorStatus CGammaRateConjugate::jointLogMarginalLikeliho
 
         status = static_cast<maths_t::EFloatingPointErrorStatus>(logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
         if (status & maths_t::E_FpFailed) {
-            LOG_ERROR("Failed to compute log likelihood (" << this->debug() << ")");
-            LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
+            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         } else if (status & maths_t::E_FpOverflowed) {
-            LOG_TRACE("Log likelihood overflowed for (" << this->debug() << ")");
-            LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-            LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
+            LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
+            LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+            LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to compute likelihood: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to compute likelihood: " << e.what()); }
     return status;
 }
 
@@ -1244,7 +1243,7 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples, TD
         boost::math::beta_distribution<> beta1(m_LikelihoodShape, this->priorShape());
         boost::math::beta_distribution<> beta2(m_LikelihoodShape + 1.0, this->priorShape() - 1.0);
 
-        LOG_TRACE("mean = " << mean << ", numberSamples = " << numberSamples);
+        LOG_TRACE(<< "mean = " << mean << ", numberSamples = " << numberSamples);
 
         TDoubleDoublePr support = this->marginalLikelihoodSupport();
 
@@ -1258,15 +1257,14 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples, TD
 
             double sample = static_cast<double>(numberSamples) * (partialExpectation - lastPartialExpectation) - m_Offset;
 
-            LOG_TRACE("sample = " << sample);
+            LOG_TRACE(<< "sample = " << sample);
 
             // Sanity check the sample: should be in the distribution support.
             if (sample >= support.first && sample <= support.second) {
                 samples.push_back(sample);
             } else {
-                LOG_ERROR("Sample out of bounds: sample = " << sample << ", likelihoodShape = " << m_LikelihoodShape
-                                                            << ", priorShape = " << this->priorShape() << ", q = " << q << ", x(q) = " << xq
-                                                            << ", mean = " << mean);
+                LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", likelihoodShape = " << m_LikelihoodShape
+                          << ", priorShape = " << this->priorShape() << ", q = " << q << ", x(q) = " << xq << ", mean = " << mean);
             }
 
             lastPartialExpectation = partialExpectation;
@@ -1274,18 +1272,18 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples, TD
 
         double sample = static_cast<double>(numberSamples) * (mean - lastPartialExpectation) - m_Offset;
 
-        LOG_TRACE("sample = " << sample);
+        LOG_TRACE(<< "sample = " << sample);
 
         // Sanity check the sample: should be in the distribution support.
         if (sample >= support.first && sample <= support.second) {
             samples.push_back(sample);
         } else {
-            LOG_ERROR("Sample out of bounds: sample = " << sample << ", likelihoodShape = " << m_LikelihoodShape
-                                                        << ", priorShape = " << this->priorShape() << ", mean = " << mean);
+            LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", likelihoodShape = " << m_LikelihoodShape
+                      << ", priorShape = " << this->priorShape() << ", mean = " << mean);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to sample: " << e.what() << ", likelihoodShape = " << m_LikelihoodShape << ", priorShape = " << this->priorShape()
-                                       << ", mean = " << mean);
+        LOG_ERROR(<< "Failed to sample: " << e.what() << ", likelihoodShape = " << m_LikelihoodShape
+                  << ", priorShape = " << this->priorShape() << ", mean = " << mean);
     }
 }
 
@@ -1307,7 +1305,7 @@ bool CGammaRateConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles,
         // on the interval [0,1].
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1317,7 +1315,7 @@ bool CGammaRateConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1343,7 +1341,7 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TWeightStyleVec& weig
         // on the interval [0,1].
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1353,7 +1351,7 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TWeightStyleVec& weig
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR("Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1387,7 +1385,7 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
         // on the interval [0,1].
         double value;
         if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(probability, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing probability for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing probability for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1399,7 +1397,7 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
 
     double value;
     if (!probability(0.0, value)) {
-        LOG_ERROR("Failed computing probability for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing probability for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1521,8 +1519,8 @@ double CGammaRateConjugate::likelihoodRate() const {
         boost::math::gamma_distribution<> gamma(this->priorShape(), 1.0 / this->priorRate());
         return boost::math::mean(gamma);
     } catch (std::exception& e) {
-        LOG_ERROR("Failed to compute likelihood rate: " << e.what() << ", prior shape = " << this->priorShape()
-                                                        << ", prior rate = " << this->priorRate());
+        LOG_ERROR(<< "Failed to compute likelihood rate: " << e.what() << ", prior shape = " << this->priorShape()
+                  << ", prior rate = " << this->priorRate());
     }
 
     return 0.0;
@@ -1542,16 +1540,16 @@ CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::confidenceIntervalRate
         boost::math::gamma_distribution<> gamma(this->priorShape(), 1.0 / this->priorRate());
         return std::make_pair(boost::math::quantile(gamma, lowerPercentile), boost::math::quantile(gamma, upperPercentile));
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute confidence interval: " << e.what() << ", prior shape = " << this->priorShape()
-                                                            << ", prior rate = " << this->priorRate());
+        LOG_ERROR(<< "Failed to compute confidence interval: " << e.what() << ", prior shape = " << this->priorShape()
+                  << ", prior rate = " << this->priorRate());
     }
 
     return std::make_pair(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
 }
 
 bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate& rhs, const TEqualWithTolerance& equal) const {
-    LOG_DEBUG(m_LikelihoodShape << " " << rhs.m_LikelihoodShape << ", " << this->priorShape() << " " << rhs.priorShape() << ", "
-                                << this->priorRate() << " " << rhs.priorRate());
+    LOG_DEBUG(<< m_LikelihoodShape << " " << rhs.m_LikelihoodShape << ", " << this->priorShape() << " " << rhs.priorShape() << ", "
+              << this->priorRate() << " " << rhs.priorRate());
     return equal(m_LikelihoodShape, rhs.m_LikelihoodShape) && equal(this->priorShape(), rhs.priorShape()) &&
            equal(this->priorRate(), rhs.priorRate());
 }

@@ -74,8 +74,8 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
 
     m_Writer.flush();
 
-    LOG_DEBUG("Wrote model snapshot report with ID " << report.s_SnapshotId << " for: " << report.s_Description
-                                                     << ", latest final results at " << report.s_LatestFinalResultTime);
+    LOG_DEBUG(<< "Wrote model snapshot report with ID " << report.s_SnapshotId << " for: " << report.s_Description
+              << ", latest final results at " << report.s_LatestFinalResultTime);
 }
 
 void CModelSnapshotJsonWriter::writeQuantileState(const std::string& jobId,

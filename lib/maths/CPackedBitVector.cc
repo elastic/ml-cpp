@@ -103,7 +103,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     std::size_t last = 0u;
     std::size_t pos = str.find_first_of(core::CPersistUtils::DELIMITER, last);
     if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
-        LOG_ERROR("Invalid packed vector in " << str);
+        LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
 
@@ -111,7 +111,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int first = 0;
     if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
-        LOG_ERROR("Invalid packed vector in " << str);
+        LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
     m_First = (first != 0);
@@ -120,13 +120,13 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int parity = 0;
     if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
-        LOG_ERROR("Invalid packed vector in " << str);
+        LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
     m_Parity = (parity != 0);
 
     if (core::CPersistUtils::fromString(str.substr(pos + 1), m_RunLengths) == false) {
-        LOG_ERROR("Invalid packed vector in " << str);
+        LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
 
@@ -178,7 +178,7 @@ double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) 
     double result = 0.0;
 
     if (m_Dimension != covector.dimension()) {
-        LOG_ERROR("Dimension mismatch " << m_Dimension << " vs " << covector.dimension());
+        LOG_ERROR(<< "Dimension mismatch " << m_Dimension << " vs " << covector.dimension());
         return result;
     }
 

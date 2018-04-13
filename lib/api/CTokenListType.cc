@@ -82,38 +82,38 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
         } else if (name == BASE_TOKEN_ID) {
             TSizeSizePr tokenAndWeight(0, 0);
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) == false) {
-                LOG_ERROR("Invalid base token ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid base token ID in " << traverser.value());
                 return false;
             }
 
             m_BaseTokenIds.push_back(tokenAndWeight);
         } else if (name == BASE_TOKEN_WEIGHT) {
             if (m_BaseTokenIds.empty()) {
-                LOG_ERROR("Base token weight precedes base token ID in " << traverser.value());
+                LOG_ERROR(<< "Base token weight precedes base token ID in " << traverser.value());
                 return false;
             }
 
             TSizeSizePr& tokenAndWeight = m_BaseTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) == false) {
-                LOG_ERROR("Invalid base token weight in " << traverser.value());
+                LOG_ERROR(<< "Invalid base token weight in " << traverser.value());
                 return false;
             }
 
             m_BaseWeight += tokenAndWeight.second;
         } else if (name == MAX_STRING_LEN) {
             if (core::CStringUtils::stringToType(traverser.value(), m_MaxStringLen) == false) {
-                LOG_ERROR("Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
         } else if (name == OUT_OF_ORDER_COMMON_TOKEN_INDEX) {
             if (core::CStringUtils::stringToType(traverser.value(), m_OutOfOrderCommonTokenIndex) == false) {
-                LOG_ERROR("Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
         } else if (name == COMMON_UNIQUE_TOKEN_ID) {
             TSizeSizePr tokenAndWeight(0, 0);
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) == false) {
-                LOG_ERROR("Invalid common unique token ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid common unique token ID in " << traverser.value());
                 return false;
             }
 
@@ -121,13 +121,13 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             expectWeight = true;
         } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT) {
             if (!expectWeight) {
-                LOG_ERROR("Common unique token weight precedes common unique token ID in " << traverser.value());
+                LOG_ERROR(<< "Common unique token weight precedes common unique token ID in " << traverser.value());
                 return false;
             }
 
             TSizeSizePr& tokenAndWeight = m_CommonUniqueTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) == false) {
-                LOG_ERROR("Invalid common unique token weight in " << traverser.value());
+                LOG_ERROR(<< "Invalid common unique token weight in " << traverser.value());
                 return false;
             }
             expectWeight = false;
@@ -135,12 +135,12 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             m_CommonUniqueTokenWeight += tokenAndWeight.second;
         } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT) {
             if (core::CStringUtils::stringToType(traverser.value(), m_OrigUniqueTokenWeight) == false) {
-                LOG_ERROR("Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
         } else if (name == NUM_MATCHES) {
             if (core::CStringUtils::stringToType(traverser.value(), m_NumMatches) == false) {
-                LOG_ERROR("Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
         }
@@ -378,7 +378,7 @@ bool CTokenListType::cachedReverseSearch(std::string& part1, std::string& part2)
     // a valid reverse search.
     bool missed(part1.empty() && part2.empty());
 
-    LOG_TRACE("Reverse search cache " << (missed ? "miss" : "hit"));
+    LOG_TRACE(<< "Reverse search cache " << (missed ? "miss" : "hit"));
 
     return !missed;
 }

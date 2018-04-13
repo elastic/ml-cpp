@@ -329,7 +329,7 @@ public:
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
                 if (!CMathsFuncs::isFinite(x)) {
-                    LOG_ERROR("Discarding " << x);
+                    LOG_ERROR(<< "Discarding " << x);
                     continue;
                 }
 
@@ -356,7 +356,7 @@ public:
                 for (const auto& cluster : clusters) {
                     auto k = std::find_if(m_Modes.begin(), m_Modes.end(), CSetTools::CIndexInSet(cluster.first));
                     if (k == m_Modes.end()) {
-                        LOG_TRACE("Creating mode with index " << cluster.first);
+                        LOG_TRACE(<< "Creating mode with index " << cluster.first);
                         m_Modes.emplace_back(cluster.first, m_SeedPrior);
                         k = m_Modes.end() - 1;
                     }
@@ -373,13 +373,13 @@ public:
                 }
                 this->addSamples(n);
             }
-        } catch (const std::exception& e) { LOG_ERROR("Failed to update likelihood: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to update likelihood: " << e.what()); }
     }
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
         if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-            LOG_ERROR("Bad propagation time " << time);
+            LOG_ERROR(<< "Bad propagation time " << time);
             return;
         }
 
@@ -404,7 +404,7 @@ public:
         }
 
         this->numberSamples(this->numberSamples() * std::exp(-this->scaledDecayRate() * time));
-        LOG_TRACE("numberSamples = " << this->numberSamples());
+        LOG_TRACE(<< "numberSamples = " << this->numberSamples());
     }
 
     //! Compute the univariate prior marginalizing over the variables
@@ -429,7 +429,7 @@ public:
 
         for (const auto& mode : m_Modes) {
             TUnivariatePriorPtrDoublePr prior(mode.s_Prior->univariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TUnivariatePriorPtrDoublePr();
             }
             if (prior.first->isNonInformative()) {
@@ -480,7 +480,7 @@ public:
 
         for (const auto& mode : m_Modes) {
             TPriorPtrDoublePr prior(mode.s_Prior->bivariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TPriorPtrDoublePr();
             }
             if (prior.first->isNonInformative()) {
@@ -582,7 +582,7 @@ public:
         try {
             seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weight)));
             weight_[0][0] = maths_t::countVarianceScale(N, weightStyles, weight);
-        } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale " << e.what()); }
+        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to get variance scale " << e.what()); }
 
         // Declared outside the loop to minimize number of times it is created.
         TDouble10Vec1Vec mode(1);
@@ -654,7 +654,7 @@ public:
         result = 0.0;
 
         if (samples.empty()) {
-            LOG_ERROR("Can't compute likelihood for empty sample set");
+            LOG_ERROR(<< "Can't compute likelihood for empty sample set");
             return maths_t::E_FpFailed;
         }
         if (!this->check(samples, weights)) {
@@ -725,17 +725,17 @@ public:
                 result += n * (sampleLogLikelihood - logSeasonalScale);
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to compute likelihood: " << e.what());
+            LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
             return maths_t::E_FpFailed;
         }
 
-        LOG_TRACE("Joint log likelihood = " << result);
+        LOG_TRACE(<< "Joint log likelihood = " << result);
 
         maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
         if (status & maths_t::E_FpFailed) {
-            LOG_ERROR("Failed to compute likelihood (" << this->debugWeights() << ")");
-            LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
+            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         }
         return status;
     }
@@ -868,7 +868,7 @@ private:
         CModeSplitCallback(CMultivariateMultimodalPrior& prior) : m_Prior(&prior) {}
 
         void operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
-            LOG_TRACE("Splitting mode with index " << sourceIndex);
+            LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
             TModeVec& modes = m_Prior->m_Modes;
 
@@ -884,22 +884,22 @@ private:
                 pLeft /= Z;
                 pRight /= Z;
             }
-            LOG_TRACE("# samples = " << numberSamples << ", pLeft = " << pLeft << ", pRight = " << pRight);
+            LOG_TRACE(<< "# samples = " << numberSamples << ", pLeft = " << pLeft << ", pRight = " << pRight);
 
             // Create the child modes.
-            LOG_TRACE("Creating mode with index " << leftSplitIndex);
+            LOG_TRACE(<< "Creating mode with index " << leftSplitIndex);
             modes.emplace_back(leftSplitIndex, m_Prior->m_SeedPrior);
             {
                 TPointVec samples;
                 if (!m_Prior->m_Clusterer->sample(leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
-                    LOG_ERROR("Couldn't find cluster for " << leftSplitIndex);
+                    LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
                 }
-                LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
                 double nl = pLeft * numberSamples;
                 double ns = std::min(nl, static_cast<double>(N + 2));
                 double s = static_cast<double>(samples.size());
-                LOG_TRACE("# left = " << nl);
+                LOG_TRACE(<< "# left = " << nl);
 
                 TDouble10Vec1Vec samples_;
                 samples_.reserve(samples.size());
@@ -913,23 +913,23 @@ private:
                 if (weight > 0.0) {
                     weights.assign(weights.size(), TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
                     modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
-                    LOG_TRACE(modes.back().s_Prior->print());
+                    LOG_TRACE(<< modes.back().s_Prior->print());
                 }
             }
 
-            LOG_TRACE("Creating mode with index " << rightSplitIndex);
+            LOG_TRACE(<< "Creating mode with index " << rightSplitIndex);
             modes.emplace_back(rightSplitIndex, m_Prior->m_SeedPrior);
             {
                 TPointVec samples;
                 if (!m_Prior->m_Clusterer->sample(rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
-                    LOG_ERROR("Couldn't find cluster for " << rightSplitIndex)
+                    LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex)
                 }
-                LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
                 double nr = pRight * numberSamples;
                 double ns = std::min(nr, static_cast<double>(N + 2));
                 double s = static_cast<double>(samples.size());
-                LOG_TRACE("# right = " << nr);
+                LOG_TRACE(<< "# right = " << nr);
 
                 TDouble10Vec1Vec samples_;
                 samples_.reserve(samples.size());
@@ -943,12 +943,12 @@ private:
                 if (weight > 0.0) {
                     weights.assign(weights.size(), TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
                     modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
-                    LOG_TRACE(modes.back().s_Prior->print());
+                    LOG_TRACE(<< modes.back().s_Prior->print());
                 }
             }
 
-            LOG_TRACE(m_Prior->print());
-            LOG_TRACE("Split mode");
+            LOG_TRACE(<< m_Prior->print());
+            LOG_TRACE(<< "Split mode");
         }
 
     private:

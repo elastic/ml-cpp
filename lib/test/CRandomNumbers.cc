@@ -104,7 +104,7 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
                                                 std::size_t numberSamples,
                                                 TDoubleVec& samples) {
     if (categories.size() != probabilities.size()) {
-        LOG_ERROR("categories and probabilities must be one-to-one.");
+        LOG_ERROR(<< "categories and probabilities must be one-to-one.");
     }
 
     // We use inverse transform sampling to generate the mutinomial
@@ -122,8 +122,8 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         std::size_t j = std::lower_bound(transform.begin(), transform.end(), samples[i]) - transform.begin();
         if (j == transform.size()) {
-            LOG_ERROR("Expected sample " << samples[i] << " to be less than largest value in "
-                                         << core::CContainerPrinter::print(transform));
+            LOG_ERROR(<< "Expected sample " << samples[i] << " to be less than largest value in "
+                      << core::CContainerPrinter::print(transform));
             j = transform.size() - 1;
         }
         samples[i] = categories[j];

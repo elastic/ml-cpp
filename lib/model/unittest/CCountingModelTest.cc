@@ -65,7 +65,7 @@ const std::string EMPTY_STRING;
 }
 
 void CCountingModelTest::testSkipSampling() {
-    LOG_DEBUG("*** testSkipSampling ***");
+    LOG_DEBUG(<< "*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
@@ -126,7 +126,7 @@ void CCountingModelTest::testSkipSampling() {
 }
 
 void CCountingModelTest::testCheckScheduledEvents() {
-    LOG_DEBUG("*** testCheckScheduledEvents ***");
+    LOG_DEBUG(<< "*** testCheckScheduledEvents ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);

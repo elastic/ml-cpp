@@ -27,9 +27,9 @@ CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
     : CInputParser(),
       m_StringInputBuf(input),
       m_StrmIn(m_StringInputBuf),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
+      m_WorkBuffer(nullptr),
+      m_WorkBufferPtr(nullptr),
+      m_WorkBufferEnd(nullptr),
       m_NoMoreRecords(false),
       m_LineParser(separator) {
 }
@@ -37,9 +37,9 @@ CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
 CCsvInputParser::CCsvInputParser(std::istream& strmIn, char separator)
     : CInputParser(),
       m_StrmIn(strmIn),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
+      m_WorkBuffer(nullptr),
+      m_WorkBufferPtr(nullptr),
+      m_WorkBufferEnd(nullptr),
       m_NoMoreRecords(false),
       m_LineParser(separator) {
 }
@@ -56,12 +56,12 @@ bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
 
     if (!this->gotFieldNames()) {
         if (this->parseCsvRecordFromStream() == false) {
-            LOG_ERROR("Failed to parse CSV record from stream");
+            LOG_ERROR(<< "Failed to parse CSV record from stream");
             return false;
         }
 
         if (this->parseFieldNames() == false) {
-            LOG_ERROR("Failed to parse field names from stream");
+            LOG_ERROR(<< "Failed to parse field names from stream");
             return false;
         }
     }
@@ -78,7 +78,7 @@ bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
 
     while (!m_NoMoreRecords) {
         if (this->parseCsvRecordFromStream() == false) {
-            LOG_ERROR("Failed to parse CSV record from stream");
+            LOG_ERROR(<< "Failed to parse CSV record from stream");
             return false;
         }
 
@@ -87,12 +87,12 @@ bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
         }
 
         if (this->parseDataRecord(fieldValRefs) == false) {
-            LOG_ERROR("Failed to parse data record from stream");
+            LOG_ERROR(<< "Failed to parse data record from stream");
             return false;
         }
 
         if (readerFunc(recordFields) == false) {
-            LOG_ERROR("Record handler function forced exit");
+            LOG_ERROR(<< "Record handler function forced exit");
             return false;
         }
     }
@@ -128,7 +128,7 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
             m_WorkBufferPtr = m_WorkBuffer.get();
             m_StrmIn.read(m_WorkBuffer.get(), static_cast<std::streamsize>(WORK_BUFFER_SIZE));
             if (m_StrmIn.bad()) {
-                LOG_ERROR("Input stream is bad");
+                LOG_ERROR(<< "Input stream is bad");
                 m_CurrentRowStr.clear();
                 m_WorkBufferEnd = m_WorkBufferPtr;
                 return false;
@@ -183,7 +183,7 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
 }
 
 bool CCsvInputParser::parseFieldNames() {
-    LOG_TRACE("Parse field names");
+    LOG_TRACE(<< "Parse field names");
 
     m_FieldNameStr.clear();
     TStrVec& fieldNames = this->fieldNames();
@@ -193,7 +193,7 @@ bool CCsvInputParser::parseFieldNames() {
     while (!m_LineParser.atEnd()) {
         std::string fieldName;
         if (m_LineParser.parseNext(fieldName) == false) {
-            LOG_ERROR("Failed to get next CSV token");
+            LOG_ERROR(<< "Failed to get next CSV token");
             return false;
         }
 
@@ -204,9 +204,9 @@ bool CCsvInputParser::parseFieldNames() {
         // Don't scare the user with error messages if we've just received an
         // empty input
         if (m_NoMoreRecords) {
-            LOG_DEBUG("Received input with settings only");
+            LOG_DEBUG(<< "Received input with settings only");
         } else {
-            LOG_ERROR("No field names found in:" << core_t::LINE_ENDING << m_CurrentRowStr);
+            LOG_ERROR(<< "No field names found in:" << core_t::LINE_ENDING << m_CurrentRowStr);
         }
         return false;
     }
@@ -214,7 +214,7 @@ bool CCsvInputParser::parseFieldNames() {
     m_FieldNameStr = m_CurrentRowStr;
     this->gotFieldNames(true);
 
-    LOG_TRACE("Field names " << m_FieldNameStr);
+    LOG_TRACE(<< "Field names " << m_FieldNameStr);
 
     return true;
 }
@@ -222,7 +222,7 @@ bool CCsvInputParser::parseFieldNames() {
 bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
     for (TStrRefVecCItr iter = fieldValRefs.begin(); iter != fieldValRefs.end(); ++iter) {
         if (m_LineParser.parseNext(iter->get()) == false) {
-            LOG_ERROR("Failed to get next CSV token");
+            LOG_ERROR(<< "Failed to get next CSV token");
             return false;
         }
     }
@@ -233,8 +233,8 @@ bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
         while (m_LineParser.parseNext(extraField) == true) {
             ++numExtraFields;
         }
-        LOG_ERROR("Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING << m_CurrentRowStr
-                                          << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
+        LOG_ERROR(<< "Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING << m_CurrentRowStr
+                  << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
         return false;
     }
 
@@ -292,7 +292,7 @@ bool CCsvInputParser::CCsvLineParser::parseNextToken(const char* end, const char
     if (current == end) {
         // Allow one empty token at the end of a line
         if (!m_SeparatorAfterLastField) {
-            LOG_ERROR("Trying to read too many fields from record:" << core_t::LINE_ENDING << *m_Line);
+            LOG_ERROR(<< "Trying to read too many fields from record:" << core_t::LINE_ENDING << *m_Line);
             return false;
         }
         m_SeparatorAfterLastField = false;
@@ -348,7 +348,7 @@ bool CCsvInputParser::CCsvLineParser::parseNextToken(const char* end, const char
 
     // Inconsistency if the last character of the string is an unmatched quote
     if (insideQuotes) {
-        LOG_ERROR("Unmatched final quote in record:" << core_t::LINE_ENDING << *m_Line);
+        LOG_ERROR(<< "Unmatched final quote in record:" << core_t::LINE_ENDING << *m_Line);
         return false;
     }
 

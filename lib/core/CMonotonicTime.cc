@@ -37,7 +37,7 @@ uint64_t CMonotonicTime::milliseconds() const {
 #endif
 
     if (rc < 0) {
-        LOG_ERROR("Failed to get reading from hi-res clock");
+        LOG_ERROR(<< "Failed to get reading from hi-res clock");
 
         // Return a very approximate time
         return ::time(0) * 1000ULL;
@@ -64,7 +64,7 @@ uint64_t CMonotonicTime::nanoseconds() const {
 #endif
 
     if (rc < 0) {
-        LOG_ERROR("Failed to get reading from hi-res clock");
+        LOG_ERROR(<< "Failed to get reading from hi-res clock");
 
         // Return a very approximate time
         return ::time(0) * 1000000000ULL;

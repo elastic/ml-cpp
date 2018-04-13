@@ -41,7 +41,7 @@ public:
         ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                                                                        \
         break;                                                                                                                             \
     default:                                                                                                                               \
-        LOG_ERROR("Unsupported dimension " << N);                                                                                          \
+        LOG_ERROR(<< "Unsupported dimension " << N);                                                                                       \
         break;                                                                                                                             \
     }
 
@@ -62,7 +62,7 @@ bool CMultivariateNormalConjugateFactory::restore(std::size_t dimension,
 #define FACTORY_ARGS params, traverser
     CREATE_PRIOR(dimension);
 #undef FACTORY_ARGS
-    return ptr != 0;
+    return ptr != nullptr;
 }
 
 #undef CREATE_PRIOR

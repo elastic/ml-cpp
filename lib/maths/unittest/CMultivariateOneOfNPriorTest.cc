@@ -92,7 +92,7 @@ void gaussianSamples(test::CRandomNumbers& rng,
             samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
         }
     }
-    LOG_DEBUG("# samples = " << samples.size());
+    LOG_DEBUG(<< "# samples = " << samples.size());
 }
 
 double sum(const TDoubleVec& x) {
@@ -115,9 +115,9 @@ std::string print(maths_t::EDataType dataType) {
 }
 
 void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
@@ -149,9 +149,9 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
         }
     }
 
-    LOG_DEBUG("****** Test vanilla ******");
+    LOG_DEBUG(<< "****** Test vanilla ******");
     for (std::size_t i = 0u; i < boost::size(dataTypes); ++i) {
-        LOG_DEBUG("*** data type = " << print(dataTypes[i]) << " ***");
+        LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::CMultivariateOneOfNPrior filter1(makeOneOfN<2>(dataTypes[i]));
         maths::CMultivariateOneOfNPrior filter2(filter1);
@@ -170,14 +170,14 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
         TDouble10Vec4Vec1Vec weights(samples.size(), TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
         filter2.addSamples(COUNT_WEIGHT, samples, weights);
 
-        LOG_DEBUG("checksum 1 " << filter1.checksum());
-        LOG_DEBUG("checksum 2 " << filter2.checksum());
+        LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
+        LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
         CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
     }
 
-    LOG_DEBUG("****** Test with variance scale ******");
+    LOG_DEBUG(<< "****** Test with variance scale ******");
     for (size_t i = 0; i < boost::size(dataTypes); ++i) {
-        LOG_DEBUG("*** data type = " << print(dataTypes[i]) << " ***");
+        LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::CMultivariateOneOfNPrior filter1(makeOneOfN<2>(dataTypes[i]));
         maths::CMultivariateOneOfNPrior filter2(filter1);
@@ -198,16 +198,16 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
         }
         filter2.addSamples(VARIANCE_WEIGHT, samples, weights);
 
-        LOG_DEBUG("checksum 1 " << filter1.checksum());
-        LOG_DEBUG("checksum 2 " << filter2.checksum());
+        LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
+        LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
         CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
     }
 }
 
 void CMultivariateOneOfNPriorTest::testPropagation() {
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testPropagation  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testPropagation  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     // Test that propagation doesn't affect the marginal likelihood
     // mean and the marginal likelihood variance increases (due to
@@ -226,7 +226,7 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
     TDouble10Vec1Vec samples;
     gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
     rng.random_shuffle(samples.begin(), samples.end());
-    LOG_DEBUG("# samples = " << samples.size());
+    LOG_DEBUG(<< "# samples = " << samples.size());
 
     const double decayRate = 0.1;
 
@@ -247,14 +247,14 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
     TDouble10Vec10Vec propagatedCovariance = filter.marginalLikelihoodCovariance();
     double propagatedLogWeightRatio = std::fabs(filter.logWeights()[0] - filter.logWeights()[1]);
 
-    LOG_DEBUG("numberSamples           = " << numberSamples);
-    LOG_DEBUG("propagatedNumberSamples = " << propagatedNumberSamples);
-    LOG_DEBUG("mean           = " << core::CContainerPrinter::print(mean));
-    LOG_DEBUG("propagatedMean = " << core::CContainerPrinter::print(propagatedMean));
-    LOG_DEBUG("covariance           = " << core::CContainerPrinter::print(covariance));
-    LOG_DEBUG("propagatedCovariance = " << core::CContainerPrinter::print(propagatedCovariance));
-    LOG_DEBUG("logWeightRatio           = " << logWeightRatio);
-    LOG_DEBUG("propagatedLogWeightRatio = " << propagatedLogWeightRatio);
+    LOG_DEBUG(<< "numberSamples           = " << numberSamples);
+    LOG_DEBUG(<< "propagatedNumberSamples = " << propagatedNumberSamples);
+    LOG_DEBUG(<< "mean           = " << core::CContainerPrinter::print(mean));
+    LOG_DEBUG(<< "propagatedMean = " << core::CContainerPrinter::print(propagatedMean));
+    LOG_DEBUG(<< "covariance           = " << core::CContainerPrinter::print(covariance));
+    LOG_DEBUG(<< "propagatedCovariance = " << core::CContainerPrinter::print(propagatedCovariance));
+    LOG_DEBUG(<< "logWeightRatio           = " << logWeightRatio);
+    LOG_DEBUG(<< "propagatedLogWeightRatio = " << propagatedLogWeightRatio);
 
     CPPUNIT_ASSERT(propagatedNumberSamples < numberSamples);
     CPPUNIT_ASSERT((TVector2(propagatedMean) - TVector2(mean)).euclidean() < eps * TVector2(mean).euclidean());
@@ -268,8 +268,8 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
     }
     Eigen::VectorXd sv = c.jacobiSvd().singularValues();
     Eigen::VectorXd svp = cp.jacobiSvd().singularValues();
-    LOG_DEBUG("singular values            = " << sv.transpose());
-    LOG_DEBUG("propagated singular values = " << svp.transpose());
+    LOG_DEBUG(<< "singular values            = " << sv.transpose());
+    LOG_DEBUG(<< "propagated singular values = " << svp.transpose());
     for (std::size_t i = 0u; i < 2; ++i) {
         CPPUNIT_ASSERT(svp(i) > sv(i));
     }
@@ -277,9 +277,9 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
 }
 
 void CMultivariateOneOfNPriorTest::testWeightUpdate() {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testWeightUpdate  |");
-    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testWeightUpdate  |");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
 
     // Test that the weights stay normalized over update.
 
@@ -334,7 +334,7 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
             }
 
             TDoubleVec logWeights = filter.logWeights();
-            LOG_DEBUG("log weight ratio = " << logWeights[0] - logWeights[1]);
+            LOG_DEBUG(<< "log weight ratio = " << logWeights[0] - logWeights[1]);
 
             // Should be approximately 0.2: we reduce the filter memory
             // by a factor of 5 each iteration.
@@ -346,9 +346,9 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
 }
 
 void CMultivariateOneOfNPriorTest::testModelUpdate() {
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testModelUpdate  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testModelUpdate  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
@@ -379,17 +379,17 @@ void CMultivariateOneOfNPriorTest::testModelUpdate() {
 }
 
 void CMultivariateOneOfNPriorTest::testModelSelection() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testModelSelection  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testModelSelection  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // TODO When copula models are available.
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG("+--------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG("+--------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
 
     // Test that:
     //   1) The likelihood is normalized.
@@ -405,7 +405,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 
     test::CRandomNumbers rng;
     {
-        LOG_DEBUG("*** Normal ***");
+        LOG_DEBUG(<< "*** Normal ***");
 
         TDoubleVec meani;
         rng.generateUniformSamples(0.0, 50.0, 2 * nt, meani);
@@ -415,7 +415,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
         rng.generateUniformSamples(-10.0, 10.0, 1 * nt, covariancesij);
 
         for (std::size_t t = 0u; t < nt; ++t) {
-            LOG_DEBUG("*** Test " << t + 1 << " ***");
+            LOG_DEBUG(<< "*** Test " << t + 1 << " ***");
 
             // Generate the samples.
             double mean_[] = {meani[2 * t], meani[2 * t + 1]};
@@ -438,8 +438,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
                 if (!filter.isNonInformative()) {
                     TDouble10Vec m = filter.marginalLikelihoodMean();
                     TDouble10Vec10Vec v = filter.marginalLikelihoodCovariance();
-                    LOG_DEBUG("m = " << core::CContainerPrinter::print(m));
-                    LOG_DEBUG("v = " << core::CContainerPrinter::print(v));
+                    LOG_DEBUG(<< "m = " << core::CContainerPrinter::print(m));
+                    LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(v));
                     double trace = 0.0;
                     for (std::size_t j = 0u; j < v.size(); ++j) {
                         trace += v[j][j];
@@ -486,9 +486,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
                         actualCovariance += cj;
                     }
 
-                    LOG_DEBUG("Z = " << z);
-                    LOG_DEBUG("mean = " << actualMean);
-                    LOG_DEBUG("covariance = " << actualCovariance);
+                    LOG_DEBUG(<< "Z = " << z);
+                    LOG_DEBUG(<< "mean = " << actualMean);
+                    LOG_DEBUG(<< "covariance = " << actualCovariance);
 
                     TVector2 meanError = actualMean - expectedMean;
                     TMatrix2 covarianceError = actualCovariance - expectedCovariance;
@@ -500,14 +500,14 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
                 }
             }
 
-            LOG_DEBUG("Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
-            LOG_DEBUG("Mean covariance error = " << maths::CBasicStatistics::mean(meanCovarianceError));
+            LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
+            LOG_DEBUG(<< "Mean covariance error = " << maths::CBasicStatistics::mean(meanCovarianceError));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.16);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.09);
         }
     }
     {
-        LOG_DEBUG("*** Multimodal ***");
+        LOG_DEBUG(<< "*** Multimodal ***");
 
         std::size_t sizes_[] = {200, 150, 300};
         TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
@@ -517,7 +517,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
         TMeanAccumulator meanCovarianceError;
 
         for (std::size_t t = 0u; t < nt; ++t) {
-            LOG_DEBUG("*** Test " << t + 1 << " ***");
+            LOG_DEBUG(<< "*** Test " << t + 1 << " ***");
 
             TVector2Vec means;
             TMatrix2Vec covariances;
@@ -551,8 +551,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
             TMatrix2 actualCovariance(0.0);
             for (std::size_t i = 0u; i < means.size(); ++i) {
                 double trace = covariances[i].trace();
-                LOG_DEBUG("m = " << means[i]);
-                LOG_DEBUG("v = " << trace);
+                LOG_DEBUG(<< "m = " << means[i]);
+                LOG_DEBUG(<< "v = " << trace);
 
                 double intervals[][2] = {{means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace)},
                                          {means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace)},
@@ -592,11 +592,11 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
             actualMean /= z;
             actualCovariance /= z;
 
-            LOG_DEBUG("Z = " << z);
-            LOG_DEBUG("expected mean = " << expectedMean);
-            LOG_DEBUG("expected covariance = " << expectedCovariance);
-            LOG_DEBUG("actual mean = " << actualMean);
-            LOG_DEBUG("actual covariance = " << actualCovariance);
+            LOG_DEBUG(<< "Z = " << z);
+            LOG_DEBUG(<< "expected mean = " << expectedMean);
+            LOG_DEBUG(<< "expected covariance = " << expectedCovariance);
+            LOG_DEBUG(<< "actual mean = " << actualMean);
+            LOG_DEBUG(<< "actual covariance = " << actualCovariance);
 
             TVector2 meanError = actualMean - expectedMean;
             TMatrix2 covarianceError = actualCovariance - expectedCovariance;
@@ -609,9 +609,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
             meanCovarianceError.add(covarianceError.frobenius() / expectedCovariance.frobenius());
         }
 
-        LOG_DEBUG("Mean Z = " << maths::CBasicStatistics::mean(meanZ));
-        LOG_DEBUG("Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
-        LOG_DEBUG("Mean covariance error = " << maths::CBasicStatistics::mean(meanCovarianceError));
+        LOG_DEBUG(<< "Mean Z = " << maths::CBasicStatistics::mean(meanZ));
+        LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
+        LOG_DEBUG(<< "Mean covariance error = " << maths::CBasicStatistics::mean(meanCovarianceError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(meanZ), 0.3);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.1);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.16);
@@ -619,16 +619,15 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG("+------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG("+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 
     maths::CSampling::seed();
@@ -645,7 +644,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
     double expectedMeanErrors[] = {1e-6, 0.05};
 
     for (std::size_t i = 0u; i < sizes.size(); ++i) {
-        LOG_DEBUG("# modes = " << sizes[i].size());
+        LOG_DEBUG(<< "# modes = " << sizes[i].size());
 
         TVector2Vec means;
         TMatrix2Vec covariances;
@@ -670,8 +669,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
 
             if (!filter.isNonInformative()) {
                 if (j % 10 == 0) {
-                    LOG_DEBUG("expected = " << maths::CBasicStatistics::mean(expectedMean)
-                                            << " actual = " << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+                    LOG_DEBUG(<< "expected = " << maths::CBasicStatistics::mean(expectedMean)
+                              << " actual = " << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
                 }
                 double error = (TVector2(filter.marginalLikelihoodMean()) - maths::CBasicStatistics::mean(expectedMean)).euclidean() /
                                maths::CBasicStatistics::mean(expectedMean).euclidean();
@@ -680,15 +679,15 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
             }
         }
 
-        LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < expectedMeanErrors[i]);
     }
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // Test that the marginal likelihood mode is near the maximum
     // of the marginal likelihood.
@@ -698,7 +697,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("****** Normal ******");
+        LOG_DEBUG(<< "****** Normal ******");
 
         const double means[][2] = {
             {10.0, 10.0},
@@ -715,8 +714,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                 std::size_t n[] = {100};
                 const double mean[][2] = {{means[i][0], means[i][1]}};
                 const double covariance[][3] = {{covariances[i][0], covariances[i][1], covariances[i][2]}};
-                LOG_DEBUG("*** mean = " << core::CContainerPrinter::print(mean[0], mean[0] + 2) << ", variance = " << covariance[0][0]
-                                        << " ***");
+                LOG_DEBUG(<< "*** mean = " << core::CContainerPrinter::print(mean[0], mean[0] + 2) << ", variance = " << covariance[0][0]
+                          << " ***");
 
                 TDouble10Vec1Vec samples;
                 gaussianSamples(rng, 1, n, mean, covariance, samples);
@@ -740,7 +739,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 
                 TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
 
-                LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
+                LOG_DEBUG(<< "marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
 
                 for (std::size_t k = 0u; k < 2; ++k) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(k), mode[k], 0.01 * expectedMode(k));
@@ -750,7 +749,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
     }
 
     {
-        LOG_DEBUG("****** Multimodal ******");
+        LOG_DEBUG(<< "****** Multimodal ******");
 
         const std::size_t n[] = {100, 100};
         const double means[][2] = {
@@ -784,7 +783,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 
         TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
 
-        LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
+        LOG_DEBUG(<< "marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
 
         for (std::size_t i = 0u; i < 2; ++i) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(i), mode[i], 0.2 * expectedMode(i));
@@ -793,9 +792,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG("+--------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG("+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Test we sample the constitute priors in proportion to their weights.
 
@@ -824,7 +823,7 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
 
         if (!filter.isNonInformative()) {
             TDoubleVec weights = filter.weights();
-            LOG_DEBUG("weights = " << core::CContainerPrinter::print(weights));
+            LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
 
             TDouble10Vec1Vec sampled;
             filter.sampleMarginalLikelihood(20, sampled);
@@ -833,7 +832,7 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
             // We modes to be sampled according to their weights.
             maths::CSampling::TSizeVec counts;
             maths::CSampling::weightedSample(20, weights, counts);
-            LOG_DEBUG("counts = " << core::CContainerPrinter::print(counts));
+            LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(counts));
 
             maths::CMultivariateOneOfNPrior::TPriorCPtr3Vec posteriorModels = filter.models();
             TDouble10Vec1Vec normalSamples;
@@ -844,17 +843,17 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
             TDouble10Vec1Vec expectedSampled(normalSamples);
             expectedSampled.insert(expectedSampled.end(), multimodalSamples.begin(), multimodalSamples.end());
             std::sort(expectedSampled.begin(), expectedSampled.end());
-            LOG_DEBUG("expected samples = " << core::CContainerPrinter::print(expectedSampled));
-            LOG_DEBUG("samples          = " << core::CContainerPrinter::print(sampled));
+            LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled));
+            LOG_DEBUG(<< "samples          = " << core::CContainerPrinter::print(sampled));
             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled), core::CContainerPrinter::print(sampled));
         }
     }
 }
 
 void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG("+--------------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG("+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     // We simply test that the calculation is close to the weighted
     // sum of component model calculations.
@@ -907,20 +906,20 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
             expectedProbability += weight * modelProbability;
         }
 
-        LOG_DEBUG("weights = " << core::CContainerPrinter::print(weights) << ", expectedProbability = " << expectedProbability
-                               << ", probability = " << probability);
+        LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights) << ", expectedProbability = " << expectedProbability
+                  << ", probability = " << probability);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability, 0.3 * std::max(expectedProbability, probability));
         error.add(std::fabs(probability - expectedProbability));
     }
 
-    LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
+    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.01);
 }
 
 void CMultivariateOneOfNPriorTest::testPersist() {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testPersist  |");
-    LOG_DEBUG("+---------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testPersist  |");
+    LOG_DEBUG(<< "+---------------------------------------------+");
 
     // Check that persist/restore is idempotent.
 
@@ -950,7 +949,7 @@ void CMultivariateOneOfNPriorTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Multivariate one-of-n XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Multivariate one-of-n XML representation:\n" << origXml);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
@@ -964,7 +963,7 @@ void CMultivariateOneOfNPriorTest::testPersist() {
                                              maths::MINIMUM_CATEGORY_COUNT);
     maths::CMultivariateOneOfNPrior restoredFilter(dimension, params, traverser);
 
-    LOG_DEBUG("orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
+    LOG_DEBUG(<< "orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original

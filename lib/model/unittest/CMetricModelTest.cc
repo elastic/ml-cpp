@@ -97,7 +97,7 @@ void makeModel(CMetricModelFactory& factory,
                core_t::TTime bucketLength,
                CModelFactory::TDataGathererPtr& gatherer,
                CAnomalyDetectorModel::TModelPtr& model,
-               unsigned int* sampleCount = 0) {
+               unsigned int* sampleCount = nullptr) {
     factory.features(features);
     factory.bucketLength(bucketLength);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
@@ -115,7 +115,7 @@ void makeModel(CMetricModelFactory& factory,
 std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    person.resize(gatherer->fieldsOfInterest().size(), 0);
+    person.resize(gatherer->fieldsOfInterest().size(), nullptr);
     CEventData result;
     gatherer->processFields(person, result, resourceMonitor);
     return *result.personId();
@@ -217,7 +217,7 @@ void processBucket(core_t::TTime time,
     model.sample(time, time + bucketLength, resourceMonitor);
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, probability);
-    LOG_DEBUG("influences = " << core::CContainerPrinter::print(probability.s_Influences));
+    LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(probability.s_Influences));
 }
 
 void processBucket(core_t::TTime time,
@@ -258,7 +258,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
 void CMetricModelTest::testSample() {
-    LOG_DEBUG("*** testSample ***");
+    LOG_DEBUG(<< "*** testSample ***");
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
@@ -325,7 +325,7 @@ void CMetricModelTest::testSample() {
             core_t::TTime time = startTime;
             for (;;) {
                 if (j < boost::size(data) && data[j].first < time + bucketLength) {
-                    LOG_DEBUG("Adding " << data[j].second << " at " << data[j].first);
+                    LOG_DEBUG(<< "Adding " << data[j].second << " at " << data[j].first);
 
                     addArrival(*gatherer, m_ResourceMonitor, data[j].first, "p", data[j].second);
 
@@ -353,16 +353,16 @@ void CMetricModelTest::testSample() {
                         expectedMaxSample = TMaxAccumulator();
                     }
                 } else {
-                    LOG_DEBUG("Sampling [" << time << ", " << time + bucketLength << ")");
+                    LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
 
                     model.sample(time, time + bucketLength, m_ResourceMonitor);
                     if (maths::CBasicStatistics::count(expectedMean) > 0.0) {
                         expectedBaselineMean.add(maths::CBasicStatistics::mean(expectedMean));
                     }
                     if (numberSamples > 0) {
-                        LOG_DEBUG("Adding mean samples = " << core::CContainerPrinter::print(expectedMeanSamples)
-                                                           << ", min samples = " << core::CContainerPrinter::print(expectedMinSamples)
-                                                           << ", max samples = " << core::CContainerPrinter::print(expectedMaxSamples));
+                        LOG_DEBUG(<< "Adding mean samples = " << core::CContainerPrinter::print(expectedMeanSamples)
+                                  << ", min samples = " << core::CContainerPrinter::print(expectedMinSamples)
+                                  << ", max samples = " << core::CContainerPrinter::print(expectedMaxSamples));
 
                         maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights(numberSamples,
                                                                                   maths::CConstantWeights::unit<TDouble2Vec>(1));
@@ -400,10 +400,10 @@ void CMetricModelTest::testSample() {
                     TDouble1Vec bucketMean = model.currentBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, time);
                     TDouble1Vec baselineMean = model.baselineBucketMean(model_t::E_IndividualMeanByPerson, 0, 0, type, NO_CORRELATES, time);
 
-                    LOG_DEBUG("bucket count = " << core::CContainerPrinter::print(currentCount));
-                    LOG_DEBUG("current bucket mean = " << core::CContainerPrinter::print(bucketMean) << ", expected baseline bucket mean = "
-                                                       << maths::CBasicStatistics::mean(expectedBaselineMean)
-                                                       << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineMean));
+                    LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(currentCount));
+                    LOG_DEBUG(<< "current bucket mean = " << core::CContainerPrinter::print(bucketMean)
+                              << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineMean)
+                              << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineMean));
 
                     CPPUNIT_ASSERT(currentCount);
                     CPPUNIT_ASSERT_EQUAL(expectedCount, *currentCount);
@@ -455,9 +455,9 @@ void CMetricModelTest::testSample() {
                     }
 
                     uint64_t origChecksum = model.checksum(false);
-                    LOG_DEBUG("original checksum = " << origChecksum);
+                    LOG_DEBUG(<< "original checksum = " << origChecksum);
                     uint64_t restoredChecksum = restoredModel->checksum(false);
-                    LOG_DEBUG("restored checksum = " << restoredChecksum);
+                    LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                     CPPUNIT_ASSERT_EQUAL(origChecksum, restoredChecksum);
                     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 
@@ -473,14 +473,14 @@ void CMetricModelTest::testSample() {
                     time += bucketLength;
                 }
             }
-            LOG_DEBUG("baseline mean error = " << maths::CBasicStatistics::mean(baselineMeanError));
+            LOG_DEBUG(<< "baseline mean error = " << maths::CBasicStatistics::mean(baselineMeanError));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(baselineMeanError) < 0.25);
         }
     }
 }
 
 void CMetricModelTest::testMultivariateSample() {
-    LOG_DEBUG("*** testMultivariateSample ***");
+    LOG_DEBUG(<< "*** testMultivariateSample ***");
 
     using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
     using TVector2 = maths::CVectorNx1<double, 2>;
@@ -518,7 +518,7 @@ void CMetricModelTest::testMultivariateSample() {
     unsigned int expectedSampleCounts[] = {2u, 1u};
 
     for (std::size_t i = 0; i < boost::size(sampleCounts); ++i) {
-        LOG_DEBUG("*** sample count = " << sampleCounts[i] << " ***");
+        LOG_DEBUG(<< "*** sample count = " << sampleCounts[i] << " ***");
 
         CDataGatherer::TFeatureVec features(1, model_t::E_IndividualMeanLatLongByPerson);
         CModelFactory::TDataGathererPtr gatherer;
@@ -543,7 +543,7 @@ void CMetricModelTest::testMultivariateSample() {
         core_t::TTime time = startTime;
         for (;;) {
             if (j < data.size() && data[j].first < time + bucketLength) {
-                LOG_DEBUG("Adding " << data[j].second[0] << "," << data[j].second[1] << " at " << data[j].first);
+                LOG_DEBUG(<< "Adding " << data[j].second[0] << "," << data[j].second[1] << " at " << data[j].first);
 
                 addArrival(*gatherer, m_ResourceMonitor, data[j].first, "p", data[j].second[0], data[j].second[1]);
 
@@ -558,7 +558,7 @@ void CMetricModelTest::testMultivariateSample() {
                     expectedLatLongSample = TMean2Accumulator();
                 }
             } else {
-                LOG_DEBUG("Sampling [" << time << ", " << time + bucketLength << ")");
+                LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
                 model.sample(time, time + bucketLength, m_ResourceMonitor);
 
                 if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
@@ -566,7 +566,7 @@ void CMetricModelTest::testMultivariateSample() {
                 }
                 if (numberSamples > 0) {
                     std::sort(expectedLatLongSamples.begin(), expectedLatLongSamples.end());
-                    LOG_DEBUG("Adding mean samples = " << core::CContainerPrinter::print(expectedLatLongSamples));
+                    LOG_DEBUG(<< "Adding mean samples = " << core::CContainerPrinter::print(expectedLatLongSamples));
                     expectedMeanPrior->dataType(maths_t::E_ContinuousData);
                     expectedMeanPrior->addSamples(COUNT_WEIGHT,
                                                   expectedLatLongSamples,
@@ -581,10 +581,10 @@ void CMetricModelTest::testMultivariateSample() {
                 TDouble1Vec baselineLatLong =
                     model.baselineBucketMean(model_t::E_IndividualMeanLatLongByPerson, 0, 0, type, NO_CORRELATES, time);
 
-                LOG_DEBUG("bucket count = " << core::CContainerPrinter::print(currentCount));
-                LOG_DEBUG("current bucket mean = " << core::CContainerPrinter::print(bucketLatLong) << ", expected baseline bucket mean = "
-                                                   << maths::CBasicStatistics::mean(expectedBaselineLatLong)
-                                                   << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineLatLong));
+                LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(currentCount));
+                LOG_DEBUG(<< "current bucket mean = " << core::CContainerPrinter::print(bucketLatLong)
+                          << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineLatLong)
+                          << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineLatLong));
 
                 CPPUNIT_ASSERT(currentCount);
                 CPPUNIT_ASSERT_EQUAL(expectedCount, *currentCount);
@@ -631,9 +631,9 @@ void CMetricModelTest::testMultivariateSample() {
                 }
 
                 uint64_t origChecksum = model.checksum(false);
-                LOG_DEBUG("original checksum = " << origChecksum);
+                LOG_DEBUG(<< "original checksum = " << origChecksum);
                 uint64_t restoredChecksum = restoredModel->checksum(false);
-                LOG_DEBUG("restored checksum = " << restoredChecksum);
+                LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                 CPPUNIT_ASSERT_EQUAL(origChecksum, restoredChecksum);
                 CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 
@@ -647,16 +647,14 @@ void CMetricModelTest::testMultivariateSample() {
                 time += bucketLength;
             }
         }
-        LOG_DEBUG("baseline mean error = " << maths::CBasicStatistics::mean(baselineLatLongError));
+        LOG_DEBUG(<< "baseline mean error = " << maths::CBasicStatistics::mean(baselineLatLongError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(baselineLatLongError)(0) < 0.25);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(baselineLatLongError)(1) < 0.25);
     }
 }
 
 void CMetricModelTest::testProbabilityCalculationForMetric() {
-    LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
-
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
+    LOG_DEBUG(<< "*** testProbabilityCalculationForMetric ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -680,16 +678,15 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
     CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TMinAccumulator minProbabilities(2u);
-
+    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
-        LOG_DEBUG("i = " << i << ", anomalousBucket = " << anomalousBucket << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "i = " << i << ", anomalousBucket = " << anomalousBucket << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer,
@@ -705,7 +702,7 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
         if (model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability) == false) {
             continue;
         }
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         if (*model.currentBucketCount(0, time) > 0) {
             minProbabilities.add(TDoubleSizePr(annotatedProbability.s_Probability, i));
         }
@@ -713,15 +710,13 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG("minProbabilities = " << core::CContainerPrinter::print(minProbabilities.begin(), minProbabilities.end()));
+    LOG_DEBUG(<< "minProbabilities = " << core::CContainerPrinter::print(minProbabilities.begin(), minProbabilities.end()));
     CPPUNIT_ASSERT_EQUAL(anomalousBucket, minProbabilities[0].second);
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 }
 
 void CMetricModelTest::testProbabilityCalculationForMedian() {
-    LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
-
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
+    LOG_DEBUG(<< "*** testProbabilityCalculationForMedian ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -741,13 +736,12 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
     CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TMinAccumulator minProbabilities(2u);
-
+    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
-        LOG_DEBUG("i = " << i << ", anomalousBucket = " << anomalousBucket);
+        LOG_DEBUG(<< "i = " << i << ", anomalousBucket = " << anomalousBucket);
 
         TDoubleVec values;
         if (i == anomalousBucket) {
@@ -758,7 +752,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
             rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         }
 
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -772,7 +766,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
             continue;
         }
 
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         if (*model.currentBucketCount(0, time) > 0) {
             minProbabilities.add(TDoubleSizePr(annotatedProbability.s_Probability, i));
         }
@@ -780,7 +774,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG("minProbabilities = " << core::CContainerPrinter::print(minProbabilities.begin(), minProbabilities.end()));
+    LOG_DEBUG(<< "minProbabilities = " << core::CContainerPrinter::print(minProbabilities.begin(), minProbabilities.end()));
     CPPUNIT_ASSERT_EQUAL(anomalousBucket, minProbabilities[0].second);
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 
@@ -793,7 +787,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowMean() {
-    LOG_DEBUG("*** testProbabilityCalculationForLowMean ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForLowMean ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -830,7 +824,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMean() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -840,20 +834,20 @@ void CMetricModelTest::testProbabilityCalculationForLowMean() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities.begin(), probabilities.end()));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities.begin(), probabilities.end()));
 
     CPPUNIT_ASSERT(probabilities[lowMeanBucket] < 0.01);
     CPPUNIT_ASSERT(probabilities[highMeanBucket] > 0.1);
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighMean() {
-    LOG_DEBUG("*** testProbabilityCalculationForHighMean ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForHighMean ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -890,7 +884,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMean() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -900,20 +894,20 @@ void CMetricModelTest::testProbabilityCalculationForHighMean() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
     CPPUNIT_ASSERT(probabilities[lowMeanBucket] > 0.1);
     CPPUNIT_ASSERT(probabilities[highMeanBucket] < 0.01);
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowSum() {
-    LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForLowSum ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -950,7 +944,7 @@ void CMetricModelTest::testProbabilityCalculationForLowSum() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -960,19 +954,19 @@ void CMetricModelTest::testProbabilityCalculationForLowSum() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
     CPPUNIT_ASSERT(probabilities[lowSumBucket] < 0.01);
     CPPUNIT_ASSERT(probabilities[highSumBucket] > 0.1);
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighSum() {
-    LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForLowSum ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -1009,7 +1003,7 @@ void CMetricModelTest::testProbabilityCalculationForHighSum() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -1019,33 +1013,31 @@ void CMetricModelTest::testProbabilityCalculationForHighSum() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
     CPPUNIT_ASSERT(probabilities[lowSumBucket] > 0.1);
     CPPUNIT_ASSERT(probabilities[highSumBucket] < 0.01);
 }
 
 void CMetricModelTest::testProbabilityCalculationForLatLong() {
-    LOG_DEBUG("*** testProbabilityCalculationForLatLong ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForLatLong ***");
 
     // TODO
 }
 
 void CMetricModelTest::testInfluence() {
-    LOG_DEBUG("*** testInfluence ***");
+    LOG_DEBUG(<< "*** testInfluence ***");
 
-    using TMinAccumulator = maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator;
-    using TMaxAccumulator = maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator;
     using TStrDoubleDoubleTr = core::CTriple<std::string, double, double>;
     using TStrDoubleDoubleTrVec = std::vector<TStrDoubleDoubleTr>;
     using TStrDoubleDoubleTrVecVec = std::vector<TStrDoubleDoubleTrVec>;
 
-    LOG_DEBUG("Test min and max influence");
+    LOG_DEBUG(<< "Test min and max influence");
 
     for (auto feature : {model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson}) {
         core_t::TTime startTime{0};
@@ -1078,8 +1070,8 @@ void CMetricModelTest::testInfluence() {
             TDoubleVec samples;
             rng.generateNormalSamples(mean, variance, bucketCount, samples);
 
-            TMinAccumulator min;
-            TMaxAccumulator max;
+            maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
+            maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 addArrival(*gatherer, m_ResourceMonitor, time, "p", samples[j], TOptionalStr(influencerValues[j]));
                 min.add(TDoubleStrPr(samples[j], influencerValues[j]));
@@ -1092,7 +1084,7 @@ void CMetricModelTest::testInfluence() {
             SAnnotatedProbability annotatedProbability;
             model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability);
 
-            LOG_DEBUG("influences = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             if (!annotatedProbability.s_Influences.empty()) {
                 std::size_t j = 0u;
                 for (/**/; j < annotatedProbability.s_Influences.size(); ++j) {
@@ -1157,7 +1149,7 @@ void CMetricModelTest::testInfluence() {
         }
     };
 
-    LOG_DEBUG("Test mean");
+    LOG_DEBUG(<< "Test mean");
 
     {
         TDoubleVecVec values{{1.0, 2.3, 2.1},
@@ -1193,7 +1185,7 @@ void CMetricModelTest::testInfluence() {
         testFeature(model_t::E_IndividualMeanByPerson, values, influencers, influences);
     }
 
-    LOG_DEBUG("Test sum");
+    LOG_DEBUG(<< "Test sum");
     {
         TDoubleVecVec values{{1.0, 2.3, 2.1, 5.9},
                              {10.0},
@@ -1229,7 +1221,7 @@ void CMetricModelTest::testInfluence() {
         testFeature(model_t::E_IndividualSumByBucketAndPerson, values, influencers, influences);
     }
 
-    LOG_DEBUG("Test varp");
+    LOG_DEBUG(<< "Test varp");
     {
         TDoubleVecVec values{{1.0, 2.3, 2.1, 5.9},
                              {10.0},
@@ -1273,13 +1265,13 @@ void CMetricModelTest::testInfluence() {
 }
 
 void CMetricModelTest::testLatLongInfluence() {
-    LOG_DEBUG("*** testLatLongInfluence ***");
+    LOG_DEBUG(<< "*** testLatLongInfluence ***");
 
     // TODO
 }
 
 void CMetricModelTest::testPrune() {
-    LOG_DEBUG("*** testPrune ***");
+    LOG_DEBUG(<< "*** testPrune ***");
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
@@ -1413,8 +1405,8 @@ void CMetricModelTest::testPrune() {
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Now check that we recycle the person slots.
@@ -1435,8 +1427,8 @@ void CMetricModelTest::testPrune() {
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Test that calling prune on a cloned model which has seen no new data does nothing
@@ -1469,8 +1461,8 @@ void CMetricModelTest::testKey() {
 
                     CAnomalyDetectorModelConfig::TModelFactoryCPtr factory = config.factory(key);
 
-                    LOG_DEBUG("expected key = " << key);
-                    LOG_DEBUG("actual key   = " << factory->searchKey());
+                    LOG_DEBUG(<< "expected key = " << key);
+                    LOG_DEBUG(<< "actual key   = " << factory->searchKey());
                     CPPUNIT_ASSERT(key == factory->searchKey());
                 }
             }
@@ -1479,7 +1471,7 @@ void CMetricModelTest::testKey() {
 }
 
 void CMetricModelTest::testSkipSampling() {
-    LOG_DEBUG("*** testSkipSampling ***");
+    LOG_DEBUG(<< "*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
@@ -1542,7 +1534,7 @@ void CMetricModelTest::testSkipSampling() {
 
         time += gap;
         modelWithGap.skipSampling(time);
-        LOG_DEBUG("Calling sample over skipped interval should do nothing except print some ERRORs");
+        LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
         modelWithGap.sample(startTime + bucketLength, time, m_ResourceMonitor);
 
         processBucket(
@@ -1563,7 +1555,7 @@ void CMetricModelTest::testSkipSampling() {
 }
 
 void CMetricModelTest::testExplicitNulls() {
-    LOG_DEBUG("*** testExplicitNulls ***");
+    LOG_DEBUG(<< "*** testExplicitNulls ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
@@ -1639,7 +1631,7 @@ void CMetricModelTest::testExplicitNulls() {
 }
 
 void CMetricModelTest::testVarp() {
-    LOG_DEBUG("*** testVarp ***");
+    LOG_DEBUG(<< "*** testVarp ***");
 
     core_t::TTime startTime(500000);
     core_t::TTime bucketLength(1000);
@@ -1679,73 +1671,73 @@ void CMetricModelTest::testVarp() {
 
     core_t::TTime time = startTime;
     processBucket(time, bucketLength, bucket1, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket2, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket3, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket4, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket5, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket6, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket7, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.8);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket8, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.5);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket9, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.5);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket10, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.5);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
     processBucket(time, bucketLength, bucket11, *gatherer, m_ResourceMonitor, model, annotatedProbability, annotatedProbability2);
-    LOG_DEBUG("P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 " << annotatedProbability2.s_Probability);
     CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.5);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 }
 
 void CMetricModelTest::testInterimCorrections() {
-    LOG_DEBUG("*** testInterimCorrections ***");
+    LOG_DEBUG(<< "*** testInterimCorrections ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
@@ -1814,12 +1806,12 @@ void CMetricModelTest::testInterimCorrections() {
     TDouble1Vec p2Baseline = model.baselineBucketMean(model_t::E_IndividualSumByBucketAndPerson, pid2, 0, type, NO_CORRELATES, now);
     TDouble1Vec p3Baseline = model.baselineBucketMean(model_t::E_IndividualSumByBucketAndPerson, pid3, 0, type, NO_CORRELATES, now);
 
-    LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
-    LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
-    LOG_DEBUG("p3 probability = " << annotatedProbability3.s_Probability);
-    LOG_DEBUG("p1 baseline = " << p1Baseline[0]);
-    LOG_DEBUG("p2 baseline = " << p2Baseline[0]);
-    LOG_DEBUG("p3 baseline = " << p3Baseline[0]);
+    LOG_DEBUG(<< "p1 probability = " << annotatedProbability1.s_Probability);
+    LOG_DEBUG(<< "p2 probability = " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "p3 probability = " << annotatedProbability3.s_Probability);
+    LOG_DEBUG(<< "p1 baseline = " << p1Baseline[0]);
+    LOG_DEBUG(<< "p2 baseline = " << p2Baseline[0]);
+    LOG_DEBUG(<< "p3 baseline = " << p3Baseline[0]);
 
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.05);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability < 0.05);
@@ -1830,7 +1822,7 @@ void CMetricModelTest::testInterimCorrections() {
 }
 
 void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
-    LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
+    LOG_DEBUG(<< "*** testInterimCorrectionsWithCorrelations ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
@@ -1903,12 +1895,12 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
     TDouble1Vec p3Baseline = model.baselineBucketMean(
         model_t::E_IndividualSumByBucketAndPerson, pid3, 0, type, annotatedProbability3.s_AttributeProbabilities[0].s_Correlated, now);
 
-    LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
-    LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
-    LOG_DEBUG("p3 probability = " << annotatedProbability3.s_Probability);
-    LOG_DEBUG("p1 baseline = " << p1Baseline[0]);
-    LOG_DEBUG("p2 baseline = " << p2Baseline[0]);
-    LOG_DEBUG("p3 baseline = " << p3Baseline[0]);
+    LOG_DEBUG(<< "p1 probability = " << annotatedProbability1.s_Probability);
+    LOG_DEBUG(<< "p2 probability = " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "p3 probability = " << annotatedProbability3.s_Probability);
+    LOG_DEBUG(<< "p1 baseline = " << p1Baseline[0]);
+    LOG_DEBUG(<< "p2 baseline = " << p2Baseline[0]);
+    LOG_DEBUG(<< "p3 baseline = " << p3Baseline[0]);
 
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.7);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.7);
@@ -1919,7 +1911,7 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
 }
 
 void CMetricModelTest::testCorrelatePersist() {
-    LOG_DEBUG("*** testCorrelatePersist ***");
+    LOG_DEBUG(<< "*** testCorrelatePersist ***");
 
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
@@ -1984,9 +1976,9 @@ void CMetricModelTest::testCorrelatePersist() {
             }
 
             uint64_t origChecksum = model->checksum(false);
-            LOG_DEBUG("original checksum = " << origChecksum);
+            LOG_DEBUG(<< "original checksum = " << origChecksum);
             uint64_t restoredChecksum = restoredModel->checksum(false);
-            LOG_DEBUG("restored checksum = " << restoredChecksum);
+            LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
             CPPUNIT_ASSERT_EQUAL(origChecksum, restoredChecksum);
             CPPUNIT_ASSERT_EQUAL(origXml, newXml);
         }
@@ -1994,7 +1986,7 @@ void CMetricModelTest::testCorrelatePersist() {
 }
 
 void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored() {
-    LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
+    LOG_DEBUG(<< "*** testSummaryCountZeroRecordsAreIgnored ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
@@ -2077,7 +2069,7 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored() {
 }
 
 void CMetricModelTest::testDecayRateControl() {
-    LOG_DEBUG("*** testDecayRateControl ***");
+    LOG_DEBUG(<< "*** testDecayRateControl ***");
 
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
@@ -2091,7 +2083,7 @@ void CMetricModelTest::testDecayRateControl() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("*** Test anomaly ***");
+    LOG_DEBUG(<< "*** Test anomaly ***");
     {
         // Test we don't adapt the decay rate if there is a short-lived
         // anomaly. We should get essentially identical prediction errors
@@ -2116,7 +2108,7 @@ void CMetricModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             TDoubleVec value;
@@ -2132,13 +2124,13 @@ void CMetricModelTest::testDecayRateControl() {
                 std::fabs(referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0] -
                           referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES, t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError), maths::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
-    LOG_DEBUG("*** Test step change ***");
+    LOG_DEBUG(<< "*** Test step change ***");
     {
         // This change point is amongst those we explicitly detect so
         // check we get similar detection performance with and without
@@ -2163,7 +2155,7 @@ void CMetricModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             double value = 10.0 *
@@ -2188,7 +2180,7 @@ void CMetricModelTest::testDecayRateControl() {
             maths::CBasicStatistics::mean(meanReferencePredictionError), maths::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
-    LOG_DEBUG("*** Test unmodelled cyclic component ***");
+    LOG_DEBUG(<< "*** Test unmodelled cyclic component ***");
     {
         // This modulates the event rate using a sine with period 10 weeks
         // effectively there are significant "manoeuvres" in the event rate
@@ -2215,7 +2207,7 @@ void CMetricModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             double value = 10.0 *
@@ -2235,15 +2227,15 @@ void CMetricModelTest::testDecayRateControl() {
                 std::fabs(referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0] -
                           referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES, t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanPredictionError) <
                        0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowMedian() {
-    LOG_DEBUG("*** testProbabilityCalculationForLowMedian ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForLowMedian ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -2280,7 +2272,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -2290,20 +2282,20 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities.begin(), probabilities.end()));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities.begin(), probabilities.end()));
 
     CPPUNIT_ASSERT(probabilities[lowMedianBucket] < 0.01);
     CPPUNIT_ASSERT(probabilities[highMedianBucket] > 0.1);
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighMedian() {
-    LOG_DEBUG("*** testProbabilityCalculationForHighMedian ***");
+    LOG_DEBUG(<< "*** testProbabilityCalculationForHighMedian ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -2340,7 +2332,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian() {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
@@ -2350,20 +2342,20 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian() {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
         CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
 
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
     CPPUNIT_ASSERT(probabilities[lowMedianBucket] > 0.1);
     CPPUNIT_ASSERT(probabilities[highMedianBucket] < 0.01);
 }
 
 void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
+    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data

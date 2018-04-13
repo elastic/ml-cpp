@@ -124,19 +124,19 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
     case E_Normalize:
         // Normalize with the lowest suitable normalizer.
         if (!normalizers[0]->s_Normalizer->normalize(score)) {
-            LOG_ERROR("Failed to normalize " << score << " for " << node.s_Spec.print());
+            LOG_ERROR(<< "Failed to normalize " << score << " for " << node.s_Spec.print());
         }
         node.s_NormalizedAnomalyScore = score;
         break;
     case E_NoOp:
-        LOG_ERROR("Calling normalize without setting job");
+        LOG_ERROR(<< "Calling normalize without setting job");
         break;
     }
 }
 
 void CHierarchicalResultsNormalizer::propagateForwardByTime(double time) {
     if (time < 0.0) {
-        LOG_ERROR("Can't propagate normalizer backwards in time");
+        LOG_ERROR(<< "Can't propagate normalizer backwards in time");
         return;
     }
     this->age(boost::bind(&TNormalizer::propagateForwardByTime, _1, time));
@@ -207,7 +207,7 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
         // Call name() to prime the traverser if it hasn't started
         if (traverser.name() == EMPTY_STRING) {
             if (traverser.isEof()) {
-                LOG_DEBUG("No normalizer state to restore");
+                LOG_DEBUG(<< "No normalizer state to restore");
                 // this is not an error
                 return E_Ok;
             }
@@ -216,12 +216,12 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
         // The MLCUE_ATTRIBUTE should always be the first field
         if (traverser.name() != CAnomalyScore::MLCUE_ATTRIBUTE) {
             if (!traverser.next()) {
-                LOG_INFO("No normalizer state to restore");
+                LOG_INFO(<< "No normalizer state to restore");
                 return E_Ok;
             }
 
-            LOG_ERROR("Expected " << CAnomalyScore::MLCUE_ATTRIBUTE << " field in quantiles JSON got " << traverser.name() << " = "
-                                  << traverser.value());
+            LOG_ERROR(<< "Expected " << CAnomalyScore::MLCUE_ATTRIBUTE << " field in quantiles JSON got " << traverser.name() << " = "
+                      << traverser.value());
             return E_Corrupt;
         }
 
@@ -229,35 +229,34 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
 
         if (cue == BUCKET_CUE) {
             if (CAnomalyScore::normalizerFromJson(traverser, *this->bucketElement().s_Normalizer) == false) {
-                LOG_ERROR("Unable to restore bucket normalizer");
+                LOG_ERROR(<< "Unable to restore bucket normalizer");
                 return E_Corrupt;
             }
 
             isBucketNormalizerRestored = true;
         } else {
-            TWordNormalizerPrVec* normalizerVec = 0;
+            TWordNormalizerPrVec* normalizerVec = nullptr;
             TDictionary::TUInt64Array hashArray;
             if (!this->parseCue(cue, normalizerVec, hashArray)) {
                 return E_Corrupt;
             }
 
-            if (normalizerVec != 0) {
+            if (normalizerVec != nullptr) {
                 if (!traverser.next()) {
-                    LOG_ERROR("Cannot restore hierarchical normalizer - end of object reached when " << CAnomalyScore::MLKEY_ATTRIBUTE
-                                                                                                     << " was expected");
+                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end of object reached when " << CAnomalyScore::MLKEY_ATTRIBUTE
+                              << " was expected");
                     return E_Corrupt;
                 }
 
                 if (!traverser.next()) {
-                    LOG_ERROR("Cannot restore hierarchical normalizer - end of object reached when "
+                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end of object reached when "
                               << CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE << " was expected");
                     return E_Corrupt;
                 }
 
                 if (traverser.name() != CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE) {
-                    LOG_ERROR("Cannot restore hierarchical normalizer - " << CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE
-                                                                          << " element expected but found " << traverser.name() << '='
-                                                                          << traverser.value());
+                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - " << CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE
+                              << " element expected but found " << traverser.name() << '=' << traverser.value());
                     return E_Corrupt;
                 }
 
@@ -266,7 +265,7 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
                 boost::shared_ptr<CAnomalyScore::CNormalizer> normalizer = boost::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig);
                 normalizerVec->emplace_back(TWord(hashArray), TNormalizer(quantileDesc, normalizer));
                 if (CAnomalyScore::normalizerFromJson(traverser, *normalizer) == false) {
-                    LOG_ERROR("Unable to restore normalizer with cue " << cue);
+                    LOG_ERROR(<< "Unable to restore normalizer with cue " << cue);
                     return E_Corrupt;
                 }
             }
@@ -275,10 +274,9 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
 
     this->sort();
 
-    LOG_DEBUG(this->influencerBucketSet().size()
-              << " influencer bucket normalizers, " << this->influencerSet().size() << " influencer normalizers, "
-              << this->partitionSet().size() << " partition normalizers, " << this->personSet().size() << " person normalizers and "
-              << this->leafSet().size() << " leaf normalizers restored from JSON stream");
+    LOG_DEBUG(<< this->influencerBucketSet().size() << " influencer bucket normalizers, " << this->influencerSet().size()
+              << " influencer normalizers, " << this->partitionSet().size() << " partition normalizers, " << this->personSet().size()
+              << " person normalizers and " << this->leafSet().size() << " leaf normalizers restored from JSON stream");
 
     return isBucketNormalizerRestored ? E_Ok : E_Incomplete;
 }
@@ -289,23 +287,23 @@ const CAnomalyScore::CNormalizer& CHierarchicalResultsNormalizer::bucketNormaliz
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::influencerBucketNormalizer(const std::string& influencerFieldName) const {
     const TNormalizer* normalizer = this->influencerBucketElement(influencerFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::influencerNormalizer(const std::string& influencerFieldName) const {
     const TNormalizer* normalizer = this->influencerElement(influencerFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::partitionNormalizer(const std::string& partitionFieldName) const {
     const TNormalizer* normalizer = this->partitionElement(partitionFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::personNormalizer(const std::string& partitionFieldName,
                                                                                    const std::string& personFieldName) const {
     const TNormalizer* normalizer = this->personElement(partitionFieldName, personFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::leafNormalizer(const std::string& partitionFieldName,
@@ -313,13 +311,13 @@ const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::leafNormalizer
                                                                                  const std::string& functionName,
                                                                                  const std::string& valueFieldName) const {
     const TNormalizer* normalizer = this->leafElement(partitionFieldName, personFieldName, functionName, valueFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 bool CHierarchicalResultsNormalizer::parseCue(const std::string& cue,
                                               TWordNormalizerPrVec*& normalizers,
                                               TDictionary::TUInt64Array& hashArray) {
-    normalizers = 0;
+    normalizers = nullptr;
     std::size_t hashStartPos = 0;
 
     if (cue.compare(0, INFLUENCER_BUCKET_CUE_PREFIX.length(), INFLUENCER_BUCKET_CUE_PREFIX) == 0) {
@@ -338,14 +336,14 @@ bool CHierarchicalResultsNormalizer::parseCue(const std::string& cue,
         normalizers = &this->leafSet();
         hashStartPos = LEAF_CUE_PREFIX.length();
     } else {
-        LOG_WARN("Did not understand normalizer cue " << cue);
+        LOG_WARN(<< "Did not understand normalizer cue " << cue);
         return true;
     }
 
-    LOG_TRACE("cue = " << cue << ", hash = " << cue.substr(hashStartPos));
+    LOG_TRACE(<< "cue = " << cue << ", hash = " << cue.substr(hashStartPos));
 
     if (core::CStringUtils::stringToType(cue.substr(hashStartPos), hashArray[0]) == false) {
-        LOG_ERROR("Unable to parse normalizer hash from cue " << cue << " starting at position " << hashStartPos);
+        LOG_ERROR(<< "Unable to parse normalizer hash from cue " << cue << " starting at position " << hashStartPos);
         return false;
     }
 

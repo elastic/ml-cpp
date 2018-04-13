@@ -24,10 +24,10 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
 void CReportWriterTest::testPretty() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+---------------------------------+");
-    LOG_DEBUG("|  CReportWriterTest::testPretty  |");
-    LOG_DEBUG("+---------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+---------------------------------+");
+    LOG_DEBUG(<< "|  CReportWriterTest::testPretty  |");
+    LOG_DEBUG(<< "+---------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -85,7 +85,7 @@ void CReportWriterTest::testPretty() {
     for (core_t::TTime time = startTime; time < endTime; time += static_cast<double>(dt[0])) {
         double progress = static_cast<double>(time - startTime) / static_cast<double>((endTime - startTime));
         if (progress > lastProgress + 0.05) {
-            LOG_DEBUG("Processed " << progress * 100.0 << "%");
+            LOG_DEBUG(<< "Processed " << progress * 100.0 << "%");
             lastProgress = progress;
         }
         ++n;
@@ -127,14 +127,14 @@ void CReportWriterTest::testPretty() {
 
     writer.write();
 
-    LOG_DEBUG(o.str());
+    LOG_DEBUG(<< o.str());
 }
 
 void CReportWriterTest::testJSON() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+-------------------------------+");
-    LOG_DEBUG("|  CReportWriterTest::testJSON  |");
-    LOG_DEBUG("+-------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+-------------------------------+");
+    LOG_DEBUG(<< "|  CReportWriterTest::testJSON  |");
+    LOG_DEBUG(<< "+-------------------------------+");
 }
 
 CppUnit::Test* CReportWriterTest::suite() {

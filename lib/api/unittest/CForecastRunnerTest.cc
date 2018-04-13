@@ -62,7 +62,7 @@ void populateJob(TGenerateRecord generateRecord, ml::api::CAnomalyJob& job, std:
 }
 
 void CForecastRunnerTest::testSummaryCount() {
-    LOG_INFO("*** test forecast on summary count ***");
+    LOG_INFO(<< "*** test forecast on summary count ***");
 
     std::stringstream outputStrm;
     {
@@ -126,7 +126,7 @@ void CForecastRunnerTest::testSummaryCount() {
 }
 
 void CForecastRunnerTest::testPopulation() {
-    LOG_INFO("*** test forecast on population ***");
+    LOG_INFO(<< "*** test forecast on population ***");
 
     std::stringstream outputStrm;
     {
@@ -167,7 +167,7 @@ void CForecastRunnerTest::testPopulation() {
 }
 
 void CForecastRunnerTest::testRare() {
-    LOG_INFO("*** test forecast on rare ***");
+    LOG_INFO(<< "*** test forecast on rare ***");
 
     std::stringstream outputStrm;
     {
@@ -208,7 +208,7 @@ void CForecastRunnerTest::testRare() {
 }
 
 void CForecastRunnerTest::testInsufficientData() {
-    LOG_INFO("*** test insufficient data ***");
+    LOG_INFO(<< "*** test insufficient data ***");
 
     std::stringstream outputStrm;
     {
@@ -239,6 +239,7 @@ void CForecastRunnerTest::testInsufficientData() {
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("31"), std::string(forecastStats["forecast_id"].GetString()));
     CPPUNIT_ASSERT_EQUAL(std::string("finished"), std::string(forecastStats["forecast_status"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(1.0, forecastStats["forecast_progress"].GetDouble());
     CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST,
                          std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     CPPUNIT_ASSERT_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),

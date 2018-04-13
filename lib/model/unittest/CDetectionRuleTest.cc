@@ -70,7 +70,7 @@ CppUnit::Test* CDetectionRuleTest::suite() {
 }
 
 void CDetectionRuleTest::testApplyGivenCategoricalCondition() {
-    LOG_DEBUG("*** testApplyGivenCategoricalCondition ***");
+    LOG_DEBUG(<< "*** testApplyGivenCategoricalCondition ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -122,184 +122,212 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition() {
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 1, 2, 100, actual);
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 1, 3, 100, actual);
 
-    {
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"a1_1\",\"a2_2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(attributeFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"a1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(attributeFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) !=
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"*2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(attributeFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"*1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(attributeFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) !=
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"p2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(personFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"par_1\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(partitionFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
+            isCategoricalMatch);
     }
-    {
+
+    for (auto conditionType : {CRuleCondition::E_CategoricalMatch, CRuleCondition::E_CategoricalComplement}) {
         std::string filterJson("[\"par_2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Categorical);
+        condition.type(conditionType);
         condition.fieldName(partitionFieldName);
         condition.valueFilter(valueFilter);
         CDetectionRule rule;
         rule.addCondition(condition);
 
+        bool isCategoricalMatch = CRuleCondition::E_CategoricalMatch == conditionType;
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) !=
+            isCategoricalMatch);
         CPPUNIT_ASSERT(
-            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) ==
-            false);
+            rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) !=
+            isCategoricalMatch);
     }
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
-    LOG_DEBUG("*** testApplyGivenNumericalActionCondition ***");
+    LOG_DEBUG(<< "*** testApplyGivenNumericalActionCondition ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -411,7 +439,7 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
-    LOG_DEBUG("*** testApplyGivenNumericalTypicalCondition ***");
+    LOG_DEBUG(<< "*** testApplyGivenNumericalTypicalCondition ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -495,7 +523,7 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
-    LOG_DEBUG("*** testApplyGivenNumericalDiffAbsCondition ***");
+    LOG_DEBUG(<< "*** testApplyGivenNumericalDiffAbsCondition ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -601,7 +629,7 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() {
-    LOG_DEBUG("*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
+    LOG_DEBUG(<< "*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -658,7 +686,7 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() 
 }
 
 void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
-    LOG_DEBUG("*** testApplyGivenNoActualValueAvailable ***");
+    LOG_DEBUG(<< "*** testApplyGivenNoActualValueAvailable ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -709,7 +737,7 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
 }
 
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
-    LOG_DEBUG("*** testApplyGivenDifferentSeriesAndIndividualModel ***");
+    LOG_DEBUG(<< "*** testApplyGivenDifferentSeriesAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -764,7 +792,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
 }
 
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
-    LOG_DEBUG("*** testApplyGivenDifferentSeriesAndPopulationModel ***");
+    LOG_DEBUG(<< "*** testApplyGivenDifferentSeriesAndPopulationModel ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -836,7 +864,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
 }
 
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr() {
-    LOG_DEBUG("*** testApplyGivenMultipleConditionsWithOr ***");
+    LOG_DEBUG(<< "*** testApplyGivenMultipleConditionsWithOr ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -963,7 +991,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr() {
 }
 
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
-    LOG_DEBUG("*** testApplyGivenMultipleConditionsWithAnd ***");
+    LOG_DEBUG(<< "*** testApplyGivenMultipleConditionsWithAnd ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -1096,7 +1124,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
 }
 
 void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel() {
-    LOG_DEBUG("*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
+    LOG_DEBUG(<< "*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -1196,7 +1224,7 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
 }
 
 void CDetectionRuleTest::testApplyGivenTimeCondition() {
-    LOG_DEBUG("*** testApplyGivenTimeCondition ***");
+    LOG_DEBUG(<< "*** testApplyGivenTimeCondition ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -1248,7 +1276,7 @@ void CDetectionRuleTest::testApplyGivenTimeCondition() {
 }
 
 void CDetectionRuleTest::testRuleActions() {
-    LOG_DEBUG("*** testRuleActions ***");
+    LOG_DEBUG(<< "*** testRuleActions ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;

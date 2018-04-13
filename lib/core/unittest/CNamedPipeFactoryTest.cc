@@ -251,14 +251,14 @@ void CNamedPipeFactoryTest::testCancelBlock() {
     CPPUNIT_ASSERT(cancellerThread.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
-    CPPUNIT_ASSERT(strm == 0);
+    CPPUNIT_ASSERT(strm == nullptr);
 
     CPPUNIT_ASSERT(cancellerThread.stop());
 }
 
 void CNamedPipeFactoryTest::testErrorIfRegularFile() {
     ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
-    CPPUNIT_ASSERT(strm == 0);
+    CPPUNIT_ASSERT(strm == nullptr);
 }
 
 void CNamedPipeFactoryTest::testErrorIfSymlink() {
@@ -266,7 +266,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     // It's impossible to create a symlink to a named pipe on Windows - they
     // live under \\.\pipe\ and it's not possible to symlink to this part of
     // the file system
-    LOG_DEBUG("symlink test not relevant to Windows");
+    LOG_DEBUG(<< "symlink test not relevant to Windows");
 #else
     static const char* TEST_SYMLINK_NAME = "test_symlink";
 
@@ -279,7 +279,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     CPPUNIT_ASSERT_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
 
     ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME);
-    CPPUNIT_ASSERT(strm == 0);
+    CPPUNIT_ASSERT(strm == nullptr);
 
     CPPUNIT_ASSERT_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));
     CPPUNIT_ASSERT_EQUAL(0, ::unlink(TEST_PIPE_NAME));

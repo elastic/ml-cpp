@@ -943,7 +943,7 @@ public:
     template<typename ITR>
     CVectorNx1(ITR begin, ITR end) {
         if (std::distance(begin, end) != N) {
-            LOG_ERROR("Bad range");
+            LOG_ERROR(<< "Bad range");
             return;
         }
         std::copy(begin, end, &TBase::m_X[0]);

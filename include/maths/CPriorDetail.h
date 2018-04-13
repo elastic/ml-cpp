@@ -15,7 +15,7 @@ template<typename F, typename T>
 bool CPrior::expectation(const F& f, std::size_t numberIntervals, T& result, const TWeightStyleVec& weightStyles, const TDouble4Vec& weight)
     const {
     if (numberIntervals == 0) {
-        LOG_ERROR("Must specify non-zero number of intervals");
+        LOG_ERROR(<< "Must specify non-zero number of intervals");
         return false;
     }
 

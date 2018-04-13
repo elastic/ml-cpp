@@ -97,7 +97,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
     result = RESULT();
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
 
@@ -123,7 +123,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                 double x = samples[i];
                 double n = maths_t::count(weightStyles, weights[i]);
                 if (!CMathsFuncs::isFinite(n)) {
-                    LOG_ERROR("Bad count weight " << n);
+                    LOG_ERROR(<< "Bad count weight " << n);
                     return false;
                 }
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -177,11 +177,11 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Error calculating joint distribution: " << e.what());
+        LOG_ERROR(<< "Error calculating joint distribution: " << e.what());
         return false;
     }
 
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }
@@ -290,7 +290,7 @@ public:
                 m_PredictionMean,
                 probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR("Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples");
             return false;
         }
 
@@ -413,7 +413,7 @@ private:
                          0.5 * logVarianceScaleSum + boost::math::lgamma(impliedShape) - boost::math::lgamma(m_Shape) +
                          m_Shape * std::log(m_Rate);
         } catch (const std::exception& e) {
-            LOG_ERROR("Error calculating marginal likelihood: " << e.what());
+            LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
         }
     }
@@ -560,8 +560,8 @@ void CNormalMeanPrecConjugate::addSamples(const TWeightStyleVec& weightStyles, c
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return;
     }
 
@@ -631,7 +631,7 @@ void CNormalMeanPrecConjugate::addSamples(const TWeightStyleVec& weightStyles, c
             sampleMoments.add(samples[i], n / varianceScale);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to update likelihood: " << e.what());
+        LOG_ERROR(<< "Failed to update likelihood: " << e.what());
         return;
     }
     double scaledNumberSamples = CBasicStatistics::count(sampleMoments);
@@ -664,22 +664,22 @@ void CNormalMeanPrecConjugate::addSamples(const TWeightStyleVec& weightStyles, c
         m_GammaRate = std::max(m_GammaRate, minimumRate);
     }
 
-    LOG_TRACE("sampleMean = " << sampleMean << ", sampleSquareDeviation = " << sampleSquareDeviation
-                              << ", numberSamples = " << numberSamples << ", scaledNumberSamples = " << scaledNumberSamples
-                              << ", m_GammaShape = " << m_GammaShape << ", m_GammaRate = " << m_GammaRate
-                              << ", m_GaussianMean = " << m_GaussianMean << ", m_GaussianPrecision = " << m_GaussianPrecision);
+    LOG_TRACE(<< "sampleMean = " << sampleMean << ", sampleSquareDeviation = " << sampleSquareDeviation
+              << ", numberSamples = " << numberSamples << ", scaledNumberSamples = " << scaledNumberSamples
+              << ", m_GammaShape = " << m_GammaShape << ", m_GammaRate = " << m_GammaRate << ", m_GaussianMean = " << m_GaussianMean
+              << ", m_GaussianPrecision = " << m_GaussianPrecision);
 
     if (this->isBad()) {
-        LOG_ERROR("Update failed (" << this->debug() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Update failed (" << this->debug() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
 
 void CNormalMeanPrecConjugate::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
 
@@ -710,8 +710,8 @@ void CNormalMeanPrecConjugate::propagateForwardsByTime(double time) {
 
     this->numberSamples(this->numberSamples() * alpha);
 
-    LOG_TRACE("time = " << time << ", alpha = " << alpha << ", m_GaussianPrecision = " << m_GaussianPrecision << ", m_GammaShape = "
-                        << m_GammaShape << ", m_GammaRate = " << m_GammaRate << ", numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "time = " << time << ", alpha = " << alpha << ", m_GaussianPrecision = " << m_GaussianPrecision
+              << ", m_GammaShape = " << m_GammaShape << ", m_GammaRate = " << m_GammaRate << ", numberSamples = " << this->numberSamples());
 }
 
 CNormalMeanPrecConjugate::TDoubleDoublePr CNormalMeanPrecConjugate::marginalLikelihoodSupport() const {
@@ -743,7 +743,7 @@ double CNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVe
     double varianceScale = 1.0;
     try {
         varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) * maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to get variance scale: " << e.what()); }
     double a = m_GammaShape;
     double b = m_GammaRate;
     double t = m_GaussianPrecision;
@@ -778,7 +778,7 @@ CNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(double percentage
             x1 = seasonalScale != 1.0 ? m + seasonalScale * (x1 - m) : x1;
             double x2 = percentage > 0.0 ? boost::math::quantile(normal, (1.0 + percentage) / 2.0) - (this->isInteger() ? 0.5 : 0.0) : x1;
             x2 = seasonalScale != 1.0 ? m + seasonalScale * (x2 - m) : x2;
-            LOG_TRACE("x1 = " << x1 << ", x2 = " << x2 << ", scale = " << scale);
+            LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2 << ", scale = " << scale);
             return std::make_pair(x1, x2);
         }
         boost::math::students_t_distribution<> students(2.0 * m_GammaShape);
@@ -788,9 +788,9 @@ CNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(double percentage
                                            (this->isInteger() ? 0.5 : 0.0)
                                      : x1;
         x2 = seasonalScale != 1.0 ? m + seasonalScale * (x2 - m) : x2;
-        LOG_TRACE("x1 = " << x1 << ", x2 = " << x2 << ", scale = " << scale);
+        LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2 << ", scale = " << scale);
         return std::make_pair(x1, x2);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to compute confidence interval: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to compute confidence interval: " << e.what()); }
 
     return this->marginalLikelihoodSupport();
 }
@@ -802,13 +802,13 @@ maths_t::EFloatingPointErrorStatus CNormalMeanPrecConjugate::jointLogMarginalLik
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -836,13 +836,13 @@ maths_t::EFloatingPointErrorStatus CNormalMeanPrecConjugate::jointLogMarginalLik
     maths_t::EFloatingPointErrorStatus status =
         static_cast<maths_t::EFloatingPointErrorStatus>(logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("Failed to compute log likelihood (" << this->debug() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
     } else if (status & maths_t::E_FpOverflowed) {
-        LOG_TRACE("Log likelihood overflowed for (" << this->debug() << ")");
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
     }
     return status;
 }
@@ -914,7 +914,7 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
     if (m_GammaShape > MINIMUM_GAUSSIAN_SHAPE) {
         double variance = (m_GaussianPrecision + 1.0) / m_GaussianPrecision * m_GammaRate / m_GammaShape;
 
-        LOG_TRACE("mean = " << m_GaussianMean << ", variance = " << variance << ", numberSamples = " << numberSamples);
+        LOG_TRACE(<< "mean = " << m_GaussianMean << ", variance = " << variance << ", numberSamples = " << numberSamples);
 
         try {
             boost::math::normal_distribution<> normal(m_GaussianMean, std::sqrt(variance));
@@ -927,20 +927,20 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
 
                 double sample = static_cast<double>(numberSamples) * (partialExpectation - lastPartialExpectation);
 
-                LOG_TRACE("sample = " << sample);
+                LOG_TRACE(<< "sample = " << sample);
 
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
                     samples.push_back(sample);
                 } else {
-                    LOG_ERROR("Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean
-                                                                << ", variance = " << variance << ", q = " << q << ", x(q) = " << xq);
+                    LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean
+                              << ", variance = " << variance << ", q = " << q << ", x(q) = " << xq);
                 }
 
                 lastPartialExpectation = partialExpectation;
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to sample: " << e.what() << ", gaussianMean = " << m_GaussianMean << ", variance = " << variance);
+            LOG_ERROR(<< "Failed to sample: " << e.what() << ", gaussianMean = " << m_GaussianMean << ", variance = " << variance);
         }
     } else {
         double degreesFreedom = 2.0 * m_GammaShape;
@@ -950,8 +950,8 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
 
             double scale = std::sqrt((m_GaussianPrecision + 1.0) / m_GaussianPrecision * m_GammaRate / m_GammaShape);
 
-            LOG_TRACE("degreesFreedom = " << degreesFreedom << ", mean = " << m_GaussianMean << ", scale = " << scale
-                                          << ", numberSamples = " << numberSamples);
+            LOG_TRACE(<< "degreesFreedom = " << degreesFreedom << ", mean = " << m_GaussianMean << ", scale = " << scale
+                      << ", numberSamples = " << numberSamples);
 
             double constant = CTools::safePdf(students, 0.0) * scale * degreesFreedom / (degreesFreedom - 1.0);
 
@@ -966,31 +966,30 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
 
                 double sample = static_cast<double>(numberSamples) * (partialExpectation - lastPartialExpectation);
 
-                LOG_TRACE("sample = " << sample);
+                LOG_TRACE(<< "sample = " << sample);
 
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
                     samples.push_back(sample);
                 } else {
-                    LOG_ERROR("Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean
-                                                                << ", constant = " << constant << ", residual = " << residual
-                                                                << ", q = " << q << ", x(q) = " << xq);
+                    LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean
+                              << ", constant = " << constant << ", residual = " << residual << ", q = " << q << ", x(q) = " << xq);
                 }
 
                 lastPartialExpectation = partialExpectation;
             }
-        } catch (const std::exception& e) { LOG_ERROR("Failed to sample: " << e.what() << ", degreesFreedom = " << degreesFreedom); }
+        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to sample: " << e.what() << ", degreesFreedom = " << degreesFreedom); }
     }
 
     double sample = static_cast<double>(numberSamples) * (m_GaussianMean - lastPartialExpectation);
 
-    LOG_TRACE("sample = " << sample);
+    LOG_TRACE(<< "sample = " << sample);
 
     // Sanity check the sample: should be in the distribution support.
     if (sample >= support.first && sample <= support.second) {
         samples.push_back(sample);
     } else {
-        LOG_ERROR("Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean);
+        LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", gaussianMean = " << m_GaussianMean);
     }
 }
 
@@ -1019,7 +1018,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec& weightSty
         // on the interval [0,1].
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1029,7 +1028,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec& weightSty
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1062,7 +1061,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleVec&
         // on the interval [0,1].
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1072,7 +1071,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleVec&
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR("Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1107,7 +1106,7 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProbabil
         // on the interval [0,1].
         double value;
         if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(probability, 0.0, 1.0, value)) {
-            LOG_ERROR("Failed computing probability for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing probability for " << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1119,7 +1118,7 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProbabil
 
     double value;
     if (!probability(0.0, value)) {
-        LOG_ERROR("Failed computing probability for " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing probability for " << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1291,8 +1290,8 @@ CNormalMeanPrecConjugate::TDoubleDoublePr CNormalMeanPrecConjugate::confidenceIn
 }
 
 bool CNormalMeanPrecConjugate::equalTolerance(const CNormalMeanPrecConjugate& rhs, const TEqualWithTolerance& equal) const {
-    LOG_DEBUG(m_GaussianMean << " " << rhs.m_GaussianMean << ", " << m_GaussianPrecision << " " << rhs.m_GaussianPrecision << ", "
-                             << m_GammaShape << " " << rhs.m_GammaShape << ", " << m_GammaRate << " " << rhs.m_GammaRate);
+    LOG_DEBUG(<< m_GaussianMean << " " << rhs.m_GaussianMean << ", " << m_GaussianPrecision << " " << rhs.m_GaussianPrecision << ", "
+              << m_GammaShape << " " << rhs.m_GammaShape << ", " << m_GammaRate << " " << rhs.m_GammaRate);
 
     return equal(m_GaussianMean, rhs.m_GaussianMean) && equal(m_GaussianPrecision, rhs.m_GaussianPrecision) &&
            equal(m_GammaShape, rhs.m_GammaShape) && equal(m_GammaRate, rhs.m_GammaRate);

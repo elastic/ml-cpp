@@ -322,7 +322,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return {ql * variance / df, qu * variance / df};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", df = " << df << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", df = " << df << ", confidence = " << confidence);
         }
     }
 
@@ -336,17 +336,17 @@ void CTrendComponent::forecast(core_t::TTime startTime,
                                const TSeasonalForecast& seasonal,
                                const TWriteForecastResult& writer) const {
     if (endTime < startTime) {
-        LOG_ERROR("Bad forecast range: [" << startTime << "," << endTime << "]");
+        LOG_ERROR(<< "Bad forecast range: [" << startTime << "," << endTime << "]");
         return;
     }
     if (confidence < 0.0 || confidence >= 100.0) {
-        LOG_ERROR("Bad confidence interval: " << confidence << "%");
+        LOG_ERROR(<< "Bad confidence interval: " << confidence << "%");
         return;
     }
 
     endTime = startTime + CIntegerTools::ceil(endTime - startTime, step);
 
-    LOG_TRACE("forecasting = " << this->print());
+     LOG_TRACE(<< "forecasting = " << this->print());
 
     TDoubleVec factors(this->factors(step));
     TDoubleVec modelWeights(this->initialForecastModelWeights());
@@ -365,7 +365,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         LOG_TRACE("covariances = " << modelCovariances[i].toDelimited())
         LOG_TRACE("variances   = " << residualVariances[i]);
     }
-    LOG_TRACE("long time variance = " << CBasicStatistics::variance(m_ValueMoments));
+    LOG_TRACE(<< "long time variance = " << CBasicStatistics::variance(m_ValueMoments));
 
     CForecastLevel level{m_ProbabilityOfLevelChangeModel, m_MagnitudeOfLevelChangeModel, m_TimeOfLastLevelChange};
 

@@ -394,7 +394,7 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{0} {
+CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{nullptr} {
 }
 CTimeSeriesDecompositionDetail::CHandler::~CHandler() {
 }
@@ -524,7 +524,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& m
         this->handle(message);
         break;
     default:
-        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
         this->apply(PT_RESET, message);
         break;
     }
@@ -560,7 +560,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     case PT_INITIAL:
         break;
     default:
-        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
         this->apply(PT_RESET, message);
         break;
     }
@@ -610,7 +610,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     std::size_t state{m_Machine.state()};
 
     if (state != old) {
-        LOG_TRACE(PT_STATES[old] << "," << PT_ALPHABET[symbol] << " -> " << PT_STATES[state]);
+        LOG_TRACE(<< PT_STATES[old] << "," << PT_ALPHABET[symbol] << " -> " << PT_STATES[state]);
 
         auto initialize = [this](core_t::TTime time_) {
             for (auto i : {E_Short, E_Long}) {
@@ -635,7 +635,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
             m_Windows[1].reset();
             break;
         default:
-            LOG_ERROR("Test in a bad state: " << state);
+            LOG_ERROR(<< "Test in a bad state: " << state);
             this->apply(PT_RESET, message);
             break;
         }
@@ -670,7 +670,7 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
             TTimeCRng bucketLengths_(bucketLengths, a, b);
             return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate);
         }
-        return static_cast<CExpandingWindow*>(0);
+        return static_cast<CExpandingWindow*>(nullptr);
     };
 
     switch (test) {
@@ -679,7 +679,7 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
     case E_Long:
         return newWindow(LONG_BUCKET_LENGTHS);
     }
-    return 0;
+    return nullptr;
 }
 
 const TTimeVec CTimeSeriesDecompositionDetail::CPeriodicityTest::SHORT_BUCKET_LENGTHS{1, 5, 10, 30, 60, 300, 600, 1800, 3600};
@@ -751,7 +751,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
         this->handle(message);
         break;
     default:
-        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
         this->apply(CC_RESET, message);
         break;
     }
@@ -786,7 +786,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
         case CC_INITIAL:
             break;
         default:
-            LOG_ERROR("Test in a bad state: " << m_Machine.state());
+            LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
             this->apply(CC_RESET, message);
             break;
         }
@@ -834,7 +834,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol, co
     std::size_t state{m_Machine.state()};
 
     if (state != old) {
-        LOG_TRACE(CC_STATES[old] << "," << CC_ALPHABET[symbol] << " -> " << CC_STATES[state]);
+        LOG_TRACE(<< CC_STATES[old] << "," << CC_ALPHABET[symbol] << " -> " << CC_STATES[state]);
 
         switch (state) {
         case CC_TEST:
@@ -849,7 +849,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol, co
             m_LastMonth = int{};
             break;
         default:
-            LOG_ERROR("Test in a bad state: " << state);
+            LOG_ERROR(<< "Test in a bad state: " << state);
             this->apply(CC_RESET, message);
             break;
         }
@@ -882,7 +882,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate, core_
       m_CalendarComponentSize{seasonalComponentSize / 3},
       m_Trend{decayRate},
       m_UsingTrendForPrediction{false},
-      m_Watcher{0} {
+      m_Watcher{nullptr} {
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
@@ -892,13 +892,13 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize},
       m_Trend{other.m_Trend},
-      m_Seasonal{other.m_Seasonal ? new SSeasonal{*other.m_Seasonal} : 0},
-      m_Calendar{other.m_Calendar ? new SCalendar{*other.m_Calendar} : 0},
+      m_Seasonal{other.m_Seasonal ? new SSeasonal{*other.m_Seasonal} : nullptr},
+      m_Calendar{other.m_Calendar ? new SCalendar{*other.m_Calendar} : nullptr},
       m_MeanVarianceScale{other.m_MeanVarianceScale},
       m_Moments{other.m_Moments},
       m_MomentsMinusTrend{other.m_MomentsMinusTrend},
       m_UsingTrendForPrediction{other.m_UsingTrendForPrediction},
-      m_Watcher{0} {
+      m_Watcher{nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -1063,7 +1063,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
     case SC_DISABLED:
         break;
     default:
-        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Components in a bad state: " << m_Machine.state());
         this->apply(SC_RESET, message);
         break;
     }
@@ -1096,7 +1096,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         if (m_Watcher) {
             *m_Watcher = true;
         }
-        LOG_DEBUG("Detected seasonal components at " << time);
+        LOG_DEBUG(<< "Detected seasonal components at " << time);
 
         m_UsingTrendForPrediction = true;
         this->clearComponentErrors();
@@ -1107,7 +1107,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
     case SC_DISABLED:
         break;
     default:
-        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Components in a bad state: " << m_Machine.state());
         this->apply(SC_RESET, message);
         break;
     }
@@ -1144,7 +1144,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     case SC_DISABLED:
         break;
     default:
-        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        LOG_ERROR(<< "Components in a bad state: " << m_Machine.state());
         this->apply(SC_RESET, message);
         break;
     }
@@ -1179,7 +1179,7 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
     case SC_NEW_COMPONENTS:
         this->canonicalize(time);
         if (this->shouldInterpolate(time, lastTime)) {
-            LOG_TRACE("Interpolating values at " << time);
+            LOG_TRACE(<< "Interpolating values at " << time);
 
             if (m_Seasonal) {
                 m_Seasonal->interpolate(time, lastTime, true);
@@ -1194,7 +1194,7 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
     case SC_DISABLED:
         break;
     default:
-        LOG_ERROR("Components in a bad state: " << state);
+        LOG_ERROR(<< "Components in a bad state: " << state);
         this->apply(SC_RESET, message);
         break;
     }
@@ -1347,7 +1347,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CP
         if (std::find_if(components.begin(), components.end(), [&seasonalTime](const CSeasonalComponent& component) {
                 return component.time().excludes(*seasonalTime);
             }) == components.end()) {
-            LOG_DEBUG("Detected '" << candidate_.s_Description << "'");
+            LOG_DEBUG(<< "Detected '" << candidate_.s_Description << "'");
             newSeasonalTimes.push_back(seasonalTime);
         }
     }
@@ -1403,7 +1403,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
     components.emplace_back(feature, m_CalendarComponentSize, m_DecayRate, bucketLength, CSplineTypes::E_Natural);
     components.back().initialize();
     errors.resize(components.size());
-    LOG_DEBUG("Detected feature '" << feature.print() << "' at " << time);
+    LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
     return true;
 }
 
@@ -1432,7 +1432,7 @@ void CTimeSeriesDecompositionDetail::CComponents::apply(std::size_t symbol, cons
     std::size_t state{m_Machine.state()};
 
     if (state != old) {
-        LOG_TRACE(SC_STATES[old] << "," << SC_ALPHABET[symbol] << " -> " << SC_STATES[state]);
+        LOG_TRACE(<< SC_STATES[old] << "," << SC_ALPHABET[symbol] << " -> " << SC_STATES[state]);
 
         switch (state) {
         case SC_NORMAL:
@@ -1445,7 +1445,7 @@ void CTimeSeriesDecompositionDetail::CComponents::apply(std::size_t symbol, cons
             m_Calendar.reset();
             break;
         default:
-            LOG_ERROR("Components in a bad state: " << m_Machine.state());
+            LOG_ERROR(<< "Components in a bad state: " << m_Machine.state());
             this->apply(SC_RESET, message);
             break;
         }
@@ -1490,7 +1490,7 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
             }
         }
 
-        LOG_TRACE("slope = " << core::CContainerPrinter::print(slope));
+        LOG_TRACE(<< "slope = " << core::CContainerPrinter::print(slope));
         shiftSlope(slope, m_DecayRate, m_Trend);
     }
 }
@@ -1505,7 +1505,7 @@ CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::CScopeNo
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::~CScopeNotifyOnStateChange() {
-    m_Components.notifyOnNewComponents(0);
+    m_Components.notifyOnNewComponents(nullptr);
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::changed() const {
@@ -1519,7 +1519,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::fromDelimite
     for (std::size_t i = 0u, n = 0; i < 2; ++i, suffix = suffix.substr(n + 1)) {
         n = suffix.find(CBasicStatistics::EXTERNAL_DELIMITER);
         if (!state[i]->fromDelimited(suffix.substr(0, n))) {
-            LOG_ERROR("Failed to parse '" << str << "'");
+            LOG_ERROR(<< "Failed to parse '" << str << "'");
             return false;
         }
     }
@@ -1715,7 +1715,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
             auto j = windowed.find(time_.window());
             if (j == windowed.end() || j->second > 1) {
                 if (s_PredictionErrors[i].remove(bucketLength, s_Components[i])) {
-                    LOG_DEBUG("Removing seasonal component"
+                    LOG_DEBUG(<< "Removing seasonal component"
                               << " with period '" << time_.period() << "' at " << time);
                     remove[i] = true;
                     shifts[time_.window()] += s_Components[i].meanValue();
@@ -1899,7 +1899,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SCalendar::prune(core_t::TTime
     TBoolVec remove(s_Components.size(), false);
     for (std::size_t i = 0u; i < s_Components.size(); ++i) {
         if (s_PredictionErrors[i].remove(bucketLength, s_Components[i])) {
-            LOG_DEBUG("Removing calendar component"
+            LOG_DEBUG(<< "Removing calendar component"
                       << " '" << s_Components[i].feature().print() << "' at " << time);
             remove[i] = true;
         }

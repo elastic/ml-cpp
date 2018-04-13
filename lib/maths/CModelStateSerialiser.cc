@@ -34,13 +34,13 @@ operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRes
             result.reset(new CModelStub());
             ++numResults;
         } else {
-            LOG_ERROR("No model corresponds to name " << traverser.name());
+            LOG_ERROR(<< "No model corresponds to name " << traverser.name());
             return false;
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") model tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") model tags");
         result.reset();
         return false;
     }
@@ -49,14 +49,14 @@ operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRes
 }
 
 void CModelStateSerialiser::operator()(const CModel& model, core::CStatePersistInserter& inserter) const {
-    if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != 0) {
+    if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != nullptr) {
         inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG, boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != 0) {
+    } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != nullptr) {
         inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG, boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CModelStub*>(&model) != 0) {
+    } else if (dynamic_cast<const CModelStub*>(&model) != nullptr) {
         inserter.insertValue(MODEL_STUB_TAG, "");
     } else {
-        LOG_ERROR("Model with type '" << typeid(model).name() << "' has no defined name");
+        LOG_ERROR(<< "Model with type '" << typeid(model).name() << "' has no defined name");
     }
 }
 }

@@ -155,7 +155,7 @@ struct STypeInfoLess {
 //! that we can't simply check if capacity > N because N is treated
 //! as a guideline.
 template<typename T, std::size_t N>
-static bool inplace(const CSmallVector<T, N>& t) {
+bool inplace(const CSmallVector<T, N>& t) {
     const char* address = reinterpret_cast<const char*>(&t);
     const char* storage = reinterpret_cast<const char*>(t.data());
     return storage >= address && storage < address + sizeof t;
@@ -240,7 +240,7 @@ public:
                 if (i != m_Callbacks.end() && i->first.get() == x.type()) {
                     return (*i->second)(x);
                 }
-                LOG_ERROR("No callback registered for " << x.type().name());
+                LOG_ERROR(<< "No callback registered for " << x.type().name());
             }
             return 0;
         }
@@ -251,7 +251,7 @@ public:
         static std::size_t dynamicSizeCallback(const boost::any& any) {
             try {
                 return sizeof(T) + CMemory::dynamicSize(boost::any_cast<const T&>(any));
-            } catch (const std::exception& e) { LOG_ERROR("Failed to calculate size " << e.what()); }
+            } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate size " << e.what()); }
             return 0;
         }
 
@@ -261,7 +261,7 @@ public:
 public:
     //! Default template.
     template<typename T>
-    static std::size_t dynamicSize(const T& t, typename boost::disable_if<typename boost::is_pointer<T>>::type* = 0) {
+    static std::size_t dynamicSize(const T& t, typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             mem += memory_detail::SMemoryDynamicSize<T>::dispatch(t);
@@ -271,8 +271,8 @@ public:
 
     //! Overload for pointer.
     template<typename T>
-    static std::size_t dynamicSize(const T& t, typename boost::enable_if<typename boost::is_pointer<T>>::type* = 0) {
-        if (t == 0) {
+    static std::size_t dynamicSize(const T& t, typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+        if (t == nullptr) {
             return 0;
         }
         return staticSize(*t) + dynamicSize(*t);
@@ -335,15 +335,15 @@ public:
 // verification
 // See http://linux/wiki/index.php/Technical_design_issues#std::string
 #ifdef MacOSX
-        // For lengths up to 22 bytes there is no allocation
         if (capacity <= 22) {
+            // For lengths up to 22 bytes there is no allocation
             return 0;
         }
         return capacity + 1;
 
-#else // Linux with C++11 ABI and Windows                                                                                                  \
-      // For lengths up to 15 bytes there is no allocation
+#else // Linux with C++11 ABI and Windows
         if (capacity <= 15) {
+            // For lengths up to 15 bytes there is no allocation
             return 0;
         }
         return capacity + 1;
@@ -607,7 +607,7 @@ public:
                     (*i->second)(name, x, mem);
                     return;
                 }
-                LOG_ERROR("No callback registered for " << x.type().name());
+                LOG_ERROR(<< "No callback registered for " << x.type().name());
             }
         }
 
@@ -618,7 +618,7 @@ public:
             try {
                 mem->addItem(name, sizeof(T));
                 CMemoryDebug::dynamicSize(name, boost::any_cast<const T&>(any), mem);
-            } catch (const std::exception& e) { LOG_ERROR("Failed to calculate size " << e.what()); }
+            } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate size " << e.what()); }
         }
 
         TTypeInfoDynamicSizeFuncPrVec m_Callbacks;
@@ -630,7 +630,7 @@ public:
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
-                            typename boost::disable_if<typename boost::is_pointer<T>>::type* = 0) {
+                            typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, t, mem);
     }
 
@@ -639,8 +639,8 @@ public:
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
-                            typename boost::enable_if<typename boost::is_pointer<T>>::type* = 0) {
-        if (t != 0) {
+                            typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+        if (t != nullptr) {
             mem->addItem("ptr", CMemory::staticSize(*t));
             memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
         }
@@ -722,20 +722,20 @@ public:
         std::size_t capacity = t.capacity();
         std::size_t unused = 0;
 #ifdef MacOSX
-        // For lengths up to 22 bytes there is no allocation
         if (capacity > 22) {
             unused = capacity - length;
             ++capacity;
         } else {
+            // For lengths up to 22 bytes there is no allocation
             capacity = 0;
         }
 
-#else // Linux with C++11 ABI and Windows                                                                                                  \
-      // For lengths up to 15 bytes there is no allocation
+#else // Linux with C++11 ABI and Windows
         if (capacity > 15) {
             unused = capacity - length;
             ++capacity;
         } else {
+            // For lengths up to 15 bytes there is no allocation
             capacity = 0;
         }
 #endif

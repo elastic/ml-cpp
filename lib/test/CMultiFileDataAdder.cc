@@ -29,7 +29,7 @@ CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::strin
 
     TOStreamP strm(boost::make_shared<std::ofstream>(filename.c_str()));
     if (!strm->good()) {
-        LOG_ERROR("Failed to create new output stream for file " << filename);
+        LOG_ERROR(<< "Failed to create new output stream for file " << filename);
         strm.reset();
     }
 
@@ -38,7 +38,7 @@ CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::strin
 
 bool CMultiFileDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
     std::ofstream* ofs(dynamic_cast<std::ofstream*>(strm.get()));
-    if (ofs == 0) {
+    if (ofs == nullptr) {
         return false;
     }
 
@@ -61,7 +61,7 @@ std::string CMultiFileDataAdder::makeFilename(const std::string& index, const st
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(filename);
         boost::filesystem::create_directories(directoryPath);
-    } catch (std::exception& e) { LOG_ERROR("Failed to create directory " << filename << " - " << e.what()); }
+    } catch (std::exception& e) { LOG_ERROR(<< "Failed to create directory " << filename << " - " << e.what()); }
 
     filename += '/';
     filename += id;

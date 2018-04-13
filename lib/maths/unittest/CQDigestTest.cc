@@ -31,9 +31,9 @@ using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
 using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 void CQDigestTest::testAdd() {
-    LOG_DEBUG("+-------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testAdd  |");
-    LOG_DEBUG("+-------------------------+");
+    LOG_DEBUG(<< "+-------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testAdd  |");
+    LOG_DEBUG(<< "+-------------------------+");
 
     // We test the space and error bounds on the quantile calculations
     // for various inputs.
@@ -46,7 +46,7 @@ void CQDigestTest::testAdd() {
             qDigest.add(5);
         }
 
-        LOG_DEBUG(qDigest.print());
+        LOG_DEBUG(<< qDigest.print());
 
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
@@ -68,7 +68,7 @@ void CQDigestTest::testAdd() {
         for (std::size_t i = 0u; i < 5u; ++i) {
             qDigest.add(static_cast<uint32_t>(i));
 
-            LOG_DEBUG(qDigest.print());
+            LOG_DEBUG(<< qDigest.print());
 
             CPPUNIT_ASSERT(qDigest.checkInvariants());
 
@@ -114,8 +114,8 @@ void CQDigestTest::testAdd() {
                     double error = (static_cast<double>(rank) - q * n) / n;
 
                     if ((i + 1) % 1000 == 0) {
-                        LOG_DEBUG("q = " << q << ", quantile = " << quantile << ", rank = " << rank << ", n = " << n << ", error "
-                                         << error);
+                        LOG_DEBUG(<< "q = " << q << ", quantile = " << quantile << ", rank = " << rank << ", n = " << n << ", error "
+                                  << error);
                     }
 
                     CPPUNIT_ASSERT(std::fabs(error) < 0.06);
@@ -129,7 +129,7 @@ void CQDigestTest::testAdd() {
             totalErrors[i] /= static_cast<double>(samples.size());
         }
 
-        LOG_DEBUG("total errors = " << core::CContainerPrinter::print(totalErrors));
+        LOG_DEBUG(<< "total errors = " << core::CContainerPrinter::print(totalErrors));
 
         for (size_t i = 0; i < boost::size(totalErrors); ++i) {
             CPPUNIT_ASSERT(totalErrors[i] < expectedMaxErrors[i]);
@@ -142,9 +142,9 @@ void CQDigestTest::testMerge() {
 }
 
 void CQDigestTest::testCdf() {
-    LOG_DEBUG("+-------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testCdf  |");
-    LOG_DEBUG("+-------------------------+");
+    LOG_DEBUG(<< "+-------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testCdf  |");
+    LOG_DEBUG(<< "+-------------------------+");
 
     // We check the relationship that c.d.f. is the approximate inverse
     // of quantile. We also test the quality of the approximation versus
@@ -166,14 +166,14 @@ void CQDigestTest::testCdf() {
 
     TUInt32UInt64PrVec summary;
     qDigest.summary(summary);
-    LOG_DEBUG("summary = " << core::CContainerPrinter::print(summary));
+    LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
     for (std::size_t i = 0u; i < summary.size(); ++i) {
         double lowerBound;
         double upperBound;
         qDigest.cdf(summary[i].first, 0.0, lowerBound, upperBound);
 
-        LOG_DEBUG("x = " << summary[i].first << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
+        LOG_DEBUG(<< "x = " << summary[i].first << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
         double fx = static_cast<double>(summary[i].second) / 100.0;
 
@@ -186,7 +186,7 @@ void CQDigestTest::testCdf() {
     }
 
     qDigest.summary(summary);
-    LOG_DEBUG("summary = " << core::CContainerPrinter::print(summary));
+    LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
     for (std::size_t i = 0u; i < summary.size(); ++i) {
         double lowerBound;
@@ -199,7 +199,7 @@ void CQDigestTest::testCdf() {
         // Get the true c.d.f. value.
         double ft = std::min(static_cast<double>(summary[i].first) / 500.0, 1.0);
 
-        LOG_DEBUG("x = " << summary[i].first << ", F(x) = " << ft << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
+        LOG_DEBUG(<< "x = " << summary[i].first << ", F(x) = " << ft << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
         CPPUNIT_ASSERT(fx >= lowerBound && fx <= upperBound);
         CPPUNIT_ASSERT(ft >= lowerBound - 0.01 && ft <= upperBound + 0.01);
@@ -207,9 +207,9 @@ void CQDigestTest::testCdf() {
 }
 
 void CQDigestTest::testSummary() {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testSummary  |");
-    LOG_DEBUG("+-----------------------------+");
+    LOG_DEBUG(<< "+-----------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testSummary  |");
+    LOG_DEBUG(<< "+-----------------------------+");
 
     // Check that quantiles of the summary agree with the digest.
     {
@@ -228,7 +228,7 @@ void CQDigestTest::testSummary() {
 
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
-        LOG_DEBUG("summary = " << core::CContainerPrinter::print(summary));
+        LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
         for (std::size_t i = 0u; i < summary.size(); ++i) {
             double q = static_cast<double>(summary[i].second) / 100.0;
@@ -236,7 +236,7 @@ void CQDigestTest::testSummary() {
             uint32_t xq;
             qDigest.quantile(q, xq);
 
-            LOG_DEBUG("q = " << q << ", x(q) = " << summary[i].first << ", expected x(q) = " << xq);
+            LOG_DEBUG(<< "q = " << q << ", x(q) = " << summary[i].first << ", expected x(q) = " << xq);
 
             CPPUNIT_ASSERT_EQUAL(xq, summary[i].first);
         }
@@ -271,9 +271,9 @@ void CQDigestTest::testSummary() {
 }
 
 void CQDigestTest::testPropagateForwardByTime() {
-    LOG_DEBUG("+--------------------------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testPropagateForwardByTime  |");
-    LOG_DEBUG("+--------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testPropagateForwardByTime  |");
+    LOG_DEBUG(<< "+--------------------------------------------+");
 
     using TMeanAccumlator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -295,9 +295,9 @@ void CQDigestTest::testPropagateForwardByTime() {
             qDigest.add(8);
         }
 
-        LOG_DEBUG("Before propagation " << qDigest.print());
+        LOG_DEBUG(<< "Before propagation " << qDigest.print());
         qDigest.propagateForwardsByTime(-std::log(0.9));
-        LOG_DEBUG("After propagation " << qDigest.print());
+        LOG_DEBUG(<< "After propagation " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
         CPPUNIT_ASSERT_EQUAL(std::string("90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
@@ -325,7 +325,7 @@ void CQDigestTest::testPropagateForwardByTime() {
         }
 
         uint64_t n = qDigest.n();
-        LOG_DEBUG("n = " << n);
+        LOG_DEBUG(<< "n = " << n);
 
         TDoubleVec cdfLower;
         TDoubleVec cdfUpper;
@@ -340,14 +340,14 @@ void CQDigestTest::testPropagateForwardByTime() {
             cdfUpper.push_back(ub);
             error.add(std::fabs(f - (lb + ub) / 2.0));
         }
-        LOG_DEBUG("error = " << CBasicStatistics::mean(error));
+        LOG_DEBUG(<< "error = " << CBasicStatistics::mean(error));
         intrinsicError = CBasicStatistics::mean(error);
 
         qDigest.propagateForwardsByTime(1.0);
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
         uint64_t nAged = qDigest.n();
-        LOG_DEBUG("nAged = " << nAged);
+        LOG_DEBUG(<< "nAged = " << nAged);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.001, double(n - nAged) / double(n), 5e-4);
 
@@ -367,7 +367,7 @@ void CQDigestTest::testPropagateForwardByTime() {
             diff.add(std::fabs(cdfLower[i] - cdfLowerAged[i]));
             diff.add(std::fabs(cdfUpper[i] - cdfUpperAged[i]));
         }
-        LOG_DEBUG("diff = " << CBasicStatistics::mean(diff));
+        LOG_DEBUG(<< "diff = " << CBasicStatistics::mean(diff));
         CPPUNIT_ASSERT(CBasicStatistics::mean(diff) < 1e-5);
     }
 
@@ -389,11 +389,11 @@ void CQDigestTest::testPropagateForwardByTime() {
                 qDigest.add(static_cast<uint32_t>(samples[j] + 0.5));
             }
             if (i % 10 == 0) {
-                LOG_DEBUG("iteration = " << i);
+                LOG_DEBUG(<< "iteration = " << i);
             }
             qDigest.propagateForwardsByTime(1.0);
         }
-        LOG_DEBUG("n = " << qDigest.n());
+        LOG_DEBUG(<< "n = " << qDigest.n());
 
         TMeanAccumlator error;
         boost::math::normal_distribution<> normal(mean, std);
@@ -406,16 +406,16 @@ void CQDigestTest::testPropagateForwardByTime() {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(f, (lb + ub) / 2.0, 0.015);
             error.add(std::fabs(f - (lb + ub) / 2.0));
         }
-        LOG_DEBUG("error = " << CBasicStatistics::mean(error));
+        LOG_DEBUG(<< "error = " << CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(CBasicStatistics::mean(error) < 0.006);
         CPPUNIT_ASSERT(CBasicStatistics::mean(error) < 1.5 * intrinsicError);
     }
 }
 
 void CQDigestTest::testScale() {
-    LOG_DEBUG("+---------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testScale  |");
-    LOG_DEBUG("+---------------------------+");
+    LOG_DEBUG(<< "+---------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testScale  |");
+    LOG_DEBUG(<< "+---------------------------+");
 
     {
         CQDigest qDigest(10u, 1.0);
@@ -433,9 +433,9 @@ void CQDigestTest::testScale() {
             qDigest.add(8);
         }
 
-        LOG_DEBUG("Before scaling " << qDigest.print());
+        LOG_DEBUG(<< "Before scaling " << qDigest.print());
         qDigest.scale(3.0);
-        LOG_DEBUG("After scaling " << qDigest.print());
+        LOG_DEBUG(<< "After scaling " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
         CPPUNIT_ASSERT_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
@@ -457,13 +457,13 @@ void CQDigestTest::testScale() {
             qDigest.add(38);
         }
 
-        LOG_DEBUG("After adding more values " << qDigest.print());
+        LOG_DEBUG(<< "After adding more values " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
         // Add a new value that will expand the root
         qDigest.add(65);
 
-        LOG_DEBUG("After expanding root " << qDigest.print());
+        LOG_DEBUG(<< "After expanding root " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
     }
 
@@ -479,7 +479,7 @@ void CQDigestTest::testScale() {
         generator.generateNormalSamples(50.0, 5.0, 500u, samples);
 
         for (std::size_t i = 0u; i < boost::size(scales); ++i) {
-            LOG_DEBUG("*** Testing scale = " << scales[i] << " ***");
+            LOG_DEBUG(<< "*** Testing scale = " << scales[i] << " ***");
 
             CQDigest qDigest(20u);
             CQDigest qDigestScaled(20u);
@@ -513,10 +513,10 @@ void CQDigestTest::testScale() {
                 maxType2 = std::max(maxType2, type2);
                 totalType2 += type2;
             }
-            LOG_DEBUG("maxType1 = " << maxType1);
-            LOG_DEBUG("totalType1 = " << totalType1);
-            LOG_DEBUG("maxType2 = " << maxType2);
-            LOG_DEBUG("totalType2 = " << totalType2);
+            LOG_DEBUG(<< "maxType1 = " << maxType1);
+            LOG_DEBUG(<< "totalType1 = " << totalType1);
+            LOG_DEBUG(<< "maxType2 = " << maxType2);
+            LOG_DEBUG(<< "totalType2 = " << totalType2);
             CPPUNIT_ASSERT(maxType1 < maxMaxType1[i]);
             CPPUNIT_ASSERT(totalType1 < maxTotalType1[i]);
             CPPUNIT_ASSERT(maxType2 < maxMaxType2[i]);
@@ -526,9 +526,9 @@ void CQDigestTest::testScale() {
 }
 
 void CQDigestTest::testPersist() {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CQDigestTest::testPersist  |");
-    LOG_DEBUG("+-----------------------------+");
+    LOG_DEBUG(<< "+-----------------------------+");
+    LOG_DEBUG(<< "|  CQDigestTest::testPersist  |");
+    LOG_DEBUG(<< "+-----------------------------+");
 
     // Large n uniform random.
     CRandomNumbers generator;
@@ -551,7 +551,7 @@ void CQDigestTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("q-digest XML representation:\n" << origXml);
+    LOG_DEBUG(<< "q-digest XML representation:\n" << origXml);
 
     // Restore the XML into a new filter
     CQDigest restoredQDigest(100u);

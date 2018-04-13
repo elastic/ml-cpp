@@ -32,7 +32,7 @@ const std::string EMPTY_STRING;
 } // unnamed
 
 void CModelDetailsViewTest::testModelPlot() {
-    LOG_DEBUG("*** CModelDetailsViewTest::testModelPlot ***");
+    LOG_DEBUG(<< "*** CModelDetailsViewTest::testModelPlot ***");
 
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
@@ -84,7 +84,7 @@ void CModelDetailsViewTest::testModelPlot() {
                                      model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(3))});
     };
 
-    LOG_DEBUG("Individual sum");
+    LOG_DEBUG(<< "Individual sum");
     {
         features.assign(1, model_t::E_IndividualSumByBucketAndPerson);
         setupTest();
@@ -113,7 +113,7 @@ void CModelDetailsViewTest::testModelPlot() {
         }
     }
 
-    LOG_DEBUG("Individual count");
+    LOG_DEBUG(<< "Individual count");
     {
         features.assign(1, model_t::E_IndividualCountByBucketAndPerson);
         setupTest();

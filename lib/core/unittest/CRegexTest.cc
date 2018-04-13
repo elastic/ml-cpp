@@ -185,7 +185,7 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(regex.tokenise(str1, tokens));
 
         for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-            LOG_DEBUG("'" << *itr << "'");
+            LOG_DEBUG(<< "'" << *itr << "'");
         }
 
         CPPUNIT_ASSERT(!regex.matches(str2));
@@ -211,7 +211,7 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(regex.tokenise(str2, tokens));
 
         for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-            LOG_DEBUG("'" << *itr << "'");
+            LOG_DEBUG(<< "'" << *itr << "'");
         }
 
         CPPUNIT_ASSERT(!regex.matches(str1));
@@ -235,7 +235,7 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(regex.tokenise(str3, tokens));
 
         for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-            LOG_DEBUG("'" << *itr << "'");
+            LOG_DEBUG(<< "'" << *itr << "'");
         }
     }
 
@@ -254,7 +254,7 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(regex.tokenise(str4, tokens));
 
         for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-            LOG_DEBUG("'" << *itr << "'");
+            LOG_DEBUG(<< "'" << *itr << "'");
         }
     }
 }
@@ -290,7 +290,7 @@ void CRegexTest::testTokenise2() {
 
     CPPUNIT_ASSERT(regex.tokenise("count()", tokens));
     CPPUNIT_ASSERT(tokens.size() == 2);
-    LOG_DEBUG(tokens[0] << " " << tokens[1]);
+    LOG_DEBUG(<< tokens[0] << " " << tokens[1]);
     CPPUNIT_ASSERT(tokens[0] == "count");
     CPPUNIT_ASSERT(tokens[1].empty());
 }
@@ -321,7 +321,7 @@ void CRegexTest::testSplit() {
         CPPUNIT_ASSERT(regex.split(str1, tokens));
 
         for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-            LOG_DEBUG("'" << *itr << "'");
+            LOG_DEBUG(<< "'" << *itr << "'");
         }
     }
 }

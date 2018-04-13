@@ -18,7 +18,7 @@ CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP& stream) : m_Stre
 }
 
 CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& /*index*/, const std::string& id) {
-    if (m_Stream != 0 && !m_Stream->bad()) {
+    if (m_Stream != nullptr && !m_Stream->bad()) {
         // Start with metadata, leaving the index for the receiving code to set
         (*m_Stream) << "{\"index\":{\"_id\":\"" << id << "\"}}\n";
     }
@@ -28,11 +28,11 @@ CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std:
 
 bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
     if (stream != m_Stream) {
-        LOG_ERROR("Attempt to use the single stream data adder with multiple streams");
+        LOG_ERROR(<< "Attempt to use the single stream data adder with multiple streams");
         return false;
     }
 
-    if (stream != 0 && !stream->bad()) {
+    if (stream != nullptr && !stream->bad()) {
         // Each Elasticsearch document must be followed by a newline
         stream->put('\n');
 
@@ -45,7 +45,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
         }
     }
 
-    return stream != 0 && !stream->bad();
+    return stream != nullptr && !stream->bad();
 }
 
 std::size_t CSingleStreamDataAdder::maxDocumentSize() const {

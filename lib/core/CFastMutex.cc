@@ -16,28 +16,28 @@ namespace core {
 CFastMutex::CFastMutex() {
     int ret(pthread_mutex_init(&m_Mutex, 0));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 CFastMutex::~CFastMutex() {
     int ret(pthread_mutex_destroy(&m_Mutex));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CFastMutex::lock() {
     int ret(pthread_mutex_lock(&m_Mutex));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CFastMutex::unlock() {
     int ret(pthread_mutex_unlock(&m_Mutex));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 }

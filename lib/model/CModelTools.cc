@@ -46,7 +46,7 @@ struct SReadProbability : public boost::static_visitor<bool> {
     bool operator()(double weight, double& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
-            LOG_ERROR("Failed to compute probability");
+            LOG_ERROR(<< "Failed to compute probability");
             return false;
         }
         result *= weight < 1.0 ? std::pow(probability, std::max(weight, 0.0)) : probability;
@@ -56,7 +56,7 @@ struct SReadProbability : public boost::static_visitor<bool> {
     bool operator()(TMinAccumulator& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
-            LOG_ERROR("Failed to compute probability");
+            LOG_ERROR(<< "Failed to compute probability");
             return false;
         }
         result.add(probability);
@@ -198,12 +198,12 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     result = 1.0;
 
     if (m_TotalWeight == 0.0) {
-        LOG_TRACE("No samples");
+        LOG_TRACE(<< "No samples");
         return true;
     }
 
     if (m_Aggregators.empty()) {
-        LOG_ERROR("No probability aggregators specified");
+        LOG_ERROR(<< "No probability aggregators specified");
         return false;
     }
 
@@ -237,14 +237,14 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     }
 
     if (p < 0.0 || p > 1.001) {
-        LOG_ERROR("Unexpected probability = " << p);
+        LOG_ERROR(<< "Unexpected probability = " << p);
     }
     result = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
 
     return true;
 }
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache() : m_Prior(0), m_SmallestProbability(1.0) {
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache() : m_Prior(nullptr), m_SmallestProbability(1.0) {
 }
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior)
@@ -261,8 +261,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         TDoubleVec lb;
         TDoubleVec ub;
         m_Prior->probabilitiesOfLessLikelyCategories(maths_t::E_TwoSided, lb, ub);
-        LOG_TRACE("P({c}) >= " << core::CContainerPrinter::print(lb));
-        LOG_TRACE("P({c}) <= " << core::CContainerPrinter::print(ub));
+        LOG_TRACE(<< "P({c}) >= " << core::CContainerPrinter::print(lb));
+        LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
         for (std::size_t i = 0u; i < ub.size(); ++i) {
@@ -364,14 +364,14 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                 double v[]{(left - 1)->first, left->first, right->first, (right + 1)->first};
                 auto beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
                 auto endModes = std::lower_bound(modes.begin(), modes.end(), v[3]);
-                LOG_TRACE("v = " << core::CContainerPrinter::print(v));
+                LOG_TRACE(<< "v = " << core::CContainerPrinter::print(v));
 
                 if (beginModes == endModes && left->second.s_Tail == right->second.s_Tail) {
                     double p[]{(left - 1)->second.s_Probability,
                                (left)->second.s_Probability,
                                (right)->second.s_Probability,
                                (right + 1)->second.s_Probability};
-                    LOG_TRACE("p(v) = " << core::CContainerPrinter::print(p));
+                    LOG_TRACE(<< "p(v) = " << core::CContainerPrinter::print(p));
 
                     if (std::is_sorted(p, p + 4, std::less<double>()) || std::is_sorted(p, p + 4, std::greater<double>())) {
                         auto nearest = x - v[1] < v[2] - x ? left : right;

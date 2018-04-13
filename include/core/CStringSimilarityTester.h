@@ -222,7 +222,6 @@ public:
         // one go for efficiency.  Then the current and previous column
         // pointers alternate between pointing and the first and second half
         // of the memory block.
-        using TScopedSizeArray = boost::scoped_array<size_t>;
         TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
         size_t* currentCol(data.get());
         size_t* prevCol(currentCol + (secondLen + 1));
@@ -357,7 +356,7 @@ private:
         TScopedIntPArray matrixArary;
         int** matrix;
         matrix = this->setupBerghelRoachMatrix(maxDist, dataArray, matrixArary);
-        if (matrix == 0) {
+        if (matrix == nullptr) {
             return 0;
         }
 

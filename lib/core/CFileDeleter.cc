@@ -23,7 +23,7 @@ CFileDeleter::~CFileDeleter() {
     }
 
     if (::remove(m_FileName.c_str()) == -1) {
-        LOG_WARN("Failed to remove file " << m_FileName << " : " << ::strerror(errno));
+        LOG_WARN(<< "Failed to remove file " << m_FileName << " : " << ::strerror(errno));
     }
 }
 }

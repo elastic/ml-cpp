@@ -104,16 +104,16 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
       m_ModelFactory(modelFactory),
       m_Model(makeModel(modelFactory, m_DataGatherer)),
       m_IsForPersistence(false) {
-    if (m_DataGatherer == 0) {
-        LOG_ABORT("Failed to construct data gatherer for detector: " << this->description());
+    if (m_DataGatherer == nullptr) {
+        LOG_ABORT(<< "Failed to construct data gatherer for detector: " << this->description());
     }
-    if (m_Model == 0) {
-        LOG_ABORT("Failed to construct model for detector: " << this->description());
+    if (m_Model == nullptr) {
+        LOG_ABORT(<< "Failed to construct model for detector: " << this->description());
     }
     limits.resourceMonitor().registerComponent(*this);
-    LOG_DEBUG("CAnomalyDetector(): " << this->description() << " for '" << m_DataGatherer->partitionFieldValue() << "'"
-                                     << ", first time = " << firstTime << ", bucketLength = " << modelConfig.bucketLength()
-                                     << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
+    LOG_DEBUG(<< "CAnomalyDetector(): " << this->description() << " for '" << m_DataGatherer->partitionFieldValue() << "'"
+              << ", first time = " << firstTime << ", bucketLength = " << modelConfig.bucketLength()
+              << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
 }
 
 CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other)
@@ -129,7 +129,7 @@ CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector
       // Empty message propagation function is fine in this case
       m_IsForPersistence(isForPersistence) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -162,8 +162,8 @@ void CAnomalyDetector::zeroModelsToTime(core_t::TTime time) {
         core_t::TTime bucketStartTime = m_LastBucketEndTime;
         m_LastBucketEndTime += bucketLength;
 
-        LOG_TRACE("sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
-                                              << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
+        LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
+                  << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
 
         // Update the statistical models.
         m_Model->sample(bucketStartTime, m_LastBucketEndTime, m_Limits.resourceMonitor());
@@ -187,12 +187,12 @@ bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldV
         if (name == MODEL_AND_GATHERER_TAG) {
             if (traverser.traverseSubLevel(boost::bind(
                     &CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser, this, boost::cref(partitionFieldValue), _1)) == false) {
-                LOG_ERROR("Invalid model ensemble section in " << traverser.value());
+                LOG_ERROR(<< "Invalid model ensemble section in " << traverser.value());
                 return false;
             }
         } else if (name == SIMPLE_COUNT_STATICS) {
             if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::staticsAcceptRestoreTraverser, this, _1)) == false) {
-                LOG_ERROR("Invalid simple count statics in " << traverser.value());
+                LOG_ERROR(<< "Invalid simple count statics in " << traverser.value());
                 return false;
             }
         }
@@ -210,12 +210,12 @@ bool CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser(const std::stri
         if (name == DATA_GATHERER_TAG) {
             m_DataGatherer.reset(m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
             if (!m_DataGatherer) {
-                LOG_ERROR("Failed to restore the data gatherer from " << traverser.value());
+                LOG_ERROR(<< "Failed to restore the data gatherer from " << traverser.value());
                 return false;
             }
         } else if (name == MODELS_TAG) {
             if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::legacyModelsAcceptRestoreTraverser, this, _1)) == false) {
-                LOG_ERROR("Failed to restore live models from " << traverser.value());
+                LOG_ERROR(<< "Failed to restore live models from " << traverser.value());
                 return false;
             }
         }
@@ -231,7 +231,7 @@ bool CAnomalyDetector::legacyModelsAcceptRestoreTraverser(core::CStateRestoreTra
             CModelFactory::SModelInitializationData initData(m_DataGatherer);
             m_Model.reset(m_ModelFactory->makeModel(initData, traverser));
             if (!m_Model) {
-                LOG_ERROR("Failed to extract model from " << traverser.value());
+                LOG_ERROR(<< "Failed to extract model from " << traverser.value());
                 return false;
             }
         }
@@ -245,17 +245,17 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
         const std::string& name = traverser.name();
         if (name == RANDOMIZED_PERIODIC_TAG) {
             if (traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) == false) {
-                LOG_ERROR("Failed to restore randomized periodic test state");
+                LOG_ERROR(<< "Failed to restore randomized periodic test state");
                 return false;
             }
         } else if (name == STATISTICS_TAG) {
             if (traverser.traverseSubLevel(&core::CStatistics::staticsAcceptRestoreTraverser) == false) {
-                LOG_ERROR("Failed to restore statistics");
+                LOG_ERROR(<< "Failed to restore statistics");
                 return false;
             }
         } else if (name == SAMPLING_TAG) {
             if (traverser.traverseSubLevel(&maths::CSampling::staticsAcceptRestoreTraverser) == false) {
-                LOG_ERROR("Failed to restore sampling state");
+                LOG_ERROR(<< "Failed to restore sampling state");
                 return false;
             }
         }
@@ -283,7 +283,7 @@ bool CAnomalyDetector::keyAcceptRestoreTraverser(core::CStateRestoreTraverser& t
             bool successful(true);
             key = CSearchKey(traverser, successful);
             if (successful == false) {
-                LOG_ERROR("Invalid key in " << traverser.value());
+                LOG_ERROR(<< "Invalid key in " << traverser.value());
                 return false;
             }
             return true;
@@ -377,9 +377,9 @@ void CAnomalyDetector::sample(core_t::TTime startTime, core_t::TTime endTime, CR
 
     bool isEndOfBucketSample = endTime % bucketLength == 0;
     if (isEndOfBucketSample) {
-        LOG_TRACE("Going to do end-of-bucket sample");
+        LOG_TRACE(<< "Going to do end-of-bucket sample");
     } else {
-        LOG_TRACE("Going to do out-of-phase sampleBucketStatistics");
+        LOG_TRACE(<< "Going to do out-of-phase sampleBucketStatistics");
     }
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
@@ -549,7 +549,7 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
     mem.compress();
     mem.print(stream);
     if (mem.usage() != this->memoryUsage()) {
-        LOG_ERROR("Discrepancy in memory report: " << mem.usage() << " from debug, but " << this->memoryUsage() << " from normal");
+        LOG_ERROR(<< "Discrepancy in memory report: " << mem.usage() << " from debug, but " << this->memoryUsage() << " from normal");
     }
 }
 
@@ -602,16 +602,16 @@ void CAnomalyDetector::buildResultsHelper(core_t::TTime bucketStartTime,
                                           CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
 
-    LOG_TRACE("sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
-                                          << ", bucketEndTime = " << bucketEndTime);
+    LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
+              << ", bucketEndTime = " << bucketEndTime);
 
     // Update the statistical models.
     sampleFunc(bucketStartTime, bucketEndTime);
 
-    LOG_TRACE("detect: m_DetectorKey = '" << this->description() << "'");
+    LOG_TRACE(<< "detect: m_DetectorKey = '" << this->description() << "'");
 
     CSearchKey key = m_DataGatherer->searchKey();
-    LOG_TRACE("OutputResults, for " << key.toCue());
+    LOG_TRACE(<< "OutputResults, for " << key.toCue());
 
     if (m_Model->addResults(m_DetectorIndex,
                             bucketStartTime,

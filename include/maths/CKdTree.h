@@ -81,13 +81,14 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
+        SNode(SNode* parent, const POINT& point)
+            : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr), s_Point(point) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
             if (s_Parent) {
                 if (s_Parent->s_LeftChild != this && s_Parent->s_RightChild != this) {
-                    LOG_ERROR("Not parent's child");
+                    LOG_ERROR(<< "Not parent's child");
                     return false;
                 }
             }
@@ -95,11 +96,11 @@ public:
             std::size_t coordinate = this->depth() % dimension;
             CCoordinateLess less(coordinate);
             if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             if (s_RightChild && less(s_RightChild->s_Point, s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             return true;
@@ -138,8 +139,8 @@ public:
         m_Dimension = points[0].dimension();
         m_Nodes.clear();
         m_Nodes.reserve(points.size());
-        this->buildRecursively(0, // Parent pointer
-                               0, // Split coordinate
+        this->buildRecursively(nullptr, // Parent pointer
+                               0,       // Split coordinate
                                points.begin(),
                                points.end());
     }
@@ -149,7 +150,7 @@ public:
 
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
-        const POINT* nearest = 0;
+        const POINT* nearest = nullptr;
 
         if (m_Nodes.empty()) {
             return nearest;

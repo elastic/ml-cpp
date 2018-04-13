@@ -55,9 +55,9 @@ CLogger::CLogger() : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName
 
 CLogger::~CLogger() {
     log4cxx::LogManager::shutdown();
-    m_Logger = 0;
+    m_Logger = nullptr;
 
-    if (m_PipeFile != 0) {
+    if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
         if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
@@ -67,7 +67,7 @@ CLogger::~CLogger() {
 }
 
 void CLogger::reset() {
-    if (m_PipeFile != 0) {
+    if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
         if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
@@ -121,7 +121,7 @@ void CLogger::reset() {
 
         m_Logger = log4cxx::Logger::getRootLogger();
     } catch (log4cxx::helpers::Exception& e) {
-        if (m_Logger != 0) {
+        if (m_Logger != nullptr) {
             // (Can't use the Ml LOG_ERROR macro here, as the object
             // it references is only part constructed.)
             LOG4CXX_ERROR(m_Logger, "Could not initialise logger: " << e.what());
@@ -144,15 +144,15 @@ bool CLogger::hasBeenReconfigured() const {
 void CLogger::logEnvironment() const {
     std::string env("Environment variables:");
     // environ is a global variable from the C runtime library
-    if (environ == 0) {
+    if (environ == nullptr) {
         env += " (None found)";
     } else {
-        for (char** envPtr = environ; *envPtr != 0; ++envPtr) {
+        for (char** envPtr = environ; *envPtr != nullptr; ++envPtr) {
             env += core_t::LINE_ENDING;
             env += *envPtr;
         }
     }
-    LOG_INFO(env);
+    LOG_INFO(<< env);
 }
 
 log4cxx::LoggerPtr CLogger::logger() {
@@ -188,7 +188,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
     }
 
     // Defend against corrupt argument
-    if (levelToSet == 0) {
+    if (levelToSet == nullptr) {
         return false;
     }
 
@@ -196,7 +196,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
     // active logger when we call its setLevel() method, but because it's a
     // smart pointer, at least it will still exist
     log4cxx::LoggerPtr loggerToChange(m_Logger);
-    if (loggerToChange == 0) {
+    if (loggerToChange == nullptr) {
         return false;
     }
 
@@ -213,7 +213,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
         // Unfortunately, thresholds are a concept lower down the inheritance
         // hierarchy than the Appender base class, so we have to downcast.
         log4cxx::WriterAppender* writerToChange(dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
-        if (writerToChange != 0) {
+        if (writerToChange != nullptr) {
             writerToChange->setThreshold(levelToSet);
         }
     }
@@ -234,13 +234,13 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
     if (m_Reconfigured) {
-        LOG_ERROR("Cannot log to a named pipe after logger reconfiguration");
+        LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;
     }
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
-    if (m_PipeFile == 0) {
-        LOG_ERROR("Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
+    if (m_PipeFile == nullptr) {
+        LOG_ERROR(<< "Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
         return false;
     }
 
@@ -253,7 +253,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
         return false;
     }
 
-    LOG_DEBUG("Logger is logging to named pipe " << pipeName);
+    LOG_DEBUG(<< "Logger is logging to named pipe " << pipeName);
 
     return true;
 }
@@ -273,7 +273,7 @@ bool CLogger::reconfigureLogJson() {
 bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
     if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
-        LOG_ERROR("Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
+        LOG_ERROR(<< "Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
@@ -286,7 +286,7 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
         log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
     } catch (const log4cxx::helpers::Exception& e) {
-        LOG_ERROR("Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
+        LOG_ERROR(<< "Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
         return false;
     }
 
@@ -297,7 +297,7 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
         return false;
     }
 
-    LOG_DEBUG("Logger re-initialised using properties file " << propertiesFile);
+    LOG_DEBUG(<< "Logger re-initialised using properties file " << propertiesFile);
 
     return true;
 }
@@ -315,14 +315,14 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
         // TCP server can be identified as having come from this process.
         m_Logger = log4cxx::Logger::getLogger(m_ProgramName);
 
-        if (m_Logger == 0) {
+        if (m_Logger == nullptr) {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger for " << m_ProgramName << std::endl;
             return false;
         }
     } catch (log4cxx::helpers::Exception& e) {
-        if (m_Logger != 0) {
-            LOG_ERROR("Failed to reinitialise logger: " << e.what());
+        if (m_Logger != nullptr) {
+            LOG_ERROR(<< "Failed to reinitialise logger: " << e.what());
         } else {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger: " << e.what() << std::endl;
@@ -335,7 +335,7 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
 
     // Start the new log file off with "uname -a" information so we know what
     // hardware problems occurred on
-    LOG_DEBUG("uname -a: " << CUname::all());
+    LOG_DEBUG(<< "uname -a: " << CUname::all());
 
     return true;
 }

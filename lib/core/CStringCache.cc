@@ -31,7 +31,7 @@ bool CStringCache::haveCopyOnWriteStrings() const {
 const std::string& CStringCache::stringFor(const char* str) {
     // Stop processing NULL input immediately so that subsequent code doesn't
     // have to worry about NULL pointers
-    if (str == 0) {
+    if (str == nullptr) {
         return EMPTY_STRING;
     }
 
@@ -41,7 +41,7 @@ const std::string& CStringCache::stringFor(const char* str) {
 const std::string& CStringCache::stringFor(const char* str, size_t length) {
     // Stop processing NULL input immediately so that subsequent code doesn't
     // have to worry about NULL pointers
-    if (length == 0 || str == 0) {
+    if (length == 0 || str == nullptr) {
         return EMPTY_STRING;
     }
 

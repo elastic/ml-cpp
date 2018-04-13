@@ -50,7 +50,7 @@ bool CEventData::person(std::size_t pid) {
     if (!m_Pid) {
         m_Pid.reset(pid);
     } else if (pid != m_Pid) {
-        LOG_ERROR("Ignoring subsequent person " << pid << ", current person " << *m_Pid);
+        LOG_ERROR(<< "Ignoring subsequent person " << pid << ", current person " << *m_Pid);
         return false;
     }
     return true;
@@ -98,7 +98,7 @@ CEventData::TOptionalSize CEventData::personId() const {
 
 CEventData::TOptionalSize CEventData::attributeId() const {
     if (m_Cids.size() != 1) {
-        LOG_ERROR("Call to attribute identifier ambiguous: " << core::CContainerPrinter::print(m_Cids));
+        LOG_ERROR(<< "Call to attribute identifier ambiguous: " << core::CContainerPrinter::print(m_Cids));
         return TOptionalSize();
     }
     return m_Cids[0];
@@ -106,7 +106,7 @@ CEventData::TOptionalSize CEventData::attributeId() const {
 
 const CEventData::TDouble1VecArray& CEventData::values() const {
     if (m_Values.size() != 1) {
-        LOG_ERROR("Call to value ambiguous: " << core::CContainerPrinter::print(m_Values));
+        LOG_ERROR(<< "Call to value ambiguous: " << core::CContainerPrinter::print(m_Values));
         return DUMMY_ARRAY;
     }
     return m_Values[0] ? m_Values[0]->first : DUMMY_ARRAY;
@@ -122,7 +122,7 @@ const CEventData::TOptionalStrVec& CEventData::influences() const {
 
 CEventData::TOptionalSize CEventData::count() const {
     if (m_Values.size() != 1) {
-        LOG_ERROR("Call to count ambiguous: " << core::CContainerPrinter::print(m_Values));
+        LOG_ERROR(<< "Call to count ambiguous: " << core::CContainerPrinter::print(m_Values));
         return TOptionalSize();
     }
     return m_Values[0] ? m_Values[0]->second : TOptionalSize();

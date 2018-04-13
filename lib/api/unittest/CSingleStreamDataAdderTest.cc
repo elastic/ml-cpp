@@ -41,7 +41,7 @@ namespace {
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_INFO(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
@@ -135,7 +135,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG("Applying the categorization typer for anomaly detection");
+        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
         firstProcessor = &typer;
     }
 
@@ -153,7 +153,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     std::string origPersistedState;
     {
-        std::ostringstream* strm(0);
+        std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(firstProcessor->persistState(persister));
@@ -182,7 +182,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     size_t numCategorizerDocs(0);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG("Applying the categorization typer for anomaly detection");
+        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
         numCategorizerDocs = 1;
         restoredFirstProcessor = &restoredTyper;
     }
@@ -205,7 +205,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     // Finally, persist the new detector state and compare the result
     std::string newPersistedState;
     {
-        std::ostringstream* strm(0);
+        std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(restoredFirstProcessor->persistState(persister));

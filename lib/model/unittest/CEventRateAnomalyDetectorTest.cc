@@ -75,15 +75,15 @@ public:
         const std::string analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
         ml::core_t::TTime bucketTime = node.s_BucketStartTime;
         double anomalyFactor = node.s_RawAnomalyScore;
-        LOG_DEBUG(analysisFieldValue << " bucket time " << bucketTime << " anomalyFactor " << anomalyFactor);
+        LOG_DEBUG(<< analysisFieldValue << " bucket time " << bucketTime << " anomalyFactor " << anomalyFactor);
         ++m_Calls;
         m_AllAnomalies.insert(TTimeStrPr(bucketTime, analysisFieldValue));
         m_AnomalyScores[bucketTime] += anomalyFactor;
     }
 
     bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
-        LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
+        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ") << node.s_Spec.print() << " initial score "
+                  << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -112,7 +112,6 @@ void importData(ml::core_t::TTime firstTime,
                 ml::model::CAnomalyDetector& detector) {
     using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     using TifstreamPtrVec = std::vector<TifstreamPtr>;
-    using TTimeVec = std::vector<ml::core_t::TTime>;
 
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {
@@ -194,7 +193,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
 
     importData(FIRST_TIME, LAST_TIME, BUCKET_SIZE, writer, files, detector);
 
-    LOG_DEBUG("visitor.calls() = " << writer.calls());
+    LOG_DEBUG(<< "visitor.calls() = " << writer.calls());
     // CPPUNIT_ASSERT_EQUAL(writer.calls(), writer.numDistinctTimes());
 
     const TTimeDoubleMap& anomalyScores = writer.anomalyScores();
@@ -210,16 +209,16 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     std::size_t detected503 = 0u;
     std::size_t detectedMySQL = 0u;
     for (std::size_t i = 0u; i < peaks.size(); ++i) {
-        LOG_DEBUG("Checking for status 503 anomaly at " << peaks[i]);
+        LOG_DEBUG(<< "Checking for status 503 anomaly at " << peaks[i]);
         if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;
         }
-        LOG_DEBUG("Checking for MySQL anomaly at " << peaks[i]);
+        LOG_DEBUG(<< "Checking for MySQL anomaly at " << peaks[i]);
         if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/mysqlabort.txt"))) {
             ++detectedMySQL;
         }
     }
-    LOG_DEBUG("# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
+    LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), detected503);
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), detectedMySQL);
 }
@@ -258,7 +257,7 @@ void CEventRateAnomalyDetectorTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("Event rate detector XML representation:\n" << origXml);
+    LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
     ml::model::CAnomalyDetector restoredDetector(1, // identifier

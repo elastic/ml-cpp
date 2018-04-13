@@ -230,7 +230,7 @@ void CReadWriteLockTest::testReadLock() {
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     ml::core_t::TTime duration(end - start);
 
-    LOG_INFO("Reader concurrency test took " << duration << " seconds");
+    LOG_INFO(<< "Reader concurrency test took " << duration << " seconds");
 
     // Allow the test to run slightly over 1 second, as there is processing
     // other than the sleeping.
@@ -260,7 +260,7 @@ void CReadWriteLockTest::testWriteLock() {
     writer2.stop();
     writer3.stop();
 
-    LOG_INFO("Write lock protected variable incremented to " << testVariable);
+    LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
 }
@@ -272,7 +272,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         uint32_t testVariable(0);
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
-        LOG_INFO("Starting unlocked throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+        LOG_INFO(<< "Starting unlocked throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
         CUnprotectedAdder writer1(0, TEST_SIZE, 1, testVariable);
         CUnprotectedAdder writer2(0, TEST_SIZE, 5, testVariable);
@@ -287,24 +287,24 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         writer3.stop();
 
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
-        LOG_INFO("Finished unlocked throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+        LOG_INFO(<< "Finished unlocked throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Unlocked throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
+        LOG_INFO(<< "Unlocked throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
-        LOG_INFO("Unlocked variable incremented to " << testVariable);
+        LOG_INFO(<< "Unlocked variable incremented to " << testVariable);
 
         if (testVariable != TEST_SIZE * (1 + 5 + 9)) {
             // Obviously this would be unacceptable in production code, but this
             // unit test is showing the cost of different types of lock compared
             // to the unlocked case
-            LOG_INFO("Lack of locking caused race condition");
+            LOG_INFO(<< "Lack of locking caused race condition");
         }
     }
     {
         std::atomic_uint_fast32_t testVariable(0);
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
-        LOG_INFO("Starting atomic throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+        LOG_INFO(<< "Starting atomic throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
         CAtomicAdder writer1(0, TEST_SIZE, 1, testVariable);
         CAtomicAdder writer2(0, TEST_SIZE, 5, testVariable);
@@ -319,11 +319,11 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         writer3.stop();
 
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
-        LOG_INFO("Finished atomic throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+        LOG_INFO(<< "Finished atomic throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Atomic throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
+        LOG_INFO(<< "Atomic throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
-        LOG_INFO("Atomic variable incremented to " << testVariable.load());
+        LOG_INFO(<< "Atomic variable incremented to " << testVariable.load());
 
         CPPUNIT_ASSERT_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
     }
@@ -332,7 +332,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         ml::core::CFastMutex mutex;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
-        LOG_INFO("Starting fast mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+        LOG_INFO(<< "Starting fast mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
         CFastMutexProtectedAdder writer1(mutex, 0, TEST_SIZE, 1, testVariable);
         CFastMutexProtectedAdder writer2(mutex, 0, TEST_SIZE, 5, testVariable);
@@ -347,11 +347,11 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         writer3.stop();
 
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
-        LOG_INFO("Finished fast mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+        LOG_INFO(<< "Finished fast mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Fast mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
+        LOG_INFO(<< "Fast mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
-        LOG_INFO("Fast mutex lock protected variable incremented to " << testVariable);
+        LOG_INFO(<< "Fast mutex lock protected variable incremented to " << testVariable);
 
         CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
@@ -360,7 +360,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         ml::core::CMutex mutex;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
-        LOG_INFO("Starting mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+        LOG_INFO(<< "Starting mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
         CMutexProtectedAdder writer1(mutex, 0, TEST_SIZE, 1, testVariable);
         CMutexProtectedAdder writer2(mutex, 0, TEST_SIZE, 5, testVariable);
@@ -375,11 +375,11 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         writer3.stop();
 
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
-        LOG_INFO("Finished mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+        LOG_INFO(<< "Finished mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
+        LOG_INFO(<< "Mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
-        LOG_INFO("Mutex lock protected variable incremented to " << testVariable);
+        LOG_INFO(<< "Mutex lock protected variable incremented to " << testVariable);
 
         CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
@@ -388,7 +388,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         ml::core::CReadWriteLock readWriteLock;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
-        LOG_INFO("Starting read-write lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+        LOG_INFO(<< "Starting read-write lock throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
         CWriteLockProtectedAdder writer1(readWriteLock, 0, TEST_SIZE, 1, testVariable);
         CWriteLockProtectedAdder writer2(readWriteLock, 0, TEST_SIZE, 5, testVariable);
@@ -403,11 +403,11 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
         writer3.stop();
 
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
-        LOG_INFO("Finished read-write lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+        LOG_INFO(<< "Finished read-write lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Read-write lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
+        LOG_INFO(<< "Read-write lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
-        LOG_INFO("Write lock protected variable incremented to " << testVariable);
+        LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
         CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }

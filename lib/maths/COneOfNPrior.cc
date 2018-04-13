@@ -80,7 +80,7 @@ void modelAcceptPersistInserter(const CModelWeight& weight, const CPrior& prior,
 
 COneOfNPrior::COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataType, double decayRate) : CPrior(dataType, decayRate) {
     if (models.empty()) {
-        LOG_ERROR("Can't initialize one-of-n with no models!");
+        LOG_ERROR(<< "Can't initialize one-of-n with no models!");
         return;
     }
 
@@ -95,7 +95,7 @@ COneOfNPrior::COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataTy
 COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models, maths_t::EDataType dataType, double decayRate /*= 0.0*/)
     : CPrior(dataType, decayRate) {
     if (models.empty()) {
-        LOG_ERROR("Can't initialize mixed model with no models!");
+        LOG_ERROR(<< "Can't initialize mixed model with no models!");
         return;
     }
 
@@ -244,8 +244,8 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return;
     }
 
@@ -322,8 +322,8 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble
             use ? model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood) : maths_t::E_FpOverflowed;
 
         if (status & maths_t::E_FpFailed) {
-            LOG_ERROR("Failed to compute log-likelihood");
-            LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed to compute log-likelihood");
+            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
             return;
         }
 
@@ -350,7 +350,7 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble
     }
 
     if (!isNonInformative && maxLogLikelihood.count() > 0) {
-        LOG_TRACE("logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_TRACE(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
 
         double n = 0.0;
         try {
@@ -358,7 +358,7 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble
                 n += maths_t::count(weightStyles, weight);
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to add samples: " << e.what());
+            LOG_ERROR(<< "Failed to add samples: " << e.what());
             return;
         }
 
@@ -383,16 +383,16 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble
     }
 
     if (this->badWeights()) {
-        LOG_ERROR("Update failed (" << this->debugWeights() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Update failed (" << this->debugWeights() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
 
 void COneOfNPrior::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
 
@@ -407,7 +407,7 @@ void COneOfNPrior::propagateForwardsByTime(double time) {
 
     this->numberSamples(this->numberSamples() * alpha);
 
-    LOG_TRACE("numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "numberSamples = " << this->numberSamples());
 }
 
 COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodSupport() const {
@@ -549,7 +549,7 @@ COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodConfidenceInterval
             x2.add(interval.second, weight);
         }
     }
-    LOG_TRACE("x1 = " << x1 << ", x2 = " << x2);
+    LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2);
 
     return std::make_pair(CBasicStatistics::mean(x1), CBasicStatistics::mean(x2));
 }
@@ -561,13 +561,13 @@ maths_t::EFloatingPointErrorStatus COneOfNPrior::jointLogMarginalLikelihood(cons
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -624,16 +624,16 @@ maths_t::EFloatingPointErrorStatus COneOfNPrior::jointLogMarginalLikelihood(cons
 
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("Failed to compute log likelihood (" << this->debugWeights() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
-        LOG_ERROR("logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_ERROR("maxLogLikelihood = " << maxLogLikelihood[0]);
+        LOG_ERROR(<< "Failed to compute log likelihood (" << this->debugWeights() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_ERROR(<< "maxLogLikelihood = " << maxLogLikelihood[0]);
     } else if (status & maths_t::E_FpOverflowed) {
-        LOG_ERROR("Log likelihood overflowed for (" << this->debugWeights() << ")");
-        LOG_TRACE("likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Log likelihood overflowed for (" << this->debugWeights() << ")");
+        LOG_TRACE(<< "likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
     }
     return status;
 }
@@ -657,10 +657,10 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples, TDouble1V
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
-    LOG_TRACE("weights = " << core::CContainerPrinter::print(weights) << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights) << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != m_Models.size()) {
-        LOG_ERROR("Failed to sample marginal likelihood");
+        LOG_ERROR(<< "Failed to sample marginal likelihood");
         return;
     }
 
@@ -677,7 +677,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples, TDouble1V
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 }
 
 bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
@@ -689,7 +689,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute c.d.f. " << (complement ? "complement " : "") << "for empty sample set");
+        LOG_ERROR(<< "Can't compute c.d.f. " << (complement ? "complement " : "") << "for empty sample set");
         return false;
     }
 
@@ -710,7 +710,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     //   and o denotes the outer product.
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
-    LOG_TRACE("logWeights = " << core::CContainerPrinter::print(logWeights));
+    LOG_TRACE(<< "logWeights = " << core::CContainerPrinter::print(logWeights));
 
     TDouble5Vec logLowerBounds;
     TDouble5Vec logUpperBounds;
@@ -724,10 +724,10 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
         double li = 0.0;
         double ui = 0.0;
         if (complement && !model.minusLogJointCdfComplement(weightStyles, samples, weights, li, ui)) {
-            LOG_ERROR("Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement for " << core::CContainerPrinter::print(samples));
             return false;
         } else if (!complement && !model.minusLogJointCdf(weightStyles, samples, weights, li, ui)) {
-            LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
             return false;
         }
         li = wi - li;
@@ -766,7 +766,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     lowerBound = std::max(lowerBound, 0.0);
     upperBound = std::max(upperBound, 0.0);
 
-    LOG_TRACE("Joint -log(c.d.f." << (complement ? " complement" : "") << ") = [" << lowerBound << "," << upperBound << "]");
+    LOG_TRACE(<< "Joint -log(c.d.f." << (complement ? " complement" : "") << ") = [" << lowerBound << "," << upperBound << "]");
 
     return true;
 }
@@ -808,7 +808,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
 
@@ -828,11 +828,11 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     //   P(m) is the prior probability the data are from the m'th model.
 
     using TDoubleTailPr = std::pair<double, maths_t::ETail>;
-    using TMaxAccumulator = CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator;
+    using TDoubleTailPrMaxAccumulator = CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator;
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
 
-    TMaxAccumulator tail_;
+    TDoubleTailPrMaxAccumulator tail_;
     for (std::size_t i = 0u; i < logWeights.size(); ++i) {
         double weight = std::exp(logWeights[i].first);
         const CPrior& model = *m_Models[logWeights[i].second].second;
@@ -852,7 +852,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
             return false;
         }
 
-        LOG_TRACE("weight = " << weight << ", modelLowerBound = " << modelLowerBound << ", modelUpperBound = " << modelLowerBound);
+        LOG_TRACE(<< "weight = " << weight << ", modelLowerBound = " << modelLowerBound << ", modelUpperBound = " << modelLowerBound);
 
         lowerBound += weight * modelLowerBound;
         upperBound += weight * modelUpperBound;
@@ -860,8 +860,8 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     }
 
     if (!(lowerBound >= 0.0 && lowerBound <= 1.001) || !(upperBound >= 0.0 && upperBound <= 1.001)) {
-        LOG_ERROR("Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
-                                               << ", " << core::CContainerPrinter::print(logWeights));
+        LOG_ERROR(<< "Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
+                  << ", " << core::CContainerPrinter::print(logWeights));
     }
 
     if (CMathsFuncs::isNan(lowerBound)) {
@@ -874,7 +874,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     upperBound = CTools::truncate(upperBound, 0.0, 1.0);
     tail = tail_[0].second;
 
-    LOG_TRACE("Probability = [" << lowerBound << "," << upperBound << "]");
+    LOG_TRACE(<< "Probability = [" << lowerBound << "," << upperBound << "]");
 
     return true;
 }
@@ -987,11 +987,11 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams&
     } while (traverser.next());
 
     if (!gotWeight) {
-        LOG_ERROR("No weight found");
+        LOG_ERROR(<< "No weight found");
         return false;
     }
-    if (model == 0) {
-        LOG_ERROR("No model found");
+    if (model == nullptr) {
+        LOG_ERROR(<< "No model found");
         return false;
     }
 

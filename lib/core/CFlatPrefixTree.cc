@@ -56,14 +56,14 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     m_FlatTree.clear();
 
     if (boost::algorithm::is_sorted(prefixes) == false) {
-        LOG_ERROR("FlatPrefixTree cannot be build from an unsorted vector of prefixes");
+        LOG_ERROR(<< "FlatPrefixTree cannot be build from an unsorted vector of prefixes");
         return false;
     }
 
     if (prefixes.size() > 1) {
         for (std::size_t i = 0; i < prefixes.size() - 1; ++i) {
             if (prefixes[i] == prefixes[i + 1]) {
-                LOG_ERROR("FlatPrefixTree cannot be build from a vector containing duplicate prefixes: " << prefixes[i]);
+                LOG_ERROR(<< "FlatPrefixTree cannot be build from a vector containing duplicate prefixes: " << prefixes[i]);
                 return false;
             }
         }
@@ -76,13 +76,13 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     }
 
     if (m_FlatTree.size() >= NO_CHILD) {
-        LOG_ERROR("Failed to build the tree: " << m_FlatTree.size() << " nodes were required; no more than " << NO_CHILD
-                                               << " are supported.");
+        LOG_ERROR(<< "Failed to build the tree: " << m_FlatTree.size() << " nodes were required; no more than " << NO_CHILD
+                  << " are supported.");
         m_FlatTree.clear();
         return false;
     }
 
-    LOG_TRACE("Tree = " << this->print());
+    LOG_TRACE(<< "Tree = " << this->print());
     return true;
 }
 

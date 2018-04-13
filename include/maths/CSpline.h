@@ -193,7 +193,7 @@ public:
         }
         }
 
-        LOG_ABORT("Unexpected type " << m_Type);
+        LOG_ABORT(<< "Unexpected type " << m_Type);
     }
 
     //! Get the mean value of the spline.
@@ -263,7 +263,7 @@ public:
         }
         }
 
-        LOG_ABORT("Unexpected type " << m_Type);
+        LOG_ABORT(<< "Unexpected type " << m_Type);
     }
 
     //! Compute the mean absolute slope of the spline.
@@ -321,7 +321,7 @@ public:
     //! \param[out] c Filled in with the linear coefficient.
     //! \param[out] d Filled in with the constant.
     //! \note Null pointers are ignored.
-    void coefficients(TDoubleVec* a = 0, TDoubleVec* b = 0, TDoubleVec* c = 0, TDoubleVec* d = 0) const {
+    void coefficients(TDoubleVec* a = nullptr, TDoubleVec* b = nullptr, TDoubleVec* c = nullptr, TDoubleVec* d = nullptr) const {
         if (a)
             a->reserve(this->values().size());
         if (b)
@@ -381,11 +381,11 @@ public:
     //! over the duplicates.
     bool interpolate(const TDoubleVec& knots, const TDoubleVec& values, EBoundaryCondition boundary) {
         if (knots.size() < 2) {
-            LOG_ERROR("Insufficient knot points supplied");
+            LOG_ERROR(<< "Insufficient knot points supplied");
             return false;
         }
         if (knots.size() != values.size()) {
-            LOG_ERROR("Number knots not equal to number of values: "
+            LOG_ERROR(<< "Number knots not equal to number of values: "
                       << " knots = " << core::CContainerPrinter::print(knots) << " values = " << core::CContainerPrinter::print(values));
             return false;
         }
@@ -424,11 +424,11 @@ public:
         this->knotsRef().erase(this->knotsRef().begin() + last + 1, this->knotsRef().end());
         this->valuesRef().erase(this->valuesRef().begin() + last + 1, this->valuesRef().end());
         n = this->knots().size();
-        LOG_TRACE("knots = " << core::CContainerPrinter::print(this->knots()));
-        LOG_TRACE("values = " << core::CContainerPrinter::print(this->values()));
+        LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(this->knots()));
+        LOG_TRACE(<< "values = " << core::CContainerPrinter::print(this->values()));
 
         if (this->knots().size() < 2) {
-            LOG_ERROR("Insufficient distinct knot points supplied");
+            LOG_ERROR(<< "Insufficient distinct knot points supplied");
             this->knotsRef().swap(oldKnots);
             this->valuesRef().swap(oldValues);
             return false;
@@ -496,7 +496,7 @@ public:
                 b.push_back(1.0);
                 this->curvaturesRef().push_back(0.0);
                 if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
-                    LOG_ERROR("Failed to calculate curvatures");
+                    LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
                 break;
@@ -506,7 +506,7 @@ public:
                 b.push_back(1.0);
                 this->curvaturesRef().push_back(0.0);
                 if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
-                    LOG_ERROR("Failed to calculate curvatures");
+                    LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
                 break;
@@ -523,7 +523,7 @@ public:
                 this->curvaturesRef().push_back(
                     6.0 * ((this->values()[1] - this->values()[n - 1]) / h - (this->values()[n - 1] - this->values()[n - 2]) / h_));
                 if (!spline_detail::solvePeturbedTridiagonal(a, b, c, u, v, this->curvaturesRef())) {
-                    LOG_ERROR("Failed to calculate curvatures");
+                    LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
             } break;

@@ -64,7 +64,7 @@ public:
             const std::string& name = traverser.name();
             if (name == VALUE_TAG) {
                 if (CMetricStatisticWrappers::restore(traverser, m_Values[i++]) == false) {
-                    LOG_ERROR("Invalid statistic in " << traverser.value());
+                    LOG_ERROR(<< "Invalid statistic in " << traverser.value());
                     return false;
                 }
             }
@@ -78,7 +78,7 @@ public:
     //! \param[in] count The number of measurements in the statistic.
     void add(const TDouble1Vec& value, unsigned int count) {
         if (value.size() != m_Values.size()) {
-            LOG_ERROR("Inconsistent input data:"
+            LOG_ERROR(<< "Inconsistent input data:"
                       << " # values = " << value.size() << ", expected " << m_Values.size());
             return;
         }

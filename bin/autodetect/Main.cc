@@ -140,30 +140,30 @@ int main(int argc, char** argv) {
                               isPersistFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
     if (ioMgr.initIo() == false) {
-        LOG_FATAL("Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     if (jobId.empty()) {
-        LOG_FATAL("No job ID specified");
+        LOG_FATAL(<< "No job ID specified");
         return EXIT_FAILURE;
     }
 
     ml::model::CLimits limits;
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL("Ml limit config file '" << limitConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -177,18 +177,18 @@ int main(int argc, char** argv) {
     modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(fieldConfig.scheduledEvents()));
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
-        LOG_FATAL("Ml model config file '" << modelConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
     if (!modelPlotConfigFile.empty() && modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
-        LOG_FATAL("Ml model plot config file '" << modelPlotConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "Ml model plot config file '" << modelPlotConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
     using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
-    if (ioMgr.restoreStream() != 0) {
+    if (ioMgr.restoreStream()) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
         // and therefore does not originate from X-Pack.
         if (!isRestoreFileNamedPipe) {
@@ -204,16 +204,16 @@ int main(int argc, char** argv) {
 
     using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
-    if (ioMgr.persistStream() != 0) {
+    if (ioMgr.persistStream()) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
     using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
-        if (persister == 0) {
-            LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                      "unless a place to persist to has been specified using the 'persist' argument");
+        if (persister == nullptr) {
+            LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                         "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -232,7 +232,7 @@ int main(int argc, char** argv) {
 
     ml::api::CModelSnapshotJsonWriter modelSnapshotWriter(jobId, wrappedOutputStream);
     if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
-        LOG_FATAL("Field config could not be interpreted");
+        LOG_FATAL(<< "Field config could not be interpreted");
         return EXIT_FAILURE;
     }
 
@@ -251,7 +251,7 @@ int main(int argc, char** argv) {
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {
-            LOG_FATAL("Failed to restore quantiles and initialize normalizer");
+            LOG_FATAL(<< "Failed to restore quantiles and initialize normalizer");
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {
@@ -270,7 +270,7 @@ int main(int argc, char** argv) {
     ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, fieldDataTyperOutputWriter);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG("Applying the categorization typer for anomaly detection");
+        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
         firstProcessor = &typer;
     }
 
@@ -290,7 +290,7 @@ int main(int argc, char** argv) {
     fieldDataTyperOutputWriter.finalise();
 
     if (!ioLoopSucceeded) {
-        LOG_FATAL("Ml anomaly detector job failed");
+        LOG_FATAL(<< "Ml anomaly detector job failed");
         return EXIT_FAILURE;
     }
 
@@ -299,12 +299,12 @@ int main(int argc, char** argv) {
     }
 
     // Print out the runtime stats generated during this execution context
-    LOG_DEBUG(ml::core::CStatistics::instance());
+    LOG_DEBUG(<< ml::core::CStatistics::instance());
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("Ml anomaly detector job exiting");
+    LOG_DEBUG(<< "Ml anomaly detector job exiting");
 
     return EXIT_SUCCESS;
 }
