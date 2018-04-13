@@ -301,8 +301,6 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator() {
-    LOG_DEBUG(<< "*** testInfluenceUnavailableCalculator ***");
-
     test::CRandomNumbers rng;
 
     core_t::TTime bucketLength{1800};
@@ -374,8 +372,6 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator() {
-    LOG_DEBUG(<< "*** testLogProbabilityComplementInfluenceCalculator ***");
-
     test::CRandomNumbers rng;
 
     maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleSeasonalVarianceScaleWeight);
@@ -699,8 +695,6 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
-    LOG_DEBUG(<< "*** testMeanInfluenceCalculator ***");
-
     test::CRandomNumbers rng;
 
     model::CMeanInfluenceCalculator calculator;
@@ -1049,8 +1043,6 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator() {
-    LOG_DEBUG(<< "*** testLogProbabilityInfluenceCalculator ***");
-
     test::CRandomNumbers rng;
 
     model::CLogProbabilityInfluenceCalculator calculator;
@@ -1383,8 +1375,6 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() {
-    LOG_DEBUG(<< "*** testIndicatorInfluenceCalculator ***");
-
     {
         LOG_DEBUG(<< "Test univariate");
 
@@ -1440,8 +1430,6 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() 
 }
 
 void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator() {
-    LOG_DEBUG(<< "*** testProbabilityAndInfluenceCalculator ***");
-
     test::CRandomNumbers rng;
 
     core_t::TTime bucketLength{600};

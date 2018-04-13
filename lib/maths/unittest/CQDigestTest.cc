@@ -40,10 +40,6 @@ using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
 using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 void CQDigestTest::testAdd() {
-    LOG_DEBUG(<< "+-------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testAdd  |");
-    LOG_DEBUG(<< "+-------------------------+");
-
     // We test the space and error bounds on the quantile calculations
     // for various inputs.
 
@@ -155,10 +151,6 @@ void CQDigestTest::testMerge() {
 }
 
 void CQDigestTest::testCdf() {
-    LOG_DEBUG(<< "+-------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testCdf  |");
-    LOG_DEBUG(<< "+-------------------------+");
-
     // We check the relationship that c.d.f. is the approximate inverse
     // of quantile. We also test the quality of the approximation versus
     // the true c.d.f. of the data.
@@ -222,10 +214,6 @@ void CQDigestTest::testCdf() {
 }
 
 void CQDigestTest::testSummary() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testSummary  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Check that quantiles of the summary agree with the digest.
     {
         CQDigest qDigest(20u);
@@ -289,10 +277,6 @@ void CQDigestTest::testSummary() {
 }
 
 void CQDigestTest::testPropagateForwardByTime() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testPropagateForwardByTime  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     using TMeanAccumlator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     {
@@ -433,10 +417,6 @@ void CQDigestTest::testPropagateForwardByTime() {
 }
 
 void CQDigestTest::testScale() {
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testScale  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     {
         CQDigest qDigest(10u, 1.0);
 
@@ -551,10 +531,6 @@ void CQDigestTest::testScale() {
 }
 
 void CQDigestTest::testPersist() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CQDigestTest::testPersist  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Large n uniform random.
     CRandomNumbers generator;
 

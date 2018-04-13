@@ -220,8 +220,6 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
 void CEventRatePopulationModelTest::testBasicAccessors() {
-    LOG_DEBUG(<< "*** testBasicAccessors ***");
-
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
@@ -327,8 +325,6 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
 }
 
 void CEventRatePopulationModelTest::testFeatures() {
-    LOG_DEBUG(<< "*** testFeatures ***");
-
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
@@ -486,8 +482,6 @@ void CEventRatePopulationModelTest::testFeatures() {
 }
 
 void CEventRatePopulationModelTest::testComputeProbability() {
-    LOG_DEBUG(<< "*** testComputeProbability ***");
-
     // Check that we get the probabilities we expect.
 
     using TAnomalyVec = std::vector<SAnomaly>;
@@ -573,8 +567,6 @@ void CEventRatePopulationModelTest::testComputeProbability() {
 }
 
 void CEventRatePopulationModelTest::testPrune() {
-    LOG_DEBUG(<< "*** testPrune ***");
-
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
@@ -749,8 +741,6 @@ void CEventRatePopulationModelTest::testPrune() {
 }
 
 void CEventRatePopulationModelTest::testKey() {
-    LOG_DEBUG(<< "*** testKey ***");
-
     function_t::EFunction countFunctions[] = {function_t::E_PopulationCount,
                                               function_t::E_PopulationDistinctCount,
                                               function_t::E_PopulationRare,
@@ -789,8 +779,6 @@ void CEventRatePopulationModelTest::testKey() {
 }
 
 void CEventRatePopulationModelTest::testFrequency() {
-    LOG_DEBUG(<< "*** CEventRatePopulationModelTest::testFrequency ***");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Test we correctly compute frequencies for people and attributes.
@@ -880,8 +868,6 @@ void CEventRatePopulationModelTest::testFrequency() {
 }
 
 void CEventRatePopulationModelTest::testSampleRateWeight() {
-    LOG_DEBUG(<< "*** CEventRatePopulationModelTest::testSampleRateWeight ***");
-
     // Test that we correctly compensate for heavy hitters.
 
     // There are 10 attributes.
@@ -1001,8 +987,6 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
 }
 
 void CEventRatePopulationModelTest::testPeriodicity() {
-    LOG_DEBUG(<< "*** testPeriodicity ***");
-
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
@@ -1123,8 +1107,6 @@ void CEventRatePopulationModelTest::testPeriodicity() {
 }
 
 void CEventRatePopulationModelTest::testSkipSampling() {
-    LOG_DEBUG(<< "*** testSkipSampling ***");
-
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
     std::size_t maxAgeBuckets(5);
@@ -1211,8 +1193,6 @@ void CEventRatePopulationModelTest::testSkipSampling() {
 }
 
 void CEventRatePopulationModelTest::testInterimCorrections() {
-    LOG_DEBUG(<< "*** testInterimCorrections ***");
-
     core_t::TTime startTime(3600);
     std::size_t bucketLength(3600);
     SModelParams params(bucketLength);
@@ -1295,8 +1275,6 @@ void CEventRatePopulationModelTest::testInterimCorrections() {
 }
 
 void CEventRatePopulationModelTest::testPersistence() {
-    LOG_DEBUG(<< "*** testPersistence ***");
-
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
 
@@ -1364,8 +1342,6 @@ void CEventRatePopulationModelTest::testPersistence() {
 }
 
 void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
-
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.

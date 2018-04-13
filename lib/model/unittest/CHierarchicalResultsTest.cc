@@ -437,8 +437,6 @@ void addResult(int detector,
 } // unnamed::
 
 void CHierarchicalResultsTest::testBreadthFirstVisit() {
-    LOG_DEBUG(<< "*** testBreadthFirstVisit ***");
-
     model::CHierarchicalResults results;
 
     // Three partitioning fields PART1, PART2, PART3:
@@ -502,8 +500,6 @@ void CHierarchicalResultsTest::testBreadthFirstVisit() {
 }
 
 void CHierarchicalResultsTest::testDepthFirstVisit() {
-    LOG_DEBUG(<< "*** testDepthFirstVisit ***");
-
     model::CHierarchicalResults results;
 
     // Three partitioning fields PART1, PART2, PART3:
@@ -608,8 +604,6 @@ const std::string p35("p35");
 } // unnamed::
 
 void CHierarchicalResultsTest::testBuildHierarchy() {
-    LOG_DEBUG(<< "*** testBuildHierarchy ***");
-
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(
         ml::model::function_t::E_IndividualMetricMean);
@@ -743,8 +737,6 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
 }
 
 void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue() {
-    LOG_DEBUG(<< "*** testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue ***");
-
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(
         ml::model::function_t::E_IndividualMetricMean);
@@ -801,8 +793,6 @@ void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePerson
 }
 
 void CHierarchicalResultsTest::testBasicVisitor() {
-    LOG_DEBUG(<< "*** testBasicVisitor ***");
-
     static const std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
@@ -1017,8 +1007,6 @@ void CHierarchicalResultsTest::testBasicVisitor() {
 }
 
 void CHierarchicalResultsTest::testAggregator() {
-    LOG_DEBUG(<< "*** testAggregator ***");
-
     using TAnnotatedProbabilityVec = std::vector<model::SAnnotatedProbability>;
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -1191,8 +1179,6 @@ void CHierarchicalResultsTest::testAggregator() {
 }
 
 void CHierarchicalResultsTest::testInfluence() {
-    LOG_DEBUG(<< "*** testInfluence ***");
-
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1354,8 +1340,6 @@ void CHierarchicalResultsTest::testInfluence() {
 }
 
 void CHierarchicalResultsTest::testScores() {
-    LOG_DEBUG(<< "*** testScores ***");
-
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1485,8 +1469,6 @@ void CHierarchicalResultsTest::testScores() {
 }
 
 void CHierarchicalResultsTest::testWriter() {
-    LOG_DEBUG(<< "*** testWriter ***");
-
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1561,8 +1543,6 @@ void CHierarchicalResultsTest::testWriter() {
 }
 
 void CHierarchicalResultsTest::testNormalizer() {
-    LOG_DEBUG(<< "*** testNormalizer ***");
-
     using TNormalizerPtr = std::shared_ptr<model::CAnomalyScore::CNormalizer>;
     using TStrNormalizerPtrMap = std::map<std::string, TNormalizerPtr>;
     using TStrNormalizerPtrMapItr = TStrNormalizerPtrMap::iterator;
@@ -1774,8 +1754,6 @@ void CHierarchicalResultsTest::testNormalizer() {
 }
 
 void CHierarchicalResultsTest::testDetectorEqualizing() {
-    LOG_DEBUG(<< "*** testDetectorEqualizing ***");
-
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     test::CRandomNumbers rng;

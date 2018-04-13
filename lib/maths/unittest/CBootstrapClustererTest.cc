@@ -114,10 +114,6 @@ void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
 }
 
 void CBootstrapClustererTest::testFacade() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testFacade  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // Check that clustering by facade produces the sample result.
 
     std::size_t improveParamsKmeansIterations = 4;
@@ -188,10 +184,6 @@ void CBootstrapClustererTest::testFacade() {
 }
 
 void CBootstrapClustererTest::testBuildClusterGraph() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testBuildClusterGraph  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     // Test we get the graph edges we expect for different overlap
     // thresholds.
 
@@ -295,10 +287,6 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
 }
 
 void CBootstrapClustererTest::testCutSearch() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testCutSearch  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     // Test we generally find the sparsest cut in a graph with two cliques.
 
     std::size_t trials = 50;
@@ -350,10 +338,6 @@ void CBootstrapClustererTest::testCutSearch() {
 }
 
 void CBootstrapClustererTest::testSeparate() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testSeparate  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Test we separate a graph with three cliques when we can.
 
     test::CRandomNumbers rng;
@@ -436,10 +420,6 @@ void CBootstrapClustererTest::testSeparate() {
 }
 
 void CBootstrapClustererTest::testThickets() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testThickets  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Test we find the correct thickets in a graph with two
     // components and three cliques.
 
@@ -521,10 +501,6 @@ void CBootstrapClustererTest::testThickets() {
 }
 
 void CBootstrapClustererTest::testNonConvexClustering() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testNonConvexClustering  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Check the improvement in clustering when the underlying
     // assumptions of x-means (specifically cluster convexness
     // and Gaussian noise) are violated.
@@ -690,10 +666,6 @@ void CBootstrapClustererTest::testNonConvexClustering() {
 }
 
 void CBootstrapClustererTest::testClusteringStability() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CBootstrapClustererTest::testClusteringStability  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that when we think there is sufficient certainty
     // to create clusters the assignment of points to clusters
     // is stable over multiple samplings of the data.

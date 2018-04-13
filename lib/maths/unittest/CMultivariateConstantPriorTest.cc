@@ -47,10 +47,6 @@ TDouble10Vec4Vec1Vec singleUnitWeight(std::size_t dimension) {
 }
 
 void CMultivariateConstantPriorTest::testAddSamples() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testAddSamples  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     // Test error cases.
 
     maths::CMultivariateConstantPrior filter(2);
@@ -81,10 +77,6 @@ void CMultivariateConstantPriorTest::testAddSamples() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     // Check that the marginal likelihood is 0 for non informative, otherwise
     // either 0 or infinity depending on whether the value is equal to the
     // constant or not.
@@ -136,10 +128,6 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-
     // Check that the marginal likelihood mean is 0 for non informative,
     // otherwise equal to the constant.
 
@@ -159,10 +147,6 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-
     // Check that the marginal likelihood mode is 0 for non informative,
     // otherwise equal to the constant.
 
@@ -184,10 +168,6 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-
     // Check that the marginal likelihood mode is infinite diagonal for
     // non informative, otherwise the zero matrix.
 
@@ -223,14 +203,6 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
 }
 
 void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateConstantPriorTest::testSampleMarginalLikelihood "
-                 " |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-
     // Check we get zero samples for non-informative and sample of the
     // constant otherwise.
 
@@ -256,10 +228,6 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
-
     // Check we get one for non-informative and the constant and zero
     // otherwise.
 
@@ -301,10 +269,6 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CMultivariateConstantPriorTest::testPersist() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testPersist  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // Check persistence is idempotent.
 
     LOG_DEBUG(<< "*** Non-informative ***");

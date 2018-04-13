@@ -56,10 +56,6 @@ void bruteForceDft(maths::CSignal::TComplexVec& f, double sign) {
 }
 
 void CSignalTest::testFFTVersusOctave() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testFFTVersusOctave  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Test versus values calculated using octave fft.
 
     double x[][20] = {
@@ -156,10 +152,6 @@ void CSignalTest::testFFTVersusOctave() {
 }
 
 void CSignalTest::testIFFTVersusOctave() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testIFFTVersusOctave  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test versus values calculated using octave ifft.
 
     double x[][20] = {
@@ -233,10 +225,6 @@ void CSignalTest::testIFFTVersusOctave() {
 }
 
 void CSignalTest::testFFTRandomized() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testFFTRandomized  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Test on randomized input versus brute force.
 
     test::CRandomNumbers rng;
@@ -273,10 +261,6 @@ void CSignalTest::testFFTRandomized() {
 }
 
 void CSignalTest::testIFFTRandomized() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testIFFTRandomized  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Test on randomized input versus brute force.
 
     test::CRandomNumbers rng;
@@ -313,10 +297,6 @@ void CSignalTest::testIFFTRandomized() {
 }
 
 void CSignalTest::testFFTIFFTIdempotency() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testFFTIFFTIdempotency  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // Test on randomized input that x = F(F^-1(x)).
 
     test::CRandomNumbers rng;
@@ -353,10 +333,6 @@ void CSignalTest::testFFTIFFTIdempotency() {
 }
 
 void CSignalTest::testAutocorrelations() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CSignalTest::testAutocorrelations  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TSizeVec sizes;

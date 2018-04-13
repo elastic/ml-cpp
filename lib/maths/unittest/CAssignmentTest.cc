@@ -96,10 +96,6 @@ double match(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
 }
 
 void CAssignmentTest::testKuhnMunkres() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CAssignmentTest::testKuhnMunkres |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     {
         LOG_DEBUG(<< "test 1: bad input");
         const double test11[][5] = {

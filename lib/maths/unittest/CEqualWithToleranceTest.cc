@@ -23,10 +23,6 @@
 using namespace ml;
 
 void CEqualWithToleranceTest::testScalar() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CEqualWithToleranceTest::testScalar  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     {
         maths::CEqualWithTolerance<double> abs(
             maths::CToleranceTypes::E_AbsoluteTolerance, 0.31);
@@ -93,10 +89,6 @@ void CEqualWithToleranceTest::testScalar() {
 }
 
 void CEqualWithToleranceTest::testVector() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CEqualWithToleranceTest::testVector  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     float a_[] = {1.1f, 1.2f};
     float b_[] = {1.2f, 1.3f};
     float c_[] = {201.1f, 202.2f};
@@ -161,10 +153,6 @@ void CEqualWithToleranceTest::testVector() {
 }
 
 void CEqualWithToleranceTest::testMatrix() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CEqualWithToleranceTest::testMatrix  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     float a_[] = {1.1f, 1.2f, 1.3f};
     float b_[] = {1.2f, 1.3f, 1.4f};
     float c_[] = {201.1f, 202.2f, 203.4f};

@@ -65,10 +65,6 @@ using TDoubleArray4 = boost::array<double, 4>;
 }
 
 void CRegressionTest::testInvariants() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testInvariants |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Test at (local) minimum of quadratic residuals.
 
     test::CRandomNumbers rng;
@@ -128,10 +124,6 @@ void CRegressionTest::testInvariants() {
 }
 
 void CRegressionTest::testFit() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testFit  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     test::CRandomNumbers rng;
 
     std::size_t n = 50;
@@ -209,10 +201,6 @@ void CRegressionTest::testFit() {
 }
 
 void CRegressionTest::testShiftAbscissa() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testShiftAbscissa  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test shifting the abscissa is equivalent to updating
     // with shifted X-values.
 
@@ -289,10 +277,6 @@ void CRegressionTest::testShiftAbscissa() {
 }
 
 void CRegressionTest::testShiftOrdinate() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testShiftOrdinate  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
@@ -321,10 +305,6 @@ void CRegressionTest::testShiftOrdinate() {
 }
 
 void CRegressionTest::testShiftGradient() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testShiftGradient  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
@@ -353,10 +333,6 @@ void CRegressionTest::testShiftGradient() {
 }
 
 void CRegressionTest::testAge() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testAge  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     // Test that the regression is mean reverting.
 
     double intercept = 5.0;
@@ -475,10 +451,6 @@ void CRegressionTest::testAge() {
 }
 
 void CRegressionTest::testPrediction() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testPrediction  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Check we get successive better predictions of a power
     // series function, i.e. x -> sin(x), using higher order
     // approximations.
@@ -558,10 +530,6 @@ void CRegressionTest::testPrediction() {
 }
 
 void CRegressionTest::testCombination() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testCombination  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Test that we can combine regressions on two subsets of
     // the points to get the same result as the regression on
     // the full collection of points.
@@ -617,10 +585,6 @@ void CRegressionTest::testCombination() {
 }
 
 void CRegressionTest::testSingular() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testSingular  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test that we get the highest order polynomial regression
     // available for the points added at any time. In particular,
     // one needs at least n + 1 points to be able to determine
@@ -739,10 +703,6 @@ void CRegressionTest::testSingular() {
 }
 
 void CRegressionTest::testScale() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testScale  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     // Test that scale reduces the count in the regression statistic
 
     maths::CRegression::CLeastSquaresOnline<1, double> regression;
@@ -793,10 +753,6 @@ private:
 };
 
 void CRegressionTest::testMean() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testMean  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Test that the mean agrees with the numeric integration
     // of the regression.
 
@@ -840,10 +796,6 @@ void CRegressionTest::testMean() {
 }
 
 void CRegressionTest::testCovariances() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testCovariances  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Test the covariance matrix of the regression parameters
     // agree with the observed sample covariances of independent
     // fits to a matched model.
@@ -920,10 +872,6 @@ void CRegressionTest::testCovariances() {
 }
 
 void CRegressionTest::testParameters() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testParameters  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     maths::CRegression::CLeastSquaresOnline<3, double> regression;
 
     for (std::size_t i = 0u; i < 20; ++i) {
@@ -947,10 +895,6 @@ void CRegressionTest::testParameters() {
 }
 
 void CRegressionTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test that persistence is idempotent.
 
     maths::CRegression::CLeastSquaresOnline<2, double> origRegression;
@@ -991,10 +935,6 @@ void CRegressionTest::testPersist() {
 }
 
 void CRegressionTest::testParameterProcess() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CRegressionTest::testParameterProcess  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Approximately test the variance predicted by the regression
     // parameter process is an unbiased estimator. This is done by
     // simulating an approximation of the process d^2X(t)/dt^2 = W(t),

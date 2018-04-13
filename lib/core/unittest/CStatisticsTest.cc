@@ -67,7 +67,6 @@ CppUnit::Test* CStatisticsTest::suite() {
 }
 
 void CStatisticsTest::testStatistics() {
-    LOG_TRACE(<< "Starting Statistics test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     static const int N = 6;
@@ -105,12 +104,9 @@ void CStatisticsTest::testStatistics() {
         stats.stat(TEST_STAT).increment();
     }
     CPPUNIT_ASSERT_EQUAL(uint64_t(0x1000000), stats.stat(TEST_STAT).value());
-
-    LOG_TRACE(<< "Finished Statistics test");
 }
 
 void CStatisticsTest::testPersist() {
-    LOG_DEBUG(<< "Starting persist test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     // Check that a save/restore with all zeros is Ok

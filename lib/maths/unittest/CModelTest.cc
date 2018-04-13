@@ -23,10 +23,6 @@
 using namespace ml;
 
 void CModelTest::testAll() {
-    LOG_DEBUG(<< "+-----------------------+");
-    LOG_DEBUG(<< "|  CModelTest::testAll  |");
-    LOG_DEBUG(<< "+-----------------------+");
-
     // Test that the various parameter classes work as expected.
 
     {

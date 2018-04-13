@@ -39,8 +39,6 @@ const std::string EMPTY_STRING;
 } // unnamed
 
 void CModelDetailsViewTest::testModelPlot() {
-    LOG_DEBUG(<< "*** CModelDetailsViewTest::testModelPlot ***");
-
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
     using TMockModelPtr = std::unique_ptr<model::CMockModel>;

@@ -221,8 +221,6 @@ const std::string EMPTY_STRING;
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeCounts() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
-
     // We check that we correctly sample the unique people per
     // attribute and (attribute, person) pair counts.
 
@@ -341,8 +339,6 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
-
     // We check that we correctly sample the (attribute, person)
     // indicator.
 
@@ -403,8 +399,6 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
 }
 
 void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
-
     // We check that we correctly sample the unique counts
     // of values per person.
 
@@ -474,8 +468,6 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testCompressedLength() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
-
     // We check that we correctly sample the compressed length of unique
     // values per person.
 
@@ -564,8 +556,6 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemovePeople() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
-
     using TStrSizeMap = std::map<std::string, std::size_t>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
@@ -696,8 +686,6 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
-
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
 
@@ -803,8 +791,6 @@ bool isSpace(const char x) {
 }
 
 void CEventRatePopulationDataGathererTest::testPersistence() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testPersistence ***");
-
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
 

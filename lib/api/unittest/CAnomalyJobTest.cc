@@ -1453,7 +1453,6 @@ void CAnomalyJobTest::testOutOfPhase() {
 }
 
 void CAnomalyJobTest::testBucketSelection() {
-    LOG_DEBUG(<< "*** testBucketSelection ***");
     core_t::TTime bucketSize = 100;
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
@@ -1588,7 +1587,6 @@ void CAnomalyJobTest::testBucketSelection() {
 }
 
 void CAnomalyJobTest::testModelPlot() {
-    LOG_DEBUG(<< "*** testModelPlot ***");
     {
         // Test non-overlapping buckets
         core_t::TTime bucketSize = 10000;
@@ -1775,8 +1773,6 @@ void CAnomalyJobTest::testModelPlot() {
 }
 
 void CAnomalyJobTest::testInterimResultEdgeCases() {
-    LOG_DEBUG(<< "*** testInterimResultEdgeCases ***");
-
     const char* logFile = "test.log";
 
     core_t::TTime bucketSize = 3600;

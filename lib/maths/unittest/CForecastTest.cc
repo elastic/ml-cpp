@@ -86,10 +86,6 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
 }
 
 void CForecastTest::testDailyNoLongTermTrend() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyNoLongTermTrend  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     core_t::TTime bucketLength{600};
     TDoubleVec y{0.0,   2.0,   2.0,   4.0,   8.0,  10.0,  15.0,  20.0,
                  120.0, 120.0, 110.0, 100.0, 90.0, 100.0, 130.0, 80.0,
@@ -108,10 +104,6 @@ void CForecastTest::testDailyNoLongTermTrend() {
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyConstantLongTermTrend  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  2.0,   2.0,   4.0,   8.0,   10.0,  15.0, 20.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -127,10 +119,6 @@ void CForecastTest::testDailyConstantLongTermTrend() {
 }
 
 void CForecastTest::testDailyVaryingLongTermTrend() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyVaryingLongTermTrend  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     double day{86400.0};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -156,10 +144,6 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexNoLongTermTrend  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -176,10 +160,6 @@ void CForecastTest::testComplexNoLongTermTrend() {
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexConstantLongTermTrend  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -197,10 +177,6 @@ void CForecastTest::testComplexConstantLongTermTrend() {
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexVaryingLongTermTrend  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     double day{86400.0};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -231,10 +207,6 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
 }
 
 void CForecastTest::testNonNegative() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testNonNegative  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     core_t::TTime bucketLength{1800};
 
     test::CRandomNumbers rng;
@@ -321,10 +293,6 @@ void CForecastTest::testNonNegative() {
 }
 
 void CForecastTest::testFinancialIndex() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testFinancialIndex  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     core_t::TTime bucketLength{1800};
 
     TTimeDoublePrVec timeseries;

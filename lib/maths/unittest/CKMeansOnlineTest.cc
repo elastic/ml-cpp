@@ -74,10 +74,6 @@ std::string print(const POINT& point) {
 }
 
 void CKMeansOnlineTest::testVariance() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testVariance  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Check that the variance calculation gives the correct
     // spherical variance.
 
@@ -115,10 +111,6 @@ void CKMeansOnlineTest::testVariance() {
 }
 
 void CKMeansOnlineTest::testAdd() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testAdd  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     // Test that we correctly compute the mean and spherical
     // variance.
 
@@ -167,10 +159,6 @@ void CKMeansOnlineTest::testAdd() {
 }
 
 void CKMeansOnlineTest::testReduce() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testReduce  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test some invariants:
     //   - Number of clusters should be no more than k after
     //     reduce.
@@ -231,10 +219,6 @@ void CKMeansOnlineTest::testReduce() {
 }
 
 void CKMeansOnlineTest::testClustering() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testClustering  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test we are reliably able to find as approximately as good
     // clusterings as k-means working on the full data set.
 
@@ -372,10 +356,6 @@ void CKMeansOnlineTest::testClustering() {
 }
 
 void CKMeansOnlineTest::testSplit() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testSplit  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test that the clusters are divided amoung the clusterers
     // in the split as expected.
 
@@ -438,10 +418,6 @@ void CKMeansOnlineTest::testSplit() {
 }
 
 void CKMeansOnlineTest::testMerge() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testMerge  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test some invariants:
     //   - Number of clusters should be no more than k after merge.
     //   - The count of the points should be unchanged.
@@ -504,10 +480,6 @@ void CKMeansOnlineTest::testMerge() {
 }
 
 void CKMeansOnlineTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     // Test pruning of dead clusters.
 
     test::CRandomNumbers rng;
@@ -548,10 +520,6 @@ void CKMeansOnlineTest::testPropagateForwardsByTime() {
 }
 
 void CKMeansOnlineTest::testSample() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testSample  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // We test that for a small number of samples we get back
     // exactly the points we have added and for a large number
     // of samples we sample the modes of the mixture correctly.
@@ -647,10 +615,6 @@ void CKMeansOnlineTest::testSample() {
 }
 
 void CKMeansOnlineTest::testPersist() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansOnlineTest::testPersist  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec coordinates;

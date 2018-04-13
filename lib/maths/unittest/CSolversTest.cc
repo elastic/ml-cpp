@@ -83,10 +83,6 @@ public:
 }
 
 void CSolversTest::testBracket() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CSolversTest::testBracket  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 0.0);
         std::size_t maxIterations = 10u;
@@ -142,10 +138,6 @@ void CSolversTest::testBracket() {
 }
 
 void CSolversTest::testBisection() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CSolversTest::testBisection  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     double a, b;
     double bestGuess;
     std::size_t iterations;
@@ -276,10 +268,6 @@ void CSolversTest::testBisection() {
 }
 
 void CSolversTest::testBrent() {
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  CSolversTest::testBrent  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     double a, b;
     double bestGuess;
     std::size_t iterations;

@@ -176,10 +176,6 @@ void reinitializePrior(double learnRate,
 }
 
 void CTimeSeriesModelTest::testClone() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testClone  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Test all the state is cloned.
 
     core_t::TTime bucketLength{600};
@@ -253,10 +249,6 @@ void CTimeSeriesModelTest::testClone() {
 }
 
 void CTimeSeriesModelTest::testMode() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testMode  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Test that we get the modes we expect based versus updating the trend(s)
     // and prior directly.
 
@@ -487,10 +479,6 @@ void CTimeSeriesModelTest::testMode() {
 }
 
 void CTimeSeriesModelTest::testAddBucketValue() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testAddBucketValue  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // Test that the prior support is correctly updated to account
     // for negative bucket values.
 
@@ -528,10 +516,6 @@ void CTimeSeriesModelTest::testAddBucketValue() {
 }
 
 void CTimeSeriesModelTest::testAddSamples() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testAddSamples  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Test: 1) Test multiple samples
     //       2) Test propagation interval
     //       3) Test decay rate control
@@ -883,10 +867,6 @@ void CTimeSeriesModelTest::testAddSamples() {
 }
 
 void CTimeSeriesModelTest::testPredict() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testPredict  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test prediction with a trend and with multimodal data.
 
     core_t::TTime bucketLength{600};
@@ -1132,10 +1112,6 @@ void CTimeSeriesModelTest::testPredict() {
 }
 
 void CTimeSeriesModelTest::testProbability() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testProbability  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Test: 1) Calculation, seasonal confidence interval, weights, etc.
     //       2) Test with and without trend.
     //       3) Test with anomalies.
@@ -1433,10 +1409,6 @@ void CTimeSeriesModelTest::testProbability() {
 }
 
 void CTimeSeriesModelTest::testWeights() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testWeights  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     core_t::TTime bucketLength{1800};
 
     test::CRandomNumbers rng;
@@ -1596,10 +1568,6 @@ void CTimeSeriesModelTest::testWeights() {
 }
 
 void CTimeSeriesModelTest::testMemoryUsage() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testMemoryUsage  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Test we account for the appropriate memory.
 
     core_t::TTime bucketLength{600};
@@ -1687,10 +1655,6 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 }
 
 void CTimeSeriesModelTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test persist then restore is idempotent.
 
     core_t::TTime bucketLength{600};
@@ -1803,10 +1767,6 @@ void CTimeSeriesModelTest::testPersist() {
 }
 
 void CTimeSeriesModelTest::testUpgrade() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testUpgrade  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     using TStrVec = std::vector<std::string>;
     auto load = [](const std::string& name, std::string& result) {
         std::ifstream file;
@@ -1925,10 +1885,6 @@ void CTimeSeriesModelTest::testUpgrade() {
 }
 
 void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testAddSamplesWithCorrelations  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     LOG_DEBUG(<< "Correlations no trend");
 
     core_t::TTime bucketLength{600};
@@ -1974,17 +1930,9 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
     // TODO LOG_DEBUG(<< "Correlations with tags (for population)");
 }
 
-void CTimeSeriesModelTest::testProbabilityWithCorrelations() {
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testProbabilityWithCorrelations  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-}
+void CTimeSeriesModelTest::testProbabilityWithCorrelations() {}
 
 void CTimeSeriesModelTest::testAnomalyModel() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesModelTest::testAnomalyModel  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     using TSizeVec = std::vector<std::size_t>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
 

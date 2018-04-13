@@ -54,8 +54,6 @@ CMemoryUsageEstimator::TOptionalSize estimate(CMemoryUsageEstimator& estimator,
 }
 
 void CMemoryUsageEstimatorTest::testEstimateLinear() {
-    LOG_DEBUG(<< "Running estimator test estimate linear");
-
     CMemoryUsageEstimator estimator;
 
     // Pscale = 54
@@ -108,8 +106,6 @@ void CMemoryUsageEstimatorTest::testEstimateLinear() {
 }
 
 void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
-    LOG_DEBUG(<< "Running estimator test estimate non-linear");
-
     {
         // intercept = 356
         // Pscale = 54
@@ -165,8 +161,6 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
 }
 
 void CMemoryUsageEstimatorTest::testPersist() {
-    LOG_DEBUG(<< "Running estimator test persist");
-
     CMemoryUsageEstimator origEstimator;
     {
         std::string origXml;

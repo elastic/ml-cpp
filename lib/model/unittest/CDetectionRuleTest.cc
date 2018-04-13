@@ -87,8 +87,6 @@ CppUnit::Test* CDetectionRuleTest::suite() {
 }
 
 void CDetectionRuleTest::testApplyGivenCategoricalCondition() {
-    LOG_DEBUG(<< "*** testApplyGivenCategoricalCondition ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -340,8 +338,6 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
-    LOG_DEBUG(<< "*** testApplyGivenNumericalActionCondition ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -447,8 +443,6 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
-    LOG_DEBUG(<< "*** testApplyGivenNumericalTypicalCondition ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -522,8 +516,6 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
-    LOG_DEBUG(<< "*** testApplyGivenNumericalDiffAbsCondition ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -621,8 +613,6 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() {
-    LOG_DEBUG(<< "*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -670,8 +660,6 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() 
 }
 
 void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
-    LOG_DEBUG(<< "*** testApplyGivenNoActualValueAvailable ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -711,8 +699,6 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
 }
 
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
-    LOG_DEBUG(<< "*** testApplyGivenDifferentSeriesAndIndividualModel ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -757,8 +743,6 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
 }
 
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
-    LOG_DEBUG(<< "*** testApplyGivenDifferentSeriesAndPopulationModel ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -822,8 +806,6 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
 }
 
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr() {
-    LOG_DEBUG(<< "*** testApplyGivenMultipleConditionsWithOr ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -941,8 +923,6 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr() {
 }
 
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
-    LOG_DEBUG(<< "*** testApplyGivenMultipleConditionsWithAnd ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -1064,8 +1044,6 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
 }
 
 void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel() {
-    LOG_DEBUG(<< "*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -1157,8 +1135,6 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
 }
 
 void CDetectionRuleTest::testApplyGivenTimeCondition() {
-    LOG_DEBUG(<< "*** testApplyGivenTimeCondition ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -1202,8 +1178,6 @@ void CDetectionRuleTest::testApplyGivenTimeCondition() {
 }
 
 void CDetectionRuleTest::testRuleActions() {
-    LOG_DEBUG(<< "*** testRuleActions ***");
-
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;

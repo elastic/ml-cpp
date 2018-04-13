@@ -49,10 +49,6 @@ void CCalendarComponentAdaptiveBucketingTest::tearDown() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testInitialize() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testInitialize  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     maths::CCalendarFeature feature{maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 86400};
     maths::CCalendarComponentAdaptiveBucketing bucketing{feature};
 
@@ -81,10 +77,6 @@ void CCalendarComponentAdaptiveBucketingTest::testInitialize() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testSwap() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testSwap  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     core_t::TTime now{core::CTimeUtils::now()};
 
     maths::CCalendarFeature feature1{maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, now};
@@ -127,10 +119,6 @@ void CCalendarComponentAdaptiveBucketingTest::testSwap() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testRefine() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testRefine  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test that refine reduces the function approximation error.
 
     core_t::TTime times[] = {-1,    3600,  10800, 18000, 25200, 32400, 39600,
@@ -215,10 +203,6 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-
     // Check no error is introduced by the aging process to
     // the bucket values and that the rate at which the total
     // count is reduced uniformly.
@@ -248,10 +232,6 @@ void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-
     double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
                          0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
                          0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
@@ -311,10 +291,6 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testUnintialized() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testUnintialized  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.
 
@@ -358,10 +334,6 @@ void CCalendarComponentAdaptiveBucketingTest::testUnintialized() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testKnots() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testKnots  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // Check prediction errors in values and variances.
 
     test::CRandomNumbers rng;
@@ -454,10 +426,6 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Check that serialization is idempotent.
 
     double decayRate{0.1};

@@ -41,10 +41,6 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 
 void CStatisticalTestsTest::testCramerVonMises() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CStatisticalTestsTest::testCramerVonMises  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // These test that the test statistic p value percentiles
     // are correct if the random variable and the distribution
     // function are perfectly matched.
@@ -130,10 +126,6 @@ void CStatisticalTestsTest::testCramerVonMises() {
 }
 
 void CStatisticalTestsTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CStatisticalTestsTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Check that serialization is idempotent.
 
     {
