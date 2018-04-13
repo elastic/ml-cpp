@@ -25,6 +25,7 @@
 #include <model/ImportExport.h>
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -51,7 +52,7 @@ using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
-using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalculator>;
+using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 
 //! The types of model available.
 //!

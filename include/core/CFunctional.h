@@ -20,7 +20,8 @@
 #include <core/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -41,7 +42,7 @@ public:
         }
 
         template<typename T>
-        bool operator()(boost::shared_ptr<T>& ptr) const {
+        bool operator()(std::shared_ptr<T>& ptr) const {
             return ptr == nullptr;
         }
     };

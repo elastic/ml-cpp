@@ -33,7 +33,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -156,21 +155,21 @@ public:
     using TOptionalUInt64 = boost::optional<uint64_t>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TInfluenceCalculatorCPtr = boost::shared_ptr<const CInfluenceCalculator>;
+    using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
     using TFeatureInfluenceCalculatorCPtrPr =
         std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
     using TFeatureInfluenceCalculatorCPtrPrVecVec =
         std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
-    using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TMathsModelPtrVec = std::vector<TMathsModelPtr>;
-    using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
-    using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
-    using TModelCPtr = boost::shared_ptr<const CAnomalyDetectorModel>;
-    using TCorrelationsPtr = boost::shared_ptr<maths::CTimeSeriesCorrelations>;
+    using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
+    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
+    using TModelCPtr = std::shared_ptr<const CAnomalyDetectorModel>;
+    using TCorrelationsPtr = std::shared_ptr<maths::CTimeSeriesCorrelations>;
     using CModelDetailsViewPtr = std::auto_ptr<CModelDetailsView>;
 
 public:
@@ -698,7 +697,7 @@ protected:
 
 private:
     using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
-    using TInterimBucketCorrectorPtr = boost::shared_ptr<CInterimBucketCorrector>;
+    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
 
 private:
     //! Set the current bucket total count.

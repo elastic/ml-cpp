@@ -17,9 +17,8 @@
 
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 

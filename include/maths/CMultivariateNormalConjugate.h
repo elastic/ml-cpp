@@ -443,8 +443,7 @@ public:
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
-            return TPriorPtrDoublePr(
-                boost::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
+            return TPriorPtrDoublePr(std::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
         }
         if (!this->check(marginalize, condition)) {
             return TPriorPtrDoublePr();

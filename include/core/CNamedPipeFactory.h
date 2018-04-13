@@ -19,9 +19,8 @@
 #include <core/ImportExport.h>
 #include <core/WindowsSafe.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 #include <stdio.h>
@@ -65,9 +64,9 @@ namespace core {
 //!
 class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable {
 public:
-    using TIStreamP = boost::shared_ptr<std::istream>;
-    using TOStreamP = boost::shared_ptr<std::ostream>;
-    using TFileP = boost::shared_ptr<FILE>;
+    using TIStreamP = std::shared_ptr<std::istream>;
+    using TOStreamP = std::shared_ptr<std::ostream>;
+    using TFileP = std::shared_ptr<FILE>;
 
 public:
     //! Character that can safely be used to test whether named pipes are

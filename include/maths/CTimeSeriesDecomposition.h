@@ -20,7 +20,7 @@
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class CTimeSeriesDecompositionTest;
 
@@ -188,7 +188,7 @@ public:
     virtual core_t::TTime lastValueTime() const;
 
 private:
-    using TMediatorPtr = boost::shared_ptr<CMediator>;
+    using TMediatorPtr = std::shared_ptr<CMediator>;
 
 private:
     //! Set up the communication mediator.

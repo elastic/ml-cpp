@@ -47,7 +47,6 @@
 #include <boost/config.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
@@ -481,7 +480,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriod
     // Note that m_Windows is an array.
     for (std::size_t i = 0u; i < other.m_Windows.size(); ++i) {
         if (other.m_Windows[i]) {
-            m_Windows[i] = boost::make_shared<CExpandingWindow>(*other.m_Windows[i]);
+            m_Windows[i] = std::make_shared<CExpandingWindow>(*other.m_Windows[i]);
         }
     }
 }
@@ -1388,8 +1387,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     CTrendComponent& trend,
     TSeasonalComponentVec& components,
     TComponentErrorsVec& errors) const {
-
-    using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
     using TSeasonalTimePtrVec = std::vector<TSeasonalTimePtr>;
 
     TSeasonalTimePtrVec newSeasonalTimes;

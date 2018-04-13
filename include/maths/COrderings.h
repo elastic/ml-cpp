@@ -23,10 +23,10 @@
 #include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -336,7 +336,7 @@ public:
         }
 
         template<typename T>
-        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
+        bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
             return SPtrLess::less(lhs.get(), rhs.get());
         }
 
@@ -377,7 +377,7 @@ public:
         }
 
         template<typename T>
-        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
+        bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
             return SPtrGreater::greater(lhs.get(), rhs.get());
         }
 

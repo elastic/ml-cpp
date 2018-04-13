@@ -31,7 +31,7 @@ namespace {
 const size_t WARMUP_COUNT(100);
 const size_t TEST_COUNT(1000000000);
 
-typedef std::pair<size_t, uint64_t> TSizeUInt64Pr;
+using TSizeUInt64Pr = std::pair<size_t, uint64_t>;
 
 size_t benchmark(char testId, ml::vfprog::CIncrementer& incrementer, size_t count) {
     size_t val(0);

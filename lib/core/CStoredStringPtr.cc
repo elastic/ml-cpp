@@ -17,7 +17,6 @@
 #include <core/CMemory.h>
 
 #include <boost/functional/hash.hpp>
-#include <boost/make_shared.hpp>
 
 #include <utility>
 
@@ -28,11 +27,11 @@ CStoredStringPtr::CStoredStringPtr() noexcept : m_String{} {
 }
 
 CStoredStringPtr::CStoredStringPtr(const std::string& str)
-    : m_String{boost::make_shared<const std::string>(str)} {
+    : m_String{std::make_shared<const std::string>(str)} {
 }
 
 CStoredStringPtr::CStoredStringPtr(std::string&& str)
-    : m_String{boost::make_shared<const std::string>(std::move(str))} {
+    : m_String{std::make_shared<const std::string>(std::move(str))} {
 }
 
 void CStoredStringPtr::swap(CStoredStringPtr& other) noexcept {

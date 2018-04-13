@@ -184,7 +184,7 @@ void importCsvData(core_t::TTime firstTime,
                    CResultWriter& outputResults,
                    const std::string& fileName,
                    model::CAnomalyDetector& detector) {
-    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
+    using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

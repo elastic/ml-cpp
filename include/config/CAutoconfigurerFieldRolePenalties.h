@@ -20,7 +20,7 @@
 
 #include <config/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace config {
@@ -60,7 +60,7 @@ public:
     const CPenalty& partitionPenalty() const;
 
 private:
-    using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
+    using TPenaltyCPtr = std::shared_ptr<const CPenalty>;
 
 private:
     //! The penalties.

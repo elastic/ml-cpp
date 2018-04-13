@@ -458,7 +458,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
     using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
     using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
     using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
     using TTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPr =
         std::pair<TTimeDouble2VecSizeTrVec, TDouble2VecWeightsAryVec>;

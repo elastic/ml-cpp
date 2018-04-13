@@ -18,9 +18,8 @@
 #include <core/CMemoryUsage.h>
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 #include <string>
 
 namespace ml {
@@ -98,7 +97,7 @@ private:
     explicit CStoredStringPtr(std::string&& str);
 
 private:
-    using TStrCPtr = boost::shared_ptr<const std::string>;
+    using TStrCPtr = std::shared_ptr<const std::string>;
 
     //! The wrapped shared_ptr.
     TStrCPtr m_String;

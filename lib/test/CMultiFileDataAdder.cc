@@ -18,10 +18,10 @@
 #include <core/CStringUtils.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/make_shared.hpp>
 
 #include <exception>
 #include <fstream>
+#include <memory>
 
 namespace ml {
 namespace test {
@@ -37,7 +37,7 @@ CMultiFileDataAdder::TOStreamP
 CMultiFileDataAdder::addStreamed(const std::string& index, const std::string& id) {
     const std::string& filename = this->makeFilename(index, id);
 
-    TOStreamP strm(boost::make_shared<std::ofstream>(filename.c_str()));
+    TOStreamP strm(std::make_shared<std::ofstream>(filename.c_str()));
     if (!strm->good()) {
         LOG_ERROR(<< "Failed to create new output stream for file " << filename);
         strm.reset();

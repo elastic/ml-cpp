@@ -34,9 +34,9 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 using namespace ml;
@@ -60,7 +60,7 @@ struct SMessage {
 using TMessageVec = std::vector<SMessage>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
-using TEventRateDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+using TEventRateDataGathererPtr = std::shared_ptr<CDataGatherer>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
 using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;

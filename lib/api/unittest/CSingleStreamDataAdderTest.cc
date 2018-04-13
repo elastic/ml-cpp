@@ -37,11 +37,10 @@
 
 #include <boost/bind.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/ref.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -157,13 +156,13 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         firstProcessor = &typer;
     }
 
-    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
-    TScopedInputParserP parser;
-    if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
-        parser.reset(new ml::api::CCsvInputParser(inputStrm));
-    } else {
-        parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
-    }
+    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
+    TInputParserCUPtr parser{[&inputFilename, &inputStrm]() -> ml::api::CInputParser* {
+        if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
+            return new ml::api::CCsvInputParser(inputStrm);
+        }
+        return new ml::api::CLineifiedJsonInputParser(inputStrm);
+    }()};
 
     CPPUNIT_ASSERT(parser->readStream(
         boost::bind(&ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
@@ -208,7 +207,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     {
         ml::core_t::TTime completeToTime(0);
 
-        auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
+        auto strm = std::make_shared<boost::iostreams::filtering_istream>();
         strm->push(ml::api::CStateRestoreStreamFilter());
         std::istringstream inputStream(origPersistedState);
         strm->push(inputStream);
