@@ -157,7 +157,9 @@ int main(int argc, char** argv) {
     }
     using TBackgroundPersisterCUPtr = const std::unique_ptr<ml::api::CBackgroundPersister>;
     TBackgroundPersisterCUPtr periodicPersister{[persistInterval, &persister]() {
-        return new ml::api::CBackgroundPersister(persistInterval, *persister);
+        if (persistInterval >= 0) {
+            return new ml::api::CBackgroundPersister(persistInterval, *persister);
+        }
     }()};
 
     using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
