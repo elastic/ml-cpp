@@ -44,7 +44,7 @@ bool writeToSystemFile(const std::string &fileName, const std::string &value)
     return true;
 }
 
-void increaseOomKillerAdj(void)
+void increaseOomKillerAdj()
 {
     // oom_score_adj is supported by newer kernels and oom_adj by older kernels.
     // oom_score_adj is on a scale of -1000 to 1000.
@@ -62,7 +62,7 @@ void increaseOomKillerAdj(void)
 
 }
 
-void CProcessPriority::reducePriority(void)
+void CProcessPriority::reducePriority()
 {
     // Currently the only action is to increase the OOM killer adjustment, but
     // there could be others in the future.

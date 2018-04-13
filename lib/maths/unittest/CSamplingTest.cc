@@ -17,15 +17,15 @@
 
 #include <numeric>
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
 namespace
 {
 
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 double multinomialProbability(const TDoubleVec &probabilities,
                               const TSizeVec &counts)
@@ -37,10 +37,10 @@ double multinomialProbability(const TDoubleVec &probabilities,
         double ni = static_cast<double>(counts[i]);
         if (ni > 0.0)
         {
-            logP += ni * ::log(probabilities[i]) - boost::math::lgamma(ni + 1.0);
+            logP += ni * std::log(probabilities[i]) - boost::math::lgamma(ni + 1.0);
         }
     }
-    return ::exp(logP);
+    return std::exp(logP);
 }
 
 namespace test_detail
@@ -122,7 +122,7 @@ double euclidean(const TDoubleVec &v)
     {
         result += v[i] * v[i];
     }
-    return ::sqrt(result);
+    return std::sqrt(result);
 }
 
 //! Frobenius norm of a matrix.
@@ -136,21 +136,21 @@ double frobenius(const TDoubleVecVec &m)
             result += m[i][j] * m[i][j];
         }
     }
-    return ::sqrt(result);
+    return std::sqrt(result);
 }
 
 }
 
 }
 
-void CSamplingTest::testMultinomialSample(void)
+void CSamplingTest::testMultinomialSample()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CSamplingTest::testMultinomialSample  |");
     LOG_DEBUG("+----------------------------------------+");
 
-    typedef std::map<TSizeVec, double> TSizeVecDoubleMap;
-    typedef TSizeVecDoubleMap::const_iterator TSizeVecDoubleMapCItr;
+    using TSizeVecDoubleMap = std::map<TSizeVec, double>;
+    using TSizeVecDoubleMapCItr = TSizeVecDoubleMap::const_iterator;
 
     maths::CSampling::seed();
 
@@ -184,8 +184,8 @@ void CSamplingTest::testMultinomialSample(void)
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
         LOG_DEBUG("p  = " << p << ", pe = " << pe);
-        CPPUNIT_ASSERT(::fabs(pe - p) < std::max(0.27 * p, 3e-5));
-        error += ::fabs(pe - p);
+        CPPUNIT_ASSERT(std::fabs(pe - p) < std::max(0.27 * p, 3e-5));
+        error += std::fabs(pe - p);
         pTotal += p;
     }
 
@@ -193,13 +193,13 @@ void CSamplingTest::testMultinomialSample(void)
     CPPUNIT_ASSERT(error < 0.02 * pTotal);
 }
 
-void CSamplingTest::testMultivariateNormalSample(void)
+void CSamplingTest::testMultivariateNormalSample()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CSamplingTest::testMultivariateNormalSample  |");
     LOG_DEBUG("+-----------------------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
@@ -265,7 +265,7 @@ void CSamplingTest::testMultivariateNormalSample(void)
     }
 }
 
-CppUnit::Test *CSamplingTest::suite(void)
+CppUnit::Test *CSamplingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 

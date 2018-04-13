@@ -49,27 +49,27 @@ class API_EXPORT CDataProcessor : private core::CNonCopyable
         static const std::string CONTROL_FIELD_NAME;
 
     public:
-        typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapItr = TStrStrUMap::iterator;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
-        CDataProcessor(void);
-        virtual ~CDataProcessor(void);
+        CDataProcessor();
+        virtual ~CDataProcessor();
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void) = 0;
+        virtual void newOutputStream() = 0;
 
         //! Receive a single record to be processed, and produce output
         //! with any required modifications
         virtual bool handleRecord(const TStrStrUMap &dataRowFields) = 0;
 
         //! Perform any final processing once all input data has been seen.
-        virtual void finalise(void) = 0;
+        virtual void finalise() = 0;
 
         //! Restore previously saved state
         virtual bool restoreState(core::CDataSearcher &restoreSearcher,
@@ -82,10 +82,10 @@ class API_EXPORT CDataProcessor : private core::CNonCopyable
         virtual bool periodicPersistState(CBackgroundPersister &persister);
 
         //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const = 0;
+        virtual uint64_t numRecordsHandled() const = 0;
 
         //! Access the output handler
-        virtual COutputHandler &outputHandler(void) = 0;
+        virtual COutputHandler &outputHandler() = 0;
 
         //! Create debug for a record.  This is expensive so should NOT be
         //! called for every record as a matter of course.

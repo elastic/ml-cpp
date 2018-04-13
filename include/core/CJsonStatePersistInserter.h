@@ -44,7 +44,7 @@ class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter
         CJsonStatePersistInserter(std::ostream &outputStream);
 
         //! Destructor flushes
-        virtual ~CJsonStatePersistInserter(void);
+        virtual ~CJsonStatePersistInserter();
 
         //! Store a name/value
         virtual void insertValue(const std::string &name,
@@ -58,20 +58,20 @@ class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter
         using CStatePersistInserter::insertValue;
 
         //! Flush the underlying output stream
-        void flush(void);
+        void flush();
 
     protected:
         //! Start a new level with the given name
         virtual void newLevel(const std::string &name);
 
         //! End the current level
-        virtual void endLevel(void);
+        virtual void endLevel();
 
     private:
         //! JSON writer ostream wrapper
         rapidjson::OStreamWrapper     m_WriteStream;
 
-        typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+        using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
         //! JSON writer
         TGenericLineWriter            m_Writer;

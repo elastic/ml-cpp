@@ -26,17 +26,17 @@ namespace
     class CReceiver
     {
         public:
-            CReceiver(void)
+            CReceiver()
                 : m_Ticks(0)
             {
             }
 
-            void tick(void)
+            void tick()
             {
                 ++m_Ticks;
             }
 
-            size_t ticks(void) const
+            size_t ticks() const
             {
                 return m_Ticks;
             }
@@ -46,7 +46,7 @@ namespace
     };
 }
 
-void CTickerTest::testTicker(void)
+void CTickerTest::testTicker()
 {
     CReceiver receiver;
 

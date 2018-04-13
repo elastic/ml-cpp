@@ -82,7 +82,7 @@ class CORE_EXPORT CLogger : private CNonCopyable
     public:
         //! Access to singleton - use MACROS to get to this when logging
         //! messages
-        static CLogger     &instance(void);
+        static CLogger     &instance();
 
         //! Reconfigure to either a named pipe or a properties file.
         //! If both are supplied the named pipe takes precedence.
@@ -97,7 +97,7 @@ class CORE_EXPORT CLogger : private CNonCopyable
         bool               reconfigureFromFile(const std::string &propertiesFile);
 
         //! Tell the logger to reconfigure itself to log JSON.
-        bool               reconfigureLogJson(void);
+        bool               reconfigureLogJson();
 
         //! Set the logging level on the fly - useful when unit tests need to
         //! log at a lower level than the shipped programs
@@ -106,28 +106,28 @@ class CORE_EXPORT CLogger : private CNonCopyable
         //! Has the logger been reconfigured?  Callers should note that there
         //! is nothing to stop the logger being reconfigured between a call to
         //! this method and them using the result.
-        bool               hasBeenReconfigured(void) const;
+        bool               hasBeenReconfigured() const;
 
         //! Log all environment variables.  Callers are responsible for ensuring
         //! that this method is not called at the same time as a putenv() or
         //! setenv() call in another thread.
-        void               logEnvironment(void) const;
+        void               logEnvironment() const;
 
         //! Access to underlying logger (must only be called from macros)
-        log4cxx::LoggerPtr logger(void);
+        log4cxx::LoggerPtr logger();
 
 #ifdef Windows
         //! Throw a fatal exception
-        __declspec(noreturn) static void fatal(void);
+        __declspec(noreturn) static void fatal();
 #else
         //! Throw a fatal exception
-        __attribute__ ((noreturn)) static void fatal(void);
+        __attribute__ ((noreturn)) static void fatal();
 #endif
 
     private:
         //! Constructor for a singleton is private.
-        CLogger(void);
-        ~CLogger(void);
+        CLogger();
+        ~CLogger();
 
         //! Replace Ml specific patterns in log4cxx properties.  In
         //! addition to the patterns usually supported by log4cxx, Ml will
@@ -137,8 +137,8 @@ class CORE_EXPORT CLogger : private CNonCopyable
         //! 3) %P with the program's process ID
         void massageProperties(log4cxx::helpers::Properties &props) const;
 
-        typedef std::map<log4cxx::logchar, log4cxx::LogString> TLogCharLogStrMap;
-        typedef TLogCharLogStrMap::const_iterator              TLogCharLogStrMapCItr;
+        using TLogCharLogStrMap = std::map<log4cxx::logchar, log4cxx::LogString>;
+        using TLogCharLogStrMapCItr = TLogCharLogStrMap::const_iterator;
 
         //! Replace Ml specific mappings in a single string
         void massageString(const TLogCharLogStrMap &mappings,

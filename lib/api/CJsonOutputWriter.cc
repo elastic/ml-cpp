@@ -174,12 +174,12 @@ CJsonOutputWriter::CJsonOutputWriter(const std::string &jobId, core::CJsonOutput
     // the moment, the output stream might be redirected after construction
 }
 
-CJsonOutputWriter::~CJsonOutputWriter(void)
+CJsonOutputWriter::~CJsonOutputWriter()
 {
     finalise();
 }
 
-void CJsonOutputWriter::finalise(void)
+void CJsonOutputWriter::finalise()
 {
     if (m_Finalised)
     {
@@ -413,7 +413,7 @@ bool CJsonOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames(void) const
+const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames() const
 {
     return EMPTY_FIELD_NAMES;
 }
@@ -788,12 +788,12 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
     //! influenceResults. These strings must exist up to the time the results
     //! are written
 
-    typedef std::pair<const char *, double>                                 TCharPtrDoublePr;
-    typedef std::vector<TCharPtrDoublePr>                                   TCharPtrDoublePrVec;
-    typedef TCharPtrDoublePrVec::iterator                                   TCharPtrDoublePrVecIter;
-    typedef std::pair<const char *, TCharPtrDoublePrVec>                    TCharPtrCharPtrDoublePrVecPr;
-    typedef boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr> TStrCharPtrCharPtrDoublePrVecPrUMap;
-    typedef TStrCharPtrCharPtrDoublePrVecPrUMap::iterator                   TStrCharPtrCharPtrDoublePrVecPrUMapIter;
+    using TCharPtrDoublePr = std::pair<const char *, double>;
+    using TCharPtrDoublePrVec = std::vector<TCharPtrDoublePr>;
+    using TCharPtrDoublePrVecIter = TCharPtrDoublePrVec::iterator;
+    using TCharPtrCharPtrDoublePrVecPr = std::pair<const char *, TCharPtrDoublePrVec>;
+    using TStrCharPtrCharPtrDoublePrVecPrUMap = boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr>;
+    using TStrCharPtrCharPtrDoublePrVecPrUMapIter = TStrCharPtrCharPtrDoublePrVecPrUMap::iterator;
 
 
     TStrCharPtrCharPtrDoublePrVecPrUMap influences;
@@ -925,7 +925,7 @@ void CJsonOutputWriter::limitNumberRecords(size_t count)
     m_RecordOutputLimit = count;
 }
 
-size_t CJsonOutputWriter::limitNumberRecords(void) const
+size_t CJsonOutputWriter::limitNumberRecords() const
 {
     return m_RecordOutputLimit;
 }
@@ -1016,7 +1016,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.EndObject();
 }
 
-CJsonOutputWriter::SBucketData::SBucketData(void)
+CJsonOutputWriter::SBucketData::SBucketData()
     : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0),
       s_InputEventCount(0),
       s_RecordCount(0),

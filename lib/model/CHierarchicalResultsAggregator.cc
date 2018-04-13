@@ -139,7 +139,7 @@ void CHierarchicalResultsAggregator::refresh(const CAnomalyDetectorModelConfig &
     }
 }
 
-void CHierarchicalResultsAggregator::clear(void)
+void CHierarchicalResultsAggregator::clear()
 {
     this->TBase::clear();
 }
@@ -197,7 +197,7 @@ bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreT
     return true;
 }
 
-uint64_t CHierarchicalResultsAggregator::checksum(void) const
+uint64_t CHierarchicalResultsAggregator::checksum() const
 {
     uint64_t seed = static_cast<uint64_t>(m_DecayRate);
     seed = maths::CChecksum::calculate(seed, m_Parameters);
@@ -441,7 +441,7 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode &node, boo
         TDetectorEqualizerPtrVec equalizers;
         this->elements(node, pivot, factory, equalizers);
         TMaxAccumulator corrected;
-        for (auto &&equalizer : equalizers)
+        for (auto &equalizer : equalizers)
         {
             switch (m_Job)
             {

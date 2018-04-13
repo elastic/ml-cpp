@@ -11,12 +11,12 @@
 #include <boost/multi_array.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -442,19 +442,19 @@ std::string CStringUtils::typeToStringPrecise(double d,
     switch (precision)
     {
     case CIEEE754::E_HalfPrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0 ?
+        ret = std::fabs(d) < 1.0 && d != 0.0 ?
               ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision))) :
               ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
 
     case CIEEE754::E_SinglePrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0 ?
+        ret = std::fabs(d) < 1.0 && d != 0.0 ?
               ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision))) :
               ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
 
     case CIEEE754::E_DoublePrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0 ?
+        ret = std::fabs(d) < 1.0 && d != 0.0 ?
               ::sprintf(buf, "%.14e", clampToReadable(d)) :
               ::sprintf(buf, "%.15g", clampToReadable(d));
         break;
@@ -1048,7 +1048,7 @@ std::string CStringUtils::longestCommonSubstr(const std::string &str1,
     size_t secondLen(str2.length());
 
     // Set up the matrix
-    typedef boost::multi_array<size_t, 2> T2DSizeArray;
+    using T2DSizeArray = boost::multi_array<size_t, 2>;
     T2DSizeArray matrix(boost::extents[firstLen][secondLen]);
 
     size_t maxLen(0);
@@ -1110,7 +1110,7 @@ std::string CStringUtils::longestCommonSubsequence(const std::string &str1,
     size_t secondLen(str2.length());
 
     // Set up the matrix - dimensions are one bigger than the string lengths
-    typedef boost::multi_array<size_t, 2> T2DSizeArray;
+    using T2DSizeArray = boost::multi_array<size_t, 2>;
     T2DSizeArray matrix(boost::extents[firstLen + 1][secondLen + 1]);
 
     // Initialise the top row and left column of the matrix to zero
@@ -1196,7 +1196,7 @@ std::string CStringUtils::wideToNarrow(const std::wstring &wideStr)
     // Note: this won't always work for non-ASCII data, and it can't
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
-    typedef std::ctype<wchar_t> TWCharTCType;
+    using TWCharTCType = std::ctype<wchar_t>;
     std::use_facet<TWCharTCType>(CStringUtils::locale()).narrow(wideStr.data(),
                                                                 wideStr.data() + wideStr.length(),
                                                                 '?',
@@ -1213,14 +1213,14 @@ std::wstring CStringUtils::narrowToWide(const std::string &narrowStr)
     // Note: this won't always work for non-ASCII data, and it can't
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
-    typedef std::ctype<wchar_t> TWCharTCType;
+    using TWCharTCType = std::ctype<wchar_t>;
     std::use_facet<TWCharTCType>(CStringUtils::locale()).widen(narrowStr.data(),
                                                                narrowStr.data() + narrowStr.length(),
                                                                &wideStr[0]);
     return wideStr;
 }
 
-const std::locale &CStringUtils::locale(void)
+const std::locale &CStringUtils::locale()
 {
     static std::locale loc;
     return loc;

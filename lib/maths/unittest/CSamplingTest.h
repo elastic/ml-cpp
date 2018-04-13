@@ -12,10 +12,10 @@
 class CSamplingTest : public CppUnit::TestFixture
 {
     public:
-        void testMultinomialSample(void);
-        void testMultivariateNormalSample(void);
+        void testMultinomialSample();
+        void testMultivariateNormalSample();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CSamplingTest_h

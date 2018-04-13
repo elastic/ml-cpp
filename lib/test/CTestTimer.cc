@@ -50,7 +50,7 @@ uint64_t CTestTimer::timeForTest(const std::string &testName) const
     return iter->second;
 }
 
-uint64_t CTestTimer::totalTime(void) const
+uint64_t CTestTimer::totalTime() const
 {
     uint64_t result(0);
 
@@ -64,7 +64,7 @@ uint64_t CTestTimer::totalTime(void) const
     return result;
 }
 
-uint64_t CTestTimer::averageTime(void) const
+uint64_t CTestTimer::averageTime() const
 {
     if (m_TestTimes.empty())
     {

@@ -13,9 +13,9 @@
 class CStringStoreTest : public CppUnit::TestFixture
 {
     public:
-        void testPersonStringPruning(void);
-        void testAttributeStringPruning(void);
-        void testInfluencerStringPruning(void);
+        void testPersonStringPruning();
+        void testAttributeStringPruning();
+        void testInfluencerStringPruning();
 
         static CppUnit::Test *suite();
 

@@ -29,7 +29,7 @@ CCondition::CCondition(CMutex &mutex)
     }
 }
 
-CCondition::~CCondition(void)
+CCondition::~CCondition()
 {
     int ret(::pthread_cond_destroy(&m_Condition));
     if (ret != 0)
@@ -38,7 +38,7 @@ CCondition::~CCondition(void)
     }
 }
 
-bool CCondition::wait(void)
+bool CCondition::wait()
 {
     // Note: pthread_cond_wait() returns 0 if interrupted by a signal, so the
     // caller must check a condition that will detect spurious wakeups
@@ -76,7 +76,7 @@ bool CCondition::wait(uint32_t t)
     return true;
 }
 
-void CCondition::signal(void)
+void CCondition::signal()
 {
     int ret(::pthread_cond_signal(&m_Condition));
     if (ret != 0)
@@ -85,7 +85,7 @@ void CCondition::signal(void)
     }
 }
 
-void CCondition::broadcast(void)
+void CCondition::broadcast()
 {
     int ret(::pthread_cond_broadcast(&m_Condition));
     if (ret != 0)

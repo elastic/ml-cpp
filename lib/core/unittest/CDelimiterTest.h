@@ -15,12 +15,12 @@
 class CDelimiterTest : public CppUnit::TestFixture
 {
     public:
-        void testSimpleTokenise(void);
-        void testRegexTokenise(void);
-        void testQuotedTokenise(void);
-        void testQuotedEscapedTokenise(void);
-        void testInvalidQuotedTokenise(void);
-        void testQuoteEqualsEscapeTokenise(void);
+        void testSimpleTokenise();
+        void testRegexTokenise();
+        void testQuotedTokenise();
+        void testQuotedEscapedTokenise();
+        void testInvalidQuotedTokenise();
+        void testQuoteEqualsEscapeTokenise();
 
         static CppUnit::Test *suite();
 

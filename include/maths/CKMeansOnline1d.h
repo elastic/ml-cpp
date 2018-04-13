@@ -32,11 +32,11 @@ namespace maths
 class MATHS_EXPORT CKMeansOnline1d : public CClusterer1d
 {
     public:
-        typedef TPointPreciseVec TDoubleVec;
-        typedef TPointPreciseDoublePrVec TDoubleDoublePrVec;
-        typedef std::vector<CNormalMeanPrecConjugate> TNormalVec;
-        typedef TNormalVec::iterator TNormalVecItr;
-        typedef TNormalVec::const_iterator TNormalVecCItr;
+        using TDoubleVec = TPointPreciseVec;
+        using TDoubleDoublePrVec = TPointPreciseDoublePrVec;
+        using TNormalVec = std::vector<CNormalMeanPrecConjugate>;
+        using TNormalVecItr = TNormalVec::iterator;
+        using TNormalVecCItr = TNormalVec::const_iterator;
 
     public:
         //! Construct a new clusterer.
@@ -51,7 +51,7 @@ class MATHS_EXPORT CKMeansOnline1d : public CClusterer1d
         //! \name Clusterer Contract
         //@{
         //! Get the tag name for this clusterer.
-        virtual std::string persistenceTag(void) const;
+        virtual std::string persistenceTag() const;
 
         //! Persist state by passing information to the supplied inserter.
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -59,13 +59,13 @@ class MATHS_EXPORT CKMeansOnline1d : public CClusterer1d
         //! Creates a copy of the clusterer.
         //!
         //! \warning Caller owns returned object.
-        virtual CKMeansOnline1d *clone(void) const;
+        virtual CKMeansOnline1d *clone() const;
 
         //! Clear the current clusterer state.
-        virtual void clear(void);
+        virtual void clear();
 
         //! Get the number of clusters.
-        virtual std::size_t numberClusters(void) const;
+        virtual std::size_t numberClusters() const;
 
         //! Set the type of data being clustered.
         virtual void dataType(maths_t::EDataType dataType);
@@ -131,10 +131,10 @@ class MATHS_EXPORT CKMeansOnline1d : public CClusterer1d
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
         //@}
 
     private:

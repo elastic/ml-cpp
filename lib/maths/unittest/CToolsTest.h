@@ -12,15 +12,15 @@
 class CToolsTest : public CppUnit::TestFixture
 {
     public:
-        void testProbabilityOfLessLikelySample(void);
-        void testIntervalExpectation(void);
-        void testMixtureProbabilityOfLessLikelySample(void);
-        void testAnomalyScore(void);
-        void testSpread(void);
-        void testFastLog(void);
-        void testMiscellaneous(void);
+        void testProbabilityOfLessLikelySample();
+        void testIntervalExpectation();
+        void testMixtureProbabilityOfLessLikelySample();
+        void testAnomalyScore();
+        void testSpread();
+        void testFastLog();
+        void testMiscellaneous();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CToolsTest_h

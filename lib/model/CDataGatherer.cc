@@ -307,7 +307,7 @@ CDataGatherer::CDataGatherer(bool isForPersistence, const CDataGatherer &other) 
     }
 }
 
-CDataGatherer::~CDataGatherer(void)
+CDataGatherer::~CDataGatherer()
 {
     for (TBucketGathererPVecItr i = m_Gatherers.begin(); i != m_Gatherers.end(); ++i)
     {
@@ -315,87 +315,87 @@ CDataGatherer::~CDataGatherer(void)
     }
 }
 
-CDataGatherer *CDataGatherer::cloneForPersistence(void) const
+CDataGatherer *CDataGatherer::cloneForPersistence() const
 {
     return new CDataGatherer(true, *this);
 }
 
-model_t::ESummaryMode CDataGatherer::summaryMode(void) const
+model_t::ESummaryMode CDataGatherer::summaryMode() const
 {
     return m_SummaryMode;
 }
 
-model::function_t::EFunction CDataGatherer::function(void) const
+model::function_t::EFunction CDataGatherer::function() const
 {
     return function_t::function(this->features());
 }
 
-bool CDataGatherer::isPopulation(void) const
+bool CDataGatherer::isPopulation() const
 {
     return m_Population;
 }
 
-std::string CDataGatherer::description(void) const
+std::string CDataGatherer::description() const
 {
     return m_Gatherers.front()->description();
 }
 
-std::size_t CDataGatherer::maxDimension(void) const
+std::size_t CDataGatherer::maxDimension() const
 {
     return std::max(this->numberPeople(), this->numberAttributes());
 }
 
-const std::string &CDataGatherer::partitionFieldName(void) const
+const std::string &CDataGatherer::partitionFieldName() const
 {
     return m_PartitionFieldName;
 }
 
-const std::string &CDataGatherer::partitionFieldValue(void) const
+const std::string &CDataGatherer::partitionFieldValue() const
 {
     return *m_PartitionFieldValue;
 }
 
-const CSearchKey &CDataGatherer::searchKey(void) const
+const CSearchKey &CDataGatherer::searchKey() const
 {
     return m_SearchKey;
 }
 
-CDataGatherer::TStrVecCItr CDataGatherer::beginInfluencers(void) const
+CDataGatherer::TStrVecCItr CDataGatherer::beginInfluencers() const
 {
     return m_Gatherers.front()->beginInfluencers();
 }
 
-CDataGatherer::TStrVecCItr CDataGatherer::endInfluencers(void) const
+CDataGatherer::TStrVecCItr CDataGatherer::endInfluencers() const
 {
     return m_Gatherers.front()->endInfluencers();
 }
 
-const std::string &CDataGatherer::personFieldName(void) const
+const std::string &CDataGatherer::personFieldName() const
 {
     return m_Gatherers.front()->personFieldName();
 }
 
-const std::string &CDataGatherer::attributeFieldName(void) const
+const std::string &CDataGatherer::attributeFieldName() const
 {
     return m_Gatherers.front()->attributeFieldName();
 }
 
-const std::string &CDataGatherer::valueFieldName(void) const
+const std::string &CDataGatherer::valueFieldName() const
 {
     return m_Gatherers.front()->valueFieldName();
 }
 
-const CDataGatherer::TStrVec &CDataGatherer::fieldsOfInterest(void) const
+const CDataGatherer::TStrVec &CDataGatherer::fieldsOfInterest() const
 {
     return m_Gatherers.front()->fieldsOfInterest();
 }
 
-std::size_t CDataGatherer::numberByFieldValues(void) const
+std::size_t CDataGatherer::numberByFieldValues() const
 {
     return this->isPopulation() ? this->numberActiveAttributes() : this->numberActivePeople();
 }
 
-std::size_t CDataGatherer::numberOverFieldValues(void) const
+std::size_t CDataGatherer::numberOverFieldValues() const
 {
     return this->isPopulation() ? this->numberActivePeople() : 0;
 }
@@ -446,7 +446,7 @@ void CDataGatherer::skipSampleNow(core_t::TTime sampleBucketStart)
     }
 }
 
-std::size_t CDataGatherer::numberFeatures(void) const
+std::size_t CDataGatherer::numberFeatures() const
 {
     return m_Features.size();
 }
@@ -461,17 +461,17 @@ model_t::EFeature CDataGatherer::feature(std::size_t i) const
     return m_Features[i];
 }
 
-const CDataGatherer::TFeatureVec &CDataGatherer::features(void) const
+const CDataGatherer::TFeatureVec &CDataGatherer::features() const
 {
     return m_Features;
 }
 
-std::size_t CDataGatherer::numberActivePeople(void) const
+std::size_t CDataGatherer::numberActivePeople() const
 {
     return m_PeopleRegistry.numberActiveNames();
 }
 
-std::size_t CDataGatherer::numberPeople(void) const
+std::size_t CDataGatherer::numberPeople() const
 {
     return m_PeopleRegistry.numberNames();
 }
@@ -549,7 +549,7 @@ void CDataGatherer::removePeople(std::size_t lowestPersonToRemove)
     m_PeopleRegistry.removeNames(lowestPersonToRemove);
 }
 
-CDataGatherer::TSizeVec &CDataGatherer::recycledPersonIds(void)
+CDataGatherer::TSizeVec &CDataGatherer::recycledPersonIds()
 {
     return m_PeopleRegistry.recycledIds();
 }
@@ -569,12 +569,12 @@ std::size_t CDataGatherer::addPerson(const std::string &person,
                                     addedPerson);
 }
 
-std::size_t CDataGatherer::numberActiveAttributes(void) const
+std::size_t CDataGatherer::numberActiveAttributes() const
 {
     return m_AttributesRegistry.numberActiveNames();
 }
 
-std::size_t CDataGatherer::numberAttributes(void) const
+std::size_t CDataGatherer::numberAttributes() const
 {
     return m_AttributesRegistry.numberNames();
 }
@@ -641,7 +641,7 @@ void CDataGatherer::removeAttributes(std::size_t lowestAttributeToRemove)
     m_AttributesRegistry.removeNames(lowestAttributeToRemove);
 }
 
-CDataGatherer::TSizeVec &CDataGatherer::recycledAttributeIds(void)
+CDataGatherer::TSizeVec &CDataGatherer::recycledAttributeIds()
 {
     return m_AttributesRegistry.recycledIds();
 }
@@ -695,13 +695,13 @@ void CDataGatherer::resetSampleCount(std::size_t id)
     }
 }
 
-CDataGatherer::TSampleCountsPtr CDataGatherer::sampleCounts(void) const
+CDataGatherer::TSampleCountsPtr CDataGatherer::sampleCounts() const
 {
     return m_SampleCounts;
 }
 
 // Be careful here!
-core_t::TTime CDataGatherer::currentBucketStartTime(void) const
+core_t::TTime CDataGatherer::currentBucketStartTime() const
 {
     return m_Gatherers.front()->currentBucketStartTime();
 }
@@ -716,7 +716,7 @@ void CDataGatherer::currentBucketStartTime(core_t::TTime bucketStart)
     }
 }
 
-core_t::TTime CDataGatherer::bucketLength(void) const
+core_t::TTime CDataGatherer::bucketLength() const
 {
     return m_Gatherers.front()->bucketLength();
 }
@@ -757,7 +757,7 @@ const CDataGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec &
     return this->chooseBucketGatherer(time).influencerCounts(time);
 }
 
-uint64_t CDataGatherer::checksum(void) const
+uint64_t CDataGatherer::checksum() const
 {
     uint64_t result = m_PeopleRegistry.checksum();
     result = maths::CChecksum::calculate(result, m_AttributesRegistry);
@@ -791,7 +791,7 @@ void CDataGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) co
     }
 }
 
-std::size_t CDataGatherer::memoryUsage(void) const
+std::size_t CDataGatherer::memoryUsage() const
 {
     std::size_t mem =  core::CMemory::dynamicSize(m_Features);
     mem += core::CMemory::dynamicSize(m_PeopleRegistry);
@@ -805,12 +805,12 @@ std::size_t CDataGatherer::memoryUsage(void) const
     return mem;
 }
 
-bool CDataGatherer::useNull(void) const
+bool CDataGatherer::useNull() const
 {
     return m_UseNull;
 }
 
-void CDataGatherer::clear(void)
+void CDataGatherer::clear()
 {
     m_PeopleRegistry.clear();
     m_AttributesRegistry.clear();
@@ -838,14 +838,14 @@ void CDataGatherer::releaseMemory(core_t::TTime samplingCutoffTime)
 {
     if (this->isPopulation())
     {
-        for (auto &&gatherer : m_Gatherers)
+        for (auto &gatherer : m_Gatherers)
         {
             gatherer->releaseMemory(samplingCutoffTime);
         }
     }
 }
 
-const SModelParams &CDataGatherer::params(void) const
+const SModelParams &CDataGatherer::params() const
 {
     return m_Params;
 }
@@ -983,12 +983,12 @@ bool CDataGatherer::extractMetricFromField(const std::string &fieldName,
     return true;
 }
 
-core_t::TTime CDataGatherer::earliestBucketStartTime(void) const
+core_t::TTime CDataGatherer::earliestBucketStartTime() const
 {
     return m_Gatherers.front()->earliestBucketStartTime();
 }
 
-bool CDataGatherer::checkInvariants(void) const
+bool CDataGatherer::checkInvariants() const
 {
     LOG_DEBUG("Checking invariants for people registry");
     bool result = m_PeopleRegistry.checkInvariants();

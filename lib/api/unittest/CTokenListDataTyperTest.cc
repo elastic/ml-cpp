@@ -19,17 +19,17 @@
 namespace
 {
 
-typedef ml::api::CTokenListDataTyper<true,  // Warping
-                                     true,  // Underscores
-                                     true,  // Dots
-                                     true,  // Dashes
-                                     true,  // Ignore leading digit
-                                     true,  // Ignore hex
-                                     true,  // Ignore date words
-                                     false, // Ignore field names
-                                     2,     // Min dictionary word length
-                                     ml::core::CWordDictionary::TWeightVerbs5Other2>
-        TTokenListDataTyperKeepsFields;
+using TTokenListDataTyperKeepsFields =
+           ml::api::CTokenListDataTyper<true,  // Warping
+                                        true,  // Underscores
+                                        true,  // Dots
+                                        true,  // Dashes
+                                        true,  // Ignore leading digit
+                                        true,  // Ignore hex
+                                        true,  // Ignore date words
+                                        false, // Ignore field names
+                                        2,     // Min dictionary word length
+                                        ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
 const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 
@@ -82,19 +82,19 @@ CppUnit::Test *CTokenListDataTyperTest::suite()
     return suiteOfTests;
 }
 
-void CTokenListDataTyperTest::setUp(void)
+void CTokenListDataTyperTest::setUp()
 {
     // Enable trace level logging for these unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
 }
 
-void CTokenListDataTyperTest::tearDown(void)
+void CTokenListDataTyperTest::tearDown()
 {
     // Revert to debug level logging for any subsequent unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
 }
 
-void CTokenListDataTyperTest::testHexData(void)
+void CTokenListDataTyperTest::testHexData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -105,7 +105,7 @@ void CTokenListDataTyperTest::testHexData(void)
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " 0x0000000800000000,", 500));
 }
 
-void CTokenListDataTyperTest::testRmdsData(void)
+void CTokenListDataTyperTest::testRmdsData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -121,7 +121,7 @@ void CTokenListDataTyperTest::testRmdsData(void)
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testProxyData(void)
+void CTokenListDataTyperTest::testProxyData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -134,7 +134,7 @@ void CTokenListDataTyperTest::testProxyData(void)
     CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- PROXY Session DESTROYED --------------------", 500));
 }
 
-void CTokenListDataTyperTest::testFxData(void)
+void CTokenListDataTyperTest::testFxData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -142,7 +142,7 @@ void CTokenListDataTyperTest::testFxData(void)
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<L_MSG MN=\"ml12213\" PID=\"ml010_managed2\" TID=\"asyncDelivery44\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): null</L_MSG>", 500));
 }
 
-void CTokenListDataTyperTest::testApacheData(void)
+void CTokenListDataTyperTest::testApacheData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -152,7 +152,7 @@ void CTokenListDataTyperTest::testApacheData(void)
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol stop", 500));
 }
 
-void CTokenListDataTyperTest::testBrokerageData(void)
+void CTokenListDataTyperTest::testBrokerageData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -161,7 +161,7 @@ void CTokenListDataTyperTest::testBrokerageData(void)
     CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "AUDIT  ; tomcat-http--39; ee256201da7c0c11d6b90f9bc8b54aaa77; REQ4e42023b0a022925200027180002aa33; applnx711.elastic.co; ; Request Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe [T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]", 500));
 }
 
-void CTokenListDataTyperTest::testVmwareData(void)
+void CTokenListDataTyperTest::testVmwareData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -173,7 +173,7 @@ void CTokenListDataTyperTest::testVmwareData(void)
     CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback", 104));
 }
 
-void CTokenListDataTyperTest::testBankData(void)
+void CTokenListDataTyperTest::testBankData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -185,7 +185,7 @@ void CTokenListDataTyperTest::testBankData(void)
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronize payment flow for tradeId=80894721 and backOfficeId=9354469", 500));
 }
 
-void CTokenListDataTyperTest::testJavaGcData(void)
+void CTokenListDataTyperTest::testJavaGcData()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -212,7 +212,7 @@ void CTokenListDataTyperTest::testJavaGcData(void)
     CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759800000, 0x0000000800000000, 0x0000000800000000)", 106));
 }
 
-void CTokenListDataTyperTest::testPersist(void)
+void CTokenListDataTyperTest::testPersist()
 {
     TTokenListDataTyperKeepsFields origTyper(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -257,7 +257,7 @@ void CTokenListDataTyperTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CTokenListDataTyperTest::testLongReverseSearch(void)
+void CTokenListDataTyperTest::testLongReverseSearch()
 {
     TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr
             reverseSearchCreator(new ml::api::CTokenListReverseSearchCreator("_raw"));
@@ -307,7 +307,7 @@ void CTokenListDataTyperTest::testLongReverseSearch(void)
     CPPUNIT_ASSERT(terms.find("off") != std::string::npos);
 }
 
-void CTokenListDataTyperTest::testPreTokenised(void)
+void CTokenListDataTyperTest::testPreTokenised()
 {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
@@ -345,7 +345,7 @@ void CTokenListDataTyperTest::testPreTokenised(void)
     CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testPreTokenisedPerformance(void)
+void CTokenListDataTyperTest::testPreTokenisedPerformance()
 {
     static const size_t TEST_SIZE(100000);
     ml::core::CStopWatch stopWatch;

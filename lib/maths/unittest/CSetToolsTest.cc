@@ -21,10 +21,10 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
-void CSetToolsTest::testInplaceSetDifference(void)
+void CSetToolsTest::testInplaceSetDifference()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testInplaceSetDifference  |");
@@ -119,7 +119,7 @@ void CSetToolsTest::testInplaceSetDifference(void)
     }
 }
 
-void CSetToolsTest::testSetSizes(void)
+void CSetToolsTest::testSetSizes()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testSetSizes  |");
@@ -236,7 +236,7 @@ void CSetToolsTest::testSetSizes(void)
     }
 }
 
-void CSetToolsTest::testJaccard(void)
+void CSetToolsTest::testJaccard()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testJaccard  |");
@@ -297,7 +297,7 @@ void CSetToolsTest::testJaccard(void)
     }
 }
 
-void CSetToolsTest::testOverlap(void)
+void CSetToolsTest::testOverlap()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testOverlap  |");
@@ -355,7 +355,7 @@ void CSetToolsTest::testOverlap(void)
     }
 }
 
-CppUnit::Test* CSetToolsTest::suite(void)
+CppUnit::Test* CSetToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
 

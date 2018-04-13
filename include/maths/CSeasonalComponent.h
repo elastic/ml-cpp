@@ -82,7 +82,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Check if the seasonal component has been estimated.
-        bool initialized(void) const;
+        bool initialized() const;
 
         //! Initialize the adaptive bucketing.
         bool initialize(core_t::TTime startTime = 0,
@@ -90,10 +90,10 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
                         const TFloatMeanAccumulatorVec &values = TFloatMeanAccumulatorVec());
 
         //! Get the size of this component.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Clear all data.
-        void clear(void);
+        void clear();
 
         //! Shift the component's time origin to \p time.
         void shiftOrigin(core_t::TTime time);
@@ -122,7 +122,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         void interpolate(core_t::TTime time, bool refine = true);
 
         //! Get the rate at which the seasonal component loses information.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! Set the rate at which the seasonal component loses information.
         void decayRate(double decayRate);
@@ -131,7 +131,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         void propagateForwardsByTime(double time, bool meanRevert = false);
 
         //! Get the time provider.
-        const CSeasonalTime &time(void) const;
+        const CSeasonalTime &time() const;
 
         //! Interpolate the component at \p time.
         //!
@@ -141,7 +141,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         TDoubleDoublePr value(core_t::TTime time, double confidence) const;
 
         //! Get the mean value of the component.
-        double meanValue(void) const;
+        double meanValue() const;
 
         //! This computes the delta to apply to the component with \p period.
         //!
@@ -164,11 +164,11 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         TDoubleDoublePr variance(core_t::TTime time, double confidence) const;
 
         //! Get the mean variance of the component residuals.
-        double meanVariance(void) const;
+        double meanVariance() const;
 
         //! Get the maximum ratio between a residual variance and the mean
         //! residual variance.
-        double heteroscedasticity(void) const;
+        double heteroscedasticity() const;
 
         //! Get the covariance matrix of the regression parameters' at \p time.
         //!
@@ -178,10 +178,10 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         bool covariances(core_t::TTime time, TMatrix &result) const;
 
         //! Get the value spline.
-        TSplineCRef valueSpline(void) const;
+        TSplineCRef valueSpline() const;
 
         //! Get the common slope of the bucket regression models.
-        double slope(void) const;
+        double slope() const;
 
         //! Check if the bucket regression models have enough history to predict.
         bool slopeAccurate(core_t::TTime time) const;
@@ -193,7 +193,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         //! Create by traversing a state document.

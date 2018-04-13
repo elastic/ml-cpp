@@ -33,13 +33,12 @@
 #include <boost/math/special_functions/gamma.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <string>
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -49,18 +48,18 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CNaturalBreaksClassifier::TTuple TTuple;
-typedef CNaturalBreaksClassifier::TTupleVec TTupleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeVec = std::vector<std::size_t>;
+using TTuple = CNaturalBreaksClassifier::TTuple;
+using TTupleVec = CNaturalBreaksClassifier::TTupleVec;
 
 namespace detail
 {
 
-typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 //! \brief Orders two clusters by their centres.
 struct SClusterCentreLess
@@ -119,7 +118,7 @@ logLikelihoodFromCluster(double point,
         return status;
     }
 
-    result = likelihood + ::log(probability);
+    result = likelihood + std::log(probability);
     return status;
 }
 
@@ -283,14 +282,14 @@ void BICGain(maths_t::EDataType dataType,
     double n = CBasicStatistics::count(mv);
     double m = mean(dataType, mv);
     double v = variance(dataType, mv);
-    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(m))
+    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(m))
     {
         return;
     }
 
     // Log-normal (method of moments)
-    double s = ::log(1.0 + v / pow2(m + logNormalOffset));
-    double l = ::log(m + logNormalOffset) - s / 2.0;
+    double s = std::log(1.0 + v / pow2(m + logNormalOffset));
+    double l = std::log(m + logNormalOffset) - s / 2.0;
     // Gamma (method of moments)
     double a = pow2(m + gammaOffset) / v;
     double b = (m + gammaOffset) / v;
@@ -309,25 +308,25 @@ void BICGain(maths_t::EDataType dataType,
     try
     {
         // Mixture of log-normals (method of moments)
-        double sl = ::log(1.0 + vl / pow2(ml + logNormalOffset));
-        double ll = ::log(ml + logNormalOffset) - sl / 2.0;
-        double sr = ::log(1.0 + vr / pow2(mr + logNormalOffset));
-        double lr = ::log(mr + logNormalOffset) - sr / 2.0;
+        double sl = std::log(1.0 + vl / pow2(ml + logNormalOffset));
+        double ll = std::log(ml + logNormalOffset) - sl / 2.0;
+        double sr = std::log(1.0 + vr / pow2(mr + logNormalOffset));
+        double lr = std::log(mr + logNormalOffset) - sr / 2.0;
         // Mixture of gammas (method of moments)
         double al = pow2(ml + gammaOffset) / vl;
         double bl = (ml + gammaOffset) / vl;
         double ar = pow2(mr + gammaOffset) / vr;
         double br = (mr + gammaOffset) / vr;
 
-        double log2piv  = ::log(boost::math::double_constants::two_pi * v);
-        double log2pis  = ::log(boost::math::double_constants::two_pi * s);
-        double loggn    = boost::math::lgamma(a) - a * ::log(b);
-        double log2pivl = ::log(boost::math::double_constants::two_pi * vl / pow2(wl));
-        double log2pivr = ::log(boost::math::double_constants::two_pi * vr / pow2(wr));
-        double log2pisl = ::log(boost::math::double_constants::two_pi * sl / pow2(wl));
-        double log2pisr = ::log(boost::math::double_constants::two_pi * sr / pow2(wr));
-        double loggnl   = boost::math::lgamma(al) - al * ::log(bl) - ::log(wl);
-        double loggnr   = boost::math::lgamma(ar) - ar * ::log(br) - ::log(wr);
+        double log2piv  = std::log(boost::math::double_constants::two_pi * v);
+        double log2pis  = std::log(boost::math::double_constants::two_pi * s);
+        double loggn    = boost::math::lgamma(a) - a * std::log(b);
+        double log2pivl = std::log(boost::math::double_constants::two_pi * vl / pow2(wl));
+        double log2pivr = std::log(boost::math::double_constants::two_pi * vr / pow2(wr));
+        double log2pisl = std::log(boost::math::double_constants::two_pi * sl / pow2(wl));
+        double log2pisr = std::log(boost::math::double_constants::two_pi * sr / pow2(wr));
+        double loggnl   = boost::math::lgamma(al) - al * std::log(bl) - std::log(wl);
+        double loggnr   = boost::math::lgamma(ar) - ar * std::log(br) - std::log(wr);
 
         for (std::size_t i = start; i < split; ++i)
         {
@@ -337,7 +336,7 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + logNormalOffset);
+                double li = std::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -347,8 +346,8 @@ void BICGain(maths_t::EDataType dataType,
             }
             else
             {
-                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
-                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = std::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -366,7 +365,7 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + logNormalOffset);
+                double li = std::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -376,8 +375,8 @@ void BICGain(maths_t::EDataType dataType,
             }
             else
             {
-                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
-                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = std::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -396,7 +395,7 @@ void BICGain(maths_t::EDataType dataType,
         return;
     }
 
-    double logn = ::log(n);
+    double logn = std::log(n);
     double ll1  =  min(distributions.haveNormal()    ? ll1n : boost::numeric::bounds<double>::highest(),
                        distributions.haveLogNormal() ? ll1l : boost::numeric::bounds<double>::highest(),
                        distributions.haveGamma()     ? ll1g : boost::numeric::bounds<double>::highest())
@@ -436,7 +435,7 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
-    double sigma = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(category));
+    double sigma = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(category));
     double t = 3.0 * sigma;
 
     double xa = m - a;
@@ -456,8 +455,8 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
         xa /= sigma;
         xb /= sigma;
 
-        double ea = xa > t ? 0.0 : ::exp(-xa*xa / 2.0);
-        double eb = xb > t ? 0.0 : ::exp(-xb*xb / 2.0);
+        double ea = xa > t ? 0.0 : std::exp(-xa*xa / 2.0);
+        double eb = xb > t ? 0.0 : std::exp(-xb*xb / 2.0);
 
         double km = sigma
                     / boost::math::double_constants::root_two_pi
@@ -512,7 +511,7 @@ bool splitSearch(double minimumCount,
                  const TTupleVec &categories,
                  TSizeVec &result)
 {
-    typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     LOG_TRACE("begin split search");
 
@@ -653,29 +652,29 @@ CAvailableModeDistributions::operator+(const CAvailableModeDistributions &rhs)
     return *this;
 }
 
-double CAvailableModeDistributions::parameters(void) const
+double CAvailableModeDistributions::parameters() const
 {
     return  (this->haveNormal()    ? 2.0 : 0.0)
           + (this->haveGamma()     ? 2.0 : 0.0)
           + (this->haveLogNormal() ? 2.0 : 0.0);
 }
 
-bool CAvailableModeDistributions::haveNormal(void) const
+bool CAvailableModeDistributions::haveNormal() const
 {
     return (m_Value & NORMAL) != 0;
 }
 
-bool CAvailableModeDistributions::haveGamma(void) const
+bool CAvailableModeDistributions::haveGamma() const
 {
     return (m_Value & GAMMA) != 0;
 }
 
-bool CAvailableModeDistributions::haveLogNormal(void) const
+bool CAvailableModeDistributions::haveLogNormal() const
 {
     return (m_Value & LOG_NORMAL) != 0;
 }
 
-std::string CAvailableModeDistributions::toString(void) const
+std::string CAvailableModeDistributions::toString() const
 {
     return core::CStringUtils::typeToString(m_Value);
 }
@@ -796,7 +795,7 @@ void CXMeansOnline1d::swap(CXMeansOnline1d &other)
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag(void) const
+std::string CXMeansOnline1d::persistenceTag() const
 {
     return X_MEANS_ONLINE_1D_TAG;
 }
@@ -822,12 +821,12 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserte
                                      &m_ClusterIndexGenerator, _1));
 }
 
-CXMeansOnline1d *CXMeansOnline1d::clone(void) const
+CXMeansOnline1d *CXMeansOnline1d::clone() const
 {
     return new CXMeansOnline1d(*this);
 }
 
-void CXMeansOnline1d::clear(void)
+void CXMeansOnline1d::clear()
 {
     *this = CXMeansOnline1d(m_DataType,
                             m_AvailableDistributions,
@@ -841,7 +840,7 @@ void CXMeansOnline1d::clear(void)
                             this->mergeFunc());
 }
 
-std::size_t CXMeansOnline1d::numberClusters(void) const
+std::size_t CXMeansOnline1d::numberClusters() const
 {
     return m_Clusters.size();
 }
@@ -947,8 +946,8 @@ void CXMeansOnline1d::cluster(const double &point,
         double likelihoodRight = rightCluster->logLikelihoodFromCluster(m_WeightCalc, point);
 
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft  = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft  = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft  /= normalizer;
         pRight /= normalizer;
@@ -1034,8 +1033,8 @@ void CXMeansOnline1d::add(const double &point,
 
         // Normalize the likelihood values.
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft  = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft  = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft  /= normalizer;
         pRight /= normalizer;
@@ -1110,7 +1109,7 @@ void CXMeansOnline1d::propagateForwardsByTime(double time)
         LOG_ERROR("Can't propagate backwards in time");
         return;
     }
-    m_HistoryLength *= ::exp(-m_DecayRate * time);
+    m_HistoryLength *= std::exp(-m_DecayRate * time);
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
     {
         m_Clusters[i].propagateForwardsByTime(time);
@@ -1154,14 +1153,14 @@ void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
-std::size_t CXMeansOnline1d::memoryUsage(void) const
+std::size_t CXMeansOnline1d::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
     mem += core::CMemory::dynamicSize(m_Clusters);
     return mem;
 }
 
-std::size_t CXMeansOnline1d::staticSize(void) const
+std::size_t CXMeansOnline1d::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1175,7 +1174,7 @@ uint64_t CXMeansOnline1d::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_Clusters);
 }
 
-double CXMeansOnline1d::count(void) const
+double CXMeansOnline1d::count() const
 {
     double result = 0.0;
     for (std::size_t i = 0; i < m_Clusters.size(); ++i)
@@ -1185,12 +1184,12 @@ double CXMeansOnline1d::count(void) const
     return result;
 }
 
-const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters(void) const
+const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters() const
 {
     return m_Clusters;
 }
 
-std::string CXMeansOnline1d::printClusters(void) const
+std::string CXMeansOnline1d::printClusters() const
 {
     if (m_Clusters.empty())
     {
@@ -1244,7 +1243,7 @@ std::string CXMeansOnline1d::printClusters(void) const
             {
                 likelihood += m_Clusters[j].weight(m_WeightCalc)
                               / weightSum
-                              * ::exp(logLikelihood);
+                              * std::exp(logLikelihood);
             }
         }
         coordinatesStr << x[0] << " ";
@@ -1256,7 +1255,7 @@ std::string CXMeansOnline1d::printClusters(void) const
     return coordinatesStr.str() + likelihoodStr.str();
 }
 
-CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator(void)
+CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator()
 {
     return m_ClusterIndexGenerator;
 }
@@ -1308,7 +1307,7 @@ const CXMeansOnline1d::CCluster *CXMeansOnline1d::cluster(std::size_t index) con
     return 0;
 }
 
-double CXMeansOnline1d::minimumSplitCount(void) const
+double CXMeansOnline1d::minimumSplitCount() const
 {
     double result = m_MinimumClusterCount;
     if (m_MinimumClusterFraction > 0.0)
@@ -1318,7 +1317,7 @@ double CXMeansOnline1d::minimumSplitCount(void) const
         {
             count += m_Clusters[i].count();
         }
-        double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
+        double scale = std::max(m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
         count *= m_MinimumClusterFraction / scale;
         result = std::max(result, count);
     }
@@ -1378,7 +1377,7 @@ bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1,
     return false;
 }
 
-bool CXMeansOnline1d::prune(void)
+bool CXMeansOnline1d::prune()
 {
     if (m_Clusters.size() <= 1)
     {
@@ -1415,7 +1414,7 @@ bool CXMeansOnline1d::prune(void)
     return result;
 }
 
-TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const
+TDoubleDoublePr CXMeansOnline1d::winsorisationInterval() const
 {
     double f = (1.0 - m_WinsorisationConfidenceInterval) / 2.0;
 
@@ -1541,19 +1540,19 @@ void CXMeansOnline1d::CCluster::propagateForwardsByTime(double time)
     m_Structure.propagateForwardsByTime(time);
 }
 
-std::size_t CXMeansOnline1d::CCluster::index(void) const
+std::size_t CXMeansOnline1d::CCluster::index() const
 {
     return m_Index;
 }
 
-double CXMeansOnline1d::CCluster::centre(void) const
+double CXMeansOnline1d::CCluster::centre() const
 {
     return m_Prior.marginalLikelihoodMean();
 }
 
-double CXMeansOnline1d::CCluster::spread(void) const
+double CXMeansOnline1d::CCluster::spread() const
 {
-    return ::sqrt(m_Prior.marginalLikelihoodVariance());
+    return std::sqrt(m_Prior.marginalLikelihoodVariance());
 }
 
 double CXMeansOnline1d::CCluster::percentile(double p) const
@@ -1561,7 +1560,7 @@ double CXMeansOnline1d::CCluster::percentile(double p) const
     return m_Structure.percentile(p);
 }
 
-double CXMeansOnline1d::CCluster::count(void) const
+double CXMeansOnline1d::CCluster::count() const
 {
     return m_Prior.numberSamples();
 }
@@ -1747,7 +1746,7 @@ CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerato
     return result;
 }
 
-const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior(void) const
+const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior() const
 {
     return m_Prior;
 }
@@ -1766,7 +1765,7 @@ void CXMeansOnline1d::CCluster::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
     core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
 }
 
-std::size_t CXMeansOnline1d::CCluster::memoryUsage(void) const
+std::size_t CXMeansOnline1d::CCluster::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_Prior);
     mem += core::CMemory::dynamicSize(m_Structure);

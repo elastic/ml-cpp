@@ -24,9 +24,9 @@ namespace config
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
 
 //! Pad \p value.
 inline std::string pad(std::size_t padTo, const std::string &value)
@@ -68,7 +68,7 @@ inline std::string print(const std::pair<U, V> &p, std::size_t padTo = 0)
 
 //! Write out a vector of pairs new line delimited.
 template<typename U, typename V>
-inline std::string print(const std::vector<std::pair<U, V> > &v, std::size_t padTo = 0)
+inline std::string print(const std::vector<std::pair<U, V>> &v, std::size_t padTo = 0)
 {
     std::string result;
     for (std::size_t i = 0u; i < v.size(); ++i)
@@ -169,7 +169,7 @@ bool CReportWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CReportWriter::TStrVec &CReportWriter::fieldNames(void) const
+const CReportWriter::TStrVec &CReportWriter::fieldNames() const
 {
     return NO_STRINGS;
 }
@@ -263,7 +263,7 @@ void CReportWriter::addDetector(const CDetectorSpecification &spec)
     m_Detectors[n][DETECTOR_CONFIG].push_back(TStrVec(1, spec.detectorConfig()));
 }
 
-void CReportWriter::write(void) const
+void CReportWriter::write() const
 {
     m_WriteStream << "============\n";
     m_WriteStream << "DATA SUMMARY\n";

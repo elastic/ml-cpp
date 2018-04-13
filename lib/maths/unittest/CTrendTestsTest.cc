@@ -42,7 +42,7 @@ const core_t::TTime DAY       = core::constants::DAY;
 const core_t::TTime WEEK      = core::constants::WEEK;
 }
 
-void CTrendTestsTest::testRandomizedPeriodicity(void)
+void CTrendTestsTest::testRandomizedPeriodicity()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testRandomizedPeriodicity  |");
@@ -50,7 +50,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> >;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
     using TFunction = double (*)(core_t::TTime);
 
     test::CRandomNumbers rng;
@@ -139,7 +139,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
             LOG_DEBUG("time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG("maximum time to detect = " << timeToDetectionMax[i][0]);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
-            CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
+            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
             CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
@@ -149,7 +149,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
-void CTrendTestsTest::testCalendarCyclic(void)
+void CTrendTestsTest::testCalendarCyclic()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testCalendarCyclic  |");
@@ -325,7 +325,7 @@ void CTrendTestsTest::testCalendarCyclic(void)
     }
 }
 
-void CTrendTestsTest::testPersist(void)
+void CTrendTestsTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testPersist  |");
@@ -438,7 +438,7 @@ void CTrendTestsTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CTrendTestsTest::suite(void)
+CppUnit::Test *CTrendTestsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTrendTestsTest");
 

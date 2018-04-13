@@ -21,10 +21,10 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
 
 namespace
 {
@@ -109,7 +109,7 @@ const TDoubleVec &subtract(TDoubleVec &x, const TDoubleVec &y)
 
 }
 
-void CGramSchmidtTest::testOrthogonality(void)
+void CGramSchmidtTest::testOrthogonality()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testOrthogonality  |");
@@ -173,7 +173,7 @@ void CGramSchmidtTest::testOrthogonality(void)
     }
 }
 
-void CGramSchmidtTest::testNormalisation(void)
+void CGramSchmidtTest::testNormalisation()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testNormalisation  |");
@@ -198,7 +198,7 @@ void CGramSchmidtTest::testNormalisation(void)
             if (t % 10 == 0) debug(x);
             for (std::size_t i = 0u; i < x.size(); ++i)
             {
-                double normxi = ::sqrt(inner(x[i], x[i]));
+                double normxi = std::sqrt(inner(x[i], x[i]));
                 if (t % 10 == 0)
                 {
                     LOG_DEBUG("|| x(i) || = " << normxi);
@@ -234,7 +234,7 @@ void CGramSchmidtTest::testNormalisation(void)
     }
 }
 
-void CGramSchmidtTest::testSpan(void)
+void CGramSchmidtTest::testSpan()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testSpan  |");
@@ -274,7 +274,7 @@ void CGramSchmidtTest::testSpan(void)
                 }
 
                 subtract(r, x[i]);
-                double normr = ::sqrt(inner(r, r));
+                double normr = std::sqrt(inner(r, r));
 
                 if (t % 10 == 0)
                 {
@@ -326,7 +326,7 @@ void CGramSchmidtTest::testSpan(void)
     }
 }
 
-void CGramSchmidtTest::testEdgeCases(void)
+void CGramSchmidtTest::testEdgeCases()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testEdgeCases  |");
@@ -395,7 +395,7 @@ void CGramSchmidtTest::testEdgeCases(void)
     }
 }
 
-CppUnit::Test *CGramSchmidtTest::suite(void)
+CppUnit::Test *CGramSchmidtTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 

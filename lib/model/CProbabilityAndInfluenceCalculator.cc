@@ -26,30 +26,30 @@ namespace model
 namespace
 {
 
-typedef CProbabilityAndInfluenceCalculator::TSize1Vec TSize1Vec;
-typedef CProbabilityAndInfluenceCalculator::TSize2Vec TSize2Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble1Vec TDouble1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble2Vec TDouble2Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble4Vec TDouble4Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble2Vec1Vec TDouble2Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble4Vec1Vec TDouble4Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble1VecDoublePr TDouble1VecDoublePr;
-typedef CProbabilityAndInfluenceCalculator::TBool2Vec TBool2Vec;
-typedef CProbabilityAndInfluenceCalculator::TTime2Vec TTime2Vec;
-typedef CProbabilityAndInfluenceCalculator::TTime2Vec1Vec TTime2Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr TStrCRefDouble1VecDouble1VecPrPr;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec TStrCRefDouble1VecDouble1VecPrPrVec;
-typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef core::CSmallVector<maths_t::ETail, 2> TTail2Vec;
-typedef core::CSmallVector<maths_t::EProbabilityCalculation, 2> TProbabilityCalculation2Vec;
-typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-typedef core::CSmallVector<TDouble2Vec4Vec, 1> TDouble2Vec4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
+using TSize1Vec = CProbabilityAndInfluenceCalculator::TSize1Vec;
+using TSize2Vec = CProbabilityAndInfluenceCalculator::TSize2Vec;
+using TDouble1Vec = CProbabilityAndInfluenceCalculator::TDouble1Vec;
+using TDouble2Vec = CProbabilityAndInfluenceCalculator::TDouble2Vec;
+using TDouble4Vec = CProbabilityAndInfluenceCalculator::TDouble4Vec;
+using TDouble2Vec1Vec = CProbabilityAndInfluenceCalculator::TDouble2Vec1Vec;
+using TDouble4Vec1Vec = CProbabilityAndInfluenceCalculator::TDouble4Vec1Vec;
+using TDouble1VecDoublePr = CProbabilityAndInfluenceCalculator::TDouble1VecDoublePr;
+using TBool2Vec = CProbabilityAndInfluenceCalculator::TBool2Vec;
+using TTime2Vec = CProbabilityAndInfluenceCalculator::TTime2Vec;
+using TTime2Vec1Vec = CProbabilityAndInfluenceCalculator::TTime2Vec1Vec;
+using TStrCRefDouble1VecDoublePrPr = CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPr;
+using TStrCRefDouble1VecDoublePrPrVec = CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPrVec;
+using TStrCRefDouble1VecDouble1VecPrPr = CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr;
+using TStrCRefDouble1VecDouble1VecPrPrVec = CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec;
+using TStoredStringPtrStoredStringPtrPr = CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPr;
+using TStoredStringPtrStoredStringPtrPrDoublePr = CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePr;
+using TStoredStringPtrStoredStringPtrPrDoublePrVec = CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
+using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>;
+using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
 //! Get the canonical influence string pointer.
 core::CStoredStringPtr canonical(const std::string &influence)
@@ -79,7 +79,7 @@ class CDecreasingValueInfluence
 class CDecreasingMeanInfluence
 {
     public:
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     public:
         CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
@@ -112,7 +112,7 @@ class CDecreasingMeanInfluence
 class CDecreasingVarianceInfluence
 {
     public:
-         typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+         using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     public:
         CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
@@ -439,7 +439,7 @@ void doComputeInfluences(model_t::EFeature feature,
         LOG_TRACE("log(p) = " << logp
                   << ", tail = " << core::CContainerPrinter::print(tail)
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << ::log(pi)
+                  << ", log(p(i)) = " << std::log(pi)
                   << ", weight = " << core::CContainerPrinter::print(params.weights())
                   << ", influence = " << influence
                   << ", influencer field value = " << i->first.get());
@@ -516,7 +516,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
     TTail2Vec tail;
     TSize1Vec mostAnomalousCorrelate;
 
-    double logp = ::log(probability);
+    double logp = std::log(probability);
     TDouble2Vec4Vec1Vec weights(params.weights());
     for (const auto &influence_ : influencerValues)
     {
@@ -540,11 +540,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
         pi = model_t::adjustProbability(feature, elapsedTime, pi);
 
-        double influence = computeInfluence(logp, ::log(pi));
+        double influence = computeInfluence(logp, std::log(pi));
 
         LOG_TRACE("log(p) = " << logp
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << ::log(pi)
+                  << ", log(p(i)) = " << std::log(pi)
                   << ", weight(i) = " << core::CContainerPrinter::print(params.weights())
                   << ", influence = " << influence
                   << ", influencer field value = " << influence_.first.get());
@@ -567,12 +567,12 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
         m_ProbabilityCache(0)
 {}
 
-bool CProbabilityAndInfluenceCalculator::empty(void) const
+bool CProbabilityAndInfluenceCalculator::empty() const
 {
     return m_Probability.empty();
 }
 
-double CProbabilityAndInfluenceCalculator::cutoff(void) const
+double CProbabilityAndInfluenceCalculator::cutoff() const
 {
     return m_Cutoff;
 }
@@ -755,7 +755,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
 void CProbabilityAndInfluenceCalculator::addProbability(double probability, double weight)
 {
     m_Probability.add(probability, weight);
-    for (auto &&aggregator : m_InfluencerProbabilities)
+    for (auto &aggregator : m_InfluencerProbabilities)
     {
         aggregator.second.add(probability, weight);
     }
@@ -789,7 +789,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string &influe
         }
     }
 
-    double logp = ::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
 
     params.s_InfluencerName   = canonical(influencerName);
     params.s_InfluencerValues = influencerValues;
@@ -834,7 +834,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string &influe
         }
     }
 
-    double logp = ::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
 
     params.s_InfluencerName   = canonical(influencerName);
     params.s_InfluencerValues = influencerValues[params.s_MostAnomalousCorrelate[0]];
@@ -866,7 +866,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double &probability,
 
     LOG_TRACE("probability = " << probability);
 
-    double logp = ::log(probability);
+    double logp = std::log(probability);
 
     influences.reserve(m_InfluencerProbabilities.size());
     for (const auto &aggregator : m_InfluencerProbabilities)
@@ -878,7 +878,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double &probability,
                       << core::CContainerPrinter::print(aggregator.first));
         }
         LOG_TRACE("influence probability = " << probability_);
-        double influence = CInfluenceCalculator::intersectionInfluence(logp, ::log(probability_));
+        double influence = CInfluenceCalculator::intersectionInfluence(logp, std::log(probability_));
         if (influence >= m_Cutoff)
         {
             influences.emplace_back(aggregator.first, influence);
@@ -902,7 +902,7 @@ void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feat
                                                   m_ProbabilityTemplate).first->second;
         if (!model_t::isConstant(feature))
         {
-            double probability = ::exp(influence.second * logp);
+            double probability = std::exp(influence.second * logp);
             LOG_TRACE("Adding = " << influence.first.second.get() << " " << probability);
             aggregator.add(probability, weight);
         }
@@ -920,7 +920,7 @@ CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields &
         s_IncludeCutoff(false)
 {}
 
-std::string CProbabilityAndInfluenceCalculator::SParams::describe(void) const
+std::string CProbabilityAndInfluenceCalculator::SParams::describe() const
 {
     return core::CContainerPrinter::print(s_Value)
            + " | feature = " + model_t::print(s_Feature)
@@ -938,7 +938,7 @@ CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(const CPa
         s_IncludeCutoff(false)
 {}
 
-std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void) const
+std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe() const
 {
     return core::CContainerPrinter::print(s_Values)
            + " | feature = " + model_t::print(s_Feature)
@@ -949,7 +949,7 @@ std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void)
 
 ////// CInfluenceCalculator //////
 
-CInfluenceCalculator::~CInfluenceCalculator(void) {}
+CInfluenceCalculator::~CInfluenceCalculator() {}
 
 double CInfluenceCalculator::intersectionInfluence(double logp, double logpi)
 {

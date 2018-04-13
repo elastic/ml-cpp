@@ -16,12 +16,12 @@
 using namespace ml;
 using namespace model;
 
-void CToolsTest::testDataGatherers(void)
+void CToolsTest::testDataGatherers()
 {
     // TODO
 }
 
-void CToolsTest::testProbabilityAggregator(void)
+void CToolsTest::testProbabilityAggregator()
 {
     LOG_DEBUG("****** CToolsTest::testProbabilityAggregator ******");
 
@@ -148,12 +148,12 @@ void CToolsTest::testProbabilityAggregator(void)
             joint.calculate(pj);
             extreme.calculate(pe);
             LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(pj) * ::sqrt(pe), pi, 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(pj) * std::sqrt(pe), pi, 1e-10);
         }
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void)
+CppUnit::Test *CToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 

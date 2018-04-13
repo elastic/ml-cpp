@@ -14,6 +14,7 @@
 #include <maths/CSphericalCluster.h>
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <vector>
@@ -36,7 +37,7 @@ struct SSampleCovariances
 template<typename T, std::size_t N>
 struct SSampleCovariances<CVectorNx1<T, N>>
 {
-    typedef CBasicStatistics::SSampleCovariances<T, N> Type;
+    using Type = CBasicStatistics::SSampleCovariances<T, N>;
 };
 
 //! The confidence interval we use when computing the singular values
@@ -110,15 +111,15 @@ template<typename POINT, EInfoCriterionType TYPE>
 class CSphericalGaussianInfoCriterion
 {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-        typedef typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator TMeanVarAccumulator;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
+        using TMeanVarAccumulator = typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator;
 
     public:
-        CSphericalGaussianInfoCriterion(void) :
+        CSphericalGaussianInfoCriterion() :
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
@@ -187,7 +188,7 @@ class CSphericalGaussianInfoCriterion
                 m_Likelihood +=   ni * log(ni)
                                - 0.5 * m_D * ni * (  1.0
                                                    + core::constants::LOG_TWO_PI
-                                                   + ::log(upper * vi / m_D));
+                                                   + std::log(upper * vi / m_D));
             }
             else
             {
@@ -199,14 +200,14 @@ class CSphericalGaussianInfoCriterion
         }
 
         //! Calculate the information content of the clusters added so far.
-        double calculate(void) const
+        double calculate() const
         {
             if (m_N == 0.0)
             {
                 return 0.0;
             }
 
-            double logN = ::log(m_N);
+            double logN = std::log(m_N);
             double p = (m_D * m_K + 2.0 * m_K - 1.0);
             switch (TYPE)
             {
@@ -242,16 +243,16 @@ template<typename POINT, EInfoCriterionType TYPE>
 class CGaussianInfoCriterion
 {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-        typedef typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type TCovariances;
-        typedef typename SConformableMatrix<TBarePointPrecise>::Type TMatrix;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
+        using TCovariances = typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type;
+        using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
 
     public:
-        CGaussianInfoCriterion(void) :
+        CGaussianInfoCriterion() :
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
@@ -311,14 +312,14 @@ class CGaussianInfoCriterion
         }
 
         //! Calculate the information content of the clusters added so far.
-        double calculate(void) const
+        double calculate() const
         {
             if (m_N == 0.0)
             {
                 return 0.0;
             }
 
-            double logN = ::log(m_N);
+            double logN = std::log(m_N);
             double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
             switch (TYPE)
             {

@@ -31,7 +31,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter &inserter)
 
 }
 
-void CRapidXmlStatePersistInserterTest::testPersist(void)
+void CRapidXmlStatePersistInserterTest::testPersist()
 {
     ml::core::CRapidXmlStatePersistInserter::TStrStrMap rootAttributes;
     rootAttributes["attr1"] = "attrVal1";

@@ -48,13 +48,13 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TSizeVec = std::vector<std::size_t>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
 
 //! Compute x * x.
 inline double pow2(double x)
@@ -67,8 +67,8 @@ const double MINIMUM_LOGNORMAL_SHAPE = 100.0;
 namespace detail
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 //! \brief Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight
@@ -307,7 +307,7 @@ class CEvaluateOnSamples : core::CNonCopyable
 class CMeanKernel
 {
     public:
-        typedef CVectorNx1<double, 2> TValue;
+        using TValue = CVectorNx1<double, 2>;
 
     public:
         CMeanKernel(double m, double p, double a, double b) :
@@ -346,7 +346,7 @@ class CMeanKernel
 class CVarianceKernel
 {
     public:
-        typedef CVectorNx1<double, 2> TValue;
+        using TValue = CVectorNx1<double, 2>;
 
     public:
         CVarianceKernel(double mean, double m, double p, double a, double b) :
@@ -442,7 +442,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable
             return true;
         }
 
-        maths_t::ETail tail(void) const
+        maths_t::ETail tail() const
         {
             return static_cast<maths_t::ETail>(m_Tail);
         }
@@ -581,7 +581,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
         }
 
         //! Retrieve the error status for the integration.
-        maths_t::EFloatingPointErrorStatus errorStatus(void) const
+        maths_t::EFloatingPointErrorStatus errorStatus() const
         {
             return m_ErrorStatus;
         }
@@ -591,7 +591,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
 
     private:
         //! Compute all the constants in the integrand.
-        void precompute(void)
+        void precompute()
         {
             try
             {
@@ -802,12 +802,12 @@ CLogNormalMeanPrecConjugate CLogNormalMeanPrecConjugate::nonInformativePrior(mat
                                        decayRate, offsetMargin);
 }
 
-CLogNormalMeanPrecConjugate::EPrior CLogNormalMeanPrecConjugate::type(void) const
+CLogNormalMeanPrecConjugate::EPrior CLogNormalMeanPrecConjugate::type() const
 {
     return E_LogNormal;
 }
 
-CLogNormalMeanPrecConjugate *CLogNormalMeanPrecConjugate::clone(void) const
+CLogNormalMeanPrecConjugate *CLogNormalMeanPrecConjugate::clone() const
 {
     return new CLogNormalMeanPrecConjugate(*this);
 }
@@ -820,12 +820,12 @@ void CLogNormalMeanPrecConjugate::setToNonInformative(double offset,
                                 decayRate, this->offsetMargin());
 }
 
-double CLogNormalMeanPrecConjugate::offsetMargin(void) const
+double CLogNormalMeanPrecConjugate::offsetMargin() const
 {
     return m_OffsetMargin;
 }
 
-bool CLogNormalMeanPrecConjugate::needsOffset(void) const
+bool CLogNormalMeanPrecConjugate::needsOffset() const
 {
     return true;
 }
@@ -839,7 +839,7 @@ double CLogNormalMeanPrecConjugate::adjustOffset(const TWeightStyleVec &weightSt
     return this->adjustOffsetWithCost(weightStyles, samples, weights, cost, apply);
 }
 
-double CLogNormalMeanPrecConjugate::offset(void) const
+double CLogNormalMeanPrecConjugate::offset() const
 {
     return m_Offset;
 }
@@ -1124,12 +1124,12 @@ void CLogNormalMeanPrecConjugate::propagateForwardsByTime(double time)
 }
 
 CLogNormalMeanPrecConjugate::TDoubleDoublePr
-CLogNormalMeanPrecConjugate::marginalLikelihoodSupport(void) const
+CLogNormalMeanPrecConjugate::marginalLikelihoodSupport() const
 {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 
-double CLogNormalMeanPrecConjugate::marginalLikelihoodMean(void) const
+double CLogNormalMeanPrecConjugate::marginalLikelihoodMean() const
 {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
@@ -1542,7 +1542,7 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weight
                                                    double &lowerBound,
                                                    double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
+    using TMinusLogCdf = detail::CEvaluateOnSamples<CTools::SMinusLogCdf>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1593,7 +1593,7 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleV
                                                              double &lowerBound,
                                                              double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
+    using TMinusLogCdfComplement = detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1693,7 +1693,7 @@ bool CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProba
     return true;
 }
 
-bool CLogNormalMeanPrecConjugate::isNonInformative(void) const
+bool CLogNormalMeanPrecConjugate::isNonInformative() const
 {
     return m_GammaRate == NON_INFORMATIVE_RATE
            || m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
@@ -1727,7 +1727,7 @@ void CLogNormalMeanPrecConjugate::print(const std::string &indent,
     result += "mean = <unknown> variance = <unknown>";
 }
 
-std::string CLogNormalMeanPrecConjugate::printJointDensityFunction(void) const
+std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const
 {
     if (this->isNonInformative())
     {
@@ -1804,12 +1804,12 @@ void CLogNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUs
     mem->setName("CLogNormalMeanPrecConjugate");
 }
 
-std::size_t CLogNormalMeanPrecConjugate::memoryUsage(void) const
+std::size_t CLogNormalMeanPrecConjugate::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CLogNormalMeanPrecConjugate::staticSize(void) const
+std::size_t CLogNormalMeanPrecConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1825,12 +1825,12 @@ void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInser
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CLogNormalMeanPrecConjugate::normalMean(void) const
+double CLogNormalMeanPrecConjugate::normalMean() const
 {
     return m_GaussianMean;
 }
 
-double CLogNormalMeanPrecConjugate::normalPrecision(void) const
+double CLogNormalMeanPrecConjugate::normalPrecision() const
 {
     if (this->isNonInformative())
     {
@@ -1928,7 +1928,7 @@ bool CLogNormalMeanPrecConjugate::equalTolerance(const CLogNormalMeanPrecConjuga
            && equal(m_GammaRate, rhs.m_GammaRate);
 }
 
-double CLogNormalMeanPrecConjugate::mean(void) const
+double CLogNormalMeanPrecConjugate::mean() const
 {
     if (this->isNonInformative())
     {
@@ -1980,7 +1980,7 @@ double CLogNormalMeanPrecConjugate::mean(void) const
                                          * (1.0 / m_GaussianPrecision + 1.0)) - m_Offset;
 }
 
-bool CLogNormalMeanPrecConjugate::isBad(void) const
+bool CLogNormalMeanPrecConjugate::isBad() const
 {
     return    !CMathsFuncs::isFinite(m_Offset)
            || !CMathsFuncs::isFinite(m_GaussianMean)
@@ -1989,7 +1989,7 @@ bool CLogNormalMeanPrecConjugate::isBad(void) const
            || !CMathsFuncs::isFinite(m_GammaRate);
 }
 
-std::string CLogNormalMeanPrecConjugate::debug(void) const
+std::string CLogNormalMeanPrecConjugate::debug() const
 {
     std::ostringstream result;
     result << std::scientific << std::setprecision(15)

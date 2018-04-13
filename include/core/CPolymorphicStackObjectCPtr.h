@@ -31,14 +31,14 @@ template<typename BASE, typename D1, typename D2, typename D3 = D2, typename D4 
 class CPolymorphicStackObjectCPtr
 {
     private:
-        typedef const typename boost::remove_const<BASE>::type TConstBase;
-        typedef const typename boost::remove_const<D1>::type   TConstD1;
-        typedef const typename boost::remove_const<D2>::type   TConstD2;
-        typedef const typename boost::remove_const<D3>::type   TConstD3;
-        typedef const typename boost::remove_const<D4>::type   TConstD4;
+        using TConstBase = const typename boost::remove_const<BASE>::type;
+        using TConstD1 = const typename boost::remove_const<D1>::type;
+        using TConstD2 = const typename boost::remove_const<D2>::type;
+        using TConstD3 = const typename boost::remove_const<D3>::type;
+        using TConstD4 = const typename boost::remove_const<D4>::type;
 
     public:
-        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
+        CPolymorphicStackObjectCPtr() : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
 
         template<typename T>
         explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {}
@@ -75,7 +75,7 @@ class CPolymorphicStackObjectCPtr
             return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == 0;
         }
 
-        TConstBase *operator->(void) const
+        TConstBase *operator->() const
         {
 #define MAYBE_RETURN(TYPE) {                                                        \
                                TYPE *result = boost::relaxed_get<TYPE>(&m_Storage); \
@@ -92,12 +92,12 @@ class CPolymorphicStackObjectCPtr
             return 0;
         }
 
-        TConstBase &operator*(void) const
+        TConstBase &operator*() const
         {
             return *(this->operator->());
         }
 
-        template<typename T> const T *get(void) const
+        template<typename T> const T *get() const
         {
             return boost::relaxed_get<T>(&m_Storage);
         }
@@ -109,7 +109,7 @@ class CPolymorphicStackObjectCPtr
         }
 
     private:
-        typedef boost::variant<D1, D2, D3, D4, CNullPolymorphicStackObjectCPtr> TStorage;
+        using TStorage = boost::variant<D1, D2, D3, D4, CNullPolymorphicStackObjectCPtr>;
 
     private:
         //! The static storage of the actual type.

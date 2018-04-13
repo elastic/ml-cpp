@@ -44,12 +44,12 @@ class CMessageBuffer
         {
         }
 
-        virtual ~CMessageBuffer(void)
+        virtual ~CMessageBuffer()
         {
         }
 
         //! Initialise - create the receiving thread
-        bool start(void)
+        bool start()
         {
             CScopedLock lock(m_Mutex);
 
@@ -65,7 +65,7 @@ class CMessageBuffer
         }
 
         //! Shutdown - kill thread
-        bool stop(void)
+        bool stop()
         {
             m_Thread.stop();
 
@@ -91,16 +91,16 @@ class CMessageBuffer
                 }
 
                 //! The queue must have the mutex for this to be called
-                bool isRunning(void) const
+                bool isRunning() const
                 {
                     // Assumes lock
                     return m_IsRunning;
                 }
 
             protected:
-                void run(void)
+                void run()
                 {
-                    typedef std::vector<MESSAGE> TMessageVec;
+                    using TMessageVec = std::vector<MESSAGE>;
 
                     m_MessageBuffer.m_Mutex.lock();
 
@@ -132,7 +132,7 @@ class CMessageBuffer
                     m_MessageBuffer.m_Mutex.unlock();
                 }
 
-                void shutdown(void)
+                void shutdown()
                 {
                     CScopedLock lock(m_MessageBuffer.m_Mutex);
 

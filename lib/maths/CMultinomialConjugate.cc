@@ -33,6 +33,7 @@
 #include <boost/tuple/tuple_io.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <string>
 #include <utility>
@@ -44,13 +45,13 @@ namespace maths
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef TDoubleVec::const_iterator TDoubleVecCItr;
-typedef core::CSmallVector<double, 7> TDouble7Vec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecCItr = TDoubleVec::const_iterator;
+using TDouble7Vec = core::CSmallVector<double, 7>;
 
 namespace detail
 {
-typedef std::pair<double, double> TDoubleDoublePr;
+using TDoubleDoublePr = std::pair<double, double>;
 
 //! Truncate \p to fit into a signed integer.
 int truncate(std::size_t x)
@@ -279,11 +280,11 @@ void generateBetaSamples(double a,
 
 } // detail::
 
-typedef std::map<double, double> TDoubleDoubleMap;
-typedef TDoubleDoubleMap::const_iterator TDoubleDoubleMapCItr;
-typedef boost::tuples::tuple<double, double, std::size_t> TDoubleDoubleSizeTr;
-typedef std::vector<TDoubleDoubleSizeTr> TDoubleDoubleSizeTrVec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleDoubleMap = std::map<double, double>;
+using TDoubleDoubleMapCItr = TDoubleDoubleMap::const_iterator;
+using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
+using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 // We use short field names to reduce the state size
 const std::string NUMBER_AVAILABLE_CATEGORIES_TAG("a");
@@ -298,7 +299,7 @@ const std::string EMPTY_STRING;
 
 }
 
-CMultinomialConjugate::CMultinomialConjugate(void) :
+CMultinomialConjugate::CMultinomialConjugate() :
         m_NumberAvailableCategories(0),
         m_TotalConcentration(0.0)
 {}
@@ -395,12 +396,12 @@ CMultinomialConjugate::nonInformativePrior(std::size_t maximumNumberOfCategories
                                  decayRate);
 }
 
-CMultinomialConjugate::EPrior CMultinomialConjugate::type(void) const
+CMultinomialConjugate::EPrior CMultinomialConjugate::type() const
 {
     return E_Multinomial;
 }
 
-CMultinomialConjugate *CMultinomialConjugate::clone(void) const
+CMultinomialConjugate *CMultinomialConjugate::clone() const
 {
     return new CMultinomialConjugate(*this);
 }
@@ -413,7 +414,7 @@ void CMultinomialConjugate::setToNonInformative(double /*offset*/,
                                 decayRate);
 }
 
-bool CMultinomialConjugate::needsOffset(void) const
+bool CMultinomialConjugate::needsOffset() const
 {
     return false;
 }
@@ -425,7 +426,7 @@ double CMultinomialConjugate::adjustOffset(const TWeightStyleVec &/*weightStyles
     return 1.0;
 }
 
-double CMultinomialConjugate::offset(void) const
+double CMultinomialConjugate::offset() const
 {
     return 0.0;
 }
@@ -535,7 +536,7 @@ void CMultinomialConjugate::propagateForwardsByTime(double time)
         return;
     }
 
-    double alpha = ::exp(-this->decayRate() * time);
+    double alpha = std::exp(-this->decayRate() * time);
 
     // We want to increase the variance of each category while holding
     // its mean constant s.t. in the limit t -> inf var -> inf. The mean
@@ -570,7 +571,7 @@ void CMultinomialConjugate::propagateForwardsByTime(double time)
 }
 
 CMultinomialConjugate::TDoubleDoublePr
-CMultinomialConjugate::marginalLikelihoodSupport(void) const
+CMultinomialConjugate::marginalLikelihoodSupport() const
 {
     // Strictly speaking for a particular likelihood this is the
     // set of discrete values or categories, but we are interested
@@ -581,7 +582,7 @@ CMultinomialConjugate::marginalLikelihoodSupport(void) const
                           boost::numeric::bounds<double>::highest());
 }
 
-double CMultinomialConjugate::marginalLikelihoodMean(void) const
+double CMultinomialConjugate::marginalLikelihoodMean() const
 {
     if (this->isNonInformative())
     {
@@ -630,7 +631,7 @@ double CMultinomialConjugate::marginalLikelihoodMode(const TWeightStyleVec &/*we
 double CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec &/*weightStyles*/,
                                                          const TDouble4Vec &/*weights*/) const
 {
-    typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     if (this->isNonInformative())
     {
@@ -927,10 +928,10 @@ bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec &weightStyles
         // the log blows up.
         lowerBound = sampleLowerBound == 0.0 || lowerBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     lowerBound - n * ::log(sampleLowerBound);
+                     lowerBound - n * std::log(sampleLowerBound);
         upperBound = sampleUpperBound == 0.0 || upperBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     upperBound - n * ::log(sampleUpperBound);
+                     upperBound - n * std::log(sampleUpperBound);
     }
 
     return true;
@@ -961,10 +962,10 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TWeightStyleVec &we
         // the log blows up.
         lowerBound = sampleLowerBound == 0.0 || lowerBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     lowerBound - n * ::log(sampleLowerBound);
+                     lowerBound - n * std::log(sampleLowerBound);
         upperBound = sampleUpperBound == 0.0 || upperBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     upperBound - n * ::log(sampleUpperBound);
+                     upperBound - n * std::log(sampleUpperBound);
     }
 
     return true;
@@ -1105,7 +1106,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             // P(i in L). In this case we just fall back to using (3) which isn't
             // sharp.
 
-            typedef std::vector<std::size_t> TSizeVec;
+            using TSizeVec = std::vector<std::size_t>;
 
             tail = maths_t::E_MixedOrNeitherTail;
 
@@ -1374,7 +1375,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     return true;
 }
 
-bool CMultinomialConjugate::isNonInformative(void) const
+bool CMultinomialConjugate::isNonInformative() const
 {
     return m_TotalConcentration <= NON_INFORMATIVE_CONCENTRATION;
 }
@@ -1397,7 +1398,7 @@ std::string CMultinomialConjugate::printMarginalLikelihoodFunction(double /*weig
     return "Not supported";
 }
 
-std::string CMultinomialConjugate::printJointDensityFunction(void) const
+std::string CMultinomialConjugate::printJointDensityFunction() const
 {
     static const double RANGE = 0.999;
     static const unsigned int POINTS = 51;
@@ -1457,14 +1458,14 @@ void CMultinomialConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     core::CMemoryDebug::dynamicSize("m_Concentrations", m_Concentrations, mem);
 }
 
-std::size_t CMultinomialConjugate::memoryUsage(void) const
+std::size_t CMultinomialConjugate::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_Categories);
     mem += core::CMemory::dynamicSize(m_Concentrations);
     return mem;
 }
 
-std::size_t CMultinomialConjugate::staticSize(void) const
+std::size_t CMultinomialConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1539,12 +1540,12 @@ bool CMultinomialConjugate::index(double category, std::size_t &result) const
     return true;
 }
 
-const CMultinomialConjugate::TDoubleVec &CMultinomialConjugate::categories(void) const
+const CMultinomialConjugate::TDoubleVec &CMultinomialConjugate::categories() const
 {
     return m_Categories;
 }
 
-const CMultinomialConjugate::TDoubleVec &CMultinomialConjugate::concentrations(void) const
+const CMultinomialConjugate::TDoubleVec &CMultinomialConjugate::concentrations() const
 {
     return m_Concentrations;
 }
@@ -1563,7 +1564,7 @@ bool CMultinomialConjugate::concentration(double category, double &result) const
     return true;
 }
 
-double CMultinomialConjugate::totalConcentration(void) const
+double CMultinomialConjugate::totalConcentration() const
 {
     return m_TotalConcentration;
 }
@@ -1583,7 +1584,7 @@ bool CMultinomialConjugate::probability(double category,
     return true;
 }
 
-CMultinomialConjugate::TDoubleVec CMultinomialConjugate::probabilities(void) const
+CMultinomialConjugate::TDoubleVec CMultinomialConjugate::probabilities() const
 {
     TDoubleVec result(m_Concentrations);
     for (std::size_t i = 0u; i < result.size(); ++i)
@@ -1818,7 +1819,7 @@ bool CMultinomialConjugate::equalTolerance(const CMultinomialConjugate &rhs,
            && equal(m_TotalConcentration, rhs.m_TotalConcentration);
 }
 
-void CMultinomialConjugate::shrink(void)
+void CMultinomialConjugate::shrink()
 {
     // Note that the vectors are only ever shrunk once.
 

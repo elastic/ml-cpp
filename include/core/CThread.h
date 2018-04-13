@@ -37,20 +37,20 @@ class CORE_EXPORT CThread : private CNonCopyable
     public:
         //! Thread ID type
 #ifdef Windows
-        typedef DWORD         TThreadId;
-        typedef unsigned  int TThreadRet;
+        using TThreadId = DWORD;
+        using TThreadRet = unsigned int;
 #else
-        typedef pthread_t     TThreadId;
-        typedef void          *TThreadRet;
+        using TThreadId = pthread_t;
+        using TThreadRet = void*;
 #endif
 
     public:
-        CThread(void);
-        virtual ~CThread(void);
+        CThread();
+        virtual ~CThread();
 
         //! Start the thread.  It's an error to call this if the thread is
         //! already running.
-        bool                      start(void);
+        bool                      start();
 
         //! Start the thread, retrieving the thread ID.  It's an error to call
         //! this if the thread is already running.
@@ -59,20 +59,20 @@ class CORE_EXPORT CThread : private CNonCopyable
         //! Stop the thread.  It's an error to call this if the thread is
         //! already stopped.  Only call one of stop() and waitForFinish(); do
         //! NOT call both.
-        bool                      stop(void);
+        bool                      stop();
 
         //! This method blocks and waits for the thread to finish.
         //! It differs from 'stop' as it doesn't call shutdown.
         //! BE AWARE THIS MAY BLOCK INDEFINITELY.  Only call one of stop()
         //! and waitForFinish(); do NOT call both.
-        bool                      waitForFinish(void);
+        bool                      waitForFinish();
 
         //! Has the thread been started?
-        bool                      isStarted(void) const;
+        bool                      isStarted() const;
 
         //! Wake up any blocking IO calls in this thread, such as reads to named
         //! pipes where nothing has connected to the other end of the pipe.
-        bool                      cancelBlockedIo(void);
+        bool                      cancelBlockedIo();
 
         //! Wake up any blocking IO calls in the specified thread, such as reads
         //! to named pipes where nothing has connected to the other end of the
@@ -80,12 +80,12 @@ class CORE_EXPORT CThread : private CNonCopyable
         static bool               cancelBlockedIo(TThreadId threadId);
 
         //! Static method to get the ID of the currently running thread
-        static TThreadId          currentThreadId(void);
+        static TThreadId          currentThreadId();
 
     protected:
         //! The run() method should only be called from threadFunc()
-        virtual void              run(void) = 0;
-        virtual void              shutdown(void) = 0;
+        virtual void              run() = 0;
+        virtual void              shutdown() = 0;
 
     private:
         //! This method is used as a thread start function, hence it must be

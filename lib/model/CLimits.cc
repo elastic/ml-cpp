@@ -91,32 +91,32 @@ bool CLimits::init(const std::string &configFile)
     return true;
 }
 
-size_t CLimits::autoConfigEvents(void) const
+size_t CLimits::autoConfigEvents() const
 {
     return m_AutoConfigEvents;
 }
 
-size_t CLimits::anomalyMaxTimeBuckets(void) const
+size_t CLimits::anomalyMaxTimeBuckets() const
 {
     return m_AnomalyMaxTimeBuckets;
 }
 
-size_t CLimits::maxExamples(void) const
+size_t CLimits::maxExamples() const
 {
     return m_MaxExamples;
 }
 
-double CLimits::unusualProbabilityThreshold(void) const
+double CLimits::unusualProbabilityThreshold() const
 {
     return m_UnusualProbabilityThreshold / 100.0;
 }
 
-size_t CLimits::memoryLimitMB(void) const
+size_t CLimits::memoryLimitMB() const
 {
     return m_MemoryLimitMB;
 }
 
-CResourceMonitor &CLimits::resourceMonitor(void)
+CResourceMonitor &CLimits::resourceMonitor()
 {
     return m_ResourceMonitor;
 }

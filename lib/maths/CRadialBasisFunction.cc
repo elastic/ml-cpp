@@ -13,8 +13,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/erf.hpp>
 
-#include <math.h>
-
+#include <cmath>
 
 namespace ml
 {
@@ -41,7 +40,7 @@ double gaussianSquareDerivative(double x,
     double r = scale * (x - centre);
     return scale * (boost::math::double_constants::root_two_pi
                     * boost::math::erf(boost::math::double_constants::root_two * r)
-                    - 4.0 * r * ::exp(-2.0 * r * r)) / 4.0;
+                    - 4.0 * r * std::exp(-2.0 * r * r)) / 4.0;
 }
 
 //! The indefinite integral
@@ -56,14 +55,14 @@ double gaussianProduct(double x,
 {
     double ss = scale1 + scale2;
     double sd = scale2 - scale1;
-    double scale = ::sqrt((ss * ss + sd * sd) / 2.0);
+    double scale = std::sqrt((ss * ss + sd * sd) / 2.0);
 
     double m = (scale1 * scale1 * centre1
                 + scale2 * scale2 * centre2) / (scale * scale);
     double d = scale1 * scale2 * (centre2 - centre1);
 
     return boost::math::double_constants::root_pi
-           * ::exp(-d * d / (scale * scale))
+           * std::exp(-d * d / (scale * scale))
            * boost::math::erf(scale * (x - m))
            / (2.0 * scale);
 }
@@ -81,7 +80,7 @@ double inverseQuadraticSquareDerivative(double x,
     return scale * (  3.0 * r / d
                     + 2.0 * r / (d * d)
                     - 8.0 * r / (d * d * d)
-                    + 3.0 * ::atan(r)) / 12.0;
+                    + 3.0 * std::atan(r)) / 12.0;
 }
 
 //! The indefinite integral
@@ -102,29 +101,29 @@ double inverseQuadraticProduct(double x,
 
     if (sd == 0.0 && d == 0.0)
     {
-        return (r1 / (1.0 + r1 * r1) + ::atan(r1)) / (2.0 * scale1);
+        return (r1 / (1.0 + r1 * r1) + std::atan(r1)) / (2.0 * scale1);
     }
 
     if ((d * d) > 1.0)
     {
-        return (  scale1 * scale2 / d * ::log((1.0 + r1 * r1) / (1.0 + r2 * r2))
-                + scale1 * (1.0 - (ss * sd) / (d * d)) * ::atan(r1)
-                + scale2 * (1.0 + (ss * sd) / (d * d)) * ::atan(r2))
+        return (  scale1 * scale2 / d * std::log((1.0 + r1 * r1) / (1.0 + r2 * r2))
+                + scale1 * (1.0 - (ss * sd) / (d * d)) * std::atan(r1)
+                + scale2 * (1.0 + (ss * sd) / (d * d)) * std::atan(r2))
                / ((1.0 + (ss * ss) / (d * d)) * (d * d + sd * sd));
     }
-    return (  scale1 * scale2 * d * ::log((1.0 + r1 * r1) / (1.0 + r2 * r2))
-            + (d * d - ss * sd) * scale1 * ::atan(r1)
-            + (d * d + ss * sd) * scale2 * ::atan(r2))
+    return (  scale1 * scale2 * d * std::log((1.0 + r1 * r1) / (1.0 + r2 * r2))
+            + (d * d - ss * sd) * scale1 * std::atan(r1)
+            + (d * d + ss * sd) * scale2 * std::atan(r2))
            / ((d * d + ss * ss) * (d * d + sd * sd));
 }
 
 }
 
-CRadialBasisFunction::~CRadialBasisFunction(void)
+CRadialBasisFunction::~CRadialBasisFunction()
 {
 }
 
-CGaussianBasisFunction *CGaussianBasisFunction::clone(void) const
+CGaussianBasisFunction *CGaussianBasisFunction::clone() const
 {
     return new CGaussianBasisFunction();
 }
@@ -135,7 +134,7 @@ double CGaussianBasisFunction::value(double x,
 {
     double r = x - centre;
     double y = scale * r;
-    return ::exp(-y * y);
+    return std::exp(-y * y);
 }
 
 double CGaussianBasisFunction::derivative(double x,
@@ -144,7 +143,7 @@ double CGaussianBasisFunction::derivative(double x,
 {
     double r = x - centre;
     double y = scale * r;
-    return -2.0 * scale * y * ::exp(-y * y);
+    return -2.0 * scale * y * std::exp(-y * y);
 }
 
 bool CGaussianBasisFunction::scale(double distance,
@@ -155,7 +154,7 @@ bool CGaussianBasisFunction::scale(double distance,
     {
         return false;
     }
-    result = ::sqrt(-::log(value)) / distance;
+    result = std::sqrt(-std::log(value)) / distance;
     return true;
 }
 
@@ -279,7 +278,7 @@ double CGaussianBasisFunction::product(double a,
 
 
 CInverseQuadraticBasisFunction *
-CInverseQuadraticBasisFunction::clone(void) const
+CInverseQuadraticBasisFunction::clone() const
 {
     return new CInverseQuadraticBasisFunction();
 }
@@ -331,8 +330,8 @@ double CInverseQuadraticBasisFunction::mean(double a,
         return (fmax + fmin) / 2.0;
     }
 
-    return std::max((::atan(scale * (b - centre))
-                    - ::atan(scale * (a - centre))) / scale / (b - a), 0.0);
+    return std::max((std::atan(scale * (b - centre))
+                    - std::atan(scale * (a - centre))) / scale / (b - a), 0.0);
 }
 
 double CInverseQuadraticBasisFunction::meanSquareDerivative(double a,
@@ -387,7 +386,7 @@ bool CInverseQuadraticBasisFunction::scale(double distance,
     {
         return false;
     }
-    result = ::sqrt((1.0 - value) / value) / distance;
+    result = std::sqrt((1.0 - value) / value) / distance;
     return true;
 }
 

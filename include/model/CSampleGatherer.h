@@ -174,7 +174,7 @@ class CSampleGatherer
         //@}
 
         //! Get the dimension of the underlying statistic.
-        std::size_t dimension(void) const
+        std::size_t dimension() const
         {
             return m_Dimension;
         }
@@ -289,7 +289,7 @@ class CSampleGatherer
         void startNewBucket(core_t::TTime time)
         {
             m_BucketStats.push(TMetricPartialStatistic(m_Dimension), time);
-            for (auto &&stats : m_InfluencerBucketStats)
+            for (auto &stats : m_InfluencerBucketStats)
             {
                 stats.push(TStoredStringPtrStatUMap(1), time);
             }
@@ -300,7 +300,7 @@ class CSampleGatherer
         void resetBucket(core_t::TTime bucketStart)
         {
             m_BucketStats.get(bucketStart) = TMetricPartialStatistic(m_Dimension);
-            for (auto &&stats : m_InfluencerBucketStats)
+            for (auto &stats : m_InfluencerBucketStats)
             {
                 stats.get(bucketStart) = TStoredStringPtrStatUMap(1);
             }
@@ -325,7 +325,7 @@ class CSampleGatherer
         }
 
         //! Get the checksum of this gatherer.
-        uint64_t checksum(void) const
+        uint64_t checksum() const
         {
             uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
             seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
@@ -346,7 +346,7 @@ class CSampleGatherer
         }
 
         //! Get the memory used by this gatherer.
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return   sizeof(*this)
                    + core::CMemory::dynamicSize(m_SampleStats)
@@ -356,7 +356,7 @@ class CSampleGatherer
         }
 
         //! Print this gatherer for debug.
-        std::string print(void) const
+        std::string print() const
         {
             std::ostringstream result;
             result << m_Classifier.isInteger()

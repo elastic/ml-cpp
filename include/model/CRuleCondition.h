@@ -35,7 +35,7 @@ class CAnomalyDetectorModel;
 class MODEL_EXPORT CRuleCondition
 {
     public:
-        typedef boost::reference_wrapper<const core::CPatternSet> TPatternSetCRef;
+        using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
 
     public:
         enum ERuleConditionType
@@ -67,7 +67,7 @@ class MODEL_EXPORT CRuleCondition
 
     public:
         //! Default constructor.
-        CRuleCondition(void);
+        CRuleCondition();
 
         //! Set the condition type.
         void type(ERuleConditionType ruleType);
@@ -79,19 +79,19 @@ class MODEL_EXPORT CRuleCondition
         void fieldValue(const std::string &fieldValue);
 
         //! Get the numerical condition.
-        SCondition &condition(void);
+        SCondition &condition();
 
         //! Set the value filter (used for categorical only).
         void valueFilter(const core::CPatternSet &valueFilter);
 
         //! Is the condition categorical?
-        bool isCategorical(void) const;
+        bool isCategorical() const;
 
         //! Is the condition numerical?
-        bool isNumerical(void) const;
+        bool isNumerical() const;
 
         //! Pretty-print the condition.
-        std::string print(void) const;
+        std::string print() const;
 
         //! Test the condition against a series.
         bool test(const CAnomalyDetectorModel &model,

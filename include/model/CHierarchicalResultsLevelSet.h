@@ -45,14 +45,14 @@ template<typename T>
 class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 {
     protected:
-        typedef T Type;
-        typedef std::vector<Type *> TTypePtrVec;
-        typedef core::CCompressedDictionary<1> TDictionary;
-        typedef TDictionary::CWord TWord;
-        typedef std::pair<TWord, T> TWordTypePr;
-        typedef std::vector<TWordTypePr> TWordTypePrVec;
-        typedef typename TWordTypePrVec::iterator TWordTypePrVecItr;
-        typedef typename TWordTypePrVec::const_iterator TWordTypePrVecCItr;
+        using Type = T;
+        using TTypePtrVec = std::vector<Type *>;
+        using TDictionary = core::CCompressedDictionary<1>;
+        using TWord = TDictionary::CWord;
+        using TWordTypePr = std::pair<TWord, T>;
+        using TWordTypePrVec = std::vector<TWordTypePr>;
+        using TWordTypePrVecItr = typename TWordTypePrVec::iterator;
+        using TWordTypePrVecCItr = typename TWordTypePrVec::const_iterator;
 
     protected:
         explicit CHierarchicalResultsLevelSet(const T &bucketElement) :
@@ -61,9 +61,9 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         }
 
         //! Get the root unique element.
-        const T &bucketElement(void) const { return m_BucketElement; }
+        const T &bucketElement() const { return m_BucketElement; }
         //! Get a writable root unique element.
-        T &bucketElement(void) { return m_BucketElement; }
+        T &bucketElement() { return m_BucketElement; }
 
         //! Get an influencer bucket element for \p influencerFieldName.
         //!
@@ -117,32 +117,32 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         }
 
         //! Get the influencer bucket set.
-        const TWordTypePrVec &influencerBucketSet(void) const { return m_InfluencerBucketSet; }
+        const TWordTypePrVec &influencerBucketSet() const { return m_InfluencerBucketSet; }
         //! Get a writable influencer bucket set.
-        TWordTypePrVec &influencerBucketSet(void) { return m_InfluencerBucketSet; }
+        TWordTypePrVec &influencerBucketSet() { return m_InfluencerBucketSet; }
 
         //! Get the influencer set.
-        const TWordTypePrVec &influencerSet(void) const { return m_InfluencerSet; }
+        const TWordTypePrVec &influencerSet() const { return m_InfluencerSet; }
         //! Get a writable influencer set.
-        TWordTypePrVec &influencerSet(void) { return m_InfluencerSet; }
+        TWordTypePrVec &influencerSet() { return m_InfluencerSet; }
 
         //! Get the partition set.
-        const TWordTypePrVec &partitionSet(void) const { return m_PartitionSet; }
+        const TWordTypePrVec &partitionSet() const { return m_PartitionSet; }
         //! Get a writable partition set.
-        TWordTypePrVec &partitionSet(void) { return m_PartitionSet; }
+        TWordTypePrVec &partitionSet() { return m_PartitionSet; }
 
         //! Get the person set.
-        const TWordTypePrVec &personSet(void) const { return m_PersonSet; }
+        const TWordTypePrVec &personSet() const { return m_PersonSet; }
         //! Get a writable person set.
-        TWordTypePrVec &personSet(void) { return m_PersonSet; }
+        TWordTypePrVec &personSet() { return m_PersonSet; }
 
         //! Get the leaf set.
-        const TWordTypePrVec &leafSet(void) const { return m_LeafSet; }
+        const TWordTypePrVec &leafSet() const { return m_LeafSet; }
         //! Get a writable leaf set.
-        TWordTypePrVec &leafSet(void) { return m_LeafSet; }
+        TWordTypePrVec &leafSet() { return m_LeafSet; }
 
         //! Clear all the sets.
-        void clear(void)
+        void clear()
         {
             m_BucketElement.clear();
             m_InfluencerBucketSet.clear();
@@ -153,7 +153,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         }
 
         //! Sort all the sets.
-        void sort(void)
+        void sort()
         {
             sort(m_InfluencerBucketSet);
             sort(m_InfluencerSet);

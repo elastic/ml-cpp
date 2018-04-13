@@ -13,7 +13,7 @@
 
 using namespace ml;
 
-void CEqualWithToleranceTest::testScalar(void)
+void CEqualWithToleranceTest::testScalar()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testScalar  |");
@@ -82,7 +82,7 @@ void CEqualWithToleranceTest::testScalar(void)
     }
 }
 
-void CEqualWithToleranceTest::testVector(void)
+void CEqualWithToleranceTest::testVector()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testVector  |");
@@ -93,8 +93,8 @@ void CEqualWithToleranceTest::testVector(void)
     float c_[] = { 201.1f, 202.2f };
     float d_[] = { 202.1f, 203.2f };
 
-    maths::CVector<double> epsAbs(2, 0.15 / ::sqrt(2.0));
-    maths::CVector<double> epsRel(2, 0.0062 / ::sqrt(2.0));
+    maths::CVector<double> epsAbs(2, 0.15 / std::sqrt(2.0));
+    maths::CVector<double> epsRel(2, 0.0062 / std::sqrt(2.0));
 
     maths::CEqualWithTolerance<maths::CVector<double>> abs(maths::CToleranceTypes::E_AbsoluteTolerance, epsAbs);
     maths::CEqualWithTolerance<maths::CVector<double>> rel(maths::CToleranceTypes::E_RelativeTolerance, epsRel);
@@ -149,7 +149,7 @@ void CEqualWithToleranceTest::testVector(void)
     }
 }
 
-void CEqualWithToleranceTest::testMatrix(void)
+void CEqualWithToleranceTest::testMatrix()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testMatrix  |");
@@ -216,7 +216,7 @@ void CEqualWithToleranceTest::testMatrix(void)
     }
 }
 
-CppUnit::Test *CEqualWithToleranceTest::suite(void)
+CppUnit::Test *CEqualWithToleranceTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 

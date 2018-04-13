@@ -23,10 +23,10 @@ using namespace test;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::set<uint32_t> TUInt32Set;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TUInt32Set = std::set<uint32_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 uint8_t trailingZeros(uint32_t x)
 {
@@ -40,7 +40,7 @@ uint8_t trailingZeros(uint32_t x)
 
 }
 
-void CBjkstUniqueValuesTest::testTrailingZeros(void)
+void CBjkstUniqueValuesTest::testTrailingZeros()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testTrailingZeros  |");
@@ -68,7 +68,7 @@ void CBjkstUniqueValuesTest::testTrailingZeros(void)
     }
 }
 
-void CBjkstUniqueValuesTest::testNumber(void)
+void CBjkstUniqueValuesTest::testNumber()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testNumber  |");
@@ -105,10 +105,10 @@ void CBjkstUniqueValuesTest::testNumber(void)
         double n = static_cast<double>(uniqueValues.size());
 
         double e5 = static_cast<double>(approxUniqueValues5.number());
-        double error5 = ::fabs(e5 - n) / std::max(e5, n);
+        double error5 = std::fabs(e5 - n) / std::max(e5, n);
 
         double e6 = static_cast<double>(approxUniqueValues6.number());
-        double error6 = ::fabs(e6 - n) / std::max(e6, n);
+        double error6 = std::fabs(e6 - n) / std::max(e6, n);
 
         LOG_DEBUG("error5 = " << error5 << ", error6 = " << error6);
         CPPUNIT_ASSERT(error5 < 0.35);
@@ -142,7 +142,7 @@ void CBjkstUniqueValuesTest::testNumber(void)
     CPPUNIT_ASSERT(largeError6Count < 85);
 }
 
-void CBjkstUniqueValuesTest::testRemove(void)
+void CBjkstUniqueValuesTest::testRemove()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testRemove  |");
@@ -182,7 +182,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.3 * static_cast<double>(unique.size()));
-        meanRelativeErrorBeforeRemove.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeErrorBeforeRemove.add(std::fabs(  static_cast<double>(unique.size())
                                                  - static_cast<double>(sketch.number()))
                                           / static_cast<double>(unique.size()));
 
@@ -199,7 +199,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.25 * static_cast<double>(unique.size()));
-        meanRelativeErrorAfterRemove.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeErrorAfterRemove.add(std::fabs(  static_cast<double>(unique.size())
                                                 - static_cast<double>(sketch.number()))
                                          / static_cast<double>(unique.size()));
     }
@@ -213,7 +213,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
                    < 1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
 }
 
-void CBjkstUniqueValuesTest::testSwap(void)
+void CBjkstUniqueValuesTest::testSwap()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testSwap  |");
@@ -281,7 +281,7 @@ void CBjkstUniqueValuesTest::testSwap(void)
     sketch3.swap(sketch4);
 }
 
-void CBjkstUniqueValuesTest::testSmall(void)
+void CBjkstUniqueValuesTest::testSmall()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testSmall  |");
@@ -320,7 +320,7 @@ void CBjkstUniqueValuesTest::testSmall(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.15 * static_cast<double>(unique.size()));
-        meanRelativeError.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeError.add(std::fabs(  static_cast<double>(unique.size())
                                      - static_cast<double>(sketch.number()))
                               / static_cast<double>(unique.size()));
     }
@@ -329,7 +329,7 @@ void CBjkstUniqueValuesTest::testSmall(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeError) < 0.05);
 }
 
-void CBjkstUniqueValuesTest::testPersist(void)
+void CBjkstUniqueValuesTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
@@ -408,7 +408,7 @@ void CBjkstUniqueValuesTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CBjkstUniqueValuesTest::suite(void)
+CppUnit::Test *CBjkstUniqueValuesTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBjkstUniqueValuesTest");
 

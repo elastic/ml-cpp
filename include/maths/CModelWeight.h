@@ -14,9 +14,7 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
-#include <math.h>
-#include <stdint.h>
-
+#include <cstdint>
 
 namespace ml
 {
@@ -39,16 +37,16 @@ class MATHS_EXPORT CModelWeight
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         explicit CModelWeight(double weight);
 
         //! Implicit conversion to read only double weight (m_Weight).
-        operator double(void) const;
+        operator double() const;
 
         //! Get the log of the current weight.
-        double logWeight(void) const;
+        double logWeight() const;
 
         //! Reset the log weight.
         void logWeight(double logWeight);
@@ -82,20 +80,20 @@ template<typename PRIOR>
 class CScopeCanonicalizeWeights : private core::CNonCopyable
 {
     public:
-        typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;
-        typedef std::vector<TWeightPriorPr> TWeightPriorPrVec;
+        using TWeightPriorPr = std::pair<CModelWeight, PRIOR>;
+        using TWeightPriorPrVec = std::vector<TWeightPriorPr>;
 
     public:
         CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
 
-        ~CScopeCanonicalizeWeights(void)
+        ~CScopeCanonicalizeWeights()
         {
             CBasicStatistics::SMax<double>::TAccumulator logMaxWeight;
             for (const auto &model : m_Models)
             {
                 logMaxWeight.add(model.first.logWeight());
             }
-            for (auto &&model : m_Models)
+            for (auto &model : m_Models)
             {
                 model.first.logWeight(model.first.logWeight() - logMaxWeight[0]);
             }

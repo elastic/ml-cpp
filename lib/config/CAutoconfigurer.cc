@@ -30,6 +30,7 @@
 #include <boost/range.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -45,7 +46,7 @@ bool reportProgress(uint64_t records)
 {
     static const double LOG_10 = maths::CTools::fastLog(10.0);
     double log10 = maths::CTools::fastLog(static_cast<double>(records) / 100.0) / LOG_10;
-    uint64_t nextPow10 = static_cast<uint64_t>(::pow(10, ::ceil(log10)));
+    uint64_t nextPow10 = static_cast<uint64_t>(std::pow(10, std::ceil(log10)));
     return records % std::max(nextPow10, uint64_t(100)) == 0;
 }
 
@@ -58,9 +59,9 @@ const core_t::TTime UPDATE_SCORE_TIME_INTERVAL       = 172800;
 class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
         CAutoconfigurerImpl(const CAutoconfigurerParams &params, CReportWriter &reportWriter);
@@ -69,20 +70,20 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
         bool handleRecord(const TStrStrUMap &fieldValues);
 
         //! Generate the report.
-        void finalise(void);
+        void finalise();
 
         //! Get the report writer.
-        CReportWriter &reportWriter(void);
+        CReportWriter &reportWriter();
 
         //! How many records did we handle?
-        uint64_t numRecordsHandled(void) const;
+        uint64_t numRecordsHandled() const;
 
     private:
-        typedef std::pair<core_t::TTime, TStrStrUMap> TTimeStrStrUMapPr;
-        typedef std::vector<TTimeStrStrUMapPr> TTimeStrStrUMapPrVec;
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
+        using TTimeStrStrUMapPr = std::pair<core_t::TTime, TStrStrUMap>;
+        using TTimeStrStrUMapPrVec = std::vector<TTimeStrStrUMapPr>;
+        using TOptionalUserDataType = boost::optional<config_t::EUserDataType>;
+        using TDetectorSpecificationVec = std::vector<CDetectorSpecification>;
+        using TFieldStatisticsVec = std::vector<CFieldStatistics>;
 
     private:
         //! Extract the time from \p fieldValues.
@@ -104,10 +105,10 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
         void computeScores(bool final);
 
         //! Generate the candidate detectors to evaluate.
-        void generateCandidateDetectorsOnce(void);
+        void generateCandidateDetectorsOnce();
 
         //! Run the records in the buffer through the detector scorers.
-        void replayBuffer(void);
+        void replayBuffer();
 
     private:
         //! The parameters.
@@ -162,7 +163,7 @@ CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams &params,
 {
 }
 
-void CAutoconfigurer::newOutputStream(void)
+void CAutoconfigurer::newOutputStream()
 {
     m_Impl->reportWriter().newOutputStream();
 }
@@ -172,7 +173,7 @@ bool CAutoconfigurer::handleRecord(const TStrStrUMap &fieldValues)
     return m_Impl->handleRecord(fieldValues);
 }
 
-void CAutoconfigurer::finalise(void)
+void CAutoconfigurer::finalise()
 {
     m_Impl->finalise();
 }
@@ -188,12 +189,12 @@ bool CAutoconfigurer::persistState(core::CDataAdder &/*persister*/)
     return true;
 }
 
-uint64_t CAutoconfigurer::numRecordsHandled(void) const
+uint64_t CAutoconfigurer::numRecordsHandled() const
 {
     return m_Impl->numRecordsHandled();
 }
 
-api::COutputHandler &CAutoconfigurer::outputHandler(void)
+api::COutputHandler &CAutoconfigurer::outputHandler()
 {
     return m_Impl->reportWriter();
 }
@@ -237,7 +238,7 @@ bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap &fieldValues)
     return true;
 }
 
-void CAutoconfigurerImpl::finalise(void)
+void CAutoconfigurerImpl::finalise()
 {
     LOG_TRACE("CAutoconfigurerImpl::finalise...");
 
@@ -274,12 +275,12 @@ void CAutoconfigurerImpl::finalise(void)
     LOG_TRACE("CAutoconfigurerImpl::finalise done");
 }
 
-CReportWriter &CAutoconfigurerImpl::reportWriter(void)
+CReportWriter &CAutoconfigurerImpl::reportWriter()
 {
     return m_ReportWriter;
 }
 
-uint64_t CAutoconfigurerImpl::numRecordsHandled(void) const
+uint64_t CAutoconfigurerImpl::numRecordsHandled() const
 {
     return m_NumberRecords;
 }
@@ -409,7 +410,7 @@ void CAutoconfigurerImpl::computeScores(bool final)
     LOG_TRACE("CAutoconfigurerImpl::computeScores done");
 }
 
-void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
+void CAutoconfigurerImpl::generateCandidateDetectorsOnce()
 {
     if (m_GeneratedCandidateFieldNames)
     {
@@ -418,8 +419,8 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
 
     LOG_DEBUG("Generate Candidate Detectors:");
 
-    typedef void (CDetectorEnumerator::*TAddField)(const std::string &);
-    typedef bool (CAutoconfigurerParams::*TCanUse)(const std::string &) const;
+    using TAddField = void (CDetectorEnumerator::*)(const std::string &);
+    using TCanUse = bool (CAutoconfigurerParams::*)(const std::string &) const;
 
     CDetectorEnumerator enumerator(m_Params);
     for (std::size_t i = 0u; i < m_Params.functionsCategoriesToConfigure().size(); ++i)
@@ -494,7 +495,7 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
     m_GeneratedCandidateFieldNames = true;
 }
 
-void CAutoconfigurerImpl::replayBuffer(void)
+void CAutoconfigurerImpl::replayBuffer()
 {
     for (std::size_t i = 0u; i < m_Buffer.size(); ++i)
     {

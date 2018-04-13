@@ -38,14 +38,14 @@ class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty
         CTooMuchDataPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CTooMuchDataPenalty *clone(void) const;
+        virtual CTooMuchDataPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
-        typedef std::vector<uint64_t> TUInt64Vec;
-        typedef std::vector<CBucketCountStatistics> TBucketCountStatisticsVec;
+        using TUInt64Vec = std::vector<uint64_t>;
+        using TBucketCountStatisticsVec = std::vector<CBucketCountStatistics>;
 
     private:
         //! Compute a penalty for rare detectors.

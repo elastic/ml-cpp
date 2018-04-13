@@ -101,7 +101,7 @@ CppUnit::Test* CAnomalyJobLimitTest::suite()
     return suiteOfTests;
 }
 
-void CAnomalyJobLimitTest::testAccuracy(void)
+void CAnomalyJobLimitTest::testAccuracy()
 {
     // Check that the amount of memory used when we go over the
     // resource limit is close enough to the limit that we specified
@@ -211,9 +211,9 @@ void CAnomalyJobLimitTest::testAccuracy(void)
     }
 }
 
-void CAnomalyJobLimitTest::testLimit(void)
+void CAnomalyJobLimitTest::testLimit()
 {
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
 
     std::stringstream outputStrm;
     {

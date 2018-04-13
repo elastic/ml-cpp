@@ -22,10 +22,9 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/variant.hpp>
 
+#include <cmath>
 #include <exception>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -35,7 +34,7 @@ namespace maths
 namespace mixture_detail
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
+using TDoubleDoublePr = std::pair<double, double>;
 
 //! \brief Implements the "polymorphic" mixture mode.
 class MATHS_EXPORT CMixtureModeImpl
@@ -58,9 +57,9 @@ class MATHS_EXPORT CMixtureModeImpl
         }
 
     private:
-        typedef boost::variant<boost::math::normal_distribution<>,
-                               boost::math::gamma_distribution<>,
-                               boost::math::lognormal_distribution<> > TDistribution;
+        using TDistribution = boost::variant<boost::math::normal_distribution<>,
+                                             boost::math::gamma_distribution<>,
+                                             boost::math::lognormal_distribution<> >;
 
     private:
         //! The actual distribution.
@@ -154,11 +153,11 @@ template<typename T>
 class CMixtureDistribution
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<T> TModeVec;
+        using TDoubleVec = std::vector<double>;
+        using TModeVec = std::vector<T>;
 
     public:
-        CMixtureDistribution(void) {}
+        CMixtureDistribution() {}
 
         //! \note The length of \p weights should match \p modes.
         CMixtureDistribution(const TDoubleVec &weights, const TModeVec &modes) :
@@ -195,25 +194,25 @@ class CMixtureDistribution
             m_Modes.swap(other.m_Modes);
         }
 
-        inline const TDoubleVec &weights(void) const
+        inline const TDoubleVec &weights() const
         {
             return m_Weights;
         }
-        inline TDoubleVec &weights(void)
+        inline TDoubleVec &weights()
         {
             return m_Weights;
         }
 
-        inline const TModeVec &modes(void) const
+        inline const TModeVec &modes() const
         {
             return m_Modes;
         }
-        inline TModeVec &modes(void)
+        inline TModeVec &modes()
         {
             return m_Modes;
         }
 
-        std::string print(void) const
+        std::string print() const
         {
             std::string result;
             for (std::size_t i = 0u; i < m_Weights.size(); ++i)
@@ -242,7 +241,7 @@ template<typename T>
 class CPdfAdpater
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CPdfAdpater(const CMixtureDistribution<T> &distribution) :
@@ -265,7 +264,7 @@ class CPdfAdpater
 template<typename T>
 mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribution)
 {
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     const TModeVec &modes = distribution.modes();
 
@@ -302,8 +301,8 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribut
 template<typename T>
 double mode(const CMixtureDistribution<T> &distribution)
 {
-    typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TDoubleVec = typename CMixtureDistribution<T>::TDoubleVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     static const std::size_t MAX_ITERATIONS = 20u;
 
@@ -356,8 +355,8 @@ double mode(const CMixtureDistribution<T> &distribution)
 template<typename T>
 double pdf(const CMixtureDistribution<T> &distribution, double x)
 {
-    typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TDoubleVec = typename CMixtureDistribution<T>::TDoubleVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     if (CMathsFuncs::isNan(x))
     {
@@ -409,8 +408,8 @@ double pdf(const CMixtureDistribution<T> &distribution, double x)
 template<typename T>
 double cdf(const CMixtureDistribution<T> &distribution, double x)
 {
-    typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TDoubleVec = typename CMixtureDistribution<T>::TDoubleVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     if (CMathsFuncs::isNan(x))
     {
@@ -467,8 +466,8 @@ double cdf(const CMixtureDistribution<T> &distribution, double x)
 template<typename T>
 double cdfComplement(const CMixtureDistribution<T> &distribution, double x)
 {
-    typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TDoubleVec = typename CMixtureDistribution<T>::TDoubleVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     if (CMathsFuncs::isNan(x))
     {
@@ -528,7 +527,7 @@ template<typename T>
 class CCdfAdapter
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CCdfAdapter(const CMixtureDistribution<T> &distribution) :
@@ -553,7 +552,7 @@ class CCdfAdapter
 template<typename T>
 double quantile(const CMixtureDistribution<T> &distribution, const double q)
 {
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     mixture_detail::TDoubleDoublePr s = support(distribution);
 
@@ -611,7 +610,7 @@ double quantile(const CMixtureDistribution<T> &distribution, const double q)
             LOG_ERROR("Unable to bracket quantile = " << q
                       << ", (a,b) = (" << a << "," << b << ")"
                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-            result = ::fabs(fa) < ::fabs(fb) ? a : b;
+            result = std::fabs(fa) < std::fabs(fb) ? a : b;
         }
         else
         {

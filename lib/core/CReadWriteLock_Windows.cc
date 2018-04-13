@@ -12,32 +12,32 @@ namespace core
 {
 
 
-CReadWriteLock::CReadWriteLock(void)
+CReadWriteLock::CReadWriteLock()
 {
     InitializeSRWLock(&m_ReadWriteLock);
 }
 
-CReadWriteLock::~CReadWriteLock(void)
+CReadWriteLock::~CReadWriteLock()
 {
     // There is no function to destroy the read/write lock on Windows
 }
 
-void CReadWriteLock::readLock(void)
+void CReadWriteLock::readLock()
 {
     AcquireSRWLockShared(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::readUnlock(void)
+void CReadWriteLock::readUnlock()
 {
     ReleaseSRWLockShared(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::writeLock(void)
+void CReadWriteLock::writeLock()
 {
     AcquireSRWLockExclusive(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::writeUnlock(void)
+void CReadWriteLock::writeUnlock()
 {
     ReleaseSRWLockExclusive(&m_ReadWriteLock);
 }

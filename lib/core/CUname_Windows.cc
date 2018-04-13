@@ -42,7 +42,7 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build)
         return false;
     }
 
-    typedef boost::scoped_array<char> TScopedCharArray;
+    using TScopedCharArray = boost::scoped_array<char>;
     TScopedCharArray buffer(new char[size]);
     if (GetFileVersionInfo(KERNEL32_DLL, handle, size, buffer.get()) == FALSE)
     {
@@ -82,12 +82,12 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build)
 }
 
 
-std::string CUname::sysName(void)
+std::string CUname::sysName()
 {
     return "Windows";
 }
 
-std::string CUname::nodeName(void)
+std::string CUname::nodeName()
 {
     // First ask with a size of zero to find the required size
     DWORD size(0);
@@ -99,7 +99,7 @@ std::string CUname::nodeName(void)
         return std::string();
     }
 
-    typedef std::vector<char> TCharVec;
+    using TCharVec = std::vector<char>;
     TCharVec buffer(size);
 
     res = GetComputerNameEx(ComputerNameDnsHostname,
@@ -115,7 +115,7 @@ std::string CUname::nodeName(void)
     return std::string(buffer.begin(), buffer.begin() + size);
 }
 
-std::string CUname::release(void)
+std::string CUname::release()
 {
     uint16_t major(0);
     uint16_t minor(0);
@@ -132,7 +132,7 @@ std::string CUname::release(void)
     return strm.str();
 }
 
-std::string CUname::version(void)
+std::string CUname::version()
 {
     uint16_t major(0);
     uint16_t minor(0);
@@ -193,7 +193,7 @@ std::string CUname::version(void)
     return strm.str();
 }
 
-std::string CUname::machine(void)
+std::string CUname::machine()
 {
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo(&systemInfo);
@@ -224,7 +224,7 @@ std::string CUname::machine(void)
     return result;
 }
 
-std::string CUname::all(void)
+std::string CUname::all()
 {
     // This is in the format of "uname -a"
     std::string all(CUname::sysName());
@@ -240,7 +240,7 @@ std::string CUname::all(void)
     return all;
 }
 
-std::string CUname::mlPlatform(void)
+std::string CUname::mlPlatform()
 {
     // Determine the current platform name, in the format used by Kibana
     // downloads.  For Windows this is either "windows-x86" or "windows-x86_64".
@@ -252,7 +252,7 @@ std::string CUname::mlPlatform(void)
     return "windows-x86";
 }
 
-std::string CUname::mlOsVer(void)
+std::string CUname::mlOsVer()
 {
     uint16_t major(0);
     uint16_t minor(0);

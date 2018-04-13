@@ -54,13 +54,13 @@ namespace maths
 class MATHS_EXPORT CMultimodalPrior : public CPrior
 {
     public:
-        typedef boost::shared_ptr<CClusterer1d> TClustererPtr;
-        typedef boost::shared_ptr<CPrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef TPriorPtrVec::iterator TPriorPtrVecItr;
-        typedef TPriorPtrVec::const_iterator TPriorPtrVecCItr;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
+        using TClustererPtr = boost::shared_ptr<CClusterer1d>;
+        using TPriorPtr = boost::shared_ptr<CPrior>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TPriorPtrVecItr = TPriorPtrVec::iterator;
+        using TPriorPtrVecCItr = TPriorPtrVec::const_iterator;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
 
         // Lift all overloads into scope.
         //{
@@ -109,13 +109,13 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         //! \name Prior Contract.
         //@{
         //! Get the type of this prior.
-        virtual EPrior type(void) const;
+        virtual EPrior type() const;
 
         //! Create a copy of the prior.
         //!
         //! \return A pointer to a newly allocated clone of this prior.
         //! \warning The caller owns the object returned.
-        virtual CMultimodalPrior *clone(void) const;
+        virtual CMultimodalPrior *clone() const;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value);
@@ -127,7 +127,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
         //! Check if any of the modes needs an offset to be applied.
-        virtual bool needsOffset(void) const;
+        virtual bool needsOffset() const;
 
         //! Forward the offset to the mode priors.
         //!
@@ -137,7 +137,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
                                     const TDouble4Vec1Vec &weights);
 
         //! Get the current offset.
-        virtual double offset(void) const;
+        virtual double offset() const;
 
         //! Update the prior with a collection of independent samples from
         //! the variable.
@@ -161,10 +161,10 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         virtual void propagateForwardsByTime(double time);
 
         //! Get the support for the marginal likelihood function.
-        virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+        virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
         //! Get the mean of the marginal likelihood function.
-        virtual double marginalLikelihoodMean(void) const;
+        virtual double marginalLikelihoodMean() const;
 
         //! Get the nearest mean of the multimodal prior marginal likelihood.
         virtual double nearestMarginalLikelihoodMean(double value) const;
@@ -290,7 +290,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
                                                     maths_t::ETail &tail) const;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const;
+        virtual bool isNonInformative() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -301,7 +301,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         //! Print the prior density function in a specified format.
         //!
         //! \see CPrior::printJointDensityFunction for details.
-        virtual std::string printJointDensityFunction(void) const;
+        virtual std::string printJointDensityFunction() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -310,24 +310,24 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         //@}
 
         //! Get the current number of modes.
-        std::size_t numberModes(void) const;
+        std::size_t numberModes() const;
 
         //! Check if the class invariants hold.
         bool checkInvariants(const std::string &tag = std::string()) const;
 
     private:
-        typedef std::vector<TDouble1Vec> TDouble1VecVec;
-        typedef std::vector<TDouble4Vec1Vec> TDouble4Vec1VecVec;
+        using TDouble1VecVec = std::vector<TDouble1Vec>;
+        using TDouble4Vec1VecVec = std::vector<TDouble4Vec1Vec>;
 
         //! The callback invoked when a mode is split.
         class MATHS_EXPORT CModeSplitCallback
@@ -355,8 +355,8 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
                 CMultimodalPrior *m_Prior;
         };
 
-        typedef SMultimodalPriorMode<boost::shared_ptr<CPrior> > TMode;
-        typedef std::vector<TMode> TModeVec;
+        using TMode = SMultimodalPriorMode<boost::shared_ptr<CPrior> >;
+        using TModeVec = std::vector<TMode>;
 
     private:
         //! Read parameters from \p traverser.
@@ -364,15 +364,15 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
                                     core::CStateRestoreTraverser &traverser);
 
         //! We should only use this prior when it has multiple modes.
-        virtual bool participatesInModelSelection(void) const;
+        virtual bool participatesInModelSelection() const;
 
         //! Get the number of nuisance parameters in the marginal likelihood.
         //!
         //! This is just number modes - 1 due to the normalization constraint.
-        virtual double unmarginalizedParameters(void) const;
+        virtual double unmarginalizedParameters() const;
 
         //! Full debug dump of the mode weights.
-        std::string debugWeights(void) const;
+        std::string debugWeights() const;
 
     private:
         //! The object which partitions the data into clusters.

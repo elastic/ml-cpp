@@ -44,9 +44,9 @@ namespace model
 class MODEL_EXPORT CInterimBucketCorrector
 {
     private:
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<double, 10> TDouble10Vec;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TDouble10Vec = core::CSmallVector<double, 10>;
 
     public:
         //! Constructs an interim bucket corrector for buckets of length \p bucketLength
@@ -86,7 +86,7 @@ class MODEL_EXPORT CInterimBucketCorrector
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by the corrector
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

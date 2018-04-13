@@ -33,14 +33,14 @@ class CXmlNodeWithChildrenPool;
 class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
 {
     public:
-        typedef boost::shared_ptr<CXmlNodeWithChildren> TXmlNodeWithChildrenP;
+        using TXmlNodeWithChildrenP = boost::shared_ptr<CXmlNodeWithChildren>;
 
-        typedef std::vector<TXmlNodeWithChildrenP>      TChildNodePVec;
-        typedef TChildNodePVec::iterator                TChildNodePVecItr;
-        typedef TChildNodePVec::const_iterator          TChildNodePVecCItr;
+        using TChildNodePVec = std::vector<TXmlNodeWithChildrenP>;
+        using TChildNodePVecItr = TChildNodePVec::iterator;
+        using TChildNodePVecCItr = TChildNodePVec::const_iterator;
 
     public:
-        CXmlNodeWithChildren(void);
+        CXmlNodeWithChildren();
 
         CXmlNodeWithChildren(const std::string &name);
 
@@ -53,7 +53,7 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
 
         CXmlNodeWithChildren(const CXmlNodeWithChildren &arg);
 
-        virtual ~CXmlNodeWithChildren(void);
+        virtual ~CXmlNodeWithChildren();
 
         CXmlNodeWithChildren &operator=(const CXmlNodeWithChildren &rhs);
 
@@ -67,10 +67,10 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
         void addChildP(const TXmlNodeWithChildrenP &childP);
 
         //! Get children
-        const TChildNodePVec &children(void) const;
+        const TChildNodePVec &children() const;
 
         //! Debug dump of hierarchy
-        virtual std::string dump(void) const;
+        virtual std::string dump() const;
         virtual std::string dump(size_t indent) const;
 
     private:

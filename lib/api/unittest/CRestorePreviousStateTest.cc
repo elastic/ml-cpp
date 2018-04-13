@@ -83,7 +83,7 @@ CppUnit::Test *CRestorePreviousStateTest::suite()
     return suiteOfTests;
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorBy(void)
+void CRestorePreviousStateTest::testRestoreDetectorBy()
 {
     for (const auto &version : BWC_VERSIONS)
     {
@@ -94,7 +94,7 @@ void CRestorePreviousStateTest::testRestoreDetectorBy(void)
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorOver(void)
+void CRestorePreviousStateTest::testRestoreDetectorOver()
 {
     for (const auto &version : BWC_VERSIONS)
     {
@@ -105,7 +105,7 @@ void CRestorePreviousStateTest::testRestoreDetectorOver(void)
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorPartition(void)
+void CRestorePreviousStateTest::testRestoreDetectorPartition()
 {
     for (const auto &version : BWC_VERSIONS)
     {
@@ -116,7 +116,7 @@ void CRestorePreviousStateTest::testRestoreDetectorPartition(void)
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorDc(void)
+void CRestorePreviousStateTest::testRestoreDetectorDc()
 {
     for (const auto &version : BWC_VERSIONS)
     {
@@ -127,7 +127,7 @@ void CRestorePreviousStateTest::testRestoreDetectorDc(void)
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorCount(void)
+void CRestorePreviousStateTest::testRestoreDetectorCount()
 {
     for (const auto &version : BWC_VERSIONS)
     {

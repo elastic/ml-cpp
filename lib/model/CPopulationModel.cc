@@ -38,7 +38,7 @@ namespace
 {
 
 using TStrCRef = boost::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess> ;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
 
 enum EEntity
 {
@@ -91,7 +91,7 @@ void hashActive(EEntity entity,
 template<typename T>
 void hashActive(EEntity entity,
                 const CDataGatherer &gatherer,
-                const std::vector<std::pair<model_t::EFeature, std::vector<T> > > &values,
+                const std::vector<std::pair<model_t::EFeature, std::vector<T>> > &values,
                 TStrCRefUInt64Map &hashes)
 {
     for (const auto &value : values)
@@ -156,7 +156,7 @@ CPopulationModel::CPopulationModel(bool isForPersistence, const CPopulationModel
     }
 }
 
-bool CPopulationModel::isPopulation(void) const
+bool CPopulationModel::isPopulation() const
 {
     return true;
 }
@@ -248,7 +248,7 @@ void CPopulationModel::sample(core_t::TTime startTime,
         }
     }
 
-    double alpha = ::exp(-this->params().s_DecayRate * 1.0);
+    double alpha = std::exp(-this->params().s_DecayRate * 1.0);
     for (std::size_t cid = 0u; cid < m_PersonAttributeBucketCounts.size(); ++cid)
     {
         m_PersonAttributeBucketCounts[cid].age(alpha);
@@ -284,7 +284,7 @@ void CPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_PersonAttributeBucketCounts", m_PersonAttributeBucketCounts, mem);
 }
 
-std::size_t CPopulationModel::memoryUsage(void) const
+std::size_t CPopulationModel::memoryUsage() const
 {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_PersonLastBucketTimes);
@@ -501,7 +501,7 @@ void CPopulationModel::createNewModels(std::size_t n, std::size_t m)
     this->CAnomalyDetectorModel::createNewModels(n, m);
 }
 
-void CPopulationModel::updateRecycledModels(void)
+void CPopulationModel::updateRecycledModels()
 {
     CDataGatherer &gatherer = this->dataGatherer();
     for (auto pid : gatherer.recycledPersonIds())
@@ -562,12 +562,12 @@ double CPopulationModel::propagationTime(std::size_t cid, core_t::TTime time) co
                                                 / static_cast<double>(3 * core::constants::WEEK), 0.0, 1.0);
 }
 
-const CPopulationModel::TTimeVec &CPopulationModel::attributeFirstBucketTimes(void) const
+const CPopulationModel::TTimeVec &CPopulationModel::attributeFirstBucketTimes() const
 {
     return m_AttributeFirstBucketTimes;
 }
 
-const CPopulationModel::TTimeVec &CPopulationModel::attributeLastBucketTimes(void) const
+const CPopulationModel::TTimeVec &CPopulationModel::attributeLastBucketTimes() const
 {
     return m_AttributeLastBucketTimes;
 }
@@ -674,7 +674,7 @@ bool CPopulationModel::CCorrectionKey::operator==(const CCorrectionKey &rhs) con
           && m_Correlate == rhs.m_Correlate;
 }
 
-std::size_t CPopulationModel::CCorrectionKey::hash(void) const
+std::size_t CPopulationModel::CCorrectionKey::hash() const
 {
     uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(m_Feature), m_Pid);
     seed = core::CHashing::hashCombine(seed, m_Cid);

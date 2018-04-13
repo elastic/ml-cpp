@@ -12,12 +12,12 @@
 class CInformationCriteriaTest : public CppUnit::TestFixture
 {
     public:
-        void testSphericalGaussian(void);
-        void testSphericalGaussianWithSphericalCluster(void);
-        void testGaussian(void);
-        void testGaussianWithSphericalCluster(void);
+        void testSphericalGaussian();
+        void testSphericalGaussianWithSphericalCluster();
+        void testGaussian();
+        void testGaussianWithSphericalCluster();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CInformationCriteriaTest_h

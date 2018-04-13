@@ -12,12 +12,12 @@
 class CGramSchmidtTest : public CppUnit::TestFixture
 {
     public:
-        void testOrthogonality(void);
-        void testNormalisation(void);
-        void testSpan(void);
-        void testEdgeCases(void);
+        void testOrthogonality();
+        void testNormalisation();
+        void testSpan();
+        void testEdgeCases();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CGramSchmidtTest_h

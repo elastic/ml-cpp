@@ -174,7 +174,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance,
 }
 
 template<std::size_t N, typename T>
-std::string CRegression::CLeastSquaresOnline<N, T>::print(void) const
+std::string CRegression::CLeastSquaresOnline<N, T>::print() const
 {
     TArray params;
     if (this->parameters(params))
@@ -304,13 +304,13 @@ CRegression::CLeastSquaresOnlineParameterProcess<N, T>::covariance() const
 }
 
 template<std::size_t N, typename T>
-uint64_t CRegression::CLeastSquaresOnlineParameterProcess<N, T>::checksum(void) const
+uint64_t CRegression::CLeastSquaresOnlineParameterProcess<N, T>::checksum() const
 {
     return m_UnitTimeCovariances.checksum();
 }
 
 template<std::size_t N, typename T>
-std::string CRegression::CLeastSquaresOnlineParameterProcess<N, T>::print(void) const
+std::string CRegression::CLeastSquaresOnlineParameterProcess<N, T>::print() const
 {
     std::ostringstream result;
     result << CBasicStatistics::covariances(m_UnitTimeCovariances);

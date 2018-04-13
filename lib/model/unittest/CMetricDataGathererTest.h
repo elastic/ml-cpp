@@ -14,20 +14,20 @@
 class CMetricDataGathererTest : public CppUnit::TestFixture
 {
     public:
-        void singleSeriesTests(void);
-        void multipleSeriesTests(void);
-        void testSampleCount(void);
-        void testRemovePeople(void);
-        void testSum(void);
-        void singleSeriesOutOfOrderTests(void);
-        void testResetBucketGivenSingleSeries(void);
-        void testResetBucketGivenMultipleSeries(void);
-        void testInfluenceStatistics(void);
-        void testMultivariate(void);
-        void testStatisticsPersist(void);
-        void testVarp(void);
+        void singleSeriesTests();
+        void multipleSeriesTests();
+        void testSampleCount();
+        void testRemovePeople();
+        void testSum();
+        void singleSeriesOutOfOrderTests();
+        void testResetBucketGivenSingleSeries();
+        void testResetBucketGivenMultipleSeries();
+        void testInfluenceStatistics();
+        void testMultivariate();
+        void testStatisticsPersist();
+        void testVarp();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
     private:
         ml::model::CResourceMonitor m_ResourceMonitor;
 };

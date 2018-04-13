@@ -28,7 +28,7 @@ CppUnit::Test *CModelSnapshotJsonWriterTest::suite()
     return suiteOfTests;
 }
 
-void CModelSnapshotJsonWriterTest::testWrite(void)
+void CModelSnapshotJsonWriterTest::testWrite()
 {
     std::ostringstream sstream;
 

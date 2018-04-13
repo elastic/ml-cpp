@@ -12,7 +12,7 @@
 class CJsonStatePersistInserterTest : public CppUnit::TestFixture
 {
     public:
-        void testPersist(void);
+        void testPersist();
 
         static CppUnit::Test *suite();
 };

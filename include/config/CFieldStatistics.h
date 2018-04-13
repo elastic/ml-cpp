@@ -33,52 +33,53 @@ class CPenalty;
 class CONFIG_EXPORT CFieldStatistics
 {
     public:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
     public:
         CFieldStatistics(const std::string &fieldName, const CAutoconfigurerParams &params);
 
         //! Get the name of the field.
-        const std::string &name(void) const;
+        const std::string &name() const;
 
         //! If we have been able to determine the data type start
         //! capturing the appropriate statistics.
-        void maybeStartCapturingTypeStatistics(void);
+        void maybeStartCapturingTypeStatistics();
 
         //! Add an example value for the field.
         void add(core_t::TTime time, const std::string &example);
 
         //! Get the type of data we think we have.
-        config_t::EDataType type(void) const;
+        config_t::EDataType type() const;
 
         //! Get the data summary statistics if no more specific
         //! ones are available.
-        const CDataSummaryStatistics *summary(void) const;
+        const CDataSummaryStatistics *summary() const;
 
         //! Get the categorical summary statistics if we think
         //! the data are categorical.
-        const CCategoricalDataSummaryStatistics *categoricalSummary(void) const;
+        const CCategoricalDataSummaryStatistics *categoricalSummary() const;
 
         //! Get the numeric summary statistics if we think the
         //! data are numeric.
-        const CNumericDataSummaryStatistics *numericSummary(void) const;
+        const CNumericDataSummaryStatistics *numericSummary() const;
 
         //! Get the score for this field based on \p penalty.
         double score(const CPenalty &penalty) const;
 
     private:
-        typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
-        typedef std::vector<TTimeStrPr> TTimeStrPrVec;
-        typedef boost::variant<CDataSummaryStatistics,
-                               CCategoricalDataSummaryStatistics,
-                               CNumericDataSummaryStatistics> TDataSummaryStatistics;
+        using TTimeStrPr = std::pair<core_t::TTime, std::string>;
+        using TTimeStrPrVec = std::vector<TTimeStrPr>;
+        using TDataSummaryStatistics =
+                  boost::variant<CDataSummaryStatistics,
+                                 CCategoricalDataSummaryStatistics,
+                                 CNumericDataSummaryStatistics>;
 
     private:
         //! The auto-configuration parameters.
-        const CAutoconfigurerParams &params(void) const;
+        const CAutoconfigurerParams &params() const;
 
         //! Add the records in the buffer to the statistics.
-        void replayBuffer(void);
+        void replayBuffer();
 
     private:
         //! A reference to the auto-configuration parameters.

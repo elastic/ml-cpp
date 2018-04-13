@@ -46,8 +46,8 @@ template<std::size_t N>
 class CCompressedDictionary
 {
     public:
-        typedef boost::array<uint64_t, N> TUInt64Array;
-        typedef const std::string* TStrCPtr;
+        using TUInt64Array = boost::array<uint64_t, N>;
+        using TStrCPtr = const std::string*;
 
         //! \brief A hash representation of a string in the dictionary
         //! with low probability of collision even for relatively large
@@ -80,13 +80,13 @@ class CCompressedDictionary
         {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
 
                 //! Used for converting to and from a delimited string.
                 static const char DELIMITER;
 
             public:
-                CWord(void)
+                CWord()
                 {
                     std::fill(m_Hash.begin(), m_Hash.end(), 0);
                 }
@@ -120,7 +120,7 @@ class CCompressedDictionary
                     return n == N;
                 }
 
-                std::string toDelimited(void) const
+                std::string toDelimited() const
                 {
                     std::string result = CStringUtils::typeToString(m_Hash[0]);
                     for (std::size_t i = 1; i < N; ++i)
@@ -131,17 +131,17 @@ class CCompressedDictionary
                     return result;
                 }
 
-                std::size_t hash(void) const
+                std::size_t hash() const
                 {
                     return static_cast<std::size_t>(m_Hash[0]);
                 }
 
-                uint64_t hash64(void) const
+                uint64_t hash64() const
                 {
                     return m_Hash[0];
                 }
 
-                std::string print(void) const
+                std::string print() const
                 {
                     return CContainerPrinter::print(m_Hash);
                 }
@@ -161,10 +161,10 @@ class CCompressedDictionary
         };
 
         //! The type of an ordered set of words.
-        typedef std::set<CWord> TWordSet;
+        using TWordSet = std::set<CWord>;
 
         //! The type of an unordered set of words.
-        typedef boost::unordered_set<CWord, CHash> TWordUSet;
+        using TWordUSet = boost::unordered_set<CWord, CHash>;
 
         //! A "template typedef" of an ordered map from words to
         //! objects of type T.
@@ -172,7 +172,7 @@ class CCompressedDictionary
         class CWordMap
         {
             public:
-                typedef std::map<CWord, T> Type;
+                using Type = std::map<CWord, T>;
         };
 
         //! A "template typedef" of an unordered map from words to
@@ -181,11 +181,11 @@ class CCompressedDictionary
         class CWordUMap
         {
             public:
-                typedef boost::unordered_map<CWord, T, CHash> Type;
+                using Type = boost::unordered_map<CWord, T, CHash>;
         };
 
     public:
-        CCompressedDictionary(void)
+        CCompressedDictionary()
         {
             // 472882027 and 982451653 are prime numbers, so repeatedly
             // multiplying them will give many distinct seeds modulo 2 ^ 64.

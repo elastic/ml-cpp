@@ -48,31 +48,31 @@ class CEmptySearcher : public ml::core::CDataSearcher
 class CTestOutputHandler : public COutputHandler
 {
     public:
-        CTestOutputHandler(void) : COutputHandler(), m_NewStream(false),
+        CTestOutputHandler() : COutputHandler(), m_NewStream(false),
             m_Finalised(false), m_Records(0)
         {
         }
 
-        virtual ~CTestOutputHandler(void)
+        virtual ~CTestOutputHandler()
         {
         }
 
-        virtual void finalise(void)
+        virtual void finalise()
         {
             m_Finalised = true;
         }
 
-        bool hasFinalised(void) const
+        bool hasFinalised() const
         {
             return m_Finalised;
         }
 
-        virtual void newOutputStream(void)
+        virtual void newOutputStream()
         {
             m_NewStream = true;
         }
 
-        bool isNewStream(void) const
+        bool isNewStream() const
         {
             return m_NewStream;
         }
@@ -83,7 +83,7 @@ class CTestOutputHandler : public COutputHandler
             return true;
         }
 
-        virtual const TStrVec &fieldNames(void) const
+        virtual const TStrVec &fieldNames() const
         {
             return m_FieldNames;
         }
@@ -95,7 +95,7 @@ class CTestOutputHandler : public COutputHandler
             return true;
         }
 
-        uint64_t getNumRows(void) const
+        uint64_t getNumRows() const
         {
             return m_Records;
         }
@@ -130,7 +130,7 @@ class CTestDataSearcher : public core::CDataSearcher
 class CTestDataAdder : public core::CDataAdder
 {
     public:
-        CTestDataAdder(void)
+        CTestDataAdder()
             : m_Stream(new std::ostringstream)
         {
         }
@@ -146,7 +146,7 @@ class CTestDataAdder : public core::CDataAdder
             return true;
         }
 
-        TOStreamP getStream(void)
+        TOStreamP getStream()
         {
             return m_Stream;
         }
@@ -157,7 +157,7 @@ class CTestDataAdder : public core::CDataAdder
 
 }
 
-void CFieldDataTyperTest::testAll(void)
+void CFieldDataTyperTest::testAll()
 {
     model::CLimits limits;
     CFieldConfig config;
@@ -235,7 +235,7 @@ void CFieldDataTyperTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-void CFieldDataTyperTest::testNodeReverseSearch(void)
+void CFieldDataTyperTest::testNodeReverseSearch()
 {
     model::CLimits limits;
     CFieldConfig config;
@@ -275,7 +275,7 @@ void CFieldDataTyperTest::testNodeReverseSearch(void)
     CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
 }
 
-void CFieldDataTyperTest::testPassOnControlMessages(void)
+void CFieldDataTyperTest::testPassOnControlMessages()
 {
     model::CLimits limits;
     CFieldConfig config;
@@ -304,7 +304,7 @@ void CFieldDataTyperTest::testPassOnControlMessages(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[]"), output);
 }
 
-void CFieldDataTyperTest::testHandleControlMessages(void)
+void CFieldDataTyperTest::testHandleControlMessages()
 {
     model::CLimits limits;
     CFieldConfig config;
@@ -332,7 +332,7 @@ void CFieldDataTyperTest::testHandleControlMessages(void)
                          output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
-void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void)
+void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState()
 {
     model::CLimits limits;
     CFieldConfig config;

@@ -19,7 +19,7 @@ namespace core
 {
 
 
-std::string CUname::sysName(void)
+std::string CUname::sysName()
 {
     struct utsname name;
     ::uname(&name);
@@ -27,7 +27,7 @@ std::string CUname::sysName(void)
     return name.sysname;
 }
 
-std::string CUname::nodeName(void)
+std::string CUname::nodeName()
 {
     struct utsname name;
     ::uname(&name);
@@ -35,7 +35,7 @@ std::string CUname::nodeName(void)
     return name.nodename;
 }
 
-std::string CUname::release(void)
+std::string CUname::release()
 {
     struct utsname name;
     ::uname(&name);
@@ -43,7 +43,7 @@ std::string CUname::release(void)
     return name.release;
 }
 
-std::string CUname::version(void)
+std::string CUname::version()
 {
     struct utsname name;
     ::uname(&name);
@@ -51,7 +51,7 @@ std::string CUname::version(void)
     return name.version;
 }
 
-std::string CUname::machine(void)
+std::string CUname::machine()
 {
     struct utsname name;
     ::uname(&name);
@@ -59,7 +59,7 @@ std::string CUname::machine(void)
     return name.machine;
 }
 
-std::string CUname::all(void)
+std::string CUname::all()
 {
     struct utsname name;
     ::uname(&name);
@@ -78,7 +78,7 @@ std::string CUname::all(void)
     return all;
 }
 
-std::string CUname::mlPlatform(void)
+std::string CUname::mlPlatform()
 {
     struct utsname name;
     ::uname(&name);
@@ -126,7 +126,7 @@ std::string CUname::mlPlatform(void)
     return os + '-' + machine;
 }
 
-std::string CUname::mlOsVer(void)
+std::string CUname::mlOsVer()
 {
     return CUname::release();
 }

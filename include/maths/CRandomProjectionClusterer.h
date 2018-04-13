@@ -23,6 +23,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <vector>
@@ -64,7 +65,7 @@ class CRandomProjectionClusterer
         using TSizeVec = std::vector<std::size_t>;
 
     public:
-        virtual ~CRandomProjectionClusterer(void) = default;
+        virtual ~CRandomProjectionClusterer() = default;
 
         //! Set up the projections.
         virtual bool initialise(std::size_t numberProjections,
@@ -87,13 +88,13 @@ class CRandomProjectionClusterer
 
     protected:
         //! Get the random number generator.
-        CPRNG::CXorShift1024Mult &rng(void) const
+        CPRNG::CXorShift1024Mult &rng() const
         {
             return m_Rng;
         }
 
         //! Get the projections.
-        const TVectorArrayVec &projections(void) const
+        const TVectorArrayVec &projections() const
         {
             return m_Projections;
         }
@@ -253,7 +254,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 m_Compression(compression)
         {}
 
-        virtual ~CRandomProjectionClustererBatch(void) = default;
+        virtual ~CRandomProjectionClustererBatch() = default;
 
         //! Create the \p numberProjections random projections.
         //!
@@ -454,7 +455,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                         double Zij = 0.0;
                         for (std::size_t k = 0u; k < pij.size(); ++k)
                         {
-                            pij[k] = ::exp(pij[k] - pmax);
+                            pij[k] = std::exp(pij[k] - pmax);
                             Zij += pij[k];
                         }
                         for (std::size_t k = 0u; k < pij.size(); ++k)
@@ -576,7 +577,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 // a given cluster.
                 for (std::size_t c = 0u; c < nci; ++c)
                 {
-                    double wic = ::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
+                    double wic = std::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
                     LOG_TRACE("  w(" << i << "," << c << ") = " << wic);
                     for (std::size_t j = 0u; j < h; ++j)
                     {
@@ -596,7 +597,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     double Z = 0.0;
                     for (std::size_t c = 0u; c < nci; ++c)
                     {
-                        Pi[j](c) = ::exp(Pi[j](c) - Pmax);
+                        Pi[j](c) = std::exp(Pi[j](c) - Pmax);
                         Z += Pi[j](c);
                     }
                     for (std::size_t c = 0u; c < nci; ++c)
@@ -612,7 +613,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     S_[j].resize(j + 1);
                     for (std::size_t k = 0u; k <= j; ++k)
                     {
-                        S_[j][k].add(-::log(std::max(Pi[j].inner(Pi[k]),
+                        S_[j][k].add(-std::log(std::max(Pi[j].inner(Pi[k]),
                                                      boost::numeric::bounds<double>::smallest())));
                     }
                 }
@@ -688,7 +689,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         }
 
         //! Get the projected data points.
-        const TVectorNx1VecVec &projectedData(void) const
+        const TVectorNx1VecVec &projectedData() const
         {
             return m_ProjectedData;
         }
@@ -699,7 +700,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
             double result = 0.0;
             for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i)
             {
-                result += ::log(svd.singularValues()[i]);
+                result += std::log(svd.singularValues()[i]);
             }
             return result;
         }
@@ -747,7 +748,7 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
         }
 
         //! Cluster the points.
-        void run(void)
+        void run()
         {
             m_Xmeans.run(m_ImproveParamsKmeansIterations,
                          m_ImproveStructureClusterSeeds,
@@ -755,7 +756,7 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             return m_Xmeans.clusters();
         }
@@ -819,13 +820,13 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
         }
 
         //! Cluster the points.
-        void run(void)
+        void run()
         {
             m_Kmeans.run(m_MaxIterations);
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             m_Kmeans.clusters(m_Clusters);
             return m_Clusters;

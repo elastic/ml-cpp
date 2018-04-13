@@ -53,26 +53,26 @@ using namespace model;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<TSizeVecVec> TSizeVecVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TUInt64Vec = std::vector<uint64_t>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeVecVecVec = std::vector<TSizeVecVec>;
+using TStrVec = std::vector<std::string>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+using TOptionalStr = boost::optional<std::string>;
+using TOptionalUInt64 = boost::optional<uint64_t>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 const std::string EMPTY_STRING;
 
@@ -149,7 +149,7 @@ void generateSporadicEvents(const core_t::TTime &startTime,
 
         TDoubleVec gap;
         rng.generateUniformSamples(0.0, 10.0, 1u, gap);
-        bucketStartTime += static_cast<double>(bucketLength) * ::ceil(gap[0]);
+        bucketStartTime += static_cast<double>(bucketLength) * std::ceil(gap[0]);
     }
 }
 
@@ -338,7 +338,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
 
-void CEventRateModelTest::testOnlineCountSample(void)
+void CEventRateModelTest::testOnlineCountSample()
 {
     LOG_DEBUG("*** testOnlineCountSample ***");
 
@@ -442,7 +442,7 @@ void CEventRateModelTest::testOnlineCountSample(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineNonZeroCountSample(void)
+void CEventRateModelTest::testOnlineNonZeroCountSample()
 {
     LOG_DEBUG("*** testOnlineNonZeroCountSample ***");
 
@@ -519,7 +519,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void)
     }
 }
 
-void CEventRateModelTest::testOnlineRare(void)
+void CEventRateModelTest::testOnlineRare()
 {
     LOG_DEBUG("*** testOnlineRare ***");
 
@@ -606,12 +606,12 @@ void CEventRateModelTest::testOnlineRare(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculation(void)
+void CEventRateModelTest::testOnlineProbabilityCalculation()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
 
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -670,7 +670,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(void)
+void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
 
@@ -725,7 +725,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(voi
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(void)
+void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
 
@@ -780,15 +780,15 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(vo
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
+void CEventRateModelTest::testOnlineCorrelatedNoTrend()
 {
     LOG_DEBUG("*** testOnlineCorrelatedNoTrend ***");
 
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
+    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1032,7 +1032,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
     }
 }
 
-void CEventRateModelTest::testOnlineCorrelatedTrend(void)
+void CEventRateModelTest::testOnlineCorrelatedTrend()
 {
     LOG_DEBUG("*** testOnlineCorrelatedTrend ***");
 
@@ -1042,8 +1042,8 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
+    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 600;
@@ -1180,13 +1180,13 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
     }
 }
 
-void CEventRateModelTest::testPrune(void)
+void CEventRateModelTest::testPrune()
 {
     LOG_DEBUG("*** testPrune ***");
 
-    typedef std::vector<TUInt64Vec> TUInt64VecVec;
-    typedef std::vector<CEventData> TEventDataVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
+    using TUInt64VecVec = std::vector<TUInt64Vec>;
+    using TEventDataVec = std::vector<CEventData>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1340,7 +1340,7 @@ void CEventRateModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModel->dataGatherer().numberActivePeople());
 }
 
-void CEventRateModelTest::testKey(void)
+void CEventRateModelTest::testKey()
 {
     function_t::EFunction countFunctions[] =
         {
@@ -1387,7 +1387,7 @@ void CEventRateModelTest::testKey(void)
     }
 }
 
-void CEventRateModelTest::testModelsWithValueFields(void)
+void CEventRateModelTest::testModelsWithValueFields()
 {
     // Check that attributeConditional features are correctly
     // marked as such:
@@ -1526,7 +1526,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
     }
 }
 
-void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
+void CEventRateModelTest::testCountProbabilityCalculationWithInfluence()
 {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
@@ -1877,7 +1877,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
     }
 }
 
-void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(void)
+void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
 {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
@@ -2210,7 +2210,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
     }
 }
 
-void CEventRateModelTest::testOnlineRareWithInfluence(void)
+void CEventRateModelTest::testOnlineRareWithInfluence()
 {
     LOG_DEBUG("*** testOnlineRareWithInfluence ***");
 
@@ -2309,7 +2309,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testSkipSampling(void)
+void CEventRateModelTest::testSkipSampling()
 {
     LOG_DEBUG("*** testSkipSampling ***");
 
@@ -2388,7 +2388,7 @@ void CEventRateModelTest::testSkipSampling(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
 }
 
-void CEventRateModelTest::testExplicitNulls(void)
+void CEventRateModelTest::testExplicitNulls()
 {
     LOG_DEBUG("*** testExplicitNulls ***");
 
@@ -2462,7 +2462,7 @@ void CEventRateModelTest::testExplicitNulls(void)
                 modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->residualModel().checksum());
 }
 
-void CEventRateModelTest::testInterimCorrections(void)
+void CEventRateModelTest::testInterimCorrections()
 {
     LOG_DEBUG("*** testInterimCorrections ***");
 
@@ -2593,7 +2593,7 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 58.0 && p3Baseline[0] < 62.0);
 }
 
-void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
+void CEventRateModelTest::testInterimCorrectionsWithCorrelations()
 {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
@@ -2688,7 +2688,7 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
+void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored()
 {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
@@ -2752,7 +2752,7 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
+void CEventRateModelTest::testComputeProbabilityGivenDetectionRule()
 {
     LOG_DEBUG("*** testComputeProbabilityGivenDetectionRule ***");
 
@@ -2804,7 +2804,7 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
                                              partitioningFields, 1, annotatedProbability) == false);
 }
 
-void CEventRateModelTest::testDecayRateControl(void)
+void CEventRateModelTest::testDecayRateControl()
 {
     LOG_DEBUG("*** testDecayRateControl ***");
 
@@ -2860,11 +2860,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));
@@ -2906,7 +2906,7 @@ void CEventRateModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double rate = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / static_cast<double>(core::constants::DAY)))
                                * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
@@ -2919,11 +2919,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));
@@ -2967,10 +2967,10 @@ void CEventRateModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double rate = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / static_cast<double>(core::constants::DAY)))
-                               * (1.0 + ::sin(  boost::math::double_constants::two_pi
+                               * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / 10.0 / static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
@@ -2982,11 +2982,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));
@@ -2998,7 +2998,7 @@ void CEventRateModelTest::testDecayRateControl(void)
     }
 }
 
-void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
+void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules()
 {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
@@ -3115,7 +3115,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 }
 
-CppUnit::Test *CEventRateModelTest::suite(void)
+CppUnit::Test *CEventRateModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateModelTest");
 

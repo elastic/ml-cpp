@@ -43,11 +43,11 @@ class CLimits;
 namespace hierarchical_results_detail
 {
 
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
-typedef std::pair<core::CStoredStringPtr, core::CStoredStringPtr> TStoredStringPtrStoredStringPtrPr;
-typedef std::pair<TStoredStringPtrStoredStringPtrPr, double> TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr> TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef core::CSmallVector<std::string, 1> TStr1Vec;
+using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 //! \brief The data fully describing a result node.
 //!
@@ -72,7 +72,7 @@ typedef core::CSmallVector<std::string, 1> TStr1Vec;
 //!   -# and so on.
 struct MODEL_EXPORT SResultSpec
 {
-    SResultSpec(void);
+    SResultSpec();
 
     //! Persist the result specification by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -81,7 +81,7 @@ struct MODEL_EXPORT SResultSpec
     bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
     //! Print of the specification for debugging.
-    std::string print(void) const;
+    std::string print() const;
 
     //! A unique identifier for the search's detector.
     int s_Detector;
@@ -136,23 +136,23 @@ struct MODEL_EXPORT SResultSpec
 //! \see buildHierarchicalResults for more details.
 struct MODEL_EXPORT SNode
 {
-    typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-    typedef const SNode *TNodeCPtr;
-    typedef std::vector<TNodeCPtr> TNodeCPtrVec;
-    typedef boost::unordered_map<TNodeCPtr, std::size_t> TNodePtrSizeUMap;
-    typedef boost::unordered_map<std::size_t, TNodeCPtr> TSizeNodePtrUMap;
+    using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
+    using TNodeCPtr = const SNode*;
+    using TNodeCPtrVec = std::vector<TNodeCPtr>;
+    using TNodePtrSizeUMap = boost::unordered_map<TNodeCPtr, std::size_t>;
+    using TSizeNodePtrUMap = boost::unordered_map<std::size_t, TNodeCPtr>;
 
-    SNode(void);
+    SNode();
     SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
 
     //! Returns the aggregate probability for the node
-    double probability(void) const;
+    double probability() const;
 
     //! Propagate consistent field names and values from the nodes children.
-    void propagateFields(void);
+    void propagateFields();
 
     //! Print of the node for debugging.
-    std::string print(void) const;
+    std::string print() const;
 
     //! Efficient swap
     void swap(SNode &other);
@@ -255,22 +255,23 @@ class CHierarchicalResultsVisitor;
 class MODEL_EXPORT CHierarchicalResults
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-        typedef hierarchical_results_detail::SResultSpec TResultSpec;
-        typedef core::CStoredStringPtr TStoredStringPtr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-        typedef hierarchical_results_detail::SNode TNode;
-        typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap TNodePtrSizeUMap;
-        typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap TSizeNodePtrUMap;
-        typedef std::deque<TNode> TNodeDeque;
-        typedef std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare> TStoredStringPtrStoredStringPtrPrNodeMap;
-        typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess> TStoredStringPtrNodeMap;
+        using TDoubleVec = std::vector<double>;
+        using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
+        using TResultSpec = hierarchical_results_detail::SResultSpec;
+        using TStoredStringPtr = core::CStoredStringPtr;
+        using TStoredStringPtrStoredStringPtrPr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
+        using TStoredStringPtrStoredStringPtrPrDoublePr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
+        using TStoredStringPtrStoredStringPtrPrDoublePrVec = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+        using TNode = hierarchical_results_detail::SNode;
+        using TNodePtrSizeUMap = hierarchical_results_detail::SNode::TNodePtrSizeUMap;
+        using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
+        using TNodeDeque = std::deque<TNode>;
+        using TStoredStringPtrStoredStringPtrPrNodeMap =
+                  std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
+        using TStoredStringPtrNodeMap = std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
 
     public:
-        CHierarchicalResults(void);
+        CHierarchicalResults();
 
         //! Add a dummy result for a simple count detector.
         void addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
@@ -338,13 +339,13 @@ class MODEL_EXPORT CHierarchicalResults
         //!      name and value: this is the by field name and value if no
         //!      over field is specified otherwise it is the over field name
         //!      name and value.
-        void buildHierarchy(void);
+        void buildHierarchy();
 
         //! Creates the pivot nodes for influencing field values.
-        void createPivots(void);
+        void createPivots();
 
         //! Get the root node of the hierarchy.
-        const TNode *root(void) const;
+        const TNode *root() const;
 
         //! Get the influencer identified by \p influencerName and
         //! \p influencerValue if one exists.
@@ -368,17 +369,17 @@ class MODEL_EXPORT CHierarchicalResults
 
         //! Check if there are no results at all including the simple
         //! count result.
-        bool empty(void) const;
+        bool empty() const;
 
         //! Get the count of leaf (search) results, i.e. excluding the
         //! simple count result.
-        std::size_t resultCount(void) const;
+        std::size_t resultCount() const;
 
         //! Sets the result to be interm
-        void setInterim(void);
+        void setInterim();
 
         //! Get type of result
-        model_t::CResultType resultType(void) const;
+        model_t::CResultType resultType() const;
 
         //! Persist the results by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -387,11 +388,11 @@ class MODEL_EXPORT CHierarchicalResults
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Print the results for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! Create a new node.
-        TNode &newNode(void);
+        TNode &newNode();
 
         //! Create a new leaf node for the simple search \p simpleSearch.
         TNode &newLeaf(const TResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
@@ -425,10 +426,10 @@ class MODEL_EXPORT CHierarchicalResults
 class MODEL_EXPORT CHierarchicalResultsVisitor
 {
     public:
-        typedef CHierarchicalResults::TNode TNode;
+        using TNode = CHierarchicalResults::TNode;
 
     public:
-        virtual ~CHierarchicalResultsVisitor(void);
+        virtual ~CHierarchicalResultsVisitor();
 
         //! Visit a node.
         virtual void visit(const CHierarchicalResults &results,

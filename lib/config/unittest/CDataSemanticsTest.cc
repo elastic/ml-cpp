@@ -18,11 +18,11 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
 
-void CDataSemanticsTest::testBinary(void)
+void CDataSemanticsTest::testBinary()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------+");
@@ -55,7 +55,7 @@ void CDataSemanticsTest::testBinary(void)
     }
 }
 
-void CDataSemanticsTest::testNonNumericCategorical(void)
+void CDataSemanticsTest::testNonNumericCategorical()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------------+");
@@ -86,7 +86,7 @@ void CDataSemanticsTest::testNonNumericCategorical(void)
     }
 }
 
-void CDataSemanticsTest::testNumericCategorical(void)
+void CDataSemanticsTest::testNumericCategorical()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------------+");
@@ -124,7 +124,7 @@ void CDataSemanticsTest::testNumericCategorical(void)
     CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
 }
 
-void CDataSemanticsTest::testInteger(void)
+void CDataSemanticsTest::testInteger()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+-----------------------------------+");
@@ -235,7 +235,7 @@ void CDataSemanticsTest::testInteger(void)
     }
 }
 
-void CDataSemanticsTest::testReal(void)
+void CDataSemanticsTest::testReal()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------------+");
@@ -340,7 +340,7 @@ void CDataSemanticsTest::testReal(void)
     }
 }
 
-CppUnit::Test *CDataSemanticsTest::suite(void)
+CppUnit::Test *CDataSemanticsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 

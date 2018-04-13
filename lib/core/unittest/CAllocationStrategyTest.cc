@@ -29,9 +29,9 @@ void assertSize(const T &t)
     CPPUNIT_ASSERT(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
 }
 
-void CAllocationStrategyTest::test(void)
+void CAllocationStrategyTest::test()
 {
-    typedef std::vector<int> TIntVec;
+    using TIntVec = std::vector<int>;
 
     {
         TIntVec v;

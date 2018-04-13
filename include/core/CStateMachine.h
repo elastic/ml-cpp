@@ -67,9 +67,9 @@ class CStateRestoreTraverser;
 class CORE_EXPORT CStateMachine
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef std::vector<std::string> TStrVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecVec = std::vector<TSizeVec>;
+        using TStrVec = std::vector<std::string>;
 
     public:
         //! Set the number of machines we expect the program to use.
@@ -95,13 +95,13 @@ class CORE_EXPORT CStateMachine
         //@}
 
         //! Check if the machine is bad, i.e. not a valid state machine.
-        bool bad(void) const;
+        bool bad() const;
 
         //! Apply \p symbol to the machine.
         bool apply(std::size_t symbol);
 
         //! Get the current state of the machine.
-        std::size_t state(void) const;
+        std::size_t state() const;
 
         //! Print \p state.
         std::string printState(std::size_t state) const;
@@ -110,14 +110,14 @@ class CORE_EXPORT CStateMachine
         std::string printSymbol(std::size_t symbol) const;
 
         //! Get a checksum of this object.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Print all the state machines.
-        static std::size_t numberMachines(void);
+        static std::size_t numberMachines();
 
     protected:
         //! Clear all machines (for test only).
-        static void clear(void);
+        static void clear();
 
     private:
         //! \brief The state of a single machine.
@@ -180,7 +180,7 @@ class CORE_EXPORT CStateMachine
                 static const std::size_t DEFAULT_CAPACITY = 20;
 
             public:
-                CMachineDeque(void);
+                CMachineDeque();
 
                 //! Set the vector capacity to \p capacity.
                 void capacity(std::size_t capacity);
@@ -189,17 +189,17 @@ class CORE_EXPORT CStateMachine
                 const SMachine &operator[](std::size_t pos) const;
 
                 //! Get the number of elements in this container.
-                std::size_t size(void) const;
+                std::size_t size() const;
 
                 //! Add a new element to the back of the collection.
                 void push_back(const SMachine &machine);
 
                 //! Remove all elements.
-                void clear(void);
+                void clear();
 
             private:
-                typedef std::vector<SMachine> TMachineVec;
-                typedef std::list<TMachineVec> TMachineVecList;
+                using TMachineVec = std::vector<SMachine>;
+                using TMachineVecList = std::list<TMachineVec>;
 
             private:
                 //! The vector capacity.
@@ -217,7 +217,7 @@ class CORE_EXPORT CStateMachine
         };
 
     private:
-        CStateMachine(void);
+        CStateMachine();
 
         //! Try to find \p machine in the range [\p begin, \p end).
         static std::size_t find(std::size_t begin,

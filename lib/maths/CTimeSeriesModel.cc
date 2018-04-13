@@ -312,7 +312,7 @@ double tailWinsorisationWeight(const CMultivariatePrior &prior,
 class CTimeSeriesAnomalyModel
 {
     public:
-        CTimeSeriesAnomalyModel(void);
+        CTimeSeriesAnomalyModel();
         CTimeSeriesAnomalyModel(core_t::TTime bucketLength, double decayRate);
 
         //! Update the anomaly with prediction error and probability.
@@ -327,7 +327,7 @@ class CTimeSeriesAnomalyModel
         void sampleAnomaly(const CModelProbabilityParams &params, core_t::TTime time);
 
         //! Reset the mean error norm.
-        void reset(void);
+        void reset();
 
         //! If the time series is currently anomalous, compute the anomalousness
         //! of the anomaly feature vector.
@@ -343,7 +343,7 @@ class CTimeSeriesAnomalyModel
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Initialize reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelRestoreParams &params,
@@ -364,16 +364,16 @@ class CTimeSeriesAnomalyModel
         {
             public:
                 //! See core::CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
 
             public:
-                CAnomaly(void) : m_Tag(0), m_OpenTime(0), m_Sign(0.0) {}
+                CAnomaly() : m_Tag(0), m_OpenTime(0), m_Sign(0.0) {}
                 CAnomaly(std::size_t tag, core_t::TTime time) :
                     m_Tag(tag), m_OpenTime(time), m_Sign(0.0)
                 {}
 
                 //! Get the anomaly tag.
-                std::size_t tag(void) const { return m_Tag; }
+                std::size_t tag() const { return m_Tag; }
 
                 //! Add a result to the anomaly.
                 void update(const TDouble2Vec &errors)
@@ -394,7 +394,7 @@ class CTimeSeriesAnomalyModel
                 }
 
                 //! Check if this anomaly is positive or negative.
-                bool positive(void) const { return m_Sign > 0.0; }
+                bool positive() const { return m_Sign > 0.0; }
 
                 //! Get the feature vector for this anomaly.
                 TDouble10Vec features(core_t::TTime time) const
@@ -489,7 +489,7 @@ class CTimeSeriesAnomalyModel
         TMultivariateNormalConjugateVec m_AnomalyFeatureModels;
 };
 
-CTimeSeriesAnomalyModel::CTimeSeriesAnomalyModel(void) : m_BucketLength(0)
+CTimeSeriesAnomalyModel::CTimeSeriesAnomalyModel() : m_BucketLength(0)
 {
     m_AnomalyFeatureModels.reserve(2);
     m_AnomalyFeatureModels.push_back(TMultivariateNormalConjugate::nonInformativePrior(
@@ -561,7 +561,7 @@ void CTimeSeriesAnomalyModel::sampleAnomaly(const CModelProbabilityParams &param
     }
 }
 
-void CTimeSeriesAnomalyModel::reset(void)
+void CTimeSeriesAnomalyModel::reset()
 {
     m_MeanError = TMeanAccumulator();
     for (auto &model : m_AnomalyFeatureModels)
@@ -628,7 +628,7 @@ void CTimeSeriesAnomalyModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsageP
     core::CMemoryDebug::dynamicSize("m_AnomalyFeatureModels", m_AnomalyFeatureModels, mem);
 }
 
-std::size_t CTimeSeriesAnomalyModel::memoryUsage(void) const
+std::size_t CTimeSeriesAnomalyModel::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_Anomalies)
           + core::CMemory::dynamicSize(m_AnomalyFeatureModels);
@@ -708,7 +708,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const SModelRestoreParams
                                            this, boost::cref(params), _1));
 }
 
-CUnivariateTimeSeriesModel::~CUnivariateTimeSeriesModel(void)
+CUnivariateTimeSeriesModel::~CUnivariateTimeSeriesModel()
 {
     if (m_Correlations != nullptr)
     {
@@ -716,7 +716,7 @@ CUnivariateTimeSeriesModel::~CUnivariateTimeSeriesModel(void)
     }
 }
 
-std::size_t CUnivariateTimeSeriesModel::identifier(void) const
+std::size_t CUnivariateTimeSeriesModel::identifier() const
 {
     return m_Id;
 }
@@ -731,17 +731,17 @@ CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::clone(std::size_t id) co
     return result;
 }
 
-CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForPersistence(void) const
+CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForPersistence() const
 {
     return new CUnivariateTimeSeriesModel{*this, m_Id};
 }
 
-CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForForecast(void) const
+CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForForecast() const
 {
     return new CUnivariateTimeSeriesModel{*this, m_Id, true};
 }
 
-bool CUnivariateTimeSeriesModel::isForecastPossible(void) const
+bool CUnivariateTimeSeriesModel::isForecastPossible() const
 {
     return m_IsForecastable && !m_ResidualModel->isNonInformative();
 }
@@ -752,7 +752,7 @@ void CUnivariateTimeSeriesModel::modelCorrelations(CTimeSeriesCorrelations &mode
     m_Correlations->addTimeSeries(m_Id, *this);
 }
 
-TSize2Vec1Vec CUnivariateTimeSeriesModel::correlates(void) const
+TSize2Vec1Vec CUnivariateTimeSeriesModel::correlates() const
 {
     TSize2Vec1Vec result;
     TSize1Vec correlated;
@@ -1318,7 +1318,7 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
 }
 
-std::size_t CUnivariateTimeSeriesModel::memoryUsage(void) const
+std::size_t CUnivariateTimeSeriesModel::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_Controllers)
           + core::CMemory::dynamicSize(m_TrendModel)
@@ -1435,7 +1435,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
     core::CPersistUtils::persist(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, inserter);
 }
 
-maths_t::EDataType CUnivariateTimeSeriesModel::dataType(void) const
+maths_t::EDataType CUnivariateTimeSeriesModel::dataType() const
 {
     return m_ResidualModel->dataType();
 }
@@ -1469,17 +1469,17 @@ void CUnivariateTimeSeriesModel::reinitializeResidualModel(double learnRate,
     }
 }
 
-const CUnivariateTimeSeriesModel::TTimeDoublePrCBuf &CUnivariateTimeSeriesModel::slidingWindow(void) const
+const CUnivariateTimeSeriesModel::TTimeDoublePrCBuf &CUnivariateTimeSeriesModel::slidingWindow() const
 {
     return m_SlidingWindow;
 }
 
-const CTimeSeriesDecompositionInterface &CUnivariateTimeSeriesModel::trendModel(void) const
+const CTimeSeriesDecompositionInterface &CUnivariateTimeSeriesModel::trendModel() const
 {
     return *m_TrendModel;
 }
 
-const CPrior &CUnivariateTimeSeriesModel::residualModel(void) const
+const CPrior &CUnivariateTimeSeriesModel::residualModel() const
 {
     return *m_ResidualModel;
 }
@@ -1662,7 +1662,7 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(void)
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent()
 {
     reinitializeResidualModel(this->params().learnRate(),
                               m_TrendModel, m_SlidingWindow, *m_ResidualModel);
@@ -1726,12 +1726,12 @@ CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations &
     }
 }
 
-CTimeSeriesCorrelations *CTimeSeriesCorrelations::clone(void) const
+CTimeSeriesCorrelations *CTimeSeriesCorrelations::clone() const
 {
     return new CTimeSeriesCorrelations(*this);
 }
 
-CTimeSeriesCorrelations *CTimeSeriesCorrelations::cloneForPersistence(void) const
+CTimeSeriesCorrelations *CTimeSeriesCorrelations::cloneForPersistence() const
 {
     return new CTimeSeriesCorrelations(*this, true);
 }
@@ -1945,7 +1945,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator &
 }
 
 const CTimeSeriesCorrelations::TSizeSizePrMultivariatePriorPtrDoublePrUMap &
-CTimeSeriesCorrelations::correlationModels(void) const
+CTimeSeriesCorrelations::correlationModels() const
 {
     return m_CorrelationDistributionModels;
 }
@@ -1959,7 +1959,7 @@ void CTimeSeriesCorrelations::debugMemoryUsage(core::CMemoryUsage::TMemoryUsageP
     core::CMemoryDebug::dynamicSize("m_CorrelationDistributionModels", m_CorrelationDistributionModels, mem);
 }
 
-std::size_t CTimeSeriesCorrelations::memoryUsage(void) const
+std::size_t CTimeSeriesCorrelations::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_SampleData)
           + core::CMemory::dynamicSize(m_Correlations)
@@ -2178,7 +2178,7 @@ bool CTimeSeriesCorrelations::correlationModels(std::size_t id,
     return correlationModels.size() > 0;
 }
 
-void CTimeSeriesCorrelations::refreshLookup(void)
+void CTimeSeriesCorrelations::refreshLookup()
 {
     m_CorrelatedLookup.clear();
     for (const auto &prior : m_CorrelationDistributionModels)
@@ -2248,7 +2248,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const SModelRestorePa
                                            this, boost::cref(params), _1));
 }
 
-std::size_t CMultivariateTimeSeriesModel::identifier(void) const
+std::size_t CMultivariateTimeSeriesModel::identifier() const
 {
     return 0;
 }
@@ -2269,7 +2269,7 @@ CMultivariateTimeSeriesModel *CMultivariateTimeSeriesModel::cloneForForecast() c
     return new CMultivariateTimeSeriesModel{*this};
 }
 
-bool CMultivariateTimeSeriesModel::isForecastPossible(void) const
+bool CMultivariateTimeSeriesModel::isForecastPossible() const
 {
     return false;
 }
@@ -2279,7 +2279,7 @@ void CMultivariateTimeSeriesModel::modelCorrelations(CTimeSeriesCorrelations &/*
     // no-op
 }
 
-TSize2Vec1Vec CMultivariateTimeSeriesModel::correlates(void) const
+TSize2Vec1Vec CMultivariateTimeSeriesModel::correlates() const
 {
     return TSize2Vec1Vec();
 }
@@ -2741,7 +2741,7 @@ void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
 }
 
-std::size_t CMultivariateTimeSeriesModel::memoryUsage(void) const
+std::size_t CMultivariateTimeSeriesModel::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_Controllers)
           + core::CMemory::dynamicSize(m_TrendModel)
@@ -2842,7 +2842,7 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     core::CPersistUtils::persist(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, inserter);
 }
 
-maths_t::EDataType CMultivariateTimeSeriesModel::dataType(void) const
+maths_t::EDataType CMultivariateTimeSeriesModel::dataType() const
 {
     return m_ResidualModel->dataType();
 }
@@ -2882,17 +2882,17 @@ void CMultivariateTimeSeriesModel::reinitializeResidualModel(double learnRate,
     }
 }
 
-const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeriesModel::slidingWindow(void) const
+const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeriesModel::slidingWindow() const
 {
     return m_SlidingWindow;
 }
 
-const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trendModel(void) const
+const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trendModel() const
 {
     return m_TrendModel;
 }
 
-const CMultivariatePrior &CMultivariateTimeSeriesModel::residualModel(void) const
+const CMultivariatePrior &CMultivariateTimeSeriesModel::residualModel() const
 {
     return *m_ResidualModel;
 }
@@ -2969,7 +2969,8 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(void)
+<<<<<<< HEAD
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent()
 {
     reinitializeResidualModel(this->params().learnRate(),
                               m_TrendModel, m_SlidingWindow, *m_ResidualModel);
@@ -2993,7 +2994,7 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(void)
     }
 }
 
-std::size_t CMultivariateTimeSeriesModel::dimension(void) const
+std::size_t CMultivariateTimeSeriesModel::dimension() const
 {
     return m_ResidualModel->dimension();
 }

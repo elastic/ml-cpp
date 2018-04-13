@@ -12,15 +12,15 @@
 class CBootstrapClustererTest : public CppUnit::TestFixture
 {
     public:
-        void testFacade(void);
-        void testBuildClusterGraph(void);
-        void testCutSearch(void);
-        void testSeparate(void);
-        void testThickets(void);
-        void testNonConvexClustering(void);
-        void testClusteringStability(void);
+        void testFacade();
+        void testBuildClusterGraph();
+        void testCutSearch();
+        void testSeparate();
+        void testThickets();
+        void testNonConvexClustering();
+        void testClusteringStability();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CBootstrapClustererTest_h

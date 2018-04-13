@@ -141,10 +141,10 @@ class MODEL_EXPORT CModelFactory
 
     public:
         CModelFactory(const SModelParams &params);
-        virtual ~CModelFactory(void) = default;
+        virtual ~CModelFactory() = default;
 
         //! Create a copy of the factory owned by the calling code.
-        virtual CModelFactory *clone(void) const = 0;
+        virtual CModelFactory *clone() const = 0;
 
         //! \name Factory Methods
         //@{
@@ -233,7 +233,7 @@ class MODEL_EXPORT CModelFactory
                                                             const SModelParams &params) const = 0;
 
         //! Get the default prior to use for categorical data.
-        maths::CMultinomialConjugate defaultCategoricalPrior(void) const;
+        maths::CMultinomialConjugate defaultCategoricalPrior() const;
 
         //! Get the default time series decomposition.
         //!
@@ -249,16 +249,16 @@ class MODEL_EXPORT CModelFactory
         //@}
 
         //! Get the search key corresponding to this factory.
-        virtual const CSearchKey &searchKey(void) const = 0;
+        virtual const CSearchKey &searchKey() const = 0;
 
         //! Check if this makes the model used for a simple counting search.
-        virtual bool isSimpleCount(void) const = 0;
+        virtual bool isSimpleCount() const = 0;
 
         //! Check the pre-summarisation mode for this factory.
-        virtual model_t::ESummaryMode summaryMode(void) const = 0;
+        virtual model_t::ESummaryMode summaryMode() const = 0;
 
         //! Get the default data type for models from this factory.
-        virtual maths_t::EDataType dataType(void) const = 0;
+        virtual maths_t::EDataType dataType() const = 0;
 
         //! \name Customization by a specific search
         //@{
@@ -337,17 +337,17 @@ class MODEL_EXPORT CModelFactory
         void updateBucketLength(core_t::TTime length);
 
         //! Get global model configuration parameters.
-        const SModelParams &modelParams(void) const;
+        const SModelParams &modelParams() const;
 
         //! Get the minimum mode fraction used for initializing the models.
-        double minimumModeFraction(void) const;
+        double minimumModeFraction() const;
 
         //! Set the minimum mode count used for initializing the models.
-        double minimumModeCount(void) const;
+        double minimumModeCount() const;
 
         //! Get the number of points to use for approximating each seasonal
         //! component.
-        std::size_t componentSize(void) const;
+        std::size_t componentSize() const;
 
     protected:
         using TMultivariatePriorPtrVec = std::vector<TMultivariatePriorPtr>;
@@ -410,7 +410,7 @@ class MODEL_EXPORT CModelFactory
 
     private:
         //! Get the field values which partition the data for modeling.
-        virtual TStrCRefVec partitioningFields(void) const = 0;
+        virtual TStrCRefVec partitioningFields() const = 0;
 
     private:
         //! The global model configuration parameters.

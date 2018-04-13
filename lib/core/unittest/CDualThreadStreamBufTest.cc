@@ -56,13 +56,13 @@ class CInputThread : public ml::core::CThread
         {
         }
 
-        size_t totalData(void) const
+        size_t totalData() const
         {
             return m_TotalData;
         }
 
     protected:
-        virtual void run(void)
+        virtual void run()
         {
             std::istream strm(&m_Buffer);
             size_t count(0);
@@ -81,7 +81,7 @@ class CInputThread : public ml::core::CThread
             }
         }
 
-        virtual void shutdown(void)
+        virtual void shutdown()
         {
             m_Buffer.signalFatalError();
         }
@@ -111,7 +111,7 @@ const char *DATA(
 
 }
 
-void CDualThreadStreamBufTest::testThroughput(void)
+void CDualThreadStreamBufTest::testThroughput()
 {
     static const size_t TEST_SIZE(1000000);
     size_t dataSize(::strlen(DATA));
@@ -158,7 +158,7 @@ void CDualThreadStreamBufTest::testThroughput(void)
              (end - start) << " seconds");
 }
 
-void CDualThreadStreamBufTest::testSlowConsumer(void)
+void CDualThreadStreamBufTest::testSlowConsumer()
 {
     static const size_t TEST_SIZE(25);
     static const uint32_t DELAY(200);
@@ -208,7 +208,7 @@ void CDualThreadStreamBufTest::testSlowConsumer(void)
     CPPUNIT_ASSERT(duration <= delaySecs + TOLERANCE);
 }
 
-void CDualThreadStreamBufTest::testPutback(void)
+void CDualThreadStreamBufTest::testPutback()
 {
     size_t dataSize(::strlen(DATA));
 
@@ -258,7 +258,7 @@ void CDualThreadStreamBufTest::testPutback(void)
     CPPUNIT_ASSERT_EQUAL(std::string(DATA), remainder);
 }
 
-void CDualThreadStreamBufTest::testFatal(void)
+void CDualThreadStreamBufTest::testFatal()
 {
     static const size_t TEST_SIZE(10000);
     static const size_t BUFFER_CAPACITY(16384);

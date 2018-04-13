@@ -14,7 +14,7 @@
 
 using namespace ml;
 
-void CModelTest::testAll(void)
+void CModelTest::testAll()
 {
     LOG_DEBUG("+-----------------------+");
     LOG_DEBUG("|  CModelTest::testAll  |");
@@ -96,7 +96,7 @@ void CModelTest::testAll(void)
     }
 }
 
-CppUnit::Test *CModelTest::suite(void)
+CppUnit::Test *CModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTest");
 

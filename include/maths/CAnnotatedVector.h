@@ -26,11 +26,11 @@ template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector : public VECTOR
 {
     public:
-        typedef ANNOTATION TAnnotation;
-        typedef typename SCoordinate<VECTOR>::Type TCoordinate;
+        using TAnnotation = ANNOTATION;
+        using TCoordinate = typename SCoordinate<VECTOR>::Type;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void)
+        static bool dynamicSizeAlwaysZero()
         {
             return   core::memory_detail::SDynamicSizeAlwaysZero<VECTOR>::value()
                   && core::memory_detail::SDynamicSizeAlwaysZero<ANNOTATION>::value();
@@ -52,13 +52,13 @@ class CAnnotatedVector : public VECTOR
         {}
 
         //! Get the annotation data by constant reference.
-        const ANNOTATION &annotation(void) const
+        const ANNOTATION &annotation() const
         {
             return m_Annotation;
         }
 
         //! Get the annotation data by reference.
-        ANNOTATION &annotation(void)
+        ANNOTATION &annotation()
         {
             return m_Annotation;
         }

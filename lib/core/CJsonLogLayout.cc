@@ -54,7 +54,7 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
 
-CJsonLogLayout::CJsonLogLayout(void)
+CJsonLogLayout::CJsonLogLayout()
     : m_LocationInfo(true),
       m_Properties(false)
 {
@@ -65,7 +65,7 @@ void CJsonLogLayout::locationInfo(bool locationInfo)
     m_LocationInfo = locationInfo;
 }
 
-bool CJsonLogLayout::locationInfo(void) const
+bool CJsonLogLayout::locationInfo() const
 {
     return m_LocationInfo;
 }
@@ -75,7 +75,7 @@ void CJsonLogLayout::properties(bool properties)
     m_Properties = properties;
 }
 
-bool CJsonLogLayout::properties(void) const
+bool CJsonLogLayout::properties() const
 {
     return m_Properties;
 }
@@ -106,7 +106,7 @@ void CJsonLogLayout::format(LogString &output,
                             const spi::LoggingEventPtr &event,
                             Pool &/*p*/) const
 {
-    typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
+    using TStringBufferWriter = rapidjson::Writer<rapidjson::StringBuffer>;
     rapidjson::StringBuffer buffer;
     TStringBufferWriter writer(buffer);
 
@@ -215,7 +215,7 @@ void CJsonLogLayout::format(LogString &output,
     output.append(LOG4CXX_EOL);
 }
 
-bool CJsonLogLayout::ignoresThrowable(void) const
+bool CJsonLogLayout::ignoresThrowable() const
 {
     return false;
 }

@@ -43,7 +43,7 @@ enum EAnEnum
 struct SFoo
 {
     SFoo(uint64_t key) : s_Key(key) {}
-    uint64_t checksum(void) const
+    uint64_t checksum() const
     {
         return s_Key;
     }
@@ -60,22 +60,22 @@ struct SBar
     uint64_t s_Key;
 };
 
-typedef std::vector<int> TIntVec;
-typedef std::map<std::size_t, EAnEnum> TSizeAnEnumMap;
-typedef std::set<std::string> TStrSet;
-typedef TStrSet::const_iterator TStrSetCItr;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator TMeanVarAccumulator;
-typedef boost::shared_ptr<TMeanVarAccumulator> TMeanVarAccumulatorPtr;
-typedef std::pair<double, TMeanVarAccumulator> TDoubleMeanVarAccumulatorPr;
-typedef std::list<TDoubleMeanVarAccumulatorPr> TDoubleMeanVarAccumulatorPrList;
-typedef std::deque<SFoo> TFooDeque;
-typedef std::vector<SBar> TBarVec;
+using TIntVec = std::vector<int>;
+using TSizeAnEnumMap = std::map<std::size_t, EAnEnum>;
+using TStrSet = std::set<std::string>;
+using TStrSetCItr = TStrSet::const_iterator;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator;
+using TMeanVarAccumulatorPtr = boost::shared_ptr<TMeanVarAccumulator>;
+using TDoubleMeanVarAccumulatorPr = std::pair<double, TMeanVarAccumulator>;
+using TDoubleMeanVarAccumulatorPrList = std::list<TDoubleMeanVarAccumulatorPr>;
+using TFooDeque = std::deque<SFoo>;
+using TBarVec = std::vector<SBar>;
 
 }
 
-void CChecksumTest::testMemberChecksum(void)
+void CChecksumTest::testMemberChecksum()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testMemberChecksum  |");
@@ -97,7 +97,7 @@ void CChecksumTest::testMemberChecksum(void)
                          bar.checksum(seed));
 }
 
-void CChecksumTest::testContainers(void)
+void CChecksumTest::testContainers()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testContainers  |");
@@ -219,7 +219,7 @@ void CChecksumTest::testContainers(void)
     }
 }
 
-void CChecksumTest::testNullable(void)
+void CChecksumTest::testNullable()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testNullable  |");
@@ -257,7 +257,7 @@ void CChecksumTest::testNullable(void)
     }
 }
 
-void CChecksumTest::testAccumulators(void)
+void CChecksumTest::testAccumulators()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testAccumulators  |");
@@ -278,7 +278,7 @@ void CChecksumTest::testAccumulators(void)
     }
 }
 
-void CChecksumTest::testPair(void)
+void CChecksumTest::testPair()
 {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CChecksumTest::testPair  |");
@@ -319,7 +319,7 @@ void CChecksumTest::testPair(void)
     }
 }
 
-void CChecksumTest::testArray(void)
+void CChecksumTest::testArray()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CChecksumTest::testArray  |");
@@ -342,7 +342,7 @@ void CChecksumTest::testArray(void)
                        != maths::CChecksum::calculate(seed, b));
 }
 
-void CChecksumTest::testCombinations(void)
+void CChecksumTest::testCombinations()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testCombinations  |");
@@ -430,7 +430,7 @@ void CChecksumTest::testCombinations(void)
     }
 }
 
-CppUnit::Test *CChecksumTest::suite(void)
+CppUnit::Test *CChecksumTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CChecksumTest");
 

@@ -100,15 +100,15 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CNaturalBreaksClassifier
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TDoubleTuple;
-        typedef std::vector<TDoubleTuple> TDoubleTupleVec;
-        typedef CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator TTuple;
-        typedef std::vector<TTuple> TTupleVec;
-        typedef std::vector<CNaturalBreaksClassifier> TClassifierVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TDoubleTuple = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TDoubleTupleVec = std::vector<TDoubleTuple>;
+        using TTuple = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
+        using TTupleVec = std::vector<TTuple>;
+        using TClassifierVec = std::vector<CNaturalBreaksClassifier>;
 
     public:
         //! The type of optimization object which it is possible
@@ -150,7 +150,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         double percentile(double p) const;
 
         //! Get the total number of categories in the classifier.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Split this classifier into the n-categories identified by
         //! the categories function.
@@ -225,7 +225,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         void propagateForwardsByTime(double time);
 
         //! Check if we are currently buffering points.
-        bool buffering(void) const;
+        bool buffering() const;
 
         //! Get \p n samples of the distribution corresponding to the
         //! categories we are maintaining.
@@ -240,7 +240,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                     TDoubleVec &result) const;
 
         //! Print this classifier for debug.
-        std::string print(void) const;
+        std::string print() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -249,7 +249,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Get the minimum within class total deviation partition
         //! of the categories \p categories with size at most \p n
@@ -282,7 +282,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                                   TSizeVec &result);
 
     private:
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     private:
         //! Implementation called by naturalBreaks with explicit
@@ -310,10 +310,10 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                                  TTupleVec &categories);
 
         //! Reduce the number of tuples until we satisfy the space constraint.
-        void reduce(void);
+        void reduce();
 
         //! Get the indices of the closest categories.
-        TSizeSizePr closestPair(void) const;
+        TSizeSizePr closestPair() const;
 
         //! Get the total deviation of the specified class.
         static double deviation(const TTuple &category);

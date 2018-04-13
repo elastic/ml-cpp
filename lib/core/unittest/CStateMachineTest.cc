@@ -25,14 +25,14 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<std::string> TStrVec;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TStrVec = std::vector<std::string>;
 
 class CStateMachineClearer : core::CStateMachine
 {
     public:
-        static void clear(void)
+        static void clear()
         {
             core::CStateMachine::clear();
         }
@@ -61,12 +61,12 @@ struct SMachine
     }
 };
 
-typedef std::vector<SMachine> TMachineVec;
+using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread
 {
     public:
-        typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
+        using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
 
     public:
         CTestThread(const TMachineVec &machines) :
@@ -74,18 +74,18 @@ class CTestThread : public core::CThread
                 m_Failures(0)
         {}
 
-        std::size_t failures(void) const
+        std::size_t failures() const
         {
             return m_Failures;
         }
 
-        const TSizeVec &states(void) const
+        const TSizeVec &states() const
         {
             return m_States;
         }
 
     private:
-        virtual void run(void)
+        virtual void run()
         {
             std::size_t n = 10000;
             m_States.reserve(n);
@@ -105,7 +105,7 @@ class CTestThread : public core::CThread
             }
         }
 
-        virtual void shutdown(void) {}
+        virtual void shutdown() {}
 
     private:
         test::CRandomNumbers m_Rng;
@@ -151,7 +151,7 @@ void randomMachines(std::size_t n, TMachineVec &result)
 
 }
 
-void CStateMachineTest::testBasics(void)
+void CStateMachineTest::testBasics()
 {
     // Test errors on create.
 
@@ -186,7 +186,7 @@ void CStateMachineTest::testBasics(void)
     }
 }
 
-void CStateMachineTest::testPersist(void)
+void CStateMachineTest::testPersist()
 {
     // Check persist maintains the checksum and is idempotent.
 
@@ -226,7 +226,7 @@ void CStateMachineTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CStateMachineTest::testMultithreaded(void)
+void CStateMachineTest::testMultithreaded()
 {
     // Check that we create each machine once and we don't get any
     // errors updating due to stale reads.
@@ -241,8 +241,8 @@ void CStateMachineTest::testMultithreaded(void)
     std::sort(machines.begin(), machines.end());
     machines.erase(std::unique(machines.begin(), machines.end()), machines.end());
 
-    typedef boost::shared_ptr<CTestThread> TThreadPtr;
-    typedef std::vector<TThreadPtr> TThreadVec;
+    using TThreadPtr = boost::shared_ptr<CTestThread>;
+    using TThreadVec = std::vector<TThreadPtr>;
     TThreadVec threads;
     for (std::size_t i = 0u; i < 20; ++i)
     {
@@ -270,7 +270,7 @@ void CStateMachineTest::testMultithreaded(void)
     CPPUNIT_ASSERT_EQUAL(machines.size(), core::CStateMachine::numberMachines());
 }
 
-CppUnit::Test *CStateMachineTest::suite(void)
+CppUnit::Test *CStateMachineTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStateMachineTest");
 

@@ -33,27 +33,27 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef TStrVec::const_iterator TStrVecCItr;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef SEventRateFeatureData TFeatureData;
-typedef std::pair<std::size_t, TFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, TFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
-typedef CBucketGatherer::TSizeSizePrStoredStringPtrPr TSizeSizePrStoredStringPtrPr;
-typedef CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef CBucketGatherer::TStrCPtrVec TStrCPtrVec;
+using TSizeVec = std::vector<std::size_t>;
+using TFeatureVec = std::vector<model_t::EFeature>;
+using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+using TStrVec = std::vector<std::string>;
+using TStrVecCItr = TStrVec::const_iterator;
+using TStrVecVec = std::vector<TStrVec>;
+using TFeatureData = SEventRateFeatureData;
+using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
+using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
+using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
+using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
+using TFeatureSizeSizePrFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
+using TSizeSizePrStoredStringPtrPr = CBucketGatherer::TSizeSizePrStoredStringPtrPr;
+using TSizeSizePrStoredStringPtrPrUInt64UMapVec = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+using TTimeVec = std::vector<core_t::TTime>;
+using TStrCPtrVec = CBucketGatherer::TStrCPtrVec;
 
 namespace
 {
@@ -274,7 +274,7 @@ void importCsvData(CDataGatherer &gatherer,
                    const std::string &filename,
                    const TSizeVec &fields)
 {
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(filename.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 
@@ -308,7 +308,7 @@ void importCsvData(CDataGatherer &gatherer,
 
 } // namespace
 
-void CEventRateDataGathererTest::testLatencyPersist(void)
+void CEventRateDataGathererTest::testLatencyPersist()
 {
     LOG_DEBUG("*** testLatencyPersist ***");
 
@@ -389,7 +389,7 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
 }
 
 
-void CEventRateDataGathererTest::singleSeriesTests(void)
+void CEventRateDataGathererTest::singleSeriesTests()
 {
     LOG_DEBUG("*** singleSeriesTests ***");
 
@@ -584,7 +584,7 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
     }
 }
 
-void CEventRateDataGathererTest::multipleSeriesTests(void)
+void CEventRateDataGathererTest::multipleSeriesTests()
 {
     LOG_DEBUG("*** multipleSeriesTests ***");
 
@@ -755,7 +755,7 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
     }
 }
 
-void CEventRateDataGathererTest::testRemovePeople(void)
+void CEventRateDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** testRemovePeople ***");
 
@@ -879,7 +879,7 @@ void CEventRateDataGathererTest::testRemovePeople(void)
                          core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
+void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests()
 {
     LOG_DEBUG("*** singleSeriesOutOfOrderFinalResultTests ***");
 
@@ -1048,7 +1048,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
     }
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
+void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests()
 {
     LOG_DEBUG("*** singleSeriesOutOfOrderInterimResultTests ***");
 
@@ -1175,7 +1175,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
+void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests()
 {
     LOG_DEBUG("*** multipleSeriesOutOfOrderFinalResultTests ***");
 
@@ -1346,7 +1346,7 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
     }
 }
 
-void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
+void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored()
 {
     LOG_DEBUG("*** testArrivalBeforeLatencyWindowIsIgnored ***");
 
@@ -1391,7 +1391,7 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
+void CEventRateDataGathererTest::testResetBucketGivenSingleSeries()
 {
     LOG_DEBUG("*** testResetBucketGivenSingleSeries ***");
 
@@ -1450,7 +1450,7 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
+void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries()
 {
     LOG_DEBUG("*** testResetBucketGivenMultipleSeries ***");
 
@@ -1513,7 +1513,7 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
+void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable()
 {
     LOG_DEBUG("*** testResetBucketGivenBucketNotAvailable ***");
 
@@ -1539,7 +1539,7 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
     CPPUNIT_ASSERT(gatherer.resetBucket(1800) == false);
 }
 
-void CEventRateDataGathererTest::testInfluencerBucketStatistics(void)
+void CEventRateDataGathererTest::testInfluencerBucketStatistics()
 {
     core_t::TTime data[] =
         {
@@ -1618,9 +1618,9 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics(void)
                              dataVec, influencers, expectedInfoContentVec, "value", m_ResourceMonitor);
 }
 
-void CEventRateDataGathererTest::testDistinctStrings(void)
+void CEventRateDataGathererTest::testDistinctStrings()
 {
-    typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
     TSizeSizePr pair(0, 0);
 
     // Test the SUniqueStringFeatureData struct
@@ -1916,7 +1916,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
     }
 }
 
-void CEventRateDataGathererTest::testDiurnalFeatures(void)
+void CEventRateDataGathererTest::testDiurnalFeatures()
 {
     LOG_DEBUG("*** testDiurnalFeatures ***");
     const std::string person("p");
@@ -2391,7 +2391,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
 
 }
 
-CppUnit::Test *CEventRateDataGathererTest::suite(void)
+CppUnit::Test *CEventRateDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
 

@@ -18,39 +18,39 @@
 class CMapPopulationTest : public CppUnit::TestFixture
 {
     public:
-        CMapPopulationTest(void);
+        CMapPopulationTest();
 
-        void testMapInsertSpeed(void);
+        void testMapInsertSpeed();
 
         //! For performance on multi-core hardware, these tests are all run from
         //! the thread pool
-        void testMapInsertStr(void);
-        void testMapInsertCharP(void);
-        void testMapOpSqBracStr(void);
-        void testMapOpSqBracCharP(void);
-        void testUMapInsertStr(void);
-        void testUMapInsertCharP(void);
-        void testUMapOpSqBracStr(void);
-        void testUMapOpSqBracCharP(void);
+        void testMapInsertStr();
+        void testMapInsertCharP();
+        void testMapOpSqBracStr();
+        void testMapOpSqBracCharP();
+        void testUMapInsertStr();
+        void testUMapInsertCharP();
+        void testUMapOpSqBracStr();
+        void testUMapOpSqBracCharP();
 
         static CppUnit::Test *suite();
 
-        void setUp(void);
+        void setUp();
 
     private:
         class CTestData
         {
             public:
-                typedef std::vector<std::string>  TStrVec;
-                typedef std::vector<const char *> TCharPVec;
+                using TStrVec = std::vector<std::string> ;
+                using TCharPVec = std::vector<const char *>;
 
             public:
                 CTestData(size_t fillSize);
 
-                const TStrVec   &stringKeys(void) const;
-                const TStrVec   &stringVals(void) const;
-                const TCharPVec &charPtrKeys(void) const;
-                const TCharPVec &charPtrVals(void) const;
+                const TStrVec   &stringKeys() const;
+                const TStrVec   &stringVals() const;
+                const TCharPVec &charPtrKeys() const;
+                const TCharPVec &charPtrVals() const;
 
             private:
                 TStrVec   m_StringKeys;
@@ -61,10 +61,10 @@ class CMapPopulationTest : public CppUnit::TestFixture
         };
 
     private:
-        typedef std::map<std::string, std::string>             TStrStrMap;
-        typedef std::vector<TStrStrMap>                        TStrStrMapVec;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef std::vector<TStrStrUMap>                       TStrStrUMapVec;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapVec = std::vector<TStrStrMap>;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapVec = std::vector<TStrStrUMap>;
 
         template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
         void addInsert(const INPUT_CONTAINER &keys,

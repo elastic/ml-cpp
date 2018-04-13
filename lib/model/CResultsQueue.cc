@@ -54,17 +54,17 @@ CHierarchicalResults &CResultsQueue::get(core_t::TTime time)
     return m_Results.get(time);
 }
 
-CHierarchicalResults &CResultsQueue::latest(void)
+CHierarchicalResults &CResultsQueue::latest()
 {
     return m_Results.latest();
 }
 
-core_t::TTime CResultsQueue::latestBucketEnd(void) const
+core_t::TTime CResultsQueue::latestBucketEnd() const
 {
     return m_Results.latestBucketEnd();
 }
 
-std::size_t CResultsQueue::size(void) const
+std::size_t CResultsQueue::size() const
 {
     return m_Results.size();
 }
@@ -75,7 +75,7 @@ void CResultsQueue::reset(core_t::TTime time)
     m_LastResultsIndex = m_Results.size() - 1;
 }
 
-bool CResultsQueue::hasInterimResults(void) const
+bool CResultsQueue::hasInterimResults() const
 {
     return m_Results.size() > 2 && m_LastResultsIndex == 0;
 }

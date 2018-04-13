@@ -51,12 +51,12 @@ class MODEL_EXPORT CMemoryUsageEstimator
             E_Correlations,
             E_NumberPredictors
         };
-        typedef boost::array<std::size_t, E_NumberPredictors> TSizeArray;
-        typedef boost::optional<std::size_t> TOptionalSize;
+        using TSizeArray = boost::array<std::size_t, E_NumberPredictors>;
+        using TOptionalSize = boost::optional<std::size_t>;
 
     public:
         //! Constructor
-        CMemoryUsageEstimator(void);
+        CMemoryUsageEstimator();
 
         //! Get an estimate of the memory usage based on the given number
         //! of different factors which contribute.
@@ -74,7 +74,7 @@ class MODEL_EXPORT CMemoryUsageEstimator
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Persist this component.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -83,9 +83,9 @@ class MODEL_EXPORT CMemoryUsageEstimator
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
     private:
-        typedef std::pair<TSizeArray, std::size_t> TSizeArraySizePr;
-        typedef boost::circular_buffer<TSizeArraySizePr> TSizeArraySizePrBuf;
-        typedef TSizeArraySizePrBuf::const_iterator TSizeArraySizePrBufCItr;
+        using TSizeArraySizePr = std::pair<TSizeArray, std::size_t>;
+        using TSizeArraySizePrBuf = boost::circular_buffer<TSizeArraySizePr>;
+        using TSizeArraySizePrBufCItr = TSizeArraySizePrBuf::const_iterator;
 
     private:
         //! Get the maximum amount by which we'll extrapolate the memory usage.

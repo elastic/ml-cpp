@@ -18,8 +18,8 @@
 #include <config/CTools.h>
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
-#include <math.h>
 
 namespace ml
 {
@@ -34,12 +34,12 @@ CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams &params) :
         CPenalty(params)
 {}
 
-CPolledDataPenalty *CPolledDataPenalty::clone(void) const
+CPolledDataPenalty *CPolledDataPenalty::clone() const
 {
     return new CPolledDataPenalty(*this);
 }
 
-std::string CPolledDataPenalty::name(void) const
+std::string CPolledDataPenalty::name() const
 {
     return "polled data penalty";
 }
@@ -67,7 +67,7 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const
                     indices.insert(indices.end(), indices_.begin(), indices_.end());
                     std::fill_n(std::back_inserter(penalties),
                                 indices_.size(),
-                                ::pow(0.1,  static_cast<double>(stats->timeRange())
+                                std::pow(0.1,  static_cast<double>(stats->timeRange())
                                           / static_cast<double>(*interval)
                                           / LOG_TENTH_NUMBER_POLLING_INTERVALS));
                     std::fill_n(std::back_inserter(descriptions),
@@ -86,8 +86,9 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const
 CPolledDataPenalty::TOptionalTime
     CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const
 {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
-                                                           2, maths::COrderings::SSecondGreater> TMaxAccumulator;
+    using TMaxAccumulator =
+               maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
+                                                              2, maths::COrderings::SSecondGreater>;
 
     const maths::CQuantileSketch &F = stats.arrivalTimeDistribution();
     const maths::CQuantileSketch::TFloatFloatPrVec &knots = F.knots();

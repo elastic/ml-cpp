@@ -16,7 +16,7 @@ namespace core
 {
 
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(void)
+CXmlNodeWithChildren::CXmlNodeWithChildren()
     : CXmlNode()
 {
 }
@@ -45,7 +45,7 @@ CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren &arg)
 {
 }
 
-CXmlNodeWithChildren::~CXmlNodeWithChildren(void)
+CXmlNodeWithChildren::~CXmlNodeWithChildren()
 {
 }
 
@@ -76,12 +76,12 @@ void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP &childP)
     m_Children.push_back(childP);
 }
 
-const CXmlNodeWithChildren::TChildNodePVec &CXmlNodeWithChildren::children(void) const
+const CXmlNodeWithChildren::TChildNodePVec &CXmlNodeWithChildren::children() const
 {
     return m_Children;
 }
 
-std::string CXmlNodeWithChildren::dump(void) const
+std::string CXmlNodeWithChildren::dump() const
 {
     return this->dump(0);
 }

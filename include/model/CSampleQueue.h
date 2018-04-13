@@ -56,8 +56,8 @@ template<typename STATISTIC>
 class CSampleQueue
 {
     private:
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef CMetricPartialStatistic<STATISTIC> TMetricPartialStatistic;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TMetricPartialStatistic = CMetricPartialStatistic<STATISTIC>;
 
     private:
         //! A struct grouping together the data that form a sub-sample.
@@ -175,7 +175,7 @@ class CSampleQueue
             }
 
             //! Get a checksum of this sub-sample.
-            uint64_t checksum(void) const
+            uint64_t checksum() const
             {
                 uint64_t seed = maths::CChecksum::calculate(0, s_Statistic);
                 seed = maths::CChecksum::calculate(seed, s_Start);
@@ -190,13 +190,13 @@ class CSampleQueue
             }
 
             //! Get the memory used by the sub-sample.
-            std::size_t memoryUsage(void) const
+            std::size_t memoryUsage() const
             {
                 return sizeof(*this) + core::CMemory::dynamicSize(s_Statistic);
             }
 
             //! Print the sub-sample for debug.
-            std::string print(void) const
+            std::string print() const
             {
                 return "{[" + core::CStringUtils::typeToString(s_Start) + ", "
                         + core::CStringUtils::typeToString(s_End) + "] -> "
@@ -209,12 +209,12 @@ class CSampleQueue
         };
 
     public:
-        typedef boost::circular_buffer<SSubSample> TQueue;
-        typedef typename TQueue::iterator iterator;
-        typedef typename TQueue::reverse_iterator reverse_iterator;
-        typedef typename TQueue::const_reverse_iterator const_reverse_iterator;
-        typedef std::vector<CSample> TSampleVec;
-        typedef boost::optional<SSubSample> TOptionalSubSample;
+        using TQueue = boost::circular_buffer<SSubSample>;
+        using iterator = typename TQueue::iterator;
+        using reverse_iterator = typename TQueue::reverse_iterator;
+        using const_reverse_iterator = typename TQueue::const_reverse_iterator;
+        using TSampleVec = std::vector<CSample>;
+        using TOptionalSubSample = boost::optional<SSubSample>;
 
     public:
         static const std::string SUB_SAMPLE_TAG;
@@ -350,24 +350,24 @@ class CSampleQueue
         }
 
         //! Returns the size of the queue.
-        std::size_t size(void) const
+        std::size_t size() const
         {
             return m_Queue.size();
         }
 
         //! Returns the capacity of the queue.
-        std::size_t capacity(void) const
+        std::size_t capacity() const
         {
             return m_Queue.capacity();
         }
 
         //! Is the queue empty?
-        bool empty(void) const
+        bool empty() const
         {
             return m_Queue.empty();
         }
 
-        core_t::TTime latestEnd(void) const
+        core_t::TTime latestEnd() const
         {
             return m_Queue.empty() ? 0 : m_Queue.front().s_End;
         }
@@ -413,7 +413,7 @@ class CSampleQueue
         //@}
 
         //! Returns the checksum of the queue.
-        uint64_t checksum(void) const
+        uint64_t checksum() const
         {
             return maths::CChecksum::calculate(0, m_Queue);
         }
@@ -426,13 +426,13 @@ class CSampleQueue
         }
 
         //! Get the memory used by the queue.
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return sizeof(*this) + core::CMemory::dynamicSize(m_Queue);
         }
 
         //! Prints the contents of the queue.
-        std::string print(void) const
+        std::string print() const
         {
             return core::CContainerPrinter::print(m_Queue);
         }
@@ -469,7 +469,7 @@ class CSampleQueue
             m_Queue.insert(pos, newSubSample);
         }
 
-        void resizeIfFull(void)
+        void resizeIfFull()
         {
             if (m_Queue.full())
             {
@@ -518,7 +518,7 @@ class CSampleQueue
             return false;
         }
 
-        core_t::TTime targetSubSampleSpan(void) const
+        core_t::TTime targetSubSampleSpan() const
         {
             return (m_BucketLength + static_cast<core_t::TTime>(m_SampleCountFactor) - 1)
                    / static_cast<core_t::TTime>(m_SampleCountFactor);

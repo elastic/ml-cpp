@@ -38,21 +38,21 @@ namespace model
 class MODEL_EXPORT CUniqueStringFeatureData
 {
     public:
-        typedef core::CCompressedDictionary<1> TDictionary1;
-        typedef TDictionary1::CWord TWord;
-        typedef TDictionary1::TWordSet TWordSet;
-        typedef TWordSet::const_iterator TWordSetCItr;
-        typedef TDictionary1::CWordUMap<std::string>::Type TWordStringUMap;
-        typedef TWordStringUMap::const_iterator TWordStringUMapCItr;
-        typedef boost::unordered_map<core::CStoredStringPtr, TWordSet> TStoredStringPtrWordSetUMap;
-        typedef TStoredStringPtrWordSetUMap::const_iterator TStoredStringPtrWordSetUMapCItr;
-        typedef std::vector<TStoredStringPtrWordSetUMap> TStoredStringPtrWordSetUMapVec;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-        typedef CBucketGatherer::TStoredStringPtrVec TStoredStringPtrVec;
+        using TDictionary1 = core::CCompressedDictionary<1>;
+        using TWord = TDictionary1::CWord;
+        using TWordSet = TDictionary1::TWordSet;
+        using TWordSetCItr = TWordSet::const_iterator;
+        using TWordStringUMap = TDictionary1::CWordUMap<std::string>::Type;
+        using TWordStringUMapCItr = TWordStringUMap::const_iterator;
+        using TStoredStringPtrWordSetUMap = boost::unordered_map<core::CStoredStringPtr, TWordSet>;
+        using TStoredStringPtrWordSetUMapCItr = TStoredStringPtrWordSetUMap::const_iterator;
+        using TStoredStringPtrWordSetUMapVec = std::vector<TStoredStringPtrWordSetUMap>;
+        using TStrCRef = SEventRateFeatureData::TStrCRef;
+        using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
+        using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
+        using TStrCRefDouble1VecDoublePrPr = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr;
+        using TStrCRefDouble1VecDoublePrPrVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec;
+        using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
 
     public:
         //! Add a string into the collection
@@ -71,16 +71,16 @@ class MODEL_EXPORT CUniqueStringFeatureData
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get the checksum of this object.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Get the memory usage of this object in a tree structure.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory usage of this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Print the unique strings for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         TDictionary1 m_Dictionary1;
@@ -98,17 +98,17 @@ class MODEL_EXPORT CUniqueStringFeatureData
 class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
 {
     public:
-        typedef std::map<model_t::EEventRateCategory, boost::any> TCategoryAnyMap;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec TStrCRefDouble1VecDoublePrPrVecVec;
-        typedef std::pair<std::size_t, SEventRateFeatureData> TSizeFeatureDataPr;
-        typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-        typedef std::pair<TSizeSizePr, SEventRateFeatureData> TSizeSizePrFeatureDataPr;
-        typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
+        using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
+        using TStrCRef = SEventRateFeatureData::TStrCRef;
+        using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
+        using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
+        using TStrCRefDouble1VecDoublePrPr = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr;
+        using TStrCRefDouble1VecDoublePrPrVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec;
+        using TStrCRefDouble1VecDoublePrPrVecVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec;
+        using TSizeFeatureDataPr = std::pair<std::size_t, SEventRateFeatureData>;
+        using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+        using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, SEventRateFeatureData>;
+        using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
 
     public:
         //! \name Life-cycle
@@ -168,10 +168,10 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! other purpose.
         //!
         //! \warning The caller owns the object returned.
-        virtual CBucketGatherer *cloneForPersistence(void) const;
+        virtual CBucketGatherer *cloneForPersistence() const;
 
         //! The persistence tag name of this derived class.
-        virtual const std::string& persistenceTag(void) const;
+        virtual const std::string& persistenceTag() const;
         //@}
 
         //! \name Fields
@@ -182,20 +182,20 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! probabilities are aggregated, i.e. the "over" field name for
         //! population searches and the "by" field name for individual
         //! searches.
-        virtual const std::string &personFieldName(void) const;
+        virtual const std::string &personFieldName() const;
 
         //! Get the attribute field name if one exists, i.e. the "by" for
         //! population searches, field name and returns empty otherwise.
-        virtual const std::string &attributeFieldName(void) const;
+        virtual const std::string &attributeFieldName() const;
 
         //! Returns an empty string.
-        virtual const std::string &valueFieldName(void) const;
+        virtual const std::string &valueFieldName() const;
 
         //! Get an iterator at the beginning the influencing field names.
-        virtual TStrVecCItr beginInfluencers(void) const;
+        virtual TStrVecCItr beginInfluencers() const;
 
         //! Get an iterator at the end of the influencing field names.
-        virtual TStrVecCItr endInfluencers(void) const;
+        virtual TStrVecCItr endInfluencers() const;
 
         //! Get the fields for which to gather data.
         //!
@@ -205,11 +205,11 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! attributes which are being analyzed. An empty string acts like
         //! a wild card and matches all records. This is used for analysis
         //! which is attribute independent such as total count.
-        virtual const TStrVec &fieldsOfInterest(void) const;
+        virtual const TStrVec &fieldsOfInterest() const;
         //@}
 
         //! Get a description of the search.
-        virtual std::string description(void) const;
+        virtual std::string description() const;
 
         //! \name Update
         //@{
@@ -247,19 +247,19 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //@}
 
         //! Get the checksum of this gatherer.
-        virtual uint64_t checksum(void) const;
+        virtual uint64_t checksum() const;
 
         //! Get the memory used by this object.
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Clear this data gatherer.
-        virtual void clear(void);
+        virtual void clear();
 
         //! Reset bucket and return true if bucket was successfully reset or false otherwise.
         virtual bool resetBucket(core_t::TTime bucketStart);
@@ -460,7 +460,7 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
                                   const TStrVec &influenceFieldNames);
 
         //! Initialize the feature data gatherers.
-        void initializeFeatureData(void);
+        void initializeFeatureData();
 
         //! Copy the influencer person counts to \p results.
         //!

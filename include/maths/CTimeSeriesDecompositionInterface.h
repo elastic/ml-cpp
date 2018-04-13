@@ -58,7 +58,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         };
 
     public:
-        virtual ~CTimeSeriesDecompositionInterface(void) = default;
+        virtual ~CTimeSeriesDecompositionInterface() = default;
 
         //! Clone this decomposition.
         virtual CTimeSeriesDecompositionInterface *clone(bool isForForecast = false) const = 0;
@@ -70,10 +70,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         virtual void decayRate(double decayRate) = 0;
 
         //! Get the decay rate.
-        virtual double decayRate(void) const = 0;
+        virtual double decayRate() const = 0;
 
         //! Check if this is initialized.
-        virtual bool initialized(void) const = 0;
+        virtual bool initialized() const = 0;
 
         //! Adds a time series point \f$(t, f(t))\f$.
         //!
@@ -144,7 +144,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
                                int components = E_All) const = 0;
 
         //! Get the mean variance of the baseline.
-        virtual double meanVariance(void) const = 0;
+        virtual double meanVariance() const = 0;
 
         //! Compute the variance scale at \p time.
         //!
@@ -167,20 +167,20 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this instance
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object.
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Get the time shift which is being applied.
         virtual core_t::TTime timeShift(void) const = 0;
 
         //! Get the seasonal components.
-        virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const = 0;
+        virtual const maths_t::TSeasonalComponentVec &seasonalComponents() const = 0;
 
         //! This is the latest time of any point added to this object or
         //! the time skipped to.
-        virtual core_t::TTime lastValueTime(void) const = 0;
+        virtual core_t::TTime lastValueTime() const = 0;
 };
 
 }

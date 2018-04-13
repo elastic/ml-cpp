@@ -12,22 +12,22 @@
 class CTokenListDataTyperTest : public CppUnit::TestFixture
 {
     public:
-        void testHexData(void);
-        void testRmdsData(void);
-        void testProxyData(void);
-        void testFxData(void);
-        void testApacheData(void);
-        void testBrokerageData(void);
-        void testVmwareData(void);
-        void testBankData(void);
-        void testJavaGcData(void);
-        void testPersist(void);
-        void testLongReverseSearch(void);
-        void testPreTokenised(void);
-        void testPreTokenisedPerformance(void);
+        void testHexData();
+        void testRmdsData();
+        void testProxyData();
+        void testFxData();
+        void testApacheData();
+        void testBrokerageData();
+        void testVmwareData();
+        void testBankData();
+        void testJavaGcData();
+        void testPersist();
+        void testLongReverseSearch();
+        void testPreTokenised();
+        void testPreTokenisedPerformance();
 
-        void setUp(void);
-        void tearDown(void);
+        void setUp();
+        void tearDown();
 
         static CppUnit::Test *suite();
 };

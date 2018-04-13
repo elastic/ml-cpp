@@ -23,15 +23,15 @@
 
 using namespace ml;
 
-void CProbabilityCalibratorTest::testCalibration(void)
+void CProbabilityCalibratorTest::testCalibration()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CProbabilityCalibratorTest::testCalibration  |");
     LOG_DEBUG("+-----------------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
-    typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+    using TDoubleVec = std::vector<double>;
+    using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
+    using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
 
     // Test some things which we know will give poorly calibrated
     // probabilities, i.e. fitting a normal a log-normal and multi-
@@ -97,8 +97,8 @@ void CProbabilityCalibratorTest::testCalibration(void)
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
-                double raw = ::fabs(::log(rawProbability) - ::log(trueProbability));
-                double calibrated = ::fabs(::log(calibratedProbability) - ::log(trueProbability));
+                double raw = std::fabs(std::log(rawProbability) - std::log(trueProbability));
+                double calibrated = std::fabs(std::log(calibratedProbability) - std::log(trueProbability));
 
                 rawError += raw;
                 calibratedError += calibrated;
@@ -177,8 +177,8 @@ void CProbabilityCalibratorTest::testCalibration(void)
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
-                double raw = ::fabs(::log(rawProbability) - ::log(trueProbability));
-                double calibrated = ::fabs(::log(calibratedProbability) - ::log(trueProbability));
+                double raw = std::fabs(std::log(rawProbability) - std::log(trueProbability));
+                double calibrated = std::fabs(std::log(calibratedProbability) - std::log(trueProbability));
 
                 rawError += raw;
                 calibratedError += calibrated;
@@ -196,7 +196,7 @@ void CProbabilityCalibratorTest::testCalibration(void)
     }
 }
 
-CppUnit::Test *CProbabilityCalibratorTest::suite(void)
+CppUnit::Test *CProbabilityCalibratorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 

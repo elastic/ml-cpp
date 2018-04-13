@@ -27,7 +27,7 @@ namespace
     class CBuffer
     {
         public:
-            typedef std::vector<std::string>    TStrVec;
+            using TStrVec = std::vector<std::string>;
 
         public:
             CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval)
@@ -43,7 +43,7 @@ namespace
                 m_Buffer.push_back(str);
             }
     
-            uint32_t    flushInterval(void) const
+            uint32_t    flushInterval() const
             {
                 return m_FlushInterval;
             }
@@ -74,7 +74,7 @@ namespace
                 LOG_DEBUG("Processed " << messages.size() << " " << m_Results.size() << " messages");
             }
 
-            size_t  size(void) const
+            size_t  size() const
             {
                 return m_Results.size();
             }
@@ -86,7 +86,7 @@ namespace
     };
 }
 
-void    CMessageBufferTest::testAll(void)
+void    CMessageBufferTest::testAll()
 {
     CBuffer buffer(10);
 

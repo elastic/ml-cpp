@@ -37,13 +37,13 @@ class CONFIG_EXPORT CLongTailPenalty : public CPenalty
         CLongTailPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CLongTailPenalty *clone(void) const;
+        virtual CLongTailPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
+        using TSizeUInt64UMap = boost::unordered_map<std::size_t, uint64_t>;
 
     private:
         //! Compute a penalty for rare detectors.

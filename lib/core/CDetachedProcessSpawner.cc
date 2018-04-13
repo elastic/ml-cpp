@@ -97,10 +97,10 @@ namespace detail
 class CTrackerThread : public CThread
 {
     public:
-        typedef std::set<CProcess::TPid> TPidSet;
+        using TPidSet = std::set<CProcess::TPid>;
 
     public:
-        CTrackerThread(void)
+        CTrackerThread()
             : m_Shutdown(false),
               m_Condition(m_Mutex)
         {
@@ -108,7 +108,7 @@ class CTrackerThread : public CThread
 
         //! Mutex is accessible so the code outside the class can avoid race
         //! conditions.
-        CMutex &mutex(void)
+        CMutex &mutex()
         {
             return m_Mutex;
         }
@@ -163,7 +163,7 @@ class CTrackerThread : public CThread
         }
 
     protected:
-        virtual void run(void)
+        virtual void run()
         {
             CScopedLock lock(m_Mutex);
 
@@ -184,7 +184,7 @@ class CTrackerThread : public CThread
             }
         }
 
-        virtual void shutdown(void)
+        virtual void shutdown()
         {
             LOG_DEBUG("Shutting down spawned process tracker thread");
             CScopedLock lock(m_Mutex);
@@ -195,7 +195,7 @@ class CTrackerThread : public CThread
     private:
         //! Reap zombie child processes and adjust the set of live child PIDs
         //! accordingly.  MUST be called with m_Mutex locked.
-        void checkForDeadChildren(void)
+        void checkForDeadChildren()
         {
             int status = 0;
             for (;;)
@@ -275,7 +275,7 @@ CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec &permittedProcess
     }
 }
 
-CDetachedProcessSpawner::~CDetachedProcessSpawner(void)
+CDetachedProcessSpawner::~CDetachedProcessSpawner()
 {
     if (m_TrackerThread->stop() == false)
     {
@@ -308,7 +308,7 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         return false;
     }
 
-    typedef std::vector<char *> TCharPVec;
+    using TCharPVec = std::vector<char *>;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer

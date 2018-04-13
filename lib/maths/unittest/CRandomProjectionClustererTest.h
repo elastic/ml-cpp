@@ -12,14 +12,14 @@
 class CRandomProjectionClustererTest : public CppUnit::TestFixture
 {
     public:
-        void testGenerateProjections(void);
-        void testClusterProjections(void);
-        void testNeighbourhoods(void);
-        void testSimilarities(void);
-        void testClusterNeighbourhoods(void);
-        void testAccuracy(void);
+        void testGenerateProjections();
+        void testClusterProjections();
+        void testNeighbourhoods();
+        void testSimilarities();
+        void testClusterNeighbourhoods();
+        void testAccuracy();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CRandomProjectionClustererTest_h

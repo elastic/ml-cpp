@@ -21,9 +21,9 @@
 
 using namespace ml;
 
-typedef std::vector<bool> TBoolVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<maths::CPackedBitVector> TPackedBitVectorVec;
+using TBoolVec = std::vector<bool>;
+using TSizeVec = std::vector<std::size_t>;
+using TPackedBitVectorVec = std::vector<maths::CPackedBitVector>;
 
 namespace
 {
@@ -47,7 +47,7 @@ std::string toBitString(const TBoolVec &v)
 
 }
 
-void CPackedBitVectorTest::testCreation(void)
+void CPackedBitVectorTest::testCreation()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testCreation  |");
@@ -130,7 +130,7 @@ void CPackedBitVectorTest::testCreation(void)
     }
 }
 
-void CPackedBitVectorTest::testExtend(void)
+void CPackedBitVectorTest::testExtend()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testExtend  |");
@@ -200,7 +200,7 @@ void CPackedBitVectorTest::testExtend(void)
     }
 }
 
-void CPackedBitVectorTest::testContract(void)
+void CPackedBitVectorTest::testContract()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testContract  |");
@@ -253,7 +253,7 @@ void CPackedBitVectorTest::testContract(void)
     }
 }
 
-void CPackedBitVectorTest::testOperators(void)
+void CPackedBitVectorTest::testOperators()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testOperators  |");
@@ -280,14 +280,14 @@ void CPackedBitVectorTest::testOperators(void)
     }
 }
 
-void CPackedBitVectorTest::testInner(void)
+void CPackedBitVectorTest::testInner()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testInner  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    typedef maths::CVector<double> TVector;
-    typedef std::vector<TVector> TVectorVec;
+    using TVector = maths::CVector<double>;
+    using TVectorVec = std::vector<TVector>;
 
     maths::CPackedBitVector test1(10, true);
     maths::CPackedBitVector test2(10, false);
@@ -356,13 +356,13 @@ void CPackedBitVectorTest::testInner(void)
     }
 }
 
-void CPackedBitVectorTest::testBitwiseOr(void)
+void CPackedBitVectorTest::testBitwiseOr()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testBitwiseOr  |");
     LOG_DEBUG("+---------------------------------------+");
 
-    typedef std::vector<std::bitset<50> > TBitSetVec;
+    using TBitSetVec = std::vector<std::bitset<50>>;
 
     test::CRandomNumbers rng;
 
@@ -415,7 +415,7 @@ void CPackedBitVectorTest::testBitwiseOr(void)
     }
 }
 
-void CPackedBitVectorTest::testPersist(void)
+void CPackedBitVectorTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testPersist  |");
@@ -441,7 +441,7 @@ void CPackedBitVectorTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CPackedBitVectorTest::suite(void)
+CppUnit::Test *CPackedBitVectorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
 

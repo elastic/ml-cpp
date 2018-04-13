@@ -72,7 +72,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
                          char separator = COMMA);
 
         //! Destructor flushes the stream
-        virtual ~CCsvOutputWriter(void);
+        virtual ~CCsvOutputWriter();
 
         //! Set field names, adding extra field names if they're not already
         //! present - this is only allowed once
@@ -80,7 +80,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Get field names
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope
         using COutputHandler::fieldNames;
@@ -97,11 +97,11 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
 
         //! Get the contents of the internal string stream - for use with the
         //! zero argument constructor
-        std::string internalString(void) const;
+        std::string internalString() const;
 
     protected:
         //! Output stream accessor
-        std::ostream &outputStream(void);
+        std::ostream &outputStream();
 
     private:
         //! Append a field to the work record, quoting it if required, and
@@ -136,9 +136,9 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
         //! an appropriate level, avoiding regular memory allocations.
         std::string         m_WorkRecord;
 
-        typedef std::pair<std::string, std::string > TStrStrPr;
-        typedef std::set<TStrStrPr>                  TStrStrPrSet;
-        typedef TStrStrPrSet::const_iterator         TStrStrPrSetCItr;
+        using TStrStrPr = std::pair<std::string, std::string>;
+        using TStrStrPrSet = std::set<TStrStrPr>;
+        using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
 
         //! Messages to be printed before the next lot of output
         TStrStrPrSet        m_Messages;

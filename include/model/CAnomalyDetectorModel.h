@@ -193,11 +193,11 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         //! a general purpose copy constructor.
         CAnomalyDetectorModel(bool isForPersistence, const CAnomalyDetectorModel &other);
 
-        virtual ~CAnomalyDetectorModel(void) = default;
+        virtual ~CAnomalyDetectorModel() = default;
         //@}
 
         //! Get a human understandable description of the model for debugging.
-        std::string description(void) const;
+        std::string description() const;
 
         //! \name Persistence
         //@{
@@ -212,20 +212,20 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         //! persisted representation, and must not be used for any other
         //! purpose.
         //! \warning The caller owns the object returned.
-        virtual CAnomalyDetectorModel *cloneForPersistence(void) const = 0;
+        virtual CAnomalyDetectorModel *cloneForPersistence() const = 0;
         //@}
 
         //! Get the model category.
-        virtual model_t::EModelType category(void) const = 0;
+        virtual model_t::EModelType category() const = 0;
 
         //! True if this is a population model.
-        virtual bool isPopulation(void) const = 0;
+        virtual bool isPopulation() const = 0;
 
         //! Check if this is an event rate model.
-        virtual bool isEventRate(void) const = 0;
+        virtual bool isEventRate() const = 0;
 
         //! Check if this is a metric model.
-        virtual bool isMetric(void) const = 0;
+        virtual bool isMetric() const = 0;
 
         //! \name Bucket Statistics
         //!@{
@@ -313,7 +313,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         // the places where it is used carefully checked
         // (currently only CModelInspector)
         //! Get the total number of people currently being modeled.
-        std::size_t numberOfPeople(void) const;
+        std::size_t numberOfPeople() const;
         //@}
 
         //! \name Attribute
@@ -381,13 +381,13 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
 
         //! Prune any person models which haven't been updated for a
         //! sufficiently long period, based on the prior decay rates.
-        void prune(void);
+        void prune();
 
         //! Calculate the maximum permitted prune window for this model
-        std::size_t defaultPruneWindow(void) const;
+        std::size_t defaultPruneWindow() const;
 
         //! Calculate the minimum permitted prune window for this model
-        std::size_t minimumPruneWindow(void) const;
+        std::size_t minimumPruneWindow() const;
         //@}
 
         //! \name Probability
@@ -457,7 +457,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this model
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Estimate the memory usage of the model based on number of people,
         //! attributes and correlations. Returns empty when the estimator
@@ -474,18 +474,18 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
                                                           std::size_t numberCorrelations);
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Get the time series data gatherer.
-        const CDataGatherer &dataGatherer(void) const;
+        const CDataGatherer &dataGatherer() const;
         //! Get the time series data gatherer.
-        CDataGatherer &dataGatherer(void);
+        CDataGatherer &dataGatherer();
 
         //! Get the length of the time interval used to aggregate data.
-        core_t::TTime bucketLength(void) const;
+        core_t::TTime bucketLength() const;
 
         //! Get a view of the internals of the model for visualization.
-        virtual CModelDetailsViewPtr details(void) const = 0;
+        virtual CModelDetailsViewPtr details() const = 0;
 
         //! Get the frequency of the person identified by \p pid.
         double personFrequency(std::size_t pid) const;
@@ -518,7 +518,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
             //! Debug the memory used by this model.
             void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
             //! Get the memory used by this model.
-            std::size_t memoryUsage(void) const;
+            std::size_t memoryUsage() const;
 
             //! The feature.
             model_t::EFeature s_Feature;
@@ -545,7 +545,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
             //! Debug the memory used by this model.
             void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
             //! Get the memory used by this model.
-            std::size_t memoryUsage(void) const;
+            std::size_t memoryUsage() const;
 
             //! The feature.
             model_t::EFeature s_Feature;
@@ -569,19 +569,19 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
                                                    std::size_t maxNumberCorrelations);
 
                 //! Check if we can still allocate any correlations.
-                virtual bool areAllocationsAllowed(void) const;
+                virtual bool areAllocationsAllowed() const;
 
                 //! Check if \p correlations exceeds the memory limit.
                 virtual bool exceedsLimit(std::size_t correlations) const;
 
                 //! Get the maximum number of correlations we should model.
-                virtual std::size_t maxNumberCorrelations(void) const;
+                virtual std::size_t maxNumberCorrelations() const;
 
                 //! Get the chunk size in which to allocate correlations.
-                virtual std::size_t chunkSize(void) const;
+                virtual std::size_t chunkSize() const;
 
                 //! Create a new prior for a correlation model.
-                virtual TMultivariatePriorPtr newPrior(void) const;
+                virtual TMultivariatePriorPtr newPrior() const;
 
                 //! Set the prototype prior.
                 void prototypePrior(const TMultivariatePriorPtr &prior);
@@ -627,20 +627,20 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         }
 
         //! Get the predicate used for removing heavy hitting people.
-        CPersonFrequencyGreaterThan personFilter(void) const;
+        CPersonFrequencyGreaterThan personFilter() const;
 
         //! Get the predicate used for removing heavy hitting attributes.
-        CAttributeFrequencyGreaterThan attributeFilter(void) const;
+        CAttributeFrequencyGreaterThan attributeFilter() const;
 
         //! Get the global configuration parameters.
-        const SModelParams &params(void) const;
+        const SModelParams &params() const;
 
         //! Get the LearnRate parameter from the model configuration -
         //! this may be affected by the current feature being used
         virtual double learnRate(model_t::EFeature feature) const;
 
         //! Get the start time of the current bucket.
-        virtual core_t::TTime currentBucketStartTime(void) const = 0;
+        virtual core_t::TTime currentBucketStartTime() const = 0;
 
         //! Set the start time of the current bucket.
         virtual void currentBucketStartTime(core_t::TTime time) = 0;
@@ -651,13 +651,13 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
                                                         std::size_t iid) const;
 
         //! Get the person bucket counts.
-        const TDoubleVec &personBucketCounts(void) const;
+        const TDoubleVec &personBucketCounts() const;
         //! Writable access to the person bucket counts.
-        TDoubleVec &personBucketCounts(void);
+        TDoubleVec &personBucketCounts();
         //! Set the total count of buckets in the window.
         void windowBucketCount(double windowBucketCount);
         //! Get the total count of buckets in the window.
-        double windowBucketCount(void) const;
+        double windowBucketCount() const;
 
         //! Create the time series models for "n" newly observed people
         //! and "m" newly observed attributes.
@@ -665,14 +665,14 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
 
         //! Reinitialize the time series models for recycled people and/or
         //! attributes.
-        virtual void updateRecycledModels(void) = 0;
+        virtual void updateRecycledModels() = 0;
 
         //! Clear out large state objects for people/attributes that are pruned
         virtual void clearPrunedResources(const TSizeVec &people,
                                           const TSizeVec &attributes) = 0;
 
         //! Get the objects which calculates corrections for interim buckets.
-        const CInterimBucketCorrector &interimValueCorrector(void) const;
+        const CInterimBucketCorrector &interimValueCorrector() const;
 
         //! Check if any of the sample-filtering detection rules apply to this series.
         bool shouldIgnoreSample(model_t::EFeature feature,
@@ -688,7 +688,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
                                 core_t::TTime time) const;
 
         //! Get the non-estimated value of the the memory used by this model.
-        virtual std::size_t computeMemoryUsage(void) const = 0;
+        virtual std::size_t computeMemoryUsage() const = 0;
 
         //! Restore interim bucket corrector.
         bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -699,7 +699,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
 
         //! Create a stub version of maths::CModel for use when pruning people
         //! or attributes to free memory resource.
-        static maths::CModel *tinyModel(void);
+        static maths::CModel *tinyModel();
 
     private:
         using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
@@ -713,7 +713,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
 
         //! Get the model memory usage estimator
-        virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const = 0;
+        virtual CMemoryUsageEstimator *memoryUsageEstimator() const = 0;
 
     private:
         //! The global configuration parameters.

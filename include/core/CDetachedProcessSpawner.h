@@ -69,9 +69,9 @@ class CTrackerThread;
 class CORE_EXPORT CDetachedProcessSpawner
 {
     public:
-        typedef std::vector<std::string> TStrVec;
+        using TStrVec = std::vector<std::string>;
 
-        typedef boost::shared_ptr<detail::CTrackerThread> TTrackerThreadP;
+        using TTrackerThreadP = boost::shared_ptr<detail::CTrackerThread>;
 
     public:
         //! Permitted paths may be relative or absolute, but each process must
@@ -81,7 +81,7 @@ class CORE_EXPORT CDetachedProcessSpawner
         //! the supplied names should NOT have the .exe extension.
         CDetachedProcessSpawner(const TStrVec &permittedProcessPaths);
 
-        ~CDetachedProcessSpawner(void);
+        ~CDetachedProcessSpawner();
 
         //! Spawn a process.  Returns true on success or false on error,
         //! however, it is important to realise that if the spawned process

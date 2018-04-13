@@ -68,17 +68,17 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
     public:
         // A type of token list data typer that DOESN'T exclude fields from its
         // analysis
-        typedef CTokenListDataTyper<true,  // Warping
-                                    true,  // Underscores
-                                    true,  // Dots
-                                    true,  // Dashes
-                                    true,  // Ignore leading digit
-                                    true,  // Ignore hex
-                                    true,  // Ignore date words
-                                    false, // Ignore field names
-                                    2,     // Min dictionary word length
-                                    core::CWordDictionary::TWeightVerbs5Other2>
-                TTokenListDataTyperKeepsFields;
+        using TTokenListDataTyperKeepsFields =
+                  CTokenListDataTyper<true,  // Warping
+                                      true,  // Underscores
+                                      true,  // Dots
+                                      true,  // Dashes
+                                      true,  // Ignore leading digit
+                                      true,  // Ignore hex
+                                      true,  // Ignore date words
+                                      false, // Ignore field names
+                                      2,     // Min dictionary word length
+                                      core::CWordDictionary::TWeightVerbs5Other2>;
 
     public:
         //! Construct without persistence capability
@@ -89,17 +89,17 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
                         CJsonOutputWriter &jsonOutputWriter,
                         CBackgroundPersister *periodicPersister = nullptr);
 
-        virtual ~CFieldDataTyper(void);
+        virtual ~CFieldDataTyper();
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+        virtual void newOutputStream();
 
         //! Receive a single record to be typed, and output that record to
         //! STDOUT with its type field added
         virtual bool handleRecord(const TStrStrUMap &dataRowFields);
 
         //! Perform any final processing once all input data has been seen.
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Restore previously saved state
         virtual bool restoreState(core::CDataSearcher &restoreSearcher,
@@ -112,10 +112,10 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
         virtual bool periodicPersistState(CBackgroundPersister &persister);
 
         //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const;
+        virtual uint64_t numRecordsHandled() const;
 
         //! Access the output handler
-        virtual COutputHandler &outputHandler(void);
+        virtual COutputHandler &outputHandler();
 
     private:
         //! Create the typer to operate on the categorization field
@@ -137,7 +137,7 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
 
         //! Respond to an attempt to restore corrupt categorizer state by
         //! resetting the categorizer and re-categorizing from scratch.
-        void resetAfterCorruptRestore(void);
+        void resetAfterCorruptRestore();
 
         //! Handle a control message.  The first character of the control
         //! message indicates its type.  Currently defined types are:
@@ -151,7 +151,7 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
         void acknowledgeFlush(const std::string &flushId);
 
     private:
-        typedef CCategoryExamplesCollector::TStrSet TStrSet;
+        using TStrSet = CCategoryExamplesCollector::TStrSet;
 
     private:
         //! The job ID

@@ -29,7 +29,7 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 class CX
 {
@@ -59,7 +59,7 @@ class CVariance
 class CMinusLogLikelihood
 {
     public:
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
 
     public:
         CMinusLogLikelihood(const maths::CPrior &prior) :
@@ -90,14 +90,14 @@ class CMinusLogLikelihood
 
 }
 
-void CPriorTest::testExpectation(void)
+void CPriorTest::testExpectation()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CPriorTest::testExpectation  |");
     LOG_DEBUG("+-------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
 
     test::CRandomNumbers rng;
 
@@ -119,7 +119,7 @@ void CPriorTest::testExpectation(void)
         CPPUNIT_ASSERT(prior.expectation(CX(), n, mean));
         LOG_DEBUG("n = " << n
                   << ", mean = " << mean
-                  << ", error = " << ::fabs(mean - trueMean));
+                  << ", error = " << std::fabs(mean - trueMean));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueMean, mean, 1e-10);
     }
 
@@ -135,7 +135,7 @@ void CPriorTest::testExpectation(void)
         CPPUNIT_ASSERT(prior.expectation(CVariance(prior.mean()), n, variance));
         LOG_DEBUG("n = " << n
                   << ", variance = " << variance
-                  << ", error = " << ::fabs(variance - trueVariance));
+                  << ", error = " << std::fabs(variance - trueVariance));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueVariance, variance, varianceErrors[n - 1]);
     }
 
@@ -143,7 +143,7 @@ void CPriorTest::testExpectation(void)
         {
             0.5, 0.05, 0.01, 0.005, 0.001, 0.0003, 0.0003, 0.0002, 0.0002
         };
-    boost::math::normal_distribution<> normal(trueMean, ::sqrt(trueVariance));
+    boost::math::normal_distribution<> normal(trueMean, std::sqrt(trueVariance));
     double trueEntropy = maths::CTools::differentialEntropy(normal);
     LOG_DEBUG("true differential entropy = " << trueEntropy);
     for (std::size_t n = 1; n < 10; ++n)
@@ -152,12 +152,12 @@ void CPriorTest::testExpectation(void)
         CPPUNIT_ASSERT(prior.expectation(CMinusLogLikelihood(prior), n, entropy));
         LOG_DEBUG("n = " << n
                   << ", differential entropy = " << entropy
-                  << ", error = " << ::fabs(entropy - trueEntropy));
+                  << ", error = " << std::fabs(entropy - trueEntropy));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueEntropy, entropy, entropyErrors[n - 1]);
     }
 }
 
-CppUnit::Test* CPriorTest::suite(void)
+CppUnit::Test* CPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPriorTest");
 

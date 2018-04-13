@@ -19,12 +19,12 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
-typedef std::vector<boost::math::lognormal_distribution<> > TLogNormalVec;
-typedef std::vector<boost::math::gamma_distribution<> > TGammaVec;
+using TDoubleVec = std::vector<double>;
+using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
+using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
-void CMixtureDistributionTest::testSupport(void)
+void CMixtureDistributionTest::testSupport()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testSupport  |");
@@ -39,7 +39,7 @@ void CMixtureDistributionTest::testSupport(void)
         TNormalVec modes;
         modes.push_back(n1);
         modes.push_back(n2);
-        CMixtureDistribution<boost::math::normal_distribution<> > mixture(weights, modes);
+        CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
                              core::CContainerPrinter::print(support(mixture)));
     }
@@ -52,13 +52,13 @@ void CMixtureDistributionTest::testSupport(void)
         TLogNormalVec modes;
         modes.push_back(l1);
         modes.push_back(l2);
-        CMixtureDistribution<boost::math::lognormal_distribution<> > mixture(weights, modes);
+        CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
                              core::CContainerPrinter::print(support(mixture)));
     }
 }
 
-void CMixtureDistributionTest::testMode(void)
+void CMixtureDistributionTest::testMode()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
@@ -98,7 +98,7 @@ void CMixtureDistributionTest::testMode(void)
             TNormalVec modes;
             modes.push_back(n1);
             modes.push_back(n2);
-            CMixtureDistribution<boost::math::normal_distribution<> > mixture(weights, modes);
+            CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
 
             double x = mode(mixture);
 
@@ -132,7 +132,7 @@ void CMixtureDistributionTest::testMode(void)
         modes.push_back(n1);
         modes.push_back(n2);
         modes.push_back(n3);
-        CMixtureDistribution<boost::math::normal_distribution<> > mixture(weights, modes);
+        CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
 
         double x = mode(mixture);
 
@@ -161,7 +161,7 @@ void CMixtureDistributionTest::testMode(void)
         TLogNormalVec modes;
         modes.push_back(l1);
         modes.push_back(l2);
-        CMixtureDistribution<boost::math::lognormal_distribution<> > mixture(weights, modes);
+        CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
 
         double x = mode(mixture);
 
@@ -182,7 +182,7 @@ void CMixtureDistributionTest::testMode(void)
     }
 }
 
-void CMixtureDistributionTest::testPdf(void)
+void CMixtureDistributionTest::testPdf()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testPdf  |");
@@ -249,7 +249,7 @@ void CMixtureDistributionTest::testPdf(void)
             TNormalVec modes;
             modes.push_back(n1);
             modes.push_back(n2);
-            CMixtureDistribution<boost::math::normal_distribution<> > mixture(w, modes);
+            CMixtureDistribution<boost::math::normal_distribution<>> mixture(w, modes);
 
             for (unsigned int p = 1; p < 100; ++p)
             {
@@ -270,7 +270,7 @@ void CMixtureDistributionTest::testPdf(void)
     }
 }
 
-void CMixtureDistributionTest::testCdf(void)
+void CMixtureDistributionTest::testCdf()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testCdf  |");
@@ -339,7 +339,7 @@ void CMixtureDistributionTest::testCdf(void)
         TGammaVec modes;
         modes.push_back(g1);
         modes.push_back(g2);
-        CMixtureDistribution<boost::math::gamma_distribution<> > mixture(w, modes);
+        CMixtureDistribution<boost::math::gamma_distribution<>> mixture(w, modes);
 
         // Check the data percentiles.
         for (unsigned int p = 1; p < 100; ++p)
@@ -358,7 +358,7 @@ void CMixtureDistributionTest::testCdf(void)
     }
 }
 
-void CMixtureDistributionTest::testQuantile(void)
+void CMixtureDistributionTest::testQuantile()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testQuantile  |");
@@ -409,19 +409,19 @@ void CMixtureDistributionTest::testQuantile(void)
         modes.push_back(l1);
         modes.push_back(l2);
         modes.push_back(l3);
-        CMixtureDistribution<boost::math::lognormal_distribution<> > mixture(w, modes);
+        CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(w, modes);
 
         for (unsigned int p = 1; p < 100; ++p)
         {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG("Error = " << ::fabs(q - f));
+            LOG_DEBUG("Error = " << std::fabs(q - f));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q, f, 1e-10);
         }
     }
 }
 
-CppUnit::Test *CMixtureDistributionTest::suite(void)
+CppUnit::Test *CMixtureDistributionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 

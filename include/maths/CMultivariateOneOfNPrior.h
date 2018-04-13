@@ -58,15 +58,15 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
 {
     public:
-        typedef core::CSmallVector<double, 3> TDouble3Vec;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
-        typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
-        typedef core::CSmallVector<const CMultivariatePrior*, 3> TPriorCPtr3Vec;
-        typedef CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-        typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+        using TDouble3Vec = core::CSmallVector<double, 3>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TDoublePriorPtrPr = std::pair<double, TPriorPtr>;
+        using TDoublePriorPtrPrVec = std::vector<TDoublePriorPtrPr>;
+        using TWeightPriorPtrPr = std::pair<CModelWeight, TPriorPtr>;
+        using TWeightPriorPtrPrVec = std::vector<TWeightPriorPtrPr>;
+        using TPriorCPtr3Vec = core::CSmallVector<const CMultivariatePrior*, 3>;
+        using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
         // Lift all overloads of into scope.
         //{
@@ -140,10 +140,10 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         //!
         //! \return A pointer to a newly allocated clone of this model.
         //! \warning The caller owns the object returned.
-        virtual CMultivariateOneOfNPrior *clone(void) const;
+        virtual CMultivariateOneOfNPrior *clone() const;
 
         //! Get the dimension of the prior.
-        std::size_t dimension(void) const;
+        std::size_t dimension() const;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value);
@@ -213,19 +213,19 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
                                             const TSizeDoublePr10Vec &condition) const;
 
         //! Get the support for the marginal likelihood function.
-        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const;
+        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const;
 
         //! Get the mean of the marginal likelihood function.
-        virtual TDouble10Vec marginalLikelihoodMean(void) const;
+        virtual TDouble10Vec marginalLikelihoodMean() const;
 
         //! Get the weighted mean of the model nearest marginal likelihood means.
         virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec &value) const;
 
         //! Get the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const;
+        virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const;
 
         //! Get the diagonal of the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec marginalLikelihoodVariances(void) const;
+        virtual TDouble10Vec marginalLikelihoodVariances() const;
 
         //! Get the mode of the marginal likelihood function.
         virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
@@ -262,7 +262,7 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
                                               TDouble10Vec1Vec &samples) const;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const;
+        virtual bool isNonInformative() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -277,13 +277,13 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies.
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Get the tag name for this prior.
-        virtual std::string persistenceTag(void) const;
+        virtual std::string persistenceTag() const;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -292,21 +292,21 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         //! \name Test Functions
         //@{
         //! Get the current values for the model weights.
-        TDouble3Vec weights(void) const;
+        TDouble3Vec weights() const;
 
         //! Get the current values for the log model weights.
-        TDouble3Vec logWeights(void) const;
+        TDouble3Vec logWeights() const;
 
         //! Get the current constituent models.
-        TPriorCPtr3Vec models(void) const;
+        TPriorCPtr3Vec models() const;
         //@}
 
     private:
         //! Check that the model weights are valid.
-        bool badWeights(void) const;
+        bool badWeights() const;
 
         //! Full debug dump of the model weights.
-        std::string debugWeights(void) const;
+        std::string debugWeights() const;
 
     private:
         //! The model dimension.

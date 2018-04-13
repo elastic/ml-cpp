@@ -38,7 +38,7 @@ const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
 
-void CRapidJsonLineWriterTest::testDoublePrecission(void)
+void CRapidJsonLineWriterTest::testDoublePrecission()
 {
     std::ostringstream strm;
     {
@@ -60,7 +60,7 @@ void CRapidJsonLineWriterTest::testDoublePrecission(void)
     CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"), strm.str());
 }
 
-void CRapidJsonLineWriterTest::testDoublePrecissionDtoa(void)
+void CRapidJsonLineWriterTest::testDoublePrecissionDtoa()
 {
     char buffer[100];
 
@@ -85,7 +85,7 @@ void CRapidJsonLineWriterTest::testDoublePrecissionDtoa(void)
     CPPUNIT_ASSERT_EQUAL(std::string("1e-300"), std::string(buffer, ret));
 }
 
-void CRapidJsonLineWriterTest::microBenchmark(void)
+void CRapidJsonLineWriterTest::microBenchmark()
 {
     char buffer[100];
     ml::core::CStopWatch stopWatch;

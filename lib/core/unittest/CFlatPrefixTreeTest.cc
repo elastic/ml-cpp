@@ -53,7 +53,7 @@ CppUnit::Test *CFlatPrefixTreeTest::suite()
     return suiteOfTests;
 }
 
-void CFlatPrefixTreeTest::testBuildGivenUnsortedInput(void)
+void CFlatPrefixTreeTest::testBuildGivenUnsortedInput()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("b");
@@ -63,7 +63,7 @@ void CFlatPrefixTreeTest::testBuildGivenUnsortedInput(void)
     CPPUNIT_ASSERT(prefixTree.build(prefixes) == false);
 }
 
-void CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates(void)
+void CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("a");
@@ -74,7 +74,7 @@ void CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates(void)
     CPPUNIT_ASSERT(prefixTree.build(prefixes) == false);
 }
 
-void CFlatPrefixTreeTest::testEmptyString(void)
+void CFlatPrefixTreeTest::testEmptyString()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("");
@@ -86,7 +86,7 @@ void CFlatPrefixTreeTest::testEmptyString(void)
     CPPUNIT_ASSERT(prefixTree.matchesStart("") == false);
 }
 
-void CFlatPrefixTreeTest::testSimple(void)
+void CFlatPrefixTreeTest::testSimple()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("abc");
@@ -118,7 +118,7 @@ void CFlatPrefixTreeTest::testSimple(void)
     CPPUNIT_ASSERT(prefixTree.matchesFully("") == false);
 }
 
-void CFlatPrefixTreeTest::testLeafAndBranch(void)
+void CFlatPrefixTreeTest::testLeafAndBranch()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back(" oqt4g");
@@ -136,7 +136,7 @@ void CFlatPrefixTreeTest::testLeafAndBranch(void)
     }
 }
 
-void CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix(void)
+void CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("h2 vh5");
@@ -151,7 +151,7 @@ void CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPr
     CPPUNIT_ASSERT(prefixTree.matchesStart("h2 vh55daetrqt4"));
 }
 
-void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix(void)
+void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix()
 {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("foo");
@@ -164,7 +164,7 @@ void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix(voi
     CPPUNIT_ASSERT(prefixTree.matchesFully("fo") == false);
 }
 
-void CFlatPrefixTreeTest::testRandom(void)
+void CFlatPrefixTreeTest::testRandom()
 {
     test::CRandomNumbers rng;
     test::CRandomNumbers::CUniform0nGenerator uniformGen = rng.uniformGenerator();

@@ -38,10 +38,10 @@ class CNumericDataSummaryStatistics;
 class CONFIG_EXPORT CReportWriter : public api::COutputHandler
 {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<TStrVec> TStrVecVec;
-        typedef std::vector<TStrVecVec> TStrVecVecVec;
-        typedef std::vector<TStrVecVecVec> TStrVecVecVecVec;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecVec = std::vector<TStrVec>;
+        using TStrVecVecVec = std::vector<TStrVecVec>;
+        using TStrVecVecVecVec = std::vector<TStrVecVecVec>;
 
         //! \name Summary Statistics.
         //@{
@@ -91,7 +91,7 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Return an empty string vector.
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope.
         using api::COutputHandler::fieldNames;
@@ -128,8 +128,8 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler
         void addDetector(const CDetectorSpecification &spec);
 
         //! Write the report.
-        //virtual void write(void) const = 0;
-        void write(void) const;
+        //virtual void write() const = 0;
+        void write() const;
 
     protected:
         //! The statistics in the summary table for unclassified fields.

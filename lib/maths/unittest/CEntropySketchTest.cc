@@ -15,28 +15,28 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <numeric>
 #include <vector>
-#include <math.h>
 
 using namespace ml;
 
-void CEntropySketchTest::testAll(void)
+void CEntropySketchTest::testAll()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
     LOG_DEBUG("+---------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef boost::unordered_map<std::size_t, double> TSizeDoubleUMap;
-    typedef TSizeDoubleUMap::const_iterator TSizeDoubleUMapCItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
+    using TSizeDoubleUMapCItr = TSizeDoubleUMap::const_iterator;
 
     test::CRandomNumbers rng;
 
     TSizeVec numberCategories;
     rng.generateUniformSamples(500, 1001, 1000, numberCategories);
 
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > maxError[3];
+    maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> maxError[3];
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanError[3];
 
     double K[] = { 20.0, 40.0, 60.0 };
@@ -74,18 +74,18 @@ void CEntropySketchTest::testAll(void)
             double h  = 0.0;
             for (TSizeDoubleUMapCItr j = p.begin(); j != p.end(); ++j)
             {
-                h -= j->second * ::log(j->second);
+                h -= j->second * std::log(j->second);
             }
             if (t % 30 == 0)
             {
                 LOG_DEBUG("H_approx = " << ha << ", H_exact = " << h);
             }
 
-            meanError[i].add(::fabs(ha - h) / h);
-            maxError[i].add( ::fabs(ha - h) / h);
+            meanError[i].add(std::fabs(ha - h) / h);
+            maxError[i].add( std::fabs(ha - h) / h);
             for (std::size_t k = 0u; k < 3; ++k)
             {
-                if (::fabs(ha - h) > eps[k])
+                if (std::fabs(ha - h) > eps[k])
                 {
                     epsDeviations[i][k] += 1.0;
                 }
@@ -106,12 +106,12 @@ void CEntropySketchTest::testAll(void)
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j)
         {
-            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 < 2.0 * ::exp(-K[i]*eps[j]*eps[j] / 6.0));
+            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 < 2.0 * std::exp(-K[i]*eps[j]*eps[j] / 6.0));
         }
     }
 }
 
-CppUnit::Test *CEntropySketchTest::suite(void)
+CppUnit::Test *CEntropySketchTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 

@@ -12,30 +12,29 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
 
-#include <map>
-#include <set>
-#include <vector>
-
 #include <boost/circular_buffer.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
-#include <math.h>
+#include <cmath>
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::map<std::size_t, double> TSizeDoubleMap;
-typedef std::set<int> TIntSet;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::unordered_map<std::string, int> TStrIntUMap;
-typedef boost::unordered_map<std::string, TDoubleVecVec> TStrDoubleVecVecUMap;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
-typedef std::vector<TSizeUSet> TSizeUSetVec;
-typedef boost::circular_buffer<TSizeDoublePr> TSizeDoublePrBuf;
+using TDoubleVec = std::vector<double>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoubleMap = std::map<std::size_t, double>;
+using TIntSet = std::set<int>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
+using TStrIntUMap = boost::unordered_map<std::string, int>;
+using TStrDoubleVecVecUMap = boost::unordered_map<std::string, TDoubleVecVec>;
+using TSizeUSet = boost::unordered_set<std::size_t>;
+using TSizeUSetVec = std::vector<TSizeUSet>;
+using TSizeDoublePrBuf = boost::circular_buffer<TSizeDoublePr>;
 
 namespace
 {
@@ -46,18 +45,18 @@ class ContainerCompare {};
 template<typename T, typename R = void>
 struct enable_if_type
 {
-    typedef R type;
+    using type = R;
 };
 
 template<typename T, typename ITR = void>
 struct compare_container_selector
 {
-    typedef BasicCompare value;
+    using value = BasicCompare;
 };
 template<typename T>
 struct compare_container_selector<T, typename enable_if_type<typename T::const_iterator>::type>
 {
-    typedef ContainerCompare value;
+    using value = ContainerCompare;
 };
 
 template<typename SELECTOR> class CCompareImpl {};
@@ -83,7 +82,7 @@ struct SEqual
 {
     bool operator()(double lhs, double rhs) const
     {
-        return ::fabs(lhs - rhs) <= 1e-5 * std::max(::fabs(lhs), ::fabs(rhs));
+        return std::fabs(lhs - rhs) <= 1e-5 * std::max(std::fabs(lhs), std::fabs(rhs));
     }
 
     template<typename T>
@@ -126,7 +125,7 @@ class CCompareImpl<ContainerCompare>
         template<typename T>
         static bool dispatch(const T &lhs, const T &rhs)
         {
-            typedef typename T::const_iterator TCItr;
+            using TCItr = typename T::const_iterator;
             if (lhs.size() != rhs.size())
             {
                 return false;
@@ -145,7 +144,7 @@ class CCompareImpl<ContainerCompare>
         static bool dispatch(const boost::unordered_map<K, V> &lhs,
                              const boost::unordered_map<K, V> &rhs)
         {
-            typedef std::vector<std::pair<K, V> > TVec;
+            using TVec = std::vector<std::pair<K, V>>;
             TVec lKeys(lhs.begin(), lhs.end());
             TVec rKeys(rhs.begin(), rhs.end());
             std::sort(lKeys.begin(), lKeys.end(), SFirstLess());
@@ -157,7 +156,7 @@ class CCompareImpl<ContainerCompare>
         static bool dispatch(const boost::unordered_set<T> &lhs,
                              const boost::unordered_set<T> &rhs)
         {
-            typedef std::vector<T> TVec;
+            using TVec = std::vector<T>;
             TVec lKeys(lhs.begin(), lhs.end());
             TVec rKeys(rhs.begin(), rhs.end());
             std::sort(lKeys.begin(), lKeys.end());
@@ -204,7 +203,7 @@ void testPersistRestore(const T &collection, const T &initial = T())
 
 }
 
-void CPersistUtilsTest::testPersistContainers(void)
+void CPersistUtilsTest::testPersistContainers()
 {
     // 1) Check that persistence and restoration is idempotent.
     // 2) Check some edge cases.
@@ -475,7 +474,7 @@ void CPersistUtilsTest::testPersistContainers(void)
     }
 }
 
-void CPersistUtilsTest::testPersistIterators(void)
+void CPersistUtilsTest::testPersistIterators()
 {
     // Persist only a sub set of a collection
     {
@@ -522,7 +521,7 @@ void CPersistUtilsTest::testPersistIterators(void)
     }
 }
 
-void CPersistUtilsTest::testAppend(void)
+void CPersistUtilsTest::testAppend()
 {
     // Persist only a sub set of a collection
     {
@@ -621,7 +620,7 @@ void CPersistUtilsTest::testAppend(void)
     }
 }
 
-CppUnit::Test *CPersistUtilsTest::suite(void)
+CppUnit::Test *CPersistUtilsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
 

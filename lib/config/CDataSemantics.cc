@@ -14,14 +14,16 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
 {
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 //! \brief Wraps up a mixture model.
 //!
@@ -44,7 +46,7 @@ class CMixtureData
         //! Compute the scale for a mixture of \p m.
         double scale(std::size_t m)
         {
-            typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+            using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
             TSizeVec split;
             m_Classifier.naturalBreaks(m, 2, split);
@@ -62,7 +64,7 @@ class CMixtureData
             {
                 double ci = maths::CBasicStatistics::count(m_Categories[i]);
                 double vi = maths::CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
-                double si = std::max(3.0 * ::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
+                double si = std::max(3.0 * std::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
                 scale.add(static_cast<double>(counts[i]) / si, ci);
             }
             return maths::CBasicStatistics::mean(scale);
@@ -90,7 +92,7 @@ class CMixtureData
                 double ci = maths::CBasicStatistics::count(m_Categories[i]);
                 double mi = maths::CBasicStatistics::mean(m_Categories[i]);
                 double vi = maths::CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
-                double si = std::max(::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
+                double si = std::max(std::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
                 m_Gmm.weights().push_back(ci / m_Count);
                 m_Gmm.modes().push_back(boost::math::normal_distribution<>(mi, si));
             }
@@ -98,7 +100,7 @@ class CMixtureData
         }
 
         //! Get the number of parameters in the mixture.
-        double parameters(void) const
+        double parameters() const
         {
             return 3.0 * static_cast<double>(m_Categories.size()) - 1.0;
         }
@@ -110,11 +112,11 @@ class CMixtureData
         }
 
     private:
-        typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
-        typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
+        using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+        using TGMM = maths::CMixtureDistribution<boost::math::normal_distribution<>>;
 
     private:
-        void clear(void)
+        void clear()
         {
             m_Categories.clear();
             m_Gmm.weights().clear();
@@ -194,7 +196,7 @@ void CDataSemantics::add(const std::string &example)
     }
 }
 
-void CDataSemantics::computeType(void)
+void CDataSemantics::computeType()
 {
     if (m_Override)
     {
@@ -233,38 +235,38 @@ void CDataSemantics::computeType(void)
     m_Type = this->isInteger() ? this->integerType() : this->realType();
 }
 
-config_t::EDataType CDataSemantics::type(void) const
+config_t::EDataType CDataSemantics::type() const
 {
     return m_Type;
 }
 
-config_t::EDataType CDataSemantics::categoricalType(void) const
+config_t::EDataType CDataSemantics::categoricalType() const
 {
     return m_DistinctValues.size() == 2 ? config_t::E_Binary : config_t::E_Categorical;
 }
 
-config_t::EDataType CDataSemantics::realType(void) const
+config_t::EDataType CDataSemantics::realType() const
 {
     return m_Smallest[0] < maths::COrdinal(0.0) ? config_t::E_Real : config_t::E_PositiveReal;
 }
 
-config_t::EDataType CDataSemantics::integerType(void) const
+config_t::EDataType CDataSemantics::integerType() const
 {
     return m_Smallest[0] < maths::COrdinal(uint64_t(0)) ? config_t::E_Integer : config_t::E_PositiveInteger;
 }
 
-bool CDataSemantics::isNumeric(void) const
+bool CDataSemantics::isNumeric() const
 {
     return    m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_STRICT
           || (m_NonNumericValues.size() < 2 && m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
 }
 
-bool CDataSemantics::isInteger(void) const
+bool CDataSemantics::isInteger() const
 {
     return m_IntegerProportion / m_NumericProportion >= INTEGER_PRORORTION_FOR_INTEGER;
 }
 
-bool CDataSemantics::GMMGoodFit(void) const
+bool CDataSemantics::GMMGoodFit() const
 {
     if (m_EmpiricalDistributionOverflowed)
     {
@@ -274,12 +276,12 @@ bool CDataSemantics::GMMGoodFit(void) const
     // The idea is to check the goodness-of-fit of a categorical model
     // to the data verses a normal mixture.
 
-    typedef TOrdinalSizeUMap::const_iterator TOrdinalSizeUMapCItr;
+    using TOrdinalSizeUMapCItr = TOrdinalSizeUMap::const_iterator;
 
     std::size_t N = m_EmpiricalDistribution.size();
     LOG_TRACE("N = " << N);
 
-    double logc     = ::log(m_Count);
+    double logc     = std::log(m_Count);
     double smallest = m_Smallest[0].asDouble();
     double offset   = std::max(-smallest + 1.0, 0.0);
     LOG_TRACE("offset = " << offset);
@@ -290,7 +292,7 @@ bool CDataSemantics::GMMGoodFit(void) const
          ++i)
     {
         double ni = static_cast<double>(i->second);
-        categoricalBIC -= 2.0 * ni * ::log(ni / m_Count);
+        categoricalBIC -= 2.0 * ni * std::log(ni / m_Count);
     }
     LOG_TRACE("categorical BIC = " << categoricalBIC);
 
@@ -323,7 +325,7 @@ bool CDataSemantics::GMMGoodFit(void) const
             double xi = smallest + scale * (i->first.asDouble() - smallest);
             double ni = static_cast<double>(i->second);
             light.add(xi, ni);
-            heavy.add(::log(xi + offset), ni);
+            heavy.add(std::log(xi + offset), ni);
         }
 
         try
@@ -340,9 +342,9 @@ bool CDataSemantics::GMMGoodFit(void) const
                 double xi = smallest + scale * (i->first.asDouble() - smallest);
                 double ni = static_cast<double>(i->second);
                 double fx = light.pdf(xi);
-                double gx = 1.0 / (xi + offset) * heavy.pdf(::log(xi + offset));
-                lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(fx));
-                heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(gx));
+                double gx = 1.0 / (xi + offset) * heavy.pdf(std::log(xi + offset));
+                lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(fx));
+                heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(gx));
             }
             LOG_TRACE("light BIC = " << lightGmmBIC << ", heavy BIC = " << heavyGmmBIC);
 

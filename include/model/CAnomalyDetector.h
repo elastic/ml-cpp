@@ -73,23 +73,23 @@ class CSearchKey;
 class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string>                        TStrVec;
-        typedef std::vector<const std::string*>                 TStrCPtrVec;
-        typedef std::vector<CModelPlotData>                     TModelPlotDataVec;
+        using TStrVec = std::vector<std::string>;
+        using TStrCPtrVec = std::vector<const std::string*>;
+        using TModelPlotDataVec = std::vector<CModelPlotData>;
 
-        typedef boost::shared_ptr<CDataGatherer> TDataGathererPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
-        typedef boost::shared_ptr<CAnomalyDetectorModel> TModelPtr;
+        using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+        using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
+        using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
 
         //! A shared pointer to an instance of this class
-        typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
+        using TAnomalyDetectorPtr = boost::shared_ptr<CAnomalyDetector>;
 
-        typedef std::function<void (const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const CModelPlotData &)> TOutputModelPlotDataFunc;
-        typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
+        using  TOutputModelPlotDataFunc = std::function<void (const std::string&,
+                                                              const std::string &,
+                                                              const std::string &,
+                                                              const std::string &,
+                                                              const CModelPlotData &)>;
+        using TStrSet = CAnomalyDetectorModelConfig::TStrSet;
 
     public:
         //! State version.  This must be incremented every time a change to the
@@ -142,16 +142,16 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         CAnomalyDetector(bool isForPersistence,
                          const CAnomalyDetector &other);
 
-        virtual ~CAnomalyDetector(void);
+        virtual ~CAnomalyDetector();
 
         //! Get the total number of people which this is modeling.
-        size_t numberActivePeople(void) const;
+        size_t numberActivePeople() const;
 
         //! Get the total number of attributes which this is modeling.
-        size_t numberActiveAttributes(void) const;
+        size_t numberActiveAttributes() const;
 
         //! Get the maximum size of all the member containers.
-        size_t maxDimension(void) const;
+        size_t maxDimension() const;
 
         //! For the operationalised version of the product, we may create models
         //! that need to reflect the fact that no data of a particular type was
@@ -207,18 +207,18 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
 
         //! Get the cue for this detector.  This consists of the search key cue
         //! with the partition field value appended.
-        std::string toCue(void) const;
+        std::string toCue() const;
 
         //! Debug representation.  Note that operator<<() is more efficient than
         //! generating this debug string and immediately outputting it to a
         //! stream.
-        std::string debug(void) const;
+        std::string debug() const;
 
         //! Check if this is a simple count detector.
-        virtual bool isSimpleCount(void) const;
+        virtual bool isSimpleCount() const;
 
         //! Get the fields to extract from a record for processing by this detector.
-        const TStrVec &fieldsOfInterest(void) const;
+        const TStrVec &fieldsOfInterest() const;
 
         //! Extract and add the necessary details of an event record.
         void addRecord(core_t::TTime time,
@@ -252,7 +252,7 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         //! reverted back to their non-informative state.  BE CAREFUL WHEN
         //! CALLING THIS METHOD that you do not hold pointers to any models
         //! that may be deleted as a result of this call.
-        virtual void pruneModels(void);
+        virtual void pruneModels();
 
         //! Reset bucket.
         void resetBucket(core_t::TTime bucketStart);
@@ -267,21 +267,21 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Return the total memory usage
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Get end of the last complete bucket we've observed.
-        const core_t::TTime &lastBucketEndTime(void) const;
+        const core_t::TTime &lastBucketEndTime() const;
 
         //! Get writable end of the last complete bucket we've observed.
-        core_t::TTime &lastBucketEndTime(void);
+        core_t::TTime &lastBucketEndTime();
 
         //! Access to the bucket length being used in the current models.  This
         //! can be used to detect discrepancies between the model config and
         //! existing models.
-        core_t::TTime modelBucketLength(void) const;
+        core_t::TTime modelBucketLength() const;
 
         //! Get a description of this anomaly detector.
-        std::string description(void) const;
+        std::string description() const;
 
         //! Roll time forwards to \p time.
         void timeNow(core_t::TTime time);
@@ -290,8 +290,8 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         //! \param[in] endTime The end of the time interval to skip sampling.
         void skipSampling(core_t::TTime endTime);
 
-        const TModelPtr &model(void) const;
-        TModelPtr &model(void);
+        const TModelPtr &model() const;
+        TModelPtr &model();
 
     protected:
         //! This function is called before adding a record allowing
@@ -299,7 +299,7 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         virtual const TStrCPtrVec &preprocessFieldValues(const TStrCPtrVec &fieldValues);
 
         //! Initializes simple counting by adding a person called "count".
-        void initSimpleCounting(void);
+        void initSimpleCounting();
 
     private:
         // Shared code for building results

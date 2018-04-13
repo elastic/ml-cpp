@@ -61,7 +61,7 @@ class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder
         virtual bool streamComplete(TOStreamP &stream,
                                     bool force);
 
-        virtual std::size_t maxDocumentSize(void) const;
+        virtual std::size_t maxDocumentSize() const;
 
     private:
         //! Recommended maximum Elasticsearch document size

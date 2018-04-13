@@ -41,13 +41,13 @@ class CResourceMonitor;
 class MODEL_EXPORT CDynamicStringIdRegistry
 {
     public:
-        typedef core::CCompressedDictionary<2> TDictionary;
-        typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
-        typedef TWordSizeUMap::iterator TWordSizeUMapItr;
-        typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+        using TDictionary = core::CCompressedDictionary<2>;
+        using TWordSizeUMap = TDictionary::CWordUMap<std::size_t>::Type;
+        using TWordSizeUMapItr = TWordSizeUMap::iterator;
+        using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
+        using TSizeVec = std::vector<std::size_t>;
+        using TStrVec = std::vector<std::string>;
+        using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
     public:
         //! An identifier which will never be used for a real string.
@@ -100,11 +100,11 @@ class MODEL_EXPORT CDynamicStringIdRegistry
         bool anyId(std::size_t &result) const;
 
         //! Get the number of active names (not pruned).
-        std::size_t numberActiveNames(void) const;
+        std::size_t numberActiveNames() const;
 
         //! Get the maximum identifier seen so far
         //! (some of which might have been pruned).
-        std::size_t numberNames(void) const;
+        std::size_t numberNames() const;
 
         //! Check whether an identifier is active.
         bool isIdActive(std::size_t id) const;
@@ -124,22 +124,22 @@ class MODEL_EXPORT CDynamicStringIdRegistry
         void recycleNames(const TSizeVec &namesToRemove, const std::string &defaultName);
 
         //! Get unique identifiers of any names that have been recycled.
-        TSizeVec &recycledIds(void);
+        TSizeVec &recycledIds();
 
         //! Check the class invariants.
-        bool checkInvariants(void) const;
+        bool checkInvariants() const;
 
         //! Clear this registry.
-        void clear(void);
+        void clear();
 
         //! Get the checksum of this registry.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Debug the memory used by this registry.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this registry.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

@@ -57,27 +57,27 @@ struct SMessage
     std::string s_Person;
 };
 
-typedef std::vector<SMessage> TMessageVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef boost::shared_ptr<CDataGatherer> TEventRateDataGathererPtr;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-typedef TSizeSizePrUInt64Map::iterator TSizeSizePrUInt64MapCItr;
-typedef std::set<std::size_t> TSizeSet;
-typedef std::map<std::size_t, TSizeSet> TSizeSizeSetMap;
-typedef std::set<std::string> TStrSet;
-typedef std::map<std::size_t, TStrSet> TSizeStrSetMap;
-typedef std::map<std::size_t, TStrSet>::iterator TSizeStrSetMapItr;
-typedef SEventRateFeatureData TFeatureData;
-typedef std::pair<std::string, TFeatureData> TStrFeatureDataPr;
-typedef std::vector<TStrFeatureDataPr> TStrFeatureDataPrVec;
-typedef std::pair<TSizeSizePr, TFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
+using TMessageVec = std::vector<SMessage>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TEventRateDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;
+using TSizeSet = std::set<std::size_t>;
+using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
+using TStrSet = std::set<std::string>;
+using TSizeStrSetMap = std::map<std::size_t, TStrSet>;
+using TSizeStrSetMapItr = std::map<std::size_t, TStrSet>::iterator;
+using TFeatureData = SEventRateFeatureData;
+using TStrFeatureDataPr = std::pair<std::string, TFeatureData>;
+using TStrFeatureDataPrVec = std::vector<TStrFeatureDataPr>;
+using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
+using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
+using TFeatureSizeSizePrFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
 
-TStrVec allCategories(void)
+TStrVec allCategories()
 {
     const std::size_t numberCategories = 30u;
     TStrVec categories;
@@ -88,7 +88,7 @@ TStrVec allCategories(void)
     return categories;
 }
 
-TStrVec allPeople(void)
+TStrVec allPeople()
 {
     const std::size_t numberPeople = 5u;
     TStrVec people;
@@ -104,8 +104,8 @@ void generateTestMessages(test::CRandomNumbers &rng,
                           core_t::TTime bucketLength,
                           TMessageVec &messages)
 {
-    typedef std::vector<unsigned int> TUIntVec;
-    typedef std::vector<double> TDoubleVec;
+    using TUIntVec = std::vector<unsigned int>;
+    using TDoubleVec = std::vector<double>;
 
     LOG_DEBUG("bucket = [" << time << ", " << time + bucketLength << ")");
 
@@ -246,14 +246,14 @@ const std::string EMPTY_STRING;
 
 }
 
-void CEventRatePopulationDataGathererTest::testAttributeCounts(void)
+void CEventRatePopulationDataGathererTest::testAttributeCounts()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
 
     // We check that we correctly sample the unique people per
     // attribute and (attribute, person) pair counts.
 
-    typedef std::map<std::string, std::size_t> TStrSizeMap;
+    using TStrSizeMap = std::map<std::string, std::size_t>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -382,7 +382,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void)
     LOG_DEBUG("expected people ids = " << core::CContainerPrinter::print(expectedPeopleOrder));
 }
 
-void CEventRatePopulationDataGathererTest::testAttributeIndicator(void)
+void CEventRatePopulationDataGathererTest::testAttributeIndicator()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
 
@@ -456,7 +456,7 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testUniqueValueCounts(void)
+void CEventRatePopulationDataGathererTest::testUniqueValueCounts()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
 
@@ -539,7 +539,7 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testCompressedLength(void)
+void CEventRatePopulationDataGathererTest::testCompressedLength()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
 
@@ -645,13 +645,13 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testRemovePeople(void)
+void CEventRatePopulationDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
 
-    typedef std::map<std::string, std::size_t> TStrSizeMap;
-    typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-    typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
+    using TStrSizeMap = std::map<std::string, std::size_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -805,7 +805,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void)
 
 }
 
-void CEventRatePopulationDataGathererTest::testRemoveAttributes(void)
+void CEventRatePopulationDataGathererTest::testRemoveAttributes()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
 
@@ -937,7 +937,7 @@ bool isSpace(const char x)
 }
 }
 
-void CEventRatePopulationDataGathererTest::testPersistence(void)
+void CEventRatePopulationDataGathererTest::testPersistence()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testPersistence ***");
 
@@ -1095,7 +1095,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void)
 
 }
 
-CppUnit::Test *CEventRatePopulationDataGathererTest::suite(void)
+CppUnit::Test *CEventRatePopulationDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationDataGathererTest");
 

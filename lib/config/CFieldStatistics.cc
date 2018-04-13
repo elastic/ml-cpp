@@ -57,12 +57,12 @@ CFieldStatistics::CFieldStatistics(const std::string &fieldName, const CAutoconf
 {
 }
 
-const std::string &CFieldStatistics::name(void) const
+const std::string &CFieldStatistics::name() const
 {
     return m_FieldName;
 }
 
-void CFieldStatistics::maybeStartCapturingTypeStatistics(void)
+void CFieldStatistics::maybeStartCapturingTypeStatistics()
 {
     if (m_NumberExamples > this->params().minimumExamplesToClassify())
     {
@@ -100,22 +100,22 @@ void CFieldStatistics::add(core_t::TTime time, const std::string &example)
     this->maybeStartCapturingTypeStatistics();
 }
 
-config_t::EDataType CFieldStatistics::type(void) const
+config_t::EDataType CFieldStatistics::type() const
 {
     return m_Semantics.type();
 }
 
-const CDataSummaryStatistics *CFieldStatistics::summary(void) const
+const CDataSummaryStatistics *CFieldStatistics::summary() const
 {
     return boost::get<CDataSummaryStatistics>(&m_SummaryStatistics);
 }
 
-const CCategoricalDataSummaryStatistics *CFieldStatistics::categoricalSummary(void) const
+const CCategoricalDataSummaryStatistics *CFieldStatistics::categoricalSummary() const
 {
     return boost::get<CCategoricalDataSummaryStatistics>(&m_SummaryStatistics);
 }
 
-const CNumericDataSummaryStatistics *CFieldStatistics::numericSummary(void) const
+const CNumericDataSummaryStatistics *CFieldStatistics::numericSummary() const
 {
     return boost::get<CNumericDataSummaryStatistics>(&m_SummaryStatistics);
 }
@@ -127,12 +127,12 @@ double CFieldStatistics::score(const CPenalty &penalty) const
     return CPenalty::score(penality_);
 }
 
-const CAutoconfigurerParams &CFieldStatistics::params(void) const
+const CAutoconfigurerParams &CFieldStatistics::params() const
 {
     return m_Params;
 }
 
-void CFieldStatistics::replayBuffer(void)
+void CFieldStatistics::replayBuffer()
 {
     for (std::size_t i = 0u; i < m_Buffer.size(); ++i)
     {

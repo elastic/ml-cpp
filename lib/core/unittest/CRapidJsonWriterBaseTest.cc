@@ -49,12 +49,13 @@ const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
-void CRapidJsonWriterBaseTest::testAddFields(void)
+void CRapidJsonWriterBaseTest::testAddFields()
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
-    typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
-            rapidjson::CrtAllocator> TGenericLineWriter;
+    using TGenericLineWriter =
+         ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                                        rapidjson::CrtAllocator>;
     TGenericLineWriter writer(writeStream);
 
     rapidjson::Document doc = writer.makeDoc();;
@@ -102,12 +103,13 @@ void CRapidJsonWriterBaseTest::testAddFields(void)
 }
 
 
-void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void)
+void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent()
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
-    typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
-            rapidjson::CrtAllocator> TGenericLineWriter;
+    using TGenericLineWriter =
+        ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                                       rapidjson::CrtAllocator>;
     TGenericLineWriter writer(writeStream);
 
     rapidjson::Document doc = writer.makeDoc();;

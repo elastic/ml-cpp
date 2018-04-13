@@ -26,14 +26,14 @@ class CSeasonalComponent;
 namespace maths_t
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef core::CSmallVector<TDouble10Vec, 4> TDouble10Vec4Vec;
-typedef core::CSmallVector<TDouble10Vec4Vec, 1> TDouble10Vec4Vec1Vec;
-typedef std::vector<maths::CSeasonalComponent> TSeasonalComponentVec;
-typedef std::vector<maths::CCalendarComponent> TCalendarComponentVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble10Vec = core::CSmallVector<double, 10>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
+using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
+using TSeasonalComponentVec = std::vector<maths::CSeasonalComponent>;
+using TCalendarComponentVec = std::vector<maths::CCalendarComponent>;
 
 //! An enumeration of the types of data which can be modeled.
 //!
@@ -81,7 +81,7 @@ enum ESampleWeightStyle
 //! IMPORTANT: this must be kept this up-to-date with ESampleWeightStyle.
 const std::size_t NUMBER_WEIGHT_STYLES = 4;
 
-typedef core::CSmallVector<ESampleWeightStyle, 4> TWeightStyleVec;
+using TWeightStyleVec = core::CSmallVector<ESampleWeightStyle, 4>;
 
 //! Extract the effective sample count from a collection of weights.
 MATHS_EXPORT

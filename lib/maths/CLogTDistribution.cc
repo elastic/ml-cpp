@@ -12,7 +12,7 @@
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/optional.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {
@@ -37,17 +37,17 @@ CLogTDistribution::CLogTDistribution(double degreesFreedom,
         m_Scale(scale)
 {}
 
-double CLogTDistribution::degreesFreedom(void) const
+double CLogTDistribution::degreesFreedom() const
 {
     return m_DegreesFreedom;
 }
 
-double CLogTDistribution::location(void) const
+double CLogTDistribution::location() const
 {
     return m_Location;
 }
 
-double CLogTDistribution::scale(void) const
+double CLogTDistribution::scale() const
 {
     return m_Scale;
 }
@@ -97,8 +97,8 @@ double mode(const CLogTDistribution &distribution)
 
     double location = distribution.location();
 
-    return ::exp(location - (degreesFreedom + 1.0) / 2.0
-                          + ::sqrt(square(degreesFreedom + 1.0) / 4.0
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0
+                          + std::sqrt(square(degreesFreedom + 1.0) / 4.0
                                    - degreesFreedom * squareScale));
 }
 
@@ -122,8 +122,8 @@ CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution &distrib
 
     double location = distribution.location();
 
-    return ::exp(location - (degreesFreedom + 1.0) / 2.0
-                          - ::sqrt(square(degreesFreedom + 1.0) / 4.0
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0
+                          - std::sqrt(square(degreesFreedom + 1.0) / 4.0
                                    - degreesFreedom * squareScale));
 }
 
@@ -162,7 +162,7 @@ double pdf(const CLogTDistribution &distribution, double x)
 
     double scale = distribution.scale();
     double location = distribution.location();
-    double value = (::log(x) - location) / scale;
+    double value = (std::log(x) - location) / scale;
 
     return CTools::safePdf(students, value) / scale / x;
 }
@@ -193,7 +193,7 @@ double cdf(const CLogTDistribution &distribution, double x)
 
     double scale = distribution.scale();
     double location = distribution.location();
-    double value = (::log(x) - location) / scale;
+    double value = (std::log(x) - location) / scale;
 
     return CTools::safeCdf(students, value);
 }
@@ -218,7 +218,7 @@ double cdfComplement(const CLogTDistribution &distribution, double x)
 
     double scale = distribution.scale();
     double location = distribution.location();
-    double value = (::log(x) - location) / scale;
+    double value = (std::log(x) - location) / scale;
 
     return CTools::safeCdfComplement(students, value);
 }
@@ -235,7 +235,7 @@ double quantile(const CLogTDistribution &distribution, double q)
 
     double scale = distribution.scale();
     double location = distribution.location();
-    return ::exp(scale * y_q + location);
+    return std::exp(scale * y_q + location);
 }
 
 }

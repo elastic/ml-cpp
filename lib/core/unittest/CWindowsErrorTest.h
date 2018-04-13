@@ -12,7 +12,7 @@
 class CWindowsErrorTest : public CppUnit::TestFixture
 {
     public:
-        void testErrors(void);
+        void testErrors();
 
         static CppUnit::Test *suite();
 };

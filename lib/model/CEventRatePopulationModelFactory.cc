@@ -41,7 +41,7 @@ CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(const SModelP
         m_BucketResultsDelay(0)
 {}
 
-CEventRatePopulationModelFactory *CEventRatePopulationModelFactory::clone(void) const
+CEventRatePopulationModelFactory *CEventRatePopulationModelFactory::clone() const
 {
     return new CEventRatePopulationModelFactory(*this);
 }
@@ -244,7 +244,7 @@ CEventRatePopulationModelFactory::TMultivariatePriorPtr
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CEventRatePopulationModelFactory::searchKey(void) const
+const CSearchKey &CEventRatePopulationModelFactory::searchKey() const
 {
     if (!m_SearchKeyCache)
     {
@@ -261,17 +261,17 @@ const CSearchKey &CEventRatePopulationModelFactory::searchKey(void) const
     return *m_SearchKeyCache;
 }
 
-bool CEventRatePopulationModelFactory::isSimpleCount(void) const
+bool CEventRatePopulationModelFactory::isSimpleCount() const
 {
     return false;
 }
 
-model_t::ESummaryMode CEventRatePopulationModelFactory::summaryMode(void) const
+model_t::ESummaryMode CEventRatePopulationModelFactory::summaryMode() const
 {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CEventRatePopulationModelFactory::dataType(void) const
+maths_t::EDataType CEventRatePopulationModelFactory::dataType() const
 {
     return maths_t::E_IntegerData;
 }
@@ -314,7 +314,7 @@ void CEventRatePopulationModelFactory::bucketResultsDelay(std::size_t bucketResu
 }
 
 CEventRatePopulationModelFactory::TStrCRefVec
-    CEventRatePopulationModelFactory::partitioningFields(void) const
+    CEventRatePopulationModelFactory::partitioningFields() const
 {
     TStrCRefVec result;
     result.reserve(3);

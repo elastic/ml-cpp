@@ -22,7 +22,7 @@ namespace core
 {
 
 
-std::string CResourceLocator::resourceDir(void)
+std::string CResourceLocator::resourceDir()
 {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/plugin/<plugin name>/resources
@@ -51,7 +51,7 @@ std::string CResourceLocator::resourceDir(void)
     return productionDir;
 }
 
-std::string CResourceLocator::logDir(void)
+std::string CResourceLocator::logDir()
 {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/logs
@@ -69,7 +69,7 @@ std::string CResourceLocator::logDir(void)
     return productionDir;
 }
 
-std::string CResourceLocator::cppRootDir(void)
+std::string CResourceLocator::cppRootDir()
 {
     const char *cppSrcHome(::getenv(CPP_SRC_HOME));
     if (cppSrcHome == 0)

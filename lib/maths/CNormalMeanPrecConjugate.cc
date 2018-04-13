@@ -45,19 +45,19 @@ namespace maths
 namespace
 {
 
-typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const double MINIMUM_GAUSSIAN_SHAPE = 100.0;
 
 namespace detail
 {
 
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 //! Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight
@@ -332,7 +332,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable
             return true;
         }
 
-        maths_t::ETail tail(void) const
+        maths_t::ETail tail() const
         {
             return static_cast<maths_t::ETail>(m_Tail);
         }
@@ -416,7 +416,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
         }
 
         //! Retrieve the error status for the integration.
-        maths_t::EFloatingPointErrorStatus errorStatus(void) const
+        maths_t::EFloatingPointErrorStatus errorStatus() const
         {
             return m_ErrorStatus;
         }
@@ -601,7 +601,7 @@ void CNormalMeanPrecConjugate::reset(maths_t::EDataType dataType,
 
     if (m_GaussianPrecision > 1.5)
     {
-        double truncatedMean = std::max(::fabs(m_GaussianMean), 1e-8);
+        double truncatedMean = std::max(std::fabs(m_GaussianMean), 1e-8);
         double minimumDeviation = truncatedMean * MINIMUM_COEFFICIENT_OF_VARIATION;
         double minimumRate = (m_GaussianPrecision - 1.0) * minimumDeviation * minimumDeviation;
         m_GammaRate = std::max(m_GammaRate, minimumRate);
@@ -610,7 +610,7 @@ void CNormalMeanPrecConjugate::reset(maths_t::EDataType dataType,
     this->CPrior::addSamples(n);
 }
 
-bool CNormalMeanPrecConjugate::needsOffset(void) const
+bool CNormalMeanPrecConjugate::needsOffset() const
 {
     return false;
 }
@@ -626,12 +626,12 @@ CNormalMeanPrecConjugate CNormalMeanPrecConjugate::nonInformativePrior(maths_t::
                                     decayRate);
 }
 
-CNormalMeanPrecConjugate::EPrior CNormalMeanPrecConjugate::type(void) const
+CNormalMeanPrecConjugate::EPrior CNormalMeanPrecConjugate::type() const
 {
     return E_Normal;
 }
 
-CNormalMeanPrecConjugate *CNormalMeanPrecConjugate::clone(void) const
+CNormalMeanPrecConjugate *CNormalMeanPrecConjugate::clone() const
 {
     return new CNormalMeanPrecConjugate(*this);
 }
@@ -648,7 +648,7 @@ double CNormalMeanPrecConjugate::adjustOffset(const TWeightStyleVec &/*weightSty
     return 0.0;
 }
 
-double CNormalMeanPrecConjugate::offset(void) const
+double CNormalMeanPrecConjugate::offset() const
 {
     return 0.0;
 }
@@ -776,7 +776,7 @@ void CNormalMeanPrecConjugate::addSamples(const TWeightStyleVec &weightStyles,
 
     if (m_GaussianPrecision > 1.5)
     {
-        double truncatedMean = std::max(::fabs(m_GaussianMean), 1e-8);
+        double truncatedMean = std::max(std::fabs(m_GaussianMean), 1e-8);
         double minimumDeviation = truncatedMean * MINIMUM_COEFFICIENT_OF_VARIATION;
         double minimumRate = (2.0 * m_GammaShape - 1.0) * minimumDeviation * minimumDeviation;
         m_GammaRate = std::max(m_GammaRate, minimumRate);
@@ -847,13 +847,13 @@ void CNormalMeanPrecConjugate::propagateForwardsByTime(double time)
 }
 
 CNormalMeanPrecConjugate::TDoubleDoublePr
-CNormalMeanPrecConjugate::marginalLikelihoodSupport(void) const
+CNormalMeanPrecConjugate::marginalLikelihoodSupport() const
 {
     return std::make_pair(boost::numeric::bounds<double>::lowest(),
                           boost::numeric::bounds<double>::highest());
 }
 
-double CNormalMeanPrecConjugate::marginalLikelihoodMean(void) const
+double CNormalMeanPrecConjugate::marginalLikelihoodMean() const
 {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
@@ -1237,7 +1237,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weightSty
                                                 double &lowerBound,
                                                 double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
+    using TMinusLogCdf = detail::CEvaluateOnSamples<CTools::SMinusLogCdf>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1288,7 +1288,7 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleVec 
                                                           double &lowerBound,
                                                           double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
+    using TMinusLogCdfComplement = detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1388,7 +1388,7 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProbabil
     return true;
 }
 
-bool CNormalMeanPrecConjugate::isNonInformative(void) const
+bool CNormalMeanPrecConjugate::isNonInformative() const
 {
     return    m_GammaRate == NON_INFORMATIVE_RATE
            || m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
@@ -1407,7 +1407,7 @@ void CNormalMeanPrecConjugate::print(const std::string &indent,
              + " sd = " + core::CStringUtils::typeToStringPretty(std::sqrt(this->marginalLikelihoodVariance()));
 }
 
-std::string CNormalMeanPrecConjugate::printJointDensityFunction(void) const
+std::string CNormalMeanPrecConjugate::printJointDensityFunction() const
 {
     if (this->isNonInformative())
     {
@@ -1483,12 +1483,12 @@ void CNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     mem->setName("CNormalMeanPrecConjugate");
 }
 
-std::size_t CNormalMeanPrecConjugate::memoryUsage(void) const
+std::size_t CNormalMeanPrecConjugate::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CNormalMeanPrecConjugate::staticSize(void) const
+std::size_t CNormalMeanPrecConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1503,12 +1503,12 @@ void CNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CNormalMeanPrecConjugate::mean(void) const
+double CNormalMeanPrecConjugate::mean() const
 {
     return m_GaussianMean;
 }
 
-double CNormalMeanPrecConjugate::precision(void) const
+double CNormalMeanPrecConjugate::precision() const
 {
     if (this->isNonInformative())
     {
@@ -1592,7 +1592,7 @@ bool CNormalMeanPrecConjugate::equalTolerance(const CNormalMeanPrecConjugate &rh
            && equal(m_GammaRate, rhs.m_GammaRate);
 }
 
-bool CNormalMeanPrecConjugate::isBad(void) const
+bool CNormalMeanPrecConjugate::isBad() const
 {
     return    !CMathsFuncs::isFinite(m_GaussianMean)
            || !CMathsFuncs::isFinite(m_GaussianPrecision)
@@ -1600,7 +1600,7 @@ bool CNormalMeanPrecConjugate::isBad(void) const
            || !CMathsFuncs::isFinite(m_GammaRate);
 }
 
-std::string CNormalMeanPrecConjugate::debug(void) const
+std::string CNormalMeanPrecConjugate::debug() const
 {
     std::ostringstream result;
     result << std::scientific << std::setprecision(15)

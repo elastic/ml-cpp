@@ -30,7 +30,7 @@ const std::size_t MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE(10);
 const std::string VALUES_TAG("a");
 }
 
-CMemoryUsageEstimator::CMemoryUsageEstimator(void)
+CMemoryUsageEstimator::CMemoryUsageEstimator()
     : m_Values(2 * E_NumberPredictors),
       // Initialise this so that the first estimate triggers a calculation
       m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1)
@@ -40,7 +40,7 @@ CMemoryUsageEstimator::CMemoryUsageEstimator(void)
 CMemoryUsageEstimator::TOptionalSize
 CMemoryUsageEstimator::estimate(const TSizeArray &predictors)
 {
-    typedef boost::array<double, E_NumberPredictors> TDoubleArray;
+    using TDoubleArray = boost::array<double, E_NumberPredictors>;
 
     if (m_Values.size() < E_NumberPredictors)
     {
@@ -140,7 +140,7 @@ void CMemoryUsageEstimator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
 }
 
-std::size_t CMemoryUsageEstimator::memoryUsage(void) const
+std::size_t CMemoryUsageEstimator::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Values);
 }

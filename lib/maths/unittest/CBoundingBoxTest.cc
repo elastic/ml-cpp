@@ -16,11 +16,11 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef maths::CBoundingBox<TVector2> TBoundingBox2;
-typedef maths::CBoundingBox<TVector4> TBoundingBox4;
+using TDoubleVec = std::vector<double>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TBoundingBox2 = maths::CBoundingBox<TVector2>;
+using TBoundingBox4 = maths::CBoundingBox<TVector4>;
 
 namespace
 {
@@ -61,7 +61,7 @@ bool closerToX(const TBoundingBox4 &bb,
 
 }
 
-void CBoundingBoxTest::testAdd(void)
+void CBoundingBoxTest::testAdd()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CBoundingBoxTest::testAdd  |");
@@ -118,7 +118,7 @@ void CBoundingBoxTest::testAdd(void)
     CPPUNIT_ASSERT_EQUAL((-3.0 + 50.0) / 2.0, bb.centre()(1));
 }
 
-void CBoundingBoxTest::testCloserTo(void)
+void CBoundingBoxTest::testCloserTo()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CBoundingBoxTest::testCloserTo  |");
@@ -193,7 +193,7 @@ void CBoundingBoxTest::testCloserTo(void)
     }
 }
 
-CppUnit::Test *CBoundingBoxTest::suite(void)
+CppUnit::Test *CBoundingBoxTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
 

@@ -49,7 +49,7 @@ const std::string EMPTY_STRING;
 
 }
 
-CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(void) :
+CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing() :
         CAdaptiveBucketing{0.0, 0.0}
 {}
 
@@ -84,7 +84,7 @@ void CCalendarComponentAdaptiveBucketing::swap(CCalendarComponentAdaptiveBucketi
     m_Values.swap(other.m_Values);
 }
 
-bool CCalendarComponentAdaptiveBucketing::initialized(void) const
+bool CCalendarComponentAdaptiveBucketing::initialized() const
 {
     return this->CAdaptiveBucketing::initialized();
 }
@@ -103,12 +103,12 @@ bool CCalendarComponentAdaptiveBucketing::initialize(std::size_t n)
     return false;
 }
 
-std::size_t CCalendarComponentAdaptiveBucketing::size(void) const
+std::size_t CCalendarComponentAdaptiveBucketing::size() const
 {
     return this->CAdaptiveBucketing::size();
 }
 
-void CCalendarComponentAdaptiveBucketing::clear(void)
+void CCalendarComponentAdaptiveBucketing::clear()
 {
     this->CAdaptiveBucketing::clear();
     clearAndShrink(m_Values);
@@ -136,7 +136,7 @@ void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
     }
 }
 
-CCalendarFeature CCalendarComponentAdaptiveBucketing::feature(void) const
+CCalendarFeature CCalendarComponentAdaptiveBucketing::feature() const
 {
     return m_Feature;
 }
@@ -146,7 +146,7 @@ void CCalendarComponentAdaptiveBucketing::decayRate(double value)
     this->CAdaptiveBucketing::decayRate(value);
 }
 
-double CCalendarComponentAdaptiveBucketing::decayRate(void) const
+double CCalendarComponentAdaptiveBucketing::decayRate() const
 {
     return this->CAdaptiveBucketing::decayRate();
 }
@@ -168,7 +168,7 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time)
     }
 }
 
-double CCalendarComponentAdaptiveBucketing::minimumBucketLength(void) const
+double CCalendarComponentAdaptiveBucketing::minimumBucketLength() const
 {
     return this->CAdaptiveBucketing::minimumBucketLength();
 }
@@ -221,17 +221,17 @@ void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::T
     core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
 }
 
-std::size_t CCalendarComponentAdaptiveBucketing::memoryUsage(void) const
+std::size_t CCalendarComponentAdaptiveBucketing::memoryUsage() const
 {
     return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Values);
 }
 
-const CCalendarComponentAdaptiveBucketing::TFloatVec &CCalendarComponentAdaptiveBucketing::endpoints(void) const
+const CCalendarComponentAdaptiveBucketing::TFloatVec &CCalendarComponentAdaptiveBucketing::endpoints() const
 {
     return this->CAdaptiveBucketing::endpoints();
 }
 
-double CCalendarComponentAdaptiveBucketing::count(void) const
+double CCalendarComponentAdaptiveBucketing::count() const
 {
     return this->CAdaptiveBucketing::count();
 }
@@ -241,7 +241,7 @@ CCalendarComponentAdaptiveBucketing::TDoubleVec CCalendarComponentAdaptiveBucket
     return this->CAdaptiveBucketing::values(time);
 }
 
-CCalendarComponentAdaptiveBucketing::TDoubleVec CCalendarComponentAdaptiveBucketing::variances(void) const
+CCalendarComponentAdaptiveBucketing::TDoubleVec CCalendarComponentAdaptiveBucketing::variances() const
 {
     return this->CAdaptiveBucketing::variances();
 }

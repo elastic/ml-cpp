@@ -44,17 +44,17 @@ class CBuildInfo : private core::CNonInstantiatable
 {
     public:
         //! Get the version number to be printed out
-        static const std::string &versionNumber(void);
+        static const std::string &versionNumber();
 
         //! Get the build number to be printed out
-        static const std::string &buildNumber(void);
+        static const std::string &buildNumber();
 
         //! Get the copyright message to be printed out
-        static const std::string &copyright(void);
+        static const std::string &copyright();
 
         //! Get the full information to be printed out (this includes the name
         //! of the program, plus the version number, build number and copyright)
-        static std::string fullInfo(void);
+        static std::string fullInfo();
 
     private:
         static const std::string VERSION_NUMBER;

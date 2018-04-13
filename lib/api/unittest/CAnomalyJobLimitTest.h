@@ -11,8 +11,8 @@
 class CAnomalyJobLimitTest : public CppUnit::TestFixture
 {
     public:
-        void testLimit(void);
-        void testAccuracy(void);
+        void testLimit();
+        void testAccuracy();
 
         static CppUnit::Test *suite();
 

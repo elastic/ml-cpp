@@ -12,12 +12,12 @@
 class CNaturalBreaksClassifierTest : public CppUnit::TestFixture
 {
     public:
-        void testCategories(void);
-        void testPropagateForwardsByTime(void);
-        void testSample(void);
-        void testPersist(void);
+        void testCategories();
+        void testPropagateForwardsByTime();
+        void testSample();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CNaturalBreaksClassifierTest_h

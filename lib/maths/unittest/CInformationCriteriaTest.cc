@@ -19,20 +19,20 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef TVector2Vec::const_iterator TVector2VecCItr;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar4Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
-typedef std::vector<TMatrix4> TMatrix4Vec;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecCItr = TVector2Vec::const_iterator;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+using TMeanVar4Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator;
+using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
+using TMatrix4Vec = std::vector<TMatrix4>;
 
 template<typename POINT>
 double logfSphericalGaussian(const POINT &mean,
@@ -41,7 +41,7 @@ double logfSphericalGaussian(const POINT &mean,
 {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
-    return -0.5 * (  d * ::log(boost::math::double_constants::two_pi * variance)
+    return -0.5 * (  d * std::log(boost::math::double_constants::two_pi * variance)
                    + r * r / variance);
 }
 
@@ -59,7 +59,7 @@ double logfGaussian(const POINT &mean,
 
 }
 
-void CInformationCriteriaTest::testSphericalGaussian(void)
+void CInformationCriteriaTest::testSphericalGaussian()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussian  |");
@@ -91,10 +91,10 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i])
-                         + 2.0 * ::log(upper);
+                         + 2.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 6.0 + 12.0 / (n - 4.0);
-        double expectedBIC  = likelihood + 3.0 * ::log(n);
+        double expectedBIC  = likelihood + 3.0 * std::log(n);
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
@@ -133,10 +133,10 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i])
-                         + 4.0 * ::log(upper);
+                         + 4.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 10.0 + 30.0 / (n - 6.0);
-        double expectedBIC  = likelihood + 5.0 * ::log(n);
+        double expectedBIC  = likelihood + 5.0 * std::log(n);
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);
@@ -230,7 +230,7 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
     }
 }
 
-void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
+void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster()
 {
     LOG_DEBUG("+-----------------------------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
@@ -240,9 +240,9 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
     // same result working with clusters of points or their
     // spherical cluster representation.
 
-    typedef maths::CSphericalCluster<TVector2>::Type TSphericalCluster2;
-    typedef std::vector<TSphericalCluster2> TSphericalCluster2Vec;
-    typedef std::vector<TSphericalCluster2Vec> TSphericalCluster2VecVec;
+    using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
+    using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
+    using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;
 
     maths::CSampling::seed();
 
@@ -301,7 +301,7 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
     }
 }
 
-void CInformationCriteriaTest::testGaussian(void)
+void CInformationCriteriaTest::testGaussian()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testGaussian  |");
@@ -329,10 +329,10 @@ void CInformationCriteriaTest::testGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i])
-                         + 2.0 * ::log(upper);
+                         + 2.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 10.0 + 30.0 / (n - 6.0);
-        double expectedBIC  = likelihood + 5.0 * ::log(n);
+        double expectedBIC  = likelihood + 5.0 * std::log(n);
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
@@ -370,10 +370,10 @@ void CInformationCriteriaTest::testGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i])
-                         + 4.0 * ::log(upper);
+                         + 4.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 28.0 + 210.0 / (n - 15.0);
-        double expectedBIC  = likelihood + 14.0 * ::log(n);
+        double expectedBIC  = likelihood + 14.0 * std::log(n);
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);
@@ -466,15 +466,15 @@ void CInformationCriteriaTest::testGaussian(void)
     }
 }
 
-void CInformationCriteriaTest::testGaussianWithSphericalCluster(void)
+void CInformationCriteriaTest::testGaussianWithSphericalCluster()
 {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
     LOG_DEBUG("+--------------------------------------------------------------+");
 
-    typedef maths::CSphericalCluster<TVector2>::Type TSphericalCluster2;
-    typedef std::vector<TSphericalCluster2> TSphericalCluster2Vec;
-    typedef std::vector<TSphericalCluster2Vec> TSphericalCluster2VecVec;
+    using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
+    using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
+    using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;
 
     maths::CSampling::seed();
 
@@ -533,7 +533,7 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void)
     }
 }
 
-CppUnit::Test *CInformationCriteriaTest::suite(void)
+CppUnit::Test *CInformationCriteriaTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 

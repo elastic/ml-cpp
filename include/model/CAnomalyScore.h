@@ -49,12 +49,12 @@ class CLimits;
 class MODEL_EXPORT CAnomalyScore
 {
     public:
-        typedef std::vector<double>          TDoubleVec;
-        typedef TDoubleVec::iterator         TDoubleVecItr;
-        typedef TDoubleVec::const_iterator   TDoubleVecCItr;
-        typedef boost::optional<double>      TOptionalDouble;
-        typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-        typedef std::vector<std::string>     TStrVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecItr = TDoubleVec::iterator;
+        using TDoubleVecCItr = TDoubleVec::const_iterator;
+        using TOptionalDouble = boost::optional<double>;
+        using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+        using TStrVec = std::vector<std::string>;
 
         //! Attributes for a persisted normalizer
         static const std::string MLCUE_ATTRIBUTE;
@@ -111,7 +111,7 @@ class MODEL_EXPORT CAnomalyScore
 
                 //! Does this normalizer have enough information to normalize
                 //! anomaly scores?
-                bool canNormalize(void) const;
+                bool canNormalize() const;
 
                 //! This normalizes the aggregate scores, i.e. the sum
                 //! of \p scores, and scales all the scores by a constant
@@ -162,7 +162,7 @@ class MODEL_EXPORT CAnomalyScore
 
                 //! Set the normalizer back to how it was immediately after
                 //! construction
-                void clear(void);
+                void clear();
 
                 //! \name Serialization
                 //@{
@@ -175,14 +175,14 @@ class MODEL_EXPORT CAnomalyScore
 
             public:
                 //! Get a checksum of the object.
-                uint64_t checksum(void) const;
+                uint64_t checksum() const;
 
             private:
-                typedef std::pair<double, double> TDoubleDoublePr;
-                typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-                typedef TDoubleDoublePrVec::const_iterator TDoubleDoublePrVecCItr;
-                typedef std::greater<double> TGreaterDouble;
-                typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble> TMaxValueAccumulator;
+                using TDoubleDoublePr = std::pair<double, double>;
+                using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+                using TDoubleDoublePrVecCItr = TDoubleDoublePrVec::const_iterator;
+                using TGreaterDouble = std::greater<double>;
+                using TMaxValueAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>;
 
             private:
                 //! Used to convert raw scores in to integers so that we
@@ -249,7 +249,7 @@ class MODEL_EXPORT CAnomalyScore
                 double m_TimeToQuantileDecay;
         };
 
-        typedef boost::shared_ptr<CNormalizer> TNormalizerP;
+        using TNormalizerP = boost::shared_ptr<CNormalizer>;
 
     public:
         //! Compute a joint anomaly score for a collection of probabilities.

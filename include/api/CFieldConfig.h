@@ -286,23 +286,23 @@ class API_EXPORT CFieldConfig
                 void description(std::string description);
 
                 //! Accessors
-                const std::string &description(void) const;
-                model::function_t::EFunction function(void) const;
-                const std::string &fieldName(void) const;
-                int configKey(void) const;
-                const std::string &byFieldName(void) const;
-                const std::string &overFieldName(void) const;
-                const std::string &partitionFieldName(void) const;
-                bool useNull(void) const;
-                ml::model_t::EExcludeFrequent excludeFrequent(void) const;
+                const std::string &description() const;
+                model::function_t::EFunction function() const;
+                const std::string &fieldName() const;
+                int configKey() const;
+                const std::string &byFieldName() const;
+                const std::string &overFieldName() const;
+                const std::string &partitionFieldName() const;
+                bool useNull() const;
+                ml::model_t::EExcludeFrequent excludeFrequent() const;
 
                 //! Map back from the function enum to the shortest possible
                 //! function name that could be used to specify the function
-                const std::string &terseFunctionName(void) const;
+                const std::string &terseFunctionName() const;
 
                 //! Map back from the function enum to the longest possible
                 //! function name that could be used to specify the function
-                const std::string &verboseFunctionName(void) const;
+                const std::string &verboseFunctionName() const;
 
                 //! Write the detector-specific parts of the configuration
                 //! clause.  Note that this cannot include summarycountfield,
@@ -342,7 +342,7 @@ class API_EXPORT CFieldConfig
         //! Uniqueness is enforced by config key and also by the combination of
         //! function, field name, by field name, over field name and
         //! partition field name.
-        typedef boost::multi_index::multi_index_container<
+        using TFieldOptionsMIndex = boost::multi_index::multi_index_container<
             CFieldOptions,
             boost::multi_index::indexed_by<
                 boost::multi_index::ordered_unique<
@@ -361,33 +361,33 @@ class API_EXPORT CFieldConfig
                     >
                 >
             >
-        > TFieldOptionsMIndex;
+        >;
 
-        typedef TFieldOptionsMIndex::iterator              TFieldOptionsMIndexItr;
-        typedef TFieldOptionsMIndex::const_iterator        TFieldOptionsMIndexCItr;
+        using TFieldOptionsMIndexItr = TFieldOptionsMIndex::iterator;
+        using TFieldOptionsMIndexCItr = TFieldOptionsMIndex::const_iterator;
 
         //! Used to maintain a list of all unique config keys
-        typedef std::set<int>                              TIntSet;
+        using TIntSet = std::set<int>;
 
         //! Used to return the superset of enabled field names
-        typedef std::set<std::string>                      TStrSet;
+        using TStrSet = std::set<std::string>;
 
         //! Used to obtain command line clause tokens
-        typedef std::vector<std::string>                   TStrVec;
-        typedef TStrVec::iterator                          TStrVecItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
 
-        typedef std::vector<model::CDetectionRule> TDetectionRuleVec;
-        typedef boost::unordered_map<int, TDetectionRuleVec> TIntDetectionRuleVecUMap;
+        using TDetectionRuleVec = std::vector<model::CDetectionRule>;
+        using TIntDetectionRuleVecUMap = boost::unordered_map<int, TDetectionRuleVec>;
 
-        typedef boost::unordered_map<std::string, core::CPatternSet> TStrPatternSetUMap;
+        using TStrPatternSetUMap = boost::unordered_map<std::string, core::CPatternSet>;
 
-        typedef std::pair<std::string, model::CDetectionRule> TStrDetectionRulePr;
-        typedef std::vector<TStrDetectionRulePr> TStrDetectionRulePrVec;
+        using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
+        using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
 
     public:
         //! Construct empty.  This call should generally be followed by a call to
         //! one of the init...() methods.
-        CFieldConfig(void);
+        CFieldConfig();
 
         //! Construct with just a categorization field.  (In the case of a
         //! categorization job, this is all that is needed for this config.)
@@ -431,34 +431,34 @@ class API_EXPORT CFieldConfig
         bool addOptions(const CFieldOptions &options);
 
         //! Get the list of categorization filters
-        const TStrVec &categorizationFilters(void) const;
+        const TStrVec &categorizationFilters() const;
 
         //! Get the field to use for summary counts.  If the returned string is
         //! empty then this implies that input has not been manually summarised.
-        const std::string &summaryCountFieldName(void) const;
+        const std::string &summaryCountFieldName() const;
 
         //! Does any config have a non-empty partition field configured?
         //! (This is used by licensing.)
-        bool havePartitionFields(void) const;
+        bool havePartitionFields() const;
 
         //! Access the superset of all field names that are used by any detector.
-        const TStrSet &fieldNameSuperset(void) const;
+        const TStrSet &fieldNameSuperset() const;
 
         //! Debug dump of fields
-        std::string debug(void) const;
+        std::string debug() const;
 
         //! Add influencer fields for all the by/over/partition fields of all
         //! existing configurations
-        void addInfluencerFieldsFromByOverPartitionFields(void);
+        void addInfluencerFieldsFromByOverPartitionFields();
 
         //! Get the list of field names for pivoting the anomaly results
-        const TStrVec &influencerFieldNames(void) const;
+        const TStrVec &influencerFieldNames() const;
 
         //! Get the detector key to detection rules map
-        const TIntDetectionRuleVecUMap &detectionRules(void) const;
+        const TIntDetectionRuleVecUMap &detectionRules() const;
 
         //! Get the scheduled events
-        const TStrDetectionRulePrVec &scheduledEvents(void) const;
+        const TStrDetectionRulePrVec &scheduledEvents() const;
 
         //! Attempt to parse a detector's rules.
         bool parseRules(int detectorIndex, const std::string &rules);
@@ -472,11 +472,11 @@ class API_EXPORT CFieldConfig
         //! Replaces scheduled events with the ones in the given property tree
         bool updateScheduledEvents(const boost::property_tree::ptree &propTree);
 
-        const TFieldOptionsMIndex &fieldOptions(void) const;
+        const TFieldOptionsMIndex &fieldOptions() const;
 
-        const std::string &categorizationFieldName(void) const;
+        const std::string &categorizationFieldName() const;
 
-        const TStrPatternSetUMap &ruleFilters(void) const;
+        const TStrPatternSetUMap &ruleFilters() const;
 
     private:
         //! Parse detection rules into detectionRules
@@ -566,7 +566,7 @@ class API_EXPORT CFieldConfig
 
         //! Sort the influencers (so that downstream code doesn't have to worry
         //! about ordering changes when the overall set is unchanged)
-        void sortInfluencers(void);
+        void sortInfluencers();
 
         //! Store one categorization filter
         void addCategorizationFilter(const std::string &filter);

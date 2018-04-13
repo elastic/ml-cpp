@@ -36,19 +36,19 @@ namespace
                 }
             }
 
-            size_t size(void) const
+            size_t size() const
             {
                 return m_Strings.size();
             }
 
         private:
-            typedef std::vector<std::string> TStrVec;
+            using TStrVec = std::vector<std::string>;
 
             TStrVec m_Strings;
     };
 }
 
-void CBlockingMessageQueueTest::testSendReceive(void)
+void CBlockingMessageQueueTest::testSendReceive()
 {
     CReceiver receiver;
 

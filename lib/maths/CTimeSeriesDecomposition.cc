@@ -235,12 +235,12 @@ void CTimeSeriesDecomposition::decayRate(double decayRate)
     m_Components.decayRate(decayRate);
 }
 
-double CTimeSeriesDecomposition::decayRate(void) const
+double CTimeSeriesDecomposition::decayRate() const
 {
     return m_Components.decayRate();
 }
 
-bool CTimeSeriesDecomposition::initialized(void) const
+bool CTimeSeriesDecomposition::initialized() const
 {
     return m_Components.initialized();
 }
@@ -445,7 +445,7 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
     return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
 
-double CTimeSeriesDecomposition::meanVariance(void) const
+double CTimeSeriesDecomposition::meanVariance() const
 {
     return m_Components.meanVarianceScale() * m_Components.meanVariance();
 }
@@ -538,7 +538,7 @@ void CTimeSeriesDecomposition::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
 }
 
-std::size_t CTimeSeriesDecomposition::memoryUsage(void) const
+std::size_t CTimeSeriesDecomposition::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_Mediator)
           + core::CMemory::dynamicSize(m_PeriodicityTest)
@@ -546,22 +546,22 @@ std::size_t CTimeSeriesDecomposition::memoryUsage(void) const
           + core::CMemory::dynamicSize(m_Components);
 }
 
-std::size_t CTimeSeriesDecomposition::staticSize(void) const
+std::size_t CTimeSeriesDecomposition::staticSize() const
 {
     return sizeof(*this);
 }
 
-core_t::TTime CTimeSeriesDecomposition::timeShift(void) const
+core_t::TTime CTimeSeriesDecomposition::timeShift() const
 {
     return m_TimeShift;
 }
 
-const maths_t::TSeasonalComponentVec &CTimeSeriesDecomposition::seasonalComponents(void) const
+const maths_t::TSeasonalComponentVec &CTimeSeriesDecomposition::seasonalComponents() const
 {
     return m_Components.seasonal();
 }
 
-void CTimeSeriesDecomposition::initializeMediator(void)
+void CTimeSeriesDecomposition::initializeMediator()
 {
     m_Mediator = boost::make_shared<CMediator>();
     m_Mediator->registerHandler(m_PeriodicityTest);
@@ -639,7 +639,7 @@ bool CTimeSeriesDecomposition::matches(int components,
     return (seasonal == E_Diurnal && diurnal) || (seasonal == E_NonDiurnal && !diurnal);
 }
 
-core_t::TTime CTimeSeriesDecomposition::lastValueTime(void) const
+core_t::TTime CTimeSeriesDecomposition::lastValueTime() const
 {
     return m_LastValueTime;
 }

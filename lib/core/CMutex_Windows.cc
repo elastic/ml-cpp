@@ -19,24 +19,24 @@ namespace core
 {
 
 
-CMutex::CMutex(void)
+CMutex::CMutex()
 {
     // On Windows Vista and above this function cannot fail, hence no need to
     // check the return code
     InitializeCriticalSectionAndSpinCount(&m_Mutex, SPIN_COUNT);
 }
 
-CMutex::~CMutex(void)
+CMutex::~CMutex()
 {
     DeleteCriticalSection(&m_Mutex);
 }
 
-void CMutex::lock(void)
+void CMutex::lock()
 {
     EnterCriticalSection(&m_Mutex);
 }
 
-void CMutex::unlock(void)
+void CMutex::unlock()
 {
     LeaveCriticalSection(&m_Mutex);
 }

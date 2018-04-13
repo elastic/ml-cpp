@@ -49,7 +49,7 @@ class CDictionary
             m_Words.swap(other.m_Words);
         }
 
-        std::string print(void) const
+        std::string print() const
         {
             return core::CContainerPrinter::print(m_Words);
         }
@@ -67,7 +67,7 @@ void swap(CDictionary &lhs, CDictionary &rhs)
 
 }
 
-void COrderingsTest::testOptionalOrdering(void)
+void COrderingsTest::testOptionalOrdering()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testOptionalOrdering  |");
@@ -107,7 +107,7 @@ void COrderingsTest::testOptionalOrdering(void)
     CPPUNIT_ASSERT(!greater(one, big));
 }
 
-void COrderingsTest::testPtrOrdering(void)
+void COrderingsTest::testPtrOrdering()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testPtrOrdering  |");
@@ -148,7 +148,7 @@ void COrderingsTest::testPtrOrdering(void)
     CPPUNIT_ASSERT(!greater(one, big));
 }
 
-void COrderingsTest::testLess(void)
+void COrderingsTest::testLess()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  COrderingsTest::testLess  |");
@@ -230,7 +230,7 @@ void COrderingsTest::testLess(void)
     }
 }
 
-void COrderingsTest::testFirstLess(void)
+void COrderingsTest::testFirstLess()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testFirstLess  |");
@@ -267,7 +267,7 @@ void COrderingsTest::testFirstLess(void)
     CPPUNIT_ASSERT(!less(std::make_pair(&two, &two), &one));
 }
 
-void COrderingsTest::testFirstGreater(void)
+void COrderingsTest::testFirstGreater()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testFirstGreater  |");
@@ -304,7 +304,7 @@ void COrderingsTest::testFirstGreater(void)
     CPPUNIT_ASSERT( greater(std::make_pair(&two, &one), &one));
 }
 
-void COrderingsTest::testSecondLess(void)
+void COrderingsTest::testSecondLess()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSecondLess  |");
@@ -343,7 +343,7 @@ void COrderingsTest::testSecondLess(void)
     CPPUNIT_ASSERT( less(std::make_pair(&two, &one), &two));
 }
 
-void COrderingsTest::testSecondGreater(void)
+void COrderingsTest::testSecondGreater()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSecondGreater  |");
@@ -382,7 +382,7 @@ void COrderingsTest::testSecondGreater(void)
     CPPUNIT_ASSERT(!greater(std::make_pair(&two, &two), &two));
 }
 
-void COrderingsTest::testDereference(void)
+void COrderingsTest::testDereference()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testDereference  |");
@@ -410,7 +410,7 @@ void COrderingsTest::testDereference(void)
     }
 }
 
-void COrderingsTest::testLexicographicalCompare(void)
+void COrderingsTest::testLexicographicalCompare()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testLexicographicalCompare  |");
@@ -521,7 +521,7 @@ void COrderingsTest::testLexicographicalCompare(void)
     CPPUNIT_ASSERT( maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2, i1, p1, d1, v1, s1, greater));
 }
 
-void COrderingsTest::testSimultaneousSort(void)
+void COrderingsTest::testSimultaneousSort()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSimultaneousSort  |");
@@ -715,7 +715,7 @@ void COrderingsTest::testSimultaneousSort(void)
     }
 }
 
-CppUnit::Test *COrderingsTest::suite(void)
+CppUnit::Test *COrderingsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COrderingsTest");
 

@@ -19,10 +19,9 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
-
-#include <math.h>
 
 using namespace ml;
 using namespace maths;
@@ -46,7 +45,7 @@ class CPolynomialFunction : public std::unary_function<double, double>
             result = 0.0;
             for (unsigned int i = 0u; i < ORDER + 1; ++i)
             {
-                result += m_Coefficients[i] * ::pow(x, static_cast<double>(i));
+                result += m_Coefficients[i] * std::pow(x, static_cast<double>(i));
             }
             return true;
         }
@@ -89,7 +88,7 @@ double integrate(const CPolynomialFunction<ORDER> &f,
     for (unsigned int i = 0; i < ORDER + 1; ++i)
     {
         double n = static_cast<double>(i) + 1.0;
-        result += f.coefficient(i) / n * (::pow(b, n) - ::pow(a, n));
+        result += f.coefficient(i) / n * (std::pow(b, n) - std::pow(a, n));
     }
     return result;
 }
@@ -98,7 +97,7 @@ template<unsigned int DIMENSION>
 class CMultivariatePolynomialFunction
 {
     public:
-        typedef CVectorNx1<double, DIMENSION> TVector;
+        using TVector = CVectorNx1<double, DIMENSION>;
 
         struct SMonomial
         {
@@ -111,7 +110,7 @@ class CMultivariatePolynomialFunction
             double s_Powers[DIMENSION];
         };
 
-        typedef std::vector<SMonomial> TMonomialVec;
+        using TMonomialVec = std::vector<SMonomial>;
 
     public:
         void add(double coefficient, double powers[DIMENSION])
@@ -121,7 +120,7 @@ class CMultivariatePolynomialFunction
             std::copy(powers, powers + DIMENSION, m_Terms.back().s_Powers);
         }
 
-        void finalize(void)
+        void finalize()
         {
             std::sort(m_Terms.begin(), m_Terms.end());
         }
@@ -137,7 +136,7 @@ class CMultivariatePolynomialFunction
                 {
                     if (monomial.s_Powers[j] > 0.0)
                     {
-                        term *= ::pow(x(j), monomial.s_Powers[j]);
+                        term *= std::pow(x(j), monomial.s_Powers[j]);
                     }
                 }
                 result += term;
@@ -145,7 +144,7 @@ class CMultivariatePolynomialFunction
             return true;
         }
 
-        const TMonomialVec &terms(void) const { return m_Terms; }
+        const TMonomialVec &terms() const { return m_Terms; }
 
     private:
         TMonomialVec m_Terms;
@@ -179,7 +178,7 @@ std::ostream &operator<<(std::ostream &o, const CMultivariatePolynomialFunction<
     return o;
 }
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 template<unsigned int DIMENSION>
 double integrate(const CMultivariatePolynomialFunction<DIMENSION> &f,
@@ -193,7 +192,7 @@ double integrate(const CMultivariatePolynomialFunction<DIMENSION> &f,
         for (unsigned int j = 0; j < DIMENSION; ++j)
         {
             double n = (f.terms())[i].s_Powers[j] + 1.0;
-            term *= (::pow(b[j], n) - ::pow(a[j], n)) / n;
+            term *= (std::pow(b[j], n) - std::pow(a[j], n)) / n;
         }
         result += term;
     }
@@ -201,13 +200,13 @@ double integrate(const CMultivariatePolynomialFunction<DIMENSION> &f,
 }
 
 
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 bool readGrid(const std::string &file,
               TDoubleVec &weights,
               TDoubleVecVec &points)
 {
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
     std::ifstream d2_l1;
     d2_l1.open(file.c_str());
     if (!d2_l1)
@@ -252,7 +251,7 @@ bool readGrid(const std::string &file,
 class CSmoothHeavySide
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CSmoothHeavySide(double slope, double offset) :
@@ -263,8 +262,8 @@ class CSmoothHeavySide
 
         bool operator()(double x, double &result) const
         {
-            result =    ::exp(m_Slope * (x - m_Offset))
-                     / (::exp(m_Slope * (x - m_Offset)) + 1.0);
+            result =    std::exp(m_Slope * (x - m_Offset))
+                     / (std::exp(m_Slope * (x - m_Offset)) + 1.0);
             return true;
         }
 
@@ -276,7 +275,7 @@ class CSmoothHeavySide
 class CNormal
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CNormal(double mean, double std) :
@@ -303,7 +302,7 @@ class CNormal
 
 }
 
-void CIntegrationTest::testAllSingleVariate(void)
+void CIntegrationTest::testAllSingleVariate()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testAllSingleVariate  |");
@@ -312,17 +311,17 @@ void CIntegrationTest::testAllSingleVariate(void)
     // Test that "low" order polynomials are integrated exactly
     // (as they should be for a higher order quadrature).
 
-    typedef CPolynomialFunction<0u> TConstant;
-    typedef CPolynomialFunction<1u> TLinear;
-    typedef CPolynomialFunction<2u> TQuadratic;
-    typedef CPolynomialFunction<3u> TCubic;
-    typedef CPolynomialFunction<4u> TQuartic;
-    typedef CPolynomialFunction<5u> TQuintic;
-    typedef CPolynomialFunction<6u> THexic;
-    typedef CPolynomialFunction<7u> THeptic;
-    typedef CPolynomialFunction<8u> TOctic;
-    typedef CPolynomialFunction<9u> TNonic;
-    typedef CPolynomialFunction<10u> TDecic;
+    using TConstant = CPolynomialFunction<0u>;
+    using TLinear = CPolynomialFunction<1u>;
+    using TQuadratic = CPolynomialFunction<2u>;
+    using TCubic = CPolynomialFunction<3u>;
+    using TQuartic = CPolynomialFunction<4u>;
+    using TQuintic = CPolynomialFunction<5u>;
+    using THexic = CPolynomialFunction<6u>;
+    using THeptic = CPolynomialFunction<7u>;
+    using TOctic = CPolynomialFunction<8u>;
+    using TNonic = CPolynomialFunction<9u>;
+    using TDecic = CPolynomialFunction<10u>;
 
     static const double EPS = 1e-6;
 
@@ -871,14 +870,14 @@ void CIntegrationTest::testAllSingleVariate(void)
 
 
 
-void CIntegrationTest::testAdaptive(void)
+void CIntegrationTest::testAdaptive()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testAdaptive  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
     {
         LOG_DEBUG("*** Smooth unit step at 20 ***");
@@ -1004,7 +1003,7 @@ void CIntegrationTest::testAdaptive(void)
     }
 }
 
-void CIntegrationTest::testSparseGrid(void)
+void CIntegrationTest::testSparseGrid()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testSparseGrid  |");
@@ -1022,10 +1021,10 @@ void CIntegrationTest::testSparseGrid(void)
                                 expectedWeights,
                                 expectedPoints));
 
-        typedef CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne,
-                                                             CIntegration::TwoDimensions> Sparse2do1;
+        using TSparse2do1 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne,
+                                                                         CIntegration::TwoDimensions>;
 
-        const Sparse2do1 &sparse = Sparse2do1::instance();
+        const TSparse2do1 &sparse = TSparse2do1::instance();
 
         LOG_DEBUG("# points = " << sparse.weights().size());
         CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
@@ -1055,10 +1054,10 @@ void CIntegrationTest::testSparseGrid(void)
                                 expectedWeights,
                                 expectedPoints));
 
-        typedef CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo,
-                                                             CIntegration::TwoDimensions> Sparse2do2;
+        using TSparse2do2 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo,
+                                                                         CIntegration::TwoDimensions>;
 
-        const Sparse2do2 &sparse = Sparse2do2::instance();
+        const TSparse2do2 &sparse = TSparse2do2::instance();
 
         LOG_DEBUG("# points = " << sparse.weights().size());
         CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
@@ -1088,10 +1087,10 @@ void CIntegrationTest::testSparseGrid(void)
                                 expectedWeights,
                                 expectedPoints));
 
-        typedef CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour,
-                                                             CIntegration::TwoDimensions> Sparse2do4;
+        using TSparse2do4 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour,
+                                                                         CIntegration::TwoDimensions>;
 
-        const Sparse2do4 &sparse = Sparse2do4::instance();
+        const TSparse2do4 &sparse = TSparse2do4::instance();
 
         LOG_DEBUG("# points = " << sparse.weights().size());
         CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
@@ -1121,10 +1120,10 @@ void CIntegrationTest::testSparseGrid(void)
                                 expectedWeights,
                                 expectedPoints));
 
-        typedef CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree,
-                                                             CIntegration::SevenDimensions> Sparse7do3;
+        using TSparse7do3 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree,
+                                                                         CIntegration::SevenDimensions>;
 
-        const Sparse7do3 &sparse = Sparse7do3::instance();
+        const TSparse7do3 &sparse = TSparse7do3::instance();
 
         LOG_DEBUG("# points = " << sparse.weights().size());
         CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
@@ -1134,7 +1133,7 @@ void CIntegrationTest::testSparseGrid(void)
         {
             LOG_DEBUG("weight = " << (sparse.weights())[i]);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
-                                         (sparse.weights())[i] / ::pow(2.0, 7.0), 1e-6);
+                                         (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG("point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j)
@@ -1154,10 +1153,10 @@ void CIntegrationTest::testSparseGrid(void)
                                 expectedWeights,
                                 expectedPoints));
 
-        typedef CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive,
-                                                             CIntegration::SevenDimensions> Sparse7do5;
+        using TSparse7do5 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive,
+                                                                         CIntegration::SevenDimensions>;
 
-        const Sparse7do5 &sparse = Sparse7do5::instance();
+        const TSparse7do5 &sparse = TSparse7do5::instance();
 
         LOG_DEBUG("# points = " << sparse.weights().size());
         CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
@@ -1170,7 +1169,7 @@ void CIntegrationTest::testSparseGrid(void)
                 LOG_DEBUG("weight = " << (sparse.weights())[i]);
             }
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
-                                         (sparse.weights())[i] / ::pow(2.0, 7.0), 1e-6);
+                                         (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0)
             {
@@ -1254,7 +1253,7 @@ void CIntegrationTest::testSparseGrid(void)
     }
 }
 
-void CIntegrationTest::testMultivariateSmooth(void)
+void CIntegrationTest::testMultivariateSmooth()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testMultivariateSmooth  |");
@@ -1265,7 +1264,7 @@ void CIntegrationTest::testMultivariateSmooth(void)
     // if its order is no more than 2l - 1. A polynomial order is
     // the largest sum of exponents in any term.
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     test::CRandomNumbers rng;
 
@@ -1433,7 +1432,7 @@ void CIntegrationTest::testMultivariateSmooth(void)
     }
 }
 
-CppUnit::Test *CIntegrationTest::suite(void)
+CppUnit::Test *CIntegrationTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIntegrationTest");
 

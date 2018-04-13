@@ -63,32 +63,32 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
             E_BadFactory
         };
 
-        typedef std::set<std::string> TStrSet;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef TTimeVec::const_iterator TTimeVecCItr;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef model_t::TFeatureVec TFeatureVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef boost::shared_ptr<CModelFactory> TModelFactoryPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
-        typedef std::map<EFactoryType, TModelFactoryPtr> TFactoryTypeFactoryPtrMap;
-        typedef TFactoryTypeFactoryPtrMap::iterator TFactoryTypeFactoryPtrMapItr;
-        typedef TFactoryTypeFactoryPtrMap::const_iterator TFactoryTypeFactoryPtrMapCItr;
-        typedef std::map<CSearchKey, TModelFactoryCPtr> TSearchKeyFactoryCPtrMap;
+        using TStrSet = std::set<std::string>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TTimeVecCItr = TTimeVec::const_iterator;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TFeatureVec = model_t::TFeatureVec;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecCItr = TStrVec::const_iterator;
+        using TModelFactoryPtr = boost::shared_ptr<CModelFactory>;
+        using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
+        using TFactoryTypeFactoryPtrMap = std::map<EFactoryType, TModelFactoryPtr>;
+        using TFactoryTypeFactoryPtrMapItr = TFactoryTypeFactoryPtrMap::iterator;
+        using TFactoryTypeFactoryPtrMapCItr = TFactoryTypeFactoryPtrMap::const_iterator;
+        using TSearchKeyFactoryCPtrMap = std::map<CSearchKey, TModelFactoryCPtr>;
 
         // Const ref to detection rules map
-        typedef std::vector<CDetectionRule> TDetectionRuleVec;
-        typedef boost::reference_wrapper<const TDetectionRuleVec> TDetectionRuleVecCRef;
-        typedef boost::unordered_map<int, TDetectionRuleVec> TIntDetectionRuleVecUMap;
-        typedef boost::reference_wrapper<const TIntDetectionRuleVecUMap> TIntDetectionRuleVecUMapCRef;
-        typedef TIntDetectionRuleVecUMap::const_iterator TIntDetectionRuleVecUMapCItr;
+        using TDetectionRuleVec = std::vector<CDetectionRule>;
+        using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
+        using TIntDetectionRuleVecUMap = boost::unordered_map<int, TDetectionRuleVec>;
+        using TIntDetectionRuleVecUMapCRef = boost::reference_wrapper<const TIntDetectionRuleVecUMap>;
+        using TIntDetectionRuleVecUMapCItr = TIntDetectionRuleVecUMap::const_iterator;
 
-        typedef std::pair<std::string, model::CDetectionRule> TStrDetectionRulePr;
-        typedef std::vector<TStrDetectionRulePr> TStrDetectionRulePrVec;
-        typedef boost::reference_wrapper<const TStrDetectionRulePrVec> TStrDetectionRulePrVecCRef;
+        using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
+        using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
+        using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
 
     public:
         //! \name Data Gathering
@@ -276,7 +276,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
                                               const std::string &multipleBucketLengths);
 
     public:
-        CAnomalyDetectorModelConfig(void);
+        CAnomalyDetectorModelConfig();
 
         //! Set the data bucketing interval.
         void bucketLength(core_t::TTime length);
@@ -354,29 +354,29 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         void decayRate(double value);
 
         //! Get the rate at which the models lose information.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! Get the length of the baseline.
-        core_t::TTime baselineLength(void) const;
+        core_t::TTime baselineLength() const;
 
         //! Get the bucket length.
-        core_t::TTime bucketLength(void) const;
+        core_t::TTime bucketLength() const;
 
         //! Get the maximum latency in the arrival of out of order data.
-        core_t::TTime latency(void) const;
+        core_t::TTime latency() const;
 
         //! Get the maximum latency in the arrival of out of order data in
         //! numbers of buckets.
-        std::size_t latencyBuckets(void) const;
+        std::size_t latencyBuckets() const;
 
         //! Get the bucket result delay window.
-        std::size_t bucketResultsDelay(void) const;
+        std::size_t bucketResultsDelay() const;
 
         //! Get the multiple bucket lengths.
-        const TTimeVec &multipleBucketLengths(void) const;
+        const TTimeVec &multipleBucketLengths() const;
 
         //! Should multivariate analysis of correlated 'by' fields be performed?
-        bool multivariateByFields(void) const;
+        bool multivariateByFields() const;
 
         //! Set the central confidence interval for the model debug plot
         //! to \p percentage.
@@ -387,7 +387,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         void modelPlotBoundsPercentile(double percentile);
 
         //! Get the central confidence interval for the model debug plot.
-        double modelPlotBoundsPercentile(void) const;
+        double modelPlotBoundsPercentile() const;
 
         //! Set terms (by, over, or partition field values) to filter
         //! model debug data. When empty, no filtering is applied.
@@ -395,7 +395,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
 
         //! Get the terms (by, over, or partition field values)
         //! used to filter model debug data. Empty when no filtering applies.
-        const TStrSet &modelPlotTerms(void) const;
+        const TStrSet &modelPlotTerms() const;
         //@}
 
         //! \name Anomaly Score Calculation
@@ -406,25 +406,25 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
                                      model_t::EAggregationParam param) const;
 
         //! Get the maximum anomalous probability.
-        double maximumAnomalousProbability(void) const;
+        double maximumAnomalousProbability() const;
         //@}
 
         //! \name Anomaly Score Normalization
         //@{
         //! Get the historic anomaly score percentile for which lower
         //! values are classified as noise.
-        double noisePercentile(void) const;
+        double noisePercentile() const;
 
         //! Get the multiplier applied to the noise level score in order
         //! to be classified as anomalous.
-        double noiseMultiplier(void) const;
+        double noiseMultiplier() const;
 
         //! Get the normalized anomaly score knot points.
-        const TDoubleDoublePrVec &normalizedScoreKnotPoints(void) const;
+        const TDoubleDoublePrVec &normalizedScoreKnotPoints() const;
         //@}
 
         //! Check if we should create one normalizer per partition field value.
-        bool perPartitionNormalization(void) const;
+        bool perPartitionNormalization() const;
 
         //! Set whether we should create one normalizer per partition field value.
         void perPartitionNormalization(bool value);
@@ -443,10 +443,10 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
 
         //! Get the factor to normalize all bucket lengths to the default
         //! bucket length.
-        double bucketNormalizationFactor(void) const;
+        double bucketNormalizationFactor() const;
 
         //! The time window during which samples are accepted.
-        core_t::TTime samplingAgeCutoff(void) const;
+        core_t::TTime samplingAgeCutoff() const;
 
     private:
         //! Bucket length.

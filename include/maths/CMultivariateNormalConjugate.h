@@ -35,6 +35,7 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
@@ -79,15 +80,15 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
-        typedef std::vector<double> TDoubleVec;
-        typedef CVectorNx1<double, N> TPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
-        typedef CSymmetricMatrixNxN<double, N> TMatrix;
-        typedef std::vector<TMatrix> TMatrixVec;
-        typedef typename CBasicStatistics::SSampleCovariances<double, N> TCovariance;
+        using TDoubleVec = std::vector<double>;
+        using TPoint = CVectorNx1<double, N>;
+        using TPointVec = std::vector<TPoint>;
+        using TPoint4Vec = core::CSmallVector<TPoint, 4>;
+        using TMatrix = CSymmetricMatrixNxN<double, N>;
+        using TMatrixVec = std::vector<TMatrix>;
+        using TCovariance = typename CBasicStatistics::SSampleCovariances<double, N>;
 
         // Lift all overloads of into scope.
         //{
@@ -96,8 +97,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //}
 
     private:
-        typedef typename SDenseVector<TPoint>::Type TDenseVector;
-        typedef typename SDenseMatrix<TPoint>::Type TDenseMatrix;
+        using TDenseVector = typename SDenseVector<TPoint>::Type;
+        using TDenseMatrix = typename SDenseMatrix<TPoint>::Type;
 
     public:
         //! \name Life-cycle
@@ -146,7 +147,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             traverser.traverseSubLevel(boost::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
         }
 
-        virtual ~CMultivariateNormalConjugate(void) {}
+        virtual ~CMultivariateNormalConjugate() {}
 
         // Default copy constructor and assignment operator work.
 
@@ -173,13 +174,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //! Create a copy of the prior.
         //!
         //! \warning Caller owns returned object.
-        virtual CMultivariateNormalConjugate *clone(void) const
+        virtual CMultivariateNormalConjugate *clone() const
         {
             return new CMultivariateNormalConjugate(*this);
         }
 
         //! Get the dimension of the prior.
-        std::size_t dimension(void) const
+        std::size_t dimension() const
         {
             return N;
         }
@@ -342,7 +343,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 return;
             }
 
-            double alpha = ::exp(-this->scaledDecayRate() * time);
+            double alpha = std::exp(-this->scaledDecayRate() * time);
 
             m_GaussianPrecision =         alpha  * m_GaussianPrecision
                                  + (1.0 - alpha) * TPoint(NON_INFORMATIVE_PRECISION);
@@ -448,8 +449,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 
                 double mean = m1 + c12.transpose() * c22SolvexcMinusm2;
                 double variance = std::max(c11 - c12.transpose() * c22.solve(c12),
-                                           MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(mean));
-                double weight = 0.5 * (::log(variance) - (xc - m2).transpose() * c22SolvexcMinusm2);
+                                           MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(mean));
+                double weight = 0.5 * (std::log(variance) - (xc - m2).transpose() * c22SolvexcMinusm2);
                 LOG_TRACE("mean = " << mean
                           << ", variance = " << variance
                           << ", weight = " << weight);
@@ -504,8 +505,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 return {TPriorPtr(CMultivariateNormalConjugate<2>::nonInformativePrior(dataType, decayRate).clone()), 0.0};
             }
 
-            typedef CVectorNx1<double, 2> TPoint2;
-            typedef CSymmetricMatrixNxN<double, 2> TMatrix2;
+            using TPoint2 = CVectorNx1<double, 2>;
+            using TMatrix2 = CSymmetricMatrixNxN<double, 2>;
 
             TPoint2 p;
             p(0) = m_GaussianPrecision(i1[0]);
@@ -569,14 +570,14 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the support for the marginal likelihood function.
-        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const
+        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const
         {
             return {TPoint::smallest().template toVector<TDouble10Vec>(),
                     TPoint::largest().template toVector<TDouble10Vec>()};
         }
 
         //! Get the mean of the marginal likelihood function.
-        virtual TDouble10Vec marginalLikelihoodMean(void) const
+        virtual TDouble10Vec marginalLikelihoodMean() const
         {
             return this->mean().template toVector<TDouble10Vec>();
         }
@@ -589,13 +590,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const
+        virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const
         {
             return this->covarianceMatrix().template toVectors<TDouble10Vec10Vec>();
         }
 
         //! Get the diagonal of the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec marginalLikelihoodVariances(void) const
+        virtual TDouble10Vec marginalLikelihoodVariances() const
         {
             return this->covarianceMatrix().template diagonal<TDouble10Vec>();
         }
@@ -680,14 +681,14 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 
                     if (logLikelihood > maxLogLikelihood)
                     {
-                        sum *= ::exp(maxLogLikelihood - logLikelihood);
+                        sum *= std::exp(maxLogLikelihood - logLikelihood);
                         maxLogLikelihood = logLikelihood;
                     }
-                    sum += ::exp(logLikelihood - maxLogLikelihood);
+                    sum += std::exp(logLikelihood - maxLogLikelihood);
                     n   += 1.0;
                 }
 
-                result = maxLogLikelihood + ::log(sum / n);
+                result = maxLogLikelihood + std::log(sum / n);
             }
             else
             {
@@ -782,7 +783,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const
+        virtual bool isNonInformative() const
         {
             return m_WishartDegreesFreedom <= static_cast<double>(N + 1);
         }
@@ -826,19 +827,19 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const
+        virtual std::size_t memoryUsage() const
         {
             return 0;
         }
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const
+        virtual std::size_t staticSize() const
         {
             return sizeof(*this);
         }
 
         //! Get the tag name for this prior.
-        virtual std::string persistenceTag(void) const
+        virtual std::string persistenceTag() const
         {
             return NORMAL_TAG + core::CStringUtils::typeToString(N);
         }
@@ -927,7 +928,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             TDenseVector diag = precision.singularValues();
             for (std::size_t i = 0u; i < rank; ++i)
             {
-                diag(i) = 1.0 / ::sqrt(diag(i));
+                diag(i) = 1.0 / std::sqrt(diag(i));
             }
             for (std::size_t i = rank; i < N; ++i)
             {
@@ -955,7 +956,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 A.setZero();
                 for (std::size_t i = 0, k = 0u; i < rank; ++i)
                 {
-                    A(i,i) = ::sqrt(chi[i * n + s]);
+                    A(i,i) = std::sqrt(chi[i * n + s]);
                     for (std::size_t j = 0u; j < i; ++j, ++k)
                     {
                         A(i,j) = normal[(s * rank * (rank - 1)) / 2 + k];
@@ -1042,13 +1043,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //@}
 
         //! Get the expected mean of the marginal likelihood.
-        TPoint mean(void) const
+        TPoint mean() const
         {
             return this->isInteger() ? m_GaussianMean - TPoint(0.5) : m_GaussianMean;
         }
 
         //! Get the covariance matrix for the marginal likelihood.
-        TMatrix covarianceMatrix(void) const
+        TMatrix covarianceMatrix() const
         {
             // This can be found by change of variables from the prior on the
             // precision matrix. In particular, if X ~ W_d(V, n) and Y = X^(-1),
@@ -1071,7 +1072,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //! \name Test Functions
         //@{
         //! Get the expected precision matrix of the marginal likelhood.
-        TMatrix precision(void) const
+        TMatrix precision() const
         {
             if (this->isNonInformative())
             {
@@ -1177,7 +1178,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                     covariancePost.add(x, n / countVarianceScale);
                     for (std::size_t j = 0u; j < N; ++j)
                     {
-                        logCountVarianceScales -= 0.5 * ::log(countVarianceScale(j));
+                        logCountVarianceScales -= 0.5 * std::log(countVarianceScale(j));
                     }
                 }
             }
@@ -1197,8 +1198,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             double logGaussianPrecisionPost  = 0.0;
             for (std::size_t i = 0u; i < N; ++i)
             {
-                logGaussianPrecisionPrior += ::log(m_GaussianPrecision(i));
-                logGaussianPrecisionPost  += ::log(m_GaussianPrecision(i) + scaledNumberSamples(i));
+                logGaussianPrecisionPrior += std::log(m_GaussianPrecision(i));
+                logGaussianPrecisionPost  += std::log(m_GaussianPrecision(i) + scaledNumberSamples(i));
             }
             double wishartDegreesFreedomPrior = m_WishartDegreesFreedom;
             double wishartDegreesFreedomPost  = m_WishartDegreesFreedom + numberSamples;
@@ -1255,7 +1256,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Check that the state is valid.
-        bool isBad(void) const
+        bool isBad() const
         {
             return    !CMathsFuncs::isFinite(m_GaussianMean)
                    || !CMathsFuncs::isFinite(m_GaussianPrecision)
@@ -1264,7 +1265,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Full debug dump of the state of this prior.
-        std::string debug(void) const
+        std::string debug() const
         {
             std::ostringstream result;
             result << std::scientific << std::setprecision(15)

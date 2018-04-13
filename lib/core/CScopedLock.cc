@@ -20,7 +20,7 @@ CScopedLock::CScopedLock(CMutex &mutex)
     m_Mutex.lock();
 }
 
-CScopedLock::~CScopedLock(void)
+CScopedLock::~CScopedLock()
 {
     m_Mutex.unlock();
 }

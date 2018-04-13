@@ -39,7 +39,7 @@ class CTriple : private boost::equality_comparable< CTriple<T1, T2, T3>,
 {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero(void)
+        static bool dynamicSizeAlwaysZero()
         {
             return    memory_detail::SDynamicSizeAlwaysZero<T1>::value()
                    && memory_detail::SDynamicSizeAlwaysZero<T2>::value()
@@ -47,7 +47,7 @@ class CTriple : private boost::equality_comparable< CTriple<T1, T2, T3>,
         }
 
     public:
-        CTriple(void) : first(), second(), third() {}
+        CTriple() : first(), second(), third() {}
         CTriple(const T1 &first_, const T2 &second_, const T3 &third_) :
                 first(first_), second(second_), third(third_)
         {
@@ -71,7 +71,7 @@ class CTriple : private boost::equality_comparable< CTriple<T1, T2, T3>,
             return first < other.first;
         }
 
-        std::size_t hash(void) const
+        std::size_t hash() const
         {
             std::size_t seed = 0;
             boost::hash_combine(seed, first);
@@ -88,7 +88,7 @@ class CTriple : private boost::equality_comparable< CTriple<T1, T2, T3>,
             CMemoryDebug::dynamicSize("third", third, mem);
         }
 
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             std::size_t mem = 0;
             mem += CMemory::dynamicSize(first);

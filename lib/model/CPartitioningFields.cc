@@ -23,7 +23,7 @@ void CPartitioningFields::add(const std::string &fieldName, const std::string &f
     m_PartitioningFields.emplace_back(TStrCRef(fieldName), TStrCRef(fieldValue));
 }
 
-std::size_t CPartitioningFields::size(void) const
+std::size_t CPartitioningFields::size() const
 {
     return m_PartitioningFields.size();
 }
@@ -38,17 +38,17 @@ CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::operator[](std::siz
     return m_PartitioningFields[i];
 }
 
-const CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back(void) const
+const CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back() const
 {
     return m_PartitioningFields.back();
 }
 
-CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back(void)
+CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back()
 {
     return m_PartitioningFields.back();
 }
 
-const std::string &CPartitioningFields::partitionFieldValue(void) const
+const std::string &CPartitioningFields::partitionFieldValue() const
 {
     return m_PartitioningFields[0].second.get();
 }

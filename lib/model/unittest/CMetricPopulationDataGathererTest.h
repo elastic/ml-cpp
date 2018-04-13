@@ -15,19 +15,19 @@
 class CMetricPopulationDataGathererTest : public CppUnit::TestFixture
 {
     public:
-        void testMean(void);
-        void testMin(void);
-        void testMax(void);
-        void testSum(void);
-        void testSampleCount(void);
-        void testFeatureData(void);
-        void testRemovePeople(void);
-        void testRemoveAttributes(void);
-        void testInfluenceStatistics(void);
-        void testPersistence(void);
-        void testReleaseMemory(void);
+        void testMean();
+        void testMin();
+        void testMax();
+        void testSum();
+        void testSampleCount();
+        void testFeatureData();
+        void testRemovePeople();
+        void testRemoveAttributes();
+        void testInfluenceStatistics();
+        void testPersistence();
+        void testReleaseMemory();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 
     private:
         ml::model::CResourceMonitor m_ResourceMonitor;

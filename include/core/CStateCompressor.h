@@ -48,15 +48,15 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
         static const std::string END_OF_STREAM_ATTRIBUTE;
 
     public:
-        typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-        typedef boost::shared_ptr<TFilteredOutput> TFilteredOutputP;
-        typedef boost::shared_ptr<CCompressOStream> TCompressOStreamP;
+        using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+        using TFilteredOutputP = boost::shared_ptr<TFilteredOutput>;
+        using TCompressOStreamP = boost::shared_ptr<CCompressOStream>;
 
         // Implements the boost::iostreams Sink template interface
         class CChunkFilter
         {
             public:
-                typedef char char_type;
+                using char_type = char;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :
@@ -72,7 +72,7 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
                 std::streamsize write(const char *s, std::streamsize n);
 
                 //! Interface method: flush the output and close the stream
-                void close(void);
+                void close();
 
                 //! Set the search ID to use
                 void index(const std::string &index,
@@ -80,10 +80,10 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
 
                 //! True if all of the chunked writes were successful.
                 //! If one or any of the writes failed the result is false
-                bool allWritesSuccessful(void);
+                bool allWritesSuccessful();
 
                 //! How many compressed documents have been generated?
-                size_t numCompressedDocs(void) const;
+                size_t numCompressedDocs() const;
 
             private:
                 //! Handle the details of writing a stream of bytes to the internal
@@ -143,7 +143,7 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
                                     bool force);
 
         //! How many compressed documents have been generated?
-        size_t numCompressedDocs(void) const;
+        size_t numCompressedDocs() const;
 
     private:
 

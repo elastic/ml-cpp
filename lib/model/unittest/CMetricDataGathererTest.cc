@@ -32,23 +32,23 @@ using namespace model;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<std::size_t, SMetricFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef boost::optional<double> TOptionalDouble;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
-typedef std::vector<TTimeDoublePrVec> TTimeDoublePrVecVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TFeatureVec = std::vector<model_t::EFeature>;
+using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+using TStrVec = std::vector<std::string>;
+using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
+using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
+using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalStr = boost::optional<std::string>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+using TTimeDoublePrVecVec = std::vector<TTimeDoublePrVec>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 std::size_t addPerson(const std::string &p,
                       CDataGatherer &gatherer,
@@ -173,7 +173,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CMetricDataGathererTest::singleSeriesTests(void)
+void CMetricDataGathererTest::singleSeriesTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::singleSeriesTests ***");
 
@@ -425,7 +425,7 @@ void CMetricDataGathererTest::singleSeriesTests(void)
     }
 }
 
-void CMetricDataGathererTest::multipleSeriesTests(void)
+void CMetricDataGathererTest::multipleSeriesTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::multipleSeriesTests ***");
 
@@ -686,7 +686,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void)
                          core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testSampleCount(void)
+void CMetricDataGathererTest::testSampleCount()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testSampleCount ***");
 
@@ -730,7 +730,7 @@ void CMetricDataGathererTest::testSampleCount(void)
         {
             TDoubleVec count;
             rng.generateUniformSamples(1.0, 5.0, 1, count);
-            LOG_DEBUG("count p2 = " << ::floor(count[0]));
+            LOG_DEBUG("count p2 = " << std::floor(count[0]));
             for (std::size_t j = 0u; j < static_cast<std::size_t>(count[0]); ++j)
             {
                 addArrival(gatherer, m_ResourceMonitor, startTime + i * bucketLength + 100 * (j + 1), "p2", 1.0);
@@ -754,7 +754,7 @@ void CMetricDataGathererTest::testSampleCount(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, gatherer.effectiveSampleCount(pid1), 0.5);
 }
 
-void CMetricDataGathererTest::testRemovePeople(void)
+void CMetricDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testRemovePeople ***");
 
@@ -910,7 +910,7 @@ void CMetricDataGathererTest::testRemovePeople(void)
                          core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CMetricDataGathererTest::testSum(void)
+void CMetricDataGathererTest::testSum()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testSum ***");
 
@@ -1002,7 +1002,7 @@ void CMetricDataGathererTest::testSum(void)
     }
 }
 
-void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void)
+void CMetricDataGathererTest::singleSeriesOutOfOrderTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::singleSeriesOutOfOrderTests ***");
 
@@ -1185,7 +1185,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void)
     }
 }
 
-void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void)
+void CMetricDataGathererTest::testResetBucketGivenSingleSeries()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testResetBucketGivenSingleSeries ***");
 
@@ -1296,7 +1296,7 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void)
                              core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void)
+void CMetricDataGathererTest::testResetBucketGivenMultipleSeries()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testResetBucketGivenMultipleSeries ***");
 
@@ -1508,14 +1508,14 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void)
                          core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testInfluenceStatistics(void)
+void CMetricDataGathererTest::testInfluenceStatistics()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testInfluenceStatistics ***");
 
-    typedef boost::tuple<core_t::TTime, double, std::string, std::string> TTimeDoubleStrStrTuple;
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::pair<std::string, TDoubleDoublePr> TStrDoubleDoublePrPr;
-    typedef std::vector<TStrDoubleDoublePrPr> TStrDoubleDoublePrPrVec;
+    using TTimeDoubleStrStrTuple = boost::tuple<core_t::TTime, double, std::string, std::string>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TStrDoubleDoublePrPr = std::pair<std::string, TDoubleDoublePr>;
+    using TStrDoubleDoublePrPrVec = std::vector<TStrDoubleDoublePrPr>;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -1655,11 +1655,11 @@ void CMetricDataGathererTest::testInfluenceStatistics(void)
     }
 }
 
-void CMetricDataGathererTest::testMultivariate(void)
+void CMetricDataGathererTest::testMultivariate()
 {
-    typedef boost::tuple<core_t::TTime, double, double> TTimeDoubleDoubleTuple;
-    typedef std::vector<TTimeDoubleDoubleTuple> TTimeDoubleDoubleTupleVec;
-    typedef std::vector<TTimeDoubleDoubleTupleVec> TTimeDoubleDoubleTupleVecVec;
+    using TTimeDoubleDoubleTuple = boost::tuple<core_t::TTime, double, double>;
+    using TTimeDoubleDoubleTupleVec = std::vector<TTimeDoubleDoubleTuple>;
+    using TTimeDoubleDoubleTupleVecVec = std::vector<TTimeDoubleDoubleTupleVec>;
 
     static const std::string DELIMITER("__");
 
@@ -1883,7 +1883,7 @@ void CMetricDataGathererTest::testMultivariate(void)
     }
 }
 
-void CMetricDataGathererTest::testStatisticsPersist(void)
+void CMetricDataGathererTest::testStatisticsPersist()
 {
     CGathererTools::TMeanGatherer::TMetricPartialStatistic stat(1);
     stat.add(TDoubleVec(1, 44.4), 1299196740, 1);
@@ -1920,7 +1920,7 @@ void CMetricDataGathererTest::testStatisticsPersist(void)
     CPPUNIT_ASSERT_EQUAL(origTime, restoredTime);
 }
 
-void CMetricDataGathererTest::testVarp(void)
+void CMetricDataGathererTest::testVarp()
 {
     core_t::TTime startTime = 100000;
     const core_t::TTime bucketLength = 1000;
@@ -2113,7 +2113,7 @@ void CMetricDataGathererTest::testVarp(void)
 }
 
 
-CppUnit::Test *CMetricDataGathererTest::suite(void)
+CppUnit::Test *CMetricDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
 

@@ -11,11 +11,11 @@
 class CIoManagerTest : public CppUnit::TestFixture
 {
     public:
-        void testStdinStdout(void);
-        void testFileIoGood(void);
-        void testFileIoBad(void);
-        void testNamedPipeIoGood(void);
-        void testNamedPipeIoBad(void);
+        void testStdinStdout();
+        void testFileIoGood();
+        void testFileIoBad();
+        void testNamedPipeIoGood();
+        void testNamedPipeIoBad();
 
         static CppUnit::Test *suite();
 

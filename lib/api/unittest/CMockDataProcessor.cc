@@ -17,7 +17,7 @@ CMockDataProcessor::CMockDataProcessor(ml::api::COutputHandler &outputHandler)
 {
 }
 
-void CMockDataProcessor::newOutputStream(void)
+void CMockDataProcessor::newOutputStream()
 {
     m_OutputHandler.newOutputStream();
 }
@@ -54,7 +54,7 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields)
     return true;
 }
 
-void CMockDataProcessor::finalise(void)
+void CMockDataProcessor::finalise()
 {
 }
 
@@ -82,12 +82,12 @@ bool CMockDataProcessor::persistState(ml::core::CDataAdder &persister)
     return true;
 }
 
-uint64_t CMockDataProcessor::numRecordsHandled(void) const
+uint64_t CMockDataProcessor::numRecordsHandled() const
 {
     return m_NumRecordsHandled;
 }
 
-ml::api::COutputHandler &CMockDataProcessor::outputHandler(void)
+ml::api::COutputHandler &CMockDataProcessor::outputHandler()
 {
     return m_OutputHandler;
 }

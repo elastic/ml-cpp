@@ -40,13 +40,13 @@ namespace core
 class CORE_EXPORT CPatternSet
 {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::string::const_iterator TStrCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecCItr = TStrVec::const_iterator;
+        using TStrCItr = std::string::const_iterator;
 
     public:
         //! Default constructor.
-        CPatternSet(void);
+        CPatternSet();
 
         //! Initialise the set from JSON that is an array of strings.
         bool initFromJson(const std::string &json);
@@ -55,7 +55,7 @@ class CORE_EXPORT CPatternSet
         bool contains(const std::string &key) const;
 
         //! Clears the set.
-        void clear(void);
+        void clear();
 
     private:
         void sortAndPruneDuplicates(TStrVec &keys);

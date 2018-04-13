@@ -45,7 +45,7 @@ namespace config
 class CONFIG_EXPORT CDataSemantics
 {
     public:
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
+        using TOptionalUserDataType = boost::optional<config_t::EUserDataType>;
 
     public:
         //! The proportion of values which must be numeric for the
@@ -68,10 +68,10 @@ class CONFIG_EXPORT CDataSemantics
         void add(const std::string &example);
 
         //! Compute the type of the data based on the examples added so far.
-        void computeType(void);
+        void computeType();
 
         //! Get the last inferred data type set by computeType.
-        config_t::EDataType type(void) const;
+        config_t::EDataType type() const;
 
     private:
         //! \brief Hashes an ordinal type.
@@ -83,10 +83,10 @@ class CONFIG_EXPORT CDataSemantics
                     return value.hash();
                 }
         };
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> > TMaxAccumulator;
+        using TStrVec = std::vector<std::string>;
+        using TOrdinalSizeUMap = boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal>;
+        using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1>;
+        using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> >;
 
     private:
         //! The maximum number of values we'll hold in the empirical
@@ -95,23 +95,23 @@ class CONFIG_EXPORT CDataSemantics
 
     private:
         //! Get the categorical type.
-        config_t::EDataType categoricalType(void) const;
+        config_t::EDataType categoricalType() const;
 
         //! Get the real type.
-        config_t::EDataType realType(void) const;
+        config_t::EDataType realType() const;
 
         //! Get the integer type.
-        config_t::EDataType integerType(void) const;
+        config_t::EDataType integerType() const;
 
         //! Check if the field is numeric.
-        bool isNumeric(void) const;
+        bool isNumeric() const;
 
         //! Check if the field is integer.
-        bool isInteger(void) const;
+        bool isInteger() const;
 
         //! Check how well the data is approximated by a Gaussian
         //! mixture model.
-        bool GMMGoodFit(void) const;
+        bool GMMGoodFit() const;
 
         //! Add an integer value.
         template<typename INT> maths::COrdinal addInteger(INT value);

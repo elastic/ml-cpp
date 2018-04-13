@@ -47,7 +47,7 @@ CppUnit::Test *CConfigUpdaterTest::suite()
     return suiteOfTests;
 }
 
-void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void)
+void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed()
 {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -55,7 +55,7 @@ void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void)
     CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void)
+void CConfigUpdaterTest::testUpdateGivenUnknownStanzas()
 {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -63,9 +63,9 @@ void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void)
     CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void)
+void CConfigUpdaterTest::testUpdateGivenModelPlotConfig()
 {
-    typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
+    using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
 
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -88,7 +88,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void)
     CPPUNIT_ASSERT(terms.find(std::string("d")) != terms.end());
 }
 
-void CConfigUpdaterTest::testUpdateGivenDetectorRules(void)
+void CConfigUpdaterTest::testUpdateGivenDetectorRules()
 {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
@@ -115,7 +115,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules(void)
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"), itr->second[0].print());
 }
 
-void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void)
+void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex()
 {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
@@ -131,7 +131,7 @@ void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void)
     CPPUNIT_ASSERT(configUpdater.update(configUpdate) == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenFilters(void)
+void CConfigUpdaterTest::testUpdateGivenFilters()
 {
     CFieldConfig fieldConfig;
     fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
@@ -181,7 +181,7 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void)
     CPPUNIT_ASSERT(ruleFilters["filter_3"].contains("new"));
 }
 
-void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void)
+void CConfigUpdaterTest::testUpdateGivenScheduledEvents()
 {
     std::string validRule1 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
             "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"

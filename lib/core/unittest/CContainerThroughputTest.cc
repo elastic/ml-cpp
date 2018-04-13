@@ -47,15 +47,15 @@ CppUnit::Test *CContainerThroughputTest::suite()
     return suiteOfTests;
 }
 
-void CContainerThroughputTest::setUp(void)
+void CContainerThroughputTest::setUp()
 {
     CPPUNIT_ASSERT(FILL_SIZE > 0);
     CPPUNIT_ASSERT(TEST_SIZE > FILL_SIZE);
 }
 
-void CContainerThroughputTest::testVector(void)
+void CContainerThroughputTest::testVector()
 {
-    typedef std::vector<SContent> TContentVec;
+    using TContentVec = std::vector<SContent>;
     TContentVec testVec;
     testVec.reserve(FILL_SIZE);
 
@@ -88,9 +88,9 @@ void CContainerThroughputTest::testVector(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testList(void)
+void CContainerThroughputTest::testList()
 {
-    typedef std::list<SContent> TContentList;
+    using TContentList = std::list<SContent>;
     TContentList testList;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -122,9 +122,9 @@ void CContainerThroughputTest::testList(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testDeque(void)
+void CContainerThroughputTest::testDeque()
 {
-    typedef std::deque<SContent> TContentDeque;
+    using TContentDeque = std::deque<SContent>;
     TContentDeque testDeque;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -156,9 +156,9 @@ void CContainerThroughputTest::testDeque(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMap(void)
+void CContainerThroughputTest::testMap()
 {
-    typedef std::map<size_t, SContent> TSizeContentMap;
+    using TSizeContentMap = std::map<size_t, SContent>;
     TSizeContentMap testMap;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -190,9 +190,9 @@ void CContainerThroughputTest::testMap(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testCircBuf(void)
+void CContainerThroughputTest::testCircBuf()
 {
-    typedef boost::circular_buffer<SContent> TContentCircBuf;
+    using TContentCircBuf = boost::circular_buffer<SContent>;
     TContentCircBuf testCircBuf(FILL_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -224,16 +224,16 @@ void CContainerThroughputTest::testCircBuf(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMultiIndex(void)
+void CContainerThroughputTest::testMultiIndex()
 {
-    typedef boost::multi_index::multi_index_container<
+    using TContentMIndex = boost::multi_index::multi_index_container<
         SContent,
         boost::multi_index::indexed_by<
             boost::multi_index::hashed_unique<
                 BOOST_MULTI_INDEX_MEMBER(SContent, size_t, s_Size)
             >
         >
-    > TContentMIndex;
+    >;
     TContentMIndex testMultiIndex;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());

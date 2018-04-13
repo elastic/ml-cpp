@@ -19,6 +19,8 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
@@ -45,12 +47,12 @@ CLongTailPenalty::CLongTailPenalty(const CAutoconfigurerParams &params) :
 {
 }
 
-CLongTailPenalty *CLongTailPenalty::clone(void) const
+CLongTailPenalty *CLongTailPenalty::clone() const
 {
     return new CLongTailPenalty(*this);
 }
 
-std::string CLongTailPenalty::name(void) const
+std::string CLongTailPenalty::name() const
 {
     return "long tail";
 }
@@ -124,9 +126,9 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
                                          TSizeUInt64UMap &totals,
                                          TSizeUInt64UMap &tail) const
 {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> TMinAccumulator;
-    typedef boost::unordered_map<std::size_t, TMinAccumulator> TSizeMinAccumulatorUMap;
-    typedef typename MAP::const_iterator TItr;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1>;
+    using TSizeMinAccumulatorUMap = boost::unordered_map<std::size_t, TMinAccumulator>;
+    using TItr = typename MAP::const_iterator;
 
     TSizeMinAccumulatorUMap mins;
 
@@ -154,8 +156,8 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
 
 double CLongTailPenalty::penaltyFor(TSizeUInt64UMap &tail, TSizeUInt64UMap &totals) const
 {
-    typedef TSizeUInt64UMap::const_iterator TSizeUInt64UMapCItr;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TSizeUInt64UMapCItr = TSizeUInt64UMap::const_iterator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator result;
     for (TSizeUInt64UMapCItr i = tail.begin(); i != tail.end(); ++i)
     {
@@ -164,9 +166,9 @@ double CLongTailPenalty::penaltyFor(TSizeUInt64UMap &tail, TSizeUInt64UMap &tota
         double penalty = CTools::logInterpolate(this->params().highCardinalityHighTailFraction(),
                                            this->params().highCardinalityMaximumTailFraction(),
                                            1.0, std::min(10.0 / total, 1.0), rare / total);
-        result.add(::sqrt(-std::min(maths::CTools::fastLog(penalty), 0.0)), total);
+        result.add(std::sqrt(-std::min(maths::CTools::fastLog(penalty), 0.0)), total);
     }
-    return ::exp(-::pow(maths::CBasicStatistics::mean(result), 2.0));
+    return std::exp(-std::pow(maths::CBasicStatistics::mean(result), 2.0));
 }
 
 }

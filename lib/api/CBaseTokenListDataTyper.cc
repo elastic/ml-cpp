@@ -15,18 +15,15 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <ostream>
 #include <set>
-
-#include <math.h>
-
 
 namespace ml
 {
 namespace api
 {
-
 
 // Initialise statics
 const std::string CBaseTokenListDataTyper::PRETOKENISED_TOKEN_FIELD("...");
@@ -56,7 +53,7 @@ CBaseTokenListDataTyper::CBaseTokenListDataTyper(const TTokenListReverseSearchCr
 {
 }
 
-void CBaseTokenListDataTyper::dumpStats(void) const
+void CBaseTokenListDataTyper::dumpStats() const
 {
     // Type number is vector index plus one
     int typeNum(1);
@@ -300,7 +297,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
 
     // Determine the rarest tokens that we can afford within the available
     // length
-    typedef std::multimap<size_t, TSizeSizePr> TSizeSizeSizePrMMap;
+    using TSizeSizeSizePrMMap = std::multimap<size_t, TSizeSizePr>;
     TSizeSizeSizePrMMap rareIdsWithCost;
     size_t lowestCost(std::numeric_limits<size_t>::max());
     for (const auto &commonUniqueTokenId : commonUniqueTokenIds)
@@ -318,7 +315,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
         lowestCost = std::min(cost, lowestCost);
     }
 
-    typedef std::set<size_t>         TSizeSet;
+    using TSizeSet = std::set<size_t>;
     TSizeSet costedCommonUniqueTokenIds;
     size_t cheapestCost(std::numeric_limits<size_t>::max());
     auto cheapestIter = rareIdsWithCost.end();
@@ -419,7 +416,7 @@ class CPairFirstElementGreater
 
 }
 
-bool CBaseTokenListDataTyper::hasChanged(void) const
+bool CBaseTokenListDataTyper::hasChanged() const
 {
     return m_HasChanged;
 }
@@ -505,7 +502,7 @@ void CBaseTokenListDataTyper::acceptPersistInserter(const TTokenMIndex &tokenIdL
     }
 }
 
-CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc(void) const
+CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc() const
 {
     return boost::bind(&CBaseTokenListDataTyper::acceptPersistInserter,
                        m_TokenIdLookup,
@@ -571,7 +568,7 @@ size_t CBaseTokenListDataTyper::minMatchingWeight(size_t weight, double threshol
     // enforce this.  Using floor + 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to ceil
     // (without the + 1).
-    return static_cast<size_t>(::floor(double(weight) * threshold + EPSILON)) + 1;
+    return static_cast<size_t>(std::floor(double(weight) * threshold + EPSILON)) + 1;
 }
 
 size_t CBaseTokenListDataTyper::maxMatchingWeight(size_t weight, double threshold)
@@ -590,7 +587,7 @@ size_t CBaseTokenListDataTyper::maxMatchingWeight(size_t weight, double threshol
     // enforce this.  Using ceil - 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to floor
     // (without the - 1).
-    return static_cast<size_t>(::ceil(double(weight) / threshold - EPSILON)) - 1;
+    return static_cast<size_t>(std::ceil(double(weight) / threshold - EPSILON)) - 1;
 }
 
 size_t CBaseTokenListDataTyper::idForToken(const std::string &token)
@@ -638,17 +635,17 @@ CBaseTokenListDataTyper::CTokenInfoItem::CTokenInfoItem(const std::string &str,
 {
 }
 
-const std::string &CBaseTokenListDataTyper::CTokenInfoItem::str(void) const
+const std::string &CBaseTokenListDataTyper::CTokenInfoItem::str() const
 {
     return m_Str;
 }
 
-size_t CBaseTokenListDataTyper::CTokenInfoItem::index(void) const
+size_t CBaseTokenListDataTyper::CTokenInfoItem::index() const
 {
     return m_Index;
 }
 
-size_t CBaseTokenListDataTyper::CTokenInfoItem::typeCount(void) const
+size_t CBaseTokenListDataTyper::CTokenInfoItem::typeCount() const
 {
     return m_TypeCount;
 }
@@ -658,7 +655,7 @@ void CBaseTokenListDataTyper::CTokenInfoItem::typeCount(size_t typeCount)
     m_TypeCount = typeCount;
 }
 
-void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount(void)
+void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount()
 {
     ++m_TypeCount;
 }

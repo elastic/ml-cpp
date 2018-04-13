@@ -40,16 +40,16 @@ class CORE_EXPORT CWindowsError
     public:
         //! Initialise using the last error to occur.  This
         //! is obtained GetLastError() on Windows.
-        CWindowsError(void);
+        CWindowsError();
 
         //! Initialise using a specific error number
         CWindowsError(uint32_t errorCode);
 
         //! Access the raw error code number
-        uint32_t errorCode(void) const;
+        uint32_t errorCode() const;
 
         //! Textual representation of the error
-        std::string errorString(void) const;
+        std::string errorString() const;
 
     private:
         //! The error code

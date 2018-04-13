@@ -12,7 +12,7 @@
 
 using namespace ml;
 
-void CAutoconfigurerParamsTest::testDefaults(void)
+void CAutoconfigurerParamsTest::testDefaults()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------+");
@@ -68,7 +68,7 @@ void CAutoconfigurerParamsTest::testDefaults(void)
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-void CAutoconfigurerParamsTest::testInit(void)
+void CAutoconfigurerParamsTest::testInit()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------------+");
@@ -131,7 +131,7 @@ void CAutoconfigurerParamsTest::testInit(void)
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-CppUnit::Test *CAutoconfigurerParamsTest::suite(void)
+CppUnit::Test *CAutoconfigurerParamsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 

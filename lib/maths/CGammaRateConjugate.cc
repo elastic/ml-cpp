@@ -32,13 +32,12 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
-
-#include <math.h>
 
 namespace ml
 {
@@ -50,13 +49,13 @@ namespace
 namespace detail
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
-typedef CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator TMeanVarAccumulator;
+using TDoubleDoublePr = std::pair<double, double>;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator;
 
 const double NON_INFORMATIVE_COUNT = 3.5;
 
@@ -64,7 +63,7 @@ const double NON_INFORMATIVE_COUNT = 3.5;
 double minimumCoefficientOfVariation(bool isInteger, double mean)
 {
     return std::max(MINIMUM_COEFFICIENT_OF_VARIATION,
-                    isInteger ? ::sqrt(1.0 / 12.0) / mean : 0.0);
+                    isInteger ? std::sqrt(1.0 / 12.0) / mean : 0.0);
 }
 
 //! Apply the minimum coefficient of variation constraint to the sample
@@ -111,8 +110,8 @@ void truncateVariance(bool isInteger,
         // we should bound the mean of log(x(i)) by:
         //   log(mean(x(i))) - 1/2 * "minimum coefficient variation"^2
 
-        double sampleDeviation = ::sqrt(CBasicStatistics::variance(moments));
-        double sampleMean = std::max(::fabs(CBasicStatistics::mean(moments)), 1e-8);
+        double sampleDeviation = std::sqrt(CBasicStatistics::variance(moments));
+        double sampleMean = std::max(std::fabs(CBasicStatistics::mean(moments)), 1e-8);
         double cov = sampleDeviation / sampleMean;
         double covMin = minimumCoefficientOfVariation(isInteger, sampleMean);
         if (cov < covMin)
@@ -121,7 +120,7 @@ void truncateVariance(bool isInteger,
             moments.s_Moments[1] += extraDeviation * extraDeviation;
         }
 
-        double maxLogMean = ::log(moments.s_Moments[0]) - covMin * covMin / 2.0;
+        double maxLogMean = std::log(moments.s_Moments[0]) - covMin * covMin / 2.0;
         logMean.s_Moments[0] = std::min(double(logMean.s_Moments[0]), double(maxLogMean));
     }
 }
@@ -190,7 +189,7 @@ double maximumLikelihoodShape(double oldShape,
     double oldTarget = 0.0;
     if (oldNumber * oldMean > 0.0)
     {
-        oldTarget = ::log(oldNumber * oldMean) - CBasicStatistics::mean(oldLogMean);
+        oldTarget = std::log(oldNumber * oldMean) - CBasicStatistics::mean(oldLogMean);
     }
 
     double newNumber = CBasicStatistics::count(newMoments);
@@ -200,7 +199,7 @@ double maximumLikelihoodShape(double oldShape,
     {
         return 0.0;
     }
-    double target = ::log(newNumber * newMean) - CBasicStatistics::mean(newLogMean);
+    double target = std::log(newNumber * newMean) - CBasicStatistics::mean(newLogMean);
 
     // Fall back to method of moments if maximum-likelihood fails.
     double bestGuess = 1.0;
@@ -237,7 +236,7 @@ double maximumLikelihoodShape(double oldShape,
         // Choose the growth factors so we will typically bracket the root
         // in one iteration and not overshoot too much. Again we truncate
         // the values so that bracketing loop is well behaved.
-        double dTarget = ::fabs(target - oldTarget);
+        double dTarget = std::fabs(target - oldTarget);
         downFactor = CTools::truncate(1.0 - 2.0 * dTarget / gradient,
                                       MIN_DOWN_FACTOR,
                                       1.0 - EPS);
@@ -519,7 +518,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                 double scaledLikelihoodShape = likelihoodShape / varianceScale;
                 double scaledPriorRate = varianceScale * priorRate;
                 boost::math::beta_distribution<> beta(scaledLikelihoodShape, priorShape);
-                double z = CTools::sign(x) * ::fabs(x / (scaledPriorRate + x));
+                double z = CTools::sign(x) * std::fabs(x / (scaledPriorRate + x));
                 LOG_TRACE("x = " << x << ", z = " << z);
 
                 result = aggregate(result, func(beta, z), n);
@@ -656,7 +655,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable
             return true;
         }
 
-        maths_t::ETail tail(void) const
+        maths_t::ETail tail() const
         {
             return static_cast<maths_t::ETail>(m_Tail);
         }
@@ -753,7 +752,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
                         this->addErrorStatus(maths_t::E_FpOverflowed);
                         return false;
                     }
-                    logSamplesSum += n * (m_LikelihoodShape / varianceScale - 1.0) * ::log(sample);
+                    logSamplesSum += n * (m_LikelihoodShape / varianceScale - 1.0) * std::log(sample);
                     sampleSum += n / varianceScale * sample;
                 }
             }
@@ -766,21 +765,21 @@ class CLogMarginalLikelihood : core::CNonCopyable
 
             result = m_Constant
                      + logSamplesSum
-                     - m_ImpliedShape * ::log(m_PriorRate + sampleSum)
+                     - m_ImpliedShape * std::log(m_PriorRate + sampleSum)
                      - logSeasonalScaleSum;
 
             return true;
         }
 
         //! Retrieve the error status for the integration.
-        maths_t::EFloatingPointErrorStatus errorStatus(void) const
+        maths_t::EFloatingPointErrorStatus errorStatus() const
         {
             return m_ErrorStatus;
         }
 
     private:
         //! Compute all the constants in the integrand.
-        void precompute(void)
+        void precompute()
         {
             m_NumberSamples = 0.0;
             double logVarianceScaleSum = 0.0;
@@ -800,7 +799,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
                      {
                          logVarianceScaleSum -= m_LikelihoodShape
                                                / varianceScale
-                                               * ::log(varianceScale);
+                                               * std::log(varianceScale);
                          logGammaScaledLikelihoodShape +=
                                  n * boost::math::lgamma(m_LikelihoodShape / varianceScale);
                          scaledImpliedShape += n * m_LikelihoodShape / varianceScale;
@@ -817,7 +816,7 @@ class CLogMarginalLikelihood : core::CNonCopyable
 
                 LOG_TRACE("numberSamples = " << m_NumberSamples);
 
-                m_Constant = m_PriorShape * ::log(m_PriorRate)
+                m_Constant = m_PriorShape * std::log(m_PriorRate)
                              - boost::math::lgamma(m_PriorShape)
                              + logVarianceScaleSum
                              - logGammaScaledLikelihoodShape
@@ -930,12 +929,12 @@ CGammaRateConjugate CGammaRateConjugate::nonInformativePrior(maths_t::EDataType 
                                decayRate, offsetMargin);
 }
 
-CGammaRateConjugate::EPrior CGammaRateConjugate::type(void) const
+CGammaRateConjugate::EPrior CGammaRateConjugate::type() const
 {
     return E_Gamma;
 }
 
-CGammaRateConjugate *CGammaRateConjugate::clone(void) const
+CGammaRateConjugate *CGammaRateConjugate::clone() const
 {
     return new CGammaRateConjugate(*this);
 }
@@ -948,12 +947,12 @@ void CGammaRateConjugate::setToNonInformative(double offset,
                                 decayRate, this->offsetMargin());
 }
 
-double CGammaRateConjugate::offsetMargin(void) const
+double CGammaRateConjugate::offsetMargin() const
 {
     return m_OffsetMargin;
 }
 
-bool CGammaRateConjugate::needsOffset(void) const
+bool CGammaRateConjugate::needsOffset() const
 {
     return true;
 }
@@ -967,7 +966,7 @@ double CGammaRateConjugate::adjustOffset(const TWeightStyleVec &weightStyles,
     return this->adjustOffsetWithCost(weightStyles, samples, weights, cost, apply);
 }
 
-double CGammaRateConjugate::offset(void) const
+double CGammaRateConjugate::offset() const
 {
     return m_Offset;
 }
@@ -1080,18 +1079,18 @@ void CGammaRateConjugate::addSamples(const TWeightStyleVec &weightStyles,
 
             double shift_ = - shift
                             + boost::math::digamma(m_LikelihoodShape / varianceScale)
-                            + ::log(varianceScale);
+                            + std::log(varianceScale);
 
             if (this->isInteger())
             {
-                double logxInvPlus1 = ::log(1.0 / x + 1.0);
-                double logxPlus1 = ::log(x + 1.0);
+                double logxInvPlus1 = std::log(1.0 / x + 1.0);
+                double logxPlus1 = std::log(x + 1.0);
                 m_LogSamplesMean.add(x * logxInvPlus1 + logxPlus1 - 1.0 - shift_, n / varianceScale);
                 m_SampleMoments.add(x + 0.5, n / varianceScale);
             }
             else
             {
-                m_LogSamplesMean.add(::log(x) - shift_, n / varianceScale);
+                m_LogSamplesMean.add(std::log(x) - shift_, n / varianceScale);
                 m_SampleMoments.add(x, n / varianceScale);
             }
         }
@@ -1176,7 +1175,7 @@ void CGammaRateConjugate::propagateForwardsByTime(double time)
     TMeanVarAccumulator sampleMoments = m_SampleMoments;
 
     double count = CBasicStatistics::count(m_LogSamplesMean);
-    double alpha = ::exp(-this->decayRate() * time);
+    double alpha = std::exp(-this->decayRate() * time);
     alpha = count > detail::NON_INFORMATIVE_COUNT ?
             (alpha * count + (1.0 - alpha) * detail::NON_INFORMATIVE_COUNT) / count : 1.0;
     if (alpha < 1.0)
@@ -1198,12 +1197,12 @@ void CGammaRateConjugate::propagateForwardsByTime(double time)
               << ", numberSamples = " << this->numberSamples());
 }
 
-CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport(void) const
+CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport() const
 {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 
-double CGammaRateConjugate::marginalLikelihoodMean(void) const
+double CGammaRateConjugate::marginalLikelihoodMean() const
 {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
@@ -1459,7 +1458,7 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
 
         numberSamples = std::min(numberSamples, static_cast<std::size_t>(this->numberSamples() + 0.5));
         double mean = CBasicStatistics::mean(m_SampleMoments) - m_Offset;
-        double deviation = ::sqrt(CBasicStatistics::variance(m_SampleMoments));
+        double deviation = std::sqrt(CBasicStatistics::variance(m_SampleMoments));
         double root_two = boost::math::double_constants::root_two;
 
         switch (numberSamples)
@@ -1597,7 +1596,7 @@ bool CGammaRateConjugate::minusLogJointCdf(const TWeightStyleVec &weightStyles,
                                            double &lowerBound,
                                            double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
+    using TMinusLogCdf = detail::CEvaluateOnSamples<CTools::SMinusLogCdf>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1647,7 +1646,7 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TWeightStyleVec &weig
                                                      double &lowerBound,
                                                      double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
+    using TMinusLogCdfComplement = detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1745,7 +1744,7 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
     return true;
 }
 
-bool CGammaRateConjugate::isNonInformative(void) const
+bool CGammaRateConjugate::isNonInformative() const
 {
     return    CBasicStatistics::count(m_SampleMoments) < detail::NON_INFORMATIVE_COUNT
            || this->priorRate() == NON_INFORMATIVE_RATE;
@@ -1781,12 +1780,12 @@ void CGammaRateConjugate::print(const std::string &indent, std::string &result) 
     {
     }
     double mean = CBasicStatistics::mean(m_SampleMoments);
-    double deviation = ::sqrt(CBasicStatistics::variance(m_SampleMoments));
+    double deviation = std::sqrt(CBasicStatistics::variance(m_SampleMoments));
     result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset)
              + " sd = " + core::CStringUtils::typeToStringPretty(deviation);
 }
 
-std::string CGammaRateConjugate::printJointDensityFunction(void) const
+std::string CGammaRateConjugate::printJointDensityFunction() const
 {
     if (this->isNonInformative())
     {
@@ -1843,12 +1842,12 @@ void CGammaRateConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr m
     mem->setName("CGammaRateConjugate");
 }
 
-std::size_t CGammaRateConjugate::memoryUsage(void) const
+std::size_t CGammaRateConjugate::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CGammaRateConjugate::staticSize(void) const
+std::size_t CGammaRateConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1865,12 +1864,12 @@ void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter &ins
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CGammaRateConjugate::likelihoodShape(void) const
+double CGammaRateConjugate::likelihoodShape() const
 {
     return m_LikelihoodShape;
 }
 
-double CGammaRateConjugate::likelihoodRate(void) const
+double CGammaRateConjugate::likelihoodRate() const
 {
     if (this->isNonInformative())
     {
@@ -1936,7 +1935,7 @@ bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate &rhs,
            && equal(this->priorRate(), rhs.priorRate());
 }
 
-double CGammaRateConjugate::mean(void) const
+double CGammaRateConjugate::mean() const
 {
     if (this->isNonInformative())
     {
@@ -1958,7 +1957,7 @@ double CGammaRateConjugate::mean(void) const
     return m_LikelihoodShape * b / (a - 1.0) - m_Offset;
 }
 
-double CGammaRateConjugate::priorShape(void) const
+double CGammaRateConjugate::priorShape() const
 {
     return m_PriorShape
            + RATE_VARIANCE_SCALE
@@ -1966,7 +1965,7 @@ double CGammaRateConjugate::priorShape(void) const
              * m_LikelihoodShape;
 }
 
-double CGammaRateConjugate::priorRate(void) const
+double CGammaRateConjugate::priorRate() const
 {
     return m_PriorRate
            + RATE_VARIANCE_SCALE
@@ -1974,7 +1973,7 @@ double CGammaRateConjugate::priorRate(void) const
              * CBasicStatistics::mean(m_SampleMoments);
 }
 
-bool CGammaRateConjugate::isBad(void) const
+bool CGammaRateConjugate::isBad() const
 {
     return    !CMathsFuncs::isFinite(m_Offset)
            || !CMathsFuncs::isFinite(m_LikelihoodShape)
@@ -1987,7 +1986,7 @@ bool CGammaRateConjugate::isBad(void) const
            || !CMathsFuncs::isFinite(m_PriorRate);
 }
 
-std::string CGammaRateConjugate::debug(void) const
+std::string CGammaRateConjugate::debug() const
 {
     std::ostringstream result;
     result << std::scientific << std::setprecision(15)

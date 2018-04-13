@@ -75,16 +75,16 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Check if the component has been estimated.
-        bool initialized(void) const;
+        bool initialized() const;
 
         //! Initialize the adaptive bucketing.
-        void initialize(void);
+        void initialize();
 
         //! Get the size of this component.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Clear all data.
-        void clear(void);
+        void clear();
 
         //! Linearly scale the component's by \p scale.
         void linearScale(core_t::TTime time, double scale);
@@ -104,7 +104,7 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         void interpolate(core_t::TTime time, bool refine = true);
 
         //! Get the rate at which the seasonal component loses information.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! Set the rate at which the seasonal component loses information.
         void decayRate(double decayRate);
@@ -113,7 +113,7 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         void propagateForwardsByTime(double time);
 
         //! Get the calendar feature.
-        CCalendarFeature feature(void) const;
+        CCalendarFeature feature() const;
 
         //! Interpolate the component at \p time.
         //!
@@ -123,7 +123,7 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         TDoubleDoublePr value(core_t::TTime time, double confidence) const;
 
         //! Get the mean value of the component.
-        double meanValue(void) const;
+        double meanValue() const;
 
         //! Get the variance of the residual about the prediction at \p time.
         //!
@@ -133,11 +133,11 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         TDoubleDoublePr variance(core_t::TTime time, double confidence) const;
 
         //! Get the mean variance of the component residuals.
-        double meanVariance(void) const;
+        double meanVariance() const;
 
         //! Get the maximum ratio between a residual variance and the mean
         //! residual variance.
-        double heteroscedasticity(void) const;
+        double heteroscedasticity() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -146,7 +146,7 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         //! Create by traversing a state document.

@@ -36,14 +36,14 @@ class CONFIG_EXPORT CNotEnoughDataPenalty : public CPenalty
         CNotEnoughDataPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CNotEnoughDataPenalty *clone(void) const;
+        virtual CNotEnoughDataPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
-        typedef std::vector<uint64_t> TUInt64Vec;
-        typedef std::vector<CBucketCountStatistics> TBucketCountStatisticsVec;
+        using TUInt64Vec = std::vector<uint64_t>;
+        using TBucketCountStatisticsVec = std::vector<CBucketCountStatistics>;
 
     private:
         //! Compute a penalty for rare detectors.

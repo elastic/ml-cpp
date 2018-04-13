@@ -30,15 +30,15 @@ namespace core
 namespace printer_detail
 {
 
-typedef boost::true_type true_;
-typedef boost::false_type false_;
+using true_ = boost::true_type;
+using false_ = boost::false_type;
 
 //! Auxiliary type used by has_const_iterator to test for a nested
 //! typedef.
 template<typename T, typename R = void>
 struct enable_if_has
 {
-    typedef R type;
+    using type = R;
 };
 
 //! Auxiliary type used by has_print_function to test for a nested
@@ -46,7 +46,7 @@ struct enable_if_has
 template<typename T, T, typename R = void>
 struct enable_if_is
 {
-    typedef R type;
+    using type = R;
 };
 
 //! \name Check For Nested "const_iterator"
@@ -65,13 +65,13 @@ struct enable_if_is
 template<typename T, typename ENABLE = void>
 struct has_const_iterator
 {
-    typedef false_ value;
+    using value = false_;
 };
 
 template<typename T>
 struct has_const_iterator<T, typename enable_if_has<typename T::const_iterator>::type>
 {
-    typedef true_ value;
+    using value = true_;
 };
 //@}
 
@@ -92,13 +92,13 @@ struct has_const_iterator<T, typename enable_if_has<typename T::const_iterator>:
 template<typename T, typename U = void>
 struct has_print_function
 {
-    typedef false_ value;
+    using value = false_;
 };
 
 template<typename T>
-struct has_print_function<T, typename enable_if_is<std::string (T::*)(void) const, &T::print>::type>
+struct has_print_function<T, typename enable_if_is<std::string (T::*)() const, &T::print>::type>
 {
-    typedef true_ value;
+    using value = true_;
 };
 //@}
 
@@ -255,9 +255,9 @@ class CORE_EXPORT CContainerPrinter : private CNonInstantiatable
         static std::string printElement(const T &value)
         {
             using namespace printer_detail;
-            typedef typename boost::unwrap_reference<T>::type U;
-            typedef CNodePrinter<typename has_const_iterator<U>::value,
-                                 CContainerPrinter> Printer;
+            using U = typename boost::unwrap_reference<T>::type;
+            using Printer = CNodePrinter<typename has_const_iterator<U>::value,
+                                         CContainerPrinter>;
             return Printer::print(boost::unwrap_ref(value));
         }
 

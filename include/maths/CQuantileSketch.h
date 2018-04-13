@@ -49,8 +49,8 @@ namespace maths
 class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
 {
     public:
-        typedef std::pair<CFloatStorage, CFloatStorage> TFloatFloatPr;
-        typedef std::vector<TFloatFloatPr> TFloatFloatPrVec;
+        using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
+        using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
 
         //! The types of interpolation used for computing the quantile.
         enum EInterpolation
@@ -96,10 +96,10 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
         bool quantile(double percentage, double &result) const;
 
         //! Get the knot values.
-        const TFloatFloatPrVec &knots(void) const;
+        const TFloatFloatPrVec &knots() const;
 
         //! Get the total count of points added.
-        double count(void) const;
+        double count() const;
 
         //! Get a checksum of this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -108,23 +108,23 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Check invariants.
-        bool checkInvariants(void) const;
+        bool checkInvariants() const;
 
         //! Print the sketch for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! Reduce to the maximum permitted size.
-        void reduce(void);
+        void reduce();
 
         //! Sort and combine any co-located values.
-        void orderAndDeduplicate(void);
+        void orderAndDeduplicate();
 
         //! Get the target size for sketch post reduce.
-        std::size_t target(void) const;
+        std::size_t target() const;
 
         //! Compute the cost of combining \p vl and \p vr.
         double cost(const TFloatFloatPr &vl, const TFloatFloatPr &vr) const;
@@ -149,7 +149,7 @@ template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
 class CFixedQuantileSketch : public CQuantileSketch
 {
     public:
-        CFixedQuantileSketch(void) : CQuantileSketch(INTERPOLATION, N) {}
+        CFixedQuantileSketch() : CQuantileSketch(INTERPOLATION, N) {}
 
         //! NB1: Needs to be redeclared to work with CChecksum.
         //! NB2: This method is not currently virtual - needs changing if any of the
@@ -172,7 +172,7 @@ class CFixedQuantileSketch : public CQuantileSketch
         //! NB1: Needs to be redeclared to work with CMemory.
         //! NB2: This method is not currently virtual - needs changing if any of the
         //! methods of this class ever do anything other than forward to the base class
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return this->CQuantileSketch::memoryUsage();
         }

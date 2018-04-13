@@ -34,10 +34,10 @@ namespace maths
 class MATHS_EXPORT CCooccurrences
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+        using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
     public:
         CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth);
@@ -74,7 +74,7 @@ class MATHS_EXPORT CCooccurrences
         void add(std::size_t X);
 
         //! Capture the indicator values of missing events.
-        void capture(void);
+        void capture();
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -83,11 +83,11 @@ class MATHS_EXPORT CCooccurrences
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
-        typedef boost::unordered_set<std::size_t> TSizeUSet;
-        typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+        using TSizeUSet = boost::unordered_set<std::size_t>;
+        using TPackedBitVectorVec = std::vector<CPackedBitVector>;
 
     private:
         //! The maximum permitted event sequence length.

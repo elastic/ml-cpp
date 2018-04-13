@@ -42,7 +42,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable
 
     public:
         //! Current time
-        static core_t::TTime  now(void);
+        static core_t::TTime  now();
 
         //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
         //! E.g. 1997-07-16T19:20:30+01:00
@@ -86,15 +86,15 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable
         {
             public:
                 //! Get the singleton instance
-                static const CDateWordCache &instance(void);
+                static const CDateWordCache &instance();
 
                 //! Check if a word is a date word
                 bool isDateWord(const std::string &word) const;
 
             private:
                 //! Constructor for a singleton is private
-                CDateWordCache(void);
-                ~CDateWordCache(void);
+                CDateWordCache();
+                ~CDateWordCache();
 
             private:
                 //! Protect the singleton's initialisation, preventing it from
@@ -107,7 +107,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable
                 //! value of this variable has made its way into every thread).
                 static volatile CDateWordCache *ms_Instance;
 
-                typedef boost::unordered_set<std::string> TStrUSet;
+                using TStrUSet = boost::unordered_set<std::string>;
 
                 //! Our cache of date words
                 TStrUSet                       m_DateWords;

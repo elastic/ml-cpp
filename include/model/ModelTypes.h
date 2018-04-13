@@ -44,11 +44,11 @@ struct SModelParams;
 namespace model_t
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<TDouble2Vec, 1> TDouble2Vec1Vec;
-typedef std::pair<TDouble1Vec, TDouble1Vec> TDouble1VecDouble1VecPr;
-typedef boost::shared_ptr<const model::CInfluenceCalculator> TInfluenceCalculatorCPtr;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
+using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
+using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalculator>;
 
 //! The types of model available.
 //!
@@ -97,7 +97,7 @@ class MODEL_EXPORT CResultType
         };
 
     public:
-        CResultType(void) : m_Type(0) {}
+        CResultType() : m_Type(0) {}
         CResultType(EInterimOrFinal type) : m_Type(type) {}
         CResultType(EConditionalOrUnconditional type) : m_Type(type) {}
         explicit CResultType(unsigned int type) : m_Type(type) {}
@@ -117,31 +117,31 @@ class MODEL_EXPORT CResultType
         }
 
         //! Check if this is interim.
-        bool isInterim(void) const
+        bool isInterim() const
         {
             return (m_Type & static_cast<unsigned int>(E_Interim)) != 0;
         }
 
         //! Get as interim or final enumeration.
-        EInterimOrFinal asInterimOrFinal(void) const
+        EInterimOrFinal asInterimOrFinal() const
         {
             return this->isInterim() ? E_Interim : E_Final;
         }
 
         //! Check if this is unconditional.
-        bool isUnconditional(void) const
+        bool isUnconditional() const
         {
             return (m_Type & static_cast<unsigned int>(E_Unconditional)) != 0;
         }
 
         //! Get as conditional or unconditional enumeration.
-        EConditionalOrUnconditional asConditionalOrUnconditional(void) const
+        EConditionalOrUnconditional asConditionalOrUnconditional() const
         {
             return this->isUnconditional() ? E_Unconditional : E_Conditional;
         }
 
         //! Get as an unsigned integer.
-        unsigned int asUint(void) const { return m_Type; }
+        unsigned int asUint() const { return m_Type; }
 
     private:
         //! Encodes the result type.
@@ -445,7 +445,7 @@ enum EFeature
     E_PeersMedianByPersonAndAttribute = 508
 };
 
-typedef std::vector<EFeature> TFeatureVec;
+using TFeatureVec = std::vector<EFeature>;
 
 //! Get the dimension of the feature \p feature.
 MODEL_EXPORT

@@ -23,10 +23,10 @@ namespace maths
 namespace lasso_logistic_regression_detail
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
-typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
+using TDoubleVec = std::vector<double>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrDoublePr = std::pair<TSizeSizePr, double>;
+using TSizeSizePrDoublePrVec = std::vector<TSizeSizePrDoublePr>;
 
 //! Very simple dynamically sized dense matrix.
 //!
@@ -36,23 +36,23 @@ typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
 class MATHS_EXPORT CDenseMatrix
 {
     public:
-        typedef TDoubleVec::const_iterator iterator;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        using iterator = TDoubleVec::const_iterator;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
 
     public:
-        CDenseMatrix(void);
+        CDenseMatrix();
         CDenseMatrix(TDoubleVecVec &elements);
 
         //! Efficiently swap the contents of two matrices.
         void swap(CDenseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
+        std::size_t rows() const
         {
             return m_Elements.empty() ? 0 : m_Elements[0].size();
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
+        std::size_t columns() const
         {
             return m_Elements.size();
         }
@@ -89,10 +89,10 @@ class MATHS_EXPORT CDenseMatrix
 class MATHS_EXPORT CSparseMatrix
 {
     public:
-        typedef TSizeSizePrDoublePrVec::const_iterator iterator;
+        using iterator = TSizeSizePrDoublePrVec::const_iterator;
 
     public:
-        CSparseMatrix(void);
+        CSparseMatrix();
         CSparseMatrix(std::size_t rows,
                       std::size_t columns,
                       TSizeSizePrDoublePrVec &elements);
@@ -101,12 +101,12 @@ class MATHS_EXPORT CSparseMatrix
         void swap(CSparseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
+        std::size_t rows() const
         {
             return m_Rows;
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
+        std::size_t columns() const
         {
             return m_Columns;
         }
@@ -288,12 +288,12 @@ enum EHyperparametersStyle
 class MATHS_EXPORT CLogisticRegressionModel
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeDoublePr = std::pair<std::size_t, double>;
+        using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 
     public:
-        CLogisticRegressionModel(void);
+        CLogisticRegressionModel();
         CLogisticRegressionModel(double beta0,
                                  TSizeDoublePrVec &beta);
 
@@ -346,11 +346,11 @@ template<typename STORAGE>
 class MATHS_EXPORT CLassoLogisticRegression
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
+        using TDoubleVec = std::vector<double>;
+        using EHyperparametersStyle = lasso_logistic_regression_detail::EHyperparametersStyle;
 
     protected:
-        CLassoLogisticRegression(void);
+        CLassoLogisticRegression();
 
         //! Learn the value of precision of the Laplace prior.
         template<typename MATRIX>
@@ -366,22 +366,22 @@ class MATHS_EXPORT CLassoLogisticRegression
         //! It is only possible to learn a model if the training
         //! data contains a mixture of both positive and negative
         //! examples.
-        bool sanityChecks(void) const;
+        bool sanityChecks() const;
 
         //! Get the training feature vectors.
-        inline const STORAGE &x(void) const { return m_X; }
+        inline const STORAGE &x() const { return m_X; }
         //! Get the training feature vectors.
-        inline STORAGE &x(void) { return m_X; }
+        inline STORAGE &x() { return m_X; }
 
         //! Get the feature vector dimension.
-        inline std::size_t d(void) const { return m_D; }
+        inline std::size_t d() const { return m_D; }
         //! Get the feature vector dimension.
-        inline std::size_t &d(void) { return m_D; }
+        inline std::size_t &d() { return m_D; }
 
         //! Get the training feature vectors.
-        inline const TDoubleVec &y(void) const { return m_Y; }
+        inline const TDoubleVec &y() const { return m_Y; }
         //! Get the training feature vectors.
-        inline TDoubleVec &y(void) { return m_Y; }
+        inline TDoubleVec &y() { return m_Y; }
 
     private:
         //! The feature vectors.
@@ -396,8 +396,8 @@ class MATHS_EXPORT CLassoLogisticRegression
         TDoubleVec m_Beta;
 };
 
-typedef std::vector<std::vector<double> > TDenseStorage;
-typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorage;
+using TDenseStorage = std::vector<std::vector<double> >;
+using TSparseStorage = std::vector<std::vector<std::pair<std::size_t, double> > >;
 
 //! \brief Lasso logistic regression using dense encoding of the
 //! feature vectors.
@@ -411,8 +411,8 @@ typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorag
 class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage>
 {
     public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        using TSizeDoublePr = std::pair<std::size_t, double>;
+        using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 
     public:
         //! Add a labeled feature vector \p x. The label is either
@@ -447,9 +447,9 @@ class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegressi
 class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage>
 {
     public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
-        typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
+        using TSizeDoublePr = std::pair<std::size_t, double>;
+        using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+        using EHyperparametersStyle = lasso_logistic_regression_detail::EHyperparametersStyle;
 
     public:
         //! Add a labeled feature vector \p x. The label is either

@@ -48,7 +48,7 @@ bool CRuleCondition::SCondition::test(double value) const
     return false;
 }
 
-CRuleCondition::CRuleCondition(void)
+CRuleCondition::CRuleCondition()
     : m_Type(E_NumericalActual),
       m_Condition(E_LT, 0.0),
       m_FieldName(),
@@ -72,7 +72,7 @@ void CRuleCondition::fieldValue(const std::string &fieldValue)
     m_FieldValue = fieldValue;
 }
 
-CRuleCondition::SCondition &CRuleCondition::condition(void)
+CRuleCondition::SCondition &CRuleCondition::condition()
 {
     return m_Condition;
 }
@@ -82,12 +82,12 @@ void CRuleCondition::valueFilter(const core::CPatternSet &valueFilter)
     m_ValueFilter = TPatternSetCRef(valueFilter);
 }
 
-bool CRuleCondition::isCategorical(void) const
+bool CRuleCondition::isCategorical() const
 {
     return m_Type == E_Categorical;
 }
 
-bool CRuleCondition::isNumerical(void) const
+bool CRuleCondition::isNumerical() const
 {
     return !this->isCategorical();
 }
@@ -206,7 +206,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel &model,
             }
             for (std::size_t i = 0; i < value.size(); ++i)
             {
-                value[i] = ::fabs(value[i] - typical[i]);
+                value[i] = std::fabs(value[i] - typical[i]);
             }
             break;
         }
@@ -230,7 +230,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel &model,
     return m_Condition.test(value[0]);
 }
 
-std::string CRuleCondition::print(void) const
+std::string CRuleCondition::print() const
 {
     std::string result = this->print(m_Type);
     if (m_FieldName.empty() == false)

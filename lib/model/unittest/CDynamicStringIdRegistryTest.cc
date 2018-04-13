@@ -36,7 +36,7 @@ CppUnit::Test *CDynamicStringIdRegistryTest::suite()
     return suiteOfTests;
 }
 
-void CDynamicStringIdRegistryTest::testAddName(void)
+void CDynamicStringIdRegistryTest::testAddName()
 {
     LOG_DEBUG("*** testAddName ***");
 
@@ -88,7 +88,7 @@ void CDynamicStringIdRegistryTest::testAddName(void)
     CPPUNIT_ASSERT(registry.isIdActive(2));
 }
 
-void CDynamicStringIdRegistryTest::testPersist(void)
+void CDynamicStringIdRegistryTest::testPersist()
 {
     LOG_DEBUG("*** testPersist ***");
 

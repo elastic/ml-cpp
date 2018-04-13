@@ -23,7 +23,7 @@
 using namespace ml;
 using namespace maths;
 
-void CMathsMemoryTest::testTimeSeriesDecompositions(void)
+void CMathsMemoryTest::testTimeSeriesDecompositions()
 {
     CTimeSeriesDecomposition decomp(0.95, 3600, 55);
 
@@ -40,7 +40,7 @@ void CMathsMemoryTest::testTimeSeriesDecompositions(void)
     CPPUNIT_ASSERT_EQUAL(decomp.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testPriors(void)
+void CMathsMemoryTest::testPriors()
 {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
@@ -126,9 +126,9 @@ void CMathsMemoryTest::testPriors(void)
     CPPUNIT_ASSERT_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testBjkstVec(void)
+void CMathsMemoryTest::testBjkstVec()
 {
-    typedef std::vector<maths::CBjkstUniqueValues> TBjkstValuesVec;
+    using TBjkstValuesVec = std::vector<maths::CBjkstUniqueValues>;
     {
         // Test empty
         TBjkstValuesVec values;
@@ -174,7 +174,7 @@ void CMathsMemoryTest::testBjkstVec(void)
 }
 
 
-CppUnit::Test *CMathsMemoryTest::suite(void)
+CppUnit::Test *CMathsMemoryTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
 

@@ -12,7 +12,7 @@
 class CGathererToolsTest : public CppUnit::TestFixture
 {
     public:
-        void testSumGathererIsRedundant(void);
+        void testSumGathererIsRedundant();
 
         static CppUnit::Test *suite();
 };

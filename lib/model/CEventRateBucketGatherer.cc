@@ -45,23 +45,23 @@ namespace model
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::map<std::string, uint64_t> TStrUInt64Map;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
-typedef TSizeUSet::const_iterator TSizeUSetCItr;
-typedef std::vector<TSizeUSet> TSizeUSetVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef boost::unordered_map<TSizeSizePr, TMeanAccumulator> TSizeSizePrMeanAccumulatorUMap;
-typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-typedef CBucketQueue<TSizeSizePrMeanAccumulatorUMap> TSizeSizePrMeanAccumulatorUMapQueue;
-typedef CEventRateBucketGatherer::TCategoryAnyMap TCategoryAnyMap;
-typedef boost::unordered_map<TSizeSizePr, CUniqueStringFeatureData> TSizeSizePrStrDataUMap;
-typedef CBucketQueue<TSizeSizePrStrDataUMap> TSizeSizePrStrDataUMapQueue;
-typedef CBucketGatherer::TStoredStringPtrVec TStoredStringPtrVec;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TStrUInt64Map = std::map<std::string, uint64_t>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrVec = std::vector<TSizeSizePr>;
+using TUInt64Vec = std::vector<uint64_t>;
+using TSizeUSet = boost::unordered_set<std::size_t>;
+using TSizeUSetCItr = TSizeUSet::const_iterator;
+using TSizeUSetVec = std::vector<TSizeUSet>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TSizeSizePrMeanAccumulatorUMap = boost::unordered_map<TSizeSizePr, TMeanAccumulator>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrMeanAccumulatorUMapQueue = CBucketQueue<TSizeSizePrMeanAccumulatorUMap>;
+using TCategoryAnyMap = CEventRateBucketGatherer::TCategoryAnyMap;
+using TSizeSizePrStrDataUMap = boost::unordered_map<TSizeSizePr, CUniqueStringFeatureData>;
+using TSizeSizePrStrDataUMapQueue = CBucketQueue<TSizeSizePrStrDataUMap>;
+using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
 
 // We use short field names to reduce the state size
 const std::string BASE_TAG("a");
@@ -352,8 +352,8 @@ const std::string &overField(bool population, const TStrVec &fieldNames)
 }
 
 template<typename ITR, typename T> struct SMaybeConst {};
-template<typename T> struct SMaybeConst<TCategoryAnyMap::iterator, T> { typedef T &TRef; };
-template<typename T> struct SMaybeConst<TCategoryAnyMap::const_iterator, T> { typedef const T &TRef; };
+template<typename T> struct SMaybeConst<TCategoryAnyMap::iterator, T> { using TRef = T &; };
+template<typename T> struct SMaybeConst<TCategoryAnyMap::const_iterator, T> { using TRef = const T &; };
 
 //! Apply a function \p f to all the data held in [\p begin, \p end).
 template<typename ITR, typename F>
@@ -430,7 +430,7 @@ struct SRemovePeople
                     std::size_t lowestPersonToRemove,
                     std::size_t endPeople) const
     {
-        for (auto &&bucket : peopleAttributeUniqueValues)
+        for (auto &bucket : peopleAttributeUniqueValues)
         {
             for (auto i = bucket.begin(); i != bucket.end(); /**/)
             {
@@ -457,7 +457,7 @@ struct SRemovePeople
                     std::size_t lowestPersonToRemove,
                     std::size_t endPeople) const
     {
-        for (auto &&bucket : arrivalTimes)
+        for (auto &bucket : arrivalTimes)
         {
             for (auto i = bucket.begin(); i != bucket.end(); /**/)
             {
@@ -505,7 +505,7 @@ struct SRemoveAttributes
     void operator()(TSizeSizePrStrDataUMapQueue &peopleAttributeUniqueValues,
                     std::size_t lowestAttributeToRemove) const
     {
-        for (auto &&bucket : peopleAttributeUniqueValues)
+        for (auto &bucket : peopleAttributeUniqueValues)
         {
             for (auto i = bucket.begin(); i != bucket.end(); /**/)
             {
@@ -530,7 +530,7 @@ struct SRemoveAttributes
     void operator()(TSizeSizePrMeanAccumulatorUMapQueue &arrivalTimes,
                     std::size_t lowestAttributeToRemove) const
     {
-        for (auto &&bucket : arrivalTimes)
+        for (auto &bucket : arrivalTimes)
         {
             for (auto i = bucket.begin(); i != bucket.end(); /**/)
             {
@@ -561,8 +561,8 @@ struct SChecksum
                     const CDataGatherer &gatherer,
                     TStrUInt64Map &hashes) const
     {
-        typedef boost::reference_wrapper<const std::string> TStrCRef;
-        typedef std::vector<TStrCRef> TStrCRefVec;
+        using TStrCRef = boost::reference_wrapper<const std::string>;
+        using TStrCRefVec = std::vector<TStrCRef>;
 
         for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid)
         {
@@ -607,7 +607,7 @@ struct SChecksum
                   const CDataGatherer &gatherer,
                   TStrUInt64Map &hashes) const
     {
-        typedef boost::unordered_map<std::size_t, TUInt64Vec> TSizeUInt64VecUMap;
+        using TSizeUInt64VecUMap = boost::unordered_map<std::size_t, TUInt64Vec>;
 
         TSizeUInt64VecUMap attributeHashes;
 
@@ -621,7 +621,7 @@ struct SChecksum
             }
         }
 
-        for (auto &&hash_ : attributeHashes)
+        for (auto &hash_ : attributeHashes)
         {
             std::sort(hash_.second.begin(), hash_.second.end());
             uint64_t &hash = hashes[gatherer.attributeName(hash_.first)];
@@ -755,7 +755,7 @@ const std::string UNIQUE_WORD_TAG("b");
 void persistUniqueStrings(const CUniqueStringFeatureData::TWordStringUMap &map,
                           core::CStatePersistInserter &inserter)
 {
-    typedef std::vector<CUniqueStringFeatureData::TWord> TWordVec;
+    using TWordVec = std::vector<CUniqueStringFeatureData::TWord>;
 
     if (!map.empty())
     {
@@ -795,7 +795,7 @@ bool restoreUniqueStrings(core::CStateRestoreTraverser &traverser,
 void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TStoredStringPtrWordSetUMap &map,
                                     core::CStatePersistInserter &inserter)
 {
-    typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
     if (!map.empty())
     {
@@ -870,7 +870,7 @@ void registerMemoryCallbacks(VISITOR &visitor)
 }
 
 //! Register the callbacks for computing the size of feature data gatherers.
-void registerMemoryCallbacks(void)
+void registerMemoryCallbacks()
 {
     static std::atomic_flag once = ATOMIC_FLAG_INIT;
     if (once.test_and_set() == false)
@@ -965,48 +965,48 @@ void CEventRateBucketGatherer::acceptPersistInserter(core::CStatePersistInserter
     persistFeatureData(m_FeatureData, inserter);
 }
 
-CBucketGatherer *CEventRateBucketGatherer::cloneForPersistence(void) const
+CBucketGatherer *CEventRateBucketGatherer::cloneForPersistence() const
 {
     return new CEventRateBucketGatherer(true, *this);
 }
 
-const std::string &CEventRateBucketGatherer::persistenceTag(void) const
+const std::string &CEventRateBucketGatherer::persistenceTag() const
 {
     return CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG;
 }
 
-const std::string &CEventRateBucketGatherer::personFieldName(void) const
+const std::string &CEventRateBucketGatherer::personFieldName() const
 {
     return m_FieldNames[0];
 }
 
-const std::string &CEventRateBucketGatherer::attributeFieldName(void) const
+const std::string &CEventRateBucketGatherer::attributeFieldName() const
 {
     return m_DataGatherer.isPopulation() ? m_FieldNames[1] : EMPTY_STRING;
 }
 
-const std::string &CEventRateBucketGatherer::valueFieldName(void) const
+const std::string &CEventRateBucketGatherer::valueFieldName() const
 {
     return m_BeginValueField != m_BeginSummaryFields ?
            m_FieldNames[m_BeginValueField] : EMPTY_STRING;
 }
 
-CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::beginInfluencers(void) const
+CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::beginInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginInfluencingFields;
 }
 
-CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::endInfluencers(void) const
+CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::endInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginValueField;
 }
 
-const CEventRateBucketGatherer::TStrVec &CEventRateBucketGatherer::fieldsOfInterest(void) const
+const CEventRateBucketGatherer::TStrVec &CEventRateBucketGatherer::fieldsOfInterest() const
 {
     return m_FieldNames;
 }
 
-std::string CEventRateBucketGatherer::description(void) const
+std::string CEventRateBucketGatherer::description() const
 {
     return function_t::name(function_t::function(m_DataGatherer.features()))
            + (m_BeginValueField == m_BeginSummaryFields ? "" : (" " + m_FieldNames[m_BeginValueField]))
@@ -1022,8 +1022,8 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
                                              CEventData &result,
                                              CResourceMonitor &resourceMonitor)
 {
-    typedef boost::optional<std::size_t> TOptionalSize;
-    typedef boost::optional<std::string> TOptionalStr;
+    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalStr = boost::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size())
     {
@@ -1215,7 +1215,7 @@ void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRem
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CEventRateBucketGatherer::checksum(void) const
+uint64_t CEventRateBucketGatherer::checksum() const
 {
     uint64_t seed = this->CBucketGatherer::checksum();
 
@@ -1239,7 +1239,7 @@ void CEventRateBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
-std::size_t CEventRateBucketGatherer::memoryUsage(void) const
+std::size_t CEventRateBucketGatherer::memoryUsage() const
 {
     registerMemoryCallbacks();
     std::size_t mem = CBucketGatherer::memoryUsage();
@@ -1248,12 +1248,12 @@ std::size_t CEventRateBucketGatherer::memoryUsage(void) const
     return mem;
 }
 
-std::size_t CEventRateBucketGatherer::staticSize(void) const
+std::size_t CEventRateBucketGatherer::staticSize() const
 {
     return sizeof(*this);
 }
 
-void CEventRateBucketGatherer::clear(void)
+void CEventRateBucketGatherer::clear()
 {
     this->CBucketGatherer::clear();
     m_FeatureData.clear();
@@ -1864,7 +1864,7 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string &personFie
     TStrVec(m_FieldNames).swap(m_FieldNames);
 }
 
-void CEventRateBucketGatherer::initializeFeatureData(void)
+void CEventRateBucketGatherer::initializeFeatureData()
 {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i)
     {
@@ -2082,7 +2082,7 @@ void CUniqueStringFeatureData::populateDistinctCountFeatureData(SEventRateFeatur
 
 void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureData &featureData) const
 {
-    typedef std::vector<TStrCRef> TStrCRefVec;
+    using TStrCRefVec = std::vector<TStrCRef>;
 
     featureData.s_InfluenceValues.clear();
     core::CCompressUtils compressor(true);
@@ -2174,7 +2174,7 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
     return true;
 }
 
-uint64_t CUniqueStringFeatureData::checksum(void) const
+uint64_t CUniqueStringFeatureData::checksum() const
 {
     uint64_t seed = maths::CChecksum::calculate(0, m_UniqueStrings);
     return maths::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
@@ -2187,7 +2187,7 @@ void CUniqueStringFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("s_InfluenceUniqueStrings", m_InfluencerUniqueStrings, mem);
 }
 
-std::size_t CUniqueStringFeatureData::memoryUsage(void) const
+std::size_t CUniqueStringFeatureData::memoryUsage() const
 {
     std::size_t mem = sizeof(*this);
     mem += core::CMemory::dynamicSize(m_UniqueStrings);
@@ -2195,7 +2195,7 @@ std::size_t CUniqueStringFeatureData::memoryUsage(void) const
     return mem;
 }
 
-std::string CUniqueStringFeatureData::print(void) const
+std::string CUniqueStringFeatureData::print() const
 {
     return "(" + core::CContainerPrinter::print(m_UniqueStrings) + ", " +
                  core::CContainerPrinter::print(m_InfluencerUniqueStrings) + ")";

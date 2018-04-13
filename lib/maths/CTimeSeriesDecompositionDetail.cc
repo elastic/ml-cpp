@@ -452,8 +452,8 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler(void) : m_Mediator{0} {}
-CTimeSeriesDecompositionDetail::CHandler::~CHandler(void) {}
+CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{0} {}
+CTimeSeriesDecompositionDetail::CHandler::~CHandler() {}
 
 void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue &/*message*/) {}
 
@@ -468,7 +468,7 @@ void CTimeSeriesDecompositionDetail::CHandler::mediator(CMediator *mediator)
     m_Mediator = mediator;
 }
 
-CTimeSeriesDecompositionDetail::CMediator *CTimeSeriesDecompositionDetail::CHandler::mediator(void) const
+CTimeSeriesDecompositionDetail::CMediator *CTimeSeriesDecompositionDetail::CHandler::mediator() const
 {
     return m_Mediator;
 }
@@ -496,7 +496,7 @@ void CTimeSeriesDecompositionDetail::CMediator::debugMemoryUsage(core::CMemoryUs
     core::CMemoryDebug::dynamicSize("m_Handlers", m_Handlers, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CMediator::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CMediator::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Handlers);
 }
@@ -590,7 +590,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue &m
     switch (m_Machine.state())
     {
     case PT_TEST:
-        for (auto &&window : m_Windows)
+        for (auto &window : m_Windows)
         {
             if (window)
             {
@@ -674,7 +674,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::debugMemoryUsage(core::CM
     core::CMemoryDebug::dynamicSize("m_Windows", m_Windows, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage() const
 {
     std::size_t usage{core::CMemory::dynamicSize(m_Windows)};
     if (m_Machine.state() == PT_INITIAL)
@@ -684,7 +684,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage(void) 
     return usage;
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnInitialization(void) const
+std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnInitialization() const
 {
     static std::size_t result{0};
     if (result == 0)
@@ -953,7 +953,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::debugMemoryUsage(core::CMemo
     core::CMemoryDebug::dynamicSize("m_Test", m_Test, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage() const
 {
     std::size_t usage{core::CMemory::dynamicSize(m_Test)};
     if (m_Machine.state() == CC_INITIAL)
@@ -963,7 +963,7 @@ std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage(void) con
     return usage;
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization(void) const
+std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const
 {
     static std::size_t result{0};
     if (result == 0)
@@ -1446,7 +1446,7 @@ void CTimeSeriesDecompositionDetail::CComponents::decayRate(double decayRate)
     }
 }
 
-double CTimeSeriesDecompositionDetail::CComponents::decayRate(void) const
+double CTimeSeriesDecompositionDetail::CComponents::decayRate() const
 {
     return m_DecayRate;
 }
@@ -1470,7 +1470,7 @@ void CTimeSeriesDecompositionDetail::CComponents::propagateForwards(core_t::TTim
     m_MomentsMinusTrend.age(factor);
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::initialized(void) const
+bool CTimeSeriesDecompositionDetail::CComponents::initialized() const
 {
     return m_UsingTrendForPrediction && m_Trend.initialized() ? true :
           (m_Seasonal && m_Calendar ? m_Seasonal->initialized() || m_Calendar->initialized() :
@@ -1478,27 +1478,27 @@ bool CTimeSeriesDecompositionDetail::CComponents::initialized(void) const
           (m_Calendar ? m_Calendar->initialized() : false)));
 }
 
-const CTrendComponent &CTimeSeriesDecompositionDetail::CComponents::trend(void) const
+const CTrendComponent &CTimeSeriesDecompositionDetail::CComponents::trend() const
 {
     return m_Trend;
 }
 
-const TSeasonalComponentVec &CTimeSeriesDecompositionDetail::CComponents::seasonal(void) const
+const TSeasonalComponentVec &CTimeSeriesDecompositionDetail::CComponents::seasonal() const
 {
     return m_Seasonal ? m_Seasonal->s_Components : NO_SEASONAL_COMPONENTS;
 }
 
-const maths_t::TCalendarComponentVec &CTimeSeriesDecompositionDetail::CComponents::calendar(void) const
+const maths_t::TCalendarComponentVec &CTimeSeriesDecompositionDetail::CComponents::calendar() const
 {
     return m_Calendar ? m_Calendar->s_Components : NO_CALENDAR_COMPONENTS;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::usingTrendForPrediction(void) const
+bool CTimeSeriesDecompositionDetail::CComponents::usingTrendForPrediction() const
 {
     return m_UsingTrendForPrediction;
 }
 
-CPeriodicityHypothesisTestsConfig CTimeSeriesDecompositionDetail::CComponents::periodicityTestConfig(void) const
+CPeriodicityHypothesisTestsConfig CTimeSeriesDecompositionDetail::CComponents::periodicityTestConfig() const
 {
     CPeriodicityHypothesisTestsConfig result;
     for (const auto &component : this->seasonal())
@@ -1522,14 +1522,14 @@ double CTimeSeriesDecompositionDetail::CComponents::meanValue(core_t::TTime time
                                   + meanOf(&CSeasonalComponent::meanValue, this->seasonal())) : 0.0;
 }
 
-double CTimeSeriesDecompositionDetail::CComponents::meanVariance(void) const
+double CTimeSeriesDecompositionDetail::CComponents::meanVariance() const
 {
     return this->initialized() ? ( (m_UsingTrendForPrediction ?
                                     CBasicStatistics::mean(this->trend().variance(0.0)) : 0.0)
                                   + meanOf(&CSeasonalComponent::meanVariance, this->seasonal())) : 0.0;
 }
 
-double CTimeSeriesDecompositionDetail::CComponents::meanVarianceScale(void) const
+double CTimeSeriesDecompositionDetail::CComponents::meanVarianceScale() const
 {
     return CBasicStatistics::mean(m_MeanVarianceScale);
 }
@@ -1558,19 +1558,19 @@ void CTimeSeriesDecompositionDetail::CComponents::debugMemoryUsage(core::CMemory
     core::CMemoryDebug::dynamicSize("m_Calendar", m_Calendar, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_Trend)
           + core::CMemory::dynamicSize(m_Seasonal)
           + core::CMemory::dynamicSize(m_Calendar);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::size(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::size() const
 {
     return (m_Seasonal ? m_Seasonal->size() : 0) + (m_Calendar ? m_Calendar->size() : 0);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const
 {
     return MAXIMUM_COMPONENTS * m_SeasonalComponentSize;
 }
@@ -1668,7 +1668,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
     return true;
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::clearComponentErrors(void)
+void CTimeSeriesDecompositionDetail::CComponents::clearComponentErrors()
 {
     if (m_Seasonal)
     {
@@ -1787,12 +1787,12 @@ CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::CScopeNo
     m_Components.notifyOnNewComponents(&m_Watcher);
 }
 
-CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::~CScopeNotifyOnStateChange(void)
+CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::~CScopeNotifyOnStateChange()
 {
     m_Components.notifyOnNewComponents(0);
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::changed(void) const
+bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::changed() const
 {
     return m_Watcher;
 }
@@ -1819,7 +1819,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::fromDelimite
     return true;
 }
 
-std::string CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::toDelimited(void) const
+std::string CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::toDelimited() const
 {
     return  m_MeanErrorWithComponent.toDelimited() + CBasicStatistics::EXTERNAL_DELIMITER
           + m_MeanErrorWithoutComponent.toDelimited() + CBasicStatistics::EXTERNAL_DELIMITER;
@@ -1835,7 +1835,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::add(double e
     m_MeanErrorWithoutComponent.add(errorWithoutComponent, weight);
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::clear(void)
+void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::clear()
 {
     m_MeanErrorWithComponent = TFloatMeanAccumulator();
     m_MeanErrorWithoutComponent = TFloatMeanAccumulator();
@@ -1951,7 +1951,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SSeasonal::propagateForwards(c
     }
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::SSeasonal::size(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::SSeasonal::size() const
 {
     std::size_t result{0};
     for (const auto &component : s_Components)
@@ -2031,7 +2031,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SSeasonal::interpolate(core_t:
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::initialized(void) const
+bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::initialized() const
 {
     for (const auto &component : s_Components)
     {
@@ -2088,7 +2088,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
         {
             if (windowed.count(shift.first) > 0)
             {
-                for (auto &&component : s_Components)
+                for (auto &component : s_Components)
                 {
                     if (shift.first == component.time().window())
                     {
@@ -2100,7 +2100,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
             else
             {
                 bool fallback = true;
-                for (auto &&component : s_Components)
+                for (auto &component : s_Components)
                 {
                     if (!component.time().windowed())
                     {
@@ -2113,7 +2113,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
                 {
                     TTimeTimePrVec shifted;
                     shifted.reserve(s_Components.size());
-                    for (auto &&component : s_Components)
+                    for (auto &component : s_Components)
                     {
                         const CSeasonalTime &time_ = component.time();
                         if (std::find_if(shifted.begin(), shifted.end(),
@@ -2163,7 +2163,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SSeasonal::debugMemoryUsage(co
     core::CMemoryDebug::dynamicSize("s_PredictionErrors", s_PredictionErrors, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::SSeasonal::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::SSeasonal::memoryUsage() const
 {
     return core::CMemory::dynamicSize(s_Components) + core::CMemory::dynamicSize(s_PredictionErrors);
 }
@@ -2235,7 +2235,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SCalendar::propagateForwards(c
     }
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::SCalendar::size(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::SCalendar::size() const
 {
     std::size_t result{0};
     for (const auto &component : s_Components)
@@ -2302,7 +2302,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SCalendar::interpolate(core_t:
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::SCalendar::initialized(void) const
+bool CTimeSeriesDecompositionDetail::CComponents::SCalendar::initialized() const
 {
     for (const auto &component : s_Components)
     {
@@ -2355,7 +2355,7 @@ void CTimeSeriesDecompositionDetail::CComponents::SCalendar::debugMemoryUsage(co
     core::CMemoryDebug::dynamicSize("s_PredictionErrors", s_PredictionErrors, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CComponents::SCalendar::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionDetail::CComponents::SCalendar::memoryUsage() const
 {
     return core::CMemory::dynamicSize(s_Components) + core::CMemory::dynamicSize(s_PredictionErrors);
 }

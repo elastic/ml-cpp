@@ -36,15 +36,15 @@ using namespace ml;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 }
 
-void CAnomalyScoreTest::testComputeScores(void)
+void CAnomalyScoreTest::testComputeScores()
 {
-    typedef model::CAnomalyScore TScores;
-    typedef maths::CJointProbabilityOfLessLikelySamples TJointProbabilityCalculator;
-    typedef maths::CLogProbabilityOfMFromNExtremeSamples TLogExtremeProbabilityCalculator;
+    using TScores = model::CAnomalyScore;
+    using TJointProbabilityCalculator = maths::CJointProbabilityOfLessLikelySamples;
+    using TLogExtremeProbabilityCalculator = maths::CLogProbabilityOfMFromNExtremeSamples;
 
     const double jointProbabilityWeight = 0.5;
     const double extremeProbabilityWeight = 0.5;
@@ -145,7 +145,7 @@ void CAnomalyScoreTest::testComputeScores(void)
         CPPUNIT_ASSERT(jointProbabilityCalculator.calculate(jointProbability));
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("3) probabilities = " << core::CContainerPrinter::print(p));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -187,7 +187,7 @@ void CAnomalyScoreTest::testComputeScores(void)
 
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("4) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -229,7 +229,7 @@ void CAnomalyScoreTest::testComputeScores(void)
 
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("5) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -263,10 +263,10 @@ void CAnomalyScoreTest::testComputeScores(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
+void CAnomalyScoreTest::testNormalizeScoresQuantiles()
 {
-    typedef std::multiset<double> TDoubleMSet;
-    typedef TDoubleMSet::iterator TDoubleMSetItr;
+    using TDoubleMSet = std::multiset<double>;
+    using TDoubleMSetItr = TDoubleMSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -304,7 +304,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
             normalizer.quantile(samples[i], 0.0, lowerBound, upperBound);
 
             double quantile = (lowerBound + upperBound) / 2.0;
-            double error = ::fabs(quantile - trueQuantile);
+            double error = std::fabs(quantile - trueQuantile);
 
             totalError += error;
             numberSamples += 1.0;
@@ -320,10 +320,10 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
     CPPUNIT_ASSERT(totalError / numberSamples < 0.0043);
 }
 
-void CAnomalyScoreTest::testNormalizeScoresNoisy(void)
+void CAnomalyScoreTest::testNormalizeScoresNoisy()
 {
-    typedef std::multimap<double, std::size_t> TDoubleSizeMap;
-    typedef TDoubleSizeMap::const_iterator TDoubleSizeMapCItr;
+    using TDoubleSizeMap = std::multimap<double, std::size_t>;
+    using TDoubleSizeMapCItr = TDoubleSizeMap::const_iterator;
 
     test::CRandomNumbers rng;
 
@@ -414,7 +414,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void)
                          core::CContainerPrinter::print(times));
 }
 
-void CAnomalyScoreTest::testNormalizeScoresLargeScore(void)
+void CAnomalyScoreTest::testNormalizeScoresLargeScore()
 {
     // Test a large score isn't too dominant.
 
@@ -459,7 +459,7 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresNearZero(void)
+void CAnomalyScoreTest::testNormalizeScoresNearZero()
 {
     // Test the behaviour for scores near zero.
 
@@ -519,7 +519,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresOrdering(void)
+void CAnomalyScoreTest::testNormalizeScoresOrdering()
 {
     // Test that the normalized scores ordering matches the
     // -log(probability) ordering.
@@ -562,7 +562,7 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering(void)
     }
 }
 
-void CAnomalyScoreTest::testJsonConversion(void)
+void CAnomalyScoreTest::testJsonConversion()
 {
     test::CRandomNumbers rng;
 
@@ -661,7 +661,7 @@ void CAnomalyScoreTest::testJsonConversion(void)
     CPPUNIT_ASSERT_EQUAL(toJson, restoredJson);
 }
 
-void CAnomalyScoreTest::testPersistEmpty(void)
+void CAnomalyScoreTest::testPersistEmpty()
 {
     // This tests what happens when we persist and restore quantiles that have
     // never had any data added - see bug 761 in Bugzilla
@@ -698,7 +698,7 @@ void CAnomalyScoreTest::testPersistEmpty(void)
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-CppUnit::Test *CAnomalyScoreTest::suite(void)
+CppUnit::Test *CAnomalyScoreTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyScoreTest");
 

@@ -36,7 +36,7 @@ CppUnit::Test *CResourceMonitorTest::suite()
     return suiteOfTests;
 }
 
-void CResourceMonitorTest::setUp(void)
+void CResourceMonitorTest::setUp()
 {
     // Other test suites also use the string store, and it will mess up the
     // tests in this suite if the string store is not empty when they start
@@ -44,7 +44,7 @@ void CResourceMonitorTest::setUp(void)
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CResourceMonitorTest::testMonitor(void)
+void CResourceMonitorTest::testMonitor()
 {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
@@ -317,7 +317,7 @@ void CResourceMonitorTest::testMonitor(void)
     }
 }
 
-void CResourceMonitorTest::testPruning(void)
+void CResourceMonitorTest::testPruning()
 {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
@@ -390,7 +390,7 @@ void CResourceMonitorTest::testPruning(void)
     CPPUNIT_ASSERT(monitor.m_PruneWindow > level);
 }
 
-void CResourceMonitorTest::testExtraMemory(void)
+void CResourceMonitorTest::testExtraMemory()
 {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);

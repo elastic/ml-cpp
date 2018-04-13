@@ -22,7 +22,7 @@
 using namespace ml;
 using namespace core;
 
-void CHashingTest::testUniversalHash(void)
+void CHashingTest::testUniversalHash()
 {
     // We test the definition:
     //   "for all (x,y) in U and x != y P(h(x) = h(y)) <= 1/m"
@@ -101,11 +101,11 @@ void CHashingTest::testUniversalHash(void)
     // We test a large u and m non exhaustively by choosing sufficient
     // different numbers of pairs to hash.
 
-    typedef std::vector<uint32_t> TUInt32Vec;
-    typedef std::pair<uint32_t, uint32_t> TUInt32Pr;
-    typedef std::set<TUInt32Pr> TUInt32PrSet;
-    typedef std::map<TUInt32Pr, unsigned int> TUint32PrUIntMap;
-    typedef TUint32PrUIntMap::const_iterator TUint32PrUIntMapCItr;
+    using TUInt32Vec = std::vector<uint32_t>;
+    using TUInt32Pr = std::pair<uint32_t, uint32_t>;
+    using TUInt32PrSet = std::set<TUInt32Pr>;
+    using TUint32PrUIntMap = std::map<TUInt32Pr, unsigned int>;
+    using TUint32PrUIntMapCItr = TUint32PrUIntMap::const_iterator;
 
     {
         LOG_DEBUG("**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
@@ -223,7 +223,7 @@ void CHashingTest::testUniversalHash(void)
     }
 }
 
-void CHashingTest::testMurmurHash(void)
+void CHashingTest::testMurmurHash()
 {
     {
         std::string key("This is the voice of the Mysterons!");
@@ -250,9 +250,9 @@ void CHashingTest::testMurmurHash(void)
         CPPUNIT_ASSERT_EQUAL(uint64_t(7291323361835448266ull), result);
     }
 
-    typedef std::vector<std::string> TStrVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
-    typedef TSizeSizeMap::const_iterator TSizeSizeMapCItr;
+    using TStrVec = std::vector<std::string>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
+    using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
     const std::size_t stringSize = 32u;
     const std::size_t numberStrings = 500000u;
@@ -359,15 +359,15 @@ void CHashingTest::testMurmurHash(void)
     CPPUNIT_ASSERT(maxCollisions < 7);
 }
 
-void CHashingTest::testHashCombine(void)
+void CHashingTest::testHashCombine()
 {
     // Check we get about the same number of collisions using hashCombine
     // verses full hash of string.
 
     CHashing::CMurmurHash2String hasher;
 
-    typedef std::vector<std::string> TStrVec;
-    typedef std::set<uint64_t> TSizeSet;
+    using TStrVec = std::vector<std::string>;
+    using TSizeSet = std::set<uint64_t>;
 
     const std::size_t stringSize = 32u;
     const std::size_t numberStrings = 2000000u;
@@ -402,7 +402,7 @@ void CHashingTest::testHashCombine(void)
     }
 }
 
-void CHashingTest::testConstructors(void)
+void CHashingTest::testConstructors()
 {
     {
         CHashing::CUniversalHash::CUInt32Hash hash(1, 2, 3);
@@ -473,7 +473,7 @@ void CHashingTest::testConstructors(void)
 }
 
 
-CppUnit::Test *CHashingTest::suite(void)
+CppUnit::Test *CHashingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHashingTest");
 

@@ -15,7 +15,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {
@@ -48,7 +48,7 @@ template<typename POINT>
 class CSphericalCluster
 {
     public:
-        typedef CAnnotatedVector<POINT, SCountAndVariance> Type;
+        using Type = CAnnotatedVector<POINT, SCountAndVariance>;
 
         class CHash
         {
@@ -101,7 +101,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 1> &moments)
     {
-        typedef typename SCoordinate<T>::Type TCoordinate;
+        using TCoordinate = typename SCoordinate<T>::Type;
         moments.add(x, TCoordinate(x.annotation().s_Count) * n, 0);
     }
 
@@ -110,7 +110,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 2> &moments)
     {
-        typedef typename SCoordinate<T>::Type TCoordinate;
+        using TCoordinate = typename SCoordinate<T>::Type;
         moments += CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n,
                                                  T(x),
                                                  T(x.annotation().s_Variance));
@@ -188,7 +188,7 @@ std::ostream &operator<<(std::ostream &o,
 {
     return o << static_cast<const POINT&>(cluster)
              << " (" << cluster.annotation().s_Count
-             << "," << ::sqrt(cluster.annotation().s_Variance) << ")";
+             << "," << std::sqrt(cluster.annotation().s_Variance) << ")";
 }
 
 }

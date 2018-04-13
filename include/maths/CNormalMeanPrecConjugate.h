@@ -51,10 +51,10 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TEqualWithTolerance = CEqualWithTolerance<double>;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;
@@ -110,20 +110,20 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         //! \name Prior Contract
         //@{
         //! Get the type of this prior.
-        virtual EPrior type(void) const;
+        virtual EPrior type() const;
 
         //! Create a copy of the prior.
         //!
         //! \return A pointer to a newly allocated clone of this prior.
         //! \warning The caller owns the object returned.
-        virtual CNormalMeanPrecConjugate *clone(void) const;
+        virtual CNormalMeanPrecConjugate *clone() const;
 
         //! Reset the prior to non-informative.
         virtual void setToNonInformative(double offset = 0.0,
                                          double decayRate = 0.0);
 
         //! Returns false.
-        virtual bool needsOffset(void) const;
+        virtual bool needsOffset() const;
 
         //! No-op.
         virtual double adjustOffset(const TWeightStyleVec &weightStyles,
@@ -131,7 +131,7 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
                                     const TDouble4Vec1Vec &weights);
 
         //! Returns zero.
-        virtual double offset(void) const;
+        virtual double offset() const;
 
         //! Update the prior with a collection of independent samples from
         //! the normal variable.
@@ -156,10 +156,10 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         virtual void propagateForwardsByTime(double time);
 
         //! Get the support for the marginal likelihood function.
-        virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+        virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
         //! Get the mean of the marginal likelihood function.
-        virtual double marginalLikelihoodMean(void) const;
+        virtual double marginalLikelihoodMean() const;
 
         //! Get the mode of the marginal likelihood function.
         virtual double marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
@@ -287,7 +287,7 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
                                                     maths_t::ETail &tail) const;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const;
+        virtual bool isNonInformative() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -298,7 +298,7 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         //! Print the prior density function in a specified format.
         //!
         //! \see CPrior::printJointDensityFunction for details.
-        virtual std::string printJointDensityFunction(void) const;
+        virtual std::string printJointDensityFunction() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -307,20 +307,20 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         //@}
 
         //! The current expected mean for the variable.
-        double mean(void) const;
+        double mean() const;
 
         //! The current expected precision for the variable.
-        double precision(void) const;
+        double precision() const;
 
         //! \name Test Functions
         //@{
@@ -342,10 +342,10 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Check that the state is valid.
-        bool isBad(void) const;
+        bool isBad() const;
 
         //! Full debug dump of the state of this prior.
-        std::string debug(void) const;
+        std::string debug() const;
 
     private:
         //! The mean parameter of a non-informative prior.

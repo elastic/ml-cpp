@@ -33,10 +33,10 @@ namespace maths
 class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef CVector<double> TVector;
-        typedef std::vector<TVector> TVectorVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
+        using TVector = CVector<double>;
+        using TVectorVec = std::vector<TVector>;
 
     public:
         //! Compute an orthonormal basis for the vectors in \p x.
@@ -145,7 +145,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
                               << ", norm = " << n
                               << ", eps = " << eps);
 
-                    if (::fabs(n) > eps)
+                    if (std::fabs(n) > eps)
                     {
                         divide(x[current], n);
                         ++current;

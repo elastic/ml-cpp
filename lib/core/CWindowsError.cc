@@ -14,7 +14,7 @@ namespace core
 {
 
 
-CWindowsError::CWindowsError(void)
+CWindowsError::CWindowsError()
     : m_ErrorCode(0)
 {
 }
@@ -24,12 +24,12 @@ CWindowsError::CWindowsError(uint32_t /* errorCode */)
 {
 }
 
-uint32_t CWindowsError::errorCode(void) const
+uint32_t CWindowsError::errorCode() const
 {
     return m_ErrorCode;
 }
 
-std::string CWindowsError::errorString(void) const
+std::string CWindowsError::errorString() const
 {
     return "Asking for Windows error message on Unix!";
 }

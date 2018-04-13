@@ -29,7 +29,7 @@ namespace maths
 {
 namespace kmeans_fast_detail
 {
-typedef std::vector<std::size_t> TSizeVec;
+using TSizeVec = std::vector<std::size_t>;
 
 //! Get the closest filtered centre to \p point.
 template<typename POINT, typename ITR>
@@ -87,10 +87,10 @@ template<typename POINT>
 class CKMeansFast
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<POINT, POINT> TPointPointPr;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TPointPointPr = std::pair<POINT, POINT>;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
 
         //! A cluster.
         //!
@@ -101,7 +101,7 @@ class CKMeansFast
         class CCluster
         {
             public:
-                CCluster(void) : m_Checksum(0) {}
+                CCluster() : m_Checksum(0) {}
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
@@ -120,7 +120,7 @@ class CKMeansFast
                 }
 
                 //! Get the number of points in the cluster.
-                std::size_t size(void) const
+                std::size_t size() const
                 {
                     return m_Points.size();
                 }
@@ -131,7 +131,7 @@ class CKMeansFast
                     m_Centre = centre;
                 }
                 //! Get the cluster centre.
-                const POINT &centre(void) const
+                const POINT &centre() const
                 {
                     return m_Centre;
                 }
@@ -144,13 +144,13 @@ class CKMeansFast
                     m_Checksum = CChecksum::calculate(0, m_Points);
                 }
                 //! Get the cluster points.
-                const TPointVec &points(void) const
+                const TPointVec &points() const
                 {
                     return m_Points;
                 }
 
                 //! Get the cluster checksum.
-                uint64_t checksum(void) const
+                uint64_t checksum() const
                 {
                     return m_Checksum;
                 }
@@ -164,16 +164,16 @@ class CKMeansFast
                 uint64_t m_Checksum;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
+        using TClusterVec = std::vector<CCluster>;
 
     protected:
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-        typedef CBoundingBox<TBarePoint> TBoundingBox;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
+        using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+        using TBoundingBox = CBoundingBox<TBarePoint>;
         class CKdTreeNodeData;
-        typedef typename CKdTree<POINT, CKdTreeNodeData>::SNode TNode;
+        using TNode = typename CKdTree<POINT, CKdTreeNodeData>::SNode;
 
         //! \brief The data the x-means algorithm needs at each k-d
         //! tree node.
@@ -185,7 +185,7 @@ class CKMeansFast
         class CKdTreeNodeData
         {
             public:
-                CKdTreeNodeData(void) {}
+                CKdTreeNodeData() {}
                 explicit CKdTreeNodeData(const POINT &x) :
                         m_BoundingBox(x),
                         m_Centroid()
@@ -194,13 +194,13 @@ class CKMeansFast
                 }
 
                 //! Get the bounding box.
-                const TBoundingBox &boundingBox(void) const
+                const TBoundingBox &boundingBox() const
                 {
                     return m_BoundingBox;
                 }
 
                 //! Get the centroid.
-                const TMeanAccumulator &centroid(void) const
+                const TMeanAccumulator &centroid() const
                 {
                     return m_Centroid;
                 }
@@ -220,7 +220,7 @@ class CKMeansFast
                 }
 
                 //! Clear the bounding box and centroid.
-                void clear(void) const
+                void clear() const
                 {
                     m_BoundingBox.clear();
                     m_Centroid = TMeanAccumulator();
@@ -310,13 +310,13 @@ class CKMeansFast
                 {}
 
                 //! Get the centres.
-                const TPointVec &centres(void) const
+                const TPointVec &centres() const
                 {
                     return *m_Centres;
                 }
 
                 //! Get the filter.
-                const TSizeVec &filter(void) const
+                const TSizeVec &filter() const
                 {
                     return m_Filter;
                 }
@@ -541,16 +541,16 @@ class CKMeansFast
         }
 
         //! Get the cluster centres.
-        const TPointVec &centres(void) const
+        const TPointVec &centres() const
         {
             return m_Centres;
         }
 
     private:
         //! Single iteration of Lloyd's algorithm to update \p centres.
-        bool updateCentres(void)
+        bool updateCentres()
         {
-            typedef typename SCoordinate<POINT>::Type TCoordinate;
+            using TCoordinate = typename SCoordinate<POINT>::Type;
             static const TCoordinate PRECISION =  TCoordinate(5)
                                                 * std::numeric_limits<TCoordinate>::epsilon();
             TMeanAccumulatorVec newCentres(m_Centres.size());
@@ -586,9 +586,9 @@ template<typename POINT, typename RNG>
 class CKMeansPlusPlusInitialization : private core::CNonCopyable
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<POINT> TPointVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TPointVec = std::vector<POINT>;
 
     public:
         CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {}

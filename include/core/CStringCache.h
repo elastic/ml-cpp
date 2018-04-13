@@ -63,12 +63,12 @@ class CORE_EXPORT CStringCache
 {
     public:
         //! Constructor detects whether copy-on-write strings are in use
-        CStringCache(void);
+        CStringCache();
 
         //! Does the current platform use copy-on-write strings?  If it
         //! doesn't, it's probably best not to use any further functionality
         //! of this class.
-        bool haveCopyOnWriteStrings(void) const;
+        bool haveCopyOnWriteStrings() const;
 
         //! Look up a char pointer when the length is not known
         const std::string &stringFor(const char *str);
@@ -124,8 +124,8 @@ class CORE_EXPORT CStringCache
         //! strings
         bool m_HaveCopyOnWriteStrings;
 
-        typedef boost::unordered_set<std::string, CStrHash> TStrUSet;
-        typedef TStrUSet::const_iterator                    TStrUSetCItr;
+        using TStrUSet = boost::unordered_set<std::string, CStrHash>;
+        using TStrUSetCItr = TStrUSet::const_iterator;
 
         //! The cache of strings
         TStrUSet m_Cache;

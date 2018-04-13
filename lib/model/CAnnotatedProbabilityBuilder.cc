@@ -133,7 +133,7 @@ void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(std::size_t cid,
     }
 }
 
-void CAnnotatedProbabilityBuilder::build(void)
+void CAnnotatedProbabilityBuilder::build()
 {
     this->addDescriptiveData();
 
@@ -153,7 +153,7 @@ void CAnnotatedProbabilityBuilder::build(void)
     }
 }
 
-void CAnnotatedProbabilityBuilder::addDescriptiveData(void)
+void CAnnotatedProbabilityBuilder::addDescriptiveData()
 {
     if (m_IsPopulation && (m_IsRare || m_IsFreqRare))
     {

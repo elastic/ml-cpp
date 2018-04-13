@@ -64,13 +64,13 @@ class CNumericDataSummaryStatistics;
 class CONFIG_EXPORT CPenalty
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
-        typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
-        typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TStrVec = std::vector<std::string>;
+        using TPenaltyPtr = boost::shared_ptr<CPenalty>;
+        using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
+        using TPenaltyCPtrVec = std::vector<TPenaltyCPtr>;
 
         //! \brief Represents the result of multiplying penalties.
         class CClosure
@@ -79,13 +79,13 @@ class CONFIG_EXPORT CPenalty
                 CClosure(const CPenalty &penalty);
 
                 //! Create a penalty on the heap from this closure.
-                CPenalty *clone(void) const;
+                CPenalty *clone() const;
 
                 //! Add a penalty to the closure.
                 CClosure &add(const CPenalty &penalty);
 
                 //! Get the closure's penalties.
-                TPenaltyCPtrVec &penalties(void);
+                TPenaltyCPtrVec &penalties();
 
             private:
                 //! The penalties in the closure.
@@ -96,13 +96,13 @@ class CONFIG_EXPORT CPenalty
         CPenalty(const CAutoconfigurerParams &params);
         CPenalty(const CPenalty &other);
         explicit CPenalty(CClosure other);
-        virtual ~CPenalty(void);
+        virtual ~CPenalty();
 
         //! Create a copy on the heap.
-        virtual CPenalty *clone(void) const;
+        virtual CPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
         //! Get the product penalty of this and \p rhs.
         const CPenalty &operator*=(const CPenalty &rhs);
@@ -132,11 +132,11 @@ class CONFIG_EXPORT CPenalty
         static bool scoreIsZeroFor(double penalty);
 
     protected:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
     protected:
         //! Get the parameters.
-        const CAutoconfigurerParams &params(void) const;
+        const CAutoconfigurerParams &params() const;
 
     private:
         //! Not assignable.

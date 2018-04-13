@@ -32,7 +32,7 @@ CppUnit::Test *CRegexFilterTest::suite()
     return suiteOfTests;
 }
 
-void CRegexFilterTest::testConfigure_GivenInvalidRegex(void)
+void CRegexFilterTest::testConfigure_GivenInvalidRegex()
 {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
@@ -43,7 +43,7 @@ void CRegexFilterTest::testConfigure_GivenInvalidRegex(void)
     CPPUNIT_ASSERT(filter.empty());
 }
 
-void CRegexFilterTest::testApply_GivenEmptyFilter(void)
+void CRegexFilterTest::testApply_GivenEmptyFilter()
 {
     ml::core::CRegexFilter filter;
     CPPUNIT_ASSERT(filter.empty());
@@ -51,7 +51,7 @@ void CRegexFilterTest::testApply_GivenEmptyFilter(void)
     CPPUNIT_ASSERT_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleMatchAllRegex(void)
+void CRegexFilterTest::testApply_GivenSingleMatchAllRegex()
 {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
@@ -62,7 +62,7 @@ void CRegexFilterTest::testApply_GivenSingleMatchAllRegex(void)
     CPPUNIT_ASSERT_EQUAL(std::string(), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleRegex(void)
+void CRegexFilterTest::testApply_GivenSingleRegex()
 {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f"));
@@ -73,7 +73,7 @@ void CRegexFilterTest::testApply_GivenSingleRegex(void)
     CPPUNIT_ASSERT_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
 }
 
-void CRegexFilterTest::testApply_GivenMultipleRegex(void)
+void CRegexFilterTest::testApply_GivenMultipleRegex()
 {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f[o]+"));

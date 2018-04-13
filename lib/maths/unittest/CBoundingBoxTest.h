@@ -12,10 +12,10 @@
 class CBoundingBoxTest : public CppUnit::TestFixture
 {
     public:
-        void testAdd(void);
-        void testCloserTo(void);
+        void testAdd();
+        void testCloserTo();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CBoundingBostTest_h

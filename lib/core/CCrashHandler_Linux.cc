@@ -66,7 +66,7 @@ void crashHandler(int sig, siginfo_t *info, void *context)
     raise(sig);
 }
 
-void CCrashHandler::installCrashHandler(void)
+void CCrashHandler::installCrashHandler()
 {
     struct sigaction actionOnCrash;
     std::memset(&actionOnCrash, 0, sizeof actionOnCrash);

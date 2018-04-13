@@ -66,24 +66,24 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         static const char        *INDENT_SPACE_STR;
 
     public:
-        typedef std::vector<std::string>           TStrVec;
-        typedef TStrVec::iterator                  TStrVecItr;
-        typedef TStrVec::const_iterator            TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef std::set<std::string>              TStrSet;
-        typedef TStrSet::iterator                  TStrSetItr;
-        typedef TStrSet::const_iterator            TStrSetCItr;
+        using TStrSet = std::set<std::string>;
+        using TStrSetItr = TStrSet::iterator;
+        using TStrSetCItr = TStrSet::const_iterator;
 
-        typedef std::vector<CXmlNode>              TXmlNodeVec;
-        typedef TXmlNodeVec::iterator              TXmlNodeVecItr;
-        typedef TXmlNodeVec::const_iterator        TXmlNodeVecCItr;
+        using TXmlNodeVec = std::vector<CXmlNode>;
+        using TXmlNodeVecItr = TXmlNodeVec::iterator;
+        using TXmlNodeVecCItr = TXmlNodeVec::const_iterator;
 
-        typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapCItr = TStrStrMap::const_iterator;
 
     public:
-        CXmlParser(void);
-        virtual ~CXmlParser(void);
+        CXmlParser();
+        virtual ~CXmlParser();
 
         bool    parseFile(const std::string &fileName);
 
@@ -98,7 +98,7 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         virtual bool parseBufferInSitu(char *begin, size_t length);
 
         //! Return the root element name (empty string if not parsed yet)
-        virtual std::string rootElementName(void) const;
+        virtual std::string rootElementName() const;
 
         //! Return result from an XPath expression, if the number of matches != 1
         //! return false.
@@ -150,10 +150,10 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
                                     TStrStrMap &values) const;
 
         //! Dump the document to stdout
-        void    dumpToStdout(void) const;
+        void    dumpToStdout() const;
 
         //! Dump the document to string
-        virtual std::string dumpToString(void) const;
+        virtual std::string dumpToString() const;
 
         //! Convert a node hierarchy to XML.
         //! (This will escape the text correctly.)
@@ -214,10 +214,10 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
 
         //! Functions for navigating an XML document without converting it to a
         //! node hierarchy
-        virtual bool navigateRoot(void);
-        virtual bool navigateFirstChild(void);
-        virtual bool navigateNext(void);
-        virtual bool navigateParent(void);
+        virtual bool navigateRoot();
+        virtual bool navigateFirstChild();
+        virtual bool navigateNext();
+        virtual bool navigateParent();
         virtual bool currentNodeName(std::string &name);
         virtual bool currentNodeValue(std::string &value);
 
@@ -252,7 +252,7 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         static bool stringLatin1ToUtf8(std::string &str);
 
     private:
-        void    destroy(void);
+        void    destroy();
 
         //! Called recursively by the convert() method
         static void convertChildren(const CXmlNodeWithChildren &current,

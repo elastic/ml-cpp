@@ -118,18 +118,18 @@ const std::string &overField(bool population, const TStrVec &fieldNames)
 }
 
 template<model_t::EMetricCategory> struct SDataType {};
-template<> struct SDataType<model_t::E_Mean>             { typedef TSizeSizeMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Median>           { typedef TSizeSizeMedianGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Min>              { typedef TSizeSizeMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Max>              { typedef TSizeSizeMaxGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Sum>              { typedef TSizeSizeSumGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Variance>         { typedef TSizeSizeVarianceGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMean> { typedef TSizeSizeMultivariateMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMin>  { typedef TSizeSizeMultivariateMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMax>  { typedef TSizeSizeMultivariateMaxGathererUMapUMap Type; };
+template<> struct SDataType<model_t::E_Mean>             { using Type = TSizeSizeMeanGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Median>           { using Type = TSizeSizeMedianGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Min>              { using Type = TSizeSizeMinGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Max>              { using Type = TSizeSizeMaxGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Sum>              { using Type = TSizeSizeSumGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Variance>         { using Type = TSizeSizeVarianceGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMean> { using Type = TSizeSizeMultivariateMeanGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMin>  { using Type = TSizeSizeMultivariateMinGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMax>  { using Type = TSizeSizeMultivariateMaxGathererUMapUMap; };
 template<typename ITR, typename T> struct SMaybeConst {};
-template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { typedef T Type; };
-template<typename T> struct SMaybeConst<TCategorySizePrAnyMapCItr, T> { typedef const T Type; };
+template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { using Type = T;};
+template<typename T> struct SMaybeConst<TCategorySizePrAnyMapCItr, T> { using Type = const T; };
 
 //! Register the callbacks for computing the size of feature data gatherers
 //! with \p visitor.
@@ -148,7 +148,7 @@ void registerMemoryCallbacks(VISITOR &visitor)
 }
 
 //! Register the callbacks for computing the size of feature data gatherers.
-void registerMemoryCallbacks(void)
+void registerMemoryCallbacks()
 {
     static std::atomic_flag once = ATOMIC_FLAG_INIT;
     if (once.test_and_set() == false)
@@ -1182,47 +1182,47 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
     return true;
 }
 
-CBucketGatherer *CMetricBucketGatherer::cloneForPersistence(void) const
+CBucketGatherer *CMetricBucketGatherer::cloneForPersistence() const
 {
     return new CMetricBucketGatherer(true, *this);
 }
 
-const std::string &CMetricBucketGatherer::persistenceTag(void) const
+const std::string &CMetricBucketGatherer::persistenceTag() const
 {
     return CBucketGatherer::METRIC_BUCKET_GATHERER_TAG;
 }
 
-const std::string &CMetricBucketGatherer::personFieldName(void) const
+const std::string &CMetricBucketGatherer::personFieldName() const
 {
     return m_FieldNames[0];
 }
 
-const std::string &CMetricBucketGatherer::attributeFieldName(void) const
+const std::string &CMetricBucketGatherer::attributeFieldName() const
 {
     return m_DataGatherer.isPopulation() ? m_FieldNames[1] : EMPTY_STRING;
 }
 
-const std::string &CMetricBucketGatherer::valueFieldName(void) const
+const std::string &CMetricBucketGatherer::valueFieldName() const
 {
     return m_ValueFieldName;
 }
 
-CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::beginInfluencers(void) const
+CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::beginInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginInfluencingFields;
 }
 
-CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::endInfluencers(void) const
+CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::endInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginValueFields;
 }
 
-const TStrVec &CMetricBucketGatherer::fieldsOfInterest(void) const
+const TStrVec &CMetricBucketGatherer::fieldsOfInterest() const
 {
     return m_FieldNames;
 }
 
-std::string CMetricBucketGatherer::description(void) const
+std::string CMetricBucketGatherer::description() const
 {
     return function_t::name(function_t::function(m_DataGatherer.features()))
            + (m_ValueFieldName.empty() ? "" : " ") + m_ValueFieldName +
@@ -1467,7 +1467,7 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CMetricBucketGatherer::checksum(void) const
+uint64_t CMetricBucketGatherer::checksum() const
 {
     uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
@@ -1491,7 +1491,7 @@ void CMetricBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
-std::size_t CMetricBucketGatherer::memoryUsage(void) const
+std::size_t CMetricBucketGatherer::memoryUsage() const
 {
     registerMemoryCallbacks();
     std::size_t mem = this->CBucketGatherer::memoryUsage();
@@ -1502,12 +1502,12 @@ std::size_t CMetricBucketGatherer::memoryUsage(void) const
     return mem;
 }
 
-std::size_t CMetricBucketGatherer::staticSize(void) const
+std::size_t CMetricBucketGatherer::staticSize() const
 {
     return sizeof(*this);
 }
 
-void CMetricBucketGatherer::clear(void)
+void CMetricBucketGatherer::clear()
 {
     this->CBucketGatherer::clear();
     m_FeatureData.clear();
@@ -1653,9 +1653,9 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
                                    TUInt64Vec{0}).first->second[0] += CDataGatherer::extractData(count);
                 }
             }
-            double alpha = ::exp(-m_DataGatherer.params().s_DecayRate);
+            double alpha = std::exp(-m_DataGatherer.params().s_DecayRate);
 
-            for (auto &&count : counts)
+            for (auto &count : counts)
             {
                 std::sort(count.second.begin(), count.second.end());
                 std::size_t n = count.second.size() / 2;
@@ -1719,7 +1719,7 @@ void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string &valueFi
     };
 }
 
-void CMetricBucketGatherer::initializeFeatureData(void)
+void CMetricBucketGatherer::initializeFeatureData()
 {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i)
     {

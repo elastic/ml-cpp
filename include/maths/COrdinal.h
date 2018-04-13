@@ -30,7 +30,7 @@ class MATHS_EXPORT COrdinal : private boost::equality_comparable< COrdinal,
 {
     public:
         //! Create an unset value.
-        COrdinal(void);
+        COrdinal();
         COrdinal(int64_t value);
         COrdinal(uint64_t value);
         COrdinal(double value);
@@ -42,13 +42,13 @@ class MATHS_EXPORT COrdinal : private boost::equality_comparable< COrdinal,
         bool operator<(COrdinal rhs) const;
 
         //! Check if the value has been set.
-        bool isNan(void) const;
+        bool isNan() const;
 
         //! Convert to a double (accepting possible loss in precision).
-        double asDouble(void) const;
+        double asDouble() const;
 
         //! Get a hash of the value.
-        uint64_t hash(void);
+        uint64_t hash();
 
     private:
         //! Enumeration of the types which can be stored.

@@ -92,10 +92,10 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         virtual void decayRate(double decayRate);
 
         //! Get the decay rate.
-        virtual double decayRate(void) const;
+        virtual double decayRate() const;
 
         //! Check if the decomposition has any initialized components.
-        virtual bool initialized(void) const;
+        virtual bool initialized() const;
 
         //! Adds a time series point \f$(t, f(t))\f$.
         //!
@@ -164,7 +164,7 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
                                int components = E_All) const;
 
         //! Get the mean variance of the baseline.
-        virtual double meanVariance(void) const;
+        virtual double meanVariance() const;
 
         //! Compute the variance scale at \p time.
         //!
@@ -188,27 +188,27 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object.
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Get the time shift which is being applied.
         virtual core_t::TTime timeShift(void) const;
 
         //! Get the seasonal components.
-        virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
+        virtual const maths_t::TSeasonalComponentVec &seasonalComponents() const;
 
         //! This is the latest time of any point added to this object or
         //! the time skipped to.
-        virtual core_t::TTime lastValueTime(void) const;
+        virtual core_t::TTime lastValueTime() const;
 
     private:
         using TMediatorPtr = boost::shared_ptr<CMediator>;
 
     private:
         //! Set up the communication mediator.
-        void initializeMediator(void);
+        void initializeMediator();
 
         //! Create from part of a state document.
         bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
