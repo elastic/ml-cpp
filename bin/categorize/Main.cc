@@ -156,11 +156,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     using TBackgroundPersisterCUPtr = const std::unique_ptr<ml::api::CBackgroundPersister>;
-    TBackgroundPersisterCUPtr periodicPersister{[persistInterval, &persister]() {
-        if (persistInterval >= 0) {
-            return new ml::api::CBackgroundPersister(persistInterval, *persister);
-        }
-    }()};
+    TBackgroundPersisterCUPtr periodicPersister{
+        [persistInterval, &persister]() -> ml::api::CBackgroundPersister* {
+            if (persistInterval >= 0) {
+                return new ml::api::CBackgroundPersister(persistInterval, *persister);
+            }
+            return nullptr;
+        }()};
 
     using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
     TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr,
