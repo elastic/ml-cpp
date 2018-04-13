@@ -175,13 +175,15 @@ private:
                     if (signal == SIGTERM) {
                         // We expect this when a job is force-closed, so log
                         // at a lower level
-                        LOG_INFO(<< "Child process with PID " << pid << " was terminated by signal " << signal);
+                        LOG_INFO(<< "Child process with PID " << pid
+                                 << " was terminated by signal " << signal);
                     } else {
                         // This should never happen if the system is working
                         // normally - possible reasons are the Linux OOM
                         // killer, manual intervention and bugs that cause
                         // access violations
-                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal " << signal);
+                        LOG_ERROR(<< "Child process with PID " << pid
+                                  << " was terminated by signal " << signal);
                     }
                 } else {
                     int exitCode = WEXITSTATUS(status);
@@ -189,7 +191,8 @@ private:
                         // This is the happy case
                         LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                     } else {
-                        LOG_WARN(<< "Child process with PID " << pid << " has exited with exit code " << exitCode);
+                        LOG_WARN(<< "Child process with PID " << pid
+                                 << " has exited with exit code " << exitCode);
                     }
                 }
                 m_Pids.erase(pid);
@@ -206,7 +209,8 @@ private:
 }
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
-    : m_PermittedProcessPaths(permittedProcessPaths), m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+    : m_PermittedProcessPaths(permittedProcessPaths),
+      m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
         LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }
@@ -223,8 +227,11 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
     return this->spawn(processPath, args, dummy);
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid) {
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
+                  processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
         return false;
     }
@@ -251,12 +258,14 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions) == false) {
-        LOG_ERROR(<< "Failed to set up file actions prior to spawn of '" << processPath << "': " << ::strerror(errno));
+        LOG_ERROR(<< "Failed to set up file actions prior to spawn of '"
+                  << processPath << "': " << ::strerror(errno));
         return false;
     }
     posix_spawnattr_t spawnAttributes;
     if (::posix_spawnattr_init(&spawnAttributes) != 0) {
-        LOG_ERROR(<< "Failed to set up spawn attributes prior to spawn of '" << processPath << "': " << ::strerror(errno));
+        LOG_ERROR(<< "Failed to set up spawn attributes prior to spawn of '"
+                  << processPath << "': " << ::strerror(errno));
         return false;
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
@@ -267,7 +276,8 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
-        int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions, &spawnAttributes, &argv[0], environ));
+        int err(::posix_spawn(&childPid, processPath.c_str(), &fileActions,
+                              &spawnAttributes, &argv[0], environ));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);

@@ -48,10 +48,12 @@ core_t::TTime BUCKET_LENGTH{1800};
 const double DECAY_RATE{0.0002};
 
 TPriorPtr makeResidualModel() {
-    maths::CGammaRateConjugate gamma{maths::CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.1, DECAY_RATE)};
-    maths::CLogNormalMeanPrecConjugate lognormal{
-        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 1.0, DECAY_RATE)};
-    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE)};
+    maths::CGammaRateConjugate gamma{maths::CGammaRateConjugate::nonInformativePrior(
+        maths_t::E_ContinuousData, 0.1, DECAY_RATE)};
+    maths::CLogNormalMeanPrecConjugate lognormal{maths::CLogNormalMeanPrecConjugate::nonInformativePrior(
+        maths_t::E_ContinuousData, 1.0, DECAY_RATE)};
+    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(
+        maths_t::E_ContinuousData, DECAY_RATE)};
 
     TPriorPtrVec mode;
     mode.reserve(3u);
@@ -59,9 +61,15 @@ TPriorPtr makeResidualModel() {
     mode.emplace_back(lognormal.clone());
     mode.emplace_back(normal.clone());
     maths::COneOfNPrior modePrior{mode, maths_t::E_ContinuousData, DECAY_RATE};
-    maths::CXMeansOnline1d clusterer{
-        maths_t::E_ContinuousData, maths::CAvailableModeDistributions::ALL, maths_t::E_ClustersFractionWeight, DECAY_RATE, 0.05, 12.0, 1.0};
-    maths::CMultimodalPrior multimodal{maths_t::E_ContinuousData, clusterer, modePrior, DECAY_RATE};
+    maths::CXMeansOnline1d clusterer{maths_t::E_ContinuousData,
+                                     maths::CAvailableModeDistributions::ALL,
+                                     maths_t::E_ClustersFractionWeight,
+                                     DECAY_RATE,
+                                     0.05,
+                                     12.0,
+                                     1.0};
+    maths::CMultimodalPrior multimodal{maths_t::E_ContinuousData, clusterer,
+                                       modePrior, DECAY_RATE};
 
     TPriorPtrVec models;
     mode.emplace_back(gamma.clone());
@@ -69,7 +77,8 @@ TPriorPtr makeResidualModel() {
     mode.emplace_back(normal.clone());
     mode.emplace_back(multimodal.clone());
 
-    return TPriorPtr{maths::COneOfNPrior{mode, maths_t::E_ContinuousData, DECAY_RATE}.clone()};
+    return TPriorPtr{
+        maths::COneOfNPrior{mode, maths_t::E_ContinuousData, DECAY_RATE}.clone()};
 }
 }
 
@@ -91,23 +100,27 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
 
         switch (t % 3) {
         case 0:
-            rng.generateNormalSamples(10.0, variances[(t / 3) % variances.size()], 1000, samples);
+            rng.generateNormalSamples(10.0, variances[(t / 3) % variances.size()],
+                                      1000, samples);
             break;
         case 1:
             rng.generateLogNormalSamples(1.0, scales[(t / 3) % scales.size()], 1000, samples);
             break;
         case 2:
-            rng.generateGammaSamples(10.0, 10.0 * scales[(t / 3) % scales.size()], 1000, samples);
+            rng.generateGammaSamples(10.0, 10.0 * scales[(t / 3) % scales.size()],
+                                     1000, samples);
             break;
         }
 
-        TDecompositionPtr trendModel(new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
+        TDecompositionPtr trendModel(
+            new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
         TPriorPtr residualModel(makeResidualModel());
 
         auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
             trendModel->addPoint(time, x);
             double detrended{trendModel->detrend(time, x, 0.0)};
-            residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended}, {{1.0}});
+            residualModel->addSamples(maths::CConstantWeights::COUNT,
+                                      {detrended}, {{1.0}});
             residualModel->propagateForwardsByTime(1.0);
         };
 
@@ -118,10 +131,12 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
         }
 
         maths::CUnivariateTimeSeriesChangeDetector detector{
-            trendModel, residualModel, 6 * core::constants::HOUR, 24 * core::constants::HOUR, 14.0};
+            trendModel, residualModel, 6 * core::constants::HOUR,
+            24 * core::constants::HOUR, 14.0};
         for (std::size_t i = 950u; i < samples.size(); ++i) {
             addSampleToModel(time, samples[i]);
-            detector.addSamples(maths::CConstantWeights::COUNT, {{time, samples[i]}}, {{1.0}});
+            detector.addSamples(maths::CConstantWeights::COUNT,
+                                {{time, samples[i]}}, {{1.0}});
             if (detector.stopTesting()) {
                 break;
             }
@@ -141,7 +156,8 @@ void CTimeSeriesChangeDetectorTest::testLevelShift() {
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
 
     this->testChange(
-        trends, maths::SChangeDescription::E_LevelShift, [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.5; }, 5.0, 15.0);
+        trends, maths::SChangeDescription::E_LevelShift,
+        [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.5; }, 5.0, 15.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testLinearScale() {
@@ -151,11 +167,9 @@ void CTimeSeriesChangeDetectorTest::testLinearScale() {
 
     TGeneratorVec trends{smoothDaily, spikeyDaily};
 
-    this->testChange(trends,
-                     maths::SChangeDescription::E_LinearScale,
-                     [](TGenerator trend, core_t::TTime time) { return 3.0 * trend(time); },
-                     3.0,
-                     15.0);
+    this->testChange(
+        trends, maths::SChangeDescription::E_LinearScale,
+        [](TGenerator trend, core_t::TTime time) { return 3.0 * trend(time); }, 3.0, 15.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testTimeShift() {
@@ -165,17 +179,17 @@ void CTimeSeriesChangeDetectorTest::testTimeShift() {
 
     TGeneratorVec trends{smoothDaily, spikeyDaily};
 
-    this->testChange(trends,
-                     maths::SChangeDescription::E_TimeShift,
-                     [](TGenerator trend, core_t::TTime time) { return trend(time - core::constants::HOUR); },
-                     -static_cast<double>(core::constants::HOUR),
-                     24.0);
+    this->testChange(trends, maths::SChangeDescription::E_TimeShift,
+                     [](TGenerator trend, core_t::TTime time) {
+                         return trend(time - core::constants::HOUR);
+                     },
+                     -static_cast<double>(core::constants::HOUR), 24.0);
 
-    this->testChange(trends,
-                     maths::SChangeDescription::E_TimeShift,
-                     [](TGenerator trend, core_t::TTime time) { return trend(time + core::constants::HOUR); },
-                     +static_cast<double>(core::constants::HOUR),
-                     24.0);
+    this->testChange(trends, maths::SChangeDescription::E_TimeShift,
+                     [](TGenerator trend, core_t::TTime time) {
+                         return trend(time + core::constants::HOUR);
+                     },
+                     +static_cast<double>(core::constants::HOUR), 24.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testPersist() {
@@ -194,7 +208,8 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
     auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
         trendModel->addPoint(time, x);
         double detrended{trendModel->detrend(time, x, 0.0)};
-        residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended}, maths::CConstantWeights::SINGLE_UNIT);
+        residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended},
+                                  maths::CConstantWeights::SINGLE_UNIT);
         residualModel->propagateForwardsByTime(1.0);
     };
 
@@ -205,11 +220,14 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
     }
 
     maths::CUnivariateTimeSeriesChangeDetector origDetector{
-        trendModel, residualModel, 6 * core::constants::HOUR, 24 * core::constants::HOUR, 12.0};
+        trendModel, residualModel, 6 * core::constants::HOUR,
+        24 * core::constants::HOUR, 12.0};
 
-    maths::CModelParams modelParams{BUCKET_LENGTH, 1.0, 0.0, 1.0, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
+    maths::CModelParams modelParams{
+        BUCKET_LENGTH, 1.0, 0.0, 1.0, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
     maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData, DECAY_RATE};
-    maths::STimeSeriesDecompositionRestoreParams decompositionParams{DECAY_RATE, BUCKET_LENGTH, distributionParams};
+    maths::STimeSeriesDecompositionRestoreParams decompositionParams{
+        DECAY_RATE, BUCKET_LENGTH, distributionParams};
     maths::SModelRestoreParams params{modelParams, decompositionParams, distributionParams};
 
     for (std::size_t i = 990u; i < samples.size(); ++i) {
@@ -222,14 +240,17 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
         }
 
         maths::CUnivariateTimeSeriesChangeDetector restoredDetector{
-            trendModel, residualModel, 6 * core::constants::HOUR, 24 * core::constants::HOUR, 12.0};
+            trendModel, residualModel, 6 * core::constants::HOUR,
+            24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        traverser.traverseSubLevel(
-            boost::bind(&maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser, &restoredDetector, boost::cref(params), _1));
+        traverser.traverseSubLevel(boost::bind(
+            &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
+            &restoredDetector, boost::cref(params), _1));
 
-        LOG_DEBUG("expected " << origDetector.checksum() << " got " << restoredDetector.checksum());
+        LOG_DEBUG("expected " << origDetector.checksum() << " got "
+                              << restoredDetector.checksum());
         CPPUNIT_ASSERT_EQUAL(origDetector.checksum(), restoredDetector.checksum());
     }
 }
@@ -237,16 +258,21 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
 CppUnit::Test* CTimeSeriesChangeDetectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesChangeDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>("CTimeSeriesChangeDetectorTest::testNoChange",
-                                                                                 &CTimeSeriesChangeDetectorTest::testNoChange));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>("CTimeSeriesChangeDetectorTest::testLevelShift",
-                                                                                 &CTimeSeriesChangeDetectorTest::testLevelShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>("CTimeSeriesChangeDetectorTest::testLinearScale",
-                                                                                 &CTimeSeriesChangeDetectorTest::testLinearScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>("CTimeSeriesChangeDetectorTest::testTimeShift",
-                                                                                 &CTimeSeriesChangeDetectorTest::testTimeShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>("CTimeSeriesChangeDetectorTest::testPersist",
-                                                                                 &CTimeSeriesChangeDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+        "CTimeSeriesChangeDetectorTest::testNoChange",
+        &CTimeSeriesChangeDetectorTest::testNoChange));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+        "CTimeSeriesChangeDetectorTest::testLevelShift",
+        &CTimeSeriesChangeDetectorTest::testLevelShift));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+        "CTimeSeriesChangeDetectorTest::testLinearScale",
+        &CTimeSeriesChangeDetectorTest::testLinearScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+        "CTimeSeriesChangeDetectorTest::testTimeShift",
+        &CTimeSeriesChangeDetectorTest::testTimeShift));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+        "CTimeSeriesChangeDetectorTest::testPersist",
+        &CTimeSeriesChangeDetectorTest::testPersist));
 
     return suiteOfTests;
 }
@@ -271,13 +297,16 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
 
         rng.generateNormalSamples(0.0, 1.0, 1000, samples);
 
-        TDecompositionPtr trendModel(new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
+        TDecompositionPtr trendModel(
+            new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
         TPriorPtr residualModel(makeResidualModel());
 
-        auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x, double weight) {
+        auto addSampleToModel = [&trendModel, &residualModel](
+                                    core_t::TTime time, double x, double weight) {
             trendModel->addPoint(time, x, maths::CConstantWeights::COUNT, {weight});
             double detrended{trendModel->detrend(time, x, 0.0)};
-            residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended}, {{weight}});
+            residualModel->addSamples(maths::CConstantWeights::COUNT,
+                                      {detrended}, {{weight}});
             residualModel->propagateForwardsByTime(1.0);
         };
 
@@ -289,7 +318,8 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
         }
 
         maths::CUnivariateTimeSeriesChangeDetector detector{
-            trendModel, residualModel, 6 * core::constants::HOUR, 24 * core::constants::HOUR, 14.0};
+            trendModel, residualModel, 6 * core::constants::HOUR,
+            24 * core::constants::HOUR, 14.0};
 
         TOptionalSize bucketsToDetect;
         for (std::size_t i = 950u; i < samples.size(); ++i) {
@@ -304,7 +334,8 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
                     bucketsToDetect.reset(i - 949);
                 }
                 CPPUNIT_ASSERT_EQUAL(change->s_Description, description);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedChange, change->s_Value[0], 0.5 * std::fabs(expectedChange));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedChange, change->s_Value[0],
+                                             0.5 * std::fabs(expectedChange));
                 break;
             }
             if (detector.stopTesting()) {
@@ -318,5 +349,6 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
     }
 
     LOG_DEBUG("buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanBucketsToDetect) < expectedMeanBucketsToDetectChange);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanBucketsToDetect) <
+                   expectedMeanBucketsToDetectChange);
 }

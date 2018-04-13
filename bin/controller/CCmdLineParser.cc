@@ -17,20 +17,25 @@ namespace controller {
 const std::string CCmdLineParser::DESCRIPTION = "Usage: controller [options]\n"
                                                 "Options";
 
-bool CCmdLineParser::parse(int argc, const char* const* argv, std::string& jvmPidStr, std::string& logPipe, std::string& commandPipe) {
+bool CCmdLineParser::parse(int argc,
+                           const char* const* argv,
+                           std::string& jvmPidStr,
+                           std::string& logPipe,
+                           std::string& commandPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
-            "jvmPid",
-            boost::program_options::value<std::string>(),
+        desc.add_options()("help", "Display this information and exit")(
+            "version", "Display version information and exit")(
+            "jvmPid", boost::program_options::value<std::string>(),
             "Process ID of the JVM to communicate with - default is parent process PID")(
-            "logPipe", boost::program_options::value<std::string>(), "Named pipe to log to - default is controller_log_<JVM PID>")(
-            "commandPipe",
-            boost::program_options::value<std::string>(),
+            "logPipe", boost::program_options::value<std::string>(),
+            "Named pipe to log to - default is controller_log_<JVM PID>")(
+            "commandPipe", boost::program_options::value<std::string>(),
             "Named pipe to accept commands from - default is controller_command_<JVM PID>");
 
         boost::program_options::variables_map vm;
-        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {

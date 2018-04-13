@@ -41,7 +41,8 @@ const char* BAD_OUTPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_output_pipe";
 
 class CThreadDataWriter : public ml::core::CThread {
 public:
-    CThreadDataWriter(const std::string& fileName, size_t size) : m_FileName(fileName), m_Size(size) {}
+    CThreadDataWriter(const std::string& fileName, size_t size)
+        : m_FileName(fileName), m_Size(size) {}
 
 protected:
     virtual void run() {
@@ -63,7 +64,8 @@ private:
 
 class CThreadDataReader : public ml::core::CThread {
 public:
-    CThreadDataReader(const std::string& fileName) : m_FileName(fileName), m_Shutdown(false) {}
+    CThreadDataReader(const std::string& fileName)
+        : m_FileName(fileName), m_Shutdown(false) {}
 
     const std::string& data() const {
         // The memory barriers associated with the mutex lock should ensure
@@ -129,13 +131,16 @@ private:
 CppUnit::Test* CIoManagerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIoManagerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoGood", &CIoManagerTest::testFileIoGood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoBad", &CIoManagerTest::testFileIoBad));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoGood", &CIoManagerTest::testNamedPipeIoGood));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoBad", &CIoManagerTest::testNamedPipeIoBad));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
+        "CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
+        "CIoManagerTest::testFileIoGood", &CIoManagerTest::testFileIoGood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
+        "CIoManagerTest::testFileIoBad", &CIoManagerTest::testFileIoBad));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
+        "CIoManagerTest::testNamedPipeIoGood", &CIoManagerTest::testNamedPipeIoGood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
+        "CIoManagerTest::testNamedPipeIoBad", &CIoManagerTest::testNamedPipeIoBad));
 
     return suiteOfTests;
 }
@@ -202,7 +207,8 @@ void CIoManagerTest::testCommon(const std::string& inputFileName,
     std::string processedData;
 
     {
-        ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+        ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                                  outputFileName, isOutputFileNamedPipe);
         CPPUNIT_ASSERT_EQUAL(isGood, ioMgr.initIo());
         if (isGood) {
             static const std::streamsize BUF_SIZE = 512;
@@ -211,10 +217,12 @@ void CIoManagerTest::testCommon(const std::string& inputFileName,
                 ioMgr.inputStream().read(buffer, BUF_SIZE);
                 CPPUNIT_ASSERT(!ioMgr.inputStream().bad());
                 if (ioMgr.inputStream().gcount() > 0) {
-                    processedData.append(buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
+                    processedData.append(
+                        buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
                 }
                 CPPUNIT_ASSERT(!ioMgr.outputStream().bad());
-                ioMgr.outputStream().write(buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
+                ioMgr.outputStream().write(
+                    buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
             } while (!ioMgr.inputStream().eof());
             CPPUNIT_ASSERT(!ioMgr.outputStream().bad());
         }

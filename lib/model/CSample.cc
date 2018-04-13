@@ -20,13 +20,17 @@ namespace ml {
 namespace model {
 
 std::string CSample::SToString::operator()(const CSample& sample) const {
-    std::string result = core::CStringUtils::typeToString(sample.m_Time) + core::CPersistUtils::PAIR_DELIMITER +
-                         core::CStringUtils::typeToStringPrecise(sample.m_VarianceScale, core::CIEEE754::E_SinglePrecision) +
+    std::string result = core::CStringUtils::typeToString(sample.m_Time) +
                          core::CPersistUtils::PAIR_DELIMITER +
-                         core::CStringUtils::typeToStringPrecise(sample.m_Count, core::CIEEE754::E_SinglePrecision);
+                         core::CStringUtils::typeToStringPrecise(
+                             sample.m_VarianceScale, core::CIEEE754::E_SinglePrecision) +
+                         core::CPersistUtils::PAIR_DELIMITER +
+                         core::CStringUtils::typeToStringPrecise(
+                             sample.m_Count, core::CIEEE754::E_SinglePrecision);
     for (std::size_t i = 0u; i < sample.m_Value.size(); ++i) {
         result += core::CPersistUtils::PAIR_DELIMITER +
-                  core::CStringUtils::typeToStringPrecise(sample.m_Value[i], core::CIEEE754::E_SinglePrecision);
+                  core::CStringUtils::typeToStringPrecise(
+                      sample.m_Value[i], core::CIEEE754::E_SinglePrecision);
     }
     return result;
 }
@@ -34,12 +38,14 @@ std::string CSample::SToString::operator()(const CSample& sample) const {
 bool CSample::SFromString::operator()(const std::string& token, CSample& value) const {
     core::CStringUtils::TStrVec tokens;
     std::string remainder;
-    core::CStringUtils::tokenise(std::string(1, core::CPersistUtils::PAIR_DELIMITER), token, tokens, remainder);
+    core::CStringUtils::tokenise(std::string(1, core::CPersistUtils::PAIR_DELIMITER),
+                                 token, tokens, remainder);
     if (!remainder.empty()) {
         tokens.push_back(remainder);
     }
 
-    if (!core::CStringUtils::stringToType(tokens[0], value.m_Time) || !core::CStringUtils::stringToType(tokens[1], value.m_VarianceScale) ||
+    if (!core::CStringUtils::stringToType(tokens[0], value.m_Time) ||
+        !core::CStringUtils::stringToType(tokens[1], value.m_VarianceScale) ||
         !core::CStringUtils::stringToType(tokens[2], value.m_Count)) {
         LOG_ERROR(<< "Cannot parse as sample: " << token);
         return false;
@@ -83,7 +89,8 @@ uint64_t CSample::checksum() const {
 
 std::string CSample::print() const {
     std::ostringstream result;
-    result << '(' << m_Time << ' ' << core::CContainerPrinter::print(m_Value) << ' ' << m_VarianceScale << ' ' << m_Count << ')';
+    result << '(' << m_Time << ' ' << core::CContainerPrinter::print(m_Value)
+           << ' ' << m_VarianceScale << ' ' << m_Count << ')';
     return result.str();
 }
 

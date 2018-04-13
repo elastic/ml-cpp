@@ -252,10 +252,12 @@ public:
 public:
     //! Construct the appropriate CSeasonalTime sub-class from its state
     //! document representation. Sets \p result to NULL on failure.
-    static bool acceptRestoreTraverser(TSeasonalTimePtr& result, core::CStateRestoreTraverser& traverser);
+    static bool acceptRestoreTraverser(TSeasonalTimePtr& result,
+                                       core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
-    static void acceptPersistInserter(const CSeasonalTime& time, core::CStatePersistInserter& inserter);
+    static void acceptPersistInserter(const CSeasonalTime& time,
+                                      core::CStatePersistInserter& inserter);
 };
 }
 }

@@ -35,29 +35,32 @@ bool CCmdLineParser::parse(int argc,
                            bool& writeDetectorConfigs) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
-            "logProperties", boost::program_options::value<std::string>(), "Optional logger properties file")(
+        desc.add_options()("help", "Display this information and exit")(
+            "version", "Display version information and exit")(
+            "logProperties", boost::program_options::value<std::string>(),
+            "Optional logger properties file")(
             "logPipe", boost::program_options::value<std::string>(), "Optional log to named pipe")(
-            "delimiter",
-            boost::program_options::value<char>(),
+            "delimiter", boost::program_options::value<char>(),
             "Optional delimiter character for delimited data formats - default is ',' (comma separated)")(
-            "lengthEncodedInput", "Take input in length encoded binary format - default is delimited")(
-            "timefield",
-            boost::program_options::value<std::string>(),
+            "lengthEncodedInput",
+            "Take input in length encoded binary format - default is delimited")(
+            "timefield", boost::program_options::value<std::string>(),
             "Optional name of the field containing the timestamp - default is 'time'")(
-            "timeformat",
-            boost::program_options::value<std::string>(),
+            "timeformat", boost::program_options::value<std::string>(),
             "Optional format of the date in the time field in strptime code - default is the epoch time in seconds")(
             "config", boost::program_options::value<std::string>(), "Optional configuration file")(
-            "input", boost::program_options::value<std::string>(), "Optional file to read input from - not present means read from STDIN")(
+            "input", boost::program_options::value<std::string>(),
+            "Optional file to read input from - not present means read from STDIN")(
             "inputIsPipe", "Specified input file is a named pipe")(
-            "output", boost::program_options::value<std::string>(), "Optional file to write output to - not present means write to STDOUT")(
+            "output", boost::program_options::value<std::string>(),
+            "Optional file to write output to - not present means write to STDOUT")(
             "outputIsPipe", "Specified output file is a named pipe")(
             "verbose", "Output information about all detectors including those that have been discarded")(
             "writeDetectorConfigs", "Output the detector configurations in JSON format");
 
         boost::program_options::variables_map vm;
-        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {

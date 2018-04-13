@@ -81,7 +81,8 @@ public:
                                         double minimumDeltaBicToDetect = 14.0);
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -98,7 +99,9 @@ public:
     double decisionFunction(std::size_t& change) const;
 
     //! Add \p samples to the change detector.
-    void addSamples(const TWeightStyleVec& weightStyles, const TTimeDoublePr1Vec& samples, const TDouble4Vec1Vec& weights);
+    void addSamples(const TWeightStyleVec& weightStyles,
+                    const TTimeDoublePr1Vec& samples,
+                    const TDouble4Vec1Vec& weights);
 
     //! Check if we should stop testing.
     bool stopTesting() const;
@@ -163,7 +166,8 @@ public:
     virtual ~CUnivariateChangeModel() = default;
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser) = 0;
+    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser) = 0;
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -178,8 +182,10 @@ public:
     virtual TOptionalChangeDescription change() const = 0;
 
     //! Update the change model with \p samples.
-    virtual void
-    addSamples(const std::size_t count, TWeightStyleVec weightStyles, const TTimeDoublePr1Vec& samples, TDouble4Vec1Vec weights) = 0;
+    virtual void addSamples(const std::size_t count,
+                            TWeightStyleVec weightStyles,
+                            const TTimeDoublePr1Vec& samples,
+                            TDouble4Vec1Vec weights) = 0;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -195,7 +201,8 @@ public:
 
 protected:
     //! Restore the residual model reading state from \p traverser.
-    bool restoreResidualModel(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool restoreResidualModel(const SDistributionRestoreParams& params,
+                              core::CStateRestoreTraverser& traverser);
 
     //! Get the log-likelihood.
     double logLikelihood() const;
@@ -204,10 +211,13 @@ protected:
     double expectedLogLikelihood() const;
 
     //! Update the log-likelihood with \p samples.
-    void updateLogLikelihood(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    void updateLogLikelihood(const TWeightStyleVec& weightStyles,
+                             const TDouble1Vec& samples,
+                             const TDouble4Vec1Vec& weights);
 
     //! Update the expected log-likelihoods.
-    void updateExpectedLogLikelihood(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights);
+    void updateExpectedLogLikelihood(const TWeightStyleVec& weightStyles,
+                                     const TDouble4Vec1Vec& weights);
 
     //! Get the time series trend model.
     const CTimeSeriesDecompositionInterface& trendModel() const;
@@ -239,7 +249,8 @@ public:
     CUnivariateNoChangeModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel);
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -254,8 +265,10 @@ public:
     virtual TOptionalChangeDescription change() const;
 
     //! Get the log likelihood of \p samples.
-    virtual void
-    addSamples(const std::size_t count, TWeightStyleVec weightStyles, const TTimeDoublePr1Vec& samples, TDouble4Vec1Vec weights);
+    virtual void addSamples(const std::size_t count,
+                            TWeightStyleVec weightStyles,
+                            const TTimeDoublePr1Vec& samples,
+                            TDouble4Vec1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -268,10 +281,12 @@ public:
 //! level shift.
 class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeModel {
 public:
-    CUnivariateLevelShiftModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel);
+    CUnivariateLevelShiftModel(const TDecompositionPtr& trendModel,
+                               const TPriorPtr& residualModel);
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -286,8 +301,10 @@ public:
     virtual TOptionalChangeDescription change() const;
 
     //! Update with \p samples.
-    virtual void
-    addSamples(const std::size_t count, TWeightStyleVec weightStyles, const TTimeDoublePr1Vec& samples, TDouble4Vec1Vec weights);
+    virtual void addSamples(const std::size_t count,
+                            TWeightStyleVec weightStyles,
+                            const TTimeDoublePr1Vec& samples,
+                            TDouble4Vec1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -313,10 +330,12 @@ private:
 //! linear scaling.
 class MATHS_EXPORT CUnivariateLinearScaleModel final : public CUnivariateChangeModel {
 public:
-    CUnivariateLinearScaleModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel);
+    CUnivariateLinearScaleModel(const TDecompositionPtr& trendModel,
+                                const TPriorPtr& residualModel);
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -331,8 +350,10 @@ public:
     virtual TOptionalChangeDescription change() const;
 
     //! Update with \p samples.
-    virtual void
-    addSamples(const std::size_t count, TWeightStyleVec weightStyles, const TTimeDoublePr1Vec& samples, TDouble4Vec1Vec weights);
+    virtual void addSamples(const std::size_t count,
+                            TWeightStyleVec weightStyles,
+                            const TTimeDoublePr1Vec& samples,
+                            TDouble4Vec1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -358,10 +379,13 @@ private:
 //! time shift.
 class MATHS_EXPORT CUnivariateTimeShiftModel final : public CUnivariateChangeModel {
 public:
-    CUnivariateTimeShiftModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel, core_t::TTime shift);
+    CUnivariateTimeShiftModel(const TDecompositionPtr& trendModel,
+                              const TPriorPtr& residualModel,
+                              core_t::TTime shift);
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -376,8 +400,10 @@ public:
     virtual TOptionalChangeDescription change() const;
 
     //! Update with \p samples.
-    virtual void
-    addSamples(const std::size_t count, TWeightStyleVec weightStyles, const TTimeDoublePr1Vec& samples, TDouble4Vec1Vec weights);
+    virtual void addSamples(const std::size_t count,
+                            TWeightStyleVec weightStyles,
+                            const TTimeDoublePr1Vec& samples,
+                            TDouble4Vec1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;

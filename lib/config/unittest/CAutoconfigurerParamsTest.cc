@@ -78,49 +78,50 @@ void CAutoconfigurerParamsTest::testInit() {
 
     params.init("testfiles/parameters.conf");
     std::string actual = params.print();
-    std::string expected = "  TimeFieldName = time\n"
-                           "  TimeFieldFormat = \n"
-                           "  FieldsOfInterest = [performance_metric, performance_metric_name, machine, user, region, program]\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::ARGUMENT_INDEX] = \"null\"\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::BY_INDEX] = [performance_metric_name, program]\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::OVER_INDEX] = [user]\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::PARTITION_INDEX] = [user, machine, region]\n"
-                           "  FunctionCategoriesToConfigure = [count, min, max, median]\n"
-                           "  FieldDataType = [(machine,categorical), (performance_metric,numeric)]\n"
-                           "  MinimumExamplesToClassify = 50\n"
-                           "  NumberOfMostFrequentFieldsCounts = 20\n"
-                           "  MinimumRecordsToAttemptConfig = 200\n"
-                           "  HighNumberByFieldValues = 50\n"
-                           "  MaximumNumberByFieldValues = 5000\n"
-                           "  HighNumberRareByFieldValues = 10000\n"
-                           "  MaximumNumberRareByFieldValues = 100000\n"
-                           "  HighNumberPartitionFieldValues = 1000\n"
-                           "  MaximumNumberPartitionFieldValues = 100000\n"
-                           "  LowNumberOverFieldValues = 80\n"
-                           "  MinimumNumberOverFieldValues = 20\n"
-                           "  HighCardinalityInTailFactor = 1.030000\n"
-                           "  HighCardinalityInTailIncrement = 2\n"
-                           "  HighCardinalityHighTailFraction = 0.310000\n"
-                           "  HighCardinalityMaximumTailFraction = 0.620000\n"
-                           "  LowPopulatedBucketFractions = [0.35, 0.12]\n"
-                           "  MinimumPopulatedBucketFractions = [0.11, 0.042]\n"
-                           "  HighPopulatedBucketFractions[1] = 0.100000\n"
-                           "  MaximumPopulatedBucketFractions[1] = 0.500000\n"
-                           "  CandidateBucketLengths = [1, 60, 600, 1800, 7200]\n"
-                           "  LowNumberOfBucketsForConfig = 30.000000\n"
-                           "  MinimumNumberOfBucketsForConfig = 8.000000\n"
-                           "  PolledDataMinimumMassAtInterval = 0.890000\n"
-                           "  PolledDataJitter = 0.030000\n"
-                           "  LowCoefficientOfVariation = 0.003000\n"
-                           "  MinimumCoefficientOfVariation = 0.000200\n"
-                           "  LowLengthRangeForInfoContent = 10.000000\n"
-                           "  MinimumLengthRangeForInfoContent = 1.000000\n"
-                           "  LowMaximumLengthForInfoContent = 25.000000\n"
-                           "  MinimumMaximumLengthForInfoContent = 5.000000\n"
-                           "  LowEntropyForInfoContent = 0.010000\n"
-                           "  MinimumEntropyForInfoContent = 0.000001\n"
-                           "  LowDistinctCountForInfoContent = 500000.000000\n"
-                           "  MinimumDistinctCountForInfoContent = 5000.000000\n";
+    std::string expected =
+        "  TimeFieldName = time\n"
+        "  TimeFieldFormat = \n"
+        "  FieldsOfInterest = [performance_metric, performance_metric_name, machine, user, region, program]\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::ARGUMENT_INDEX] = \"null\"\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::BY_INDEX] = [performance_metric_name, program]\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::OVER_INDEX] = [user]\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::PARTITION_INDEX] = [user, machine, region]\n"
+        "  FunctionCategoriesToConfigure = [count, min, max, median]\n"
+        "  FieldDataType = [(machine,categorical), (performance_metric,numeric)]\n"
+        "  MinimumExamplesToClassify = 50\n"
+        "  NumberOfMostFrequentFieldsCounts = 20\n"
+        "  MinimumRecordsToAttemptConfig = 200\n"
+        "  HighNumberByFieldValues = 50\n"
+        "  MaximumNumberByFieldValues = 5000\n"
+        "  HighNumberRareByFieldValues = 10000\n"
+        "  MaximumNumberRareByFieldValues = 100000\n"
+        "  HighNumberPartitionFieldValues = 1000\n"
+        "  MaximumNumberPartitionFieldValues = 100000\n"
+        "  LowNumberOverFieldValues = 80\n"
+        "  MinimumNumberOverFieldValues = 20\n"
+        "  HighCardinalityInTailFactor = 1.030000\n"
+        "  HighCardinalityInTailIncrement = 2\n"
+        "  HighCardinalityHighTailFraction = 0.310000\n"
+        "  HighCardinalityMaximumTailFraction = 0.620000\n"
+        "  LowPopulatedBucketFractions = [0.35, 0.12]\n"
+        "  MinimumPopulatedBucketFractions = [0.11, 0.042]\n"
+        "  HighPopulatedBucketFractions[1] = 0.100000\n"
+        "  MaximumPopulatedBucketFractions[1] = 0.500000\n"
+        "  CandidateBucketLengths = [1, 60, 600, 1800, 7200]\n"
+        "  LowNumberOfBucketsForConfig = 30.000000\n"
+        "  MinimumNumberOfBucketsForConfig = 8.000000\n"
+        "  PolledDataMinimumMassAtInterval = 0.890000\n"
+        "  PolledDataJitter = 0.030000\n"
+        "  LowCoefficientOfVariation = 0.003000\n"
+        "  MinimumCoefficientOfVariation = 0.000200\n"
+        "  LowLengthRangeForInfoContent = 10.000000\n"
+        "  MinimumLengthRangeForInfoContent = 1.000000\n"
+        "  LowMaximumLengthForInfoContent = 25.000000\n"
+        "  MinimumMaximumLengthForInfoContent = 5.000000\n"
+        "  LowEntropyForInfoContent = 0.010000\n"
+        "  MinimumEntropyForInfoContent = 0.000001\n"
+        "  LowDistinctCountForInfoContent = 500000.000000\n"
+        "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG(<< "parameters =\n" << actual);
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 
@@ -133,10 +134,10 @@ void CAutoconfigurerParamsTest::testInit() {
 CppUnit::Test* CAutoconfigurerParamsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testDefaults",
-                                                                             &CAutoconfigurerParamsTest::testDefaults));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testInit", &CAutoconfigurerParamsTest::testInit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
+        "CAutoconfigurerParamsTest::testDefaults", &CAutoconfigurerParamsTest::testDefaults));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
+        "CAutoconfigurerParamsTest::testInit", &CAutoconfigurerParamsTest::testInit));
 
     return suiteOfTests;
 }

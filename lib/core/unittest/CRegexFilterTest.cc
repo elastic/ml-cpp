@@ -11,16 +11,21 @@
 CppUnit::Test* CRegexFilterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegexFilterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>("CRegexFilterTest::testConfigure_GivenInvalidRegex",
-                                                                    &CRegexFilterTest::testConfigure_GivenInvalidRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>("CRegexFilterTest::testApply_GivenEmptyFilter",
-                                                                    &CRegexFilterTest::testApply_GivenEmptyFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>("CRegexFilterTest::testApply_GivenSingleMatchAllRegex",
-                                                                    &CRegexFilterTest::testApply_GivenSingleMatchAllRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>("CRegexFilterTest::testApply_GivenSingleRegex",
-                                                                    &CRegexFilterTest::testApply_GivenSingleRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>("CRegexFilterTest::testApply_GivenMultipleRegex",
-                                                                    &CRegexFilterTest::testApply_GivenMultipleRegex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
+        "CRegexFilterTest::testConfigure_GivenInvalidRegex",
+        &CRegexFilterTest::testConfigure_GivenInvalidRegex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
+        "CRegexFilterTest::testApply_GivenEmptyFilter",
+        &CRegexFilterTest::testApply_GivenEmptyFilter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
+        "CRegexFilterTest::testApply_GivenSingleMatchAllRegex",
+        &CRegexFilterTest::testApply_GivenSingleMatchAllRegex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
+        "CRegexFilterTest::testApply_GivenSingleRegex",
+        &CRegexFilterTest::testApply_GivenSingleRegex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
+        "CRegexFilterTest::testApply_GivenMultipleRegex",
+        &CRegexFilterTest::testApply_GivenMultipleRegex));
 
     return suiteOfTests;
 }

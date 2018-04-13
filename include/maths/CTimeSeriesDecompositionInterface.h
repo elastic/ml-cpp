@@ -95,7 +95,8 @@ public:
     //! point.
     //! \param[in] change A description of the change to apply.
     //! \return True if a new component was detected.
-    virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change) = 0;
+    virtual bool
+    applyChange(core_t::TTime time, double value, const SChangeDescription& change) = 0;
 
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;
@@ -109,8 +110,10 @@ public:
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
-    virtual maths_t::TDoubleDoublePr
-    value(core_t::TTime time, double confidence = 0.0, int components = E_All, bool smooth = true) const = 0;
+    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                           double confidence = 0.0,
+                                           int components = E_All,
+                                           bool smooth = true) const = 0;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!
@@ -131,7 +134,10 @@ public:
     //! any periodic component at \p time.
     //!
     //! \note That detrending preserves the time series mean.
-    virtual double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const = 0;
+    virtual double detrend(core_t::TTime time,
+                           double value,
+                           double confidence,
+                           int components = E_All) const = 0;
 
     //! Get the mean variance of the baseline.
     virtual double meanVariance() const = 0;
@@ -142,7 +148,8 @@ public:
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the
     //! variance scale as a percentage.
-    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
+    virtual maths_t::TDoubleDoublePr
+    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

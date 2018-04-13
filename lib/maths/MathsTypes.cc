@@ -23,12 +23,13 @@ namespace detail {
 
 //! Check that the weights styles and weights are consistent.
 template<typename T>
-inline bool check(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights) {
+inline bool check(const TWeightStyleVec& weightStyles,
+                  const core::CSmallVector<T, 4>& weights) {
     if (weightStyles.size() == weights.size()) {
         return true;
     }
-    LOG_ERROR(<< "Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles) << "' and weights '"
-              << core::CContainerPrinter::print(weights) << "'");
+    LOG_ERROR(<< "Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles)
+              << "' and weights '" << core::CContainerPrinter::print(weights) << "'");
     return false;
 }
 
@@ -103,7 +104,9 @@ void count(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
 template<typename T>
-void countForUpdate(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void countForUpdate(const TWeightStyleVec& weightStyles,
+                    const core::CSmallVector<T, 4>& weights,
+                    T& result) {
     if (check(weightStyles, weights)) {
         T candidate(result);
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
@@ -130,7 +133,9 @@ void countForUpdate(const TWeightStyleVec& weightStyles, const core::CSmallVecto
 
 //! Extract the Winsorisation weight from a collection of weights.
 template<typename T>
-void winsorisationWeight(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void winsorisationWeight(const TWeightStyleVec& weightStyles,
+                         const core::CSmallVector<T, 4>& weights,
+                         T& result) {
     if (check(weightStyles, weights)) {
         T candidate(result);
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
@@ -156,7 +161,9 @@ void winsorisationWeight(const TWeightStyleVec& weightStyles, const core::CSmall
 
 //! Extract the seasonal variance scale from a collection of weights.
 template<typename T>
-void seasonalVarianceScale(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void seasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                           const core::CSmallVector<T, 4>& weights,
+                           T& result) {
     if (check(weightStyles, weights)) {
         T candidate(result);
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
@@ -182,7 +189,9 @@ void seasonalVarianceScale(const TWeightStyleVec& weightStyles, const core::CSma
 
 //! Extract the count variance scale from a collection of weights.
 template<typename T>
-void countVarianceScale(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void countVarianceScale(const TWeightStyleVec& weightStyles,
+                        const core::CSmallVector<T, 4>& weights,
+                        T& result) {
     if (check(weightStyles, weights)) {
         T candidate(result);
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
@@ -214,7 +223,9 @@ double count(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights) {
     return result;
 }
 
-TDouble10Vec count(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec count(std::size_t dimension,
+                   const TWeightStyleVec& weightStyles,
+                   const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::count(weightStyles, weights, result);
     return result;
@@ -226,7 +237,9 @@ double countForUpdate(const TWeightStyleVec& weightStyles, const TDouble4Vec& we
     return result;
 }
 
-TDouble10Vec countForUpdate(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countForUpdate(std::size_t dimension,
+                            const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countForUpdate(weightStyles, weights, result);
     return result;
@@ -238,7 +251,9 @@ double winsorisationWeight(const TWeightStyleVec& weightStyles, const TDouble4Ve
     return result;
 }
 
-TDouble10Vec winsorisationWeight(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec winsorisationWeight(std::size_t dimension,
+                                 const TWeightStyleVec& weightStyles,
+                                 const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::winsorisationWeight(weightStyles, weights, result);
     return result;
@@ -250,7 +265,9 @@ double seasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4
     return result;
 }
 
-TDouble10Vec seasonalVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec seasonalVarianceScale(std::size_t dimension,
+                                   const TWeightStyleVec& weightStyles,
+                                   const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::seasonalVarianceScale(weightStyles, weights, result);
     return result;
@@ -262,7 +279,9 @@ double countVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec
     return result;
 }
 
-TDouble10Vec countVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countVarianceScale(std::size_t dimension,
+                                const TWeightStyleVec& weightStyles,
+                                const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countVarianceScale(weightStyles, weights, result);
     return result;
@@ -272,7 +291,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return seasonalVarianceScale(weightStyles, weights) != 1.0;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasSeasonalVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -281,7 +301,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return false;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec4Vec& weights) {
     if (!detail::check(weightStyles, weights)) {
         return false;
     }
@@ -305,7 +326,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return false;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasSeasonalVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -318,7 +340,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Ve
     return countVarianceScale(weightStyles, weights) != 1.0;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasCountVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -327,7 +350,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Ve
     return false;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble10Vec4Vec& weights) {
     if (!detail::check(weightStyles, weights)) {
         return false;
     }
@@ -351,7 +375,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10V
     return false;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble10Vec4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasCountVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -361,7 +386,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10V
 }
 
 void setWeight(ESampleWeightStyle style, double weight, TWeightStyleVec& weightStyles, TDouble4Vec& weights) {
-    std::ptrdiff_t i{std::find(weightStyles.begin(), weightStyles.end(), style) - weightStyles.begin()};
+    std::ptrdiff_t i{std::find(weightStyles.begin(), weightStyles.end(), style) -
+                     weightStyles.begin()};
     if (static_cast<std::size_t>(i) < weightStyles.size()) {
         weights[i] = weight;
     } else {
@@ -370,8 +396,13 @@ void setWeight(ESampleWeightStyle style, double weight, TWeightStyleVec& weightS
     }
 }
 
-void setWeight(ESampleWeightStyle style, double weight, std::size_t dimension, TWeightStyleVec& weightStyles, TDouble10Vec4Vec& weights) {
-    std::ptrdiff_t i{std::find(weightStyles.begin(), weightStyles.end(), style) - weightStyles.begin()};
+void setWeight(ESampleWeightStyle style,
+               double weight,
+               std::size_t dimension,
+               TWeightStyleVec& weightStyles,
+               TDouble10Vec4Vec& weights) {
+    std::ptrdiff_t i{std::find(weightStyles.begin(), weightStyles.end(), style) -
+                     weightStyles.begin()};
     if (static_cast<std::size_t>(i) < weightStyles.size()) {
         weights[i].assign(dimension, weight);
     } else {

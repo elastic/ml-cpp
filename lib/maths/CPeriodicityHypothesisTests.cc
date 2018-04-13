@@ -59,7 +59,8 @@ using TTimeTimePrMeanVarAccumulatorPr = std::pair<TTimeTimePr, TMeanVarAccumulat
 class CMinAmplitude {
 public:
     CMinAmplitude(std::size_t n, double level)
-        : m_Level(level), m_Count(0), m_Min(std::max(n, MINIMUM_COUNT_TO_TEST)), m_Max(std::max(n, MINIMUM_COUNT_TO_TEST)) {}
+        : m_Level(level), m_Count(0), m_Min(std::max(n, MINIMUM_COUNT_TO_TEST)),
+          m_Max(std::max(n, MINIMUM_COUNT_TO_TEST)) {}
 
     void add(double x, double n) {
         if (n > 0.0) {
@@ -71,7 +72,8 @@ public:
 
     double amplitude() const {
         if (this->count() >= MINIMUM_COUNT_TO_TEST) {
-            return std::max(std::max(-m_Min.biggest(), 0.0), std::max(m_Max.biggest(), 0.0));
+            return std::max(std::max(-m_Min.biggest(), 0.0),
+                            std::max(m_Max.biggest(), 0.0));
         }
         return 0.0;
     }
@@ -93,7 +95,8 @@ public:
 
 private:
     using TMinAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;
-    using TMaxAccumulator = CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
+    using TMaxAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
 
 private:
     std::size_t count() const { return m_Min.count(); }
@@ -120,7 +123,8 @@ using TMinAmplitudeVec = std::vector<CMinAmplitude>;
 //! \brief Holds the relevant summary for choosing between alternative
 //! (non-nested) hypotheses.
 struct SHypothesisSummary {
-    SHypothesisSummary(double v, double DF, const CPeriodicityHypothesisTestsResult& H) : s_V(v), s_DF(DF), s_H(H) {}
+    SHypothesisSummary(double v, double DF, const CPeriodicityHypothesisTestsResult& H)
+        : s_V(v), s_DF(DF), s_H(H) {}
 
     double s_V;
     double s_DF;
@@ -151,7 +155,9 @@ const core_t::TTime DIURNAL_PERIODS[]{DAY, WEEK};
 //! The weekend/day windows.
 const TTimeTimePr DIURNAL_WINDOWS[]{{0, WEEKEND}, {WEEKEND, WEEK}, {0, WEEK}};
 //! The names of the the diurnal periodic components.
-const std::string DIURNAL_COMPONENT_NAMES[] = {"weekend daily", "weekend weekly", "weekday daily", "weekday weekly", "daily", "weekly"};
+const std::string DIURNAL_COMPONENT_NAMES[] = {
+    "weekend daily",  "weekend weekly", "weekday daily",
+    "weekday weekly", "daily",          "weekly"};
 
 //! The confidence interval used for test statistic values.
 const double CONFIDENCE_INTERVAL{80.0};
@@ -181,10 +187,12 @@ void removeLinearTrend(TFloatMeanAccumulatorVec& values) {
 //! in one repeat of the partitioning pattern.
 double weekendPartitionVarianceCorrection(std::size_t bucketsPerWeek) {
     static const std::size_t BUCKETS_PER_WEEK[]{7, 14, 21, 28, 42, 56, 84, 168};
-    static const double CORRECTIONS[]{1.0, 1.0, 1.0, 1.12, 1.31, 1.31, 1.31, 1.31};
-    std::ptrdiff_t index{std::min(
-        std::lower_bound(boost::begin(BUCKETS_PER_WEEK), boost::end(BUCKETS_PER_WEEK), bucketsPerWeek) - boost::begin(BUCKETS_PER_WEEK),
-        std::ptrdiff_t(boost::size(BUCKETS_PER_WEEK) - 1))};
+    static const double CORRECTIONS[]{1.0,  1.0,  1.0,  1.12,
+                                      1.31, 1.31, 1.31, 1.31};
+    std::ptrdiff_t index{std::min(std::lower_bound(boost::begin(BUCKETS_PER_WEEK),
+                                                   boost::end(BUCKETS_PER_WEEK), bucketsPerWeek) -
+                                      boost::begin(BUCKETS_PER_WEEK),
+                                  std::ptrdiff_t(boost::size(BUCKETS_PER_WEEK) - 1))};
     return CORRECTIONS[index];
 }
 
@@ -194,7 +202,10 @@ double varianceAtPercentile(double variance, double df, double percentage) {
     try {
         boost::math::chi_squared chi(df);
         return boost::math::quantile(chi, percentage / 100.0) / df * variance;
-    } catch (const std::exception& e) { LOG_ERROR(<< "Bad input: " << e.what() << ", df = " << df << ", percentage = " << percentage); }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Bad input: " << e.what() << ", df = " << df
+                  << ", percentage = " << percentage);
+    }
     return variance;
 }
 
@@ -204,7 +215,10 @@ double autocorrelationAtPercentile(double autocorrelation, double n, double perc
     try {
         boost::math::fisher_f f(n - 1.0, n - 1.0);
         return boost::math::quantile(f, percentage / 100.0) * autocorrelation;
-    } catch (const std::exception& e) { LOG_ERROR(<< "Bad input: " << e.what() << ", n = " << n << ", percentage = " << percentage); }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Bad input: " << e.what() << ", n = " << n
+                  << ", percentage = " << percentage);
+    }
     return autocorrelation;
 }
 
@@ -217,8 +231,10 @@ T length(const std::pair<T, T>& window) {
 //! Get the total length of the \p windows.
 template<typename T>
 T length(const core::CSmallVector<std::pair<T, T>, 2>& windows) {
-    return std::accumulate(
-        windows.begin(), windows.end(), 0, [](core_t::TTime length_, const TTimeTimePr& window) { return length_ + length(window); });
+    return std::accumulate(windows.begin(), windows.end(), 0,
+                           [](core_t::TTime length_, const TTimeTimePr& window) {
+                               return length_ + length(window);
+                           });
 }
 
 //! Get the length of \p buckets.
@@ -228,7 +244,10 @@ core_t::TTime length(const T& buckets, core_t::TTime bucketLength) {
 }
 
 //! Compute the windows at repeat \p repeat with length \p length.
-TTimeTimePr2Vec calculateWindows(core_t::TTime startOfWeek, core_t::TTime window, core_t::TTime repeat, const TTimeTimePr& interval) {
+TTimeTimePr2Vec calculateWindows(core_t::TTime startOfWeek,
+                                 core_t::TTime window,
+                                 core_t::TTime repeat,
+                                 const TTimeTimePr& interval) {
     core_t::TTime a{startOfWeek + interval.first};
     core_t::TTime b{startOfWeek + window};
     core_t::TTime l{length(interval)};
@@ -241,7 +260,9 @@ TTimeTimePr2Vec calculateWindows(core_t::TTime startOfWeek, core_t::TTime window
 }
 
 //! Get the index ranges corresponding to \p windows.
-std::size_t calculateIndexWindows(const TTimeTimePr2Vec& windows, core_t::TTime bucketLength, TSizeSizePr2Vec& result) {
+std::size_t calculateIndexWindows(const TTimeTimePr2Vec& windows,
+                                  core_t::TTime bucketLength,
+                                  TSizeSizePr2Vec& result) {
     std::size_t l(0);
     result.reserve(windows.size());
     for (const auto& window : windows) {
@@ -277,7 +298,10 @@ void project(const TFloatMeanAccumulatorVec& values,
 
 //! Compute the periodic trend from \p values falling in \p windows.
 template<typename U, typename V>
-void periodicTrend(const U& values, const TSizeSizePr2Vec& windows_, core_t::TTime bucketLength, V& trend) {
+void periodicTrend(const U& values,
+                   const TSizeSizePr2Vec& windows_,
+                   core_t::TTime bucketLength,
+                   V& trend) {
     if (!trend.empty()) {
         TSizeSizePr2Vec windows;
         calculateIndexWindows(windows_, bucketLength, windows);
@@ -288,17 +312,22 @@ void periodicTrend(const U& values, const TSizeSizePr2Vec& windows_, core_t::TTi
             std::size_t b{windows[i].second};
             for (std::size_t j = a; j < b; ++j) {
                 const TFloatMeanAccumulator& value{values[j % n]};
-                trend[(j - a) % period].add(CBasicStatistics::mean(value), CBasicStatistics::count(value));
+                trend[(j - a) % period].add(CBasicStatistics::mean(value),
+                                            CBasicStatistics::count(value));
             }
         }
     }
 }
 
 //! Compute the average of the values at \p times.
-void averageValue(const TFloatMeanAccumulatorVec& values, const TTimeVec& times, core_t::TTime bucketLength, TMeanVarAccumulator& value) {
+void averageValue(const TFloatMeanAccumulatorVec& values,
+                  const TTimeVec& times,
+                  core_t::TTime bucketLength,
+                  TMeanVarAccumulator& value) {
     for (const auto time : times) {
         std::size_t index(time / bucketLength);
-        value.add(CBasicStatistics::mean(values[index]), CBasicStatistics::count(values[index]));
+        value.add(CBasicStatistics::mean(values[index]),
+                  CBasicStatistics::count(values[index]));
     }
 }
 
@@ -332,7 +361,8 @@ double residualVariance(const TMeanAccumulator& mean) {
 
 //! Extract the residual variance of \p bucket of a trend.
 TMeanAccumulator residualVariance(const TMeanVarAccumulator& bucket, double scale) {
-    return CBasicStatistics::accumulator(scale * CBasicStatistics::count(bucket), CBasicStatistics::maximumLikelihoodVariance(bucket));
+    return CBasicStatistics::accumulator(scale * CBasicStatistics::count(bucket),
+                                         CBasicStatistics::maximumLikelihoodVariance(bucket));
 }
 
 //! \brief Partially specialized helper class to get the trend
@@ -343,7 +373,9 @@ struct SResidualVarianceImpl {};
 //! \brief Get the residual variance as a double.
 template<>
 struct SResidualVarianceImpl<double> {
-    static double get(const TMeanAccumulator& mean) { return residualVariance(mean); }
+    static double get(const TMeanAccumulator& mean) {
+        return residualVariance(mean);
+    }
 };
 
 //! \brief Get the residual variance as a mean accumulator.
@@ -357,19 +389,23 @@ template<typename R, typename T>
 R residualVariance(const T& trend, double scale) {
     TMeanAccumulator result;
     for (const auto& bucket : trend) {
-        result.add(CBasicStatistics::maximumLikelihoodVariance(bucket), CBasicStatistics::count(bucket));
+        result.add(CBasicStatistics::maximumLikelihoodVariance(bucket),
+                   CBasicStatistics::count(bucket));
     }
     result.s_Count *= scale;
     return SResidualVarianceImpl<R>::get(result);
 }
 }
 
-bool CPeriodicityHypothesisTestsResult::operator==(const CPeriodicityHypothesisTestsResult& other) const {
+bool CPeriodicityHypothesisTestsResult::
+operator==(const CPeriodicityHypothesisTestsResult& other) const {
     return m_Components == other.m_Components;
 }
 
-const CPeriodicityHypothesisTestsResult& CPeriodicityHypothesisTestsResult::operator+=(const CPeriodicityHypothesisTestsResult& other) {
-    m_Components.insert(m_Components.end(), other.m_Components.begin(), other.m_Components.end());
+const CPeriodicityHypothesisTestsResult& CPeriodicityHypothesisTestsResult::
+operator+=(const CPeriodicityHypothesisTestsResult& other) {
+    m_Components.insert(m_Components.end(), other.m_Components.begin(),
+                        other.m_Components.end());
     return *this;
 }
 
@@ -379,13 +415,15 @@ void CPeriodicityHypothesisTestsResult::add(const std::string& description,
                                             core_t::TTime period,
                                             const TTimeTimePr& window,
                                             double precedence) {
-    m_Components.emplace_back(description, diurnal, startOfPartition, period, window, precedence);
+    m_Components.emplace_back(description, diurnal, startOfPartition, period,
+                              window, precedence);
 }
 
 void CPeriodicityHypothesisTestsResult::remove(const std::string& description) {
-    auto i = std::find_if(m_Components.begin(), m_Components.end(), [&description](const SComponent& component) {
-        return component.s_Description == description;
-    });
+    auto i = std::find_if(m_Components.begin(), m_Components.end(),
+                          [&description](const SComponent& component) {
+                              return component.s_Description == description;
+                          });
     if (i != m_Components.end()) {
         m_Components.erase(i);
     }
@@ -395,7 +433,8 @@ bool CPeriodicityHypothesisTestsResult::periodic() const {
     return m_Components.size() > 0;
 }
 
-const CPeriodicityHypothesisTestsResult::TComponent5Vec& CPeriodicityHypothesisTestsResult::components() const {
+const CPeriodicityHypothesisTestsResult::TComponent5Vec&
+CPeriodicityHypothesisTestsResult::components() const {
     return m_Components;
 }
 
@@ -409,7 +448,8 @@ std::string CPeriodicityHypothesisTestsResult::print() const {
 }
 
 CPeriodicityHypothesisTestsResult::SComponent::SComponent()
-    : s_Description(""), s_Diurnal(false), s_StartOfPartition(0), s_Period(0), s_Precedence(0.0) {
+    : s_Description(""), s_Diurnal(false), s_StartOfPartition(0), s_Period(0),
+      s_Precedence(0.0) {
 }
 
 CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& description,
@@ -418,11 +458,8 @@ CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& des
                                                           core_t::TTime period,
                                                           const TTimeTimePr& window,
                                                           double precedence)
-    : s_Description(description),
-      s_Diurnal(diurnal),
-      s_StartOfPartition(startOfPartition),
-      s_Period(period),
-      s_Window(window),
+    : s_Description(description), s_Diurnal(diurnal),
+      s_StartOfPartition(startOfPartition), s_Period(period), s_Window(window),
       s_Precedence(precedence) {
 }
 
@@ -432,13 +469,15 @@ bool CPeriodicityHypothesisTestsResult::SComponent::operator==(const SComponent&
 
 CSeasonalTime* CPeriodicityHypothesisTestsResult::SComponent::seasonalTime() const {
     if (s_Diurnal) {
-        return new CDiurnalTime(s_StartOfPartition, s_Window.first, s_Window.second, s_Period, s_Precedence);
+        return new CDiurnalTime(s_StartOfPartition, s_Window.first,
+                                s_Window.second, s_Period, s_Precedence);
     }
     return new CGeneralPeriodTime(s_Period, s_Precedence);
 }
 
 CPeriodicityHypothesisTestsConfig::CPeriodicityHypothesisTestsConfig()
-    : m_TestForDiurnal(true), m_HasDaily(false), m_HasWeekend(false), m_HasWeekly(false), m_StartOfWeek(0) {
+    : m_TestForDiurnal(true), m_HasDaily(false), m_HasWeekend(false),
+      m_HasWeekly(false), m_StartOfWeek(0) {
 }
 
 void CPeriodicityHypothesisTestsConfig::disableDiurnal() {
@@ -481,7 +520,8 @@ core_t::TTime CPeriodicityHypothesisTestsConfig::startOfWeek() const {
     return m_StartOfWeek;
 }
 
-CPeriodicityHypothesisTests::CPeriodicityHypothesisTests() : m_BucketLength(0), m_WindowLength(0), m_Period(0) {
+CPeriodicityHypothesisTests::CPeriodicityHypothesisTests()
+    : m_BucketLength(0), m_WindowLength(0), m_Period(0) {
 }
 CPeriodicityHypothesisTests::CPeriodicityHypothesisTests(const CPeriodicityHypothesisTestsConfig& config)
     : m_Config(config), m_BucketLength(0), m_WindowLength(0), m_Period(0) {
@@ -491,7 +531,9 @@ bool CPeriodicityHypothesisTests::initialized() const {
     return m_BucketValues.size() > 0;
 }
 
-void CPeriodicityHypothesisTests::initialize(core_t::TTime bucketLength, core_t::TTime windowLength, core_t::TTime period) {
+void CPeriodicityHypothesisTests::initialize(core_t::TTime bucketLength,
+                                             core_t::TTime windowLength,
+                                             core_t::TTime period) {
     m_BucketLength = bucketLength;
     m_WindowLength = windowLength;
     m_BucketValues.resize(static_cast<std::size_t>(windowLength / m_BucketLength));
@@ -547,15 +589,21 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::test() const {
     TTimeTimePr2Vec windowForTestingDaily(window(DAY));
     TTimeTimePr2Vec windowForTestingWeekly(window(WEEK));
     TTimeTimePr2Vec windowForTestingPeriod(window(m_Period));
-    TFloatMeanAccumulatorCRng bucketsForTestingDaily[]{{m_BucketValues, 0, buckets(DAY)}, {detrendedBucketValues, 0, buckets(DAY)}};
-    TFloatMeanAccumulatorCRng bucketsForTestingWeekly[]{{m_BucketValues, 0, buckets(WEEK)}, {detrendedBucketValues, 0, buckets(WEEK)}};
-    TFloatMeanAccumulatorCRng bucketsForTestingPeriod[]{{m_BucketValues, 0, buckets(m_Period)},
-                                                        {detrendedBucketValues, 0, buckets(m_Period)}};
+    TFloatMeanAccumulatorCRng bucketsForTestingDaily[]{
+        {m_BucketValues, 0, buckets(DAY)}, {detrendedBucketValues, 0, buckets(DAY)}};
+    TFloatMeanAccumulatorCRng bucketsForTestingWeekly[]{
+        {m_BucketValues, 0, buckets(WEEK)}, {detrendedBucketValues, 0, buckets(WEEK)}};
+    TFloatMeanAccumulatorCRng bucketsForTestingPeriod[]{
+        {m_BucketValues, 0, buckets(m_Period)},
+        {detrendedBucketValues, 0, buckets(m_Period)}};
 
     LOG_TRACE(<< "Testing periodicity hypotheses");
-    LOG_TRACE(<< "window for daily = " << core::CContainerPrinter::print(windowForTestingDaily));
-    LOG_TRACE(<< "window for weekly = " << core::CContainerPrinter::print(windowForTestingWeekly));
-    LOG_TRACE(<< "window for period = " << core::CContainerPrinter::print(windowForTestingPeriod));
+    LOG_TRACE(<< "window for daily = "
+              << core::CContainerPrinter::print(windowForTestingDaily));
+    LOG_TRACE(<< "window for weekly = "
+              << core::CContainerPrinter::print(windowForTestingWeekly));
+    LOG_TRACE(<< "window for period = "
+              << core::CContainerPrinter::print(windowForTestingPeriod));
 
     TNestedHypothesesVec hypotheses;
 
@@ -563,13 +611,16 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::test() const {
         TNestedHypothesesVec hypotheses_;
 
         if (this->seenSufficientDataToTest(WEEK, bucketsForTestingWeekly[i])) {
-            this->hypothesesForWeekly(
-                windowForTestingWeekly, bucketsForTestingWeekly[i], windowForTestingPeriod, bucketsForTestingPeriod[i], hypotheses_);
+            this->hypothesesForWeekly(windowForTestingWeekly,
+                                      bucketsForTestingWeekly[i], windowForTestingPeriod,
+                                      bucketsForTestingPeriod[i], hypotheses_);
         } else if (this->seenSufficientDataToTest(DAY, bucketsForTestingDaily[i])) {
-            this->hypothesesForDaily(
-                windowForTestingDaily, bucketsForTestingDaily[i], windowForTestingPeriod, bucketsForTestingPeriod[i], hypotheses_);
+            this->hypothesesForDaily(windowForTestingDaily,
+                                     bucketsForTestingDaily[i], windowForTestingPeriod,
+                                     bucketsForTestingPeriod[i], hypotheses_);
         } else if (this->seenSufficientDataToTest(m_Period, bucketsForTestingPeriod[i])) {
-            this->hypothesesForPeriod(windowForTestingPeriod, bucketsForTestingPeriod[i], hypotheses_);
+            this->hypothesesForPeriod(windowForTestingPeriod,
+                                      bucketsForTestingPeriod[i], hypotheses_);
         }
 
         hypotheses.insert(hypotheses.end(), hypotheses_.begin(), hypotheses_.end());
@@ -578,36 +629,32 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::test() const {
     return this->best(hypotheses);
 }
 
-void CPeriodicityHypothesisTests::hypothesesForWeekly(const TTimeTimePr2Vec& windowForTestingWeekly,
-                                                      const TFloatMeanAccumulatorCRng& bucketsForTestingWeekly,
-                                                      const TTimeTimePr2Vec& windowForTestingPeriod,
-                                                      const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
-                                                      TNestedHypothesesVec& hypotheses) const {
+void CPeriodicityHypothesisTests::hypothesesForWeekly(
+    const TTimeTimePr2Vec& windowForTestingWeekly,
+    const TFloatMeanAccumulatorCRng& bucketsForTestingWeekly,
+    const TTimeTimePr2Vec& windowForTestingPeriod,
+    const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
+    TNestedHypothesesVec& hypotheses) const {
     if (WEEK % m_Period == 0) {
-        auto testForNull = boost::bind(
-            &CPeriodicityHypothesisTests::testForNull, this, boost::cref(windowForTestingWeekly), boost::cref(bucketsForTestingWeekly), _1);
+        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
+                                       this, boost::cref(windowForTestingWeekly),
+                                       boost::cref(bucketsForTestingWeekly), _1);
         auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this,
-                                         boost::cref(windowForTestingWeekly),
-                                         boost::cref(bucketsForTestingWeekly),
-                                         _1);
+                                         this, boost::cref(windowForTestingWeekly),
+                                         boost::cref(bucketsForTestingWeekly), _1);
         auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this,
-                                        boost::cref(windowForTestingWeekly),
-                                        boost::cref(bucketsForTestingWeekly),
-                                        _1);
+                                        this, boost::cref(windowForTestingWeekly),
+                                        boost::cref(bucketsForTestingWeekly), _1);
         auto testForWeekly = boost::bind(&CPeriodicityHypothesisTests::testForWeekly,
-                                         this,
-                                         boost::cref(windowForTestingWeekly),
-                                         boost::cref(bucketsForTestingWeekly),
-                                         _1);
+                                         this, boost::cref(windowForTestingWeekly),
+                                         boost::cref(bucketsForTestingWeekly), _1);
         auto testForDailyWithWeekend =
-            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend, this, boost::cref(bucketsForTestingWeekly), _1);
-        auto testForWeeklyGivenWeekend = boost::bind(&CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-                                                     this,
-                                                     boost::cref(windowForTestingWeekly),
-                                                     boost::cref(bucketsForTestingWeekly),
-                                                     _1);
+            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
+                        this, boost::cref(bucketsForTestingWeekly), _1);
+        auto testForWeeklyGivenWeekend = boost::bind(
+            &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
+            this, boost::cref(windowForTestingWeekly),
+            boost::cref(bucketsForTestingWeekly), _1);
 
         hypotheses.resize(1);
         if (DAY % m_Period == 0) {
@@ -649,30 +696,25 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(const TTimeTimePr2Vec& win
                 .addAlternative(testForWeekly);
         }
     } else if (m_Period % WEEK == 0) {
-        auto testForNull = boost::bind(
-            &CPeriodicityHypothesisTests::testForNull, this, boost::cref(windowForTestingPeriod), boost::cref(bucketsForTestingPeriod), _1);
+        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
+                                       this, boost::cref(windowForTestingPeriod),
+                                       boost::cref(bucketsForTestingPeriod), _1);
         auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this,
-                                         boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod),
-                                         _1);
+                                         this, boost::cref(windowForTestingPeriod),
+                                         boost::cref(bucketsForTestingPeriod), _1);
         auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this,
-                                        boost::cref(windowForTestingPeriod),
-                                        boost::cref(bucketsForTestingPeriod),
-                                        _1);
+                                        this, boost::cref(windowForTestingPeriod),
+                                        boost::cref(bucketsForTestingPeriod), _1);
         auto testForWeekly = boost::bind(&CPeriodicityHypothesisTests::testForWeekly,
-                                         this,
-                                         boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod),
-                                         _1);
+                                         this, boost::cref(windowForTestingPeriod),
+                                         boost::cref(bucketsForTestingPeriod), _1);
         auto testForDailyWithWeekend =
-            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend, this, boost::cref(bucketsForTestingPeriod), _1);
-        auto testForWeeklyGivenWeekend = boost::bind(&CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-                                                     this,
-                                                     boost::cref(windowForTestingPeriod),
-                                                     boost::cref(bucketsForTestingPeriod),
-                                                     _1);
+            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
+                        this, boost::cref(bucketsForTestingPeriod), _1);
+        auto testForWeeklyGivenWeekend = boost::bind(
+            &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
+            this, boost::cref(windowForTestingPeriod),
+            boost::cref(bucketsForTestingPeriod), _1);
 
         hypotheses.resize(1);
         hypotheses[0]
@@ -699,27 +741,22 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(const TTimeTimePr2Vec& win
     } else {
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this,
-                                           boost::cref(windowForTestingWeekly),
-                                           boost::cref(bucketsForTestingWeekly),
-                                           _1);
+                                           this, boost::cref(windowForTestingWeekly),
+                                           boost::cref(bucketsForTestingWeekly), _1);
             auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                            this,
-                                            boost::cref(windowForTestingWeekly),
-                                            boost::cref(bucketsForTestingWeekly),
-                                            _1);
-            auto testForWeekly = boost::bind(&CPeriodicityHypothesisTests::testForWeekly,
-                                             this,
-                                             boost::cref(windowForTestingWeekly),
-                                             boost::cref(bucketsForTestingWeekly),
-                                             _1);
+                                            this, boost::cref(windowForTestingWeekly),
+                                            boost::cref(bucketsForTestingWeekly), _1);
+            auto testForWeekly =
+                boost::bind(&CPeriodicityHypothesisTests::testForWeekly, this,
+                            boost::cref(windowForTestingWeekly),
+                            boost::cref(bucketsForTestingWeekly), _1);
             auto testForDailyWithWeekend =
-                boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend, this, boost::cref(bucketsForTestingWeekly), _1);
-            auto testForWeeklyGivenWeekend = boost::bind(&CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-                                                         this,
-                                                         boost::cref(windowForTestingWeekly),
-                                                         boost::cref(bucketsForTestingWeekly),
-                                                         _1);
+                boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
+                            this, boost::cref(bucketsForTestingWeekly), _1);
+            auto testForWeeklyGivenWeekend = boost::bind(
+                &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
+                this, boost::cref(windowForTestingWeekly),
+                boost::cref(bucketsForTestingWeekly), _1);
 
             hypotheses.resize(2);
             hypotheses[0]
@@ -737,97 +774,93 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(const TTimeTimePr2Vec& win
         }
         if (m_Period % DAY == 0) {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this,
-                                           boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod),
-                                           _1);
+                                           this, boost::cref(windowForTestingPeriod),
+                                           boost::cref(bucketsForTestingPeriod), _1);
             auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                            this,
-                                            boost::cref(windowForTestingPeriod),
-                                            boost::cref(bucketsForTestingPeriod),
-                                            _1);
-            auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                             this,
-                                             boost::cref(windowForTestingPeriod),
-                                             boost::cref(bucketsForTestingPeriod),
-                                             _1);
+                                            this, boost::cref(windowForTestingPeriod),
+                                            boost::cref(bucketsForTestingPeriod), _1);
+            auto testForPeriod =
+                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
+                            boost::cref(windowForTestingPeriod),
+                            boost::cref(bucketsForTestingPeriod), _1);
 
-            hypotheses[1].null(testForNull).addNested(testForDaily).addNested(testForPeriod).finishedNested().addAlternative(testForPeriod);
+            hypotheses[1]
+                .null(testForNull)
+                .addNested(testForDaily)
+                .addNested(testForPeriod)
+                .finishedNested()
+                .addAlternative(testForPeriod);
         } else {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this,
-                                           boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod),
-                                           _1);
-            auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                             this,
-                                             boost::cref(windowForTestingPeriod),
-                                             boost::cref(bucketsForTestingPeriod),
-                                             _1);
+                                           this, boost::cref(windowForTestingPeriod),
+                                           boost::cref(bucketsForTestingPeriod), _1);
+            auto testForPeriod =
+                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
+                            boost::cref(windowForTestingPeriod),
+                            boost::cref(bucketsForTestingPeriod), _1);
 
             hypotheses[1].null(testForNull).addNested(testForPeriod);
         }
     }
 }
 
-void CPeriodicityHypothesisTests::hypothesesForDaily(const TTimeTimePr2Vec& windowForTestingDaily,
-                                                     const TFloatMeanAccumulatorCRng& bucketsForTestingDaily,
-                                                     const TTimeTimePr2Vec& windowForTestingPeriod,
-                                                     const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
-                                                     TNestedHypothesesVec& hypotheses) const {
+void CPeriodicityHypothesisTests::hypothesesForDaily(
+    const TTimeTimePr2Vec& windowForTestingDaily,
+    const TFloatMeanAccumulatorCRng& bucketsForTestingDaily,
+    const TTimeTimePr2Vec& windowForTestingPeriod,
+    const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
+    TNestedHypothesesVec& hypotheses) const {
     if (DAY % m_Period == 0) {
-        auto testForNull = boost::bind(
-            &CPeriodicityHypothesisTests::testForNull, this, boost::cref(windowForTestingDaily), boost::cref(bucketsForTestingDaily), _1);
-        auto testForPeriod = boost::bind(
-            &CPeriodicityHypothesisTests::testForPeriod, this, boost::cref(windowForTestingDaily), boost::cref(bucketsForTestingDaily), _1);
-        auto testForDaily = boost::bind(
-            &CPeriodicityHypothesisTests::testForDaily, this, boost::cref(windowForTestingDaily), boost::cref(bucketsForTestingDaily), _1);
+        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
+                                       this, boost::cref(windowForTestingDaily),
+                                       boost::cref(bucketsForTestingDaily), _1);
+        auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                         this, boost::cref(windowForTestingDaily),
+                                         boost::cref(bucketsForTestingDaily), _1);
+        auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                        this, boost::cref(windowForTestingDaily),
+                                        boost::cref(bucketsForTestingDaily), _1);
 
         hypotheses.resize(1);
-        hypotheses[0].null(testForNull).addNested(testForPeriod).addNested(testForDaily).finishedNested().addAlternative(testForDaily);
+        hypotheses[0]
+            .null(testForNull)
+            .addNested(testForPeriod)
+            .addNested(testForDaily)
+            .finishedNested()
+            .addAlternative(testForDaily);
     } else if (m_Period % DAY == 0) {
-        auto testForNull = boost::bind(
-            &CPeriodicityHypothesisTests::testForNull, this, boost::cref(windowForTestingPeriod), boost::cref(bucketsForTestingPeriod), _1);
+        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
+                                       this, boost::cref(windowForTestingPeriod),
+                                       boost::cref(bucketsForTestingPeriod), _1);
         auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this,
-                                         boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod),
-                                         _1);
+                                         this, boost::cref(windowForTestingPeriod),
+                                         boost::cref(bucketsForTestingPeriod), _1);
         auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this,
-                                        boost::cref(windowForTestingPeriod),
-                                        boost::cref(bucketsForTestingPeriod),
-                                        _1);
+                                        this, boost::cref(windowForTestingPeriod),
+                                        boost::cref(bucketsForTestingPeriod), _1);
 
         hypotheses.resize(1);
         hypotheses[0].null(testForNull).addNested(testForDaily).addNested(testForPeriod);
     } else {
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this,
-                                           boost::cref(windowForTestingDaily),
-                                           boost::cref(bucketsForTestingDaily),
-                                           _1);
+                                           this, boost::cref(windowForTestingDaily),
+                                           boost::cref(bucketsForTestingDaily), _1);
             auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                            this,
-                                            boost::cref(windowForTestingDaily),
-                                            boost::cref(bucketsForTestingDaily),
-                                            _1);
+                                            this, boost::cref(windowForTestingDaily),
+                                            boost::cref(bucketsForTestingDaily), _1);
 
             hypotheses.resize(2);
             hypotheses[0].null(testForNull).addNested(testForDaily);
         }
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this,
-                                           boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod),
-                                           _1);
-            auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                             this,
-                                             boost::cref(windowForTestingPeriod),
-                                             boost::cref(bucketsForTestingPeriod),
-                                             _1);
+                                           this, boost::cref(windowForTestingPeriod),
+                                           boost::cref(bucketsForTestingPeriod), _1);
+            auto testForPeriod =
+                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
+                            boost::cref(windowForTestingPeriod),
+                            boost::cref(bucketsForTestingPeriod), _1);
             hypotheses[1].null(testForNull).addNested(testForPeriod);
         }
     }
@@ -836,14 +869,17 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(const TTimeTimePr2Vec& wind
 void CPeriodicityHypothesisTests::hypothesesForPeriod(const TTimeTimePr2Vec& windows,
                                                       const TFloatMeanAccumulatorCRng& buckets,
                                                       TNestedHypothesesVec& hypotheses) const {
-    auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull, this, boost::cref(windows), boost::cref(buckets), _1);
-    auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this, boost::cref(windows), boost::cref(buckets), _1);
+    auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull, this,
+                                   boost::cref(windows), boost::cref(buckets), _1);
+    auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
+                                     boost::cref(windows), boost::cref(buckets), _1);
 
     hypotheses.resize(1);
     hypotheses[0].null(testForNull).addNested(testForPeriod);
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const {
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const {
     // Note if there isn't a clear cut best hypothesis for variance
     // reduction we choose the simplest hypothesis, i.e. with maximum
     // degrees-of-freedom.
@@ -861,20 +897,23 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::best(const TNeste
         STestStats stats;
         CPeriodicityHypothesisTestsResult resultForHypothesis{hypothesis.test(stats)};
         if (stats.s_B > stats.s_DF0) {
-            summaries.emplace_back(stats.s_V0, stats.s_B - stats.s_DF0, std::move(resultForHypothesis));
+            summaries.emplace_back(stats.s_V0, stats.s_B - stats.s_DF0,
+                                   std::move(resultForHypothesis));
         }
     }
 
     TMinAccumulator vCutoff;
     for (const auto& summary : summaries) {
-        vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF, 50.0 + CONFIDENCE_INTERVAL / 2.0));
+        vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
+                                         50.0 + CONFIDENCE_INTERVAL / 2.0));
     }
     if (vCutoff.count() > 0) {
         LOG_TRACE(<< "variance cutoff = " << vCutoff[0]);
 
         TMinAccumulator df;
         for (const auto& summary : summaries) {
-            double v{varianceAtPercentile(summary.s_V, summary.s_DF, 50.0 - CONFIDENCE_INTERVAL / 2.0)};
+            double v{varianceAtPercentile(summary.s_V, summary.s_DF,
+                                          50.0 - CONFIDENCE_INTERVAL / 2.0)};
             if (v <= vCutoff[0] && df.add(-summary.s_DF)) {
                 result = summary.s_H;
             }
@@ -884,29 +923,32 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::best(const TNeste
 }
 
 CPeriodicityHypothesisTestsResult
-CPeriodicityHypothesisTests::testForNull(const TTimeTimePr2Vec& window, const TFloatMeanAccumulatorCRng& buckets, STestStats& stats) const {
+CPeriodicityHypothesisTests::testForNull(const TTimeTimePr2Vec& window,
+                                         const TFloatMeanAccumulatorCRng& buckets,
+                                         STestStats& stats) const {
     LOG_TRACE(<< "Testing null on " << core::CContainerPrinter::print(window));
     this->nullHypothesis(window, buckets, stats);
     return CPeriodicityHypothesisTestsResult();
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForDaily(const TTimeTimePr2Vec& windows,
-                                                                            const TFloatMeanAccumulatorCRng& buckets,
-                                                                            STestStats& stats) const {
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::testForDaily(const TTimeTimePr2Vec& windows,
+                                          const TFloatMeanAccumulatorCRng& buckets,
+                                          STestStats& stats) const {
     LOG_TRACE(<< "Testing daily on " << core::CContainerPrinter::print(windows));
 
     CPeriodicityHypothesisTestsResult result{stats.s_H0};
 
     stats.s_HasPeriod = m_Config.hasDaily();
-    stats.setThresholds(
-        SIGNIFICANT_VARIANCE_REDUCTION[E_LowThreshold], SIGNIFICANT_AMPLITUDE[E_LowThreshold], SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
+    stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[E_LowThreshold],
+                        SIGNIFICANT_AMPLITUDE[E_LowThreshold],
+                        SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
 
-    if (m_Config.testForDiurnal() && m_BucketLength <= DAY / 4 && this->seenSufficientDataToTest(DAY, buckets) &&
+    if (m_Config.testForDiurnal() && m_BucketLength <= DAY / 4 &&
+        this->seenSufficientDataToTest(DAY, buckets) &&
         this->testPeriod(windows, buckets, DAY, stats)) {
         this->hypothesis({DAY}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_Day],
-                   true,
-                   0,
+        result.add(DIURNAL_COMPONENT_NAMES[E_Day], true, 0,
                    DIURNAL_PERIODS[static_cast<int>(E_Day) % 2],
                    DIURNAL_WINDOWS[static_cast<int>(E_Day) / 2]);
     }
@@ -914,25 +956,26 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForDaily(cons
     return result;
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeekly(const TTimeTimePr2Vec& windows,
-                                                                             const TFloatMeanAccumulatorCRng& buckets,
-                                                                             STestStats& stats) const {
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::testForWeekly(const TTimeTimePr2Vec& windows,
+                                           const TFloatMeanAccumulatorCRng& buckets,
+                                           STestStats& stats) const {
     LOG_TRACE(<< "Testing weekly on " << core::CContainerPrinter::print(windows));
 
     CPeriodicityHypothesisTestsResult result{stats.s_H0};
 
     stats.s_HasPeriod = m_Config.hasWeekly();
-    stats.setThresholds(
-        SIGNIFICANT_VARIANCE_REDUCTION[E_LowThreshold], SIGNIFICANT_AMPLITUDE[E_LowThreshold], SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
+    stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[E_LowThreshold],
+                        SIGNIFICANT_AMPLITUDE[E_LowThreshold],
+                        SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
 
-    if (m_Config.testForDiurnal() && m_BucketLength <= WEEK / 4 && this->seenSufficientDataToTest(WEEK, buckets) &&
+    if (m_Config.testForDiurnal() && m_BucketLength <= WEEK / 4 &&
+        this->seenSufficientDataToTest(WEEK, buckets) &&
         this->testPeriod(windows, buckets, WEEK, stats)) {
         stats.s_StartOfPartition = 0;
         stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
         this->hypothesis({WEEK}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_Week],
-                   true,
-                   0,
+        result.add(DIURNAL_COMPONENT_NAMES[E_Week], true, 0,
                    DIURNAL_PERIODS[static_cast<int>(E_Week) % 2],
                    DIURNAL_WINDOWS[static_cast<int>(E_Week) / 2]);
     }
@@ -940,8 +983,9 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeekly(con
     return result;
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulatorCRng& buckets,
-                                                                                       STestStats& stats) const {
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulatorCRng& buckets,
+                                                     STestStats& stats) const {
     LOG_TRACE(<< "Testing for weekend");
 
     CPeriodicityHypothesisTestsResult result{stats.s_H0};
@@ -955,33 +999,31 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForDailyWithW
     TTimeTimePr2Vec partition{{0, WEEKEND}, {WEEKEND, WEEK}};
     std::size_t bucketsPerWeek(WEEK / m_BucketLength);
 
-    if (m_Config.testForDiurnal() && m_BucketLength <= DAY / 4 && this->seenSufficientDataToTest(WEEK, buckets) &&
-        this->testPartition(partition, buckets, DAY, weekendPartitionVarianceCorrection(bucketsPerWeek), stats)) {
+    if (m_Config.testForDiurnal() && m_BucketLength <= DAY / 4 &&
+        this->seenSufficientDataToTest(WEEK, buckets) &&
+        this->testPartition(partition, buckets, DAY,
+                            weekendPartitionVarianceCorrection(bucketsPerWeek), stats)) {
         stats.s_Partition = partition;
         this->hypothesis({DAY, DAY}, buckets, stats);
         core_t::TTime startOfWeek{stats.s_StartOfPartition};
         result.remove(DIURNAL_COMPONENT_NAMES[E_Day]);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendDay],
-                   true,
-                   startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendDay], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendDay) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendDay) / 2],
-                   HIGH_PRIORITY);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayDay],
-                   true,
-                   startOfWeek,
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendDay) / 2], HIGH_PRIORITY);
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayDay], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayDay) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayDay) / 2],
-                   HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayDay) / 2], HIGH_PRIORITY);
     }
 
     return result;
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec& windows,
-                                                                                                  const TFloatMeanAccumulatorCRng& buckets,
-                                                                                                  STestStats& stats) const {
-    LOG_TRACE(<< "Testing for weekly given weekend on " << core::CContainerPrinter::print(windows));
+CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend(
+    const TTimeTimePr2Vec& windows,
+    const TFloatMeanAccumulatorCRng& buckets,
+    STestStats& stats) const {
+    LOG_TRACE(<< "Testing for weekly given weekend on "
+              << core::CContainerPrinter::print(windows));
 
     CPeriodicityHypothesisTestsResult result(stats.s_H0);
 
@@ -991,92 +1033,96 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGive
 
     core_t::TTime startOfWeek{stats.s_StartOfPartition};
 
-    CPeriodicityHypothesisTestsResult resultForWeekly{this->testForWeekly(windows, buckets, stats)};
+    CPeriodicityHypothesisTestsResult resultForWeekly{
+        this->testForWeekly(windows, buckets, stats)};
     if (resultForWeekly != result) {
         // Note that testForWeekly sets up the hypothesis for us.
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek],
-                   true,
-                   startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2],
-                   HIGH_PRIORITY);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek],
-                   true,
-                   startOfWeek,
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], HIGH_PRIORITY);
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2],
-                   HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], HIGH_PRIORITY);
         return result;
     }
 
     core_t::TTime windowLength{length(windows)};
     TTimeTimePr2Vec partition{{0, WEEKEND}, {WEEKEND, WEEK}};
 
-    TTimeTimePr2Vec weekday(calculateWindows(startOfWeek, windowLength, WEEK, {WEEKEND, WEEK}));
-    CPeriodicityHypothesisTestsResult resultForWeekday{this->testForWeekly(weekday, buckets, stats)};
+    TTimeTimePr2Vec weekday(
+        calculateWindows(startOfWeek, windowLength, WEEK, {WEEKEND, WEEK}));
+    CPeriodicityHypothesisTestsResult resultForWeekday{
+        this->testForWeekly(weekday, buckets, stats)};
     if (resultForWeekday != result) {
         stats.s_StartOfPartition = startOfWeek;
         stats.s_Partition = partition;
         this->hypothesis({DAY, WEEK}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek],
-                   true,
-                   startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2],
-                   HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], HIGH_PRIORITY);
         return result;
     }
 
     TTimeTimePr2Vec weekend(calculateWindows(startOfWeek, windowLength, WEEK, {0, WEEKEND}));
-    CPeriodicityHypothesisTestsResult resultForWeekend{this->testForWeekly(weekend, buckets, stats)};
+    CPeriodicityHypothesisTestsResult resultForWeekend{
+        this->testForWeekly(weekend, buckets, stats)};
     if (resultForWeekend != result) {
         stats.s_StartOfPartition = startOfWeek;
         stats.s_Partition = partition;
         this->hypothesis({WEEK, DAY}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek],
-                   true,
-                   startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2],
-                   HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], HIGH_PRIORITY);
     }
 
     return result;
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForPeriod(const TTimeTimePr2Vec& windows,
-                                                                             const TFloatMeanAccumulatorCRng& buckets,
-                                                                             STestStats& stats) const {
-    LOG_TRACE(<< "Testing for " << m_Period << " on " << core::CContainerPrinter::print(windows));
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::testForPeriod(const TTimeTimePr2Vec& windows,
+                                           const TFloatMeanAccumulatorCRng& buckets,
+                                           STestStats& stats) const {
+    LOG_TRACE(<< "Testing for " << m_Period << " on "
+              << core::CContainerPrinter::print(windows));
 
     CPeriodicityHypothesisTestsResult result{stats.s_H0};
 
-    if (m_Period != DAY && m_Period != WEEK && m_BucketLength <= m_Period / 4 && this->seenSufficientDataToTest(m_Period, buckets)) {
+    if (m_Period != DAY && m_Period != WEEK && m_BucketLength <= m_Period / 4 &&
+        this->seenSufficientDataToTest(m_Period, buckets)) {
         stats.s_HasPeriod = false;
         EThreshold index{m_Period % DAY == 0 ? E_LowThreshold : E_HighThreshold};
-        stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[index], SIGNIFICANT_AMPLITUDE[index], SIGNIFICANT_AUTOCORRELATION[index]);
+        stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[index],
+                            SIGNIFICANT_AMPLITUDE[index],
+                            SIGNIFICANT_AUTOCORRELATION[index]);
         if (this->testPeriod(windows, buckets, m_Period, stats)) {
             stats.s_StartOfPartition = 0;
             stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
             this->hypothesis({m_Period}, buckets, stats);
-            result.add(core::CStringUtils::typeToString(m_Period), false, 0, m_Period, {0, m_Period});
+            result.add(core::CStringUtils::typeToString(m_Period), false, 0,
+                       m_Period, {0, m_Period});
         }
     }
 
     return result;
 }
 
-bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period, const TFloatMeanAccumulatorCRng& buckets) const {
-    return (buckets.size() * m_BucketLength) / period >= 2 && m_TimeRange.initialized() &&
-           static_cast<double>(m_TimeRange.range()) >= 2.0 * ACCURATE_TEST_POPULATED_FRACTION * static_cast<double>(period);
+bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period,
+                                                           const TFloatMeanAccumulatorCRng& buckets) const {
+    return (buckets.size() * m_BucketLength) / period >= 2 &&
+           m_TimeRange.initialized() &&
+           static_cast<double>(m_TimeRange.range()) >=
+               2.0 * ACCURATE_TEST_POPULATED_FRACTION * static_cast<double>(period);
 }
 
-bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorCRng& buckets,
-                                                                                   std::size_t period) const {
+bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTest(
+    const TFloatMeanAccumulatorCRng& buckets,
+    std::size_t period) const {
     double repeats{0.0};
     for (std::size_t i = 0u; i < period; ++i) {
         for (std::size_t j = i + period; j < buckets.size(); j += period) {
-            if (CBasicStatistics::count(buckets[j]) * CBasicStatistics::count(buckets[j - period]) > 0.0) {
+            if (CBasicStatistics::count(buckets[j]) *
+                    CBasicStatistics::count(buckets[j - period]) >
+                0.0) {
                 repeats += 1.0;
                 break;
             }
@@ -1086,7 +1132,8 @@ bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTe
     return repeats >= static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0;
 }
 
-bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorCRng& buckets, STestStats& stats) const {
+bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorCRng& buckets,
+                                                    STestStats& stats) const {
     CBasicStatistics::CMinMax<double> range;
     double populated{0.0};
     double count{0.0};
@@ -1103,12 +1150,14 @@ bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorC
         return false;
     }
 
-    LOG_TRACE(<< "populated = " << 100.0 * populated / static_cast<double>(buckets.size()) << "%");
+    LOG_TRACE(<< "populated = "
+              << 100.0 * populated / static_cast<double>(buckets.size()) << "%");
 
     stats.s_Range = range.max() - range.min();
     stats.s_B = populated;
     stats.s_M = count / stats.s_B;
-    LOG_TRACE(<< "range = " << stats.s_Range << ", populatedBuckets = " << stats.s_B << ", valuesPerBucket = " << stats.s_M);
+    LOG_TRACE(<< "range = " << stats.s_Range << ", populatedBuckets = " << stats.s_B
+              << ", valuesPerBucket = " << stats.s_M);
 
     return true;
 }
@@ -1130,7 +1179,9 @@ void CPeriodicityHypothesisTests::nullHypothesis(const TTimeTimePr2Vec& window,
     }
 }
 
-void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods, const TFloatMeanAccumulatorCRng& buckets, STestStats& stats) const {
+void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods,
+                                             const TFloatMeanAccumulatorCRng& buckets,
+                                             STestStats& stats) const {
     if (this->testStatisticsFor(buckets, stats)) {
         stats.s_V0 = 0.0;
         stats.s_DF0 = 0.0;
@@ -1138,16 +1189,20 @@ void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods, const TFl
         for (std::size_t i = 0u; i < stats.s_Partition.size(); ++i) {
             core_t::TTime period_{std::min(periods[i], length(stats.s_Partition[i])) / m_BucketLength};
             TTimeTimePr2Vec windows(calculateWindows(
-                stats.s_StartOfPartition, length(buckets, m_BucketLength), length(stats.s_Partition), stats.s_Partition[i]));
+                stats.s_StartOfPartition, length(buckets, m_BucketLength),
+                length(stats.s_Partition), stats.s_Partition[i]));
             TMeanVarAccumulatorVec trend(periods[i] / m_BucketLength);
             periodicTrend(buckets, windows, m_BucketLength, trend);
             stats.s_V0 += residualVariance<double>(trend, 1.0 / stats.s_M);
             stats.s_DF0 += static_cast<double>(std::count_if(
-                trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) { return CBasicStatistics::count(value) > 0.0; }));
+                trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
+                    return CBasicStatistics::count(value) > 0.0;
+                }));
             stats.s_T0[i].reserve(period_);
-            std::for_each(trend.begin(), trend.end(), [&stats, i](const TMeanVarAccumulator& value) {
-                stats.s_T0[i].push_back(CBasicStatistics::mean(value));
-            });
+            std::for_each(trend.begin(), trend.end(),
+                          [&stats, i](const TMeanVarAccumulator& value) {
+                              stats.s_T0[i].push_back(CBasicStatistics::mean(value));
+                          });
         }
         stats.s_V0 /= static_cast<double>(periods.size());
     }
@@ -1159,17 +1214,21 @@ void CPeriodicityHypothesisTests::conditionOnHypothesis(const TTimeTimePr2Vec& w
     std::size_t n{buckets.size()};
     core_t::TTime windowLength{static_cast<core_t::TTime>(n) * m_BucketLength};
     for (std::size_t i = 0u; i < stats.s_Partition.size(); ++i) {
-        TTimeTimePr2Vec windows_(calculateWindows(stats.s_StartOfPartition, windowLength, length(stats.s_Partition), stats.s_Partition[i]));
+        TTimeTimePr2Vec windows_(
+            calculateWindows(stats.s_StartOfPartition, windowLength,
+                             length(stats.s_Partition), stats.s_Partition[i]));
         TSizeSizePr2Vec indexWindows;
         calculateIndexWindows(windows_, m_BucketLength, indexWindows);
 
         std::size_t period{stats.s_T0[i].size()};
-        LOG_TRACE(<< "Conditioning on period = " << period << " in windows = " << core::CContainerPrinter::print(windows_));
+        LOG_TRACE(<< "Conditioning on period = " << period
+                  << " in windows = " << core::CContainerPrinter::print(windows_));
         for (const auto& window : indexWindows) {
             std::size_t a{window.first};
             std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
-                CBasicStatistics::moment<0>(buckets[j % n]) -= stats.s_T0[i][(j - a) % period];
+                CBasicStatistics::moment<0>(buckets[j % n]) -=
+                    stats.s_T0[i][(j - a) % period];
             }
         }
     }
@@ -1232,19 +1291,24 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
 
     TMeanVarAccumulatorVec trend(period);
     periodicTrend(values, window, m_BucketLength, trend);
-    double b{static_cast<double>(
-        std::count_if(trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) { return CBasicStatistics::count(value) > 0.0; }))};
+    double b{static_cast<double>(std::count_if(
+        trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
+            return CBasicStatistics::count(value) > 0.0;
+        }))};
     LOG_TRACE(<< "  populated = " << b);
 
     double df1{B - b};
     if (df1 > 0.0) {
-        double v1{varianceAtPercentile(residualVariance<double>(trend, scale), df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
+        double v1{varianceAtPercentile(residualVariance<double>(trend, scale),
+                                       df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
         LOG_TRACE(<< "  variance          = " << v1);
         LOG_TRACE(<< "  varianceThreshold = " << vt);
-        LOG_TRACE(<< "  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
+        LOG_TRACE(<< "  significance      = "
+                  << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
         double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
-        if (v1 < vt && B > 1.0 && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE) {
+        if (v1 < vt && B > 1.0 &&
+            CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE) {
             double R{CSignal::autocorrelation(period, values)};
             R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
             LOG_TRACE(<< "  autocorrelation          = " << R);
@@ -1259,7 +1323,8 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
         double F1{1.0};
         if (v1 > 0.0) {
             try {
-                std::size_t n{static_cast<std::size_t>(std::ceil(Rt * static_cast<double>(length(window) / period_)))};
+                std::size_t n{static_cast<std::size_t>(
+                    std::ceil(Rt * static_cast<double>(length(window) / period_)))};
                 TMeanAccumulator level;
                 for (const auto& value : values) {
                     if (CBasicStatistics::count(value) > 0.0) {
@@ -1269,12 +1334,15 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
                 TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
                 periodicTrend(values, window, m_BucketLength, amplitudes);
                 boost::math::normal normal(0.0, std::sqrt(v1));
-                std::for_each(amplitudes.begin(), amplitudes.end(), [&F1, &normal, at](CMinAmplitude& x) {
-                    if (x.amplitude() >= at) {
-                        F1 = std::min(F1, x.significance(normal));
-                    }
-                });
-            } catch (const std::exception& e) { LOG_ERROR(<< "Unable to compute significance of amplitude: " << e.what()); }
+                std::for_each(amplitudes.begin(), amplitudes.end(),
+                              [&F1, &normal, at](CMinAmplitude& x) {
+                                  if (x.amplitude() >= at) {
+                                      F1 = std::min(F1, x.significance(normal));
+                                  }
+                              });
+            } catch (const std::exception& e) {
+                LOG_ERROR(<< "Unable to compute significance of amplitude: " << e.what());
+            }
         }
         LOG_TRACE(<< "  F(amplitude)       = " << F1);
 
@@ -1295,7 +1363,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleTimePr, 1>;
     using TMeanVarAccumulatorBuffer = boost::circular_buffer<TMeanVarAccumulator>;
 
-    LOG_TRACE(<< "Testing partition " << core::CContainerPrinter::print(partition) << " with period " << period_);
+    LOG_TRACE(<< "Testing partition " << core::CContainerPrinter::print(partition)
+              << " with period " << period_);
 
     if (!this->testStatisticsFor(buckets, stats) || stats.nullHypothesisGoodEnough()) {
         return false;
@@ -1333,8 +1402,9 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
     this->conditionOnHypothesis({{0, windowLength}}, stats, values);
 
-    TTimeTimePr2Vec windows[]{calculateWindows(startOfPartition, windowLength, repeat, partition[0]),
-                              calculateWindows(startOfPartition, windowLength, repeat, partition[1])};
+    TTimeTimePr2Vec windows[]{
+        calculateWindows(startOfPartition, windowLength, repeat, partition[0]),
+        calculateWindows(startOfPartition, windowLength, repeat, partition[1])};
     LOG_TRACE(<< "windows = " << core::CContainerPrinter::print(windows));
 
     TTimeVec deltas[2];
@@ -1351,8 +1421,9 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     }
     LOG_TRACE(<< "deltas = " << core::CContainerPrinter::print(deltas));
 
-    TMeanVarAccumulatorBuffer trends[]{TMeanVarAccumulatorBuffer(period, TMeanVarAccumulator()),
-                                       TMeanVarAccumulatorBuffer(period, TMeanVarAccumulator())};
+    TMeanVarAccumulatorBuffer trends[]{
+        TMeanVarAccumulatorBuffer(period, TMeanVarAccumulator()),
+        TMeanVarAccumulatorBuffer(period, TMeanVarAccumulator())};
     periodicTrend(values, windows[0], m_BucketLength, trends[0]);
     periodicTrend(values, windows[1], m_BucketLength, trends[1]);
 
@@ -1379,7 +1450,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
             variances[i] -= residualVariance(oldBucket, scale);
             variances[i] += residualVariance(newBucket, scale);
         }
-        double variance{(residualVariance(variances[0]) + residualVariance(variances[1])) / 2.0};
+        double variance{
+            (residualVariance(variances[0]) + residualVariance(variances[1])) / 2.0};
         minimum.add({variance, time});
         if (variance <= 1.05 * minimum[0].first) {
             candidates.emplace_back(variance, time);
@@ -1393,7 +1465,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     for (const auto& candidate : candidates) {
         if (candidate.first <= 1.05 * minimum[0].first) {
             core_t::TTime candidateStartOfPartition{candidate.second};
-            candidateWindows = calculateWindows(candidateStartOfPartition, windowLength, repeat, partition[0]);
+            candidateWindows = calculateWindows(candidateStartOfPartition,
+                                                windowLength, repeat, partition[0]);
             TMeanAccumulator cost;
             for (const auto& window : candidateWindows) {
                 core_t::TTime a_{window.first / m_BucketLength};
@@ -1405,13 +1478,16 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
             if (best.add({CBasicStatistics::mean(cost), candidateStartOfPartition})) {
                 b = 0.0;
                 for (std::size_t i = 0u; i < 2; ++i) {
-                    candidateWindows = calculateWindows(candidateStartOfPartition, windowLength, repeat, partition[i]);
+                    candidateWindows = calculateWindows(candidateStartOfPartition, windowLength,
+                                                        repeat, partition[i]);
 
                     TMeanVarAccumulatorVec trend(period);
                     periodicTrend(values, candidateWindows, m_BucketLength, trend);
 
                     b += static_cast<double>(std::count_if(
-                        trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) { return CBasicStatistics::count(value) > 0.0; }));
+                        trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
+                            return CBasicStatistics::count(value) > 0.0;
+                        }));
                 }
             }
         }
@@ -1423,26 +1499,31 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
         LOG_TRACE(<< "  variance          = " << v1);
         LOG_TRACE(<< "  varianceThreshold = " << vt);
-        LOG_TRACE(<< "  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
+        LOG_TRACE(<< "  significance      = "
+                  << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
         if (v1 <= vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE) {
             double R{-1.0};
             double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
 
             startOfPartition = best[0].second;
-            windows[0] = calculateWindows(startOfPartition, windowLength, repeat, partition[0]);
-            windows[1] = calculateWindows(startOfPartition, windowLength, repeat, partition[1]);
+            windows[0] = calculateWindows(startOfPartition, windowLength,
+                                          repeat, partition[0]);
+            windows[1] = calculateWindows(startOfPartition, windowLength,
+                                          repeat, partition[1]);
             for (const auto& windows_ : windows) {
                 TFloatMeanAccumulatorVec partitionValues;
                 project(values, windows_, m_BucketLength, partitionValues);
                 std::size_t windowLength_(length(windows_[0]) / m_BucketLength);
-                double BW{
-                    std::accumulate(partitionValues.begin(), partitionValues.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
+                double BW{std::accumulate(
+                    partitionValues.begin(), partitionValues.end(), 0.0,
+                    [](double n, const TFloatMeanAccumulator& value) {
                         return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
                     })};
                 if (BW > 1.0) {
                     double RW{CSignal::autocorrelation(windowLength_ + period, partitionValues)};
-                    R = std::max(R, autocorrelationAtPercentile(RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
+                    R = std::max(R, autocorrelationAtPercentile(
+                                        RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
                     LOG_TRACE(<< "  autocorrelation          = " << R);
                     LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
                 }
@@ -1461,17 +1542,8 @@ const double CPeriodicityHypothesisTests::ACCURATE_TEST_POPULATED_FRACTION{0.9};
 const double CPeriodicityHypothesisTests::MINIMUM_COEFFICIENT_OF_VARIATION{1e-4};
 
 CPeriodicityHypothesisTests::STestStats::STestStats()
-    : s_HasPeriod(false),
-      s_HasPartition(false),
-      s_Vt(0.0),
-      s_At(0.0),
-      s_Rt(0.0),
-      s_Range(0.0),
-      s_B(0.0),
-      s_M(0.0),
-      s_V0(0.0),
-      s_DF0(0.0),
-      s_StartOfPartition(0) {
+    : s_HasPeriod(false), s_HasPartition(false), s_Vt(0.0), s_At(0.0), s_Rt(0.0),
+      s_Range(0.0), s_B(0.0), s_M(0.0), s_V0(0.0), s_DF0(0.0), s_StartOfPartition(0) {
 }
 
 void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at, double Rt) {
@@ -1483,29 +1555,35 @@ void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at
 bool CPeriodicityHypothesisTests::STestStats::nullHypothesisGoodEnough() const {
     TMeanAccumulator mean;
     for (const auto& t : s_T0) {
-        mean += std::accumulate(t.begin(), t.end(), TMeanAccumulator(), [](TMeanAccumulator m, double x) {
-            m.add(std::fabs(x));
-            return m;
-        });
+        mean += std::accumulate(t.begin(), t.end(), TMeanAccumulator(),
+                                [](TMeanAccumulator m, double x) {
+                                    m.add(std::fabs(x));
+                                    return m;
+                                });
     }
-    return std::sqrt(s_V0) <= MINIMUM_COEFFICIENT_OF_VARIATION * CBasicStatistics::mean(mean);
+    return std::sqrt(s_V0) <=
+           MINIMUM_COEFFICIENT_OF_VARIATION * CBasicStatistics::mean(mean);
 }
 
-CPeriodicityHypothesisTests::CNestedHypotheses::CNestedHypotheses(TTestFunc test) : m_Test(test), m_AlwaysTestNested(false) {
+CPeriodicityHypothesisTests::CNestedHypotheses::CNestedHypotheses(TTestFunc test)
+    : m_Test(test), m_AlwaysTestNested(false) {
 }
 
-CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder CPeriodicityHypothesisTests::CNestedHypotheses::null(TTestFunc test) {
+CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder
+CPeriodicityHypothesisTests::CNestedHypotheses::null(TTestFunc test) {
     m_Test = test;
     m_AlwaysTestNested = true;
     return CBuilder(*this);
 }
 
-CPeriodicityHypothesisTests::CNestedHypotheses& CPeriodicityHypothesisTests::CNestedHypotheses::addNested(TTestFunc test) {
+CPeriodicityHypothesisTests::CNestedHypotheses&
+CPeriodicityHypothesisTests::CNestedHypotheses::addNested(TTestFunc test) {
     m_Nested.emplace_back(test);
     return m_Nested.back();
 }
 
-CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::CNestedHypotheses::test(STestStats& stats) const {
+CPeriodicityHypothesisTestsResult
+CPeriodicityHypothesisTests::CNestedHypotheses::test(STestStats& stats) const {
     CPeriodicityHypothesisTestsResult result{m_Test(stats)};
     if (m_AlwaysTestNested || result != stats.s_H0) {
         stats.s_H0 = result;
@@ -1536,7 +1614,8 @@ CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::addAlternative(TTestFu
     return this->addNested(test);
 }
 
-CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder& CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::finishedNested() {
+CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder&
+CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::finishedNested() {
     m_Levels.pop_back();
     return *this;
 }
@@ -1545,9 +1624,12 @@ namespace {
 
 //! Compute the mean of the autocorrelation for \f${P, 2P, ...}\f$
 //! where \f$P\f$ is \p period.
-double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations, std::size_t window, std::size_t period) {
+double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations,
+                                             std::size_t window,
+                                             std::size_t period) {
     auto correctForPad = [window](double correlation, std::size_t offset) {
-        return correlation * static_cast<double>(window) / static_cast<double>(window - offset);
+        return correlation * static_cast<double>(window) /
+               static_cast<double>(window - offset);
     };
     TMeanAccumulator result;
     for (std::size_t offset = period; offset < correlations.size(); offset += period) {
@@ -1561,7 +1643,8 @@ double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations, std
 std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
     using TSizeVec = std::vector<std::size_t>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
-    using TMaxAccumulator = CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
+    using TMaxAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
     using TFloatMeanAccumulatorCRng = core::CVectorRange<const TFloatMeanAccumulatorVec>;
 
     std::size_t n{values.size()};
@@ -1590,7 +1673,8 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
     // Sort by decreasing cyclic autocorrelation.
     TSizeVec candidatePeriods(15);
     std::transform(
-        candidates.begin(), candidates.end(), candidatePeriods.begin(), [](const TDoubleSizePr& candidate_) { return candidate_.second; });
+        candidates.begin(), candidates.end(), candidatePeriods.begin(),
+        [](const TDoubleSizePr& candidate_) { return candidate_.second; });
     candidates.clear();
     for (const auto period : candidatePeriods) {
         TFloatMeanAccumulatorCRng window(values, 0, period * (values.size() / period));
@@ -1615,17 +1699,18 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
 }
 }
 
-CPeriodicityHypothesisTestsResult testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
-                                                 core_t::TTime startTime,
-                                                 core_t::TTime bucketLength,
-                                                 const TFloatMeanAccumulatorVec& values) {
+CPeriodicityHypothesisTestsResult
+testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
+               core_t::TTime startTime,
+               core_t::TTime bucketLength,
+               const TFloatMeanAccumulatorVec& values) {
     // Find the single periodic component which explains the
     // most cyclic autocorrelation.
     std::size_t period_{mostSignificantPeriodicComponent(values)};
     core_t::TTime window{static_cast<core_t::TTime>(values.size()) * bucketLength};
     core_t::TTime period{static_cast<core_t::TTime>(period_) * bucketLength};
-    LOG_TRACE(<< "bucket length = " << bucketLength << ", window = " << window << ", periods to test = " << period
-              << ", # values = " << values.size());
+    LOG_TRACE(<< "bucket length = " << bucketLength << ", window = " << window
+              << ", periods to test = " << period << ", # values = " << values.size());
 
     // Set up the hypothesis tests.
     CPeriodicityHypothesisTests test{config};

@@ -20,9 +20,12 @@ namespace memory_detail {
 //! their description
 class CMemoryUsageComparison : public std::unary_function<std::string, bool> {
 public:
-    explicit CMemoryUsageComparison(const std::string& baseline) : m_Baseline(baseline) {}
+    explicit CMemoryUsageComparison(const std::string& baseline)
+        : m_Baseline(baseline) {}
 
-    bool operator()(const CMemoryUsage* rhs) { return m_Baseline == rhs->m_Description.s_Name; }
+    bool operator()(const CMemoryUsage* rhs) {
+        return m_Baseline == rhs->m_Description.s_Name;
+    }
 
 private:
     std::string m_Baseline;
@@ -30,12 +33,15 @@ private:
 
 //! Comparison function class to compare CMemoryUsage objects by
 //! their description, but ignoring the first in the collection
-class CMemoryUsageComparisonTwo : public std::binary_function<std::string, CMemoryUsage*, bool> {
+class CMemoryUsageComparisonTwo
+    : public std::binary_function<std::string, CMemoryUsage*, bool> {
 public:
     explicit CMemoryUsageComparisonTwo(const std::string& baseline, const CMemoryUsage* firstItem)
         : m_Baseline(baseline), m_FirstItem(firstItem) {}
 
-    bool operator()(const CMemoryUsage* rhs) { return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name); }
+    bool operator()(const CMemoryUsage* rhs) {
+        return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name);
+    }
 
 private:
     std::string m_Baseline;
@@ -148,7 +154,8 @@ void CMemoryUsage::compress() {
         TStrSizeMap itemsByName;
         for (TMemoryUsagePtrListCItr i = m_Children.begin(); i != m_Children.end(); ++i) {
             itemsByName[(*i)->m_Description.s_Name]++;
-            LOG_TRACE(<< "Item " << (*i)->m_Description.s_Name << " : " << itemsByName[(*i)->m_Description.s_Name]);
+            LOG_TRACE(<< "Item " << (*i)->m_Description.s_Name << " : "
+                      << itemsByName[(*i)->m_Description.s_Name]);
         }
 
         for (TStrSizeMapCItr i = itemsByName.begin(); i != itemsByName.end(); ++i) {
@@ -158,11 +165,13 @@ void CMemoryUsage::compress() {
                 std::size_t counter = 0;
                 memory_detail::CMemoryUsageComparison compareName(i->first);
 
-                TMemoryUsagePtrListItr firstChild = std::find_if(m_Children.begin(), m_Children.end(), compareName);
+                TMemoryUsagePtrListItr firstChild =
+                    std::find_if(m_Children.begin(), m_Children.end(), compareName);
                 memory_detail::CMemoryUsageComparisonTwo comparison(i->first, *firstChild);
 
                 TMemoryUsagePtrListItr j = m_Children.begin();
-                while ((j = std::find_if(j, m_Children.end(), comparison)) != m_Children.end()) {
+                while ((j = std::find_if(j, m_Children.end(), comparison)) !=
+                       m_Children.end()) {
                     LOG_TRACE(<< "Trying to remove " << *j);
                     (*firstChild)->m_Description.s_Memory += (*j)->usage();
                     (*firstChild)->m_Description.s_Unused += (*j)->unusage();

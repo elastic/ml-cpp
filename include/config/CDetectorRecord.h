@@ -125,8 +125,10 @@ public:
     void build(const TDetectorSpecificationVec& specs);
 
     //! Get the unique records from \p time and \p fieldValues for \p specs.
-    void
-    detectorRecords(core_t::TTime time, const TStrStrUMap& fieldValues, const TDetectorSpecificationVec& specs, TDetectorRecordVec& result);
+    void detectorRecords(core_t::TTime time,
+                         const TStrStrUMap& fieldValues,
+                         const TDetectorSpecificationVec& specs,
+                         TDetectorRecordVec& result);
 
 private:
     //! Clear the state (as a precursor to build).

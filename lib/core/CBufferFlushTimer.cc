@@ -15,7 +15,8 @@ namespace core {
 CBufferFlushTimer::CBufferFlushTimer() : m_LastMaxTime(0), m_LastFlushTime(0) {
 }
 
-core_t::TTime CBufferFlushTimer::flushTime(core_t::TTime bufferDelay, core_t::TTime bufferMaxTime) {
+core_t::TTime CBufferFlushTimer::flushTime(core_t::TTime bufferDelay,
+                                           core_t::TTime bufferMaxTime) {
     core_t::TTime now(CTimeUtils::now());
 
     if (bufferMaxTime == 0) {
@@ -34,7 +35,8 @@ core_t::TTime CBufferFlushTimer::flushTime(core_t::TTime bufferDelay, core_t::TT
         // flush based on elapsed real time
         if (ahead > bufferDelay) {
             // Defend against wrap
-            if (bufferMaxTime - bufferDelay >= std::numeric_limits<core_t::TTime>::max() - ahead) {
+            if (bufferMaxTime - bufferDelay >=
+                std::numeric_limits<core_t::TTime>::max() - ahead) {
                 return std::numeric_limits<core_t::TTime>::max();
             }
 

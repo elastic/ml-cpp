@@ -81,7 +81,8 @@ bool CTimeSeriesTestData::parseCounter(const std::string& fileName, TTimeDoubleP
         } else {
             result.second = value - last;
             if (result.second < 0) {
-                LOG_WARN(<< "Negative value " << value << "<" << last << "@" << result.first << " setting counter to 0 ");
+                LOG_WARN(<< "Negative value " << value << "<" << last << "@"
+                         << result.first << " setting counter to 0 ");
                 result.second = 0;
             }
         }
@@ -122,7 +123,10 @@ void CTimeSeriesTestData::derive(const TTimeDoublePrVec& data, TTimeDoublePrVec&
     }
 }
 
-bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data, core_t::TTime minTime, core_t::TTime maxTime, TTimeDoublePrVec& results) {
+bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data,
+                              core_t::TTime minTime,
+                              core_t::TTime maxTime,
+                              TTimeDoublePrVec& results) {
     results.clear();
 
     if (minTime > maxTime) {
@@ -215,7 +219,8 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
                                     const std::string& dateFormat,
                                     const std::string& line,
                                     std::vector<std::pair<core_t::TTime, T>>& results) {
-    if (line.empty() || line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
+    if (line.empty() || line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) ==
+                            std::string::npos) {
         LOG_DEBUG(<< "Ignoring blank line");
         return true;
     }

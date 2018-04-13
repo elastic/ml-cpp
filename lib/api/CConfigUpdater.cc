@@ -20,7 +20,8 @@ const std::string CConfigUpdater::RULES_JSON("rulesJson");
 const std::string CConfigUpdater::FILTERS("filters");
 const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
-CConfigUpdater::CConfigUpdater(CFieldConfig& fieldConfig, model::CAnomalyDetectorModelConfig& modelConfig)
+CConfigUpdater::CConfigUpdater(CFieldConfig& fieldConfig,
+                               model::CAnomalyDetectorModelConfig& modelConfig)
     : m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {
 }
 
@@ -35,7 +36,8 @@ bool CConfigUpdater::update(const std::string& config) {
         return false;
     }
 
-    for (boost::property_tree::ptree::const_iterator stanzaItr = propTree.begin(); stanzaItr != propTree.end(); ++stanzaItr) {
+    for (boost::property_tree::ptree::const_iterator stanzaItr = propTree.begin();
+         stanzaItr != propTree.end(); ++stanzaItr) {
         const std::string& stanzaName = stanzaItr->first;
         const boost::property_tree::ptree& subTree = stanzaItr->second;
 

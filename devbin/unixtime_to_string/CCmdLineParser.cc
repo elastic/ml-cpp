@@ -21,16 +21,22 @@ const std::string CCmdLineParser::DESCRIPTION =
     "Transport node error on node 0x9876<END>                 '\n"
     "Options:";
 
-bool CCmdLineParser::parse(int argc, const char* const* argv, std::string& configFile, std::string& syslogLine) {
+bool CCmdLineParser::parse(int argc,
+                           const char* const* argv,
+                           std::string& configFile,
+                           std::string& syslogLine) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
 
-        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
-            "config", boost::program_options::value<std::string>(), "Read configuration from <arg>")(
+        desc.add_options()("help", "Display this information and exit")(
+            "version", "Display version information and exit")(
+            "config", boost::program_options::value<std::string>(),
+            "Read configuration from <arg>")(
             "syslogline", boost::program_options::value<std::string>(), "Optional line of syslog");
 
         boost::program_options::variables_map vm;
-        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {
@@ -54,7 +60,9 @@ bool CCmdLineParser::parse(int argc, const char* const* argv, std::string& confi
         // Raise error
         std::cerr << "Error: Invalid command line options" << std::endl;
         std::cerr << desc << std::endl;
-    } catch (std::exception& e) { std::cerr << "Error processing command line: " << e.what() << std::endl; }
+    } catch (std::exception& e) {
+        std::cerr << "Error processing command line: " << e.what() << std::endl;
+    }
 
     return false;
 }

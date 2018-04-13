@@ -294,7 +294,8 @@ private:
         const uint64_t& subtreeCount() const;
 
         //! Persist this node and descendents
-        void persistRecursive(const std::string& nodeTag, core::CStatePersistInserter& inserter) const;
+        void persistRecursive(const std::string& nodeTag,
+                              core::CStatePersistInserter& inserter) const;
 
         //! Create from an XML node tree.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

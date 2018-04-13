@@ -105,26 +105,33 @@ private:
 
 namespace mixture_detail {
 
-CMixtureModeImpl::CMixtureModeImpl(const boost::math::normal_distribution<>& normal) : m_Distribution(normal) {
+CMixtureModeImpl::CMixtureModeImpl(const boost::math::normal_distribution<>& normal)
+    : m_Distribution(normal) {
 }
 
-CMixtureModeImpl::CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma) : m_Distribution(gamma) {
+CMixtureModeImpl::CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma)
+    : m_Distribution(gamma) {
 }
 
-CMixtureModeImpl::CMixtureModeImpl(const boost::math::lognormal_distribution<>& lognormal) : m_Distribution(lognormal) {
+CMixtureModeImpl::CMixtureModeImpl(const boost::math::lognormal_distribution<>& lognormal)
+    : m_Distribution(lognormal) {
 }
 }
 
-CMixtureMode<false>::CMixtureMode(const boost::math::normal_distribution<>& normal) : mixture_detail::CMixtureModeImpl(normal) {
+CMixtureMode<false>::CMixtureMode(const boost::math::normal_distribution<>& normal)
+    : mixture_detail::CMixtureModeImpl(normal) {
 }
 
-CMixtureMode<false>::CMixtureMode(const boost::math::gamma_distribution<>& gamma) : mixture_detail::CMixtureModeImpl(gamma) {
+CMixtureMode<false>::CMixtureMode(const boost::math::gamma_distribution<>& gamma)
+    : mixture_detail::CMixtureModeImpl(gamma) {
 }
 
-CMixtureMode<false>::CMixtureMode(const boost::math::lognormal_distribution<>& lognormal) : mixture_detail::CMixtureModeImpl(lognormal) {
+CMixtureMode<false>::CMixtureMode(const boost::math::lognormal_distribution<>& lognormal)
+    : mixture_detail::CMixtureModeImpl(lognormal) {
 }
 
-CMixtureMode<true>::CMixtureMode(const CMixtureMode<false>& other) : mixture_detail::CMixtureModeImpl(other) {
+CMixtureMode<true>::CMixtureMode(const CMixtureMode<false>& other)
+    : mixture_detail::CMixtureModeImpl(other) {
 }
 
 mixture_detail::TDoubleDoublePr support(const CMixtureMode<false>& mode) {

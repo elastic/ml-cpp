@@ -35,7 +35,9 @@ const std::string EMPTY_STRING;
 }
 
 bool CTimeSeriesDecompositionStateSerialiser::
-operator()(const STimeSeriesDecompositionRestoreParams& params, TDecompositionPtr& result, core::CStateRestoreTraverser& traverser) const {
+operator()(const STimeSeriesDecompositionRestoreParams& params,
+           TDecompositionPtr& result,
+           core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
     do {
@@ -61,17 +63,19 @@ operator()(const STimeSeriesDecompositionRestoreParams& params, TDecompositionPt
     return true;
 }
 
-void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecompositionInterface& decomposition,
-                                                         core::CStatePersistInserter& inserter) const {
+void CTimeSeriesDecompositionStateSerialiser::
+operator()(const CTimeSeriesDecompositionInterface& decomposition,
+           core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition) != nullptr) {
-        inserter.insertLevel(TIME_SERIES_DECOMPOSITION_TAG,
-                             boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
-                                         dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition),
-                                         _1));
+        inserter.insertLevel(
+            TIME_SERIES_DECOMPOSITION_TAG,
+            boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
+                        dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition), _1));
     } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != nullptr) {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
     } else {
-        LOG_ERROR(<< "Decomposition with type '" << typeid(decomposition).name() << "' has no defined name");
+        LOG_ERROR(<< "Decomposition with type '" << typeid(decomposition).name()
+                  << "' has no defined name");
     }
 }
 }

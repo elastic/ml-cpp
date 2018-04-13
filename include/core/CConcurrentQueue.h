@@ -36,7 +36,8 @@ class CConcurrentQueue final : private CNonCopyable {
 public:
     CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
         static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
-        static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY, "QUEUE_CAPACITY cannot be less than NOTIFY_CAPACITY");
+        static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY,
+                      "QUEUE_CAPACITY cannot be less than NOTIFY_CAPACITY");
     }
 
     //! Pop an item out of the queue, this blocks until an item is available

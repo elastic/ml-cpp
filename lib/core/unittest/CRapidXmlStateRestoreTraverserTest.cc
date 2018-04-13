@@ -9,10 +9,12 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 CppUnit::Test* CRapidXmlStateRestoreTraverserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStateRestoreTraverserTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CRapidXmlStateRestoreTraverserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStateRestoreTraverserTest>("CRapidXmlStateRestoreTraverserTest::testRestore",
-                                                                                      &CRapidXmlStateRestoreTraverserTest::testRestore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStateRestoreTraverserTest>(
+        "CRapidXmlStateRestoreTraverserTest::testRestore",
+        &CRapidXmlStateRestoreTraverserTest::testRestore));
 
     return suiteOfTests;
 }

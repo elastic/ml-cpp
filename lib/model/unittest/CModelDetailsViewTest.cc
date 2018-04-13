@@ -47,21 +47,10 @@ void CModelDetailsViewTest::testModelPlot() {
     TMockModelPtr model;
 
     auto setupTest = [&]() {
-        gatherer.reset(new model::CDataGatherer{model_t::analysisCategory(features[0]),
-                                                model_t::E_None,
-                                                params,
-                                                EMPTY_STRING,
-                                                EMPTY_STRING,
-                                                EMPTY_STRING,
-                                                "p",
-                                                EMPTY_STRING,
-                                                EMPTY_STRING,
-                                                TStrVec(),
-                                                false,
-                                                key,
-                                                features,
-                                                0,
-                                                0});
+        gatherer.reset(new model::CDataGatherer{
+            model_t::analysisCategory(features[0]), model_t::E_None, params,
+            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING,
+            EMPTY_STRING, TStrVec(), false, key, features, 0, 0});
         std::string person11{"p11"};
         std::string person12{"p12"};
         std::string person21{"p21"};
@@ -75,13 +64,17 @@ void CModelDetailsViewTest::testModelPlot() {
         model.reset(new model::CMockModel{params, gatherer, {/*we don't care about influence*/}});
 
         maths::CTimeSeriesDecomposition trend;
-        maths::CNormalMeanPrecConjugate prior{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-        maths::CModelParams timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-        maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 0, trend, prior};
-        model->mockTimeSeriesModels({model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
-                                     model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(1)),
-                                     model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(2)),
-                                     model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(3))});
+        maths::CNormalMeanPrecConjugate prior{
+            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+        maths::CModelParams timeSeriesModelParams{
+            bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
+        maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams,
+                                                          0, trend, prior};
+        model->mockTimeSeriesModels(
+            {model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
+             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(1)),
+             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(2)),
+             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(3))});
     };
 
     LOG_DEBUG(<< "Individual sum");
@@ -93,7 +86,8 @@ void CModelDetailsViewTest::testModelPlot() {
         {
             std::size_t pid{0};
             for (auto value : values) {
-                model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson, pid++, 0, 0, {value});
+                model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson,
+                                          pid++, 0, 0, {value});
             }
         }
 
@@ -105,7 +99,8 @@ void CModelDetailsViewTest::testModelPlot() {
             for (const auto& byFieldData : featureByFieldData.second) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), byFieldData.second.s_ValuesPerOverField.size());
+                CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                                     byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
                 }
@@ -122,7 +117,8 @@ void CModelDetailsViewTest::testModelPlot() {
         {
             std::size_t pid{0};
             for (auto value : values) {
-                model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson, pid++, 0, 0, {value});
+                model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
+                                          pid++, 0, 0, {value});
             }
         }
 
@@ -134,7 +130,8 @@ void CModelDetailsViewTest::testModelPlot() {
             for (const auto& byFieldData : featureByFieldData.second) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), byFieldData.second.s_ValuesPerOverField.size());
+                CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                                     byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
                 }
@@ -146,8 +143,8 @@ void CModelDetailsViewTest::testModelPlot() {
 CppUnit::Test* CModelDetailsViewTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelDetailsViewTest>("CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelDetailsViewTest>(
+        "CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));
 
     return suiteOfTests;
 }

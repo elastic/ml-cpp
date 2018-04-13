@@ -11,10 +11,10 @@
 CppUnit::Test* CWordExtractorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testWordExtract", &CWordExtractorTest::testWordExtract));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testMinConsecutive", &CWordExtractorTest::testMinConsecutive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>(
+        "CWordExtractorTest::testWordExtract", &CWordExtractorTest::testWordExtract));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>(
+        "CWordExtractorTest::testMinConsecutive", &CWordExtractorTest::testMinConsecutive));
 
     return suiteOfTests;
 }
@@ -32,8 +32,9 @@ void CWordExtractorTest::testWordExtract() {
         CPPUNIT_ASSERT_EQUAL(std::string("Failed to Rollback"), words);
     }
     {
-        std::string message("2017-01-25 14:20:49,646 INFO  [co.elastic.settlement.synchronization.errors.NonFXInstructionSyncImpl] Found "
-                            "corresponding outgoingPaymentFlow :: OutGoingPaymentFlow.id = 7480");
+        std::string message(
+            "2017-01-25 14:20:49,646 INFO  [co.elastic.settlement.synchronization.errors.NonFXInstructionSyncImpl] Found "
+            "corresponding outgoingPaymentFlow :: OutGoingPaymentFlow.id = 7480");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
@@ -52,7 +53,8 @@ void CWordExtractorTest::testWordExtract() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time of seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time of seconds Stack trace"),
+                             words);
     }
 }
 
@@ -95,7 +97,8 @@ void CWordExtractorTest::testMinConsecutive() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -103,7 +106,8 @@ void CWordExtractorTest::testMinConsecutive() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
@@ -124,7 +128,8 @@ void CWordExtractorTest::testMinConsecutive() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using application on channel"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using application on channel"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 

@@ -43,7 +43,8 @@ namespace api {
 //! When using it with boost::iostreams::filtering_ostream not that the filters gets
 //! copied once pushed to the ostream instance.
 //!
-class API_EXPORT CStateRestoreStreamFilter : public boost::iostreams::basic_line_filter<char> {
+class API_EXPORT CStateRestoreStreamFilter
+    : public boost::iostreams::basic_line_filter<char> {
 public:
     using boost::iostreams::basic_line_filter<char>::string_type;
 

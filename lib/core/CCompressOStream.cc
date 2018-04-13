@@ -39,10 +39,7 @@ void CCompressOStream::close() {
 CCompressOStream::CCompressThread::CCompressThread(CCompressOStream& stream,
                                                    CDualThreadStreamBuf& streamBuf,
                                                    CStateCompressor::CChunkFilter& filter)
-    : m_Stream(stream),
-      m_StreamBuf(streamBuf),
-      m_FilterSink(filter),
-      m_OutFilter()
+    : m_Stream(stream), m_StreamBuf(streamBuf), m_FilterSink(filter), m_OutFilter()
 
 {
     m_OutFilter.push(boost::iostreams::gzip_compressor());

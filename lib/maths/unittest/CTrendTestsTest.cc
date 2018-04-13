@@ -48,7 +48,8 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+    using TMaxAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
     using TFunction = double (*)(core_t::TTime);
 
     test::CRandomNumbers rng;
@@ -74,7 +75,9 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
         TMeanVarAccumulator timeToDetectionMoments[5];
         TMaxAccumulator timeToDetectionMax[5];
         core_t::TTime lastTruePositive[5] = {time, time, time, time, time};
-        TFunction functions[] = {&constant, &ramp, &markov, &smoothDaily, &smoothWeekly, &spikeyDaily, &spikeyWeekly, &weekends};
+        TFunction functions[] = {&constant,     &ramp,         &markov,
+                                 &smoothDaily,  &smoothWeekly, &spikeyDaily,
+                                 &spikeyWeekly, &weekends};
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             for (std::size_t j = 0u; j < boost::size(functions); ++j) {
@@ -85,10 +88,13 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
                     if (j < 3) {
                         (rtests[j].test() ? falsePositives[j] : trueNegatives[j]) += 1.0;
                     } else {
-                        (rtests[j].test() ? truePositives[j - 3] : falseNegatives[j - 3]) += 1.0;
+                        (rtests[j].test() ? truePositives[j - 3]
+                                          : falseNegatives[j - 3]) += 1.0;
                         if (rtests[j].test()) {
-                            timeToDetectionMoments[j - 3].add(time - lastTruePositive[j - 3]);
-                            timeToDetectionMax[j - 3].add(static_cast<double>(time - lastTruePositive[j - 3]));
+                            timeToDetectionMoments[j - 3].add(
+                                time - lastTruePositive[j - 3]);
+                            timeToDetectionMax[j - 3].add(
+                                static_cast<double>(time - lastTruePositive[j - 3]));
                             lastTruePositive[j - 3] = time;
                         }
                     }
@@ -114,8 +120,10 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
             LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
-            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
+            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) <
+                           1.5 * DAY);
+            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(
+                               timeToDetectionMoments[i])) < 5 * DAY);
             CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
@@ -153,9 +161,10 @@ void CTrendTestsTest::testCalendarCyclic() {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::CTools::truncate(std::lower_bound(boost::begin(months), boost::end(months), time) - boost::begin(months),
-                                                  ptrdiff_t(1),
-                                                  ptrdiff_t(boost::size(months)));
+            ptrdiff_t i = maths::CTools::truncate(
+                std::lower_bound(boost::begin(months), boost::end(months), time) -
+                    boost::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 10.0, 1, error);
             if (time >= months[i - 1] + 30000 && time < months[i - 1] + 50000) {
@@ -165,7 +174,8 @@ void CTrendTestsTest::testCalendarCyclic() {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 TOptionalFeature feature = cyclic.test();
-                CPPUNIT_ASSERT_EQUAL(std::string("2nd day of month"), core::CContainerPrinter::print(feature));
+                CPPUNIT_ASSERT_EQUAL(std::string("2nd day of month"),
+                                     core::CContainerPrinter::print(feature));
             }
         }
     }
@@ -187,9 +197,10 @@ void CTrendTestsTest::testCalendarCyclic() {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::CTools::truncate(std::lower_bound(boost::begin(months), boost::end(months), time) - boost::begin(months),
-                                                  ptrdiff_t(1),
-                                                  ptrdiff_t(boost::size(months)));
+            ptrdiff_t i = maths::CTools::truncate(
+                std::lower_bound(boost::begin(months), boost::end(months), time) -
+                    boost::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 10.0, 1, error);
             if (time >= months[i - 1] + 10000 && time < months[i - 1] + 20000) {
@@ -199,7 +210,8 @@ void CTrendTestsTest::testCalendarCyclic() {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 TOptionalFeature feature = cyclic.test();
-                CPPUNIT_ASSERT_EQUAL(std::string("0 days before end of month"), core::CContainerPrinter::print(feature));
+                CPPUNIT_ASSERT_EQUAL(std::string("0 days before end of month"),
+                                     core::CContainerPrinter::print(feature));
             }
         }
     }
@@ -221,9 +233,10 @@ void CTrendTestsTest::testCalendarCyclic() {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::CTools::truncate(std::lower_bound(boost::begin(months), boost::end(months), time) - boost::begin(months),
-                                                  ptrdiff_t(1),
-                                                  ptrdiff_t(boost::size(months)));
+            ptrdiff_t i = maths::CTools::truncate(
+                std::lower_bound(boost::begin(months), boost::end(months), time) -
+                    boost::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 10.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -233,7 +246,8 @@ void CTrendTestsTest::testCalendarCyclic() {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 TOptionalFeature feature = cyclic.test();
-                CPPUNIT_ASSERT_EQUAL(std::string("1st Monday of month"), core::CContainerPrinter::print(feature));
+                CPPUNIT_ASSERT_EQUAL(std::string("1st Monday of month"),
+                                     core::CContainerPrinter::print(feature));
             }
         }
     }
@@ -254,9 +268,10 @@ void CTrendTestsTest::testCalendarCyclic() {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::CTools::truncate(std::lower_bound(boost::begin(months), boost::end(months), time) - boost::begin(months),
-                                                  ptrdiff_t(1),
-                                                  ptrdiff_t(boost::size(months)));
+            ptrdiff_t i = maths::CTools::truncate(
+                std::lower_bound(boost::begin(months), boost::end(months), time) -
+                    boost::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 10.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -266,7 +281,8 @@ void CTrendTestsTest::testCalendarCyclic() {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 TOptionalFeature feature = cyclic.test();
-                CPPUNIT_ASSERT_EQUAL(std::string("0 Fridays before end of month"), core::CContainerPrinter::print(feature));
+                CPPUNIT_ASSERT_EQUAL(std::string("0 Fridays before end of month"),
+                                     core::CContainerPrinter::print(feature));
             }
         }
     }
@@ -311,7 +327,8 @@ void CTrendTestsTest::testPersist() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&maths::CRandomizedPeriodicityTest::acceptRestoreTraverser, &test2, _1)));
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+                &maths::CRandomizedPeriodicityTest::acceptRestoreTraverser, &test2, _1)));
         }
         std::string newXml;
         {
@@ -325,7 +342,8 @@ void CTrendTestsTest::testPersist() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser));
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(
+                &maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser));
         }
         std::string newStaticsXml;
         {
@@ -365,7 +383,8 @@ void CTrendTestsTest::testPersist() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&maths::CCalendarCyclicTest::acceptRestoreTraverser, &restored, _1)));
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+                &maths::CCalendarCyclicTest::acceptRestoreTraverser, &restored, _1)));
         }
         CPPUNIT_ASSERT_EQUAL(orig.checksum(), restored.checksum());
 
@@ -382,11 +401,12 @@ void CTrendTestsTest::testPersist() {
 CppUnit::Test* CTrendTestsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>("CTrendTestsTest::testRandomizedPeriodicity",
-                                                                   &CTrendTestsTest::testRandomizedPeriodicity));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTrendTestsTest>("CTrendTestsTest::testCalendarCyclic", &CTrendTestsTest::testCalendarCyclic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>("CTrendTestsTest::testPersist", &CTrendTestsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>(
+        "CTrendTestsTest::testRandomizedPeriodicity", &CTrendTestsTest::testRandomizedPeriodicity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>(
+        "CTrendTestsTest::testCalendarCyclic", &CTrendTestsTest::testCalendarCyclic));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>(
+        "CTrendTestsTest::testPersist", &CTrendTestsTest::testPersist));
 
     return suiteOfTests;
 }

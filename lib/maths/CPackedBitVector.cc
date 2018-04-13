@@ -16,17 +16,20 @@
 namespace ml {
 namespace maths {
 
-CPackedBitVector::CPackedBitVector() : m_Dimension(0), m_First(false), m_Parity(true) {
+CPackedBitVector::CPackedBitVector()
+    : m_Dimension(0), m_First(false), m_Parity(true) {
 }
 
-CPackedBitVector::CPackedBitVector(bool bit) : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
+CPackedBitVector::CPackedBitVector(bool bit)
+    : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
 }
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
     : m_Dimension(static_cast<uint32_t>(dimension)), m_First(bit), m_Parity(true) {
     if (dimension > 0) {
         std::size_t remainder = static_cast<std::size_t>(MAX_RUN_LENGTH);
-        for (/**/; remainder <= dimension; remainder += static_cast<std::size_t>(MAX_RUN_LENGTH)) {
+        for (/**/; remainder <= dimension;
+             remainder += static_cast<std::size_t>(MAX_RUN_LENGTH)) {
             m_RunLengths.push_back(MAX_RUN_LENGTH);
         }
         remainder -= static_cast<std::size_t>(MAX_RUN_LENGTH);
@@ -35,7 +38,8 @@ CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
 }
 
 CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
-    : m_Dimension(static_cast<uint32_t>(bits.size())), m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
+    : m_Dimension(static_cast<uint32_t>(bits.size())),
+      m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
     std::size_t length = 1u;
     for (std::size_t i = 1u; i < bits.size(); ++i) {
         if (bits[i] == bits[i - 1]) {
@@ -102,7 +106,8 @@ void CPackedBitVector::extend(bool bit) {
 bool CPackedBitVector::fromDelimited(const std::string& str) {
     std::size_t last = 0u;
     std::size_t pos = str.find_first_of(core::CPersistUtils::DELIMITER, last);
-    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
+    if (pos == std::string::npos ||
+        core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
@@ -110,7 +115,8 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     last = pos;
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int first = 0;
-    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
+    if (pos == std::string::npos ||
+        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
@@ -119,7 +125,8 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     last = pos;
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int parity = 0;
-    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
+    if (pos == std::string::npos ||
+        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
@@ -136,8 +143,10 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
 std::string CPackedBitVector::toDelimited() const {
     std::string result;
     result += core::CStringUtils::typeToString(m_Dimension) + core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_First)) + core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_Parity)) + core::CPersistUtils::DELIMITER;
+    result += core::CStringUtils::typeToString(static_cast<int>(m_First)) +
+              core::CPersistUtils::DELIMITER;
+    result += core::CStringUtils::typeToString(static_cast<int>(m_Parity)) +
+              core::CPersistUtils::DELIMITER;
     result += core::CPersistUtils::toString(m_RunLengths);
     return result;
 }
@@ -148,7 +157,8 @@ std::size_t CPackedBitVector::dimension() const {
 
 bool CPackedBitVector::operator()(std::size_t i) const {
     bool parity = true;
-    for (std::size_t j = 0u, k = static_cast<std::size_t>(m_RunLengths[j]); k <= i; k += static_cast<std::size_t>(m_RunLengths[++j])) {
+    for (std::size_t j = 0u, k = static_cast<std::size_t>(m_RunLengths[j]);
+         k <= i; k += static_cast<std::size_t>(m_RunLengths[++j])) {
         if (m_RunLengths[j] != MAX_RUN_LENGTH) {
             parity = !parity;
         }
@@ -157,12 +167,14 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 }
 
 bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
-    return m_Dimension == other.m_Dimension && m_First == other.m_First && m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
+    return m_Dimension == other.m_Dimension && m_First == other.m_First &&
+           m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
 }
 
 bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
-    return COrderings::lexicographical_compare(
-        m_Dimension, m_First, m_Parity, m_RunLengths, rhs.m_Dimension, rhs.m_First, rhs.m_Parity, rhs.m_RunLengths);
+    return COrderings::lexicographical_compare(m_Dimension, m_First, m_Parity,
+                                               m_RunLengths, rhs.m_Dimension, rhs.m_First,
+                                               rhs.m_Parity, rhs.m_RunLengths);
 }
 
 CPackedBitVector CPackedBitVector::complement() const {
@@ -254,7 +266,8 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
 
     bool parity = true;
     for (std::size_t i = 0u; i < m_RunLengths.size(); ++i) {
-        std::fill_n(std::back_inserter(result), static_cast<std::size_t>(m_RunLengths[i]), parity ? m_First : !m_First);
+        std::fill_n(std::back_inserter(result),
+                    static_cast<std::size_t>(m_RunLengths[i]), parity ? m_First : !m_First);
         if (m_RunLengths[i] != MAX_RUN_LENGTH) {
             parity = !parity;
         }

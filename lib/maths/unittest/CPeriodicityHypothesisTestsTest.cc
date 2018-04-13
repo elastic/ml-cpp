@@ -82,10 +82,12 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
                 rng.generateUniformSamples(3, 20, 1, repeats);
 
                 maths::CPeriodicityHypothesisTests hypotheses;
-                hypotheses.initialize(bucketLength, window, window / static_cast<core_t::TTime>(repeats[0]));
+                hypotheses.initialize(bucketLength, window,
+                                      window / static_cast<core_t::TTime>(repeats[0]));
 
                 for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                    hypotheses.add(time, generators[index[0]](time) + noise[(time - 10000) / bucketLength]);
+                    hypotheses.add(time, generators[index[0]](time) +
+                                             noise[(time - 10000) / bucketLength]);
                 }
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
@@ -116,9 +118,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
         TSizeVec permittedGenerators{2, 4, 4, 5};
         TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly, weekends, spikeyWeekly};
-        TStrVec expected{"{ 'daily' }",
-                         "{ 'daily' }",
-                         "{ 'weekly' }",
+        TStrVec expected{"{ 'daily' }", "{ 'daily' }", "{ 'weekly' }",
                          "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }",
                          "{ 'daily' 'weekly' }"};
 
@@ -154,15 +154,18 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                     rng.generateUniformSamples(3, 20, 1, repeats);
 
                     maths::CPeriodicityHypothesisTests hypotheses;
-                    hypotheses.initialize(bucketLength, window, window / static_cast<core_t::TTime>(repeats[0]));
+                    hypotheses.initialize(bucketLength, window,
+                                          window / static_cast<core_t::TTime>(repeats[0]));
 
                     for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                        hypotheses.add(time, 20.0 * generators[index[0]](time) + noise[(time - 10000) / bucketLength]);
+                        hypotheses.add(time, 20.0 * generators[index[0]](time) +
+                                                 noise[(time - 10000) / bucketLength]);
                     }
 
                     maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                     if (result.print() != expected[index[0]]) {
-                        LOG_DEBUG(<< "result = " << result.print() << " expected " << expected[index[0]]);
+                        LOG_DEBUG(<< "result = " << result.print()
+                                  << " expected " << expected[index[0]]);
                     }
                     TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
                     FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
@@ -181,10 +184,14 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         core_t::TTime startTime;
         core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
-            "testfiles/spikey_data.csv", timeseries, startTime, endTime, test::CTimeSeriesTestData::CSV_UNIX_REGEX));
+            "testfiles/spikey_data.csv", timeseries, startTime, endTime,
+            test::CTimeSeriesTestData::CSV_UNIX_REGEX));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = "
+                  << core::CContainerPrinter::print(timeseries.begin(),
+                                                    timeseries.begin() + 10)
+                  << " ...");
 
         TTimeVec lastTests{timeseries[0].first, timeseries[0].first};
         TTimeVec windows{4 * DAY, 14 * DAY};
@@ -197,7 +204,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             for (std::size_t j = 0u; j < 2; ++j) {
                 if (time > lastTests[j] + windows[j]) {
-                    maths::CPeriodicityHypothesisTestsResult result{hypotheses[j].test()};
+                    maths::CPeriodicityHypothesisTestsResult result{
+                        hypotheses[j].test()};
                     CPPUNIT_ASSERT_EQUAL(std::string("{ 'daily' }"), result.print());
                     hypotheses[j] = maths::CPeriodicityHypothesisTests();
                     hypotheses[j].initialize(HOUR, windows[j], DAY);
@@ -215,10 +223,14 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         core_t::TTime startTime;
         core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
-            "testfiles/diurnal.csv", timeseries, startTime, endTime, test::CTimeSeriesTestData::CSV_UNIX_REGEX));
+            "testfiles/diurnal.csv", timeseries, startTime, endTime,
+            test::CTimeSeriesTestData::CSV_UNIX_REGEX));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = "
+                  << core::CContainerPrinter::print(timeseries.begin(),
+                                                    timeseries.begin() + 10)
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -230,7 +242,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"), result.print());
+                CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"),
+                                     result.print());
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
                 lastTest += window;
@@ -245,15 +258,16 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
         core_t::TTime endTime;
-        CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/no_periods.csv",
-                                                        timeseries,
-                                                        startTime,
-                                                        endTime,
-                                                        test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
-                                                        test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
+        CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
+            "testfiles/no_periods.csv", timeseries, startTime, endTime,
+            test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
+            test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = "
+                  << core::CContainerPrinter::print(timeseries.begin(),
+                                                    timeseries.begin() + 10)
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -280,15 +294,16 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
         core_t::TTime endTime;
-        CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/thirty_minute_samples.csv",
-                                                        timeseries,
-                                                        startTime,
-                                                        endTime,
-                                                        test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
-                                                        test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
+        CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
+            "testfiles/thirty_minute_samples.csv", timeseries, startTime,
+            endTime, test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
+            test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = "
+                  << core::CContainerPrinter::print(timeseries.begin(),
+                                                    timeseries.begin() + 10)
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -345,15 +360,16 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
             for (std::size_t j = 0u; j < bucketLengths.size(); ++j) {
                 core_t::TTime bucketLength{bucketLengths[j]};
-                core_t::TTime period{
-                    maths::CIntegerTools::floor(static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
+                core_t::TTime period{maths::CIntegerTools::floor(
+                    static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
                 scaling = static_cast<double>(DAY) / static_cast<double>(period);
                 if (scaling == 1.0 || window < 3 * period) {
                     continue;
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(core::CStringUtils::typeToString(period), false, 0, period, {0, period});
+                expected.add(core::CStringUtils::typeToString(period), false, 0,
+                             period, {0, period});
 
                 switch (test % 3) {
                 case 0:
@@ -373,12 +389,14 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                 hypotheses.initialize(bucketLength, window, period);
 
                 for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                    hypotheses.add(time, 20.0 * scale(scaling, time, generators[index[0]]) + noise[(time - 10000) / bucketLength]);
+                    hypotheses.add(time, 20.0 * scale(scaling, time, generators[index[0]]) +
+                                             noise[(time - 10000) / bucketLength]);
                 }
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 if (result.print() != expected.print()) {
-                    LOG_DEBUG(<< "result = " << result.print() << " expected " << expected.print());
+                    LOG_DEBUG(<< "result = " << result.print() << " expected "
+                              << expected.print());
                 }
                 TP += result.print() == expected.print() ? 1.0 : 0.0;
                 FN += result.print() == expected.print() ? 0.0 : 1.0;
@@ -403,9 +421,12 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 7; ++t) {
-            for (auto value : {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0,  0.0, 0.0, 20.0, 18.0, 10.0, 4.0,
-                               4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0, 10.0, 10.0, 8.0, 4.0, 3.0,  1.0,  0.0,  0.0,
-                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0,  0.0, 0.0, 0.0,  0.0,  3.0,  1.0}) {
+            for (auto value :
+                 {0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0, 4.0, 4.0, 5.0,
+                  6.0, 8.0, 9.0,  9.0,  10.0, 10.0, 8.0, 4.0, 3.0, 1.0,
+                  0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  3.0, 1.0}) {
                 if (value > 0.0) {
                     hypotheses.add(time, value);
                 }
@@ -425,9 +446,12 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 7; ++t) {
-            for (auto value : {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0,  0.0, 0.0, 20.0, 18.0, 10.0, 4.0,
-                               4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0, 10.0, 10.0, 8.0, 4.0, 3.0,  1.0,  0.0,  0.0,
-                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0,  0.0, 0.0, 0.0,  0.0,  3.0,  1.0}) {
+            for (auto value :
+                 {0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0, 4.0, 4.0, 5.0,
+                  6.0, 8.0, 9.0,  9.0,  10.0, 10.0, 8.0, 4.0, 3.0, 1.0,
+                  0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  3.0, 1.0}) {
                 if (value > 0.0) {
                     TDoubleVec rand;
                     rng.generateUniformSamples(-1.0, 1.0, 1, rand);
@@ -449,14 +473,23 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 4; ++t) {
             for (auto value :
-                 {0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 10.0, 10.0, 8.0,  4.0,  3.0,  1.0, 1.0,  3.0,  0.0,
-                  0.0, 0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0, 5.0, 6.0, 8.0,  9.0,  9.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,
-                  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 20.0, 18.0, 10.0,
-                  4.0, 4.0, 4.0, 4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,
-                  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0, 4.0,  5.0,  6.0,
-                  8.0, 9.0, 9.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0, 5.0, 6.0, 8.0,  9.0,  9.0,  10.0, 10.0, 8.0, 4.0,  3.0,  1.0,
-                  1.0, 3.0, 0.0, 0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0,  5.0,  6.0,  8.0,  9.0,  9.0, 10.0, 10.0, 8.0,
-                  4.0, 3.0, 1.0, 1.0,  3.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0}) {
+                 {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,
+                  0.0,  0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,
+                  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,
+                  9.0,  9.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,
+                  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  20.0, 18.0,
+                  10.0, 4.0,  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,
+                  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,  0.0,  0.0,
+                  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0,  5.0,
+                  6.0,  8.0,  9.0,  9.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,
+                  1.0,  3.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0}) {
                 if (value > 0.0) {
                     hypotheses.add(time, value);
                 }
@@ -478,14 +511,23 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 4; ++t) {
             for (auto value :
-                 {0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 10.0, 10.0, 8.0,  4.0,  3.0,  1.0, 1.0,  3.0,  0.0,
-                  0.0, 0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0, 5.0, 6.0, 8.0,  9.0,  9.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,
-                  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 20.0, 18.0, 10.0,
-                  4.0, 4.0, 4.0, 4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,
-                  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0, 4.0,  5.0,  6.0,
-                  8.0, 9.0, 9.0, 20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0, 5.0, 6.0, 8.0,  9.0,  9.0,  10.0, 10.0, 8.0, 4.0,  3.0,  1.0,
-                  1.0, 3.0, 0.0, 0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0,  5.0,  6.0,  8.0,  9.0,  9.0, 10.0, 10.0, 8.0,
-                  4.0, 3.0, 1.0, 1.0,  3.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0}) {
+                 {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,
+                  0.0,  0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,
+                  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,
+                  9.0,  9.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,
+                  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,  20.0, 18.0,
+                  10.0, 4.0,  4.0,  4.0,  4.0,  5.0,  6.0,  8.0,  9.0,  9.0,
+                  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,  0.0,  0.0,
+                  0.0,  0.0,  20.0, 18.0, 10.0, 4.0,  4.0,  4.0,  4.0,  5.0,
+                  6.0,  8.0,  9.0,  9.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,
+                  1.0,  3.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0}) {
                 if (value > 0.0) {
                     TDoubleVec rand;
                     rng.generateUniformSamples(-1.0, 1.0, 1, rand);
@@ -537,15 +579,16 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 
             for (std::size_t j = 0u; j < bucketLengths.size(); ++j) {
                 core_t::TTime bucketLength{bucketLengths[j]};
-                core_t::TTime period{
-                    maths::CIntegerTools::floor(static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
+                core_t::TTime period{maths::CIntegerTools::floor(
+                    static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
                 scaling = static_cast<double>(DAY) / static_cast<double>(period);
                 if (scaling == 1.0 || window < 3 * period) {
                     continue;
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(core::CStringUtils::typeToString(period), false, 0, period, {0, period});
+                expected.add(core::CStringUtils::typeToString(period), false, 0,
+                             period, {0, period});
 
                 switch (test % 3) {
                 case 0:
@@ -565,23 +608,28 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 hypotheses.initialize(bucketLength, window, period);
 
                 maths::TFloatMeanAccumulatorVec values(window / bucketLength);
-                for (core_t::TTime time = startTime; time < startTime + window; time += bucketLength) {
+                for (core_t::TTime time = startTime; time < startTime + window;
+                     time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
-                    double value{20.0 * scale(scaling, time, generators[index[0]]) + noise[bucket]};
+                    double value{20.0 * scale(scaling, time, generators[index[0]]) +
+                                 noise[bucket]};
                     values[bucket].add(value);
                 }
 
                 maths::CPeriodicityHypothesisTestsConfig config;
-                maths::CPeriodicityHypothesisTestsResult result{maths::testForPeriods(config, startTime, bucketLength, values)};
+                maths::CPeriodicityHypothesisTestsResult result{
+                    maths::testForPeriods(config, startTime, bucketLength, values)};
                 if (result.print() != expected.print()) {
-                    LOG_DEBUG(<< "result = " << result.print() << " expected " << expected.print());
+                    LOG_DEBUG(<< "result = " << result.print() << " expected "
+                              << expected.print());
                 }
 
                 TP[0] += result.print() == expected.print() ? 1.0 : 0.0;
                 FN[0] += result.print() == expected.print() ? 0.0 : 1.0;
                 if (result.components().size() == 1) {
                     core_t::TTime modp{result.components()[0].s_Period % period};
-                    double error{static_cast<double>(std::min(modp, std::abs(period - modp))) / static_cast<double>(period)};
+                    double error{static_cast<double>(std::min(modp, std::abs(period - modp))) /
+                                 static_cast<double>(period)};
                     TP[1] += error < 0.01 ? 1.0 : 0.0;
                     FN[1] += error < 0.01 ? 0.0 : 1.0;
                     TP[2] += error < 0.05 ? 1.0 : 0.0;
@@ -606,16 +654,21 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testNonPeriodic",
-                                                                                   &CPeriodicityHypothesisTestsTest::testNonPeriodic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testDiurnal",
-                                                                                   &CPeriodicityHypothesisTestsTest::testDiurnal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testNonDiurnal",
-                                                                                   &CPeriodicityHypothesisTestsTest::testNonDiurnal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testWithSparseData",
-                                                                                   &CPeriodicityHypothesisTestsTest::testWithSparseData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testTestForPeriods",
-                                                                                   &CPeriodicityHypothesisTestsTest::testTestForPeriods));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testNonPeriodic",
+        &CPeriodicityHypothesisTestsTest::testNonPeriodic));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testDiurnal",
+        &CPeriodicityHypothesisTestsTest::testDiurnal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testNonDiurnal",
+        &CPeriodicityHypothesisTestsTest::testNonDiurnal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testWithSparseData",
+        &CPeriodicityHypothesisTestsTest::testWithSparseData));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testTestForPeriods",
+        &CPeriodicityHypothesisTestsTest::testTestForPeriods));
 
     return suiteOfTests;
 }

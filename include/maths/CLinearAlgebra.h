@@ -55,7 +55,8 @@ struct SSymmetricMatrix {
     //! Set this vector equal to \p other.
     template<typename OTHER_STORAGE>
     void assign(const SSymmetricMatrix<OTHER_STORAGE>& other) {
-        std::copy(other.m_LowerTriangle.begin(), other.m_LowerTriangle.end(), m_LowerTriangle.begin());
+        std::copy(other.m_LowerTriangle.begin(), other.m_LowerTriangle.end(),
+                  m_LowerTriangle.begin());
     }
 
     //! Create from a delimited string.
@@ -123,14 +124,20 @@ struct SSymmetricMatrix {
     }
 
     //! Check if two matrices are identically equal.
-    bool equal(const SSymmetricMatrix& other) const { return m_LowerTriangle == other.m_LowerTriangle; }
+    bool equal(const SSymmetricMatrix& other) const {
+        return m_LowerTriangle == other.m_LowerTriangle;
+    }
 
     //! Lexicographical total ordering.
-    bool less(const SSymmetricMatrix& rhs) const { return m_LowerTriangle < rhs.m_LowerTriangle; }
+    bool less(const SSymmetricMatrix& rhs) const {
+        return m_LowerTriangle < rhs.m_LowerTriangle;
+    }
 
     //! Check if this is zero.
     bool isZero() const {
-        return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(), [](double ei) { return ei != 0.0; }) == m_LowerTriangle.end();
+        return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(),
+                            [](double ei) { return ei != 0.0; }) ==
+               m_LowerTriangle.end();
     }
 
     //! Get the matrix diagonal.
@@ -179,7 +186,8 @@ struct SSymmetricMatrix {
     uint64_t checksum() const {
         uint64_t result = 0u;
         for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
-            result = core::CHashing::hashCombine(result, static_cast<uint64_t>(m_LowerTriangle[i]));
+            result = core::CHashing::hashCombine(
+                result, static_cast<uint64_t>(m_LowerTriangle[i]));
         }
         return result;
     }
@@ -227,13 +235,9 @@ class CSymmetricMatrixNxN
           CSymmetricMatrixNxN<T, N>,
           boost::partially_ordered<
               CSymmetricMatrixNxN<T, N>,
-              boost::addable<
-                  CSymmetricMatrixNxN<T, N>,
-                  boost::subtractable<
-                      CSymmetricMatrixNxN<T, N>,
-                      boost::multipliable<
-                          CSymmetricMatrixNxN<T, N>,
-                          boost::multipliable2<CSymmetricMatrixNxN<T, N>, T, boost::dividable2<CSymmetricMatrixNxN<T, N>, T>>>>>>>,
+              boost::addable<CSymmetricMatrixNxN<T, N>,
+                             boost::subtractable<CSymmetricMatrixNxN<T, N>,
+                                                 boost::multipliable<CSymmetricMatrixNxN<T, N>, boost::multipliable2<CSymmetricMatrixNxN<T, N>, T, boost::dividable2<CSymmetricMatrixNxN<T, N>, T>>>>>>>,
       private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>,
       private linear_algebra_detail::CBoundsCheck<N>::InRange {
 private:
@@ -249,11 +253,15 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+    static bool dynamicSizeAlwaysZero() {
+        return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
+    }
 
 public:
     //! Set to multiple of ones matrix.
-    explicit CSymmetricMatrixNxN(T v = T(0)) { std::fill_n(&TBase::m_LowerTriangle[0], N * (N + 1) / 2, v); }
+    explicit CSymmetricMatrixNxN(T v = T(0)) {
+        std::fill_n(&TBase::m_LowerTriangle[0], N * (N + 1) / 2, v);
+    }
 
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrixNxN(const TArray& m) {
@@ -317,7 +325,9 @@ public:
     //! \name Persistence
     //@{
     //! Create from a delimited string.
-    bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
+    bool fromDelimited(const std::string& str) {
+        return this->TBase::fromDelimited(str);
+    }
 
     //! Convert to a delimited string.
     std::string toDelimited() const { return this->TBase::toDelimited(); }
@@ -330,10 +340,14 @@ public:
     std::size_t columns() const { return N; }
 
     //! Get the i,j 'th component (no bounds checking).
-    inline T operator()(std::size_t i, std::size_t j) const { return this->element(i, j); }
+    inline T operator()(std::size_t i, std::size_t j) const {
+        return this->element(i, j);
+    }
 
     //! Get the i,j 'th component (no bounds checking).
-    inline T& operator()(std::size_t i, std::size_t j) { return this->element(i, j); }
+    inline T& operator()(std::size_t i, std::size_t j) {
+        return this->element(i, j);
+    }
 
     //! Get an iterator over the elements.
     TConstIterator begin() const { return TBase::m_LowerTriangle.begin(); }
@@ -388,10 +402,14 @@ public:
     // supported.
 
     //! Check if two matrices are identically equal.
-    bool operator==(const CSymmetricMatrixNxN& other) const { return this->equal(other.base()); }
+    bool operator==(const CSymmetricMatrixNxN& other) const {
+        return this->equal(other.base());
+    }
 
     //! Lexicographical total ordering.
-    bool operator<(const CSymmetricMatrixNxN& rhs) const { return this->less(rhs.base()); }
+    bool operator<(const CSymmetricMatrixNxN& rhs) const {
+        return this->less(rhs.base());
+    }
 
     //! Check if this is zero.
     bool isZero() const { return this->TBase::isZero(); }
@@ -440,7 +458,9 @@ public:
 //! \brief Gets a zero symmetric matrix with specified dimension.
 template<typename T, std::size_t N>
 struct SZero<CSymmetricMatrixNxN<T, N>> {
-    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) { return CSymmetricMatrixNxN<T, N>(T(0)); }
+    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) {
+        return CSymmetricMatrixNxN<T, N>(T(0));
+    }
 };
 
 // ************************ HEAP SYMMETRIC MATRIX ************************
@@ -480,12 +500,8 @@ class CSymmetricMatrix
           CSymmetricMatrix<T>,
           boost::partially_ordered<
               CSymmetricMatrix<T>,
-              boost::addable<
-                  CSymmetricMatrix<T>,
-                  boost::subtractable<
-                      CSymmetricMatrix<T>,
-                      boost::multipliable<CSymmetricMatrix<T>,
-                                          boost::multipliable2<CSymmetricMatrix<T>, T, boost::dividable2<CSymmetricMatrix<T>, T>>>>>>>,
+              boost::addable<CSymmetricMatrix<T>,
+                             boost::subtractable<CSymmetricMatrix<T>, boost::multipliable<CSymmetricMatrix<T>, boost::multipliable2<CSymmetricMatrix<T>, T, boost::dividable2<CSymmetricMatrix<T>, T>>>>>>>,
       private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<std::vector<T>>;
@@ -516,7 +532,8 @@ public:
 
     //! Construct from a small vector of small vectors.
     template<std::size_t M>
-    explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m) : m_D(m.size()) {
+    explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m)
+        : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
         for (std::size_t i = 0u, i_ = 0u; i < m_D; ++i) {
             for (std::size_t j = 0u; j <= i; ++j, ++i_) {
@@ -588,10 +605,14 @@ public:
     std::size_t columns() const { return m_D; }
 
     //! Get the i,j 'th component (no bounds checking).
-    inline T operator()(std::size_t i, std::size_t j) const { return this->element(i, j); }
+    inline T operator()(std::size_t i, std::size_t j) const {
+        return this->element(i, j);
+    }
 
     //! Get the i,j 'th component (no bounds checking).
-    inline T& operator()(std::size_t i, std::size_t j) { return this->element(i, j); }
+    inline T& operator()(std::size_t i, std::size_t j) {
+        return this->element(i, j);
+    }
 
     //! Get an iterator over the elements.
     TConstIterator begin() const { return TBase::m_X.begin(); }
@@ -646,10 +667,14 @@ public:
     // supported.
 
     //! Check if two matrices are identically equal.
-    bool operator==(const CSymmetricMatrix& other) const { return this->equal(other.base()); }
+    bool operator==(const CSymmetricMatrix& other) const {
+        return this->equal(other.base());
+    }
 
     //! Lexicographical total ordering.
-    bool operator<(const CSymmetricMatrix& rhs) const { return this->less(rhs.base()); }
+    bool operator<(const CSymmetricMatrix& rhs) const {
+        return this->less(rhs.base());
+    }
 
     //! Check if this is zero.
     bool isZero() const { return this->TBase::isZero(); }
@@ -692,12 +717,16 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum() const { return core::CHashing::hashCombine(this->TBase::checksum(), static_cast<uint64_t>(m_D)); }
+    uint64_t checksum() const {
+        return core::CHashing::hashCombine(this->TBase::checksum(),
+                                           static_cast<uint64_t>(m_D));
+    }
 
 private:
     //! Compute the dimension from the number of elements.
     std::size_t dimension(std::size_t n) const {
-        return static_cast<std::size_t>((std::sqrt(8.0 * static_cast<double>(n) + 1.0) - 1.0) / 2.0 + 0.5);
+        return static_cast<std::size_t>(
+            (std::sqrt(8.0 * static_cast<double>(n) + 1.0) - 1.0) / 2.0 + 0.5);
     }
 
 private:
@@ -708,7 +737,9 @@ private:
 //! \brief Gets a zero symmetric matrix with specified dimension.
 template<typename T>
 struct SZero<CSymmetricMatrix<T>> {
-    static CSymmetricMatrix<T> get(std::size_t dimension) { return CSymmetricMatrix<T>(dimension, T(0)); }
+    static CSymmetricMatrix<T> get(std::size_t dimension) {
+        return CSymmetricMatrix<T>(dimension, T(0));
+    }
 };
 
 namespace linear_algebra_detail {
@@ -793,7 +824,8 @@ struct SVector {
 
     //! Check if this is zero.
     bool isZero() const {
-        return std::find_if(m_X.begin(), m_X.end(), [](double xi) { return xi != 0.0; }) == m_X.end();
+        return std::find_if(m_X.begin(), m_X.end(),
+                            [](double xi) { return xi != 0.0; }) == m_X.end();
     }
 
     //! Inner product.
@@ -880,13 +912,7 @@ class CVectorNx1
           boost::partially_ordered<
               CVectorNx1<T, N>,
               boost::addable<CVectorNx1<T, N>,
-                             boost::subtractable<
-                                 CVectorNx1<T, N>,
-                                 boost::multipliable<
-                                     CVectorNx1<T, N>,
-                                     boost::multipliable2<CVectorNx1<T, N>,
-                                                          T,
-                                                          boost::dividable<CVectorNx1<T, N>, boost::dividable2<CVectorNx1<T, N>, T>>>>>>>>,
+                             boost::subtractable<CVectorNx1<T, N>, boost::multipliable<CVectorNx1<T, N>, boost::multipliable2<CVectorNx1<T, N>, T, boost::dividable<CVectorNx1<T, N>, boost::dividable2<CVectorNx1<T, N>, T>>>>>>>>,
       private linear_algebra_detail::SVector<boost::array<T, N>>,
       private linear_algebra_detail::CBoundsCheck<N>::InRange {
 private:
@@ -902,7 +928,9 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+    static bool dynamicSizeAlwaysZero() {
+        return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
+    }
 
 public:
     //! Set to multiple of ones vector.
@@ -970,7 +998,9 @@ public:
     //! \name Persistence
     //@{
     //! Create from a delimited string.
-    bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
+    bool fromDelimited(const std::string& str) {
+        return this->TBase::fromDelimited(str);
+    }
 
     //! Convert to a delimited string.
     std::string toDelimited() const { return this->TBase::toDelimited(); }
@@ -1035,16 +1065,22 @@ public:
     }
 
     //! Check if two vectors are identically equal.
-    bool operator==(const CVectorNx1& other) const { return this->equal(other.base()); }
+    bool operator==(const CVectorNx1& other) const {
+        return this->equal(other.base());
+    }
 
     //! Lexicographical total ordering.
-    bool operator<(const CVectorNx1& rhs) const { return this->less(rhs.base()); }
+    bool operator<(const CVectorNx1& rhs) const {
+        return this->less(rhs.base());
+    }
 
     //! Check if this is zero.
     bool isZero() const { return this->TBase::isZero(); }
 
     //! Inner product.
-    double inner(const CVectorNx1& covector) const { return this->TBase::inner(covector.base()); }
+    double inner(const CVectorNx1& covector) const {
+        return this->TBase::inner(covector.base());
+    }
 
     //! Inner product.
     template<typename VECTOR>
@@ -1055,12 +1091,16 @@ public:
     //! Outer product.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrixNxN<T, N> outer() const { return CSymmetricMatrixNxN<T, N>(E_OuterProduct, *this); }
+    CSymmetricMatrixNxN<T, N> outer() const {
+        return CSymmetricMatrixNxN<T, N>(E_OuterProduct, *this);
+    }
 
     //! A diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrixNxN<T, N> diagonal() const { return CSymmetricMatrixNxN<T, N>(E_Diagonal, *this); }
+    CSymmetricMatrixNxN<T, N> diagonal() const {
+        return CSymmetricMatrixNxN<T, N>(E_Diagonal, *this);
+    }
 
     //! L1 norm.
     double L1() const { return this->TBase::L1(); }
@@ -1110,7 +1150,8 @@ public:
 
 //! Construct from the outer product of a vector with itself.
 template<typename T, std::size_t N>
-CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type, const CVectorNx1<T, N>& x) {
+CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
+                                               const CVectorNx1<T, N>& x) {
     switch (type) {
     case E_OuterProduct:
         for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
@@ -1132,7 +1173,9 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type, const 
 //! \brief Gets a zero vector with specified dimension.
 template<typename T, std::size_t N>
 struct SZero<CVectorNx1<T, N>> {
-    static CVectorNx1<T, N> get(std::size_t /*dimension*/) { return CVectorNx1<T, N>(T(0)); }
+    static CVectorNx1<T, N> get(std::size_t /*dimension*/) {
+        return CVectorNx1<T, N>(T(0));
+    }
 };
 
 // ************************ HEAP VECTOR ************************
@@ -1163,13 +1206,7 @@ class CVector
           CVector<T>,
           boost::partially_ordered<
               CVector<T>,
-              boost::addable<
-                  CVector<T>,
-                  boost::subtractable<
-                      CVector<T>,
-                      boost::multipliable<
-                          CVector<T>,
-                          boost::multipliable2<CVector<T>, T, boost::dividable<CVector<T>, boost::dividable2<CVector<T>, T>>>>>>>>,
+              boost::addable<CVector<T>, boost::subtractable<CVector<T>, boost::multipliable<CVector<T>, boost::multipliable2<CVector<T>, T, boost::dividable<CVector<T>, boost::dividable2<CVector<T>, T>>>>>>>>,
       private linear_algebra_detail::SVector<std::vector<T>> {
 private:
     using TBase = linear_algebra_detail::SVector<std::vector<T>>;
@@ -1200,7 +1237,9 @@ public:
     explicit CVector(const TArray& v) { TBase::m_X = v; }
 
     //! Construct from a vector.
-    explicit CVector(const core::CSmallVectorBase<T>& v) { TBase::m_X.assign(v.begin(), v.end()); }
+    explicit CVector(const core::CSmallVectorBase<T>& v) {
+        TBase::m_X.assign(v.begin(), v.end());
+    }
 
     //! Construct from the range [\p begin, \p end).
     template<typename ITR>
@@ -1241,7 +1280,9 @@ public:
 
     //! Extend the vector to dimension \p d adding components
     //! initialized to \p v.
-    void extend(std::size_t d, T v = T(0)) { TBase::m_X.resize(this->dimension() + d, v); }
+    void extend(std::size_t d, T v = T(0)) {
+        TBase::m_X.resize(this->dimension() + d, v);
+    }
 
     //! Extend the vector adding components initialized to \p v.
     template<typename ITR>
@@ -1252,7 +1293,9 @@ public:
     //! \name Persistence
     //@{
     //! Create from a delimited string.
-    bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
+    bool fromDelimited(const std::string& str) {
+        return this->TBase::fromDelimited(str);
+    }
 
     //! Persist state to delimited values.
     std::string toDelimited() const { return this->TBase::toDelimited(); }
@@ -1317,7 +1360,9 @@ public:
     }
 
     //! Check if two vectors are identically equal.
-    bool operator==(const CVector& other) const { return this->equal(other.base()); }
+    bool operator==(const CVector& other) const {
+        return this->equal(other.base());
+    }
 
     //! Lexicographical total ordering.
     bool operator<(const CVector& rhs) const { return this->less(rhs.base()); }
@@ -1326,7 +1371,9 @@ public:
     bool isZero() const { return this->TBase::isZero(); }
 
     //! Inner product.
-    double inner(const CVector& covector) const { return this->TBase::inner(covector.base()); }
+    double inner(const CVector& covector) const {
+        return this->TBase::inner(covector.base());
+    }
 
     //! Inner product.
     template<typename VECTOR>
@@ -1337,12 +1384,16 @@ public:
     //! Outer product.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrix<T> outer() const { return CSymmetricMatrix<T>(E_OuterProduct, *this); }
+    CSymmetricMatrix<T> outer() const {
+        return CSymmetricMatrix<T>(E_OuterProduct, *this);
+    }
 
     //! A diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrix<T> diagonal() const { return CSymmetricMatrix<T>(E_Diagonal, *this); }
+    CSymmetricMatrix<T> diagonal() const {
+        return CSymmetricMatrix<T>(E_Diagonal, *this);
+    }
 
     //! L1 norm.
     double L1() const { return this->TBase::L1(); }
@@ -1413,7 +1464,9 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
 //! \brief Gets a zero vector with specified dimension.
 template<typename T>
 struct SZero<CVector<T>> {
-    static CVector<T> get(std::size_t dimension) { return CVector<T>(dimension, T(0)); }
+    static CVector<T> get(std::size_t dimension) {
+        return CVector<T>(dimension, T(0));
+    }
 };
 
 // ************************ FREE FUNCTIONS ************************

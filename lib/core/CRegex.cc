@@ -86,10 +86,13 @@ bool CRegex::init(const std::string& regex) {
         m_Regex = boost::regex(regex.c_str());
     } catch (boost::regex_error& e) {
         if (static_cast<size_t>(e.position()) <= regex.size()) {
-            LOG_ERROR(<< "Unable to compile regex: '" << regex << "' '" << regex.substr(0, e.position()) << "' '"
-                      << regex.substr(e.position()) << "': " << ::translateErrorCode(e.code()));
+            LOG_ERROR(<< "Unable to compile regex: '" << regex << "' '"
+                      << regex.substr(0, e.position()) << "' '"
+                      << regex.substr(e.position())
+                      << "': " << ::translateErrorCode(e.code()));
         } else {
-            LOG_ERROR(<< "Unable to compile regex: '" << regex << "': " << ::translateErrorCode(e.code()));
+            LOG_ERROR(<< "Unable to compile regex: '" << regex
+                      << "': " << ::translateErrorCode(e.code()));
         }
         return false;
     } catch (std::exception& e) {
@@ -120,7 +123,8 @@ bool CRegex::tokenise(const std::string& str, CRegex::TStrVec& tokens) const {
             tokens.push_back(std::string(matches[i].first, matches[i].second));
         }
     } catch (boost::regex_error& e) {
-        LOG_ERROR(<< "Unable to tokenise using regex: '" << str << "': " << ::translateErrorCode(e.code()));
+        LOG_ERROR(<< "Unable to tokenise using regex: '" << str
+                  << "': " << ::translateErrorCode(e.code()));
         return false;
     } catch (std::exception& e) {
         LOG_ERROR(<< "Unable to tokenise using regex: " << e.what());
@@ -146,7 +150,8 @@ bool CRegex::split(const std::string& str, CRegex::TStrVec& tokens) const {
             tokens.push_back(*i++);
         }
     } catch (boost::regex_error& e) {
-        LOG_ERROR(<< "Unable to tokenise using regex: '" << str << "': " << ::translateErrorCode(e.code()));
+        LOG_ERROR(<< "Unable to tokenise using regex: '" << str
+                  << "': " << ::translateErrorCode(e.code()));
         return false;
     } catch (std::exception& e) {
         LOG_ERROR(<< "Unable to tokenise using regex: " << e.what());
@@ -168,7 +173,8 @@ bool CRegex::matches(const std::string& str) const {
             return false;
         }
     } catch (boost::regex_error& e) {
-        LOG_ERROR(<< "Unable to match using regex: '" << str << "': " << ::translateErrorCode(e.code()));
+        LOG_ERROR(<< "Unable to match using regex: '" << str
+                  << "': " << ::translateErrorCode(e.code()));
         return false;
     } catch (std::exception& e) {
         LOG_ERROR(<< "Unable to match using regex: " << e.what());
@@ -190,14 +196,16 @@ bool CRegex::search(size_t startPos, const std::string& str, size_t& position, s
 
     try {
         boost::smatch matches;
-        if (boost::regex_search(str.begin() + startPos, str.begin() + str.length(), matches, m_Regex) == false) {
+        if (boost::regex_search(str.begin() + startPos, str.begin() + str.length(),
+                                matches, m_Regex) == false) {
             return false;
         }
 
         position = matches[0].first - str.begin();
         length = matches[0].second - matches[0].first;
     } catch (boost::regex_error& e) {
-        LOG_ERROR(<< "Unable to search using regex: '" << str << "': " << ::translateErrorCode(e.code()));
+        LOG_ERROR(<< "Unable to search using regex: '" << str
+                  << "': " << ::translateErrorCode(e.code()));
         return false;
     } catch (std::exception& e) {
         LOG_ERROR(<< "Unable to match using regex: " << e.what());
@@ -273,11 +281,13 @@ size_t CRegex::literalCount() const {
                 return count;
             }
             thisChar = *iter;
-            if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' && thisChar != 'D' && thisChar != 'S' && thisChar != 'W' &&
+            if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' &&
+                thisChar != 'D' && thisChar != 'S' && thisChar != 'W' &&
                 (thisChar < '0' || thisChar > '9')) {
                 if (squareBracketCount == 0 && braceCount == 0) {
                     std::string::iterator nextIter(iter + 1);
-                    if (nextIter == regexStr.end() || (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
+                    if (nextIter == regexStr.end() ||
+                        (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
                         if (inSubMatch) {
                             ++subCount;
                         } else {
@@ -331,7 +341,8 @@ size_t CRegex::literalCount() const {
         default:
             if (squareBracketCount == 0 && braceCount == 0) {
                 std::string::iterator nextIter(iter + 1);
-                if (nextIter == regexStr.end() || (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
+                if (nextIter == regexStr.end() ||
+                    (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
                     if (inSubMatch) {
                         ++subCount;
                     } else {

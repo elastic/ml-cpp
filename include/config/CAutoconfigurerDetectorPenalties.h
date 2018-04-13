@@ -36,14 +36,16 @@ public:
     using TPenaltyPtr = boost::shared_ptr<CPenalty>;
 
 public:
-    CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams& params, const CAutoconfigurerFieldRolePenalties& fieldRolePenalties);
+    CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams& params,
+                                     const CAutoconfigurerFieldRolePenalties& fieldRolePenalties);
 
     //! Get the penalty for the detector \p spec.
     TPenaltyPtr penaltyFor(const CDetectorSpecification& spec);
 
 private:
     using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
-    using TAutoconfigurerFieldRolePenaltiesCRef = boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties>;
+    using TAutoconfigurerFieldRolePenaltiesCRef =
+        boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties>;
     using TPenaltyPtrVec = std::vector<TPenaltyPtr>;
 
 private:

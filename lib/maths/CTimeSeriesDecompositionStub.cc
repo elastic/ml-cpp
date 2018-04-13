@@ -39,7 +39,9 @@ bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
     return false;
 }
 
-bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/, double /*value*/, const SChangeDescription& /*change*/) {
+bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
+                                               double /*value*/,
+                                               const SChangeDescription& /*change*/) {
     return false;
 }
 
@@ -50,8 +52,10 @@ double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
-CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/, double /*confidence*/, int /*components*/, bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
+                                                             double /*confidence*/,
+                                                             int /*components*/,
+                                                             bool /*smooth*/) const {
     return {0.0, 0.0};
 }
 
@@ -63,7 +67,10 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
                                             const TWriteForecastResult& /*writer*/) {
 }
 
-double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/, double value, double /*confidence*/, int /*components*/) const {
+double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
+                                             double value,
+                                             double /*confidence*/,
+                                             int /*components*/) const {
     return value;
 }
 
@@ -71,8 +78,10 @@ double CTimeSeriesDecompositionStub::meanVariance() const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
-CTimeSeriesDecompositionStub::scale(core_t::TTime /*time*/, double /*variance*/, double /*confidence*/, bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*time*/,
+                                                             double /*variance*/,
+                                                             double /*confidence*/,
+                                                             bool /*smooth*/) const {
     return {1.0, 1.0};
 }
 

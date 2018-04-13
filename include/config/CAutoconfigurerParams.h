@@ -56,7 +56,10 @@ public:
     using TFunctionCategoryVec = std::vector<config_t::EFunctionCategory>;
 
 public:
-    CAutoconfigurerParams(const std::string& timeFieldName, const std::string& timeFieldFormat, bool verbose, bool writeDetectorConfigs);
+    CAutoconfigurerParams(const std::string& timeFieldName,
+                          const std::string& timeFieldFormat,
+                          bool verbose,
+                          bool writeDetectorConfigs);
 
     //! Initialize from the specified file.
     bool init(const std::string& file);
@@ -169,19 +172,23 @@ public:
 
     //! A fraction of populated buckets that is considered small for \p function
     //! and \p ignoreEmpty so that smaller proportions will be penalized.
-    double lowPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
+    double lowPopulatedBucketFraction(config_t::EFunctionCategory function,
+                                      bool ignoreEmpty) const;
 
     //! The smallest permitted fraction of populated buckets for \p function and
     //! \p ignoreEmpty.
-    double minimumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
+    double minimumPopulatedBucketFraction(config_t::EFunctionCategory function,
+                                          bool ignoreEmpty) const;
 
     //! A fraction of populated buckets that is considered high for \p function
     //! and \p ignoreEmpty so that higher fractions will be penalized.
-    double highPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
+    double highPopulatedBucketFraction(config_t::EFunctionCategory function,
+                                       bool ignoreEmpty) const;
 
     //! The maximum permitted fraction of populated buckets for \p function and
     //! \p ignoreEmpty.
-    double maximumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
+    double maximumPopulatedBucketFraction(config_t::EFunctionCategory function,
+                                          bool ignoreEmpty) const;
 
     //! Get the candidate bucket lengths to test for each detector.
     const TTimeVec& candidateBucketLengths() const;

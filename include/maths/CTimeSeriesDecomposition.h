@@ -48,7 +48,8 @@ struct STimeSeriesDecompositionRestoreParams;
 //!
 //! By default this assumes the data has one day and one week
 //! periodicity, i.e. \f${ T_i } = { 86400, 604800 }\f$.
-class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface, private CTimeSeriesDecompositionDetail {
+class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface,
+                                              private CTimeSeriesDecompositionDetail {
 public:
     using TSizeVec = std::vector<std::size_t>;
 
@@ -62,10 +63,12 @@ public:
                                       std::size_t seasonalComponentSize = DECOMPOSITION_COMPONENT_SIZE);
 
     //! Construct from part of a state document.
-    CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams& params,
+                             core::CStateRestoreTraverser& traverser);
 
     //! Deep copy.
-    CTimeSeriesDecomposition(const CTimeSeriesDecomposition& other, bool isForForecast = false);
+    CTimeSeriesDecomposition(const CTimeSeriesDecomposition& other,
+                             bool isForForecast = false);
 
     //! An efficient swap of the state of this and \p other.
     void swap(CTimeSeriesDecomposition& other);
@@ -129,7 +132,10 @@ public:
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
-    virtual maths_t::TDoubleDoublePr value(core_t::TTime time, double confidence = 0.0, int components = E_All, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                           double confidence = 0.0,
+                                           int components = E_All,
+                                           bool smooth = true) const;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!
@@ -148,7 +154,8 @@ public:
 
     //! Detrend \p value from the time series being modeled by removing
     //! any trend and periodic component at \p time.
-    virtual double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
+    virtual double
+    detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
 
     //! Get the mean variance of the baseline.
     virtual double meanVariance() const;
@@ -160,7 +167,8 @@ public:
     //! to scale.
     //! \param[in] confidence The symmetric confidence interval
     //! for the variance scale as a percentage.
-    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr
+    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);
@@ -195,7 +203,8 @@ private:
     void initializeMediator();
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! The correction to produce a smooth join between periodic
     //! repeats and partitions.

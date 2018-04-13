@@ -22,29 +22,50 @@
 CppUnit::Test* CXmlParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1File", &CXmlParserTest::testParse1File));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1String", &CXmlParserTest::testParse1String));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse2", &CXmlParserTest::testParse2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testNavigate", &CXmlParserTest::testNavigate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseXInclude", &CXmlParserTest::testParseXInclude));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse3", &CXmlParserTest::testParse3));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse4", &CXmlParserTest::testParse4));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse5", &CXmlParserTest::testParse5));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse6", &CXmlParserTest::testParse6));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert1", &CXmlParserTest::testConvert1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert2", &CXmlParserTest::testConvert2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert3", &CXmlParserTest::testConvert3));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert4", &CXmlParserTest::testConvert4));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testAddNewChildNode", &CXmlParserTest::testAddNewChildNode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testSetRootNode", &CXmlParserTest::testSetRootNode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testDump", &CXmlParserTest::testDump));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testMakeValidName", &CXmlParserTest::testMakeValidName));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testChangeChild", &CXmlParserTest::testChangeChild));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testHugeDoc", &CXmlParserTest::testHugeDoc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseSpeed", &CXmlParserTest::testParseSpeed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvertSpeed", &CXmlParserTest::testConvertSpeed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testComplexXPath", &CXmlParserTest::testComplexXPath));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse1File", &CXmlParserTest::testParse1File));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse1String", &CXmlParserTest::testParse1String));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse2", &CXmlParserTest::testParse2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testNavigate", &CXmlParserTest::testNavigate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParseXInclude", &CXmlParserTest::testParseXInclude));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse3", &CXmlParserTest::testParse3));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse4", &CXmlParserTest::testParse4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse5", &CXmlParserTest::testParse5));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParse6", &CXmlParserTest::testParse6));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testConvert1", &CXmlParserTest::testConvert1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testConvert2", &CXmlParserTest::testConvert2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testConvert3", &CXmlParserTest::testConvert3));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testConvert4", &CXmlParserTest::testConvert4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testAddNewChildNode", &CXmlParserTest::testAddNewChildNode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testSetRootNode", &CXmlParserTest::testSetRootNode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testDump", &CXmlParserTest::testDump));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testMakeValidName", &CXmlParserTest::testMakeValidName));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testChangeChild", &CXmlParserTest::testChangeChild));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testHugeDoc", &CXmlParserTest::testHugeDoc));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testParseSpeed", &CXmlParserTest::testParseSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testConvertSpeed", &CXmlParserTest::testConvertSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>(
+        "CXmlParserTest::testComplexXPath", &CXmlParserTest::testComplexXPath));
 
     return suiteOfTests;
 }
@@ -83,7 +104,8 @@ void CXmlParserTest::testParse2() {
     CPPUNIT_ASSERT(parser.evalXPathExpression("//badpath", nodes));
     CPPUNIT_ASSERT(nodes.empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression/description", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression/description", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("description"), nodes[0].name());
@@ -94,7 +116,8 @@ void CXmlParserTest::testParse2() {
     CPPUNIT_ASSERT_EQUAL(std::string("Transport read error"), nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("token"), nodes[0].name());
@@ -105,7 +128,8 @@ void CXmlParserTest::testParse2() {
     CPPUNIT_ASSERT_EQUAL(std::string("source"), nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[0].name());
@@ -115,7 +139,8 @@ void CXmlParserTest::testParse2() {
     CPPUNIT_ASSERT(this->testAttribute(nodes[0], "local", "BZ"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[1].name());
-    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), nodes[1].value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
@@ -167,7 +192,8 @@ void CXmlParserTest::testParseXInclude() {
     CPPUNIT_ASSERT(parser.evalXPathExpression("//badpath", nodes));
     CPPUNIT_ASSERT(nodes.empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression/description", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression/description", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("description"), nodes[0].name());
@@ -178,7 +204,8 @@ void CXmlParserTest::testParseXInclude() {
     CPPUNIT_ASSERT_EQUAL(std::string("Transport read error"), nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("token"), nodes[0].name());
@@ -189,7 +216,8 @@ void CXmlParserTest::testParseXInclude() {
     CPPUNIT_ASSERT_EQUAL(std::string("source"), nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
     CPPUNIT_ASSERT_EQUAL(size_t(2), nodes.size());
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[0].name());
@@ -199,7 +227,8 @@ void CXmlParserTest::testParseXInclude() {
     CPPUNIT_ASSERT(this->testAttribute(nodes[0], "local", "BZ"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[1].name());
-    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), nodes[1].value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
@@ -212,10 +241,12 @@ void CXmlParserTest::testParse3() {
 
     ml::core::CXmlParser::TXmlNodeVec arguments;
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/Arguments/Argument", arguments));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/Arguments/Argument", arguments));
     CPPUNIT_ASSERT_EQUAL(size_t(7), arguments.size());
 
-    for (ml::core::CXmlParser::TXmlNodeVecItr itr = arguments.begin(); itr != arguments.end(); ++itr) {
+    for (ml::core::CXmlParser::TXmlNodeVecItr itr = arguments.begin();
+         itr != arguments.end(); ++itr) {
         if (itr->value() == "Service") {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "AWSECommerceService"));
         } else if (itr->value() == "AssociateTag") {
@@ -250,10 +281,12 @@ void CXmlParserTest::testParse4() {
     CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
     CPPUNIT_ASSERT(valid);
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsNotValid", valid));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/IsNotValid", valid));
     CPPUNIT_ASSERT(!valid);
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsNotValidNo", valid));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/IsNotValidNo", valid));
     CPPUNIT_ASSERT(!valid);
 
     int i;
@@ -262,8 +295,10 @@ void CXmlParserTest::testParse4() {
 
     // Invalid conversions
     CPPUNIT_ASSERT(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", i));
-    CPPUNIT_ASSERT(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/ItemSearchRequest", i));
-    CPPUNIT_ASSERT(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/ItemSearchRequest/Author", i));
+    CPPUNIT_ASSERT(!parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/ItemSearchRequest", i));
+    CPPUNIT_ASSERT(!parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/ItemSearchRequest/Author", i));
 }
 
 void CXmlParserTest::testParse5() {
@@ -454,7 +489,8 @@ void CXmlParserTest::testConvert3() {
 void CXmlParserTest::testConvert4() {
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        CRapidXmlParserTest::makeTestNodeHierarchy());
 
     std::string converted;
     ml::core::CXmlParser::convert(*root, converted);
@@ -474,7 +510,8 @@ void CXmlParserTest::testConvert4() {
     CPPUNIT_ASSERT(converted.find("</child>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<child ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("&amp; ") != std::string::npos);
-    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos || converted.find("<empty></empty>") != std::string::npos);
+    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos ||
+                   converted.find("<empty></empty>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<dual ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("first") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("second") != std::string::npos);
@@ -574,21 +611,25 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
 
     CPPUNIT_ASSERT(!parser.evalXPathExpression("//badpath", node));
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     CPPUNIT_ASSERT_EQUAL(std::string("Value"), node.name());
     CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
                                      ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
                          node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/RequestId", node));
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/RequestId", value));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestId", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestId", value));
     CPPUNIT_ASSERT_EQUAL(std::string("RequestId"), node.name());
     CPPUNIT_ASSERT_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), node.value());
     CPPUNIT_ASSERT_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), value);
     CPPUNIT_ASSERT(node.attributes().empty());
 
-    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/RequestProcessingTime", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestProcessingTime", node));
     CPPUNIT_ASSERT_EQUAL(std::string("RequestProcessingTime"), node.name());
     CPPUNIT_ASSERT_EQUAL(std::string("1.05041599273682"), node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
@@ -604,7 +645,9 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
     CPPUNIT_ASSERT_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
 }
 
-bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected) {
+bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
+                                   const std::string& key,
+                                   const std::string& expected) {
     std::string actual;
     if (node.attribute(key, actual) == false) {
         return false;
@@ -622,8 +665,10 @@ void CXmlParserTest::testMakeValidName() {
     CPPUNIT_ASSERT_EQUAL(std::string("name"), ml::core::CXmlParser::makeValidName("name"));
     CPPUNIT_ASSERT_EQUAL(std::string("name1"), ml::core::CXmlParser::makeValidName("name1"));
     CPPUNIT_ASSERT_EQUAL(std::string("_name"), ml::core::CXmlParser::makeValidName("1name"));
-    CPPUNIT_ASSERT_EQUAL(std::string("name_2"), ml::core::CXmlParser::makeValidName("name/2"));
-    CPPUNIT_ASSERT_EQUAL(std::string("_name_"), ml::core::CXmlParser::makeValidName("_name_"));
+    CPPUNIT_ASSERT_EQUAL(std::string("name_2"),
+                         ml::core::CXmlParser::makeValidName("name/2"));
+    CPPUNIT_ASSERT_EQUAL(std::string("_name_"),
+                         ml::core::CXmlParser::makeValidName("_name_"));
     CPPUNIT_ASSERT_EQUAL(std::string("__cencl01b_System_System_Calls_sec"),
                          ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
 }
@@ -718,7 +763,8 @@ void CXmlParserTest::testHugeDoc() {
 
     CPPUNIT_ASSERT_EQUAL(NUM_NODES, valueSet.size());
 
-    LOG_INFO(<< "Applying an XPath to a node set with " << NUM_NODES << " nodes took " << (end - start) << " seconds");
+    LOG_INFO(<< "Applying an XPath to a node set with " << NUM_NODES
+             << " nodes took " << (end - start) << " seconds");
 
     ::remove(fileName.c_str());
 }
@@ -729,7 +775,8 @@ void CXmlParserTest::testParseSpeed() {
     std::string testString(CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting parse speed test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlNodeWithChildrenPool nodePool;
 
@@ -756,10 +803,12 @@ void CXmlParserTest::testConvertSpeed() {
 
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        CRapidXmlParserTest::makeTestNodeHierarchy());
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting convert speed test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::string converted;
@@ -767,7 +816,8 @@ void CXmlParserTest::testConvertSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished convert speed test at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO(<< "Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
@@ -780,7 +830,7 @@ void CXmlParserTest::testComplexXPath() {
 
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
-    CPPUNIT_ASSERT(
-        parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']", disabled));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']",
+                                              disabled));
     CPPUNIT_ASSERT_EQUAL(true, disabled);
 }

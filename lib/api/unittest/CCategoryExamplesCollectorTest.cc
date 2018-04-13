@@ -109,37 +109,43 @@ void CCategoryExamplesCollectorTest::testTruncation() {
         // All single byte characters
         std::string example = baseExample + "bbbbbb";
         examplesCollector.add(1, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + "bb" + ellipsis, *examplesCollector.examples(1).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + "bb" + ellipsis,
+                             *examplesCollector.examples(1).begin());
     }
     {
         // Two byte character crosses truncation boundary
         std::string example = baseExample + "bébbb";
         examplesCollector.add(2, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + "b" + ellipsis, *examplesCollector.examples(2).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + "b" + ellipsis,
+                             *examplesCollector.examples(2).begin());
     }
     {
         // Two byte characters either side of truncation boundary
         std::string example = baseExample + "éébbb";
         examplesCollector.add(3, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + "é" + ellipsis, *examplesCollector.examples(3).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + "é" + ellipsis,
+                             *examplesCollector.examples(3).begin());
     }
     {
         // Two byte character before truncation boundary, single byte immediately after
         std::string example = baseExample + "ébbbb";
         examplesCollector.add(4, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + "é" + ellipsis, *examplesCollector.examples(4).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + "é" + ellipsis,
+                             *examplesCollector.examples(4).begin());
     }
     {
         // Three byte character crosses truncation boundary with start character before
         std::string example = baseExample + "b中bbb";
         examplesCollector.add(5, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + "b" + ellipsis, *examplesCollector.examples(5).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + "b" + ellipsis,
+                             *examplesCollector.examples(5).begin());
     }
     {
         // Three byte character crosses truncation boundary with continuation character before
         std::string example = baseExample + "中bbb";
         examplesCollector.add(6, example);
-        CPPUNIT_ASSERT_EQUAL(baseExample + ellipsis, *examplesCollector.examples(6).begin());
+        CPPUNIT_ASSERT_EQUAL(baseExample + ellipsis,
+                             *examplesCollector.examples(6).begin());
     }
 }
 
@@ -147,22 +153,26 @@ CppUnit::Test* CCategoryExamplesCollectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero", &CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero));
+        "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero",
+        &CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice",
         &CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory",
         &CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
-                                                                &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testExamples",
-                                                                                  &CCategoryExamplesCollectorTest::testExamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testPersist",
-                                                                                  &CCategoryExamplesCollectorTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testTruncation",
-                                                                                  &CCategoryExamplesCollectorTest::testTruncation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
+        &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testExamples",
+        &CCategoryExamplesCollectorTest::testExamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testPersist",
+        &CCategoryExamplesCollectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testTruncation",
+        &CCategoryExamplesCollectorTest::testTruncation));
 
     return suiteOfTests;
 }

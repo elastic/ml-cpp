@@ -14,7 +14,8 @@
 CppUnit::Test* CStopWatchTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>("CStopWatchTest::testStopWatch", &CStopWatchTest::testStopWatch));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>(
+        "CStopWatchTest::testStopWatch", &CStopWatchTest::testStopWatch));
 
     return suiteOfTests;
 }
@@ -40,7 +41,8 @@ void CStopWatchTest::testStopWatch() {
 
     elapsed = stopWatch.stop();
 
-    LOG_DEBUG(<< "After a further 3.5 second wait, the stop watch reads " << elapsed << " milliseconds");
+    LOG_DEBUG(<< "After a further 3.5 second wait, the stop watch reads "
+              << elapsed << " milliseconds");
 
     // Elapsed time should be between 8.9 and 9.1 seconds
     CPPUNIT_ASSERT(elapsed >= 8900);

@@ -67,7 +67,8 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //!  Check if the trend has been estimated.
     bool initialized() const;

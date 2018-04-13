@@ -27,7 +27,9 @@ template<typename POINT>
 class CBoundingBox {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value(); }
+    static bool dynamicSizeAlwaysZero() {
+        return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
+    }
     using TPointPrecise = typename SFloatingPoint<POINT, double>::Type;
 
 public:

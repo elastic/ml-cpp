@@ -31,14 +31,16 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
                                      Container& samples) {
     samples.clear();
     samples.reserve(numberSamples);
-    std::generate_n(std::back_inserter(samples), numberSamples, boost::bind(distribution, boost::ref(randomNumberGenerator)));
+    std::generate_n(std::back_inserter(samples), numberSamples,
+                    boost::bind(distribution, boost::ref(randomNumberGenerator)));
 }
 
 template<typename T, std::size_t N>
-void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
-                                                       std::vector<maths::CVectorNx1<T, N>>& means,
-                                                       std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-                                                       std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
+void CRandomNumbers::generateRandomMultivariateNormals(
+    const TSizeVec& sizes,
+    std::vector<maths::CVectorNx1<T, N>>& means,
+    std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
+    std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
     means.clear();
     covariances.clear();
     points.clear();
@@ -65,7 +67,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
         TSizeVec coordinates;
         this->generateUniformSamples(0, N, 4, coordinates);
         std::sort(coordinates.begin(), coordinates.end());
-        coordinates.erase(std::unique(coordinates.begin(), coordinates.end()), coordinates.end());
+        coordinates.erase(std::unique(coordinates.begin(), coordinates.end()),
+                          coordinates.end());
 
         TDoubleVec thetas;
         this->generateUniformSamples(0.0, boost::math::constants::two_pi<double>(), 2, thetas);
@@ -93,7 +96,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
         LOG_TRACE(<< "mean = " << means[i]);
         LOG_TRACE(<< "covariance = " << covariances[i]);
         this->generateMultivariateNormalSamples(
-            means[i].template toVector<TDoubleVec>(), covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
+            means[i].template toVector<TDoubleVec>(),
+            covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
         for (std::size_t j = 0u; j < pointsi.size(); ++j) {
             points[i].emplace_back(pointsi[j]);
         }

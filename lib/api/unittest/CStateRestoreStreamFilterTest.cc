@@ -17,10 +17,11 @@ CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval", &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateRestoreStreamFilterTest>("CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
-                                                               &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
+        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
+        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
+        "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
+        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
 
     return suiteOfTests;
 }
@@ -32,7 +33,8 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
     boost::iostreams::filtering_istream in;
     in.push(ml::api::CStateRestoreStreamFilter());
     in.push(input);
-    std::string output(std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{});
+    std::string output(std::istreambuf_iterator<char>{in},
+                       std::istreambuf_iterator<char>{});
 
     std::string expected("{\"_id\":\"some_id\",\"_version\":1,\"found\":true,\"_source\":"
                          "{\"compressed\" : [ \"a\",\"b\"]}}");
@@ -58,7 +60,8 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
     boost::iostreams::filtering_istream in;
     in.push(ml::api::CStateRestoreStreamFilter());
     in.push(input);
-    std::string output(std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{});
+    std::string output(std::istreambuf_iterator<char>{in},
+                       std::istreambuf_iterator<char>{});
 
     std::string expected("{\"_id\":\"some_id\",\"_version\":1,\"found\":true,\"_source\":"
                          "{\"compressed\" : [ \"a\",\"b\"]}}");

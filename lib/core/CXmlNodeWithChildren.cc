@@ -15,17 +15,22 @@ namespace core {
 CXmlNodeWithChildren::CXmlNodeWithChildren() : CXmlNode() {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name)
+    : CXmlNode(name) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value) : CXmlNode(name, value) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value)
+    : CXmlNode(name, value) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value, const CXmlNode::TStrStrMap& attributes)
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name,
+                                           const std::string& value,
+                                           const CXmlNode::TStrStrMap& attributes)
     : CXmlNode(name, value, attributes) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg) : CXmlNode(arg), m_Children(arg.m_Children) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg)
+    : CXmlNode(arg), m_Children(arg.m_Children) {
 }
 
 CXmlNodeWithChildren::~CXmlNodeWithChildren() {
@@ -70,7 +75,8 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const {
     strRep += core_t::LINE_ENDING;
 
     // Now add children at next level of indenting
-    for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end(); ++childIter) {
+    for (TChildNodePVecCItr childIter = m_Children.begin();
+         childIter != m_Children.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
         if (child != nullptr) {
             strRep += child->dump(indent + 1);

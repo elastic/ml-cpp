@@ -39,8 +39,10 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
     if (handle == INVALID_HANDLE_VALUE) {
         return TIStreamP();
     }
-    using TFileDescriptorSourceStream = boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
-    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
+    using TFileDescriptorSourceStream =
+        boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
+    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(
+        handle, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
@@ -48,8 +50,10 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
     if (handle == INVALID_HANDLE_VALUE) {
         return TOStreamP();
     }
-    using TFileDescriptorSinkStream = boost::iostreams::stream<boost::iostreams::file_descriptor_sink>;
-    return TOStreamP(new TFileDescriptorSinkStream(boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
+    using TFileDescriptorSinkStream =
+        boost::iostreams::stream<boost::iostreams::file_descriptor_sink>;
+    return TOStreamP(new TFileDescriptorSinkStream(
+        boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
@@ -57,7 +61,8 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string&
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY), "rb"), safeFClose);
+    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY), "rb"),
+                  safeFClose);
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
@@ -65,18 +70,21 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0), "wb"), safeFClose);
+    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0), "wb"),
+                  safeFClose);
 }
 
 bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
-    return fileName.length() > PIPE_PREFIX.length() && fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
+    return fileName.length() > PIPE_PREFIX.length() &&
+           fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
 }
 
 std::string CNamedPipeFactory::defaultPath() {
     return PIPE_PREFIX;
 }
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
+CNamedPipeFactory::TPipeHandle
+CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     // Size of named pipe buffer
     static const DWORD BUFFER_SIZE(4096);
 
@@ -87,11 +95,8 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                                   // the Java security manager problem
                                   forWrite ? PIPE_ACCESS_OUTBOUND : PIPE_ACCESS_DUPLEX,
                                   PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-                                  1,
-                                  forWrite ? BUFFER_SIZE : 1,
-                                  forWrite ? 1 : BUFFER_SIZE,
-                                  NMPWAIT_USE_DEFAULT_WAIT,
-                                  0));
+                                  1, forWrite ? BUFFER_SIZE : 1, forWrite ? 1 : BUFFER_SIZE,
+                                  NMPWAIT_USE_DEFAULT_WAIT, 0));
     if (handle == INVALID_HANDLE_VALUE) {
         LOG_ERROR(<< "Unable to create named pipe " << fileName << ": " << CWindowsError());
         return INVALID_HANDLE_VALUE;
@@ -130,7 +135,8 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
             // there was no need to connect it again - not a problem
             DWORD errCode(GetLastError());
             if (errCode != ERROR_PIPE_CONNECTED) {
-                LOG_ERROR(<< "Unable to connect named pipe " << fileName << ": " << CWindowsError(errCode));
+                LOG_ERROR(<< "Unable to connect named pipe " << fileName << ": "
+                          << CWindowsError(errCode));
                 // Close the pipe (even though it was successfully opened) so
                 // that the net effect of this failed call is nothing
                 CloseHandle(handle);
@@ -145,7 +151,8 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
         // relies on the Java side of all connections tolerating an initial
         // blank line)
         DWORD bytesWritten(0);
-        if (WriteFile(handle, &TEST_CHAR, sizeof(TEST_CHAR), &bytesWritten, 0) == FALSE || bytesWritten == 0) {
+        if (WriteFile(handle, &TEST_CHAR, sizeof(TEST_CHAR), &bytesWritten, 0) == FALSE ||
+            bytesWritten == 0) {
             DisconnectNamedPipe(handle);
             sufferedShortLivedConnection = true;
         } else {

@@ -236,25 +236,23 @@ public:
     //! correlated 'by' fields be performed?
     //! \param[in] multipleBucketLengths If specified, set multiple bucket
     //! lengths to be analysed (CSV string of time values)
-    static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
-                                                     model_t::ESummaryMode summaryMode,
-                                                     const std::string& summaryCountFieldName,
-                                                     core_t::TTime latency,
-                                                     std::size_t bucketResultsDelay,
-                                                     bool multivariateByFields,
-                                                     const std::string& multipleBucketLengths);
+    static CAnomalyDetectorModelConfig
+    defaultConfig(core_t::TTime bucketLength,
+                  model_t::ESummaryMode summaryMode,
+                  const std::string& summaryCountFieldName,
+                  core_t::TTime latency,
+                  std::size_t bucketResultsDelay,
+                  bool multivariateByFields,
+                  const std::string& multipleBucketLengths);
 
     //! Overload using defaults.
-    static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
-                                                     model_t::ESummaryMode summaryMode = model_t::E_None,
-                                                     const std::string& summaryCountFieldName = "") {
-        return defaultConfig(bucketLength,
-                             summaryMode,
-                             summaryCountFieldName,
+    static CAnomalyDetectorModelConfig
+    defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
+                  model_t::ESummaryMode summaryMode = model_t::E_None,
+                  const std::string& summaryCountFieldName = "") {
+        return defaultConfig(bucketLength, summaryMode, summaryCountFieldName,
                              DEFAULT_LATENCY_BUCKETS * bucketLength,
-                             DEFAULT_BUCKET_RESULTS_DELAY,
-                             false,
-                             "");
+                             DEFAULT_BUCKET_RESULTS_DELAY, false, "");
     }
 
     //! Get the factor to normalize all bucket lengths to the default
@@ -267,7 +265,8 @@ public:
 
     //! Parse and verify the multiple bucket lengths - these should all be
     //! multiples of the standard bucket length.
-    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength, const std::string& multipleBucketLengths);
+    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength,
+                                          const std::string& multipleBucketLengths);
 
 public:
     CAnomalyDetectorModelConfig();
@@ -283,7 +282,9 @@ public:
     //! Set the model factories.
     void factories(const TFactoryTypeFactoryPtrMap& factories);
     //! Set the style and parameter value for raw score aggregation.
-    bool aggregationStyleParams(model_t::EAggregationStyle style, model_t::EAggregationParam param, double value);
+    bool aggregationStyleParams(model_t::EAggregationStyle style,
+                                model_t::EAggregationParam param,
+                                double value);
     //! Set the maximum anomalous probability.
     void maximumAnomalousProbability(double probability);
     //! Set the noise level as a percentile of historic raw anomaly scores.
@@ -331,15 +332,17 @@ public:
     //! \param[in] attributeFieldName The name of the by field.
     //! \param[in] valueFieldName The name of the field containing metric values.
     //! \param[in] influenceFieldNames The list of influence field names.
-    TModelFactoryCPtr factory(int identifier,
-                              function_t::EFunction function,
-                              bool useNull = false,
-                              model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-                              const std::string& partitionFieldName = std::string(),
-                              const std::string& personFieldName = std::string(),
-                              const std::string& attributeFieldName = std::string(),
-                              const std::string& valueFieldName = std::string(),
-                              const CSearchKey::TStoredStringPtrVec& influenceFieldNames = CSearchKey::TStoredStringPtrVec()) const;
+    TModelFactoryCPtr
+    factory(int identifier,
+            function_t::EFunction function,
+            bool useNull = false,
+            model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
+            const std::string& partitionFieldName = std::string(),
+            const std::string& personFieldName = std::string(),
+            const std::string& attributeFieldName = std::string(),
+            const std::string& valueFieldName = std::string(),
+            const CSearchKey::TStoredStringPtrVec& influenceFieldNames =
+                CSearchKey::TStoredStringPtrVec()) const;
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);
@@ -393,7 +396,8 @@ public:
     //@{
     //! Get the value of the aggregation style parameter identified by
     //! \p style and \p param.
-    double aggregationStyleParam(model_t::EAggregationStyle style, model_t::EAggregationParam param) const;
+    double aggregationStyleParam(model_t::EAggregationStyle style,
+                                 model_t::EAggregationParam param) const;
 
     //! Get the maximum anomalous probability.
     double maximumAnomalousProbability() const;

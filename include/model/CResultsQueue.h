@@ -55,7 +55,9 @@ public:
 
     //! Select which queued result object to output, based on anomaly score
     //! and which have been output most recently
-    core_t::TTime chooseResultTime(core_t::TTime bucketStartTime, core_t::TTime bucketLength, model::CHierarchicalResults& results);
+    core_t::TTime chooseResultTime(core_t::TTime bucketStartTime,
+                                   core_t::TTime bucketLength,
+                                   model::CHierarchicalResults& results);
 
     //! Standard persistence
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

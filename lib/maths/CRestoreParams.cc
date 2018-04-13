@@ -16,30 +16,25 @@ SDistributionRestoreParams::SDistributionRestoreParams(maths_t::EDataType dataTy
                                                        double minimumClusterFraction,
                                                        double minimumClusterCount,
                                                        double minimumCategoryCount)
-    : s_DataType{dataType},
-      s_DecayRate{decayRate},
-      s_MinimumClusterFraction{minimumClusterFraction},
-      s_MinimumClusterCount{minimumClusterCount},
-      s_MinimumCategoryCount{minimumCategoryCount} {
+    : s_DataType{dataType}, s_DecayRate{decayRate}, s_MinimumClusterFraction{minimumClusterFraction},
+      s_MinimumClusterCount{minimumClusterCount}, s_MinimumCategoryCount{minimumCategoryCount} {
 }
 
-STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(double decayRate,
-                                                                             core_t::TTime minimumBucketLength,
-                                                                             std::size_t componentSize,
-                                                                             const SDistributionRestoreParams& changeModelParams)
-    : s_DecayRate{decayRate},
-      s_MinimumBucketLength{minimumBucketLength},
-      s_ComponentSize{componentSize},
-      s_ChangeModelParams{changeModelParams} {
+STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(
+    double decayRate,
+    core_t::TTime minimumBucketLength,
+    std::size_t componentSize,
+    const SDistributionRestoreParams& changeModelParams)
+    : s_DecayRate{decayRate}, s_MinimumBucketLength{minimumBucketLength},
+      s_ComponentSize{componentSize}, s_ChangeModelParams{changeModelParams} {
 }
 
-STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(double decayRate,
-                                                                             core_t::TTime minimumBucketLength,
-                                                                             const SDistributionRestoreParams& changeModelParams)
-    : s_DecayRate{decayRate},
-      s_MinimumBucketLength{minimumBucketLength},
-      s_ComponentSize{DECOMPOSITION_COMPONENT_SIZE},
-      s_ChangeModelParams{changeModelParams} {
+STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(
+    double decayRate,
+    core_t::TTime minimumBucketLength,
+    const SDistributionRestoreParams& changeModelParams)
+    : s_DecayRate{decayRate}, s_MinimumBucketLength{minimumBucketLength},
+      s_ComponentSize{DECOMPOSITION_COMPONENT_SIZE}, s_ChangeModelParams{changeModelParams} {
 }
 
 SModelRestoreParams::SModelRestoreParams(const CModelParams& params,

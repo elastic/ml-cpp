@@ -31,7 +31,8 @@ CPenalty::CPenalty(const CPenalty& other) : m_Params(other.m_Params) {
     }
 }
 
-CPenalty::CPenalty(CClosure closure) : m_Params(closure.penalties()[0]->params()) {
+CPenalty::CPenalty(CClosure closure)
+    : m_Params(closure.penalties()[0]->params()) {
     m_Penalties.swap(closure.penalties());
 }
 
@@ -56,7 +57,8 @@ const CPenalty& CPenalty::operator*=(const CPenalty& rhs) {
 }
 
 const CPenalty& CPenalty::operator*=(CClosure rhs) {
-    m_Penalties.insert(m_Penalties.end(), rhs.penalties().begin(), rhs.penalties().end());
+    m_Penalties.insert(m_Penalties.end(), rhs.penalties().begin(),
+                       rhs.penalties().end());
     return *this;
 }
 
@@ -79,7 +81,8 @@ void CPenalty::penalize(CDetectorSpecification& spec) const {
         return;
     }
     for (std::size_t i = 0u; i < m_Penalties.size(); ++i) {
-        LOG_TRACE(<< "Applying '" << m_Penalties[i]->name() << "' to " << spec.description());
+        LOG_TRACE(<< "Applying '" << m_Penalties[i]->name() << "' to "
+                  << spec.description());
         m_Penalties[i]->penalize(spec);
         if (spec.score() == 0.0) {
             break;
@@ -88,7 +91,8 @@ void CPenalty::penalize(CDetectorSpecification& spec) const {
 }
 
 double CPenalty::score(double penalty) {
-    return constants::DETECTOR_SCORE_EPSILON * std::floor(constants::MAXIMUM_DETECTOR_SCORE * penalty / constants::DETECTOR_SCORE_EPSILON);
+    return constants::DETECTOR_SCORE_EPSILON *
+           std::floor(constants::MAXIMUM_DETECTOR_SCORE * penalty / constants::DETECTOR_SCORE_EPSILON);
 }
 
 bool CPenalty::scoreIsZeroFor(double penalty) {
@@ -99,7 +103,9 @@ const CAutoconfigurerParams& CPenalty::params() const {
     return m_Params;
 }
 
-void CPenalty::penaltyFromMe(const CFieldStatistics& /*stats*/, double& /*penalty*/, std::string& /*description*/) const {
+void CPenalty::penaltyFromMe(const CFieldStatistics& /*stats*/,
+                             double& /*penalty*/,
+                             std::string& /*description*/) const {
 }
 
 void CPenalty::penaltyFromMe(CDetectorSpecification& /*spec*/) const {

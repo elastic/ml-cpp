@@ -59,7 +59,9 @@ private:
                                         TStrRefVec& fieldValRefs,
                                         TStrStrUMap& recordFields);
 
-    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document, TStrVec& fieldNames, TStrStrUMap& recordFields);
+    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+                                           TStrVec& fieldNames,
+                                           TStrStrUMap& recordFields);
 
 private:
     //! Are all JSON documents expected to contain the same fields in the

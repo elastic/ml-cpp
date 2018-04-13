@@ -118,7 +118,10 @@ public:
 
 private:
     //! The recursive building helper.
-    void buildRecursively(const TStrVec& prefixes, std::size_t prefixesStart, std::size_t prefixesEnd, std::size_t charPos);
+    void buildRecursively(const TStrVec& prefixes,
+                          std::size_t prefixesStart,
+                          std::size_t prefixesEnd,
+                          std::size_t charPos);
 
     //! Extracts the distinct characters and stores it in \p distinctChars
     //! along with the start and end index in the \p prefixes vector.

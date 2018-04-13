@@ -74,12 +74,16 @@ private:
     //! \brief Hashes an ordinal type.
     class CONFIG_EXPORT CHashOrdinal {
     public:
-        std::size_t operator()(maths::COrdinal value) const { return value.hash(); }
+        std::size_t operator()(maths::COrdinal value) const {
+            return value.hash();
+        }
     };
     using TStrVec = std::vector<std::string>;
     using TOrdinalSizeUMap = boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1>;
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal>>;
+    using TMinAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1>;
+    using TMaxAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal>>;
 
 private:
     //! The maximum number of values we'll hold in the empirical

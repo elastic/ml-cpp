@@ -43,7 +43,9 @@ public:
 
 private:
     //! Sets \p penalty to 0.0 for numerics and a no-op otherwise.
-    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
+    virtual void penaltyFromMe(const CFieldStatistics& stats,
+                               double& penalty,
+                               std::string& description) const;
 };
 
 //! \brief Encapsulates the fact that categorical fields can't be used
@@ -66,7 +68,9 @@ public:
 
 private:
     //! Sets \p penalty to 0.0 for categorical and a no-op otherwise.
-    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
+    virtual void penaltyFromMe(const CFieldStatistics& stats,
+                               double& penalty,
+                               std::string& description) const;
 };
 
 //! \brief A penalty which stops unary categorical fields being used
@@ -90,7 +94,9 @@ public:
 private:
     //! Sets \p penalty to 0.0 for categorical with a single category
     //! and a no-op otherwise.
-    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
+    virtual void penaltyFromMe(const CFieldStatistics& stats,
+                               double& penalty,
+                               std::string& description) const;
 };
 
 //! \brief A penalty based on the a specified range of penalized distinct
@@ -117,7 +123,9 @@ private:
     //! The penalty is a piecewise continuous linear function which
     //! is constant outside interval \f$[dc_0, dc_1]\f$ and linear
     //! decreasing from 1 at \f$dc_1\f$ to 0 at \f$dc_0\f$.
-    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
+    virtual void penaltyFromMe(const CFieldStatistics& stats,
+                               double& penalty,
+                               std::string& description) const;
 
 private:
     //! The distinct count for which the penalty is one.

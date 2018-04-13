@@ -14,7 +14,8 @@ namespace model {
 CMockModel::CMockModel(const SModelParams& params,
                        const TDataGathererPtr& dataGatherer,
                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
-    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators), m_IsPopulation(false) {
+    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
+      m_IsPopulation(false) {
 }
 
 void CMockModel::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {
@@ -44,7 +45,8 @@ bool CMockModel::isMetric() const {
     return false;
 }
 
-CMockModel::TOptionalUInt64 CMockModel::currentBucketCount(std::size_t /*pid*/, core_t::TTime /*time*/) const {
+CMockModel::TOptionalUInt64
+CMockModel::currentBucketCount(std::size_t /*pid*/, core_t::TTime /*time*/) const {
     CAnomalyDetectorModel::TOptionalUInt64 count;
     return count;
 }
@@ -54,8 +56,10 @@ CMockModel::TOptionalDouble CMockModel::baselineBucketCount(std::size_t /*pid*/)
     return count;
 }
 
-CMockModel::TDouble1Vec
-CMockModel::currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {
+CMockModel::TDouble1Vec CMockModel::currentBucketValue(model_t::EFeature feature,
+                                                       std::size_t pid,
+                                                       std::size_t cid,
+                                                       core_t::TTime time) const {
     auto i = m_BucketValues.find({feature, core::make_triple(pid, cid, time)});
     return i != m_BucketValues.end() ? i->second : TDouble1Vec();
 }
@@ -77,13 +81,19 @@ bool CMockModel::bucketStatsAvailable(core_t::TTime /*time*/) const {
 void CMockModel::currentBucketPersonIds(core_t::TTime /*time*/, TSizeVec& /*result*/) const {
 }
 
-void CMockModel::sampleBucketStatistics(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/, CResourceMonitor& /*resourceMonitor*/) {
+void CMockModel::sampleBucketStatistics(core_t::TTime /*startTime*/,
+                                        core_t::TTime /*endTime*/,
+                                        CResourceMonitor& /*resourceMonitor*/) {
 }
 
-void CMockModel::sample(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/, CResourceMonitor& /*resourceMonitor*/) {
+void CMockModel::sample(core_t::TTime /*startTime*/,
+                        core_t::TTime /*endTime*/,
+                        CResourceMonitor& /*resourceMonitor*/) {
 }
 
-void CMockModel::sampleOutOfPhase(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/, CResourceMonitor& /*resourceMonitor*/) {
+void CMockModel::sampleOutOfPhase(core_t::TTime /*startTime*/,
+                                  core_t::TTime /*endTime*/,
+                                  CResourceMonitor& /*resourceMonitor*/) {
 }
 
 void CMockModel::prune(std::size_t /*maximumAge*/) {
@@ -187,10 +197,12 @@ CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {
     return nullptr;
 }
 
-CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model) : m_Model{&model} {
+CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model)
+    : m_Model{&model} {
 }
 
-const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/, std::size_t byFieldId) const {
+const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
+                                                  std::size_t byFieldId) const {
     return m_Model->model(byFieldId);
 }
 
@@ -198,7 +210,9 @@ const CAnomalyDetectorModel& CMockModelDetailsView::base() const {
     return *m_Model;
 }
 
-double CMockModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/, std::size_t /*byFieldId*/, core_t::TTime /*time*/) const {
+double CMockModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
+                                                 std::size_t /*byFieldId*/,
+                                                 core_t::TTime /*time*/) const {
     return 1.0;
 }
 }

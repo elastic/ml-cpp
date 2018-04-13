@@ -45,7 +45,8 @@ CSeasonalComponent::CSeasonalComponent(const CSeasonalTime& time,
                                        CSplineTypes::EBoundaryCondition boundaryCondition,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
-    : CDecompositionComponent{maxSize, boundaryCondition, valueInterpolationType, varianceInterpolationType},
+    : CDecompositionComponent{maxSize, boundaryCondition,
+                              valueInterpolationType, varianceInterpolationType},
       m_Bucketing{time, decayRate, minimumBucketLength} {
 }
 
@@ -54,8 +55,10 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        core::CStateRestoreTraverser& traverser,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
-    : CDecompositionComponent{0, CSplineTypes::E_Periodic, valueInterpolationType, varianceInterpolationType} {
-    traverser.traverseSubLevel(boost::bind(&CSeasonalComponent::acceptRestoreTraverser, this, decayRate, minimumBucketLength, _1));
+    : CDecompositionComponent{0, CSplineTypes::E_Periodic,
+                              valueInterpolationType, varianceInterpolationType} {
+    traverser.traverseSubLevel(boost::bind(&CSeasonalComponent::acceptRestoreTraverser,
+                                           this, decayRate, minimumBucketLength, _1));
 }
 
 void CSeasonalComponent::swap(CSeasonalComponent& other) {
@@ -64,17 +67,20 @@ void CSeasonalComponent::swap(CSeasonalComponent& other) {
     m_Bucketing.swap(other.m_Bucketing);
 }
 
-bool CSeasonalComponent::acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser) {
+bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
+                                                double minimumBucketLength,
+                                                core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE(DECOMPOSITION_COMPONENT_TAG,
                 traverser.traverseSubLevel(
-                    boost::bind(&CDecompositionComponent::acceptRestoreTraverser, static_cast<CDecompositionComponent*>(this), _1)))
+                    boost::bind(&CDecompositionComponent::acceptRestoreTraverser,
+                                static_cast<CDecompositionComponent*>(this), _1)))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
-                               CSeasonalComponentAdaptiveBucketing bucketing(decayRate, minimumBucketLength, traverser),
-                               true,
-                               m_Bucketing.swap(bucketing))
+                               CSeasonalComponentAdaptiveBucketing bucketing(
+                                   decayRate, minimumBucketLength, traverser),
+                               true, m_Bucketing.swap(bucketing))
     } while (traverser.next());
 
     return true;
@@ -83,16 +89,20 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate, double minimum
 void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(
         DECOMPOSITION_COMPONENT_TAG,
-        boost::bind(&CDecompositionComponent::acceptPersistInserter, static_cast<const CDecompositionComponent*>(this), _1));
+        boost::bind(&CDecompositionComponent::acceptPersistInserter,
+                    static_cast<const CDecompositionComponent*>(this), _1));
     inserter.insertValue(RNG_TAG, m_Rng.toString());
-    inserter.insertLevel(BUCKETING_TAG, boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
+    inserter.insertLevel(BUCKETING_TAG, boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                                                    &m_Bucketing, _1));
 }
 
 bool CSeasonalComponent::initialized() const {
     return this->CDecompositionComponent::initialized();
 }
 
-bool CSeasonalComponent::initialize(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values) {
+bool CSeasonalComponent::initialize(core_t::TTime startTime,
+                                    core_t::TTime endTime,
+                                    const TFloatMeanAccumulatorVec& values) {
     this->clear();
 
     if (!m_Bucketing.initialize(this->maxSize())) {
@@ -178,7 +188,9 @@ double CSeasonalComponent::meanValue() const {
     return this->CDecompositionComponent::meanValue();
 }
 
-double CSeasonalComponent::delta(core_t::TTime time, core_t::TTime shortPeriod, double shortPeriodValue) const {
+double CSeasonalComponent::delta(core_t::TTime time,
+                                 core_t::TTime shortPeriod,
+                                 double shortPeriodValue) const {
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
 
@@ -284,7 +296,8 @@ void CSeasonalComponent::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
 }
 
 std::size_t CSeasonalComponent::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Bucketing) + core::CMemory::dynamicSize(this->splines());
+    return core::CMemory::dynamicSize(m_Bucketing) +
+           core::CMemory::dynamicSize(this->splines());
 }
 
 core_t::TTime CSeasonalComponent::jitter(core_t::TTime time) {
@@ -294,7 +307,8 @@ core_t::TTime CSeasonalComponent::jitter(core_t::TTime time) {
         double f{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
         core_t::TTime a{time_.startOfWindow(time)};
         core_t::TTime b{a + time_.windowLength() - 1};
-        double jitter{0.5 * m_Bucketing.minimumBucketLength() * (f <= 0.5 ? std::sqrt(2.0 * f) - 1.0 : std::sqrt(2.0 * (f - 0.5)))};
+        double jitter{0.5 * m_Bucketing.minimumBucketLength() *
+                      (f <= 0.5 ? std::sqrt(2.0 * f) - 1.0 : std::sqrt(2.0 * (f - 0.5)))};
         result = CTools::truncate(result + static_cast<core_t::TTime>(jitter + 0.5), a, b);
     }
     return result;

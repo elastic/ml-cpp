@@ -21,7 +21,8 @@ size_t CTokenListReverseSearchCreator::availableCost() const {
     return 10000;
 }
 
-size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token, size_t numOccurrences) const {
+size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token,
+                                                   size_t numOccurrences) const {
     size_t tokenLength = token.length();
     return (1 + tokenLength + // length of what we add to the terms (part 1)
             3 + tokenLength   // length of what we add to the regex (part 2)
@@ -29,7 +30,8 @@ size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token, siz
            numOccurrences;
 }
 
-bool CTokenListReverseSearchCreator::createNullSearch(std::string& part1, std::string& part2) const {
+bool CTokenListReverseSearchCreator::createNullSearch(std::string& part1,
+                                                      std::string& part2) const {
     part1.clear();
     part2.clear();
     return true;
@@ -73,7 +75,8 @@ void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string& to
     part2 += core::CRegex::escapeRegexSpecial(token);
 }
 
-void CTokenListReverseSearchCreator::closeStandardSearch(std::string& /*part1*/, std::string& part2) const {
+void CTokenListReverseSearchCreator::closeStandardSearch(std::string& /*part1*/,
+                                                         std::string& part2) const {
     part2 += ".*";
 }
 }

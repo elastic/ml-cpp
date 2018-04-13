@@ -50,23 +50,22 @@ CDecompositionComponent::CDecompositionComponent(std::size_t maxSize,
                                                  CSplineTypes::EBoundaryCondition boundaryCondition,
                                                  CSplineTypes::EType valueInterpolationType,
                                                  CSplineTypes::EType varianceInterpolationType)
-    : m_MaxSize{maxSize},
-      m_BoundaryCondition{boundaryCondition},
-      m_Splines{valueInterpolationType, varianceInterpolationType},
-      m_MeanValue{0.0},
-      m_MeanVariance{0.0} {
+    : m_MaxSize{maxSize}, m_BoundaryCondition{boundaryCondition}, m_Splines{valueInterpolationType,
+                                                                            varianceInterpolationType},
+      m_MeanValue{0.0}, m_MeanVariance{0.0} {
 }
 
 bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(MAX_SIZE_TAG, m_MaxSize)
-        RESTORE_SETUP_TEARDOWN(BOUNDARY_CONDITION_TAG,
-                               int boundaryCondition,
-                               core::CStringUtils::stringToType(traverser.value(), boundaryCondition),
-                               m_BoundaryCondition = static_cast<CSplineTypes::EBoundaryCondition>(boundaryCondition))
-        RESTORE(SPLINES_TAG,
-                traverser.traverseSubLevel(boost::bind(&CPackedSplines::acceptRestoreTraverser, &m_Splines, m_BoundaryCondition, _1)))
+        RESTORE_SETUP_TEARDOWN(
+            BOUNDARY_CONDITION_TAG, int boundaryCondition,
+            core::CStringUtils::stringToType(traverser.value(), boundaryCondition),
+            m_BoundaryCondition = static_cast<CSplineTypes::EBoundaryCondition>(boundaryCondition))
+        RESTORE(SPLINES_TAG, traverser.traverseSubLevel(
+                                 boost::bind(&CPackedSplines::acceptRestoreTraverser,
+                                             &m_Splines, m_BoundaryCondition, _1)))
     } while (traverser.next());
 
     if (this->initialized()) {
@@ -80,7 +79,8 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
 void CDecompositionComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAX_SIZE_TAG, m_MaxSize);
     inserter.insertValue(BOUNDARY_CONDITION_TAG, static_cast<int>(m_BoundaryCondition));
-    inserter.insertLevel(SPLINES_TAG, boost::bind(&CPackedSplines::acceptPersistInserter, &m_Splines, _1));
+    inserter.insertLevel(SPLINES_TAG, boost::bind(&CPackedSplines::acceptPersistInserter,
+                                                  &m_Splines, _1));
 }
 
 void CDecompositionComponent::swap(CDecompositionComponent& other) {
@@ -103,7 +103,9 @@ void CDecompositionComponent::clear() {
     m_MeanVariance = 0.0;
 }
 
-void CDecompositionComponent::interpolate(const TDoubleVec& knots, const TDoubleVec& values, const TDoubleVec& variances) {
+void CDecompositionComponent::interpolate(const TDoubleVec& knots,
+                                          const TDoubleVec& values,
+                                          const TDoubleVec& variances) {
     m_Splines.interpolate(knots, values, variances, m_BoundaryCondition);
     m_MeanValue = this->valueSpline().mean();
     m_MeanVariance = this->varianceSpline().mean();
@@ -140,7 +142,8 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", n = " << n << ", m = " << m << ", sd = " << sd
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
+                      << ", n = " << n << ", m = " << m << ", sd = " << sd
                       << ", confidence = " << confidence);
         }
         return {m, m};
@@ -172,7 +175,8 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));
         } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", n = " << n << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
+                      << ", n = " << n << ", confidence = " << confidence);
         }
         return {v, v};
     }
@@ -238,8 +242,9 @@ CDecompositionComponent::CPackedSplines::CPackedSplines(CSplineTypes::EType valu
     m_Types[static_cast<std::size_t>(E_Variance)] = varianceInterpolationType;
 }
 
-bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary,
-                                                                     core::CStateRestoreTraverser& traverser) {
+bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(
+    CSplineTypes::EBoundaryCondition boundary,
+    core::CStateRestoreTraverser& traverser) {
     int estimated{0};
     TDoubleVec knots;
     TDoubleVec values;
@@ -293,16 +298,16 @@ void CDecompositionComponent::CPackedSplines::shift(ESpline spline, double shift
     }
 }
 
-CDecompositionComponent::TSplineCRef CDecompositionComponent::CPackedSplines::spline(ESpline spline) const {
-    return TSplineCRef(m_Types[static_cast<std::size_t>(spline)],
-                       boost::cref(m_Knots),
+CDecompositionComponent::TSplineCRef
+CDecompositionComponent::CPackedSplines::spline(ESpline spline) const {
+    return TSplineCRef(m_Types[static_cast<std::size_t>(spline)], boost::cref(m_Knots),
                        boost::cref(m_Values[static_cast<std::size_t>(spline)]),
                        boost::cref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }
 
-CDecompositionComponent::TSplineRef CDecompositionComponent::CPackedSplines::spline(ESpline spline) {
-    return TSplineRef(m_Types[static_cast<std::size_t>(spline)],
-                      boost::ref(m_Knots),
+CDecompositionComponent::TSplineRef
+CDecompositionComponent::CPackedSplines::spline(ESpline spline) {
+    return TSplineRef(m_Types[static_cast<std::size_t>(spline)], boost::ref(m_Knots),
                       boost::ref(m_Values[static_cast<std::size_t>(spline)]),
                       boost::ref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }

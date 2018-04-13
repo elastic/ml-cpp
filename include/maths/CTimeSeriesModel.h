@@ -68,7 +68,8 @@ public:
                                const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
                                bool modelAnomalies = true);
-    CUnivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
+                               core::CStateRestoreTraverser& traverser);
     ~CUnivariateTimeSeriesModel();
 
     //! Get the model identifier.
@@ -97,28 +98,36 @@ public:
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! Update the model with new samples.
-    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params, TTimeDouble2VecSizeTrVec samples);
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     TTimeDouble2VecSizeTrVec samples);
 
     //! Advance time by \p gap.
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time,
+                             const maths_t::TWeightStyleVec& weightStyles,
+                             const TDouble2Vec4Vec& weights) const;
 
     //! Get the most likely value for each correlate time series
     //! at \p time, if there are any.
-    virtual TDouble2Vec1Vec
-    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
+                                          const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
-    virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
+    virtual void detrend(const TTime2Vec1Vec& time,
+                         double confidenceInterval,
+                         TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
-    virtual TDouble2Vec
-    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(), TDouble2Vec hint = TDouble2Vec()) const;
+    virtual TDouble2Vec predict(core_t::TTime time,
+                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
+                                TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
@@ -148,7 +157,8 @@ public:
                              TSize1Vec& mostAnomalousCorrelate) const;
 
     //! Get the Winsorisation weight to apply to \p value.
-    virtual TDouble2Vec winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
+    virtual TDouble2Vec
+    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
 
     //! Get the seasonal variance scale at \p time.
     virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const;
@@ -163,7 +173,8 @@ public:
     virtual std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
-    bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -207,15 +218,20 @@ private:
     using TPriorPtr = boost::shared_ptr<CPrior>;
     using TAnomalyModelPtr = boost::shared_ptr<CTimeSeriesAnomalyModel>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
-    using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
+    using TMultivariatePriorCPtrSizePr1Vec =
+        core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
     using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
-    CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other, std::size_t id, bool isForForecast = false);
+    CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
+                               std::size_t id,
+                               bool isForForecast = false);
 
     //! Test for and apply any change we find.
-    EUpdateResult testAndApplyChange(const CModelAddSamplesParams& params, const TSizeVec& order, const TTimeDouble2VecSizeTrVec& samples);
+    EUpdateResult testAndApplyChange(const CModelAddSamplesParams& params,
+                                     const TSizeVec& order,
+                                     const TTimeDouble2VecSizeTrVec& samples);
 
     //! Apply \p change to this model.
     EUpdateResult applyChange(const SChangeDescription& change);
@@ -337,9 +353,11 @@ public:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
     using TMultivariatePriorPtrDoublePr = std::pair<TMultivariatePriorPtr, double>;
-    using TSizeSizePrMultivariatePriorPtrDoublePrUMap = boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+    using TSizeSizePrMultivariatePriorPtrDoublePrUMap =
+        boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
-    using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
+    using TMultivariatePriorCPtrSizePr1Vec =
+        core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
 
     //! \brief Wraps up the sampled data for a feature.
     struct MATHS_EXPORT SSampleData {
@@ -395,7 +413,8 @@ public:
     std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -405,14 +424,17 @@ private:
     using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
     using TModelCPtrVec = std::vector<const CUnivariateTimeSeriesModel*>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
-    using TSizeSizePrMultivariatePriorPtrDoublePrPr = std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+    using TSizeSizePrMultivariatePriorPtrDoublePrPr =
+        std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
 
 private:
-    CTimeSeriesCorrelations(const CTimeSeriesCorrelations& other, bool isForPersistence = false);
+    CTimeSeriesCorrelations(const CTimeSeriesCorrelations& other,
+                            bool isForPersistence = false);
 
     //! Restore the correlation distribution models reading state from
     //! \p traverser.
-    bool restoreCorrelationModels(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool restoreCorrelationModels(const SDistributionRestoreParams& params,
+                                  core::CStateRestoreTraverser& traverser);
 
     //! Persist the correlation distribution models passing information
     //! to \p inserter.
@@ -424,7 +446,8 @@ private:
                         core::CStateRestoreTraverser& traverser);
 
     //! Persist the \p model passing information to \p inserter.
-    static void persist(const TSizeSizePrMultivariatePriorPtrDoublePrPr& model, core::CStatePersistInserter& inserter);
+    static void persist(const TSizeSizePrMultivariatePriorPtrDoublePrPr& model,
+                        core::CStatePersistInserter& inserter);
 
     //! Add the time series identified by \p id.
     void addTimeSeries(std::size_t id, const CUnivariateTimeSeriesModel& model);
@@ -433,7 +456,10 @@ private:
     void removeTimeSeries(std::size_t id);
 
     //! Add a sample for the time series identified by \p id.
-    void addSamples(std::size_t id, const CModelAddSamplesParams& params, const TTimeDouble2VecSizeTrVec& samples, double multiplier);
+    void addSamples(std::size_t id,
+                    const CModelAddSamplesParams& params,
+                    const TTimeDouble2VecSizeTrVec& samples,
+                    double multiplier);
 
     //! Get the ids of the time series correlated with \p id.
     TSize1Vec correlated(std::size_t id) const;
@@ -500,7 +526,8 @@ public:
                                  const TDecayRateController2Ary* controllers = nullptr,
                                  bool modelAnomalies = true);
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
-    CMultivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CMultivariateTimeSeriesModel(const SModelRestoreParams& params,
+                                 core::CStateRestoreTraverser& traverser);
 
     //! Returns 0 since these models don't need a unique identifier.
     virtual std::size_t identifier() const;
@@ -528,27 +555,35 @@ public:
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! Update the model with new samples.
-    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params, TTimeDouble2VecSizeTrVec samples);
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     TTimeDouble2VecSizeTrVec samples);
 
     //! Advance time by \p gap.
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time,
+                             const maths_t::TWeightStyleVec& weightStyles,
+                             const TDouble2Vec4Vec& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec
-    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
+                                          const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
-    virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
+    virtual void detrend(const TTime2Vec1Vec& time,
+                         double confidenceInterval,
+                         TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
-    virtual TDouble2Vec
-    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(), TDouble2Vec hint = TDouble2Vec()) const;
+    virtual TDouble2Vec predict(core_t::TTime time,
+                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
+                                TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
@@ -576,7 +611,8 @@ public:
                              TSize1Vec& mostAnomalousCorrelate) const;
 
     //! Get the Winsorisation weight to apply to \p value.
-    virtual TDouble2Vec winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
+    virtual TDouble2Vec
+    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
 
     //! Get the seasonal variance scale at \p time.
     virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const;
@@ -591,7 +627,8 @@ public:
     virtual std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
-    bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SModelRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -641,7 +678,9 @@ private:
                               const TDouble2Vec4VecVec& trendWeights);
 
     //! Compute the prediction errors for \p sample.
-    void appendPredictionErrors(double interval, const TDouble2Vec& sample, TDouble1VecVec (&result)[2]);
+    void appendPredictionErrors(double interval,
+                                const TDouble2Vec& sample,
+                                TDouble1VecVec (&result)[2]);
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.

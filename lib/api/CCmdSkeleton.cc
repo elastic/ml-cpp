@@ -21,7 +21,8 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher* restoreSearcher,
                            core::CDataAdder* persister,
                            CInputParser& inputParser,
                            CDataProcessor& processor)
-    : m_RestoreSearcher(restoreSearcher), m_Persister(persister), m_InputParser(inputParser), m_Processor(processor) {
+    : m_RestoreSearcher(restoreSearcher), m_Persister(persister),
+      m_InputParser(inputParser), m_Processor(processor) {
 }
 
 bool CCmdSkeleton::ioLoop() {
@@ -35,7 +36,8 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord, &m_Processor, _1)) == false) {
+    if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord,
+                                             &m_Processor, _1)) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }

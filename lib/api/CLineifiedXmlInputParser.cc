@@ -13,8 +13,11 @@
 namespace ml {
 namespace api {
 
-CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser, std::istream& strmIn, bool allDocsSameStructure)
-    : CLineifiedInputParser(strmIn), m_Parser(parser), m_AllDocsSameStructure(allDocsSameStructure) {
+CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
+                                                   std::istream& strmIn,
+                                                   bool allDocsSameStructure)
+    : CLineifiedInputParser(strmIn), m_Parser(parser),
+      m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
 bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
@@ -40,7 +43,8 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs, recordFields) == false) {
+            if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs,
+                                                     recordFields) == false) {
                 LOG_ERROR(<< "Failed to decode XML document");
                 return false;
             }
@@ -59,7 +63,9 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
     return true;
 }
 
-bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames, TStrRefVec& fieldValRefs, TStrStrUMap& recordFields) {
+bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames,
+                                                              TStrRefVec& fieldValRefs,
+                                                              TStrStrUMap& recordFields) {
     if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
@@ -88,14 +94,16 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldName
             more = m_Parser.navigateNext();
         }
 
-        LOG_ERROR(<< "Incorrect number of fields: expected " << fieldValRefs.size() << ", got " << i);
+        LOG_ERROR(<< "Incorrect number of fields: expected "
+                  << fieldValRefs.size() << ", got " << i);
         return false;
     }
 
     return true;
 }
 
-void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames, TStrStrUMap& recordFields) {
+void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames,
+                                                                 TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();

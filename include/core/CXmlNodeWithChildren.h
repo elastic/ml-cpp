@@ -41,7 +41,9 @@ public:
 
     CXmlNodeWithChildren(const std::string& name, const std::string& value);
 
-    CXmlNodeWithChildren(const std::string& name, const std::string& value, const CXmlNode::TStrStrMap& attributes);
+    CXmlNodeWithChildren(const std::string& name,
+                         const std::string& value,
+                         const CXmlNode::TStrStrMap& attributes);
 
     CXmlNodeWithChildren(const CXmlNodeWithChildren& arg);
 

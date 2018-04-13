@@ -55,7 +55,8 @@ struct MODEL_EXPORT SModelParams {
     double minimumCategoryCount() const;
 
     //! Get the parameters supplied when restoring time series decompositions.
-    maths::STimeSeriesDecompositionRestoreParams decompositionRestoreParams(maths_t::EDataType dataType) const;
+    maths::STimeSeriesDecompositionRestoreParams
+    decompositionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get the parameters supplied when restoring distribution models.
     maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;

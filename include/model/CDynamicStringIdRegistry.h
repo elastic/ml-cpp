@@ -106,7 +106,10 @@ public:
     bool isIdActive(std::size_t id) const;
 
     //! Register a \p name and return its unique identifier.
-    std::size_t addName(const std::string& name, core_t::TTime time, CResourceMonitor& resourceMonitor, bool& addedPerson);
+    std::size_t addName(const std::string& name,
+                        core_t::TTime time,
+                        CResourceMonitor& resourceMonitor,
+                        bool& addedPerson);
 
     //! Remove all traces of names whose identifiers are greater than
     //! or equal to \p lowestNameToRemove.

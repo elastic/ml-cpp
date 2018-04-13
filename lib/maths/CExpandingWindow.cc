@@ -26,11 +26,12 @@ const std::string BUCKET_VALUES_TAG("b");
 const std::string START_TIME_TAG("c");
 }
 
-CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength, TTimeCRng bucketLengths, std::size_t size, double decayRate)
-    : m_DecayRate(decayRate),
-      m_BucketLength(bucketLength),
-      m_BucketLengths(bucketLengths),
-      m_BucketLengthIndex(0),
+CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
+                                   TTimeCRng bucketLengths,
+                                   std::size_t size,
+                                   double decayRate)
+    : m_DecayRate(decayRate), m_BucketLength(bucketLength),
+      m_BucketLengths(bucketLengths), m_BucketLengthIndex(0),
       m_StartTime(boost::numeric::bounds<core_t::TTime>::lowest()),
       m_BucketValues(size % 2 == 0 ? size : size + 1) {
 }
@@ -41,7 +42,8 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex)
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
-        RESTORE(BUCKET_VALUES_TAG, core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser));
+        RESTORE(BUCKET_VALUES_TAG,
+                core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser));
     } while (traverser.next());
     return true;
 }
@@ -57,7 +59,8 @@ core_t::TTime CExpandingWindow::startTime() const {
 }
 
 core_t::TTime CExpandingWindow::endTime() const {
-    return m_StartTime + (static_cast<core_t::TTime>(m_BucketValues.size()) * m_BucketLengths[m_BucketLengthIndex]);
+    return m_StartTime + (static_cast<core_t::TTime>(m_BucketValues.size()) *
+                          m_BucketLengths[m_BucketLengthIndex]);
 }
 
 core_t::TTime CExpandingWindow::bucketLength() const {
@@ -68,11 +71,13 @@ const CExpandingWindow::TFloatMeanAccumulatorVec& CExpandingWindow::values() con
     return m_BucketValues;
 }
 
-CExpandingWindow::TFloatMeanAccumulatorVec CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
+CExpandingWindow::TFloatMeanAccumulatorVec
+CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
     core_t::TTime start{CIntegerTools::floor(this->startTime(), m_BucketLength)};
     core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_BucketLength)};
     core_t::TTime size{static_cast<core_t::TTime>(m_BucketValues.size())};
-    core_t::TTime offset{static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5)};
+    core_t::TTime offset{
+        static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5)};
 
     TFloatMeanAccumulatorVec predictions(size);
     for (core_t::TTime time = start + offset; time < end; time += m_BucketLength) {
@@ -85,7 +90,8 @@ CExpandingWindow::TFloatMeanAccumulatorVec CExpandingWindow::valuesMinusPredicti
     TFloatMeanAccumulatorVec result(m_BucketValues);
     for (core_t::TTime i = 0; i < size; ++i) {
         if (CBasicStatistics::count(result[i]) > 0.0) {
-            CBasicStatistics::moment<0>(result[i]) -= CBasicStatistics::mean(predictions[i]);
+            CBasicStatistics::moment<0>(result[i]) -=
+                CBasicStatistics::mean(predictions[i]);
         }
     }
 
@@ -115,10 +121,12 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
             if (m_BucketLengthIndex == 0) {
                 m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
             } else {
-                std::size_t compression = m_BucketLengths[m_BucketLengthIndex] / m_BucketLengths[m_BucketLengthIndex - 1];
+                std::size_t compression = m_BucketLengths[m_BucketLengthIndex] /
+                                          m_BucketLengths[m_BucketLengthIndex - 1];
                 for (std::size_t i = 0u; i < m_BucketValues.size(); i += compression, ++end) {
                     std::swap(*end, m_BucketValues[i]);
-                    for (std::size_t j = 1u; j < compression && i + j < m_BucketValues.size(); ++j) {
+                    for (std::size_t j = 1u;
+                         j < compression && i + j < m_BucketValues.size(); ++j) {
                         *end += m_BucketValues[i + j];
                     }
                 }
@@ -126,7 +134,8 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
             std::fill(end, m_BucketValues.end(), TFloatMeanAccumulator());
         }
 
-        m_BucketValues[(time - m_StartTime) / m_BucketLengths[m_BucketLengthIndex]].add(value, weight);
+        m_BucketValues[(time - m_StartTime) / m_BucketLengths[m_BucketLengthIndex]]
+            .add(value, weight);
         m_MeanOffset.add(static_cast<double>(time % m_BucketLength));
     }
 }

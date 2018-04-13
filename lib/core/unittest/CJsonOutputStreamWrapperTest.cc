@@ -22,10 +22,11 @@
 CppUnit::Test* CJsonOutputStreamWrapperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testConcurrentWrites",
-                                                                                &CJsonOutputStreamWrapperTest::testConcurrentWrites));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testShrink",
-                                                                                &CJsonOutputStreamWrapperTest::testShrink));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
+        "CJsonOutputStreamWrapperTest::testConcurrentWrites",
+        &CJsonOutputStreamWrapperTest::testConcurrentWrites));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
+        "CJsonOutputStreamWrapperTest::testShrink", &CJsonOutputStreamWrapperTest::testShrink));
 
     return suiteOfTests;
 }
@@ -72,7 +73,8 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites() {
     const rapidjson::Value& allRecords = doc.GetArray();
 
     // check number of documents
-    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER), allRecords.Size());
+    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
+                         allRecords.Size());
 }
 
 void CJsonOutputStreamWrapperTest::testShrink() {

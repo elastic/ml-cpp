@@ -53,7 +53,10 @@ public:
     virtual double meanValue(core_t::TTime time) const;
 
     //! Returns (0.0, 0.0).
-    virtual maths_t::TDoubleDoublePr value(core_t::TTime time, double confidence = 0.0, int components = E_All, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                           double confidence = 0.0,
+                                           int components = E_All,
+                                           bool smooth = true) const;
 
     //! No-op.
     virtual void forecast(core_t::TTime startTime,
@@ -64,13 +67,15 @@ public:
                           const TWriteForecastResult& writer);
 
     //! Returns \p value.
-    virtual double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
+    virtual double
+    detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
 
     //! Returns 0.0.
     virtual double meanVariance() const;
 
     //! Returns (1.0, 1.0).
-    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr
+    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);

@@ -104,8 +104,9 @@ int COsFileFuncs::open(const char* path, int oflag, TMode pmode) {
         attributes = FILE_ATTRIBUTE_READONLY;
     }
 
-    HANDLE handle =
-        CreateFile(path, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, 0, creationDisposition, attributes, 0);
+    HANDLE handle = CreateFile(path, desiredAccess,
+                               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+                               0, creationDisposition, attributes, 0);
     if (handle == INVALID_HANDLE_VALUE) {
         switch (GetLastError()) {
         case ERROR_FILE_NOT_FOUND:
@@ -202,7 +203,8 @@ int COsFileFuncs::fstat(int fildes, TStat* buf) {
         return -1;
     }
 
-    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
+    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) |
+                  (static_cast<TIno>(info.nFileIndexHigh) << 32);
 
     return 0;
 }
@@ -237,10 +239,7 @@ int COsFileFuncs::stat(const char* path, TStat* buf) {
     HANDLE handle = CreateFile(path,
                                0, // Open for neither read nor write
                                FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                               0,
-                               OPEN_EXISTING,
-                               FILE_ATTRIBUTE_NORMAL,
-                               0);
+                               0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if (handle == INVALID_HANDLE_VALUE) {
         errno = EACCES;
         return -1;
@@ -254,7 +253,8 @@ int COsFileFuncs::stat(const char* path, TStat* buf) {
         return -1;
     }
 
-    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
+    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) |
+                  (static_cast<TIno>(info.nFileIndexHigh) << 32);
 
     CloseHandle(handle);
 
@@ -266,7 +266,8 @@ int COsFileFuncs::lstat(const char* path, TStat* buf) {
     // case where the path points at a symlink, so often we can simply call
     // stat()
     WIN32_FILE_ATTRIBUTE_DATA attributes = {0};
-    if (path == nullptr || buf == nullptr || GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
+    if (path == nullptr || buf == nullptr ||
+        GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
         (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         return COsFileFuncs::stat(path, buf);
     }

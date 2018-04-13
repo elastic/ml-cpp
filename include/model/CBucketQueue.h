@@ -46,9 +46,12 @@ public:
     template<typename F>
     class CSerializer {
     public:
-        CSerializer(const T& initial = T(), const F& serializer = F()) : m_InitialValue(initial), m_Serializer(serializer) {}
+        CSerializer(const T& initial = T(), const F& serializer = F())
+            : m_InitialValue(initial), m_Serializer(serializer) {}
 
-        void operator()(const CBucketQueue& queue, core::CStatePersistInserter& inserter) const { queue.persist(m_Serializer, inserter); }
+        void operator()(const CBucketQueue& queue, core::CStatePersistInserter& inserter) const {
+            queue.persist(m_Serializer, inserter);
+        }
 
         bool operator()(CBucketQueue& queue, core::CStateRestoreTraverser& traverser) const {
             return queue.restore(m_Serializer, m_InitialValue, traverser);
@@ -68,8 +71,13 @@ public:
     //! the latency window.
     //! \param[in] bucketLength The bucket length.
     //! \param[in] latestBucketStart The start time of the latest bucket.
-    CBucketQueue(std::size_t latencyBuckets, core_t::TTime bucketLength, core_t::TTime latestBucketStart, T initial = T())
-        : m_Queue(latencyBuckets + 1), m_LatestBucketEnd(latestBucketStart + bucketLength - 1), m_BucketLength(bucketLength) {
+    CBucketQueue(std::size_t latencyBuckets,
+                 core_t::TTime bucketLength,
+                 core_t::TTime latestBucketStart,
+                 T initial = T())
+        : m_Queue(latencyBuckets + 1),
+          m_LatestBucketEnd(latestBucketStart + bucketLength - 1),
+          m_BucketLength(bucketLength) {
         this->fill(initial);
         LOG_TRACE(<< "Queue created :");
         LOG_TRACE(<< "Bucket length = " << m_BucketLength);
@@ -84,7 +92,8 @@ public:
     //! \param[in] time The time to which the item corresponds.
     void push(const T& item, core_t::TTime time) {
         if (time <= m_LatestBucketEnd) {
-            LOG_ERROR(<< "Push was called with early time = " << time << ", latest bucket end time = " << m_LatestBucketEnd);
+            LOG_ERROR(<< "Push was called with early time = " << time
+                      << ", latest bucket end time = " << m_LatestBucketEnd);
             return;
         }
         m_LatestBucketEnd += m_BucketLength;
@@ -104,7 +113,9 @@ public:
 
     //! Returns the item in the queue that corresponds to the bucket
     //! indicated by \p time.
-    const T& get(core_t::TTime time) const { return m_Queue[this->index(time)]; }
+    const T& get(core_t::TTime time) const {
+        return m_Queue[this->index(time)];
+    }
 
     //! Returns the size of the queue.
     std::size_t size() const { return m_Queue.size(); }
@@ -160,10 +171,14 @@ public:
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage() const { return core::CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const {
+        return core::CMemory::dynamicSize(m_Queue);
+    }
 
     //! Prints the contents of the queue.
-    std::string print() const { return core::CContainerPrinter::print(m_Queue); }
+    std::string print() const {
+        return core::CContainerPrinter::print(m_Queue);
+    }
 
     //! Return the configured bucketlength of this queue
     core_t::TTime bucketLength() const { return m_BucketLength; }
@@ -189,7 +204,8 @@ public:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
+                             << " >= " << m_Queue.size()
                              << ".  Extra buckets will be ignored.");
                     // Restore into a temporary
                     T dummy;
@@ -213,7 +229,8 @@ private:
     void persist(F bucketPersist, core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0; i < m_Queue.size(); i++) {
             inserter.insertValue(INDEX_TAG, i);
-            inserter.insertLevel(BUCKET_TAG, boost::bind<void>(bucketPersist, boost::cref(m_Queue[i]), _1));
+            inserter.insertLevel(
+                BUCKET_TAG, boost::bind<void>(bucketPersist, boost::cref(m_Queue[i]), _1));
         }
     }
 
@@ -229,19 +246,22 @@ private:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
+                             << " >= " << m_Queue.size()
                              << ".  Extra buckets will be ignored.");
                     if (traverser.hasSubLevel()) {
                         // Restore into a temporary
                         T dummy = initial;
-                        if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, dummy, _1)) == false) {
+                        if (traverser.traverseSubLevel(boost::bind<bool>(
+                                bucketRestore, dummy, _1)) == false) {
                             LOG_ERROR(<< "Invalid bucket");
                         }
                     }
                 } else {
                     m_Queue[i] = initial;
                     if (traverser.hasSubLevel()) {
-                        if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, boost::ref(m_Queue[i]), _1)) == false) {
+                        if (traverser.traverseSubLevel(boost::bind<bool>(
+                                bucketRestore, boost::ref(m_Queue[i]), _1)) == false) {
                             LOG_ERROR(<< "Invalid bucket");
                             return false;
                         }

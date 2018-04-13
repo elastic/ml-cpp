@@ -37,34 +37,40 @@ bool CCmdLineParser::parse(int argc,
                            std::string& categorizationFieldName) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
-            "limitconfig", boost::program_options::value<std::string>(), "Optional limit config file")(
-            "jobid", boost::program_options::value<std::string>(), "ID of the job this process is associated with")(
-            "logProperties", boost::program_options::value<std::string>(), "Optional logger properties file")(
+        desc.add_options()("help", "Display this information and exit")(
+            "version", "Display version information and exit")(
+            "limitconfig", boost::program_options::value<std::string>(),
+            "Optional limit config file")(
+            "jobid", boost::program_options::value<std::string>(),
+            "ID of the job this process is associated with")(
+            "logProperties", boost::program_options::value<std::string>(),
+            "Optional logger properties file")(
             "logPipe", boost::program_options::value<std::string>(), "Optional log to named pipe")(
-            "delimiter",
-            boost::program_options::value<char>(),
+            "delimiter", boost::program_options::value<char>(),
             "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")(
-            "lengthEncodedInput", "Take input in length encoded binary format - default is delimited")(
-            "input", boost::program_options::value<std::string>(), "Optional file to read input from - not present means read from STDIN")(
+            "lengthEncodedInput",
+            "Take input in length encoded binary format - default is delimited")(
+            "input", boost::program_options::value<std::string>(),
+            "Optional file to read input from - not present means read from STDIN")(
             "inputIsPipe", "Specified input file is a named pipe")(
-            "output", boost::program_options::value<std::string>(), "Optional file to write output to - not present means write to STDOUT")(
+            "output", boost::program_options::value<std::string>(),
+            "Optional file to write output to - not present means write to STDOUT")(
             "outputIsPipe", "Specified output file is a named pipe")(
-            "restore",
-            boost::program_options::value<std::string>(),
-            "Optional file to restore state from - not present means no state restoration")("restoreIsPipe",
-                                                                                            "Specified restore file is a named pipe")(
-            "persist",
-            boost::program_options::value<std::string>(),
-            "Optional file to persist state to - not present means no state persistence")("persistIsPipe",
-                                                                                          "Specified persist file is a named pipe")(
-            "persistInterval",
-            boost::program_options::value<core_t::TTime>(),
+            "restore", boost::program_options::value<std::string>(),
+            "Optional file to restore state from - not present means no state restoration")(
+            "restoreIsPipe", "Specified restore file is a named pipe")(
+            "persist", boost::program_options::value<std::string>(),
+            "Optional file to persist state to - not present means no state persistence")(
+            "persistIsPipe", "Specified persist file is a named pipe")(
+            "persistInterval", boost::program_options::value<core_t::TTime>(),
             "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at "
-            "program exit")("categorizationfield", boost::program_options::value<std::string>(), "Field to compute mlcategory from");
+            "program exit")("categorizationfield",
+                            boost::program_options::value<std::string>(),
+                            "Field to compute mlcategory from");
 
         boost::program_options::variables_map vm;
-        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {

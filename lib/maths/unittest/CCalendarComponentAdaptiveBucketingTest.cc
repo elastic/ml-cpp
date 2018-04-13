@@ -49,8 +49,10 @@ void CCalendarComponentAdaptiveBucketingTest::testInitialize() {
 
     CPPUNIT_ASSERT(!bucketing.initialize(0));
 
-    const std::string expectedEndpoints{"[0, 7200, 14400, 21600, 28800, 36000, 43200, 50400, 57600, 64800, 72000, 79200, 86400]"};
-    const std::string expectedKnots{"[0, 3600, 10800, 18000, 25200, 32400, 39600, 46800, 54000, 61200, 68400, 75600, 82800, 86400]"};
+    const std::string expectedEndpoints{
+        "[0, 7200, 14400, 21600, 28800, 36000, 43200, 50400, 57600, 64800, 72000, 79200, 86400]"};
+    const std::string expectedKnots{
+        "[0, 3600, 10800, 18000, 25200, 32400, 39600, 46800, 54000, 61200, 68400, 75600, 82800, 86400]"};
     const std::string expectedValues{
         "[129600, 90000, 97200, 104400, 111600, 118800, 126000, 133200, 140400, 147600, 154800, 162000, 169200, 129600]"};
 
@@ -90,7 +92,8 @@ void CCalendarComponentAdaptiveBucketingTest::testSwap() {
         for (std::size_t i = 0u; i < 100; ++i) {
             core_t::TTime t{start + static_cast<core_t::TTime>(864 * i)};
             if (bucketing1.feature().inWindow(t)) {
-                double y{0.02 * (static_cast<double>(i) - 50.0) * (static_cast<double>(i) - 50.0)};
+                double y{0.02 * (static_cast<double>(i) - 50.0) *
+                         (static_cast<double>(i) - 50.0)};
                 bucketing1.add(t, y + noise[i]);
             }
         }
@@ -98,7 +101,8 @@ void CCalendarComponentAdaptiveBucketingTest::testSwap() {
         bucketing1.propagateForwardsByTime(1.0);
     }
 
-    maths::CCalendarFeature feature2{maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, now - core::constants::WEEK};
+    maths::CCalendarFeature feature2{maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH,
+                                     now - core::constants::WEEK};
     maths::CCalendarComponentAdaptiveBucketing bucketing2{feature2, 0.1};
 
     uint64_t checksum1{bucketing1.checksum()};
@@ -120,8 +124,10 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
 
     // Test that refine reduces the function approximation error.
 
-    core_t::TTime times[] = {-1, 3600, 10800, 18000, 25200, 32400, 39600, 46800, 54000, 61200, 68400, 75600, 82800, 86400};
-    double function[] = {10, 10, 10, 10, 100, 90, 80, 90, 100, 20, 10, 10, 10, 10};
+    core_t::TTime times[] = {-1,    3600,  10800, 18000, 25200, 32400, 39600,
+                             46800, 54000, 61200, 68400, 75600, 82800, 86400};
+    double function[] = {10, 10,  10, 10, 100, 90, 80,
+                         90, 100, 20, 10, 10,  10, 10};
 
     maths::CCalendarFeature feature{maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
     maths::CCalendarComponentAdaptiveBucketing bucketing1{feature};
@@ -137,7 +143,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
         bool inWindow{bucketing1.feature().inWindow(t)};
         if (inWindow) {
             core_t::TTime x{bucketing1.feature().offset(t)};
-            ptrdiff_t i{std::lower_bound(boost::begin(times), boost::end(times), x) - boost::begin(times)};
+            ptrdiff_t i{std::lower_bound(boost::begin(times), boost::end(times), x) -
+                        boost::begin(times)};
             double x0{static_cast<double>(times[i - 1])};
             double x1{static_cast<double>(times[i])};
             double y0{function[i - 1]};
@@ -158,8 +165,10 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
     const TFloatVec& endpoints1{bucketing1.endpoints()};
     TDoubleVec values1{bucketing1.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
-        core_t::TTime t{static_cast<core_t::TTime>(0.5 * (endpoints1[i] + endpoints1[i - 1] + 1.0))};
-        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) - boost::begin(times)};
+        core_t::TTime t{static_cast<core_t::TTime>(
+            0.5 * (endpoints1[i] + endpoints1[i - 1] + 1.0))};
+        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) -
+                    boost::begin(times)};
         double x0{static_cast<double>(times[j - 1])};
         double x1{static_cast<double>(times[j])};
         double y0{function[j - 1]};
@@ -174,8 +183,10 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
     const TFloatVec& endpoints2{bucketing2.endpoints()};
     TDoubleVec values2{bucketing2.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
-        core_t::TTime t{static_cast<core_t::TTime>(0.5 * (endpoints2[i] + endpoints2[i - 1] + 1.0))};
-        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) - boost::begin(times)};
+        core_t::TTime t{static_cast<core_t::TTime>(
+            0.5 * (endpoints2[i] + endpoints2[i - 1] + 1.0))};
+        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) -
+                    boost::begin(times)};
         double x0{static_cast<double>(times[j - 1])};
         double x1{static_cast<double>(times[j])};
         double y0{function[j - 1]};
@@ -189,7 +200,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
     LOG_DEBUG(<< "max error          = " << maxError1[0]);
     LOG_DEBUG(<< "refined mean error = " << maths::CBasicStatistics::mean(meanError2));
     LOG_DEBUG(<< "refined max error  = " << maxError2[0]);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError2) < 0.7 * maths::CBasicStatistics::mean(meanError1));
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError2) <
+                   0.7 * maths::CBasicStatistics::mean(meanError1));
     CPPUNIT_ASSERT(maxError2[0] < 0.65 * maxError1[0]);
 }
 
@@ -207,7 +219,8 @@ void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 
     bucketing.initialize(10);
     for (core_t::TTime t = 0; t < 86400; t += 1800) {
-        double y = 10.0 * (static_cast<double>(t) - 43200.0) / 43200.0 * (static_cast<double>(t) - 43200.0) / 43200.0;
+        double y = 10.0 * (static_cast<double>(t) - 43200.0) / 43200.0 *
+                   (static_cast<double>(t) - 43200.0) / 43200.0;
         bucketing.add(t, y);
     }
     bucketing.refine(86400);
@@ -217,7 +230,8 @@ void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
     for (std::size_t i = 0u; i < 20; ++i) {
         bucketing.propagateForwardsByTime(1.0);
         double count = bucketing.count();
-        LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount << " count/lastCount = " << count / lastCount);
+        LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount
+                  << " count/lastCount = " << count / lastCount);
         CPPUNIT_ASSERT(count < lastCount);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.81873, count / lastCount, 5e-6);
         lastCount = count;
@@ -229,8 +243,9 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
     LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
     LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
-    double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0};
+    double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
+                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
     std::size_t n{boost::size(function)};
 
     test::CRandomNumbers rng;
@@ -264,7 +279,8 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
         for (std::size_t j = 1u; j < endpoints1.size(); ++j) {
             minimumBucketLength1.add(endpoints1[j] - endpoints1[j - 1]);
             minimumBucketLength2.add(endpoints2[j] - endpoints2[j - 1]);
-            double minimumShift{std::max(1500.0 - (endpoints1[j] - endpoints1[j - 1]), 0.0) / 2.0};
+            double minimumShift{
+                std::max(1500.0 - (endpoints1[j] - endpoints1[j - 1]), 0.0) / 2.0};
             minimumTotalError += minimumShift;
         }
         LOG_DEBUG(<< "minimumBucketLength1 = " << minimumBucketLength1);
@@ -350,7 +366,8 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots() {
         bucketing.initialize(24);
 
         for (core_t::TTime t = 0; t < 86400; t += 600) {
-            double y{0.0002 * (static_cast<double>(t) - 43800.0) * (static_cast<double>(t) - 43800.0)};
+            double y{0.0002 * (static_cast<double>(t) - 43800.0) *
+                     (static_cast<double>(t) - 43800.0)};
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, 4.0, 1, noise);
             bucketing.add(t, y + noise[0]);
@@ -375,7 +392,9 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots() {
         }
         LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) / maths::CBasicStatistics::mean(meanValue) < 0.02);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) /
+                           maths::CBasicStatistics::mean(meanValue) <
+                       0.02);
     }
 
     LOG_DEBUG(<< "*** Variances ***");
@@ -409,15 +428,19 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots() {
         TMeanAccumulator meanError;
         TMeanAccumulator meanVariance;
         for (std::size_t i = 0u; i < knots.size(); ++i) {
-            double expectedVariance{0.001 * (static_cast<double>(knots[i]) - 43800.0) * (static_cast<double>(knots[i]) - 43800.0) / 86400};
-            LOG_DEBUG(<< "expected = " << expectedVariance << ", variance = " << variances[i]);
+            double expectedVariance{0.001 * (static_cast<double>(knots[i]) - 43800.0) *
+                                    (static_cast<double>(knots[i]) - 43800.0) / 86400};
+            LOG_DEBUG(<< "expected = " << expectedVariance
+                      << ", variance = " << variances[i]);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance, variances[i], 5.0);
             meanError.add(std::fabs(variances[i] - expectedVariance));
             meanVariance.add(std::fabs(expectedVariance));
         }
         LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) / maths::CBasicStatistics::mean(meanVariance) < 0.16);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) /
+                           maths::CBasicStatistics::mean(meanVariance) <
+                       0.16);
     }
 }
 
@@ -439,7 +462,8 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist() {
         for (std::size_t i = 0u; i < 100; ++i) {
             core_t::TTime t{static_cast<core_t::TTime>(p * 86400 + 864 * i)};
             if (bucketing.feature().inWindow(t)) {
-                double y{0.02 * (static_cast<double>(i) - 50.0) * (static_cast<double>(i) - 50.0)};
+                double y{0.02 * (static_cast<double>(i) - 50.0) *
+                         (static_cast<double>(i) - 50.0)};
                 bucketing.add(t, y);
             }
         }
@@ -462,9 +486,11 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist() {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
-    maths::CCalendarComponentAdaptiveBucketing restoredBucketing{decayRate + 0.1, minimumBucketLength, traverser};
+    maths::CCalendarComponentAdaptiveBucketing restoredBucketing{
+        decayRate + 0.1, minimumBucketLength, traverser};
 
-    LOG_DEBUG(<< "orig checksum = " << checksum << " restored checksum = " << restoredBucketing.checksum());
+    LOG_DEBUG(<< "orig checksum = " << checksum
+              << " restored checksum = " << restoredBucketing.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum, restoredBucketing.checksum());
 
     // The XML representation of the new bucketing should be the
@@ -479,14 +505,18 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist() {
 }
 
 CppUnit::Test* CCalendarComponentAdaptiveBucketingTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarComponentAdaptiveBucketingTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CCalendarComponentAdaptiveBucketingTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testInitialize", &CCalendarComponentAdaptiveBucketingTest::testInitialize));
+        "CCalendarComponentAdaptiveBucketingTest::testInitialize",
+        &CCalendarComponentAdaptiveBucketingTest::testInitialize));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testSwap", &CCalendarComponentAdaptiveBucketingTest::testSwap));
+        "CCalendarComponentAdaptiveBucketingTest::testSwap",
+        &CCalendarComponentAdaptiveBucketingTest::testSwap));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testRefine", &CCalendarComponentAdaptiveBucketingTest::testRefine));
+        "CCalendarComponentAdaptiveBucketingTest::testRefine",
+        &CCalendarComponentAdaptiveBucketingTest::testRefine));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
         "CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime",
         &CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime));
@@ -494,11 +524,14 @@ CppUnit::Test* CCalendarComponentAdaptiveBucketingTest::suite() {
         "CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength",
         &CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testUnintialized", &CCalendarComponentAdaptiveBucketingTest::testUnintialized));
+        "CCalendarComponentAdaptiveBucketingTest::testUnintialized",
+        &CCalendarComponentAdaptiveBucketingTest::testUnintialized));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testKnots", &CCalendarComponentAdaptiveBucketingTest::testKnots));
+        "CCalendarComponentAdaptiveBucketingTest::testKnots",
+        &CCalendarComponentAdaptiveBucketingTest::testKnots));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
-        "CCalendarComponentAdaptiveBucketingTest::testPersist", &CCalendarComponentAdaptiveBucketingTest::testPersist));
+        "CCalendarComponentAdaptiveBucketingTest::testPersist",
+        &CCalendarComponentAdaptiveBucketingTest::testPersist));
 
     return suiteOfTests;
 }

@@ -249,7 +249,11 @@ public:
         CFieldOptions(const std::string& fieldName, int configKey);
 
         //! Deduce the function from the fieldName
-        CFieldOptions(const std::string& fieldName, int configKey, const std::string& byFieldName, bool byHasExcludeFrequent, bool useNull);
+        CFieldOptions(const std::string& fieldName,
+                      int configKey,
+                      const std::string& byFieldName,
+                      bool byHasExcludeFrequent,
+                      bool useNull);
 
         //! Deduce the function from the fieldName
         CFieldOptions(const std::string& fieldName,
@@ -329,8 +333,7 @@ public:
     using TFieldOptionsMIndex = boost::multi_index::multi_index_container<
         CFieldOptions,
         boost::multi_index::indexed_by<
-            boost::multi_index::ordered_unique<boost::multi_index::tag<SConfigKey>,
-                                               BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)>,
+            boost::multi_index::ordered_unique<boost::multi_index::tag<SConfigKey>, BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)>,
             boost::multi_index::ordered_unique<
                 boost::multi_index::tag<SUniqueKey>,
                 boost::multi_index::composite_key<
@@ -380,7 +383,10 @@ public:
 
     //! Construct with a single field and a partition field.  (This
     //! constructor is only used for unit testing.)
-    CFieldConfig(const std::string& fieldName, const std::string& byFieldName, const std::string& partitionFieldName, bool useNull);
+    CFieldConfig(const std::string& fieldName,
+                 const std::string& byFieldName,
+                 const std::string& partitionFieldName,
+                 bool useNull);
 
     //! Initialise from command line options.  This method expects that only
     //! one of the config file and the tokens will have been specified.  If
@@ -474,11 +480,16 @@ private:
     //! to find the unique config keys, then search for all the settings
     //! that correspond to each particular config key.  Doing this
     //! simplifies the error reporting.
-    bool
-    processDetector(const boost::property_tree::ptree& propTree, const std::string& key, const std::string& value, TIntSet& handledConfigs);
+    bool processDetector(const boost::property_tree::ptree& propTree,
+                         const std::string& key,
+                         const std::string& value,
+                         TIntSet& handledConfigs);
 
     //! Add data structures relating to an active detector.
-    bool addActiveDetector(int configKey, const std::string& description, const std::string& rules, TStrVec& copyTokens);
+    bool addActiveDetector(int configKey,
+                           const std::string& description,
+                           const std::string& rules,
+                           TStrVec& copyTokens);
 
     //! Get a function name and field name from a field string
     static bool parseFieldString(bool haveSummaryCountField,
@@ -500,7 +511,9 @@ private:
 
     //! Check that we have at most one "by" and one "over" token
     //! and report their positions in the token list
-    bool findLastByOverTokens(const TStrVec& copyTokens, std::size_t& lastByTokenIndex, std::size_t& lastOverTokenIndex);
+    bool findLastByOverTokens(const TStrVec& copyTokens,
+                              std::size_t& lastByTokenIndex,
+                              std::size_t& lastOverTokenIndex);
 
     //! Check that the "by" or "over" field is valid
     bool validateByOverField(const TStrVec& copyTokens,

@@ -41,7 +41,8 @@ public:
     virtual CNaiveBayesFeatureDensity* clone() const = 0;
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) = 0;
+    virtual bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser) = 0;
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -90,7 +91,8 @@ public:
     virtual CNaiveBayesFeatureDensityFromPrior* clone() const;
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    virtual bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -146,7 +148,8 @@ public:
     explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          double decayRate = 0.0,
                          TOptionalDouble minMaxLogLikelihoodToUseFeature = TOptionalDouble());
-    CNaiveBayes(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CNaiveBayes(const SDistributionRestoreParams& params,
+                core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -224,7 +227,8 @@ private:
     //! \brief The data associated with a class.
     struct SClass {
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core::CStateRestoreTraverser& traverser);
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
         //! Debug the memory used by this object.
@@ -244,7 +248,8 @@ private:
 
 private:
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Validate \p x.
     bool validate(const TDouble1VecVec& x) const;
