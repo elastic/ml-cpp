@@ -198,8 +198,7 @@ void CModelToolsTest::testProbabilityCache() {
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
     using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -211,8 +210,7 @@ void CModelToolsTest::testProbabilityCache() {
     test::CRandomNumbers rng;
 
     core_t::TTime time_{0};
-    TDouble2Vec4Vec weight{TDouble2Vec{1.0}};
-    TDouble2Vec4VecVec weights{weight};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
     {
         TDoubleVec samples_[3];
@@ -228,7 +226,6 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelAddSamplesParams params;
             params.integer(false)
                 .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
             model.addSamples(
@@ -266,8 +263,7 @@ void CModelToolsTest::testProbabilityCache() {
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
                 .addBucketEmpty(TBool2Vec{false})
-                .weightStyles(maths::CConstantWeights::COUNT)
-                .addWeights(weight);
+                .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;
             bool conditional;
@@ -309,8 +305,7 @@ void CModelToolsTest::testProbabilityCache() {
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
                 .addBucketEmpty(TBool2Vec{false})
-                .weightStyles(maths::CConstantWeights::COUNT)
-                .addWeights(weight);
+                .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;
             bool conditional;

@@ -318,8 +318,6 @@ void testModelWithValueField(model_t::EFeature feature,
     }
 }
 
-const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-const TDoubleVecVec UNIT_WEIGHT(1, TDoubleVec(1, 1.0));
 const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
@@ -342,8 +340,8 @@ void CEventRateModelTest::testOnlineCountSample() {
 
     TMathsModelPtr timeseriesModel{factory.defaultFeatureModel(
         model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true)};
-    maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights{
-        maths::CConstantWeights::unit<TDouble2Vec>(1)};
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
     // Generate some events.
     TTimeVec eventTimes;
@@ -372,7 +370,6 @@ void CEventRateModelTest::testOnlineCountSample() {
         params_.integer(true)
             .nonNegative(true)
             .propagationInterval(1.0)
-            .weightStyles(maths::CConstantWeights::COUNT)
             .trendWeights(weights)
             .priorWeights(weights);
         double sample{static_cast<double>(expectedEventCounts[j])};
@@ -445,8 +442,8 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
 
     TMathsModelPtr timeseriesModel{factory.defaultFeatureModel(
         model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true)};
-    maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights{
-        maths::CConstantWeights::unit<TDouble2Vec>(1)};
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
     // Generate some events.
     TTimeVec eventTimes;
@@ -476,7 +473,6 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
             params_.integer(true)
                 .nonNegative(true)
                 .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
             double sample{static_cast<double>(model_t::offsetCountToZero(
@@ -2709,7 +2705,7 @@ void CEventRateModelTest::testDecayRateControl() {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    params.s_MinimumModeFraction = model::CAnomalyDetectorModelConfig::DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
+    params.s_MinimumModeFraction = CAnomalyDetectorModelConfig::DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
 
     test::CRandomNumbers rng;
 
@@ -3037,10 +3033,12 @@ CppUnit::Test* CEventRateModelTest::suite() {
         "CEventRateModelTest::testOnlineProbabilityCalculation",
         &CEventRateModelTest::testOnlineProbabilityCalculation));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount",
+        "CEventRateModelTest::"
+        "testOnlineProbabilityCalculationForLowNonZeroCount",
         &CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount",
+        "CEventRateModelTest::"
+        "testOnlineProbabilityCalculationForHighNonZeroCount",
         &CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
         "CEventRateModelTest::testOnlineCorrelatedNoTrend",
@@ -3059,7 +3057,8 @@ CppUnit::Test* CEventRateModelTest::suite() {
         "CEventRateModelTest::testCountProbabilityCalculationWithInfluence",
         &CEventRateModelTest::testCountProbabilityCalculationWithInfluence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence",
+        "CEventRateModelTest::"
+        "testDistinctCountProbabilityCalculationWithInfluence",
         &CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
         "CEventRateModelTest::testOnlineRareWithInfluence",

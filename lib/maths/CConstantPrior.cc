@@ -75,7 +75,6 @@ bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
                                core::CStringUtils::stringToType(traverser.value(), constant),
                                m_Constant.reset(constant))
     } while (traverser.next());
-
     return true;
 }
 
@@ -95,9 +94,8 @@ bool CConstantPrior::needsOffset() const {
     return false;
 }
 
-double CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/,
-                                    const TDouble1Vec& /*samples*/,
-                                    const TDouble4Vec1Vec& /*weights*/) {
+double CConstantPrior::adjustOffset(const TDouble1Vec& /*samples*/,
+                                    const TDoubleWeightsAry1Vec& /*weights*/) {
     return 0.0;
 }
 
@@ -105,9 +103,8 @@ double CConstantPrior::offset() const {
     return 0.0;
 }
 
-void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& /*weights*/) {
+void CConstantPrior::addSamples(const TDouble1Vec& samples,
+                                const TDoubleWeightsAry1Vec& /*weights*/) {
     if (m_Constant || samples.empty()) {
         return;
     }
@@ -118,44 +115,39 @@ void CConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
 CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport() const {
-    return std::make_pair(boost::numeric::bounds<double>::lowest(),
-                          boost::numeric::bounds<double>::highest());
+    return {boost::numeric::bounds<double>::lowest(),
+            boost::numeric::bounds<double>::highest()};
 }
 
 double CConstantPrior::marginalLikelihoodMean() const {
     if (this->isNonInformative()) {
         return 0.0;
     }
-
     return *m_Constant;
 }
 
-double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                              const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodMode(const TDoubleWeightsAry& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
 CConstantPrior::TDoubleDoublePr
 CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
-                                                     const TWeightStyleVec& /*weightStyles*/,
-                                                     const TDouble4Vec& /*weights*/) const {
+                                                     const TDoubleWeightsAry& /*weights*/) const {
     if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
-
-    return std::make_pair(*m_Constant, *m_Constant);
+    return {*m_Constant, *m_Constant};
 }
 
-double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
-                                                  const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodVariance(const TDoubleWeightsAry& /*weights*/) const {
     return this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0;
 }
 
 maths_t::EFloatingPointErrorStatus
-CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                           const TDouble1Vec& samples,
-                                           const TDouble4Vec1Vec& weights,
+CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                                           const TDoubleWeightsAry1Vec& weights,
                                            double& result) const {
+
     result = 0.0;
 
     if (samples.empty()) {
@@ -192,7 +184,7 @@ CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
             return maths_t::E_FpOverflowed;
         }
 
-        numberSamples += maths_t::countForUpdate(weightStyles, weights[i]);
+        numberSamples += maths_t::countForUpdate(weights[i]);
     }
 
     result = numberSamples * core::constants::LOG_MAX_DOUBLE;
@@ -202,19 +194,17 @@ CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
 void CConstantPrior::sampleMarginalLikelihood(std::size_t numberSamples,
                                               TDouble1Vec& samples) const {
     samples.clear();
-
     if (this->isNonInformative()) {
         return;
     }
-
     samples.resize(numberSamples, *m_Constant);
 }
 
-bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                      const TDouble1Vec& samples,
-                                      const TDouble4Vec1Vec& weights,
+bool CConstantPrior::minusLogJointCdf(const TDouble1Vec& samples,
+                                      const TDoubleWeightsAry1Vec& weights,
                                       double& lowerBound,
                                       double& upperBound) const {
+
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
@@ -225,7 +215,7 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
     double numberSamples = 0.0;
     try {
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            numberSamples += maths_t::count(weightStyles, weights[i]);
+            numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute c.d.f. " << e.what());
@@ -251,11 +241,11 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
     return true;
 }
 
-bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                                const TDouble1Vec& samples,
-                                                const TDouble4Vec1Vec& weights,
+bool CConstantPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                                const TDoubleWeightsAry1Vec& weights,
                                                 double& lowerBound,
                                                 double& upperBound) const {
+
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
@@ -266,7 +256,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightSty
     double numberSamples = 0.0;
     try {
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            numberSamples += maths_t::count(weightStyles, weights[i]);
+            numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute c.d.f. " << e.what());
@@ -293,12 +283,12 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightSty
 }
 
 bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation /*calculation*/,
-                                                    const TWeightStyleVec& /*weightStyles*/,
                                                     const TDouble1Vec& samples,
-                                                    const TDouble4Vec1Vec& /*weights*/,
+                                                    const TDoubleWeightsAry1Vec& /*weights*/,
                                                     double& lowerBound,
                                                     double& upperBound,
                                                     maths_t::ETail& tail) const {
+
     lowerBound = upperBound = 0.0;
     tail = maths_t::E_UndeterminedTail;
 

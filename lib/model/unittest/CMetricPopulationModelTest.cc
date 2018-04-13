@@ -452,23 +452,20 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
 
     using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::size_t>;
     using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
+    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TSizeSizePrDoubleVecMap = std::map<TSizeSizePr, TDoubleVec>;
     using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
     using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
     using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
     using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
-    using TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr =
-        std::pair<TTimeDouble2VecSizeTrVec, TDouble2Vec4VecVec>;
-    using TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap =
-        std::map<std::size_t, TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr>;
-    using TSizeSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMapMap =
-        std::map<std::size_t, TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap>;
-
-    static const maths_t::TWeightStyleVec WEIGHT_STYLES{
-        maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight};
+    using TTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPr =
+        std::pair<TTimeDouble2VecSizeTrVec, TDouble2VecWeightsAryVec>;
+    using TSizeTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPrMap =
+        std::map<std::size_t, TTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPr>;
+    using TSizeSizeTimeDouble2VecSizeTrVecDouble2VecWeightAryVecPrMapMap =
+        std::map<std::size_t, TSizeTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPrMap>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -512,15 +509,14 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
         if (message.s_Time >= startTime + bucketLength) {
             model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
-            TSizeSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMapMap populationWeightedSamples;
+            TSizeSizeTimeDouble2VecSizeTrVecDouble2VecWeightAryVecPrMapMap populationWeightedSamples;
             for (std::size_t feature = 0u; feature < features.size(); ++feature) {
                 for (const auto& samples_ : expectedSamples[feature]) {
                     std::size_t pid = samples_.first.first;
                     std::size_t cid = samples_.first.second;
-                    double weight = model->sampleRateWeight(pid, cid);
                     TTimeDouble2VecSizeTrVec& samples =
                         populationWeightedSamples[feature][cid].first;
-                    TDouble2Vec4VecVec& weights =
+                    TDouble2VecWeightsAryVec& weights =
                         populationWeightedSamples[feature][cid].second;
                     TMathsModelPtr& model_ = expectedPopulationModels[feature][cid];
                     if (!model_) {
@@ -534,8 +530,12 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
                             expectedSampleTimes[{pid, cid}][j] + 0.5);
                         TDouble2Vec sample{samples_.second[j]};
                         samples.emplace_back(time_, sample, pid);
-                        weights.push_back(
-                            {{weight}, model_->winsorisationWeight(1.0, time_, sample)});
+                        weights.push_back(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                        auto& weight = weights.back();
+                        maths_t::setCount(
+                            TDouble2Vec{model->sampleRateWeight(pid, cid)}, weight);
+                        maths_t::setWinsorisationWeight(
+                            model_->winsorisationWeight(1.0, time_, sample), weight);
                     }
                 }
             }
@@ -543,13 +543,12 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
                 for (auto& attribute : feature.second) {
                     std::size_t cid = attribute.first;
                     TTimeDouble2VecSizeTrVec& samples = attribute.second.first;
-                    TDouble2Vec4VecVec& weights = attribute.second.second;
+                    TDouble2VecWeightsAryVec& weights = attribute.second.second;
                     maths::COrderings::simultaneousSort(samples, weights);
                     maths::CModelAddSamplesParams params_;
                     params_.integer(false)
                         .nonNegative(nonNegative)
                         .propagationInterval(1.0)
-                        .weightStyles(WEIGHT_STYLES)
                         .trendWeights(weights)
                         .priorWeights(weights);
                     expectedPopulationModels[feature.first][cid]->addSamples(params_, samples);

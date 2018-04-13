@@ -325,8 +325,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' }" ||
-                               result.print() == "{ 'weekend daily' 'weekday daily' "
-                                                 "'weekend weekly' 'weekday weekly' }");
+                               result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
                 lastTest += window;

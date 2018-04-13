@@ -77,9 +77,8 @@ using TOptionalStr = boost::optional<std::string>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
-using TMaxAccumulator =
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
+using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
 using TPriorPtr = boost::shared_ptr<maths::CPrior>;
 using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
@@ -281,8 +280,6 @@ void processBucket(core_t::TTime time,
                              partitioningFields, 1, probability2);
 }
 
-const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
@@ -396,13 +393,12 @@ void CMetricModelTest::testSample() {
                                   << core::CContainerPrinter::print(expectedMinSamples) << ", max samples = "
                                   << core::CContainerPrinter::print(expectedMaxSamples));
 
-                        maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights(
-                            numberSamples, maths::CConstantWeights::unit<TDouble2Vec>(1));
+                        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
+                            numberSamples, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                         maths::CModelAddSamplesParams params_;
                         params_.integer(false)
                             .nonNegative(true)
                             .propagationInterval(1.0)
-                            .weightStyles(COUNT_WEIGHT)
                             .trendWeights(weights)
                             .priorWeights(weights);
 
@@ -543,7 +539,6 @@ void CMetricModelTest::testSample() {
 void CMetricModelTest::testMultivariateSample() {
     LOG_DEBUG(<< "*** testMultivariateSample ***");
 
-    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
     using TTimeDouble2AryPr = std::pair<core_t::TTime, boost::array<double, 2>>;
@@ -562,8 +557,8 @@ void CMetricModelTest::testMultivariateSample() {
                          {202, 1.0, 0.7}, {204, 1.5, 1.8}};
     TTimeDouble2AryPrVec data;
     for (std::size_t i = 0u; i < boost::size(data_); ++i) {
-        boost::array<double, 2> values = {{data_[i][1], data_[i][2]}};
-        data.push_back(TTimeDouble2AryPr(static_cast<core_t::TTime>(data_[i][0]), values));
+        boost::array<double, 2> value = {{data_[i][1], data_[i][2]}};
+        data.emplace_back(static_cast<core_t::TTime>(data_[i][0]), value);
     }
 
     unsigned int sampleCounts[] = {2u, 1u};
@@ -590,7 +585,7 @@ void CMetricModelTest::testMultivariateSample() {
         TMean2Accumulator expectedLatLongSample;
         std::size_t numberSamples = 0;
         TDoubleVecVec expectedLatLongSamples;
-        TMultivariatePriorPtr expectedMeanPrior =
+        TMultivariatePriorPtr expectedPrior =
             factory.defaultMultivariatePrior(model_t::E_IndividualMeanLatLongByPerson);
 
         std::size_t j = 0;
@@ -626,53 +621,54 @@ void CMetricModelTest::testMultivariateSample() {
                               expectedLatLongSamples.end());
                     LOG_DEBUG(<< "Adding mean samples = "
                               << core::CContainerPrinter::print(expectedLatLongSamples));
-                    expectedMeanPrior->dataType(maths_t::E_ContinuousData);
-                    expectedMeanPrior->addSamples(
-                        COUNT_WEIGHT, expectedLatLongSamples,
-                        TDoubleVecVecVec(expectedLatLongSamples.size(),
-                                         TDoubleVecVec(1, TDoubleVec(2, 1.0))));
+                    expectedPrior->dataType(maths_t::E_ContinuousData);
+                    expectedPrior->addSamples(
+                        expectedLatLongSamples,
+                        maths_t::TDouble10VecWeightsAry1Vec(
+                            expectedLatLongSamples.size(),
+                            maths_t::CUnitWeights::unit<maths_t::TDouble10Vec>(2)));
                     numberSamples = 0u;
                     expectedLatLongSamples.clear();
                 }
 
                 model_t::CResultType type(model_t::CResultType::E_Unconditional |
                                           model_t::CResultType::E_Final);
-                TOptionalUInt64 currentCount = model.currentBucketCount(0, time);
+                TOptionalUInt64 count = model.currentBucketCount(0, time);
                 TDouble1Vec bucketLatLong = model.currentBucketValue(
                     model_t::E_IndividualMeanLatLongByPerson, 0, 0, time);
                 TDouble1Vec baselineLatLong =
                     model.baselineBucketMean(model_t::E_IndividualMeanLatLongByPerson,
                                              0, 0, type, NO_CORRELATES, time);
+                TDouble1Vec featureLatLong = multivariateFeatureData(
+                    model, model_t::E_IndividualMeanLatLongByPerson, 0, time);
+                const auto& prior =
+                    dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
+                        model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
+                        ->prior();
 
-                LOG_DEBUG(<< "bucket count = "
-                          << core::CContainerPrinter::print(currentCount));
-                LOG_DEBUG(<< "current bucket mean = "
-                          << core::CContainerPrinter::print(bucketLatLong) << ", expected baseline bucket mean = "
-                          << maths::CBasicStatistics::mean(expectedBaselineLatLong) << ", baseline bucket mean = "
+                LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(count));
+                LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong));
+                LOG_DEBUG(<< ", expected baseline = "
+                          << maths::CBasicStatistics::mean(expectedBaselineLatLong));
+                LOG_DEBUG(<< ", actual baseline = "
                           << core::CContainerPrinter::print(baselineLatLong));
 
-                CPPUNIT_ASSERT(currentCount);
-                CPPUNIT_ASSERT_EQUAL(expectedCount, *currentCount);
+                CPPUNIT_ASSERT(count);
+                CPPUNIT_ASSERT_EQUAL(expectedCount, *count);
 
                 TDouble1Vec latLong;
                 if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
                     latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(0));
                     latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(1));
                 }
-                CPPUNIT_ASSERT(latLong == bucketLatLong);
+                CPPUNIT_ASSERT_EQUAL(latLong, bucketLatLong);
                 if (!baselineLatLong.empty()) {
                     baselineLatLongError.add(maths::fabs(
                         TVector2(baselineLatLong) -
                         maths::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
-                CPPUNIT_ASSERT(latLong == multivariateFeatureData(model, model_t::E_IndividualMeanLatLongByPerson,
-                                                                  0, time));
-                CPPUNIT_ASSERT_EQUAL(
-                    expectedMeanPrior->checksum(),
-                    dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
-                        model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
-                        ->prior()
-                        .checksum());
+                CPPUNIT_ASSERT_EQUAL(latLong, featureLatLong);
+                CPPUNIT_ASSERT_EQUAL(expectedPrior->checksum(), prior.checksum());
 
                 // Test persistence. (We check for idempotency.)
                 std::string origXml;

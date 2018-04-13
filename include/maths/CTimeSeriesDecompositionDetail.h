@@ -63,8 +63,7 @@ public:
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
-                  const maths_t::TWeightStyleVec& weightStyles,
-                  const maths_t::TDouble4Vec& weights,
+                  const maths_t::TDoubleWeightsAry& weights,
                   double trend,
                   double seasonal,
                   double calendar,
@@ -73,10 +72,8 @@ public:
 
         //! The value to add.
         double s_Value;
-        //! The styles of the weights.
-        const maths_t::TWeightStyleVec& s_WeightStyles;
         //! The weights of associated with the value.
-        const maths_t::TDouble4Vec& s_Weights;
+        const maths_t::TDoubleWeightsAry& s_Weights;
         //! The trend component prediction at the value's time.
         double s_Trend;
         //! The seasonal component prediction at the value's time.

@@ -187,21 +187,17 @@ public:
     }
 
     //! No-op.
-    virtual void adjustOffset(const TWeightStyleVec& /*weightStyles*/,
-                              const TDouble10Vec1Vec& /*samples*/,
-                              const TDouble10Vec4Vec1Vec& /*weights*/) {}
+    virtual void adjustOffset(const TDouble10Vec1Vec& /*samples*/,
+                              const TDouble10VecWeightsAry1Vec& /*weights*/) {}
 
     //! Update the prior with a collection of independent samples from the
     //! process.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights) {
+    virtual void addSamples(const TDouble10Vec1Vec& samples,
+                            const TDouble10VecWeightsAry1Vec& weights) {
+
         if (samples.empty()) {
             return;
         }
@@ -209,7 +205,7 @@ public:
             return;
         }
 
-        this->CMultivariatePrior::addSamples(weightStyles, samples, weights);
+        this->CMultivariatePrior::addSamples(samples, weights);
 
         // Note that if either count weight or Winsorisation weights are supplied
         // the weight of the sample x(i) is interpreted as its count, so for example
@@ -245,10 +241,10 @@ public:
         try {
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
-                TPoint n(maths_t::countForUpdate(N, weightStyles, weights[i]));
+                TPoint n(maths_t::countForUpdate(weights[i]));
                 TPoint varianceScale =
-                    TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])) *
-                    TPoint(maths_t::countVarianceScale(N, weightStyles, weights[i]));
+                    TPoint(maths_t::seasonalVarianceScale(weights[i])) *
+                    TPoint(maths_t::countVarianceScale(weights[i]));
                 numberSamples += n;
                 covariancePost.add(x, n / varianceScale);
             }
@@ -310,11 +306,11 @@ public:
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
+
         if (!CMathsFuncs::isFinite(time) || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
         }
-
         if (this->isNonInformative()) {
             // Nothing to be done.
             return;
@@ -367,6 +363,7 @@ public:
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
     univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+
         if (!this->check(marginalize, condition)) {
             return TUnivariatePriorPtrDoublePr();
         }
@@ -452,11 +449,11 @@ public:
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
+
         if (N == 2) {
             return TPriorPtrDoublePr(
                 boost::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
         }
-
         if (!this->check(marginalize, condition)) {
             return TPriorPtrDoublePr();
         }
@@ -549,8 +546,7 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                                const TDouble10Vec4Vec& /*weights*/) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& /*weights*/) const {
         return this->marginalLikelihoodMean();
     }
 
@@ -567,17 +563,14 @@ public:
     //! Calculate the log marginal likelihood function, integrating over the
     //! prior density function.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
+
         result = 0.0;
 
         if (samples.empty()) {
@@ -609,8 +602,8 @@ public:
 
         if (this->isInteger()) {
             double logLikelihood;
-            status = this->jointLogMarginalLikelihood(
-                weightStyles, samples, TPoint(0.5), weights, logLikelihood);
+            status = this->jointLogMarginalLikelihood(samples, TPoint(0.5),
+                                                      weights, logLikelihood);
             if (status != maths_t::E_FpNoErrors) {
                 return status;
             }
@@ -623,7 +616,7 @@ public:
             CSampling::uniformSample(0.0, 1.0, 3 * N, z);
             for (std::size_t i = 0u; i < z.size(); i += N) {
                 status = this->jointLogMarginalLikelihood(
-                    weightStyles, samples, TPoint(&z[i], &z[i + N]), weights, logLikelihood);
+                    samples, TPoint(&z[i], &z[i + N]), weights, logLikelihood);
                 if (status & maths_t::E_FpFailed) {
                     return maths_t::E_FpFailed;
                 }
@@ -641,8 +634,7 @@ public:
 
             result = maxLogLikelihood + std::log(sum / n);
         } else {
-            status = this->jointLogMarginalLikelihood(weightStyles, samples,
-                                                      TPoint(0.0), weights, result);
+            status = this->jointLogMarginalLikelihood(samples, TPoint(0.0), weights, result);
         }
 
         if (status & maths_t::E_FpFailed) {
@@ -679,6 +671,7 @@ public:
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
                                           TDouble10Vec1Vec& samples) const {
+
         samples.clear();
 
         if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -773,6 +766,7 @@ public:
 
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
@@ -811,6 +805,7 @@ public:
     //@{
     //! Randomly sample the covariance matrix prior.
     void randomSamplePrecisionMatrixPrior(std::size_t n, TMatrixVec& result) {
+
         // The prior on the precision matrix is Wishart with matrix V equal
         // to the inverse of the scale matrix and degrees freedom equal to
         // degrees freedom minus the data dimension. To sample from the Wishart
@@ -882,6 +877,7 @@ public:
 
     //! Randomly sample from the marginal over the mean.
     void randomSampleMeanPrior(std::size_t n, TPointVec& result) {
+
         result.clear();
 
         if (this->isNonInformative()) {
@@ -921,6 +917,7 @@ public:
 
     //! Randomly sample from the predictive distribution.
     void randomSamplePredictive(std::size_t n, TPointVec& result) {
+
         result.clear();
 
         if (this->isNonInformative()) {
@@ -955,6 +952,7 @@ public:
 
     //! Get the covariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix() const {
+
         // This can be found by change of variables from the prior on the
         // precision matrix. In particular, if X ~ W_d(V, n) and Y = X^(-1),
         // then Y ~ W_d^(-1)(V^(-1), n), i.e. the inverse Wishart with the
@@ -978,7 +976,6 @@ public:
         if (this->isNonInformative()) {
             return TMatrix(0.0);
         }
-
         TMatrix result(m_WishartScaleMatrix / m_WishartDegreesFreedom);
         return TMatrix(fromDenseMatrix(toDenseMatrix(result).inverse()));
     }
@@ -987,6 +984,7 @@ public:
     bool equalTolerance(const CMultivariateNormalConjugate& rhs,
                         unsigned int toleranceType,
                         double epsilon) const {
+
         LOG_DEBUG(<< m_GaussianMean << " " << rhs.m_GaussianMean);
         LOG_DEBUG(<< m_GaussianPrecision << " " << rhs.m_GaussianPrecision);
         LOG_DEBUG(<< m_WishartDegreesFreedom << " " << rhs.m_WishartDegreesFreedom);
@@ -1045,17 +1043,15 @@ private:
     //! Compute the marginal likelihood for \p samples at the offset
     //! \p offset.
     maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TPoint& offset,
-                               const TDouble10Vec4Vec1Vec& weights,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
+
         // As usual, one can find the marginal likelihood by noting that
         // it is proportional to the ratio of the normalization factors
         // of the conjugate distribution before and after update with the
         // samples.
-
-        double d = static_cast<double>(N);
 
         double numberSamples = 0.0;
         TCovariance covariancePost;
@@ -1064,11 +1060,10 @@ private:
             TPoint m(this->marginalLikelihoodMean());
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
-                TPoint n(maths_t::countForUpdate(N, weightStyles, weights[i]));
-                TPoint seasonalScale = sqrt(TPoint(
-                    maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
-                TPoint countVarianceScale(
-                    maths_t::countVarianceScale(N, weightStyles, weights[i]));
+                TPoint n(maths_t::countForUpdate(weights[i]));
+                TPoint seasonalScale =
+                    sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
+                TPoint countVarianceScale(maths_t::countVarianceScale(weights[i]));
                 x = m + (x + offset - m) / seasonalScale;
                 numberSamples += this->smallest(n.template toVector<TDouble10Vec>());
                 covariancePost.add(x, n / countVarianceScale);
@@ -1130,6 +1125,7 @@ private:
             LOG_TRACE(<< "logGammaPostMinusPrior = " << logGammaPostMinusPrior);
             LOG_TRACE(<< "logCountVarianceScales = " << logCountVarianceScales);
 
+            double d = static_cast<double>(N);
             result = 0.5 * (wishartDegreesFreedomPrior * logDeterminantPrior -
                             wishartDegreesFreedomPost * logDeterminantPost -
                             d * (logGaussianPrecisionPost - logGaussianPrecisionPrior) +

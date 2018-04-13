@@ -160,21 +160,16 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Forward the offset to the model priors.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights);
+    virtual void adjustOffset(const TDouble10Vec1Vec& samples,
+                              const TDouble10VecWeightsAry1Vec& weights);
 
     //! Update the model weights using the marginal likelihoods for
     //! the data. The component prior parameters are then updated.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights);
+    virtual void addSamples(const TDouble10Vec1Vec& samples,
+                            const TDouble10VecWeightsAry1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -233,24 +228,19 @@ public:
     virtual TDouble10Vec marginalLikelihoodVariances() const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const;
 
     //! Sample the marginal likelihood function.
