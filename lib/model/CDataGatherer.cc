@@ -35,7 +35,6 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
-#include <memory>
 
 namespace ml {
 namespace model {

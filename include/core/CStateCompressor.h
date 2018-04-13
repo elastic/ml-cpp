@@ -21,6 +21,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <ios>
+#include <memory>
 #include <ostream>
 
 namespace ml {

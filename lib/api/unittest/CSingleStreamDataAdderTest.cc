@@ -156,8 +156,8 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         firstProcessor = &typer;
     }
 
-    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
-    TScopedInputParserP parser;
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    TInputParserUPtr parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
     } else {

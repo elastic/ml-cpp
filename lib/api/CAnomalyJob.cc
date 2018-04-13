@@ -54,7 +54,6 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <fstream>
-#include <memory>
 #include <sstream>
 #include <string>
 

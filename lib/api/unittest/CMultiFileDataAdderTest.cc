@@ -200,8 +200,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
                     boost::ref(numOrigDocs)),
         nullptr, -1, "time", timeFormat);
 
-    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
-    TScopedInputParserP parser;
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    TInputParserUPtr parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
     } else {

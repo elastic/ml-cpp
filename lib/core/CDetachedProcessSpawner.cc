@@ -21,7 +21,6 @@
 #include <core/CThread.h>
 
 #include <algorithm>
-#include <memory>
 #include <set>
 
 #include <errno.h>

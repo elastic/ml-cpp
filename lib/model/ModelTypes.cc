@@ -25,8 +25,6 @@
 #include <model/CModelParams.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <memory>
-
 namespace ml {
 namespace model_t {
 

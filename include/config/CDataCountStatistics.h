@@ -33,7 +33,6 @@
 #include <boost/unordered_set.hpp>
 
 #include <cstddef>
-#include <memory>
 #include <stdint.h>
 #include <vector>
 

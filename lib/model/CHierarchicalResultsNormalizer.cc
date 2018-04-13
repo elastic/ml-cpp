@@ -29,7 +29,6 @@
 #include <rapidjson/document.h>
 
 #include <algorithm>
-#include <memory>
 
 namespace ml {
 namespace model {

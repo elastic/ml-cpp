@@ -27,7 +27,6 @@
 #include <rapidjson/document.h>
 
 #include <iosfwd>
-#include <memory>
 #include <sstream>
 #include <string>
 

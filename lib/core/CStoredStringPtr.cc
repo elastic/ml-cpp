@@ -18,7 +18,6 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <memory>
 #include <utility>
 
 namespace ml {

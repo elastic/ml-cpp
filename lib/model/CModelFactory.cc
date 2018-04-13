@@ -40,8 +40,6 @@
 
 #include <boost/bind.hpp>
 
-#include <memory>
-
 namespace ml {
 namespace model {
 

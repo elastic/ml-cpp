@@ -101,8 +101,8 @@ int main(int argc, char** argv) {
     modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
-    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
-    TScopedInputParserP inputParser;
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    TInputParserUPtr inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
     } else {
@@ -110,8 +110,8 @@ int main(int argc, char** argv) {
             ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
     }
 
-    using TScopedOutputHandlerP = std::unique_ptr<ml::api::COutputHandler>;
-    TScopedOutputHandlerP outputWriter;
+    using TOutputHandlerUPtr = std::unique_ptr<ml::api::COutputHandler>;
+    TOutputHandlerUPtr outputWriter;
     if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
     } else {

@@ -37,7 +37,6 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include <memory>
 #include <numeric>
 
 namespace ml {

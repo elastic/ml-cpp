@@ -242,7 +242,7 @@ Some examples:
 // Some helpers
 namespace {
 
-typedef std::vector<std::string::size_type> TSizeTypeVec;
+using TSizeTypeVec = std::vector<std::string::size_type>;
 
 std::string::size_type _last(const TSizeTypeVec& v) {
     if (v.empty()) {

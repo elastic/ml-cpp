@@ -59,15 +59,15 @@ private:
     const std::string m_TimeFieldName;
     const std::string m_EntropyFieldName;
 
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     TStrVec::size_type m_DomainNameFieldIndex;
     TStrVec::size_type m_TimeFieldIndex;
 
-    typedef std::shared_ptr<CCompressUtils> TCompressUtilsP;
-    typedef std::map<std::string, TCompressUtilsP> TStrCompressUtilsPMap;
-    typedef TStrCompressUtilsPMap::iterator TStrCompressUtilsPMapItr;
-    typedef TStrCompressUtilsPMap::const_iterator TStrCompressUtilsPMapCItr;
+    using TCompressUtilsP = std::shared_ptr<CCompressUtils>;
+    using TStrCompressUtilsPMap = std::map<std::string, TCompressUtilsP>;
+    using TStrCompressUtilsPMapItr = TStrCompressUtilsPMap::iterator;
+    using TStrCompressUtilsPMapCItr = TStrCompressUtilsPMap::const_iterator;
 
     TStrCompressUtilsPMap m_RegisteredDomainEntropy;
 };

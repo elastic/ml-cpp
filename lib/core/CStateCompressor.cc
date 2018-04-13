@@ -19,8 +19,6 @@
 
 #include <boost/ref.hpp>
 
-#include <memory>
-
 namespace ml {
 namespace core {
 

@@ -18,8 +18,6 @@
 #include <maths/CMultivariateMultimodalPrior.h>
 #include <maths/CXMeansOnlineFactory.h>
 
-#include <memory>
-
 namespace ml {
 namespace maths {
 

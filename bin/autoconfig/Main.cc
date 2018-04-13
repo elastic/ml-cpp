@@ -90,8 +90,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    typedef std::unique_ptr<ml::api::CInputParser> TScopedInputParserP;
-    TScopedInputParserP inputParser;
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    TInputParserUPtr inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
     } else {

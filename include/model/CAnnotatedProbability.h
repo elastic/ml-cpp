@@ -26,7 +26,6 @@
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
 
-#include <memory>
 #include <utility>
 #include <vector>
 

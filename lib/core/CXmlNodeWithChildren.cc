@@ -16,8 +16,6 @@
 
 #include <core/CoreTypes.h>
 
-#include <memory>
-
 namespace ml {
 namespace core {
 

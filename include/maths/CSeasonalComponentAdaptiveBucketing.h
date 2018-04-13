@@ -24,6 +24,7 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include <stdint.h>

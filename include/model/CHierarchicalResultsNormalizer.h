@@ -22,6 +22,7 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/ImportExport.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>

@@ -171,8 +171,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    using TScopedDataSearcherP = std::unique_ptr<ml::core::CDataSearcher>;
-    TScopedDataSearcherP restoreSearcher;
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    TDataSearcherUPtr restoreSearcher;
     if (ioMgr.restoreStream()) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
         // and therefore does not originate from X-Pack.
@@ -187,14 +187,14 @@ int main(int argc, char** argv) {
         }
     }
 
-    using TScopedDataAdderP = std::unique_ptr<ml::core::CDataAdder>;
-    TScopedDataAdderP persister;
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    TDataAdderUPtr persister;
     if (ioMgr.persistStream()) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
-    using TScopedBackgroundPersisterP = std::unique_ptr<ml::api::CBackgroundPersister>;
-    TScopedBackgroundPersisterP periodicPersister;
+    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
+    TBackgroundPersisterUPtr periodicPersister;
     if (persistInterval >= 0) {
         if (persister == nullptr) {
             LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
@@ -207,8 +207,8 @@ int main(int argc, char** argv) {
         periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval, *persister));
     }
 
-    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
-    TScopedInputParserP inputParser;
+    using InputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    InputParserUPtr inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
     } else {

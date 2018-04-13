@@ -23,7 +23,6 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <memory>
 #include <utility>
 #include <vector>
 

@@ -38,7 +38,6 @@
 #include <boost/random/normal_distribution.hpp>
 
 #include <cmath>
-#include <memory>
 #include <string>
 #include <utility>
 

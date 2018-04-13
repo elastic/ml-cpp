@@ -24,7 +24,6 @@
 #include <core/WindowsSafe.h>
 
 #include <map>
-#include <memory>
 
 namespace ml {
 namespace core {
