@@ -22,9 +22,8 @@
 #include <config/ConfigTypes.h>
 #include <config/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 namespace ml {

@@ -31,10 +31,10 @@
 #include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -106,8 +106,8 @@ namespace api {
 //!
 class API_EXPORT CJsonOutputWriter : public COutputHandler {
 public:
-    using TDocumentPtr = boost::shared_ptr<rapidjson::Document>;
-    using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
+    using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
+    using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
     using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
     using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
     using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
@@ -128,7 +128,7 @@ public:
     using TStringDoublePr = std::pair<std::string, double>;
     using TStringDoublePrVec = std::vector<TStringDoublePr>;
 
-    using TValuePtr = boost::shared_ptr<rapidjson::Value>;
+    using TValuePtr = std::shared_ptr<rapidjson::Value>;
 
     //! Structure to buffer up information about each bucket that we have
     //! unwritten results for

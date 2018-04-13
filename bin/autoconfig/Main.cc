@@ -40,8 +40,8 @@
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
@@ -90,13 +90,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
-    TScopedInputParserP inputParser;
-    if (lengthEncodedInput) {
-        inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
-    }
+    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
+    TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr,
+                                   delimiter]() -> ml::api::CInputParser* {
+        if (lengthEncodedInput) {
+            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+        }
+        return new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter);
+    }()};
 
     // This manages the full parameterization of the autoconfigurer.
     ml::config::CAutoconfigurerParams params(timeField, timeFormat, verbose, writeDetectorConfigs);

@@ -1019,9 +1019,9 @@ void CMultivariateMultimodalPriorTest::testLatLongData() {
               << " ...");
 
     maths_t::EDataType dataType = maths_t::E_ContinuousData;
-    boost::shared_ptr<maths::CMultivariatePrior> modePrior =
+    std::shared_ptr<maths::CMultivariatePrior> modePrior =
         maths::CMultivariateNormalConjugateFactory::nonInformative(2, dataType, 0.001);
-    boost::shared_ptr<maths::CMultivariatePrior> filter =
+    std::shared_ptr<maths::CMultivariatePrior> filter =
         maths::CMultivariateMultimodalPriorFactory::nonInformative(
             2, // dimension
             dataType, 0.0005, maths_t::E_ClustersFractionWeight,

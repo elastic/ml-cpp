@@ -24,7 +24,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace ml {
 namespace model {
@@ -84,19 +84,19 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return boost::make_shared<maths::CConstantPrior>();
+    return std::make_shared<maths::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return boost::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return std::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return boost::make_shared<maths::CMultivariateConstantPrior>(2);
+    return std::make_shared<maths::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

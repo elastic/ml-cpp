@@ -23,8 +23,6 @@
 #include <core/CWindowsError.h>
 #include <core/WindowsSafe.h>
 
-#include <boost/make_shared.hpp>
-
 #include <map>
 
 namespace ml {
@@ -145,7 +143,7 @@ private:
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths),
-      m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+      m_TrackerThread(std::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
         LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }

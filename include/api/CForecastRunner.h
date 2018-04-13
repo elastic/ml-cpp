@@ -30,12 +30,12 @@
 #include <model/CForecastDataSink.h>
 #include <model/CResourceMonitor.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <condition_variable>
 #include <functional>
 #include <list>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -101,7 +101,7 @@ private:
 
 public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
-    using TOStreamConcurrentWrapperPtr = boost::shared_ptr<TOStreamConcurrentWrapper>;
+    using TOStreamConcurrentWrapperPtr = std::shared_ptr<TOStreamConcurrentWrapper>;
 
     using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;

@@ -18,8 +18,7 @@
 #include <core/CProcess.h>
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -74,7 +73,7 @@ class CORE_EXPORT CDetachedProcessSpawner {
 public:
     using TStrVec = std::vector<std::string>;
 
-    using TTrackerThreadP = boost::shared_ptr<detail::CTrackerThread>;
+    using TTrackerThreadP = std::shared_ptr<detail::CTrackerThread>;
 
 public:
     //! Permitted paths may be relative or absolute, but each process must

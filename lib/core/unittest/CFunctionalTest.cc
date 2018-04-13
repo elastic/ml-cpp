@@ -19,7 +19,8 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 using namespace ml;
 
@@ -40,8 +41,8 @@ void CFunctionalTest::testIsNull() {
         CPPUNIT_ASSERT(!isNull(notNull));
     }
     {
-        boost::shared_ptr<double> null;
-        boost::shared_ptr<double> notNull(new double(5.0));
+        std::shared_ptr<double> null;
+        std::shared_ptr<double> notNull(new double(5.0));
         CPPUNIT_ASSERT(isNull(null));
         CPPUNIT_ASSERT(!isNull(notNull));
     }

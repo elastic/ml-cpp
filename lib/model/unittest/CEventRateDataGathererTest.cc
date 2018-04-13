@@ -268,7 +268,7 @@ void importCsvData(CDataGatherer& gatherer,
                    CResourceMonitor& resourceMonitor,
                    const std::string& filename,
                    const TSizeVec& fields) {
-    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
+    using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(filename.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

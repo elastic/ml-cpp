@@ -29,10 +29,10 @@
 
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -80,21 +80,21 @@ public:
     using TOptionalUInt = boost::optional<unsigned int>;
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
-    using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
-    using TPriorPtr = boost::shared_ptr<maths::CPrior>;
-    using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+    using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
+    using TPriorPtr = std::shared_ptr<maths::CPrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
-    using TDecompositionCPtr = boost::shared_ptr<const maths::CTimeSeriesDecompositionInterface>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
-    using TCorrelationsPtr = boost::shared_ptr<maths::CTimeSeriesCorrelations>;
+    using TDecompositionCPtr = std::shared_ptr<const maths::CTimeSeriesDecompositionInterface>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TCorrelationsPtr = std::shared_ptr<maths::CTimeSeriesCorrelations>;
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
     using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
-    using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
-    using TModelCPtr = boost::shared_ptr<const CAnomalyDetectorModel>;
-    using TInfluenceCalculatorCPtr = boost::shared_ptr<const CInfluenceCalculator>;
+    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
+    using TModelCPtr = std::shared_ptr<const CAnomalyDetectorModel>;
+    using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
     using TFeatureInfluenceCalculatorCPtrPr =
         std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;

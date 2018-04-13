@@ -116,7 +116,7 @@ private:
                  std::string& domain,
                  std::string& suffix) const;
 
-    typedef std::vector<std::string::size_type> TSizeTypeVec;
+    using TSizeTypeVec = std::vector<std::string::size_type>;
 
     //! If a normal rule matches, split domain
     static void ruleDomains(const std::string& str,
@@ -146,7 +146,7 @@ private:
 private:
     const std::string m_EffectiveTldNamesFileName;
 
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
 
     TStrSet m_EffectiveTldNames;
     TStrSet m_EffectiveTldNamesExceptions;

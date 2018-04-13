@@ -22,7 +22,7 @@
 
 class CAnomalyScoreTest : public CppUnit::TestFixture {
 public:
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
 public:
     void testComputeScores();

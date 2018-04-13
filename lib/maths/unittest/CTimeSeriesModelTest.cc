@@ -35,9 +35,8 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/scoped_ptr.hpp>
-
 #include <cmath>
+#include <memory>
 
 using namespace ml;
 
@@ -64,7 +63,7 @@ using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
 using TTimeDouble2VecSizeTrVec = maths::CModel::TTimeDouble2VecSizeTrVec;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulator2Vec = core::CSmallVector<TMeanAccumulator, 2>;
-using TDecompositionPtr = boost::shared_ptr<maths::CTimeSeriesDecompositionInterface>;
+using TDecompositionPtr = std::shared_ptr<maths::CTimeSeriesDecompositionInterface>;
 using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
 using TDecayRateController2Ary = maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary;
 
@@ -212,10 +211,10 @@ void CTimeSeriesModelTest::testClone() {
         }
 
         uint64_t checksum1 = model.checksum();
-        boost::scoped_ptr<maths::CUnivariateTimeSeriesModel> clone1{model.clone(1)};
+        std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
-        boost::scoped_ptr<maths::CUnivariateTimeSeriesModel> clone2{model.clone(2)};
+        std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone2{model.clone(2)};
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), clone2->identifier());
     }
     {
@@ -243,10 +242,10 @@ void CTimeSeriesModelTest::testClone() {
         }
 
         uint64_t checksum1 = model.checksum();
-        boost::scoped_ptr<maths::CMultivariateTimeSeriesModel> clone1{model.clone(1)};
+        std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
-        boost::scoped_ptr<maths::CMultivariateTimeSeriesModel> clone2{model.clone(2)};
+        std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone2{model.clone(2)};
         uint64_t checksum3 = clone2->checksum();
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum3);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), clone2->identifier());
@@ -1611,7 +1610,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
     {
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
         auto controllers = decayRateControllers(1);
-        boost::scoped_ptr<maths::CModel> model{new maths::CUnivariateTimeSeriesModel{
+        std::unique_ptr<maths::CModel> model{new maths::CUnivariateTimeSeriesModel{
             params(bucketLength), 0, trend, univariateNormal(), &controllers}};
 
         TDoubleVec samples;
@@ -1653,7 +1652,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
         maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
         auto controllers = decayRateControllers(3);
-        boost::scoped_ptr<maths::CModel> model{new maths::CMultivariateTimeSeriesModel{
+        std::unique_ptr<maths::CModel> model{new maths::CMultivariateTimeSeriesModel{
             params(bucketLength), trend, prior, &controllers}};
 
         TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(3)};

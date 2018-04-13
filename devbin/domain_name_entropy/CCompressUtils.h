@@ -72,7 +72,7 @@ private:
 
     EState m_State;
 
-    typedef std::vector<Bytef> TByteVec;
+    using TByteVec = std::vector<Bytef>;
 
     TByteVec m_Buffer;
 

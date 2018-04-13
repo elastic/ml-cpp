@@ -23,8 +23,6 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <utility>
 #include <vector>
 
