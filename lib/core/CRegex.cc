@@ -27,13 +27,16 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
     case boost::regex_constants::error_bad_pattern:
         return "Other unspecified errors.";
     case boost::regex_constants::error_collate:
-        return "An invalid collating element was specified in a [[.name.]] block.";
+        return "An invalid collating element was specified in a [[.name.]] "
+               "block.";
     case boost::regex_constants::error_ctype:
-        return "An invalid character class name was specified in a [[:name:]] block.";
+        return "An invalid character class name was specified in a [[:name:]] "
+               "block.";
     case boost::regex_constants::error_escape:
         return "An invalid or trailing escape was encountered.";
     case boost::regex_constants::error_backref:
-        return "A back-reference to a non-existant marked sub-expression was encountered.";
+        return "A back-reference to a non-existant marked sub-expression was "
+               "encountered.";
     case boost::regex_constants::error_brack:
         return "An invalid character set [...] was encountered.";
     case boost::regex_constants::error_paren:
@@ -47,7 +50,8 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
     case boost::regex_constants::error_space:
         return "Out of memory.";
     case boost::regex_constants::error_badrepeat:
-        return "An attempt to repeat something that can not be repeated - for example a*+";
+        return "An attempt to repeat something that can not be repeated - for "
+               "example a*+";
     case boost::regex_constants::error_end:
         return "Unexpected end of regular expression."; // Not used in Boost 1.47
     case boost::regex_constants::error_size:
@@ -55,7 +59,8 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
     case boost::regex_constants::error_right_paren:
         return "Unmatched ')'."; // Not used in Boost 1.47
     case boost::regex_constants::error_empty:
-        return "Regular expression starts or ends with the alternation operator |.";
+        return "Regular expression starts or ends with the alternation "
+               "operator |.";
     case boost::regex_constants::error_complexity:
         return "The expression became too complex to handle.";
     case boost::regex_constants::error_stack:

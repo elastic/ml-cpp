@@ -208,7 +208,8 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                         std::exp(maths::CBasicStatistics::mean(penalties_[bid]));
                     std::string description;
                     if (penalty < 1.0) {
-                        description = "The bucket length does not properly capture the variation in event rate";
+                        description = "The bucket length does not properly "
+                                      "capture the variation in event rate";
                     }
                     penalties.push_back(penalty);
                     descriptions.push_back(description);

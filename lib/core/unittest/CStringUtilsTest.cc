@@ -471,7 +471,8 @@ void CStringUtilsTest::testStringToType() {
 }
 
 void CStringUtilsTest::testTokeniser() {
-    std::string str = "sadcasd csac asdcasdc asdc asdc sadc sadc asd csdc ewwef f sdf sd f sdf  sdfsadfasdf\n"
+    std::string str = "sadcasd csac asdcasdc asdc asdc sadc sadc asd csdc "
+                      "ewwef f sdf sd f sdf  sdfsadfasdf\n"
                       "adscasdcadsc\n"
                       "asdfcasdcadsds<ENDsa wefasdsadc<END>asdcsadcadsc\n"
                       "asdcasdcsdcasdc\n"

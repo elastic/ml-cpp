@@ -73,7 +73,8 @@ void CContainerPrinterTest::testAll() {
     aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
     aggregate.push_back(std::make_pair(list, 5.1));
     LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
-    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
+    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], "
+                                     "0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
                          CContainerPrinter::print(aggregate));
 }
 

@@ -44,7 +44,8 @@ void CRapidXmlStatePersistInserterTest::testPersist() {
 
     inserter.toXml(false, xml);
     CPPUNIT_ASSERT_EQUAL(std::string("<root attr1=\"attrVal1\" "
-                                     "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
+                                     "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</"
+                                     "level1B><level1C><level2A>3.14</"
                                      "level2A><level2B>z</level2B></level1C></root>"),
                          xml);
 }

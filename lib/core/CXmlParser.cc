@@ -258,7 +258,8 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr,
     ret.clear();
 
     if (m_Doc == nullptr || m_XPathContext == nullptr) {
-        LOG_ERROR(<< "Attempt to evaluate Xpath expression before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to evaluate Xpath expression before ::parseFile "
+                     "is called");
         return false;
     }
 
@@ -560,7 +561,8 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
     rootNodePtr.reset();
 
     if (m_Doc == nullptr) {
-        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile "
+                     "is called");
         return false;
     }
 
@@ -595,7 +597,8 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
     rootNodePtr.reset();
 
     if (m_Doc == nullptr) {
-        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile "
+                     "is called");
         return false;
     }
 

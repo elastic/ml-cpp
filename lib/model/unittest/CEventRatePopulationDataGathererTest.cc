@@ -332,7 +332,9 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
+    LOG_DEBUG(<< "*** "
+                 "CEventRatePopulationDataGathererTest::testAttributeIndicator "
+                 "***");
 
     // We check that we correctly sample the (attribute, person)
     // indicator.
@@ -465,7 +467,9 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testCompressedLength() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
+    LOG_DEBUG(<< "*** "
+                 "CEventRatePopulationDataGathererTest::testCompressedLength "
+                 "***");
 
     // We check that we correctly sample the compressed length of unique
     // values per person.
@@ -687,7 +691,9 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
+    LOG_DEBUG(<< "*** "
+                 "CEventRatePopulationDataGathererTest::testRemoveAttributes "
+                 "***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

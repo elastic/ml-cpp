@@ -58,7 +58,8 @@ void CStopWatchTest::testStopWatch() {
     elapsed = stopWatch.stop();
 
     LOG_DEBUG(<< "After a further 2 second wait with the stop watch stopped, "
-                 "followed by a 0.5 second wait with the stop watch running, it "
+                 "followed by a 0.5 second wait with the stop watch running, "
+                 "it "
                  "reads "
               << elapsed << " milliseconds");
 

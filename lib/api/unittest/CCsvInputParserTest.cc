@@ -422,7 +422,8 @@ void CCsvInputParserTest::testLineParser() {
         CPPUNIT_ASSERT(!lineParser.parseNext(token));
     }
     {
-        std::string quoted{"\"a,b,c\",b and some spaces,\"c quoted unecessarily\",\"d with a literal \"\"\""};
+        std::string quoted{"\"a,b,c\",b and some spaces,\"c quoted "
+                           "unecessarily\",\"d with a literal \"\"\""};
         lineParser.reset(quoted);
 
         CPPUNIT_ASSERT(!lineParser.atEnd());

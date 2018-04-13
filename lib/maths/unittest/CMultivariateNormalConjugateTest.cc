@@ -552,9 +552,13 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
 }
 
 void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
+    LOG_DEBUG(<< "|  "
+                 "CMultivariateNormalConjugateTest::testMarginalLikelihoodMode "
+                 " |");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
 
     // Test that the marginal likelihood mode is at a stationary maximum
     // of the likelihood function.

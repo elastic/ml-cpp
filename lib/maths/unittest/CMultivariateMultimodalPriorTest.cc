@@ -660,9 +660,13 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
+    LOG_DEBUG(<< "|  "
+                 "CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean "
+                 " |");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
 
     // Test that the marginal likelihood mean is close to the sample
     // mean for a multimodal distribution.
@@ -709,9 +713,13 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
+    LOG_DEBUG(<< "|  "
+                 "CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode "
+                 " |");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
 
     // Test that the sample mode is close to the generating distribution mode.
 

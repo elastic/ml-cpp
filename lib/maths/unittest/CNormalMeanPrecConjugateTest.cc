@@ -602,9 +602,13 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
+    LOG_DEBUG(<< "|  "
+                 "CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance "
+                 " |");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
 
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the

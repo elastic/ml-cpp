@@ -1840,9 +1840,11 @@ void CFieldConfigTest::testScheduledEvents() {
     ml::api::CFieldConfig::TStrDetectionRulePrVec events = config.scheduledEvents();
     CPPUNIT_ASSERT_EQUAL(std::size_t{2}, events.size());
     CPPUNIT_ASSERT_EQUAL(std::string("May Bank Holiday"), events[0].first);
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1525132800.000000 AND TIME < 1525219200.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= "
+                                     "1525132800.000000 AND TIME < 1525219200.000000"),
                          events[0].second.print());
     CPPUNIT_ASSERT_EQUAL(std::string("New Years Day"), events[1].first);
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1514764800.000000 AND TIME < 1514851200.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= "
+                                     "1514764800.000000 AND TIME < 1514851200.000000"),
                          events[1].second.print());
 }

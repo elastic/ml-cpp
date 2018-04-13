@@ -23,7 +23,8 @@ CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
-        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before destroying");
+        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before "
+                     "destroying");
     }
 }
 

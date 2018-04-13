@@ -214,9 +214,13 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
 }
 
 void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
+    LOG_DEBUG(<< "|  "
+                 "CMultivariateConstantPriorTest::testSampleMarginalLikelihood "
+                 " |");
+    LOG_DEBUG(<< "+------------------------------------------------------------"
+                 "----+");
 
     // Check we get zero samples for non-informative and sample of the
     // constant otherwise.
