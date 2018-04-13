@@ -20,10 +20,10 @@
 #include <maths/ImportExport.h>
 
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -216,7 +216,7 @@ public:
 
     private:
         using TTimeAry = boost::array<core_t::TTime, 2>;
-        using TExpandingWindowPtr = boost::shared_ptr<CExpandingWindow>;
+        using TExpandingWindowPtr = std::shared_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
         //! Test types (categorised as short and long period tests).
@@ -296,7 +296,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TCalendarCyclicTestPtr = boost::shared_ptr<CCalendarCyclicTest>;
+        using TCalendarCyclicTestPtr = std::shared_ptr<CCalendarCyclicTest>;
 
     private:
         //! Handle \p symbol.
@@ -550,7 +550,7 @@ public:
             TComponentErrorsVec s_PredictionErrors;
         };
 
-        using TSeasonalPtr = boost::shared_ptr<SSeasonal>;
+        using TSeasonalPtr = std::shared_ptr<SSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
         struct MATHS_EXPORT SCalendar {
@@ -611,7 +611,7 @@ public:
             TComponentErrorsVec s_PredictionErrors;
         };
 
-        using TCalendarPtr = boost::shared_ptr<SCalendar>;
+        using TCalendarPtr = std::shared_ptr<SCalendar>;
 
     private:
         //! Get the total size of the components.

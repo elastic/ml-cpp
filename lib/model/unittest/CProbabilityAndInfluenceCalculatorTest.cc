@@ -22,8 +22,8 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -66,7 +66,7 @@ using TStrCRefDouble1VecDouble1VecPrPrVec =
     model::CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec;
 using TStoredStringPtrStoredStringPtrPrDoublePrVec =
     model::CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
-using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalculator>;
+using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 
 TDouble1VecDoublePr make_pair(double first, double second) {
     return TDouble1VecDoublePr{TDouble1Vec{first}, second};

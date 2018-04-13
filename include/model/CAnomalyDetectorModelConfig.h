@@ -17,11 +17,11 @@
 #include <boost/array.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <set>
 #include <utility>
 #include <vector>
@@ -68,8 +68,8 @@ public:
     using TFeatureVec = model_t::TFeatureVec;
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
-    using TModelFactoryPtr = boost::shared_ptr<CModelFactory>;
-    using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
+    using TModelFactoryPtr = std::shared_ptr<CModelFactory>;
+    using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TFactoryTypeFactoryPtrMap = std::map<EFactoryType, TModelFactoryPtr>;
     using TFactoryTypeFactoryPtrMapItr = TFactoryTypeFactoryPtrMap::iterator;
     using TFactoryTypeFactoryPtrMapCItr = TFactoryTypeFactoryPtrMap::const_iterator;

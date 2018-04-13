@@ -16,7 +16,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -24,6 +23,7 @@
 #include <iterator>
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -55,7 +55,7 @@ using TOptionalDouble = boost::optional<double>;
 using TOptionalDoubleVec = std::vector<TOptionalDouble>;
 using TMeanVarAccumulator =
     maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator;
-using TMeanVarAccumulatorPtr = boost::shared_ptr<TMeanVarAccumulator>;
+using TMeanVarAccumulatorPtr = std::shared_ptr<TMeanVarAccumulator>;
 using TDoubleMeanVarAccumulatorPr = std::pair<double, TMeanVarAccumulator>;
 using TDoubleMeanVarAccumulatorPrList = std::list<TDoubleMeanVarAccumulatorPr>;
 using TFooDeque = std::deque<SFoo>;

@@ -11,10 +11,10 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <list>
 #include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -38,10 +38,10 @@ void CContainerPrinterTest::testAll() {
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
                          CContainerPrinter::print(list));
 
-    std::list<boost::shared_ptr<double>> plist;
-    plist.push_back(boost::shared_ptr<double>());
-    plist.push_back(boost::shared_ptr<double>(new double(3.0)));
-    plist.push_back(boost::shared_ptr<double>(new double(1.1)));
+    std::list<std::shared_ptr<double>> plist;
+    plist.push_back(std::shared_ptr<double>());
+    plist.push_back(std::shared_ptr<double>(new double(3.0)));
+    plist.push_back(std::shared_ptr<double>(new double(1.1)));
     LOG_DEBUG(<< "plist = " << CContainerPrinter::print(plist));
     CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", 3, 1.1]"), CContainerPrinter::print(plist));
 
@@ -73,8 +73,7 @@ void CContainerPrinterTest::testAll() {
     aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
     aggregate.push_back(std::make_pair(list, 5.1));
     LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
-    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], "
-                                     "0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
+    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
                          CContainerPrinter::print(aggregate));
 }
 

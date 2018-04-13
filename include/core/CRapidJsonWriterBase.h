@@ -20,12 +20,11 @@
 #include <rapidjson/writer.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/unordered/unordered_set.hpp>
 
+#include <memory>
 #include <stack>
 
 namespace ml {
@@ -73,9 +72,9 @@ public:
     using TStrUSet = boost::unordered_set<std::string>;
     using TDocument = rapidjson::Document;
     using TValue = rapidjson::Value;
-    using TDocumentWeakPtr = boost::weak_ptr<TDocument>;
-    using TValuePtr = boost::shared_ptr<TValue>;
-    using TPoolAllocatorPtr = boost::shared_ptr<CRapidJsonPoolAllocator>;
+    using TDocumentWeakPtr = std::weak_ptr<TDocument>;
+    using TValuePtr = std::shared_ptr<TValue>;
+    using TPoolAllocatorPtr = std::shared_ptr<CRapidJsonPoolAllocator>;
     using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMapItr = TStrPoolAllocatorPtrMap::iterator;
@@ -99,12 +98,12 @@ public:
     //! writer in a cache for swift retrieval.
     CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
         // push a default rapidjson allocator onto our stack
-        m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
+        m_JsonPoolAllocators.push(std::make_shared<CRapidJsonPoolAllocator>());
     }
 
     CRapidJsonWriterBase() : TRapidJsonWriterBase() {
         // push a default rapidjson allocator onto our stack
-        m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
+        m_JsonPoolAllocators.push(std::make_shared<CRapidJsonPoolAllocator>());
     }
 
     // No need for an explicit destructor here as the allocators clear themselves
@@ -116,7 +115,7 @@ public:
     void pushAllocator(const std::string& allocatorName) {
         TPoolAllocatorPtr& ptr = m_AllocatorCache[allocatorName];
         if (ptr == nullptr) {
-            ptr = boost::make_shared<CRapidJsonPoolAllocator>();
+            ptr = std::make_shared<CRapidJsonPoolAllocator>();
         }
         m_JsonPoolAllocators.push(ptr);
     }
@@ -134,7 +133,7 @@ public:
 
     //! Get a valid allocator from the stack
     //! If no valid allocator can be found then store and return a freshly minted one
-    boost::shared_ptr<CRapidJsonPoolAllocator> getAllocator() const {
+    std::shared_ptr<CRapidJsonPoolAllocator> getAllocator() const {
         TPoolAllocatorPtr allocator;
         CRapidJsonPoolAllocator* rawAllocator = nullptr;
         while (!m_JsonPoolAllocators.empty()) {
@@ -151,7 +150,7 @@ public:
         // shouldn't ever happen as it indicates that the default allocator is invalid
         if (!rawAllocator) {
             LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
-            allocator = boost::make_shared<CRapidJsonPoolAllocator>();
+            allocator = std::make_shared<CRapidJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
         }
 

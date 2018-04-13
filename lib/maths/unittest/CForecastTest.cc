@@ -28,7 +28,8 @@
 #include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -44,7 +45,7 @@ using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::siz
 using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
 using TErrorBarVec = std::vector<maths::SErrorBar>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TModelPtr = boost::shared_ptr<maths::CModel>;
+using TModelPtr = std::shared_ptr<maths::CModel>;
 
 const double DECAY_RATE{0.0005};
 const std::size_t TAG{0u};

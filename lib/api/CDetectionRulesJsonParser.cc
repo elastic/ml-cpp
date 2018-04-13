@@ -184,8 +184,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value& rule
         const rapidjson::Value& conditionObject = array[i];
 
         if (!conditionObject.IsObject()) {
-            LOG_ERROR(<< "Unexpected condition type: array conditions is "
-                         "expected to contain objects");
+            LOG_ERROR(<< "Unexpected condition type: array conditions is expected to contain objects");
             return false;
         }
 

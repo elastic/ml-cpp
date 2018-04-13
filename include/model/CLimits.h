@@ -13,9 +13,9 @@
 #include <model/ImportExport.h>
 
 #include <boost/property_tree/ptree.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 namespace ml {

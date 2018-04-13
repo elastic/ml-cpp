@@ -55,7 +55,7 @@ using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread {
 public:
-    using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
+    using TCppUnitExceptionP = std::shared_ptr<CppUnit::Exception>;
 
 public:
     CTestThread(const TMachineVec& machines)
@@ -202,7 +202,7 @@ void CStateMachineTest::testMultithreaded() {
     std::sort(machines.begin(), machines.end());
     machines.erase(std::unique(machines.begin(), machines.end()), machines.end());
 
-    using TThreadPtr = boost::shared_ptr<CTestThread>;
+    using TThreadPtr = std::shared_ptr<CTestThread>;
     using TThreadVec = std::vector<TThreadPtr>;
     TThreadVec threads;
     for (std::size_t i = 0u; i < 20; ++i) {

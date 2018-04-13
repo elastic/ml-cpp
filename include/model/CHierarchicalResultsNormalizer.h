@@ -13,6 +13,7 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/ImportExport.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -23,7 +24,7 @@ class CAnomalyDetectorModelConfig;
 
 namespace hierarchical_results_normalizer_detail {
 
-using TNormalizerPtr = boost::shared_ptr<CAnomalyScore::CNormalizer>;
+using TNormalizerPtr = std::shared_ptr<CAnomalyScore::CNormalizer>;
 
 //! \brief A normalizer instance and a descriptive string.
 struct MODEL_EXPORT SNormalizer {

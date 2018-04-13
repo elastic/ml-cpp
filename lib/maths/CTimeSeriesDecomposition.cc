@@ -26,7 +26,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/container/flat_map.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -486,7 +485,7 @@ const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponen
 }
 
 void CTimeSeriesDecomposition::initializeMediator() {
-    m_Mediator = boost::make_shared<CMediator>();
+    m_Mediator = std::make_shared<CMediator>();
     m_Mediator->registerHandler(m_PeriodicityTest);
     m_Mediator->registerHandler(m_CalendarCyclicTest);
     m_Mediator->registerHandler(m_Components);

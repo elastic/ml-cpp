@@ -216,8 +216,7 @@ std::streamsize CDualThreadStreamBuf::xsputn(const char* s, std::streamsize n) {
     std::streamsize ret(0);
 
     if (m_Eof) {
-        LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer "
-                     "after end-of-file");
+        LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer after end-of-file");
         return ret;
     }
 

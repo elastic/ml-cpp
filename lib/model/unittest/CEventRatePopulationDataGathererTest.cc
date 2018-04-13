@@ -25,9 +25,9 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 using namespace ml;
@@ -51,7 +51,7 @@ struct SMessage {
 using TMessageVec = std::vector<SMessage>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
-using TEventRateDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+using TEventRateDataGathererPtr = std::shared_ptr<CDataGatherer>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
 using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;
@@ -332,9 +332,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
-    LOG_DEBUG(<< "*** "
-                 "CEventRatePopulationDataGathererTest::testAttributeIndicator "
-                 "***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
 
     // We check that we correctly sample the (attribute, person)
     // indicator.
@@ -467,9 +465,7 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testCompressedLength() {
-    LOG_DEBUG(<< "*** "
-                 "CEventRatePopulationDataGathererTest::testCompressedLength "
-                 "***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
 
     // We check that we correctly sample the compressed length of unique
     // values per person.
@@ -691,9 +687,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG(<< "*** "
-                 "CEventRatePopulationDataGathererTest::testRemoveAttributes "
-                 "***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

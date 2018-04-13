@@ -15,9 +15,9 @@
 #include <model/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -237,7 +237,7 @@ public:
         double m_TimeToQuantileDecay;
     };
 
-    using TNormalizerP = boost::shared_ptr<CNormalizer>;
+    using TNormalizerP = std::shared_ptr<CNormalizer>;
 
 public:
     //! Compute a joint anomaly score for a collection of probabilities.

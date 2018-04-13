@@ -33,9 +33,9 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <numeric>
 
 using namespace ml;
@@ -48,7 +48,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TPriorPtr = std::shared_ptr<maths::CPrior>;
 using TPriorPtrVec = std::vector<TPriorPtr>;
 using TOptionalDouble = boost::optional<double>;
 using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;

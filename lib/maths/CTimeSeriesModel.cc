@@ -26,9 +26,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/make_shared.hpp>
-#include <boost/scoped_ptr.hpp>
-
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -623,14 +620,14 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams& param
                                                        bool modelAnomalies)
     : CModel(params), m_Id(id), m_IsNonNegative(false), m_IsForecastable(true),
       m_TrendModel(trendModel.clone()), m_ResidualModel(residualModel.clone()),
-      m_AnomalyModel(modelAnomalies ? boost::make_shared<CTimeSeriesAnomalyModel>(
+      m_AnomalyModel(modelAnomalies ? std::make_shared<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
                                     : TAnomalyModelPtr()),
       m_CurrentChangeInterval(0), m_SlidingWindow(SLIDING_WINDOW_SIZE),
       m_Correlations(nullptr) {
     if (controllers) {
-        m_Controllers = boost::make_shared<TDecayRateController2Ary>(*controllers);
+        m_Controllers = std::make_shared<TDecayRateController2Ary>(*controllers);
     }
 }
 
@@ -1210,7 +1207,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE(RNG_6_3_TAG, m_Rng.fromString(traverser.value()))
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                m_Controllers = std::make_shared<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE(TREND_MODEL_6_3_TAG, traverser.traverseSubLevel(boost::bind<bool>(
@@ -1223,7 +1220,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                         boost::ref(m_ResidualModel), _1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
-                m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                m_AnomalyModel = std::make_shared<CTimeSeriesAnomalyModel>(),
                 traverser.traverseSubLevel(
                     boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
                                 m_AnomalyModel.get(), boost::cref(params), _1)),
@@ -1252,7 +1249,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BOOL(IS_FORECASTABLE_OLD_TAG, m_IsForecastable)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                m_Controllers = std::make_shared<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
@@ -1265,7 +1262,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                                        boost::ref(m_ResidualModel), _1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                m_AnomalyModel = std::make_shared<CTimeSeriesAnomalyModel>(),
                 traverser.traverseSubLevel(
                     boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
                                 m_AnomalyModel.get(), boost::cref(params), _1)),
@@ -1358,18 +1355,18 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
       m_TrendModel(other.m_TrendModel->clone()),
       m_ResidualModel(other.m_ResidualModel->clone()),
       m_AnomalyModel(!isForForecast && other.m_AnomalyModel
-                         ? boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
+                         ? std::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : TAnomalyModelPtr()),
       m_CandidateChangePoint(other.m_CandidateChangePoint),
       m_CurrentChangeInterval(other.m_CurrentChangeInterval),
       m_ChangeDetector(
           !isForForecast && other.m_ChangeDetector
-              ? boost::make_shared<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector)
+              ? std::make_shared<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector)
               : TChangeDetectorPtr()),
       m_SlidingWindow(!isForForecast ? other.m_SlidingWindow : TTimeDoublePrCBuf{}),
       m_Correlations(nullptr) {
     if (!isForForecast && other.m_Controllers != nullptr) {
-        m_Controllers = boost::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
+        m_Controllers = std::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
     }
 }
 
@@ -1991,13 +1988,13 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
     const TDecayRateController2Ary* controllers,
     bool modelAnomalies)
     : CModel(params), m_IsNonNegative(false), m_ResidualModel(residualModel.clone()),
-      m_AnomalyModel(modelAnomalies ? boost::make_shared<CTimeSeriesAnomalyModel>(
+      m_AnomalyModel(modelAnomalies ? std::make_shared<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
                                     : TAnomalyModelPtr()),
       m_SlidingWindow(SLIDING_WINDOW_SIZE) {
     if (controllers) {
-        m_Controllers = boost::make_shared<TDecayRateController2Ary>(*controllers);
+        m_Controllers = std::make_shared<TDecayRateController2Ary>(*controllers);
     }
     for (std::size_t d = 0u; d < this->dimension(); ++d) {
         m_TrendModel.emplace_back(trend.clone());
@@ -2008,11 +2005,11 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
     : CModel(other.params()), m_IsNonNegative(other.m_IsNonNegative),
       m_ResidualModel(other.m_ResidualModel->clone()),
       m_AnomalyModel(other.m_AnomalyModel
-                         ? boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
+                         ? std::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : TAnomalyModelPtr()),
       m_SlidingWindow(other.m_SlidingWindow) {
     if (other.m_Controllers) {
-        m_Controllers = boost::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
+        m_Controllers = std::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
     }
     m_TrendModel.reserve(other.m_TrendModel.size());
     for (const auto& trend : other.m_TrendModel) {
@@ -2228,7 +2225,7 @@ CMultivariateTimeSeriesModel::TDouble2Vec
 CMultivariateTimeSeriesModel::predict(core_t::TTime time,
                                       const TSizeDoublePr1Vec& /*correlated*/,
                                       TDouble2Vec hint) const {
-    using TUnivariatePriorPtr = boost::shared_ptr<CPrior>;
+    using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
 
     std::size_t dimension{this->dimension()};
     double scale{1.0 - this->params().probabilityBucketEmpty()};
@@ -2277,7 +2274,7 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
         return TDouble2Vec3Vec();
     }
 
-    using TUnivariatePriorPtr = boost::shared_ptr<CPrior>;
+    using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
 
     std::size_t dimension{this->dimension()};
     double scale{1.0 - this->params().probabilityBucketEmpty()};
@@ -2476,7 +2473,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE(RNG_6_3_TAG, m_Rng.fromString(traverser.value()))
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                m_Controllers = std::make_shared<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
@@ -2492,7 +2489,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                         boost::ref(m_ResidualModel), _1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
-                m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                m_AnomalyModel = std::make_shared<CTimeSeriesAnomalyModel>(),
                 traverser.traverseSubLevel(
                     boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
                                 m_AnomalyModel.get(), boost::cref(params), _1)),
@@ -2507,7 +2504,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                m_Controllers = std::make_shared<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
@@ -2523,7 +2520,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                                        boost::ref(m_ResidualModel), _1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                m_AnomalyModel = std::make_shared<CTimeSeriesAnomalyModel>(),
                 traverser.traverseSubLevel(
                     boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
                                 m_AnomalyModel.get(), boost::cref(params), _1)),

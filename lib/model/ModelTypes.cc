@@ -16,8 +16,6 @@
 #include <model/CModelParams.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <boost/make_shared.hpp>
-
 namespace ml {
 namespace model_t {
 
@@ -1198,26 +1196,26 @@ TInfluenceCalculatorCPtr influenceCalculator(EFeature feature) {
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualHighCountsByBucketAndPerson:
     case E_IndividualHighNonZeroCountByBucketAndPerson:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_IndividualTotalBucketCountByPerson:
     case E_IndividualIndicatorOfBucketPerson:
     case E_IndividualTimeOfDayByBucketAndPerson:
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_IndividualArrivalTimesByPerson:
     case E_IndividualLongArrivalTimesByPerson:
     case E_IndividualShortArrivalTimesByPerson:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_IndividualUniqueCountByBucketAndPerson:
     case E_IndividualHighUniqueCountByBucketAndPerson:
     case E_IndividualInfoContentByBucketAndPerson:
     case E_IndividualHighInfoContentByBucketAndPerson:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_IndividualLowCountsByBucketAndPerson:
     case E_IndividualLowNonZeroCountByBucketAndPerson:
     case E_IndividualLowUniqueCountByBucketAndPerson:
     case E_IndividualLowInfoContentByBucketAndPerson:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_IndividualMeanByPerson:
     case E_IndividualMedianByPerson:
@@ -1225,47 +1223,47 @@ TInfluenceCalculatorCPtr influenceCalculator(EFeature feature) {
     case E_IndividualHighMedianByPerson:
     case E_IndividualLowMeanByPerson:
     case E_IndividualHighMeanByPerson:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
     case E_IndividualHighVarianceByPerson:
-        return boost::make_shared<model::CVarianceInfluenceCalculator>();
+        return std::make_shared<model::CVarianceInfluenceCalculator>();
     case E_IndividualMinByPerson:
     case E_IndividualMaxByPerson:
     case E_IndividualMaxVelocityByPerson:
     case E_IndividualMinVelocityByPerson:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_IndividualSumByBucketAndPerson:
     case E_IndividualHighSumByBucketAndPerson:
     case E_IndividualNonNullSumByBucketAndPerson:
     case E_IndividualHighNonNullSumByBucketAndPerson:
     case E_IndividualSumVelocityByPerson:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_IndividualLowSumByBucketAndPerson:
     case E_IndividualLowNonNullSumByBucketAndPerson:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     case E_IndividualMeanLatLongByPerson:
     case E_IndividualMeanVelocityByPerson:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
 
     case E_PopulationCountByBucketPersonAndAttribute:
     case E_PopulationHighCountsByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationIndicatorOfBucketPersonAndAttribute:
     case E_PopulationUniquePersonCountByAttribute:
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_PopulationUniqueCountByBucketPersonAndAttribute:
     case E_PopulationInfoContentByBucketPersonAndAttribute:
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
     case E_PopulationHighUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PopulationLowCountsByBucketPersonAndAttribute:
     case E_PopulationLowInfoContentByBucketPersonAndAttribute:
     case E_PopulationLowUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationMedianByPersonAndAttribute:
@@ -1273,56 +1271,56 @@ TInfluenceCalculatorCPtr influenceCalculator(EFeature feature) {
     case E_PopulationHighMedianByPersonAndAttribute:
     case E_PopulationLowMeanByPersonAndAttribute:
     case E_PopulationHighMeanByPersonAndAttribute:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
     case E_PopulationHighVarianceByPersonAndAttribute:
-        return boost::make_shared<model::CVarianceInfluenceCalculator>();
+        return std::make_shared<model::CVarianceInfluenceCalculator>();
     case E_PopulationMinByPersonAndAttribute:
     case E_PopulationMaxByPersonAndAttribute:
     case E_PopulationMaxVelocityByPersonAndAttribute:
     case E_PopulationMinVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PopulationSumByBucketPersonAndAttribute:
     case E_PopulationHighSumByBucketPersonAndAttribute:
     case E_PopulationSumVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PopulationLowSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     case E_PopulationMeanLatLongByPersonAndAttribute:
     case E_PopulationMeanVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
 
     case E_PeersCountByBucketPersonAndAttribute:
     case E_PeersHighCountsByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PeersAttributeTotalCountByPerson:
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_PeersUniqueCountByBucketPersonAndAttribute:
     case E_PeersInfoContentByBucketPersonAndAttribute:
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
     case E_PeersHighUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PeersLowCountsByBucketPersonAndAttribute:
     case E_PeersLowInfoContentByBucketPersonAndAttribute:
     case E_PeersLowUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_PeersMeanByPersonAndAttribute:
     case E_PeersMedianByPersonAndAttribute:
     case E_PeersLowMeanByPersonAndAttribute:
     case E_PeersHighMeanByPersonAndAttribute:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_PeersMinByPersonAndAttribute:
     case E_PeersMaxByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PeersSumByBucketPersonAndAttribute:
     case E_PeersHighSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PeersLowSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     }
 
     return TInfluenceCalculatorCPtr();

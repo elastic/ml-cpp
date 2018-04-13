@@ -14,9 +14,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -48,9 +47,9 @@ public:
     using TSizeDoublePr10Vec = core::CSmallVector<TSizeDoublePr, 10>;
     using TWeightStyleVec = maths_t::TWeightStyleVec;
     using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
-    using TUnivariatePriorPtr = boost::shared_ptr<CPrior>;
+    using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
     using TUnivariatePriorPtrDoublePr = std::pair<TUnivariatePriorPtr, double>;
-    using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
     using TPriorPtrDoublePr = std::pair<TPriorPtr, double>;
 
 public:

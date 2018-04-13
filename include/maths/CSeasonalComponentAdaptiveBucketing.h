@@ -15,6 +15,7 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include <stdint.h>
@@ -180,7 +181,7 @@ public:
     //@}
 
 private:
-    using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
 
     //! \brief The state maintained for each bucket.
     struct SBucket {

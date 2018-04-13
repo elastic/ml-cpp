@@ -13,11 +13,10 @@
 #include <api/CTokenListType.h>
 #include <api/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <iosfwd>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -66,7 +65,7 @@ public:
     //! Shared pointer to reverse search creator that we're will function
     //! after being shallow copied
     using TTokenListReverseSearchCreatorIntfCPtr =
-        boost::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
+        std::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
 
     //! Used to associate tokens with weightings:
     //! first -> token ID
