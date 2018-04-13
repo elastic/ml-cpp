@@ -14,11 +14,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 class CTestTimer;
 
 //! \brief
@@ -33,43 +30,32 @@ class CTestTimer;
 //! because the xUnit Jenkins plugin's default XSL transform
 //! knows this format.
 //!
-class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook
-{
-    public:
-        CTimingXmlOutputterHook(const CTestTimer &testTimer,
-                                const std::string &topPath,
-                                const std::string &testPath);
+class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook {
+public:
+    CTimingXmlOutputterHook(const CTestTimer& testTimer, const std::string& topPath, const std::string& testPath);
 
-        virtual void failTestAdded(CppUnit::XmlDocument *document,
-                                   CppUnit::XmlElement *testElement,
-                                   CppUnit::Test *test,
-                                   CppUnit::TestFailure *failure);
+    virtual void
+    failTestAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* testElement, CppUnit::Test* test, CppUnit::TestFailure* failure);
 
-        virtual void successfulTestAdded(CppUnit::XmlDocument *document,
-                                         CppUnit::XmlElement *testElement,
-                                         CppUnit::Test *test);
+    virtual void successfulTestAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* testElement, CppUnit::Test* test);
 
-        virtual void statisticsAdded(CppUnit::XmlDocument *document,
-                                     CppUnit::XmlElement *statisticsElement);
+    virtual void statisticsAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* statisticsElement);
 
-    private:
-        //! Convert a time in ms to a time in seconds in string form
-        static std::string toSecondsStr(uint64_t ms);
+private:
+    //! Convert a time in ms to a time in seconds in string form
+    static std::string toSecondsStr(uint64_t ms);
 
-    private:
-        //! Reference to test timer that we can query
-        const CTestTimer  &m_TestTimer;
+private:
+    //! Reference to test timer that we can query
+    const CTestTimer& m_TestTimer;
 
-        //! "bin" or "lib", to make the Jenkins output nicer
-        const std::string &m_TopPath;
+    //! "bin" or "lib", to make the Jenkins output nicer
+    const std::string& m_TopPath;
 
-        //! Name of the directory above the "unittest" directory being tested
-        const std::string &m_TestPath;
+    //! Name of the directory above the "unittest" directory being tested
+    const std::string& m_TestPath;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_test_CTimingXmlOutputterHook_h
-

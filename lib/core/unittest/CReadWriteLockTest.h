@@ -8,16 +8,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CReadWriteLockTest : public CppUnit::TestFixture {
+public:
+    void testReadLock();
+    void testWriteLock();
+    void testPerformanceVersusMutex();
 
-class CReadWriteLockTest : public CppUnit::TestFixture
-{
-    public:
-        void testReadLock();
-        void testWriteLock();
-        void testPerformanceVersusMutex();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CReadWriteLockTest_h
-

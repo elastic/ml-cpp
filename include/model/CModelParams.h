@@ -12,9 +12,9 @@
 
 #include <maths/MathsTypes.h>
 
+#include <model/CDetectionRule.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
-#include <model/CDetectionRule.h>
 
 #include <boost/ref.hpp>
 
@@ -22,15 +22,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 struct SDistributionRestoreParams;
 struct STimeSeriesDecompositionRestoreParams;
 }
-namespace model
-{
+namespace model {
 //! \brief Wraps up model global parameters.
 //!
 //! DESCIRIPTION:\n
@@ -41,8 +38,7 @@ namespace model
 //! IMPLEMENTATION:\n
 //! This is purposely not implemented as a nested class so that it can
 //! be forward declared.
-struct MODEL_EXPORT SModelParams
-{
+struct MODEL_EXPORT SModelParams {
     using TDetectionRuleVec = std::vector<CDetectionRule>;
     using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
@@ -171,7 +167,6 @@ struct MODEL_EXPORT SModelParams
     //! The time window during which samples are accepted.
     core_t::TTime s_SamplingAgeCutoff;
 };
-
 }
 }
 

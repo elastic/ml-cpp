@@ -9,25 +9,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class COneOfNPriorTest : public CppUnit::TestFixture {
+public:
+    void testFilter();
+    void testMultipleUpdate();
+    void testWeights();
+    void testModels();
+    void testModelSelection();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testMarginalLikelihoodVariance();
+    void testSampleMarginalLikelihood();
+    void testCdf();
+    void testProbabilityOfLessLikelySamples();
+    void testPersist();
 
-class COneOfNPriorTest : public CppUnit::TestFixture
-{
-    public:
-        void testFilter();
-        void testMultipleUpdate();
-        void testWeights();
-        void testModels();
-        void testModelSelection();
-        void testMarginalLikelihood();
-        void testMarginalLikelihoodMean();
-        void testMarginalLikelihoodMode();
-        void testMarginalLikelihoodVariance();
-        void testSampleMarginalLikelihood();
-        void testCdf();
-        void testProbabilityOfLessLikelySamples();
-        void testPersist();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_COneOfNPriorTest_h

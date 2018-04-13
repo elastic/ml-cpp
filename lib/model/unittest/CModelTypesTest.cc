@@ -10,8 +10,7 @@
 using namespace ml;
 using namespace model;
 
-void CModelTypesTest::testAll()
-{
+void CModelTypesTest::testAll() {
     {
         // test print categories
         CPPUNIT_ASSERT_EQUAL(std::string("'counting'"), model_t::print(model_t::E_Counting));
@@ -81,7 +80,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isConstant(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isConstant(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
@@ -318,7 +317,7 @@ void CModelTypesTest::testAll()
         feature = model_t::E_IndividualTimeOfDayByBucketAndPerson;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isDiurnal(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
@@ -335,7 +334,7 @@ void CModelTypesTest::testAll()
         feature = model_t::E_IndividualTimeOfWeekByBucketAndPerson;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isDiurnal(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
@@ -356,7 +355,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMeanFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
@@ -375,7 +374,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMedianFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
@@ -394,7 +393,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMinFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
@@ -413,7 +412,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMaxFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
@@ -432,7 +431,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -446,7 +445,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMeanFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
@@ -464,7 +463,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMeanFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
@@ -486,7 +485,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -504,7 +503,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -522,7 +521,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -558,7 +557,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -572,7 +571,7 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
-        CPPUNIT_ASSERT_EQUAL(true,  model_t::isMeanFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMeanFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
@@ -763,7 +762,8 @@ void CModelTypesTest::testAll()
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'high information content of value per bucket by person and attribute'"), model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'high information content of value per bucket by person and attribute'"),
+                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -1003,13 +1003,10 @@ void CModelTypesTest::testAll()
     }
 }
 
-CppUnit::Test *CModelTypesTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTypesTest");
+CppUnit::Test* CModelTypesTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelTypesTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CModelTypesTest>(
-                                   "CModelTypesTest::testAll",
-                                   &CModelTypesTest::testAll) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelTypesTest>("CModelTypesTest::testAll", &CModelTypesTest::testAll));
 
     return suiteOfTests;
 }

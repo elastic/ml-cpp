@@ -15,16 +15,13 @@
 
 #include <boost/ref.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CModelParams;
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! distribution models.
-struct MATHS_EXPORT SDistributionRestoreParams
-{
+struct MATHS_EXPORT SDistributionRestoreParams {
     SDistributionRestoreParams(maths_t::EDataType dataType,
                                double decayRate,
                                double minimumClusterFraction = MINIMUM_CLUSTER_SPLIT_FRACTION,
@@ -49,15 +46,14 @@ struct MATHS_EXPORT SDistributionRestoreParams
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
-struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams
-{
+struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
     STimeSeriesDecompositionRestoreParams(double decayRate,
                                           core_t::TTime minimumBucketLength,
                                           std::size_t componentSize,
-                                          const SDistributionRestoreParams &changeModelParams);
+                                          const SDistributionRestoreParams& changeModelParams);
     STimeSeriesDecompositionRestoreParams(double decayRate,
                                           core_t::TTime minimumBucketLength,
-                                          const SDistributionRestoreParams &changeModelParams);
+                                          const SDistributionRestoreParams& changeModelParams);
 
     //! The rate at which decomposition loses information.
     double s_DecayRate;
@@ -74,13 +70,12 @@ struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series models.
-struct MATHS_EXPORT SModelRestoreParams
-{
+struct MATHS_EXPORT SModelRestoreParams {
     using TModelParamsCRef = boost::reference_wrapper<const CModelParams>;
 
-    SModelRestoreParams(const CModelParams &params,
-                        const STimeSeriesDecompositionRestoreParams &decompositionParams,
-                        const SDistributionRestoreParams &distributionParams);
+    SModelRestoreParams(const CModelParams& params,
+                        const STimeSeriesDecompositionRestoreParams& decompositionParams,
+                        const SDistributionRestoreParams& distributionParams);
 
     //! The model parameters.
     TModelParamsCRef s_Params;
@@ -91,7 +86,6 @@ struct MATHS_EXPORT SModelRestoreParams
     //! The time series residual distribution restore parameters.
     SDistributionRestoreParams s_DistributionParams;
 };
-
 }
 }
 

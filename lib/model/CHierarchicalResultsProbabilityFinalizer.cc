@@ -8,20 +8,13 @@
 
 #include <maths/CTools.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
-void CHierarchicalResultsProbabilityFinalizer::visit(const CHierarchicalResults &/*results*/,
-                                                     const TNode &node,
-                                                     bool /*pivot*/)
-{
-    if (node.s_RawAnomalyScore > 0.0)
-    {
+void CHierarchicalResultsProbabilityFinalizer::visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    if (node.s_RawAnomalyScore > 0.0) {
         node.s_AnnotatedProbability.s_Probability = maths::CTools::inverseAnomalyScore(node.s_RawAnomalyScore);
     }
 }
-
 }
 }

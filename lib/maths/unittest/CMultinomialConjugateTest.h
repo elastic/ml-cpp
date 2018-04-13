@@ -9,22 +9,21 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultinomialConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate();
-        void testPropagation();
-        void testProbabilityEstimation();
-        void testMarginalLikelihood();
-        void testSampleMarginalLikelihood();
-        void testProbabilityOfLessLikelySamples();
-        void testAnomalyScore();
-        void testRemoveCategories();
-        void testPersist();
-        void testOverflow();
-        void testConcentration();
+class CMultinomialConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testProbabilityEstimation();
+    void testMarginalLikelihood();
+    void testSampleMarginalLikelihood();
+    void testProbabilityOfLessLikelySamples();
+    void testAnomalyScore();
+    void testRemoveCategories();
+    void testPersist();
+    void testOverflow();
+    void testConcentration();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMultinomialConjugateTest_h

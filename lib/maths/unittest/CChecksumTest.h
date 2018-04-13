@@ -9,18 +9,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CChecksumTest : public CppUnit::TestFixture
-{
-    public:
-        void testMemberChecksum();
-        void testContainers();
-        void testNullable();
-        void testAccumulators();
-        void testPair();
-        void testArray();
-        void testCombinations();
+class CChecksumTest : public CppUnit::TestFixture {
+public:
+    void testMemberChecksum();
+    void testContainers();
+    void testNullable();
+    void testAccumulators();
+    void testPair();
+    void testArray();
+    void testCombinations();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CChecksumTest_h

@@ -7,13 +7,10 @@
 
 #include "CBuildInfoTest.h"
 
-
-int main(int argc, const char **argv)
-{
+int main(int argc, const char** argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest( CBuildInfoTest::suite() );
+    runner.addTest(CBuildInfoTest::suite());
 
     return !runner.runTests();
 }
-

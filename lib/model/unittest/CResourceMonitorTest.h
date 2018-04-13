@@ -10,35 +10,35 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetector;
 }
 }
 
-class CResourceMonitorTest : public CppUnit::TestFixture
-{
-    public:
-        void setUp();
+class CResourceMonitorTest : public CppUnit::TestFixture {
+public:
+    void setUp();
 
-        void testMonitor();
-        void testPruning();
-        void testExtraMemory();
+    void testMonitor();
+    void testPruning();
+    void testExtraMemory();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        void reportCallback(const ml::model::CResourceMonitor::SResults &results);
+private:
+    void reportCallback(const ml::model::CResourceMonitor::SResults& results);
 
-        void addTestData(ml::core_t::TTime &firstTime, const ml::core_t::TTime bucketLength,
-                     const std::size_t buckets, const std::size_t newPeoplePerBucket,
-                     std::size_t &startOffset, ml::model::CAnomalyDetector &detector,
-                     ml::model::CResourceMonitor &monitor);
+    void addTestData(ml::core_t::TTime& firstTime,
+                     const ml::core_t::TTime bucketLength,
+                     const std::size_t buckets,
+                     const std::size_t newPeoplePerBucket,
+                     std::size_t& startOffset,
+                     ml::model::CAnomalyDetector& detector,
+                     ml::model::CResourceMonitor& monitor);
 
-    private:
-        ml::model::CResourceMonitor::SResults m_CallbackResults;
+private:
+    ml::model::CResourceMonitor::SResults m_CallbackResults;
 };
 
 #endif // INCLUDED_CResourceMonitorTest_h

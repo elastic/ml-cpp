@@ -13,28 +13,27 @@
 
 #include <maths/CTimeSeriesChangeDetector.h>
 
-class CTimeSeriesChangeDetectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testNoChange();
-        void testLevelShift();
-        void testLinearScale();
-        void testTimeShift();
-        void testPersist();
+class CTimeSeriesChangeDetectorTest : public CppUnit::TestFixture {
+public:
+    void testNoChange();
+    void testLevelShift();
+    void testLinearScale();
+    void testTimeShift();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        using TGenerator = std::function<double (ml::core_t::TTime)>;
-        using TGeneratorVec = std::vector<TGenerator>;
-        using TChange = std::function<double (TGenerator generator, ml::core_t::TTime)>;
+private:
+    using TGenerator = std::function<double(ml::core_t::TTime)>;
+    using TGeneratorVec = std::vector<TGenerator>;
+    using TChange = std::function<double(TGenerator generator, ml::core_t::TTime)>;
 
-    private:
-        void testChange(const TGeneratorVec &trends,
-                        ml::maths::SChangeDescription::EDescription description,
-                        TChange applyChange,
-                        double expectedChange,
-                        double expectedMeanBucketsToDetectChange);
+private:
+    void testChange(const TGeneratorVec& trends,
+                    ml::maths::SChangeDescription::EDescription description,
+                    TChange applyChange,
+                    double expectedChange,
+                    double expectedMeanBucketsToDetectChange);
 };
 
 #endif // INCLUDED_CTimeSeriesChangeDetectorTest_h

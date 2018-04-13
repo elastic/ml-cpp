@@ -5,44 +5,31 @@
  */
 #include <core/CReadWriteLock.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CReadWriteLock::CReadWriteLock()
-{
+CReadWriteLock::CReadWriteLock() {
     InitializeSRWLock(&m_ReadWriteLock);
 }
 
-CReadWriteLock::~CReadWriteLock()
-{
+CReadWriteLock::~CReadWriteLock() {
     // There is no function to destroy the read/write lock on Windows
 }
 
-void CReadWriteLock::readLock()
-{
+void CReadWriteLock::readLock() {
     AcquireSRWLockShared(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::readUnlock()
-{
+void CReadWriteLock::readUnlock() {
     ReleaseSRWLockShared(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::writeLock()
-{
+void CReadWriteLock::writeLock() {
     AcquireSRWLockExclusive(&m_ReadWriteLock);
 }
 
-void CReadWriteLock::writeUnlock()
-{
+void CReadWriteLock::writeUnlock() {
     ReleaseSRWLockExclusive(&m_ReadWriteLock);
 }
-
-
 }
 }
-

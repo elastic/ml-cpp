@@ -9,24 +9,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultivariateNormalConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate();
-        void testPropagation();
-        void testMeanVectorEstimation();
-        void testPrecisionMatrixEstimation();
-        void testMarginalLikelihood();
-        void testMarginalLikelihoodMode();
-        void testSampleMarginalLikelihood();
-        void testProbabilityOfLessLikelySamples();
-        void testIntegerData();
-        void testLowVariationData();
-        void testPersist();
-        void calibrationExperiment();
-        void dataGenerator();
+class CMultivariateNormalConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testMeanVectorEstimation();
+    void testPrecisionMatrixEstimation();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMode();
+    void testSampleMarginalLikelihood();
+    void testProbabilityOfLessLikelySamples();
+    void testIntegerData();
+    void testLowVariationData();
+    void testPersist();
+    void calibrationExperiment();
+    void dataGenerator();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMultivariateNormalConjugateTest_h

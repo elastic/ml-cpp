@@ -14,8 +14,7 @@
 using namespace ml;
 using namespace api;
 
-void CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero()
-{
+void CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero() {
     CCategoryExamplesCollector examplesCollector(0);
     CPPUNIT_ASSERT(examplesCollector.add(1, "foo") == false);
     CPPUNIT_ASSERT(examplesCollector.add(2, "foo") == false);
@@ -23,15 +22,13 @@ void CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero()
     CPPUNIT_ASSERT_EQUAL(examplesCollector.numberOfExamplesForCategory(2), std::size_t(0));
 }
 
-void CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice()
-{
+void CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice() {
     CCategoryExamplesCollector examplesCollector(4);
     CPPUNIT_ASSERT(examplesCollector.add(1, "foo") == true);
     CPPUNIT_ASSERT(examplesCollector.add(1, "foo") == false);
 }
 
-void CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory()
-{
+void CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory() {
     CCategoryExamplesCollector examplesCollector(3);
     CPPUNIT_ASSERT(examplesCollector.add(1, "foo1") == true);
     CPPUNIT_ASSERT_EQUAL(examplesCollector.numberOfExamplesForCategory(1), std::size_t(1));
@@ -43,8 +40,7 @@ void CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForS
     CPPUNIT_ASSERT_EQUAL(examplesCollector.numberOfExamplesForCategory(1), std::size_t(3));
 }
 
-void CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent()
-{
+void CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent() {
     CCategoryExamplesCollector examplesCollector(2);
     CPPUNIT_ASSERT(examplesCollector.add(1, "foo") == true);
     CPPUNIT_ASSERT(examplesCollector.add(3, "bar") == true);
@@ -53,8 +49,7 @@ void CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent()
     CPPUNIT_ASSERT_EQUAL(examplesCollector.numberOfExamplesForCategory(3), std::size_t(1));
 }
 
-void CCategoryExamplesCollectorTest::testExamples()
-{
+void CCategoryExamplesCollectorTest::testExamples() {
     CCategoryExamplesCollector examplesCollector(3);
     examplesCollector.add(1, "foo");
     examplesCollector.add(1, "bar");
@@ -70,8 +65,7 @@ void CCategoryExamplesCollectorTest::testExamples()
     CPPUNIT_ASSERT(examples2.find("invalid") == examples2.end());
 }
 
-void CCategoryExamplesCollectorTest::testPersist()
-{
+void CCategoryExamplesCollectorTest::testPersist() {
     CCategoryExamplesCollector examplesCollector(3);
     examplesCollector.add(1, "foo");
     examplesCollector.add(1, "bar");
@@ -104,8 +98,7 @@ void CCategoryExamplesCollectorTest::testPersist()
     CPPUNIT_ASSERT(restoredExamplesCollector.numberOfExamplesForCategory(3) == 1);
 }
 
-void CCategoryExamplesCollectorTest::testTruncation()
-{
+void CCategoryExamplesCollectorTest::testTruncation() {
     CPPUNIT_ASSERT(CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH > 5);
     const std::string baseExample(CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH - 5, 'a');
     const std::string ellipsis(3, '.');
@@ -150,31 +143,26 @@ void CCategoryExamplesCollectorTest::testTruncation()
     }
 }
 
-CppUnit::Test *CCategoryExamplesCollectorTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
+CppUnit::Test* CCategoryExamplesCollectorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-                   "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero",
-                   &CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice",
-               &CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory",
-               &CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
-               &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testExamples",
-               &CCategoryExamplesCollectorTest::testExamples) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testPersist",
-               &CCategoryExamplesCollectorTest::testPersist) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-               "CCategoryExamplesCollectorTest::testTruncation",
-               &CCategoryExamplesCollectorTest::testTruncation) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero", &CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice",
+        &CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
+        "CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory",
+        &CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
+                                                                &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testExamples",
+                                                                                  &CCategoryExamplesCollectorTest::testExamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testPersist",
+                                                                                  &CCategoryExamplesCollectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testTruncation",
+                                                                                  &CCategoryExamplesCollectorTest::testTruncation));
 
     return suiteOfTests;
 }

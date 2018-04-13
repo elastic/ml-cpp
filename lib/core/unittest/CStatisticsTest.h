@@ -8,16 +8,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticsTest : public CppUnit::TestFixture
-{
+class CStatisticsTest : public CppUnit::TestFixture {
 public:
     void testStatistics();
     void testPersist();
 
     void threadRunner(int i);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CStatisticsTest_h
-

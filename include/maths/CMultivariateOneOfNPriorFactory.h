@@ -14,39 +14,29 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate 1-of-n priors.
-class MATHS_EXPORT CMultivariateOneOfNPriorFactory
-{
-    public:
-        using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
-        using TPriorPtrVec = std::vector<TPriorPtr>;
+class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
+public:
+    using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TPriorPtrVec = std::vector<TPriorPtr>;
 
-    public:
-        //! Create a new non-informative multivariate normal prior.
-        static TPriorPtr nonInformative(std::size_t dimension,
-                                        maths_t::EDataType dataType,
-                                        double decayRate,
-                                        const TPriorPtrVec &models);
+public:
+    //! Create a new non-informative multivariate normal prior.
+    static TPriorPtr nonInformative(std::size_t dimension, maths_t::EDataType dataType, double decayRate, const TPriorPtrVec& models);
 
-        //! Create reading state from its state document representation.
-        static bool restore(std::size_t dimension,
-                            const SDistributionRestoreParams &params,
-                            TPriorPtr &ptr,
-                            core::CStateRestoreTraverser &traverser);
+    //! Create reading state from its state document representation.
+    static bool
+    restore(std::size_t dimension, const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser);
 };
-
 }
 }
 

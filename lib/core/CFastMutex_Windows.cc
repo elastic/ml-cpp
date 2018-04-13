@@ -5,34 +5,23 @@
  */
 #include <core/CFastMutex.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CFastMutex::CFastMutex()
-{
+CFastMutex::CFastMutex() {
     InitializeSRWLock(&m_Mutex);
 }
 
-CFastMutex::~CFastMutex()
-{
+CFastMutex::~CFastMutex() {
     // There is no function to destroy the read/write lock on Windows
 }
 
-void CFastMutex::lock()
-{
+void CFastMutex::lock() {
     AcquireSRWLockExclusive(&m_Mutex);
 }
 
-void CFastMutex::unlock()
-{
+void CFastMutex::unlock() {
     ReleaseSRWLockExclusive(&m_Mutex);
 }
-
-
 }
 }
-

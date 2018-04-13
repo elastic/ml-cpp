@@ -17,88 +17,58 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-namespace
-{
+namespace {
 
 const size_t WARMUP_COUNT(100);
 const size_t TEST_COUNT(1000000000);
 
 typedef std::pair<size_t, uint64_t> TSizeUInt64Pr;
 
-size_t benchmark(char testId,
-                 ml::vfprog::CIncrementer &incrementer,
-                 size_t count)
-{
+size_t benchmark(char testId, ml::vfprog::CIncrementer& incrementer, size_t count) {
     size_t val(0);
-    switch (testId)
-    {
-        case '1':
-            val = ml::vfprog::CLooper::inlinedProgramCallLoop(incrementer,
-                                                                   count,
-                                                                   val);
-            break;
-        case '2':
-            val = ml::vfprog::CLooper::nonVirtualProgramCallLoop(incrementer,
-                                                                      count,
-                                                                      val);
-            break;
-        case '3':
-            val = ml::vfprog::CLooper::virtualProgramCallLoop(incrementer,
-                                                                   count,
-                                                                   val);
-            break;
+    switch (testId) {
+    case '1':
+        val = ml::vfprog::CLooper::inlinedProgramCallLoop(incrementer, count, val);
+        break;
+    case '2':
+        val = ml::vfprog::CLooper::nonVirtualProgramCallLoop(incrementer, count, val);
+        break;
+    case '3':
+        val = ml::vfprog::CLooper::virtualProgramCallLoop(incrementer, count, val);
+        break;
     }
 
     return val;
 }
 
-size_t benchmark(char testId,
-                 ml::vflib::CIncrementer &incrementer,
-                 size_t count)
-{
+size_t benchmark(char testId, ml::vflib::CIncrementer& incrementer, size_t count) {
     size_t val(0);
-    switch (testId)
-    {
-        case '4':
-            val = ml::vfprog::CLooper::inlinedLibraryCallLoop(incrementer,
-                                                                   count,
-                                                                   val);
-            break;
-        case '5':
-            val = ml::vfprog::CLooper::nonVirtualLibraryCallLoop(incrementer,
-                                                                      count,
-                                                                      val);
-            break;
-        case '6':
-            val = ml::vfprog::CLooper::virtualLibraryCallLoop(incrementer,
-                                                                   count,
-                                                                   val);
-            break;
-        case '7':
-            val = ml::vflib::CLooper::inlinedLibraryCallLoop(incrementer,
-                                                                  count,
-                                                                  val);
-            break;
-        case '8':
-            val = ml::vflib::CLooper::nonVirtualLibraryCallLoop(incrementer,
-                                                                     count,
-                                                                     val);
-            break;
-        case '9':
-            val = ml::vflib::CLooper::virtualLibraryCallLoop(incrementer,
-                                                                  count,
-                                                                  val);
-            break;
+    switch (testId) {
+    case '4':
+        val = ml::vfprog::CLooper::inlinedLibraryCallLoop(incrementer, count, val);
+        break;
+    case '5':
+        val = ml::vfprog::CLooper::nonVirtualLibraryCallLoop(incrementer, count, val);
+        break;
+    case '6':
+        val = ml::vfprog::CLooper::virtualLibraryCallLoop(incrementer, count, val);
+        break;
+    case '7':
+        val = ml::vflib::CLooper::inlinedLibraryCallLoop(incrementer, count, val);
+        break;
+    case '8':
+        val = ml::vflib::CLooper::nonVirtualLibraryCallLoop(incrementer, count, val);
+        break;
+    case '9':
+        val = ml::vflib::CLooper::virtualLibraryCallLoop(incrementer, count, val);
+        break;
     }
 
     return val;
 }
 
-template <typename INCREMENTER>
-TSizeUInt64Pr benchmark(char testId,
-                        INCREMENTER &incrementer)
-{
+template<typename INCREMENTER>
+TSizeUInt64Pr benchmark(char testId, INCREMENTER& incrementer) {
     ml::core::CMonotonicTime clock;
     TSizeUInt64Pr result;
 
@@ -114,10 +84,8 @@ TSizeUInt64Pr benchmark(char testId,
     return result;
 }
 
-TSizeUInt64Pr benchmark(char testId)
-{
-    if (testId < '4')
-    {
+TSizeUInt64Pr benchmark(char testId) {
+    if (testId < '4') {
         ml::vfprog::CIncrementer incrementer;
         return benchmark(testId, incrementer);
     }
@@ -125,17 +93,10 @@ TSizeUInt64Pr benchmark(char testId)
     ml::vflib::CIncrementer incrementer;
     return benchmark(testId, incrementer);
 }
-
 }
 
-
-int main(int argc, char **argv)
-{
-    if (argc != 2 ||
-        ::strlen(argv[1]) != 1 ||
-        argv[1][0] < '1' ||
-        argv[1][0] > '9')
-    {
+int main(int argc, char** argv) {
+    if (argc != 2 || ::strlen(argv[1]) != 1 || argv[1][0] < '1' || argv[1][0] > '9') {
         std::cerr << "Usage: " << argv[0] << " <1-9>" << std::endl;
         return EXIT_FAILURE;
     }
@@ -147,4 +108,3 @@ int main(int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
-

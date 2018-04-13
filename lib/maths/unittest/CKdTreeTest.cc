@@ -29,15 +29,13 @@ using TDoubleVector5Pr = std::pair<double, TVector5>;
 using TVector5Vec = std::vector<TVector5>;
 
 template<typename T>
-std::string print(const T &t)
-{
+std::string print(const T& t) {
     std::ostringstream o;
     o << t;
     return o.str();
 }
 
-void CKdTreeTest::testBuild()
-{
+void CKdTreeTest::testBuild() {
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  CKdTreeTest::testBuild  |");
     LOG_DEBUG("+--------------------------+");
@@ -46,14 +44,12 @@ void CKdTreeTest::testBuild()
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberTests; ++i)
-    {
+    for (std::size_t i = 0u; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 2 * (i + 1), samples);
 
         TVector2Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 2)
-        {
+        for (std::size_t j = 0u; j < samples.size(); j += 2) {
             points.push_back(TVector2(&samples[j], &samples[j + 2]));
         }
 
@@ -62,14 +58,12 @@ void CKdTreeTest::testBuild()
         CPPUNIT_ASSERT(kdTree.checkInvariants());
     }
 
-    for (std::size_t i = 0u; i < numberTests; ++i)
-    {
+    for (std::size_t i = 0u; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 5 * (i + 1), samples);
 
         TVector5Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 5)
-        {
+        for (std::size_t j = 0u; j < samples.size(); j += 5) {
             points.push_back(TVector5(&samples[j], &samples[j + 5]));
         }
 
@@ -79,8 +73,7 @@ void CKdTreeTest::testBuild()
     }
 }
 
-void CKdTreeTest::testNearestNeighbour()
-{
+void CKdTreeTest::testNearestNeighbour() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CKdTreeTest::testNearestNeighbour  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -89,14 +82,12 @@ void CKdTreeTest::testNearestNeighbour()
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberTests; ++i)
-    {
+    for (std::size_t i = 0u; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 2 * (i + 1), samples);
 
         TVector2Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 2)
-        {
+        for (std::size_t j = 0u; j < samples.size(); j += 2) {
             points.push_back(TVector2(&samples[j], &samples[j + 2]));
         }
 
@@ -107,52 +98,37 @@ void CKdTreeTest::testNearestNeighbour()
         rng.generateUniformSamples(-150.0, 150.0, 2 * 10, samples);
 
         TVector2Vec tests;
-        for (std::size_t j = 0u; j < samples.size(); j += 2)
-        {
+        for (std::size_t j = 0u; j < samples.size(); j += 2) {
             tests.push_back(TVector2(&samples[j], &samples[j + 2]));
         }
 
-        if (i % 10 == 0)
-        {
+        if (i % 10 == 0) {
             LOG_DEBUG("*** Test " << i << " ***");
         }
-        for (std::size_t j = 0u; j < tests.size(); ++j)
-        {
-            using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<
-                                        TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
+        for (std::size_t j = 0u; j < tests.size(); ++j) {
+            using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
 
             TMinAccumulator expectedNearest;
-            for (std::size_t k = 0u; k < points.size(); ++k)
-            {
-                expectedNearest.add(TDoubleVector2Pr((tests[j] - points[k]).euclidean(),
-                                                     points[k]));
+            for (std::size_t k = 0u; k < points.size(); ++k) {
+                expectedNearest.add(TDoubleVector2Pr((tests[j] - points[k]).euclidean(), points[k]));
             }
 
-            const TVector2 *nearest = kdTree.nearestNeighbour(tests[j]);
+            const TVector2* nearest = kdTree.nearestNeighbour(tests[j]);
             CPPUNIT_ASSERT(nearest);
-            if (i % 10 == 0)
-            {
-                LOG_DEBUG("Expected nearest = " << expectedNearest[0].second
-                          << ", expected distance = " << expectedNearest[0].first);
-                LOG_DEBUG("Nearest          = " << *nearest
-                          << ", actual distance   = " << (tests[j] - *nearest).euclidean());
+            if (i % 10 == 0) {
+                LOG_DEBUG("Expected nearest = " << expectedNearest[0].second << ", expected distance = " << expectedNearest[0].first);
+                LOG_DEBUG("Nearest          = " << *nearest << ", actual distance   = " << (tests[j] - *nearest).euclidean());
             }
-            CPPUNIT_ASSERT_EQUAL(print(expectedNearest[0].second),
-                                 print(*nearest));
+            CPPUNIT_ASSERT_EQUAL(print(expectedNearest[0].second), print(*nearest));
         }
     }
 }
 
-CppUnit::Test *CKdTreeTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
+CppUnit::Test* CKdTreeTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CKdTreeTest>(
-                                   "CKdTreeTest::testBuild",
-                                   &CKdTreeTest::testBuild) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CKdTreeTest>(
-                                   "CKdTreeTest::testNearestNeighbour",
-                                   &CKdTreeTest::testNearestNeighbour) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>("CKdTreeTest::testBuild", &CKdTreeTest::testBuild));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>("CKdTreeTest::testNearestNeighbour", &CKdTreeTest::testNearestNeighbour));
 
     return suiteOfTests;
 }

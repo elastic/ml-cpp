@@ -12,15 +12,14 @@
 #include "CDetectorEnumeratorTest.h"
 #include "CReportWriterTest.h"
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char** argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest( CAutoconfigurerParamsTest::suite() );
-    runner.addTest( CDataSemanticsTest::suite() );
-    runner.addTest( CDataSummaryStatisticsTest::suite() );
-    runner.addTest( CDetectorEnumeratorTest::suite() );
-    runner.addTest( CReportWriterTest::suite() );
+    runner.addTest(CAutoconfigurerParamsTest::suite());
+    runner.addTest(CDataSemanticsTest::suite());
+    runner.addTest(CDataSummaryStatisticsTest::suite());
+    runner.addTest(CDetectorEnumeratorTest::suite());
+    runner.addTest(CReportWriterTest::suite());
 
     return !runner.runTests();
 }

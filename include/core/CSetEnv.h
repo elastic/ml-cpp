@@ -9,12 +9,8 @@
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the setenv() function.
@@ -27,17 +23,11 @@ namespace core
 //! _putenv_s() function with slightly different semantics to Unix's
 //! setenv().
 //!
-class CORE_EXPORT CSetEnv : private CNonInstantiatable
-{
-    public:
-        static int setEnv(const char *name,
-                          const char *value,
-                          int overwrite);
+class CORE_EXPORT CSetEnv : private CNonInstantiatable {
+public:
+    static int setEnv(const char* name, const char* value, int overwrite);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CSetEnv_h
-

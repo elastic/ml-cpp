@@ -12,9 +12,9 @@
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 
+#include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
-#include <boost/generator_iterator.hpp>
 
 #include <iostream>
 
@@ -26,134 +26,96 @@ using TDistribution = boost::uniform_int<>;
 using TGenerator = boost::random::variate_generator<TRandom&, TDistribution>;
 using TGeneratorItr = boost::generator_iterator<TGenerator>;
 
-namespace
-{
+namespace {
 
 using TSizeStrMap = std::map<std::size_t, std::string>;
 using TSizeStrMapCItr = TSizeStrMap::const_iterator;
 using TOStreamP = core::CDataAdder::TOStreamP;
 using TIStreamP = core::CDataSearcher::TIStreamP;
 
-void insert3rdLevel(ml::core::CStatePersistInserter &inserter)
-{
+void insert3rdLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("ssdrgad", 99999, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("bbvczcvbdfb", "rrtw");
 }
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter)
-{
+void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("eerwq_dsf_dfsgh_h5dafg", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
-    for (std::size_t i = 0; i < 50; i++)
-    {
+    for (std::size_t i = 0; i < 50; i++) {
         inserter.insertLevel("hiawat" + core::CStringUtils::typeToString(i), &insert3rdLevel);
     }
 }
 
-void insert1stLevel(ml::core::CStatePersistInserter &inserter, std::size_t n)
-{
+void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
     inserter.insertValue("theFirstThing", "a");
     inserter.insertValue("anItemThatComesNext", 25);
-    for (std::size_t i = 0; i < n; i++)
-    {
+    for (std::size_t i = 0; i < n; i++) {
         inserter.insertLevel("levelC" + core::CStringUtils::typeToString(i), &insert2ndLevel);
     }
 }
 
-class CMockDataAdder : public ml::core::CDataAdder
-{
-    public:
-        CMockDataAdder(std::size_t maxDocSize)
-            : m_CurrentDocNum(0),
-              m_MaxDocumentSize(maxDocSize)
-        {
-        }
+class CMockDataAdder : public ml::core::CDataAdder {
+public:
+    CMockDataAdder(std::size_t maxDocSize) : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
 
-        virtual TOStreamP addStreamed(const std::string &/*index*/,
-                                      const std::string &/*id*/)
-        {
-            ++m_CurrentDocNum;
-            m_CurrentStream = TOStreamP(new std::ostringstream);
-            return m_CurrentStream;
-        }
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+        ++m_CurrentDocNum;
+        m_CurrentStream = TOStreamP(new std::ostringstream);
+        return m_CurrentStream;
+    }
 
-        virtual bool streamComplete(TOStreamP &strm,
-                                    bool /*force*/)
-        {
-            CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
-            std::ostringstream *ss = dynamic_cast<std::ostringstream *>(m_CurrentStream.get());
-            CPPUNIT_ASSERT(ss);
-            LOG_TRACE(ss->str());
-            m_Data[m_CurrentDocNum] = ss->str();
-            LOG_TRACE(m_Data[m_CurrentDocNum]);
-            return true;
-        }
+    virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
+        CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
+        std::ostringstream* ss = dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
+        CPPUNIT_ASSERT(ss);
+        LOG_TRACE(ss->str());
+        m_Data[m_CurrentDocNum] = ss->str();
+        LOG_TRACE(m_Data[m_CurrentDocNum]);
+        return true;
+    }
 
-        virtual std::size_t maxDocumentSize() const
-        {
-            return m_MaxDocumentSize;
-        }
+    virtual std::size_t maxDocumentSize() const { return m_MaxDocumentSize; }
 
-        const TSizeStrMap &data() const
-        {
-            return m_Data;
-        }
+    const TSizeStrMap& data() const { return m_Data; }
 
-    private:
-        TSizeStrMap m_Data;
-        std::size_t m_CurrentDocNum;
-        TOStreamP m_CurrentStream;
-        std::size_t m_MaxDocumentSize;
+private:
+    TSizeStrMap m_Data;
+    std::size_t m_CurrentDocNum;
+    TOStreamP m_CurrentStream;
+    std::size_t m_MaxDocumentSize;
 };
 
-class CMockDataSearcher : public ml::core::CDataSearcher
-{
-    public:
-        CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0)
-        {
+class CMockDataSearcher : public ml::core::CDataSearcher {
+public:
+    CMockDataSearcher(CMockDataAdder& adder) : m_Adder(adder), m_AskedFor(0) {}
+
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        TIStreamP stream;
+        const TSizeStrMap& events = m_Adder.data();
+
+        TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
+        if (iter == events.end()) {
+            // return a stream here that is in the fail state
+            stream.reset(new std::stringstream);
+            stream->setstate(std::ios_base::failbit);
+        } else {
+            stream.reset(new std::stringstream(iter->second));
+            ++m_AskedFor;
         }
+        return stream;
+    }
 
-        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
-        {
-            TIStreamP stream;
-            const TSizeStrMap &events = m_Adder.data();
+    std::size_t totalDocs() const { return m_Adder.data().size(); }
 
-            TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
-            if (iter == events.end())
-            {
-                // return a stream here that is in the fail state
-                stream.reset(new std::stringstream);
-                stream->setstate(std::ios_base::failbit);
-            }
-            else
-            {
-                stream.reset(new std::stringstream(iter->second));
-                ++m_AskedFor;
-            }
-            return stream;
-        }
+    std::size_t askedFor() const { return m_AskedFor; }
 
-        std::size_t totalDocs() const
-        {
-            return m_Adder.data().size();
-        }
-
-        std::size_t askedFor() const
-        {
-            return m_AskedFor;
-        }
-
-    private:
-
-        CMockDataAdder &m_Adder;
-        std::size_t m_AskedFor;
+private:
+    CMockDataAdder& m_Adder;
+    std::size_t m_AskedFor;
 };
-
 }
 
-
-void CStateCompressorTest::testForApiNoKey()
-{
+void CStateCompressorTest::testForApiNoKey() {
     // This test verifies the basic operation of compressing and decompressing
     // some JSON data, using two simultaneous streams: one regular stringstream,
     // and one compress/decompress stream
@@ -193,8 +155,7 @@ void CStateCompressorTest::testForApiNoKey()
     CPPUNIT_ASSERT_EQUAL(ref.size(), restored.size());
 }
 
-void CStateCompressorTest::testStreaming()
-{
+void CStateCompressorTest::testStreaming() {
     // The purpose of this test is to add a reasonable block of data to the
     // compressed store, then read it back out and show that the data is
     // read in stream chunks, not all at once. CMockDataSearcher has a
@@ -231,43 +192,37 @@ void CStateCompressorTest::testStreaming()
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
-        for (std::size_t i = 0; i < 5000; i++)
-        {
+        for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
-        for (std::size_t i = 0; i < 5000; i++)
-        {
+        for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
-        for (std::size_t i = 0; i < 5000; i++)
-        {
+        for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
-        for (std::size_t i = 0; i < 5000; i++)
-        {
+        for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
-        while (traverser.next())
-        {};
+        while (traverser.next()) {
+        };
         LOG_TRACE("Asked for: " << mockKvSearcher.askedFor());
         CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
 }
 
-
-void CStateCompressorTest::testChunking()
-{
+void CStateCompressorTest::testChunking() {
     // Put arbitrary string data into the stream, and stress different sizes
     // check CMockDataAdder with max doc sizes from 500 to 500000
 
@@ -275,21 +230,17 @@ void CStateCompressorTest::testChunking()
     TGenerator generator(rng, TDistribution(0, 254));
     TGeneratorItr randItr(&generator);
 
-    for (std::size_t i = 500; i < 5000001; i *= 10)
-    {
+    for (std::size_t i = 500; i < 5000001; i *= 10) {
         // check string data from sizes 1 to 200000
-        for (std::size_t j = 1; j < 2570000; j *= 4)
-        {
+        for (std::size_t j = 1; j < 2570000; j *= 4) {
             CMockDataAdder adder(i);
             std::ostringstream ss;
             std::string decompressed;
-            try
-            {
+            try {
                 {
                     ml::core::CStateCompressor compressor(adder);
                     ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
-                    for (std::size_t k = 0; k < j; k++)
-                    {
+                    for (std::size_t k = 0; k < j; k++) {
                         char c = char(*randItr++);
                         ss << c;
                         (*strm) << c;
@@ -303,9 +254,7 @@ void CStateCompressorTest::testChunking()
                     std::istreambuf_iterator<char> eos;
                     decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
                 }
-            }
-            catch (std::exception &e)
-            {
+            } catch (std::exception& e) {
                 LOG_DEBUG("Error in test case " << i << " / " << j << ": " << e.what());
                 LOG_DEBUG("String is: " << ss.str());
                 CPPUNIT_ASSERT(false);
@@ -320,13 +269,11 @@ void CStateCompressorTest::testChunking()
         CMockDataAdder adder(0xffffffff);
         std::ostringstream ss;
         std::string decompressed;
-        try
-        {
+        try {
             {
                 ml::core::CStateCompressor compressor(adder);
                 ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
-                for (std::size_t k = 0; k < 100000000; k++)
-                {
+                for (std::size_t k = 0; k < 100000000; k++) {
                     char c = char(*randItr++);
                     ss << c;
                     (*strm) << c;
@@ -340,9 +287,7 @@ void CStateCompressorTest::testChunking()
                 std::istreambuf_iterator<char> eos;
                 decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
             }
-        }
-        catch (std::exception &e)
-        {
+        } catch (std::exception& e) {
             LOG_DEBUG("Error in test case " << e.what());
             LOG_DEBUG("String is: " << ss.str());
             CPPUNIT_ASSERT(false);
@@ -351,19 +296,15 @@ void CStateCompressorTest::testChunking()
     }
 }
 
-CppUnit::Test* CStateCompressorTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
+CppUnit::Test* CStateCompressorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStateCompressorTest>(
-                                   "CStateCompressorTest::testForApiNoKey",
-                                   &CStateCompressorTest::testForApiNoKey) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStateCompressorTest> (
-                                   "CStateCompressorTest::testStreaming",
-                                   &CStateCompressorTest::testStreaming) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStateCompressorTest> (
-                                   "CStateCompressorTest::testChunking",
-                                   &CStateCompressorTest::testChunking) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testStreaming", &CStateCompressorTest::testStreaming));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testChunking", &CStateCompressorTest::testChunking));
 
     return suiteOfTests;
 }

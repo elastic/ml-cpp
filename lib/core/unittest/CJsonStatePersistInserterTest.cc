@@ -5,37 +5,30 @@
  */
 #include "CJsonStatePersistInserterTest.h"
 
-#include <core/CLogger.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
 #include <sstream>
 
+CppUnit::Test* CJsonStatePersistInserterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
 
-CppUnit::Test *CJsonStatePersistInserterTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CJsonStatePersistInserterTest>(
-                                   "CJsonStatePersistInserterTest::testPersist",
-                                   &CJsonStatePersistInserterTest::testPersist) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStatePersistInserterTest>("CJsonStatePersistInserterTest::testPersist",
+                                                                                 &CJsonStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter)
-{
+void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("level2A", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
 }
-
 }
 
-void CJsonStatePersistInserterTest::testPersist()
-{
+void CJsonStatePersistInserterTest::testPersist() {
     std::ostringstream strm;
 
     {
@@ -51,7 +44,5 @@ void CJsonStatePersistInserterTest::testPersist()
 
     LOG_DEBUG("JSON is: " << json);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
-                         json);
+    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"), json);
 }
-

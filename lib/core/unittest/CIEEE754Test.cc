@@ -6,8 +6,8 @@
 
 #include "CIEEE754Test.h"
 
-#include <core/CLogger.h>
 #include <core/CIEEE754.h>
+#include <core/CLogger.h>
 
 #include <cmath>
 #include <iomanip>
@@ -16,8 +16,7 @@
 using namespace ml;
 using namespace core;
 
-void CIEEE754Test::testRound()
-{
+void CIEEE754Test::testRound() {
     {
         // Check it matches float precision.
         double test1 = 0.049999998;
@@ -80,15 +79,10 @@ void CIEEE754Test::testRound()
     }
 }
 
-CppUnit::Test *CIEEE754Test::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
+CppUnit::Test* CIEEE754Test::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CIEEE754Test>(
-                                   "CIEEE754Test::testRound",
-                                   &CIEEE754Test::testRound) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIEEE754Test>("CIEEE754Test::testRound", &CIEEE754Test::testRound));
 
     return suiteOfTests;
-
 }
-

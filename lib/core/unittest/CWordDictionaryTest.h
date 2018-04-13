@@ -8,17 +8,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CWordDictionaryTest : public CppUnit::TestFixture {
+public:
+    void testLookups();
+    void testPartOfSpeech();
+    void testWeightingFunctors();
+    void testPerformance();
 
-class CWordDictionaryTest : public CppUnit::TestFixture
-{
-    public:
-        void testLookups();
-        void testPartOfSpeech();
-        void testWeightingFunctors();
-        void testPerformance();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CWordDictionaryTest_h
-

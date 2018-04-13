@@ -6,8 +6,8 @@
 #ifndef INCLUDED_ml_model_CStringStore_h
 #define INCLUDED_ml_model_CStringStore_h
 
-#include <core/CMemory.h>
 #include <core/CFastMutex.h>
+#include <core/CMemory.h>
 #include <core/CNonCopyable.h>
 #include <core/CStoredStringPtr.h>
 
@@ -22,17 +22,14 @@
 class CResourceMonitorTest;
 class CStringStoreTest;
 
-namespace ml
-{
+namespace ml {
 
-namespace core
-{
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace model
-{
+namespace model {
 
 //! \brief
 //! DESCRIPTION:\n
@@ -52,99 +49,88 @@ namespace model
 //! strings.
 //! Write access is locked for the benefit of future threading.
 //!
-class MODEL_EXPORT CStringStore : private core::CNonCopyable
-{
-    public:
-        struct MODEL_EXPORT SHashStoredStringPtr
-        {
-            std::size_t operator()(const core::CStoredStringPtr &key) const
-            {
-                boost::hash<std::string> hasher;
-                return hasher(*key);
-            }
-        };
-        struct MODEL_EXPORT SStoredStringPtrEqual
-        {
-            bool operator()(const core::CStoredStringPtr &lhs,
-                            const core::CStoredStringPtr &rhs) const
-            {
-                return *lhs == *rhs;
-            }
-        };
+class MODEL_EXPORT CStringStore : private core::CNonCopyable {
+public:
+    struct MODEL_EXPORT SHashStoredStringPtr {
+        std::size_t operator()(const core::CStoredStringPtr& key) const {
+            boost::hash<std::string> hasher;
+            return hasher(*key);
+        }
+    };
+    struct MODEL_EXPORT SStoredStringPtrEqual {
+        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) const { return *lhs == *rhs; }
+    };
 
-    public:
-        //! Call this to tidy up any strings no longer needed.
-        static void tidyUpNotThreadSafe();
+public:
+    //! Call this to tidy up any strings no longer needed.
+    static void tidyUpNotThreadSafe();
 
-        //! Singleton pattern for person/attribute names.
-        static CStringStore &names();
+    //! Singleton pattern for person/attribute names.
+    static CStringStore& names();
 
-        //! Singleton pattern for influencer names.
-        static CStringStore &influencers();
+    //! Singleton pattern for influencer names.
+    static CStringStore& influencers();
 
-        //! Fast method to get the pointer for an empty string.
-        const core::CStoredStringPtr &getEmpty() const;
+    //! Fast method to get the pointer for an empty string.
+    const core::CStoredStringPtr& getEmpty() const;
 
-        //! (Possibly) add \p value to the store and get back a pointer to it.
-        core::CStoredStringPtr get(const std::string &value);
+    //! (Possibly) add \p value to the store and get back a pointer to it.
+    core::CStoredStringPtr get(const std::string& value);
 
-        //! (Possibly) remove \p value from the store.
-        void remove(const std::string &value);
+    //! (Possibly) remove \p value from the store.
+    void remove(const std::string& value);
 
-        //! Prune strings which have been removed.
-        void pruneRemovedNotThreadSafe();
+    //! Prune strings which have been removed.
+    void pruneRemovedNotThreadSafe();
 
-        //! Iterate over the string store and remove unused entries.
-        void pruneNotThreadSafe();
+    //! Iterate over the string store and remove unused entries.
+    void pruneNotThreadSafe();
 
-        //! Get the memory used by this string store
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    //! Get the memory used by this string store
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        //! Get the memory used by this string store
-        std::size_t memoryUsage() const;
+    //! Get the memory used by this string store
+    std::size_t memoryUsage() const;
 
-    private:
-        using TStoredStringPtrUSet = boost::unordered_set<core::CStoredStringPtr,
-                                                          SHashStoredStringPtr,
-                                                          SStoredStringPtrEqual>;
-        using TStrVec = std::vector<std::string>;
+private:
+    using TStoredStringPtrUSet = boost::unordered_set<core::CStoredStringPtr, SHashStoredStringPtr, SStoredStringPtrEqual>;
+    using TStrVec = std::vector<std::string>;
 
-    private:
-        //! Constructor of a Singleton is private.
-        CStringStore();
+private:
+    //! Constructor of a Singleton is private.
+    CStringStore();
 
-        //! Bludgeoning device to delete all objects in store.
-        void clearEverythingTestOnly();
+    //! Bludgeoning device to delete all objects in store.
+    void clearEverythingTestOnly();
 
-    private:
-        //! Fence for reading operations (in which case we "leak" a string
-        //! if we try to write at the same time). See get for details.
-        std::atomic_int m_Reading;
+private:
+    //! Fence for reading operations (in which case we "leak" a string
+    //! if we try to write at the same time). See get for details.
+    std::atomic_int m_Reading;
 
-        //! Fence for writing operations (in which case we "leak" a string
-        //! if we try to read at the same time). See get for details.
-        std::atomic_int m_Writing;
+    //! Fence for writing operations (in which case we "leak" a string
+    //! if we try to read at the same time). See get for details.
+    std::atomic_int m_Writing;
 
-        //! The empty string is often used so we store it outside the set.
-        core::CStoredStringPtr m_EmptyString;
+    //! The empty string is often used so we store it outside the set.
+    core::CStoredStringPtr m_EmptyString;
 
-        //! Set to keep the person/attribute string pointers
-        TStoredStringPtrUSet m_Strings;
+    //! Set to keep the person/attribute string pointers
+    TStoredStringPtrUSet m_Strings;
 
-        //! A list of the strings to remove.
-        TStrVec m_Removed;
+    //! A list of the strings to remove.
+    TStrVec m_Removed;
 
-        //! Running count of memory usage by stored strings.  Avoids the need to
-        //! recalculate repeatedly.
-        std::size_t m_StoredStringsMemUse;
+    //! Running count of memory usage by stored strings.  Avoids the need to
+    //! recalculate repeatedly.
+    std::size_t m_StoredStringsMemUse;
 
-        //! Locking primitive
-        mutable core::CFastMutex m_Mutex;
+    //! Locking primitive
+    mutable core::CFastMutex m_Mutex;
 
     friend class ::CResourceMonitorTest;
     friend class ::CStringStoreTest;
 };
-
 
 } // model
 } // ml

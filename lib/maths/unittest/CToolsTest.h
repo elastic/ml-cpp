@@ -9,18 +9,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testProbabilityOfLessLikelySample();
-        void testIntervalExpectation();
-        void testMixtureProbabilityOfLessLikelySample();
-        void testAnomalyScore();
-        void testSpread();
-        void testFastLog();
-        void testMiscellaneous();
+class CToolsTest : public CppUnit::TestFixture {
+public:
+    void testProbabilityOfLessLikelySample();
+    void testIntervalExpectation();
+    void testMixtureProbabilityOfLessLikelySample();
+    void testAnomalyScore();
+    void testSpread();
+    void testFastLog();
+    void testMiscellaneous();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CToolsTest_h

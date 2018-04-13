@@ -9,11 +9,8 @@
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to hide the complexity of establishing when
@@ -34,24 +31,20 @@ namespace core
 //! To avoid the method will return maxtime if
 //! maxTime hasn't changed for bufferDelay clock seconds.
 //!
-class CORE_EXPORT CBufferFlushTimer
-{
-    public:
-        CBufferFlushTimer();
+class CORE_EXPORT CBufferFlushTimer {
+public:
+    CBufferFlushTimer();
 
-        core_t::TTime flushTime(core_t::TTime bufferDelay,
-                                core_t::TTime bufferMaxTime);
+    core_t::TTime flushTime(core_t::TTime bufferDelay, core_t::TTime bufferMaxTime);
 
-    private:
-        //! The last reported 'max time'
-        core_t::TTime m_LastMaxTime;
+private:
+    //! The last reported 'max time'
+    core_t::TTime m_LastMaxTime;
 
-        //! The last actual clock time of the flush
-        core_t::TTime m_LastFlushTime;
+    //! The last actual clock time of the flush
+    core_t::TTime m_LastFlushTime;
 };
-
 }
 }
 
 #endif // INCLUDED_ml_core_CBufferFlushTimer_h
-

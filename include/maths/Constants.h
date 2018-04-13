@@ -12,10 +12,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! The minimum coefficient of variation supported by the models.
 //! In general, if the coefficient of variation for the data becomes
@@ -101,44 +99,39 @@ const double MINIMUM_CLUSTER_SPLIT_COUNT{24.0};
 const double MINIMUM_CATEGORY_COUNT{0.5};
 
 //! \brief A collection of weight styles and weights.
-class MATHS_EXPORT CConstantWeights
-{
-    public:
-        using TDouble2Vec = core::CSmallVector<double, 2>;
-        using TDouble4Vec = core::CSmallVector<double, 4>;
-        using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-        using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-        using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
+class MATHS_EXPORT CConstantWeights {
+public:
+    using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TDouble4Vec = core::CSmallVector<double, 4>;
+    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+    using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
 
-    public:
-        //! A single count weight style.
-        static const maths_t::TWeightStyleVec COUNT;
-        //! A single count variance weight style.
-        static const maths_t::TWeightStyleVec COUNT_VARIANCE;
-        //! A single seasonal variance weight style.
-        static const maths_t::TWeightStyleVec SEASONAL_VARIANCE;
-        //! A unit weight.
-        static const TDouble4Vec UNIT;
-        //! A single unit weight.
-        static const TDouble4Vec1Vec SINGLE_UNIT;
-        //! Get a unit weight for data with \p dimension.
-        template<typename VECTOR>
-        static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension)
-        {
-            return TDouble2Vec4Vec{VECTOR(dimension, 1.0)};
-        }
-        //! Get a single unit weight for data with \p dimension.
-        template<typename VECTOR>
-        static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1> singleUnit(std::size_t dimension)
-        {
-            return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{
-                       core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
-        }
+public:
+    //! A single count weight style.
+    static const maths_t::TWeightStyleVec COUNT;
+    //! A single count variance weight style.
+    static const maths_t::TWeightStyleVec COUNT_VARIANCE;
+    //! A single seasonal variance weight style.
+    static const maths_t::TWeightStyleVec SEASONAL_VARIANCE;
+    //! A unit weight.
+    static const TDouble4Vec UNIT;
+    //! A single unit weight.
+    static const TDouble4Vec1Vec SINGLE_UNIT;
+    //! Get a unit weight for data with \p dimension.
+    template<typename VECTOR>
+    static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {
+        return TDouble2Vec4Vec{VECTOR(dimension, 1.0)};
+    }
+    //! Get a single unit weight for data with \p dimension.
+    template<typename VECTOR>
+    static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1> singleUnit(std::size_t dimension) {
+        return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
+    }
 };
 
 //! Get the maximum amount we'll penalize a model in addSamples.
 MATHS_EXPORT double maxModelPenalty(double numberSamples);
-
 }
 }
 

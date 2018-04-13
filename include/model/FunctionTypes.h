@@ -14,12 +14,9 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
-namespace function_t
-{
+namespace ml {
+namespace model {
+namespace function_t {
 
 //! An enumeration of possible functions we can run on a data stream
 //! on which we do anomaly detection. These map to a set of data
@@ -101,8 +98,7 @@ namespace function_t
 //!   -# Population metric sum: for which we look at the sum of the metric
 //!      values each person generates in a bucket optionally partitioned by
 //!      a category. This is used for analyzing metric data as a population.
-enum EFunction
-{
+enum EFunction {
     // IMPORTANT: The integer values associated with these enum values are
     // stored in persisted state.  DO NOT CHANGE EXISTING NUMBERS, as this
     // will invalidate persisted state.  Any new enum values that are added
@@ -233,15 +229,15 @@ bool isForecastSupported(EFunction function);
 
 //! Get the mapping from function to data features.
 MODEL_EXPORT
-const model_t::TFeatureVec &features(EFunction function);
+const model_t::TFeatureVec& features(EFunction function);
 
 //! The inverse mapping from features to function.
 MODEL_EXPORT
-EFunction function(const model_t::TFeatureVec &features);
+EFunction function(const model_t::TFeatureVec& features);
 
 //! Get the name of \p function.
 MODEL_EXPORT
-const std::string &name(EFunction function);
+const std::string& name(EFunction function);
 
 //! Get a string description of \p function.
 MODEL_EXPORT
@@ -249,11 +245,9 @@ std::string print(EFunction function);
 
 //! Overload std stream << operator.
 MODEL_EXPORT
-std::ostream &operator<<(std::ostream &o, EFunction function);
-
+std::ostream& operator<<(std::ostream& o, EFunction function);
 }
 }
 }
 
 #endif // INCLUDED_ml_model_function_t_FunctionTypes_h
-

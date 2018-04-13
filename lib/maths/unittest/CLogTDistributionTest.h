@@ -9,15 +9,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLogTDistributionTest : public CppUnit::TestFixture
-{
-    public:
-        void testMode();
-        void testPdf();
-        void testCdf();
-        void testQuantile();
+class CLogTDistributionTest : public CppUnit::TestFixture {
+public:
+    void testMode();
+    void testPdf();
+    void testCdf();
+    void testQuantile();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLogTDistributionTest_h

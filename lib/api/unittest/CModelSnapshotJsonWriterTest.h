@@ -8,14 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CModelSnapshotJsonWriterTest : public CppUnit::TestFixture {
+public:
+    void testWrite();
 
-class CModelSnapshotJsonWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testWrite();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CModelSnapshotJsonWriterTest_h
-

@@ -9,23 +9,16 @@
 #include <core/CProgName.h>
 #include <core/CRegex.h>
 
+CppUnit::Test* CProgNameTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProgNameTest");
 
-CppUnit::Test *CProgNameTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProgNameTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CProgNameTest>(
-                                   "CProgNameTest::testProgName",
-                                   &CProgNameTest::testProgName) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CProgNameTest>(
-                                   "CProgNameTest::testProgDir",
-                                   &CProgNameTest::testProgDir) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProgNameTest>("CProgNameTest::testProgName", &CProgNameTest::testProgName));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProgNameTest>("CProgNameTest::testProgDir", &CProgNameTest::testProgDir));
 
     return suiteOfTests;
 }
 
-void CProgNameTest::testProgName()
-{
+void CProgNameTest::testProgName() {
     std::string progName(ml::core::CProgName::progName());
 
     LOG_DEBUG("Current program name is " << progName);
@@ -33,8 +26,7 @@ void CProgNameTest::testProgName()
     CPPUNIT_ASSERT_EQUAL(std::string("ml_test"), progName);
 }
 
-void CProgNameTest::testProgDir()
-{
+void CProgNameTest::testProgDir() {
     std::string progDir(ml::core::CProgName::progDir());
 
     LOG_DEBUG("Current program directory is " << progDir);
@@ -46,4 +38,3 @@ void CProgNameTest::testProgDir()
     // Confirm we've stripped any extended length indicator on Windows
     CPPUNIT_ASSERT(progDir.compare(0, 4, "\\\\?\\") != 0);
 }
-

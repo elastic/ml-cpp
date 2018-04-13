@@ -9,29 +9,21 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 CMonotonicTime::CMonotonicTime()
     // Scaling factors never vary for clock_gettime()
-    : m_ScalingFactor1(0),
-      m_ScalingFactor2(0),
-      m_ScalingFactor3(0)
-{
+    : m_ScalingFactor1(0), m_ScalingFactor2(0), m_ScalingFactor3(0) {
 }
 
-uint64_t CMonotonicTime::milliseconds() const
-{
+uint64_t CMonotonicTime::milliseconds() const {
     struct timespec ts;
 
     int rc(-1);
 
-    // For milliseconds, use the coarse timers if available, as millisecond
-    // granularity is good enough
+// For milliseconds, use the coarse timers if available, as millisecond
+// granularity is good enough
 #if defined(CLOCK_MONOTONIC_COARSE)
     rc = ::clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
 #elif defined(CLOCK_MONOTONIC)
@@ -44,8 +36,7 @@ uint64_t CMonotonicTime::milliseconds() const
     rc = ::clock_gettime(CLOCK_REALTIME, &ts);
 #endif
 
-    if (rc < 0)
-    {
+    if (rc < 0) {
         LOG_ERROR("Failed to get reading from hi-res clock");
 
         // Return a very approximate time
@@ -58,14 +49,13 @@ uint64_t CMonotonicTime::milliseconds() const
     return result;
 }
 
-uint64_t CMonotonicTime::nanoseconds() const
-{
+uint64_t CMonotonicTime::nanoseconds() const {
     struct timespec ts;
 
     int rc(-1);
 
-    // Don't use the coarse timers here, as they only provide around millisecond
-    // granularity
+// Don't use the coarse timers here, as they only provide around millisecond
+// granularity
 #if defined(CLOCK_MONOTONIC)
     rc = ::clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
@@ -73,8 +63,7 @@ uint64_t CMonotonicTime::nanoseconds() const
     rc = ::clock_gettime(CLOCK_REALTIME, &ts);
 #endif
 
-    if (rc < 0)
-    {
+    if (rc < 0) {
         LOG_ERROR("Failed to get reading from hi-res clock");
 
         // Return a very approximate time
@@ -86,8 +75,5 @@ uint64_t CMonotonicTime::nanoseconds() const
 
     return result;
 }
-
-
 }
 }
-

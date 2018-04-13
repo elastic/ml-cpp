@@ -8,20 +8,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CCategoryExamplesCollectorTest : public CppUnit::TestFixture {
+public:
+    void testAddGivenMaxExamplesIsZero();
+    void testAddGivenSameCategoryExamplePairAddedTwice();
+    void testAddGivenMoreThanMaxExamplesAreAddedForSameCategory();
+    void testAddGivenCategoryAddedIsNotSubsequent();
+    void testExamples();
+    void testPersist();
+    void testTruncation();
 
-class CCategoryExamplesCollectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testAddGivenMaxExamplesIsZero();
-        void testAddGivenSameCategoryExamplePairAddedTwice();
-        void testAddGivenMoreThanMaxExamplesAreAddedForSameCategory();
-        void testAddGivenCategoryAddedIsNotSubsequent();
-        void testExamples();
-        void testPersist();
-        void testTruncation();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCategoryExamplesCollectorTest_h
-

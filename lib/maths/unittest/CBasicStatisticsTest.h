@@ -8,21 +8,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CBasicStatisticsTest : public CppUnit::TestFixture {
+public:
+    void testMean();
+    void testCentralMoments();
+    void testVectorCentralMoments();
+    void testCovariances();
+    void testCovariancesLedoitWolf();
+    void testMedian();
+    void testOrderStatistics();
+    void testMinMax();
 
-class CBasicStatisticsTest : public CppUnit::TestFixture
-{
-    public:
-        void testMean();
-        void testCentralMoments();
-        void testVectorCentralMoments();
-        void testCovariances();
-        void testCovariancesLedoitWolf();
-        void testMedian();
-        void testOrderStatistics();
-        void testMinMax();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CBasicStatisticsTest_h
-

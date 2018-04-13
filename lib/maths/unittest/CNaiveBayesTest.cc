@@ -34,8 +34,7 @@ using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-void CNaiveBayesTest::testClassification()
-{
+void CNaiveBayesTest::testClassification() {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CNaiveBayesTest::testClassification  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -55,30 +54,25 @@ void CNaiveBayesTest::testClassification()
     test::CRandomNumbers rng;
 
     TDoubleVec trainingData[4];
-    rng.generateNormalSamples( 0.0, 12.0, 100, trainingData[0]);
+    rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
     rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
-    rng.generateNormalSamples( 3.0, 14.0, 200, trainingData[2]);
+    rng.generateNormalSamples(3.0, 14.0, 200, trainingData[2]);
     rng.generateNormalSamples(-5.0, 24.0, 200, trainingData[3]);
 
     TMeanAccumulator meanMeanError;
 
-    for (auto initialCount : {0.0, 100.0})
-    {
-        maths::CNormalMeanPrecConjugate normal{
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+    for (auto initialCount : {0.0, 100.0}) {
+        maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
         maths::CNaiveBayes nb{maths::CNaiveBayesFeatureDensityFromPrior(normal)};
 
-        if (initialCount > 0)
-        {
+        if (initialCount > 0) {
             nb.initialClassCounts({{initialCount, 1}, {initialCount, 2}});
         }
 
-        for (std::size_t i = 0u; i < 100; ++i)
-        {
+        for (std::size_t i = 0u; i < 100; ++i) {
             nb.addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
         }
-        for (std::size_t i = 0u; i < 200; ++i)
-        {
+        for (std::size_t i = 0u; i < 200; ++i) {
             nb.addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
         }
 
@@ -109,62 +103,50 @@ void CNaiveBayesTest::testClassification()
         // ratios for those feature values.
 
         boost::math::normal class1[]{
-                boost::math::normal{maths::CBasicStatistics::mean(moments[0]),
-                                    std::sqrt(maths::CBasicStatistics::variance(moments[0]))},
-                boost::math::normal{maths::CBasicStatistics::mean(moments[1]),
-                                    std::sqrt(maths::CBasicStatistics::variance(moments[1]))}};
+            boost::math::normal{maths::CBasicStatistics::mean(moments[0]), std::sqrt(maths::CBasicStatistics::variance(moments[0]))},
+            boost::math::normal{maths::CBasicStatistics::mean(moments[1]), std::sqrt(maths::CBasicStatistics::variance(moments[1]))}};
         boost::math::normal class2[]{
-                boost::math::normal{maths::CBasicStatistics::mean(moments[2]),
-                                    std::sqrt(maths::CBasicStatistics::variance(moments[2]))},
-                boost::math::normal{maths::CBasicStatistics::mean(moments[3]),
-                                    std::sqrt(maths::CBasicStatistics::variance(moments[3]))}};
+            boost::math::normal{maths::CBasicStatistics::mean(moments[2]), std::sqrt(maths::CBasicStatistics::variance(moments[2]))},
+            boost::math::normal{maths::CBasicStatistics::mean(moments[3]), std::sqrt(maths::CBasicStatistics::variance(moments[3]))}};
 
         TDoubleVec xtest;
         rng.generateNormalSamples(0.0, 64.0, 40, xtest);
 
         TMeanAccumulator meanErrors[3];
 
-        for (std::size_t i = 0u; i < xtest.size(); i += 2)
-        {
-            auto test = [i](double p1, double p2, const TDoubleSizePrVec &p, TMeanAccumulator &meanError)
-                {
-                    double Z{p1 + p2};
-                    p1 /= Z;
-                    p2 /= Z;
-                    double p1_{p[0].second == 1 ? p[0].first : p[1].first};
-                    double p2_{p[0].second == 1 ? p[1].first : p[0].first};
+        for (std::size_t i = 0u; i < xtest.size(); i += 2) {
+            auto test = [i](double p1, double p2, const TDoubleSizePrVec& p, TMeanAccumulator& meanError) {
+                double Z{p1 + p2};
+                p1 /= Z;
+                p2 /= Z;
+                double p1_{p[0].second == 1 ? p[0].first : p[1].first};
+                double p2_{p[0].second == 1 ? p[1].first : p[0].first};
 
-                    if (i % 10 == 0)
-                    {
-                        LOG_DEBUG(i << ") expected P(1) = " << p1 << ", P(2) = " << p2
-                                  << " got P(1) = " << p1_ << ", P(2) = " << p2_);
-                    }
+                if (i % 10 == 0) {
+                    LOG_DEBUG(i << ") expected P(1) = " << p1 << ", P(2) = " << p2 << " got P(1) = " << p1_ << ", P(2) = " << p2_);
+                }
 
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), p.size());
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p1_, 0.03);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(p2, p2_, 0.03);
-                    if (p1 > 0.001)
-                    {
-                        meanError.add(std::fabs((p1 - p1_) / p1));
-                    }
-                    if (p2 > 0.001)
-                    {
-                        meanError.add(std::fabs((p2 - p2_) / p2));
-                    }
-                };
+                CPPUNIT_ASSERT_EQUAL(std::size_t(2), p.size());
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p1_, 0.03);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(p2, p2_, 0.03);
+                if (p1 > 0.001) {
+                    meanError.add(std::fabs((p1 - p1_) / p1));
+                }
+                if (p2 > 0.001) {
+                    meanError.add(std::fabs((p2 - p2_) / p2));
+                }
+            };
 
             // Supply both feature values.
-            double p1{P1 * maths::CTools::safePdf(class1[0], xtest[i])
-                         * maths::CTools::safePdf(class1[1], xtest[i+1])};
-            double p2{P2 * maths::CTools::safePdf(class2[0], xtest[i])
-                         * maths::CTools::safePdf(class2[1], xtest[i+1])};
-            probabilities = nb.highestClassProbabilities(2, {{xtest[i]}, {xtest[i+1]}});
+            double p1{P1 * maths::CTools::safePdf(class1[0], xtest[i]) * maths::CTools::safePdf(class1[1], xtest[i + 1])};
+            double p2{P2 * maths::CTools::safePdf(class2[0], xtest[i]) * maths::CTools::safePdf(class2[1], xtest[i + 1])};
+            probabilities = nb.highestClassProbabilities(2, {{xtest[i]}, {xtest[i + 1]}});
             test(p1, p2, probabilities, meanErrors[0]);
 
             // Miss out the first feature value.
-            p1 = P1 * maths::CTools::safePdf(class1[1], xtest[i+1]);
-            p2 = P2 * maths::CTools::safePdf(class2[1], xtest[i+1]);
-            probabilities = nb.highestClassProbabilities(2, {{}, {xtest[i+1]}});
+            p1 = P1 * maths::CTools::safePdf(class1[1], xtest[i + 1]);
+            p2 = P2 * maths::CTools::safePdf(class2[1], xtest[i + 1]);
+            probabilities = nb.highestClassProbabilities(2, {{}, {xtest[i + 1]}});
             test(p1, p2, probabilities, meanErrors[1]);
 
             // Miss out the second feature value.
@@ -174,18 +156,15 @@ void CNaiveBayesTest::testClassification()
             test(p1, p2, probabilities, meanErrors[2]);
         }
 
-        for (std::size_t i = 0u; i < 3; ++i)
-        {
-            LOG_DEBUG("Mean relative error = "
-                      << maths::CBasicStatistics::mean(meanErrors[i]));
+        for (std::size_t i = 0u; i < 3; ++i) {
+            LOG_DEBUG("Mean relative error = " << maths::CBasicStatistics::mean(meanErrors[i]));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
             meanMeanError += meanErrors[i];
         }
     }
 }
 
-void CNaiveBayesTest::testPropagationByTime()
-{
+void CNaiveBayesTest::testPropagationByTime() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CNaiveBayesTest::testPropagationByTime  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -195,18 +174,15 @@ void CNaiveBayesTest::testPropagationByTime()
 
     test::CRandomNumbers rng;
 
-    maths::CNormalMeanPrecConjugate normal{
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.05)};
-    maths::CNaiveBayes nb[]{
-            maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05},
-            maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
+    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.05)};
+    maths::CNaiveBayes nb[]{maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05},
+                            maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
 
     TDoubleVec trainingData[4];
-    for (std::size_t i = 0u; i < 1000; ++i)
-    {
+    for (std::size_t i = 0u; i < 1000; ++i) {
         double x{static_cast<double>(i)};
-        rng.generateNormalSamples( 0.02 * x - 14.0, 16.0, 1, trainingData[0]);
-        rng.generateNormalSamples( 0.02 * x - 14.0, 16.0, 1, trainingData[1]);
+        rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
+        rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[1]);
         rng.generateNormalSamples(-0.02 * x + 14.0, 16.0, 1, trainingData[2]);
         rng.generateNormalSamples(-0.02 * x + 14.0, 16.0, 1, trainingData[3]);
 
@@ -216,7 +192,7 @@ void CNaiveBayesTest::testPropagationByTime()
 
         nb[1].addTrainingDataPoint(1, {{trainingData[0][0]}, {trainingData[1][0]}});
         nb[1].addTrainingDataPoint(2, {{trainingData[2][0]}, {trainingData[3][0]}});
-}
+    }
 
     // Check that the value:
     //    - (-10,-10) gets assigned to class 2
@@ -224,26 +200,20 @@ void CNaiveBayesTest::testPropagationByTime()
     // for the aged classifier and vice versa.
 
     {
-        TDoubleSizePrVec probabilities[]{
-                nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}),
-                nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
-        LOG_DEBUG("Aged class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG("Class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[1]));
+        TDoubleSizePrVec probabilities[]{nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}),
+                                         nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
+        LOG_DEBUG("Aged class probabilities = " << core::CContainerPrinter::print(probabilities[0]));
+        LOG_DEBUG("Class probabilities = " << core::CContainerPrinter::print(probabilities[1]));
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[0][0].second);
         CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[1][0].second);
         CPPUNIT_ASSERT(probabilities[1][0].first > 0.95);
     }
     {
-        TDoubleSizePrVec probabilities[]{
-                nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}),
-                nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
-        LOG_DEBUG("Aged class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG("Class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[1]));
+        TDoubleSizePrVec probabilities[]{nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}),
+                                         nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
+        LOG_DEBUG("Aged class probabilities = " << core::CContainerPrinter::print(probabilities[0]));
+        LOG_DEBUG("Class probabilities = " << core::CContainerPrinter::print(probabilities[1]));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[0][0].second);
         CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[1][0].second);
@@ -251,8 +221,7 @@ void CNaiveBayesTest::testPropagationByTime()
     }
 }
 
-void CNaiveBayesTest::testMemoryUsage()
-{
+void CNaiveBayesTest::testMemoryUsage() {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CNaiveBayesTest::testMemoryUsage  |");
     LOG_DEBUG("+------------------------------------+");
@@ -260,28 +229,25 @@ void CNaiveBayesTest::testMemoryUsage()
     // Check invariants.
 
     using TMemoryUsagePtr = boost::scoped_ptr<core::CMemoryUsage>;
-    using TNaiveBayesPtr  = boost::shared_ptr<maths::CNaiveBayes>;
+    using TNaiveBayesPtr = boost::shared_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
 
     TDoubleVec trainingData[4];
-    rng.generateNormalSamples( 0.0, 12.0, 100, trainingData[0]);
+    rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
     rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
-    rng.generateNormalSamples( 3.0, 14.0, 200, trainingData[2]);
+    rng.generateNormalSamples(3.0, 14.0, 200, trainingData[2]);
     rng.generateNormalSamples(-5.0, 24.0, 200, trainingData[3]);
 
     TMeanAccumulator meanMeanError;
 
-    maths::CNormalMeanPrecConjugate normal{
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.1)};
+    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.1)};
     TNaiveBayesPtr nb{new maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1}};
 
-    for (std::size_t i = 0u; i < 100; ++i)
-    {
+    for (std::size_t i = 0u; i < 100; ++i) {
         nb->addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
     }
-    for (std::size_t i = 0u; i < 200; ++i)
-    {
+    for (std::size_t i = 0u; i < 200; ++i) {
         nb->addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
     }
 
@@ -293,12 +259,10 @@ void CNaiveBayesTest::testMemoryUsage()
     CPPUNIT_ASSERT_EQUAL(memoryUsage, mem->usage());
 
     LOG_DEBUG("Memory = " << core::CMemory::dynamicSize(nb));
-    CPPUNIT_ASSERT_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
-                         core::CMemory::dynamicSize(nb));
+    CPPUNIT_ASSERT_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes), core::CMemory::dynamicSize(nb));
 }
 
-void CNaiveBayesTest::testPersist()
-{
+void CNaiveBayesTest::testPersist() {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CNaiveBayesTest::testPersist  |");
     LOG_DEBUG("+--------------------------------+");
@@ -306,23 +270,20 @@ void CNaiveBayesTest::testPersist()
     test::CRandomNumbers rng;
 
     TDoubleVec trainingData[4];
-    rng.generateNormalSamples( 0.0, 12.0, 100, trainingData[0]);
+    rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
     rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
-    rng.generateNormalSamples( 3.0, 14.0, 200, trainingData[2]);
+    rng.generateNormalSamples(3.0, 14.0, 200, trainingData[2]);
     rng.generateNormalSamples(-5.0, 24.0, 200, trainingData[3]);
 
     TMeanAccumulator meanMeanError;
 
-    maths::CNormalMeanPrecConjugate normal{
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.1)};
+    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.1)};
     maths::CNaiveBayes origNb{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1};
 
-    for (std::size_t i = 0u; i < 100; ++i)
-    {
+    for (std::size_t i = 0u; i < 100; ++i) {
         origNb.addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
     }
-    for (std::size_t i = 0u; i < 200; ++i)
-    {
+    for (std::size_t i = 0u; i < 200; ++i) {
         origNb.addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
     }
 
@@ -353,22 +314,15 @@ void CNaiveBayesTest::testPersist()
     CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
 }
 
-CppUnit::Test *CNaiveBayesTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CNaiveBayesTest");
+CppUnit::Test* CNaiveBayesTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNaiveBayesTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CNaiveBayesTest>(
-                                   "CNaiveBayesTest::testClassification",
-                                   &CNaiveBayesTest::testClassification) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CNaiveBayesTest>(
-                                   "CNaiveBayesTest::testPropagationByTime",
-                                   &CNaiveBayesTest::testPropagationByTime) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CNaiveBayesTest>(
-                                   "CNaiveBayesTest::testMemoryUsage",
-                                   &CNaiveBayesTest::testMemoryUsage) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CNaiveBayesTest>(
-                                   "CNaiveBayesTest::testPersist",
-                                   &CNaiveBayesTest::testPersist) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CNaiveBayesTest>("CNaiveBayesTest::testClassification", &CNaiveBayesTest::testClassification));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CNaiveBayesTest>("CNaiveBayesTest::testPropagationByTime", &CNaiveBayesTest::testPropagationByTime));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>("CNaiveBayesTest::testMemoryUsage", &CNaiveBayesTest::testMemoryUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>("CNaiveBayesTest::testPersist", &CNaiveBayesTest::testPersist));
 
     return suiteOfTests;
 }

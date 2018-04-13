@@ -9,15 +9,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CNaiveBayesTest : public CppUnit::TestFixture
-{
-    public:
-        void testClassification();
-        void testPropagationByTime();
-        void testMemoryUsage();
-        void testPersist();
+class CNaiveBayesTest : public CppUnit::TestFixture {
+public:
+    void testClassification();
+    void testPropagationByTime();
+    void testMemoryUsage();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CNaiveBayesTest_h

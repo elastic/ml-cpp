@@ -23,8 +23,7 @@
 
 using namespace ml;
 
-void CProbabilityCalibratorTest::testCalibration()
-{
+void CProbabilityCalibratorTest::testCalibration() {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CProbabilityCalibratorTest::testCalibration  |");
     LOG_DEBUG("+-----------------------------------------------+");
@@ -37,11 +36,8 @@ void CProbabilityCalibratorTest::testCalibration()
     // probabilities, i.e. fitting a normal a log-normal and multi-
     // modal distributions.
 
-    maths::CProbabilityCalibrator::EStyle styles[] =
-        {
-            maths::CProbabilityCalibrator::E_PartialCalibration,
-            maths::CProbabilityCalibrator::E_FullCalibration
-        };
+    maths::CProbabilityCalibrator::EStyle styles[] = {maths::CProbabilityCalibrator::E_PartialCalibration,
+                                                      maths::CProbabilityCalibrator::E_FullCalibration};
 
     test::CRandomNumbers rng;
 
@@ -50,25 +46,21 @@ void CProbabilityCalibratorTest::testCalibration()
         TDoubleVec samples;
         rng.generateLogNormalSamples(2.0, 0.9, 5000u, samples);
 
-        double improvements[] = { 0.03, 0.07 };
-        double maxImprovements[] = { 0.01, 0.9 };
+        double improvements[] = {0.03, 0.07};
+        double maxImprovements[] = {0.01, 0.9};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
-            CNormalMeanPrecConjugate normal =
-                    CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            CLogNormalMeanPrecConjugate lognormal =
-                    CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CNormalMeanPrecConjugate normal = CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CLogNormalMeanPrecConjugate lognormal = CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
 
             double rawError = 0.0;
             double calibratedError = 0.0;
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
                 lognormal.addSamples(sample);
@@ -77,11 +69,7 @@ void CProbabilityCalibratorTest::testCalibration()
                 double upperBound;
 
                 double rawProbability = 1.0;
-                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          sample,
-                                                          lowerBound,
-                                                          upperBound))
-                {
+                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
                     rawProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -89,11 +77,7 @@ void CProbabilityCalibratorTest::testCalibration()
                 double calibratedProbability = calibrator.calibrate(rawProbability);
 
                 double trueProbability = 1.0;
-                if (lognormal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                             sample,
-                                                             lowerBound,
-                                                             upperBound))
-                {
+                if (lognormal.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -106,10 +90,8 @@ void CProbabilityCalibratorTest::testCalibration()
                 maxCalibratedError = std::max(maxCalibratedError, calibrated);
             }
 
-            LOG_DEBUG("totalRawError =        " << rawError
-                      << ", maxRawError =        " << maxRawError);
-            LOG_DEBUG("totalCalibratedError = " << calibratedError
-                      << ", maxCalibratedError = " << maxCalibratedError);
+            LOG_DEBUG("totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
+            LOG_DEBUG("totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError > improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError > maxImprovements[i]);
         }
@@ -127,41 +109,32 @@ void CProbabilityCalibratorTest::testCalibration()
 
         rng.random_shuffle(samples.begin(), samples.end());
 
-        double improvements[] = { 0.18, 0.19 };
-        double maxImprovements[] = { 0.0, -0.04 };
+        double improvements[] = {0.18, 0.19};
+        double maxImprovements[] = {0.0, -0.04};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
-            CNormalMeanPrecConjugate normal =
-                    CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            CNormalMeanPrecConjugate normal1 =
-                    CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            CNormalMeanPrecConjugate normal2 =
-                    CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CNormalMeanPrecConjugate normal = CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CNormalMeanPrecConjugate normal1 = CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CNormalMeanPrecConjugate normal2 = CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
 
             double rawError = 0.0;
             double calibratedError = 0.0;
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
-                CNormalMeanPrecConjugate &mode = samples[j] < 10.0 ? normal1 : normal2;
+                CNormalMeanPrecConjugate& mode = samples[j] < 10.0 ? normal1 : normal2;
                 mode.addSamples(sample);
 
                 double lowerBound;
                 double upperBound;
 
                 double rawProbability = 1.0;
-                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          sample,
-                                                          lowerBound,
-                                                          upperBound))
-                {
+                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
                     rawProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -169,11 +142,7 @@ void CProbabilityCalibratorTest::testCalibration()
                 double calibratedProbability = calibrator.calibrate(rawProbability);
 
                 double trueProbability = 1.0;
-                if (mode.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                        sample,
-                                                        lowerBound,
-                                                        upperBound))
-                {
+                if (mode.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -186,23 +155,19 @@ void CProbabilityCalibratorTest::testCalibration()
                 maxCalibratedError = std::max(maxCalibratedError, calibrated);
             }
 
-            LOG_DEBUG("totalRawError =        " << rawError
-                      << ", maxRawError =        " << maxRawError);
-            LOG_DEBUG("totalCalibratedError = " << calibratedError
-                      << ", maxCalibratedError = " << maxCalibratedError);
+            LOG_DEBUG("totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
+            LOG_DEBUG("totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError >= improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >= maxImprovements[i]);
         }
     }
 }
 
-CppUnit::Test *CProbabilityCalibratorTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
+CppUnit::Test* CProbabilityCalibratorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityCalibratorTest>(
-                                   "CProbabilityCalibratorTest::testCalibration",
-                                   &CProbabilityCalibratorTest::testCalibration) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>("CProbabilityCalibratorTest::testCalibration",
+                                                                              &CProbabilityCalibratorTest::testCalibration));
 
     return suiteOfTests;
 }

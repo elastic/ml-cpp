@@ -7,15 +7,13 @@
 #ifndef INCLUDED_ml_config_CDetectorFieldRolePenalty_h
 #define INCLUDED_ml_config_CDetectorFieldRolePenalty_h
 
-#include <config/Constants.h>
 #include <config/CPenalty.h>
+#include <config/Constants.h>
 
 #include <cstddef>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 
 //! \brief A penalty for a detector based on its field roles.
@@ -24,31 +22,29 @@ class CAutoconfigurerParams;
 //! This wraps up a collection of field role penalties and assigns
 //! a penalty to a detector based on the product of all its argument
 //! and partitioning fields penalties.
-class CDetectorFieldRolePenalty : public CPenalty
-{
-    public:
-        CDetectorFieldRolePenalty(const CAutoconfigurerParams &params);
+class CDetectorFieldRolePenalty : public CPenalty {
+public:
+    CDetectorFieldRolePenalty(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CDetectorFieldRolePenalty *clone() const;
+    //! Create a copy on the heap.
+    virtual CDetectorFieldRolePenalty* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-        //! Set the field penalty for the field identified by \p index
-        //! which must be one of ARGUMENT_INDEX, BY_INDEX, OVER_INDEX
-        //! or PARTITION_INDEX.
-        void addPenalty(std::size_t index, const CPenalty &penalty);
+    //! Set the field penalty for the field identified by \p index
+    //! which must be one of ARGUMENT_INDEX, BY_INDEX, OVER_INDEX
+    //! or PARTITION_INDEX.
+    void addPenalty(std::size_t index, const CPenalty& penalty);
 
-    private:
-        //! Compute the penalty based on the detector's fields.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+private:
+    //! Compute the penalty based on the detector's fields.
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
-    private:
-        //! The penalties to apply for each field.
-        const CPenalty *m_FieldRolePenalties[constants::NUMBER_FIELD_INDICES];
+private:
+    //! The penalties to apply for each field.
+    const CPenalty* m_FieldRolePenalties[constants::NUMBER_FIELD_INDICES];
 };
-
 }
 }
 
