@@ -122,49 +122,52 @@ int main(int argc, char** argv) {
     }
     ml::api::CFieldConfig fieldConfig(categorizationFieldName);
 
-    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
-    TDataSearcherUPtr restoreSearcher;
-    if (ioMgr.restoreStream()) {
-        // Check whether state is restored from a file, if so we assume that this is a debugging case
-        // and therefore does not originate from X-Pack.
-        if (!isRestoreFileNamedPipe) {
-            // apply a filter to overcome differences in the way persistence vs. restore works
-            auto strm = std::make_shared<boost::iostreams::filtering_istream>();
-            strm->push(ml::api::CStateRestoreStreamFilter());
-            strm->push(*ioMgr.restoreStream());
-            restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
-        } else {
-            restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
+    using TDataSearcherCUPtr = const std::unique_ptr<ml::core::CDataSearcher>;
+    TDataSearcherCUPtr restoreSearcher{[isRestoreFileNamedPipe,
+                                        &ioMgr]() -> ml::core::CDataSearcher* {
+        if (ioMgr.restoreStream()) {
+            // Check whether state is restored from a file, if so we assume that this is a debugging case
+            // and therefore does not originate from X-Pack.
+            if (!isRestoreFileNamedPipe) {
+                // apply a filter to overcome differences in the way persistence vs. restore works
+                auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+                strm->push(ml::api::CStateRestoreStreamFilter());
+                strm->push(*ioMgr.restoreStream());
+                return new ml::api::CSingleStreamSearcher(strm);
+            }
+            return new ml::api::CSingleStreamSearcher(ioMgr.restoreStream());
         }
-    }
+        return nullptr;
+    }()};
 
-    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
-    TDataAdderUPtr persister;
-    if (ioMgr.persistStream()) {
-        persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
-    }
-
-    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
-    TBackgroundPersisterUPtr periodicPersister;
-    if (persistInterval >= 0) {
-        if (persister == nullptr) {
-            LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
-                         "'persistInterval' argument "
-                         "unless a place to persist to has been specified "
-                         "using the 'persist' argument");
-            return EXIT_FAILURE;
+    using TDataAdderCUPtr = const std::unique_ptr<ml::core::CDataAdder>;
+    TDataAdderCUPtr persister{[&ioMgr]() -> ml::core::CDataAdder* {
+        if (ioMgr.persistStream()) {
+            return new ml::api::CSingleStreamDataAdder(ioMgr.persistStream());
         }
+        return nullptr;
+    }()};
 
-        periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval, *persister));
+    if (persistInterval >= 0 && persister == nullptr) {
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
+                     "'persistInterval' argument "
+                     "unless a place to persist to has been specified "
+                     "using the 'persist' argument");
+        return EXIT_FAILURE;
     }
+    using TBackgroundPersisterCUPtr = const std::unique_ptr<ml::api::CBackgroundPersister>;
+    TBackgroundPersisterCUPtr periodicPersister{[persistInterval, &persister]() {
+        return new ml::api::CBackgroundPersister(persistInterval, *persister);
+    }()};
 
-    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-    TInputParserUPtr inputParser;
-    if (lengthEncodedInput) {
-        inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
-    }
+    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
+    TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr,
+                                   delimiter]() -> ml::api::CInputParser* {
+        if (lengthEncodedInput) {
+            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+        }
+        return new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter);
+    }()};
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 

@@ -101,25 +101,25 @@ int main(int argc, char** argv) {
     modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
-    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-    TInputParserUPtr inputParser;
-    if (lengthEncodedInput) {
-        inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
-        inputParser.reset(new ml::api::CCsvInputParser(
-            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
-    }
+    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
+    TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr]() -> ml::api::CInputParser* {
+        if (lengthEncodedInput) {
+            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+        }
+        return new ml::api::CCsvInputParser(ioMgr.inputStream(),
+                                            ml::api::CCsvInputParser::COMMA);
+    }()};
 
-    using TOutputHandlerUPtr = std::unique_ptr<ml::api::COutputHandler>;
-    TOutputHandlerUPtr outputWriter;
-    if (writeCsv) {
-        outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
-    } else {
-        outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter(
+    using TOutputHandlerCUPtr = const std::unique_ptr<ml::api::COutputHandler>;
+    TOutputHandlerCUPtr outputWriter{[writeCsv, &ioMgr]() -> ml::api::COutputHandler* {
+        if (writeCsv) {
+            return new ml::api::CCsvOutputWriter(ioMgr.outputStream());
+        }
+        return new ml::api::CLineifiedJsonOutputWriter(
             {ml::api::CResultNormalizer::PROBABILITY_NAME,
              ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
-            ioMgr.outputStream()));
-    }
+            ioMgr.outputStream());
+    }()};
 
     // This object will do the work
     ml::api::CResultNormalizer normalizer(modelConfig, *outputWriter);
