@@ -658,42 +658,44 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
 
         hypotheses.resize(1);
         if (DAY % m_Period == 0) {
-            hypotheses[0]
-                .null(testForNull)
-                .addNested(testForPeriod)
-                .addNested(testForDaily)
-                .addNested(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly)
-                .finishedNested()
-                .finishedNested()
-                .addAlternative(testForDaily)
-                .addNested(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly)
-                .finishedNested()
-                .addAlternative(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly);
+            // clang-format off
+            hypotheses[0].null(testForNull)
+                             .addNested(testForPeriod)
+                                 .addNested(testForDaily)
+                                     .addNested(testForDailyWithWeekend)
+                                         .addNested(testForWeeklyGivenWeekend)
+                                         .finishedNested()
+                                     .addAlternative(testForWeekly)
+                                     .finishedNested()
+                                 .finishedNested()
+                             .addAlternative(testForDaily)
+                                 .addNested(testForDailyWithWeekend)
+                                     .addNested(testForWeeklyGivenWeekend)
+                                     .finishedNested()
+                                 .addAlternative(testForWeekly)
+                                 .finishedNested()
+                             .addAlternative(testForDailyWithWeekend)
+                                 .addNested(testForWeeklyGivenWeekend)
+                                 .finishedNested()
+                             .addAlternative(testForWeekly);
+            // clang-format on
         } else {
-            hypotheses[0]
-                .null(testForNull)
-                .addNested(testForDaily)
-                .addNested(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly)
-                .finishedNested()
-                .addAlternative(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForPeriod)
-                .addNested(testForWeekly)
-                .finishedNested()
-                .addAlternative(testForWeekly);
+            // clang-format off
+            hypotheses[0].null(testForNull)
+                             .addNested(testForDaily)
+                                 .addNested(testForDailyWithWeekend)
+                                     .addNested(testForWeeklyGivenWeekend)
+                                     .finishedNested()
+                                 .addAlternative(testForWeekly)
+                                 .finishedNested()
+                             .addAlternative(testForDailyWithWeekend)
+                                 .addNested(testForWeeklyGivenWeekend)
+                                 .finishedNested()
+                             .addAlternative(testForPeriod)
+                                 .addNested(testForWeekly)
+                                 .finishedNested()
+                             .addAlternative(testForWeekly);
+            // clang-format on
         }
     } else if (m_Period % WEEK == 0) {
         auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
@@ -717,27 +719,28 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
             boost::cref(bucketsForTestingPeriod), _1);
 
         hypotheses.resize(1);
-        hypotheses[0]
-            .null(testForNull)
-            .addNested(testForDaily)
-            .addNested(testForDailyWithWeekend)
-            .addNested(testForWeeklyGivenWeekend)
-            .addNested(testForPeriod)
-            .finishedNested()
-            .finishedNested()
-            .addAlternative(testForWeekly)
-            .addNested(testForPeriod)
-            .finishedNested()
-            .finishedNested()
-            .addAlternative(testForDailyWithWeekend)
-            .addNested(testForWeeklyGivenWeekend)
-            .addNested(testForPeriod)
-            .finishedNested()
-            .finishedNested()
-            .addAlternative(testForWeekly)
-            .addNested(testForPeriod)
-            .finishedNested()
-            .addAlternative(testForPeriod);
+        // clang-format off
+        hypotheses[0].null(testForNull)
+                         .addNested(testForDaily)
+                             .addNested(testForDailyWithWeekend)
+                                 .addNested(testForWeeklyGivenWeekend)
+                                     .addNested(testForPeriod)
+                                     .finishedNested()
+                                 .finishedNested()
+                             .addAlternative(testForWeekly)
+                                 .addNested(testForPeriod)
+                                 .finishedNested()
+                             .finishedNested()
+                         .addAlternative(testForDailyWithWeekend)
+                             .addNested(testForWeeklyGivenWeekend)
+                                 .addNested(testForPeriod)
+                                 .finishedNested()
+                             .finishedNested()
+                         .addAlternative(testForWeekly)
+                             .addNested(testForPeriod)
+                             .finishedNested()
+                         .addAlternative(testForPeriod);
+        // clang-format on
     } else {
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
@@ -759,18 +762,19 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
                 boost::cref(bucketsForTestingWeekly), _1);
 
             hypotheses.resize(2);
-            hypotheses[0]
-                .null(testForNull)
-                .addNested(testForDaily)
-                .addNested(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly)
-                .finishedNested()
-                .addAlternative(testForDailyWithWeekend)
-                .addNested(testForWeeklyGivenWeekend)
-                .finishedNested()
-                .addAlternative(testForWeekly);
+            // clang-format off
+            hypotheses[0].null(testForNull)
+                             .addNested(testForDaily)
+                                 .addNested(testForDailyWithWeekend)
+                                     .addNested(testForWeeklyGivenWeekend)
+                                     .finishedNested()
+                                 .addAlternative(testForWeekly)
+                                 .finishedNested()
+                             .addAlternative(testForDailyWithWeekend)
+                                 .addNested(testForWeeklyGivenWeekend)
+                                 .finishedNested()
+                             .addAlternative(testForWeekly);
+            // clang-format on
         }
         if (m_Period % DAY == 0) {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
@@ -784,12 +788,13 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
                             boost::cref(windowForTestingPeriod),
                             boost::cref(bucketsForTestingPeriod), _1);
 
-            hypotheses[1]
-                .null(testForNull)
-                .addNested(testForDaily)
-                .addNested(testForPeriod)
-                .finishedNested()
-                .addAlternative(testForPeriod);
+            // clang-format off
+            hypotheses[1].null(testForNull)
+                             .addNested(testForDaily)
+                                 .addNested(testForPeriod)
+                                 .finishedNested()
+                             .addAlternative(testForPeriod);
+            // clang-format on
         } else {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
                                            this, boost::cref(windowForTestingPeriod),
@@ -799,7 +804,10 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
                             boost::cref(windowForTestingPeriod),
                             boost::cref(bucketsForTestingPeriod), _1);
 
-            hypotheses[1].null(testForNull).addNested(testForPeriod);
+            // clang-format off
+            hypotheses[1].null(testForNull)
+                             .addNested(testForPeriod);
+            // clang-format on
         }
     }
 }
@@ -822,12 +830,13 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
                                         boost::cref(bucketsForTestingDaily), _1);
 
         hypotheses.resize(1);
-        hypotheses[0]
-            .null(testForNull)
-            .addNested(testForPeriod)
-            .addNested(testForDaily)
-            .finishedNested()
-            .addAlternative(testForDaily);
+        // clang-format off
+        hypotheses[0].null(testForNull)
+                         .addNested(testForPeriod)
+                             .addNested(testForDaily)
+                             .finishedNested()
+                         .addAlternative(testForDaily);
+        // clang-format on
     } else if (m_Period % DAY == 0) {
         auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
                                        this, boost::cref(windowForTestingPeriod),
@@ -840,7 +849,11 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
                                         boost::cref(bucketsForTestingPeriod), _1);
 
         hypotheses.resize(1);
-        hypotheses[0].null(testForNull).addNested(testForDaily).addNested(testForPeriod);
+        // clang-format off
+        hypotheses[0].null(testForNull)
+                         .addNested(testForDaily)
+                             .addNested(testForPeriod);
+        // clang-format on
     } else {
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
@@ -851,7 +864,10 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
                                             boost::cref(bucketsForTestingDaily), _1);
 
             hypotheses.resize(2);
-            hypotheses[0].null(testForNull).addNested(testForDaily);
+            // clang-format off
+            hypotheses[0].null(testForNull)
+                             .addNested(testForDaily);
+            // clang-format on
         }
         {
             auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
@@ -861,7 +877,10 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
                 boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
                             boost::cref(windowForTestingPeriod),
                             boost::cref(bucketsForTestingPeriod), _1);
-            hypotheses[1].null(testForNull).addNested(testForPeriod);
+            // clang-format off
+            hypotheses[1].null(testForNull)
+                             .addNested(testForPeriod);
+            // clang-format on
         }
     }
 }
@@ -875,7 +894,10 @@ void CPeriodicityHypothesisTests::hypothesesForPeriod(const TTimeTimePr2Vec& win
                                      boost::cref(windows), boost::cref(buckets), _1);
 
     hypotheses.resize(1);
-    hypotheses[0].null(testForNull).addNested(testForPeriod);
+    // clang-format off
+    hypotheses[0].null(testForNull)
+                     .addNested(testForPeriod);
+    // clang-format on
 }
 
 CPeriodicityHypothesisTestsResult

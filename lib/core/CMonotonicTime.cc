@@ -22,8 +22,8 @@ uint64_t CMonotonicTime::milliseconds() const {
 
     int rc(-1);
 
-// For milliseconds, use the coarse timers if available, as millisecond
-// granularity is good enough
+    // For milliseconds, use the coarse timers if available, as millisecond
+    // granularity is good enough
 #if defined(CLOCK_MONOTONIC_COARSE)
     rc = ::clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
 #elif defined(CLOCK_MONOTONIC)
@@ -54,8 +54,8 @@ uint64_t CMonotonicTime::nanoseconds() const {
 
     int rc(-1);
 
-// Don't use the coarse timers here, as they only provide around millisecond
-// granularity
+    // Don't use the coarse timers here, as they only provide around millisecond
+    // granularity
 #if defined(CLOCK_MONOTONIC)
     rc = ::clock_gettime(CLOCK_MONOTONIC, &ts);
 #else

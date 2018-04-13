@@ -39,7 +39,7 @@ public:
 
     void propagateLastThreadAssert() {
         if (m_LastException) {
-            throw * m_LastException;
+            throw *m_LastException;
         }
     }
 
