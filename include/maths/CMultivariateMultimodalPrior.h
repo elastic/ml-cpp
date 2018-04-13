@@ -301,7 +301,6 @@ public:
     //! \param[in] weights The weights of each sample in \p samples.
     virtual void addSamples(const TDouble10Vec1Vec& samples,
                             const TDouble10VecWeightsAry1Vec& weights) {
-
         if (samples.empty()) {
             return;
         }
@@ -381,7 +380,6 @@ public:
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
-
         if (!CMathsFuncs::isFinite(time) || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;

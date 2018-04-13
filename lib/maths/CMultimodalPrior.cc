@@ -242,7 +242,6 @@ bool CMultimodalPrior::needsOffset() const {
 
 double CMultimodalPrior::adjustOffset(const TDouble1Vec& samples,
                                       const TDoubleWeightsAry1Vec& weights) {
-
     double result = 0.0;
 
     if (this->needsOffset()) {
@@ -272,7 +271,6 @@ double CMultimodalPrior::offset() const {
 
 void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
                                   const TDoubleWeightsAry1Vec& weights) {
-
     if (samples.empty()) {
         return;
     }
@@ -367,7 +365,6 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
 }
 
 void CMultimodalPrior::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;

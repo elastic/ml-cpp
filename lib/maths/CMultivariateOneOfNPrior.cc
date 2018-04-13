@@ -191,7 +191,6 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    maths_t::EDataType dataType,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
-
     if (models.empty()) {
         LOG_ERROR(<< "Can't initialize one-of-n with no models!");
         return;
@@ -210,7 +209,6 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    maths_t::EDataType dataType,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
-
     if (models.empty()) {
         LOG_ERROR(<< "Can't initialize mixed model with no models!");
         return;
@@ -230,7 +228,6 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(params.s_DataType, params.s_DecayRate),
       m_Dimension(dimension) {
-
     double decayRate;
     double numberSamples;
     if (traverser.traverseSubLevel(boost::bind(
@@ -245,7 +242,6 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
 CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior& other)
     : CMultivariatePrior(other.dataType(), other.decayRate()),
       m_Dimension(other.m_Dimension) {
-
     // Clone all the models up front so we can implement strong exception safety.
     m_Models.reserve(other.m_Models.size());
     for (const auto& model : other.m_Models) {
@@ -405,7 +401,6 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 }
 
 void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;

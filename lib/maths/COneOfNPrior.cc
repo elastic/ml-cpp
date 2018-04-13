@@ -207,7 +207,6 @@ void COneOfNPrior::setToNonInformative(double offset, double decayRate) {
 }
 
 void COneOfNPrior::removeModels(CModelFilter& filter) {
-
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
     std::size_t last = 0u;
@@ -233,7 +232,6 @@ bool COneOfNPrior::needsOffset() const {
 
 double COneOfNPrior::adjustOffset(const TDouble1Vec& samples,
                                   const TDoubleWeightsAry1Vec& weights) {
-
     TMeanAccumulator result;
 
     TDouble5Vec penalties;
@@ -267,7 +265,6 @@ double COneOfNPrior::offset() const {
 
 void COneOfNPrior::addSamples(const TDouble1Vec& samples,
                               const TDoubleWeightsAry1Vec& weights) {
-
     if (samples.empty()) {
         return;
     }
@@ -423,7 +420,6 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 }
 
 void COneOfNPrior::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
@@ -1022,7 +1018,6 @@ COneOfNPrior::TPriorCPtrVec COneOfNPrior::models() const {
 
 bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
                                                core::CStateRestoreTraverser& traverser) {
-
     CModelWeight weight(1.0);
     bool gotWeight = false;
     TPriorPtr model;

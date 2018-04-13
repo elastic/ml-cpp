@@ -361,7 +361,6 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
 }
 
 void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;

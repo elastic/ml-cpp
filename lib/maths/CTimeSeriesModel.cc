@@ -68,7 +68,6 @@ const std::size_t SLIDING_WINDOW_SIZE{12};
 
 //! Computes the Winsorisation weight for \p value.
 double computeWinsorisationWeight(const CPrior& prior, double derate, double scale, double value) {
-
     static const double WINSORISED_FRACTION = 1e-4;
     static const double MINIMUM_WEIGHT_FRACTION = 1e-12;
     static const double MINIMUM_WEIGHT = 0.05;
@@ -633,7 +632,6 @@ void CUnivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec& 
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
                                        TTimeDouble2VecSizeTrVec samples) {
-
     if (samples.empty()) {
         return E_Success;
     }
@@ -928,7 +926,6 @@ bool CUnivariateTimeSeriesModel::forecast(core_t::TTime startTime,
                                           const TDouble2Vec& maximum_,
                                           const TForecastPushDatapointFunc& forecastPushDataPointFunc,
                                           std::string& messageOut) {
-
     if (m_Prior->isNonInformative()) {
         messageOut = forecast::INFO_INSUFFICIENT_HISTORY;
         return true;
@@ -1167,7 +1164,6 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
-
     if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -1290,7 +1286,6 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                                         const TDouble2VecWeightsAryVec& weights) {
-
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
             LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
@@ -1389,7 +1384,6 @@ CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations& 
       m_SampleData(other.m_SampleData), m_Correlations(other.m_Correlations),
       m_CorrelatedLookup(other.m_CorrelatedLookup),
       m_TimeSeriesModels(isForPersistence ? TModelCPtrVec() : other.m_TimeSeriesModels) {
-
     for (const auto& model : other.m_CorrelationDistributionModels) {
         m_CorrelationDistributionModels.emplace(
             model.first,
@@ -1407,7 +1401,6 @@ CTimeSeriesCorrelations* CTimeSeriesCorrelations::cloneForPersistence() const {
 }
 
 void CTimeSeriesCorrelations::processSamples() {
-
     using TSizeSizePrMultivariatePriorPtrDoublePrUMapCItrVec =
         std::vector<TSizeSizePrMultivariatePriorPtrDoublePrUMap::const_iterator>;
 
@@ -1513,7 +1506,6 @@ void CTimeSeriesCorrelations::processSamples() {
 }
 
 void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& allocator) {
-
     using TDoubleVec = std::vector<double>;
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
@@ -1748,7 +1740,6 @@ void CTimeSeriesCorrelations::addSamples(std::size_t id,
                                          const TDoubleWeightsAry1Vec& weights,
                                          double interval,
                                          double multiplier) {
-
     SSampleData& data{m_SampleData[id]};
     data.s_Type = type;
     data.s_Times.reserve(samples.size());
@@ -1847,7 +1838,6 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
                                           params.decayRate())
                                     : TAnomalyModelPtr()),
       m_SlidingWindow(SLIDING_WINDOW_SIZE) {
-
     if (controllers) {
         m_Controllers = boost::make_shared<TDecayRateController2Ary>(*controllers);
     }
@@ -1863,7 +1853,6 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
                          ? boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : TAnomalyModelPtr()),
       m_SlidingWindow(other.m_SlidingWindow) {
-
     if (other.m_Controllers) {
         m_Controllers = boost::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
     }
@@ -1916,7 +1905,6 @@ void CMultivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
                                          TTimeDouble2VecSizeTrVec samples) {
-
     if (samples.empty()) {
         return E_Success;
     }
@@ -2348,7 +2336,6 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
-
     if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -2456,7 +2443,6 @@ const CMultivariatePrior& CMultivariateTimeSeriesModel::prior() const {
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                                           const TDouble2VecWeightsAryVec& weights) {
-
     std::size_t dimension{this->dimension()};
 
     for (const auto& sample : samples) {

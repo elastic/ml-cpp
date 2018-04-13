@@ -60,7 +60,6 @@ public:
     template<typename T>
     static TDoubleDoublePr
     marginalLikelihoodSupport(const std::vector<SMultimodalPriorMode<T>>& modes) {
-
         if (modes.size() == 0) {
             return {boost::numeric::bounds<double>::lowest(),
                     boost::numeric::bounds<double>::highest()};
@@ -85,7 +84,6 @@ public:
     //! Get the mean of the marginal likelihood function.
     template<typename T>
     static double marginalLikelihoodMean(const std::vector<SMultimodalPriorMode<T>>& modes) {
-
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -201,7 +199,6 @@ public:
                                          const std::vector<MODE>& modes,
                                          double percentage,
                                          const TDoubleWeightsAry& weights) {
-
         TDoubleDoublePr support = marginalLikelihoodSupport(modes);
 
         if (isNonInformative(modes)) {
@@ -306,7 +303,6 @@ public:
                                const TDouble1Vec& samples,
                                const TDoubleWeightsAry1Vec& weights,
                                double& result) {
-
         // The likelihood can be computed from the conditional likelihood
         // that a sample is from each mode. In particular, the likelihood
         // of a sample x is:

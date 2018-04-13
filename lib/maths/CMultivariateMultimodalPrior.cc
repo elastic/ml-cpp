@@ -115,7 +115,6 @@ jointLogMarginalLikelihood(const TModeVec& modes,
 void sampleMarginalLikelihood(const TModeVec& modes,
                               std::size_t numberSamples,
                               TDouble10Vec1Vec& samples) {
-
     samples.clear();
 
     if (modes.size() == 1) {
@@ -160,7 +159,6 @@ void sampleMarginalLikelihood(const TModeVec& modes,
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
-
     auto addWeight = [](double sum, const TMode& mode) {
         return sum + mode.weight();
     };
@@ -184,7 +182,6 @@ void modeMergeCallback(std::size_t dimension,
                        std::size_t leftMergeIndex,
                        std::size_t rightMergeIndex,
                        std::size_t targetIndex) {
-
     LOG_TRACE(<< "Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
     using TSizeSet = std::set<std::size_t>;

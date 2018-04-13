@@ -292,7 +292,6 @@ CMultinomialConjugate::CMultinomialConjugate(const SDistributionRestoreParams& p
 }
 
 bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
@@ -372,7 +371,6 @@ double CMultinomialConjugate::offset() const {
 
 void CMultinomialConjugate::addSamples(const TDouble1Vec& samples,
                                        const TDoubleWeightsAry1Vec& weights) {
-
     if (samples.empty()) {
         return;
     }
@@ -451,7 +449,6 @@ void CMultinomialConjugate::addSamples(const TDouble1Vec& samples,
 }
 
 void CMultinomialConjugate::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Can't propagate model backwards in time");
         return;

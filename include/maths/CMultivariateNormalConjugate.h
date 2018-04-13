@@ -300,7 +300,6 @@ public:
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
-
         if (!CMathsFuncs::isFinite(time) || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
@@ -757,7 +756,6 @@ public:
 
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
@@ -796,7 +794,6 @@ public:
     //@{
     //! Randomly sample the covariance matrix prior.
     void randomSamplePrecisionMatrixPrior(std::size_t n, TMatrixVec& result) {
-
         // The prior on the precision matrix is Wishart with matrix V equal
         // to the inverse of the scale matrix and degrees freedom equal to
         // degrees freedom minus the data dimension. To sample from the Wishart
@@ -868,7 +865,6 @@ public:
 
     //! Randomly sample from the marginal over the mean.
     void randomSampleMeanPrior(std::size_t n, TPointVec& result) {
-
         result.clear();
 
         if (this->isNonInformative()) {
@@ -908,7 +904,6 @@ public:
 
     //! Randomly sample from the predictive distribution.
     void randomSamplePredictive(std::size_t n, TPointVec& result) {
-
         result.clear();
 
         if (this->isNonInformative()) {

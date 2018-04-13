@@ -155,7 +155,6 @@ double maximumLikelihoodShape(double oldShape,
                               const TMeanAccumulator& newLogMean,
                               const TMeanVarAccumulator& oldMoments,
                               const TMeanVarAccumulator& newMoments) {
-
     if (CBasicStatistics::count(newMoments) < NON_INFORMATIVE_COUNT) {
         return oldShape;
     }
@@ -733,7 +732,6 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
 }
 
 bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
@@ -941,7 +939,6 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
 }
 
 void CGammaRateConjugate::propagateForwardsByTime(double time) {
-
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
