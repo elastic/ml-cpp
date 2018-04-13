@@ -13,6 +13,7 @@
 #include <boost/type_traits/has_minus_assign.hpp>
 #include <boost/type_traits/has_plus_assign.hpp>
 
+#include <algorithm>
 #include <initializer_list>
 #include <ostream>
 #include <vector>
