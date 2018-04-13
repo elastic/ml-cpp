@@ -34,11 +34,11 @@
 #include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <memory>
 #include <numeric>
 #include <string>
 #include <utility>
@@ -50,10 +50,10 @@ namespace multivariate_multimodal_prior_detail {
 
 using TSizeDoublePr = std::pair<size_t, double>;
 using TSizeDoublePr3Vec = core::CSmallVector<TSizeDoublePr, 3>;
-using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
 using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
 using TDouble10Vec4Vec1Vec = CMultivariatePrior::TDouble10Vec4Vec1Vec;
-using TMode = SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior>>;
+using TMode = SMultimodalPriorMode<std::shared_ptr<CMultivariatePrior>>;
 using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
@@ -135,7 +135,7 @@ public:
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TMatrixVec = std::vector<TMatrix>;
     using TClusterer = CClusterer<TFloatPoint>;
-    using TClustererPtr = boost::shared_ptr<TClusterer>;
+    using TClustererPtr = std::shared_ptr<TClusterer>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
     using TWeights = CConstantWeights;
 

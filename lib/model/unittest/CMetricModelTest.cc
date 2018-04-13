@@ -41,10 +41,10 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -71,9 +71,9 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
-using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
-using TPriorPtr = boost::shared_ptr<maths::CPrior>;
-using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+using TPriorPtr = std::shared_ptr<maths::CPrior>;
+using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
 using TDoubleStrPr = std::pair<double, std::string>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;

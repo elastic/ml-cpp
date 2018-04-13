@@ -13,9 +13,9 @@
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -30,7 +30,7 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TGenerator = maths::CPRNG::CXorShift1024Mult;
-    using TGeneratorPtr = boost::shared_ptr<TGenerator>;
+    using TGeneratorPtr = std::shared_ptr<TGenerator>;
 
 public:
     //! A uniform generator on the interval [a,b].

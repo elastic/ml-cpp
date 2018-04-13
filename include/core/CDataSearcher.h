@@ -10,9 +10,8 @@
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -37,7 +36,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
 
-    using TIStreamP = boost::shared_ptr<std::istream>;
+    using TIStreamP = std::shared_ptr<std::istream>;
 
 public:
     //! Empty string

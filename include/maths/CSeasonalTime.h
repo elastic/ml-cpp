@@ -11,8 +11,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 
 namespace ml {
@@ -247,7 +246,7 @@ class MATHS_EXPORT CSeasonalTimeStateSerializer {
 public:
     //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
     //! base class.
-    using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
 
 public:
     //! Construct the appropriate CSeasonalTime sub-class from its state

@@ -14,8 +14,7 @@
 #include <maths/CMultimodalPriorMode.h>
 #include <maths/CPrior.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -50,8 +49,8 @@ namespace maths {
 //! point of view this is the composite pattern.
 class MATHS_EXPORT CMultimodalPrior : public CPrior {
 public:
-    using TClustererPtr = boost::shared_ptr<CClusterer1d>;
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TClustererPtr = std::shared_ptr<CClusterer1d>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
     using TPriorPtrVecItr = TPriorPtrVec::iterator;
     using TPriorPtrVecCItr = TPriorPtrVec::const_iterator;
@@ -349,7 +348,7 @@ private:
         CMultimodalPrior* m_Prior;
     };
 
-    using TMode = SMultimodalPriorMode<boost::shared_ptr<CPrior>>;
+    using TMode = SMultimodalPriorMode<std::shared_ptr<CPrior>>;
     using TModeVec = std::vector<TMode>;
 
 private:

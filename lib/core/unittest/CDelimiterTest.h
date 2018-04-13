@@ -23,7 +23,7 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    typedef std::ostream_iterator<std::string> TStrOStreamItr;
+    using TStrOStreamItr = std::ostream_iterator<std::string>;
 };
 
 #endif // INCLUDED_CDelimiterTest_h

@@ -25,7 +25,7 @@ namespace controller {
 //!
 class CCmdLineParser {
 public:
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
 public:
     //! Parse the arguments and return options if appropriate.

@@ -9,8 +9,7 @@
 #include <core/CXmlNode.h>
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -28,7 +27,7 @@ class CXmlNodeWithChildrenPool;
 //!
 class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode {
 public:
-    using TXmlNodeWithChildrenP = boost::shared_ptr<CXmlNodeWithChildren>;
+    using TXmlNodeWithChildrenP = std::shared_ptr<CXmlNodeWithChildren>;
 
     using TChildNodePVec = std::vector<TXmlNodeWithChildrenP>;
     using TChildNodePVecItr = TChildNodePVec::iterator;

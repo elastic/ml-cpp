@@ -14,8 +14,7 @@
 #include <core/CThread.h>
 #include <core/CThreadFarmReceiver.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -201,11 +200,11 @@ private:
     using TThreadFarm = CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT>;
 
     using TReceiver = CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
-    using TReceiverP = boost::shared_ptr<TReceiver>;
+    using TReceiverP = std::shared_ptr<TReceiver>;
     using TReceiverPVec = std::vector<TReceiverP>;
     using TReceiverPVecItr = typename TReceiverPVec::iterator;
 
-    using TMessageQueueP = boost::shared_ptr<CMessageQueue<MESSAGE, TReceiver>>;
+    using TMessageQueueP = std::shared_ptr<CMessageQueue<MESSAGE, TReceiver>>;
     using TMessageQueuePVec = std::vector<TMessageQueueP>;
     using TMessageQueuePVecItr = typename TMessageQueuePVec::iterator;
 

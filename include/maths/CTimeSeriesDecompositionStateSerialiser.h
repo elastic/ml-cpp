@@ -13,7 +13,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -41,7 +41,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionStateSerialiser {
 public:
     //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
     //! base class.
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
 
 public:
     //! Construct the appropriate CTimeSeriesDecompositionInterface

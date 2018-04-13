@@ -30,11 +30,11 @@
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/ref.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <fstream>
 #include <ios>
 #include <iterator>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -191,13 +191,13 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
                     boost::ref(numOrigDocs)),
         nullptr, -1, "time", timeFormat);
 
-    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
-    TScopedInputParserP parser;
-    if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
-        parser.reset(new ml::api::CCsvInputParser(inputStrm));
-    } else {
-        parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
-    }
+    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
+    TInputParserCUPtr parser{[&inputFilename, &inputStrm]() -> ml::api::CInputParser* {
+        if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
+            return new ml::api::CCsvInputParser(inputStrm);
+        }
+        return new ml::api::CLineifiedJsonInputParser(inputStrm);
+    }()};
 
     CPPUNIT_ASSERT(parser->readStream(
         boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));

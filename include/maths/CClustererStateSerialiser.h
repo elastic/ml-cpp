@@ -15,7 +15,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -43,7 +43,7 @@ struct SDistributionRestoreParams;
 //! to potential competitors.
 class MATHS_EXPORT CClustererStateSerialiser {
 public:
-    using TClusterer1dPtr = boost::shared_ptr<CClusterer1d>;
+    using TClusterer1dPtr = std::shared_ptr<CClusterer1d>;
 
 public:
     //! Construct the appropriate CClusterer sub-class from its state
@@ -73,7 +73,7 @@ public:
     //! \note Sets \p ptr to NULL on failure.
     template<typename T, std::size_t N>
     bool operator()(const SDistributionRestoreParams& params,
-                    boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
+                    std::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
         return this->operator()(params, CClustererTypes::CDoNothing(),
                                 CClustererTypes::CDoNothing(), ptr, traverser);
@@ -87,7 +87,7 @@ public:
     bool operator()(const SDistributionRestoreParams& params,
                     const CClustererTypes::TSplitFunc& splitFunc,
                     const CClustererTypes::TMergeFunc& mergeFunc,
-                    boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
+                    std::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
         std::size_t numResults(0);
 

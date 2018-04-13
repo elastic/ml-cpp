@@ -16,7 +16,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <utility>
 #include <vector>

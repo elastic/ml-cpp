@@ -335,7 +335,7 @@ void CEventRatePopulationModelTest::testFeatures() {
     using TSizeSizePrFeatureDataPr = CEventRatePopulationModel::TSizeSizePrFeatureDataPr;
     using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
     using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
     using TDouble2VecVecDouble2Vec4VecVecPr = std::pair<TDouble2VecVec, TDouble2Vec4VecVec>;
     using TSizeDouble2VecVecDouble2Vec4VecVecPrMap =

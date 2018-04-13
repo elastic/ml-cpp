@@ -309,15 +309,15 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
         }
     }
 
-    boost::shared_ptr<CPrior> xMargin(this->univariate(xm, TSizeDoublePr10Vec()).first);
+    std::shared_ptr<CPrior> xMargin(this->univariate(xm, TSizeDoublePr10Vec()).first);
 
     if (x == y) {
         return xMargin != nullptr ? xMargin->printMarginalLikelihoodFunction()
                                   : std::string();
     }
 
-    boost::shared_ptr<CPrior> yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
-    boost::shared_ptr<CMultivariatePrior> xyMargin(
+    std::shared_ptr<CPrior> yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
+    std::shared_ptr<CMultivariatePrior> xyMargin(
         this->bivariate(xym, TSizeDoublePr10Vec()).first);
 
     TDoubleDoublePr xRange = xMargin->marginalLikelihoodConfidenceInterval(RANGE);

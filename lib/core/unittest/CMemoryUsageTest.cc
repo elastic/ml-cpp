@@ -284,8 +284,8 @@ void CMemoryUsageTest::testUsage() {
     using TBarBarMap = std::map<SBar, SBar>;
     using TBarBarUMap = boost::unordered_map<SBar, SBar, SHash>;
     using TBarBarFMap = boost::container::flat_map<SBar, SBar>;
-    using TBarPtr = boost::shared_ptr<SBar>;
-    using TBasePtr = boost::shared_ptr<CBase>;
+    using TBarPtr = std::shared_ptr<SBar>;
+    using TBasePtr = std::shared_ptr<CBase>;
     using TDerivedVec = std::vector<CDerived>;
     using TBasePtrVec = std::vector<TBasePtr>;
 
@@ -668,7 +668,7 @@ void CMemoryUsageTest::testUsage() {
 
 void CMemoryUsageTest::testDebug() {
     using TBarVec = std::vector<SBar>;
-    using TBarVecPtr = boost::shared_ptr<TBarVec>;
+    using TBarVecPtr = std::shared_ptr<TBarVec>;
 
     // Check that we can get debug info out of classes with vectors of varying size
     {
@@ -1066,9 +1066,9 @@ void CMemoryUsageTest::testStringClear() {
 
 void CMemoryUsageTest::testSharedPointer() {
     LOG_DEBUG(<< "*** testSharedPointer ***");
-    using TIntVecPtr = boost::shared_ptr<TIntVec>;
+    using TIntVecPtr = std::shared_ptr<TIntVec>;
     using TIntVecPtrVec = std::vector<TIntVecPtr>;
-    using TStrPtr = boost::shared_ptr<std::string>;
+    using TStrPtr = std::shared_ptr<std::string>;
     using TStrPtrVec = std::vector<TStrPtr>;
     TStrPtrVec strings;
 

@@ -23,9 +23,9 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 

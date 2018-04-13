@@ -12,7 +12,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -38,8 +38,8 @@ struct SDistributionRestoreParams;
 //! compatibility in the future as the classes evolve.
 class MATHS_EXPORT CPriorStateSerialiser {
 public:
-    using TPriorPtr = boost::shared_ptr<CPrior>;
-    using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
 
 public:
     //! Construct the appropriate CPrior sub-class from its state

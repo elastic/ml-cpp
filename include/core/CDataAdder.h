@@ -9,10 +9,9 @@
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <functional>
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 #include <stdint.h>
@@ -36,8 +35,8 @@ namespace core {
 //!
 class CORE_EXPORT CDataAdder : private CNonCopyable {
 public:
-    using TOStreamP = boost::shared_ptr<std::ostream>;
-    using TDataAdderP = boost::shared_ptr<CDataAdder>;
+    using TOStreamP = std::shared_ptr<std::ostream>;
+    using TDataAdderP = std::shared_ptr<CDataAdder>;
 
     using TPersistFunc = std::function<bool(CDataAdder&)>;
 

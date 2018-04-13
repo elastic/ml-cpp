@@ -31,8 +31,8 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/range.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <vector>
 
 using namespace ml;
@@ -43,7 +43,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TPriorPtr = std::shared_ptr<maths::CPrior>;
 using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
 using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
 using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
