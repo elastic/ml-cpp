@@ -81,13 +81,12 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
-    TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr,
-                                   delimiter]() -> ml::api::CInputParser* {
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    const TInputParserUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
-            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
         }
-        return new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter);
+        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
     }()};
 
     // This manages the full parameterization of the autoconfigurer.

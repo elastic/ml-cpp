@@ -162,9 +162,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    using TDataSearcherCUPtr = const std::unique_ptr<ml::core::CDataSearcher>;
-    TDataSearcherCUPtr restoreSearcher{[isRestoreFileNamedPipe,
-                                        &ioMgr]() -> ml::core::CDataSearcher* {
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
         if (ioMgr.restoreStream()) {
             // Check whether state is restored from a file, if so we assume that this is a debugging case
             // and therefore does not originate from X-Pack.
@@ -173,17 +172,17 @@ int main(int argc, char** argv) {
                 auto strm = std::make_shared<boost::iostreams::filtering_istream>();
                 strm->push(ml::api::CStateRestoreStreamFilter());
                 strm->push(*ioMgr.restoreStream());
-                return new ml::api::CSingleStreamSearcher(strm);
+                return std::make_unique<ml::api::CSingleStreamSearcher>(strm);
             }
-            return new ml::api::CSingleStreamSearcher(ioMgr.restoreStream());
+            return std::make_unique<ml::api::CSingleStreamSearcher>(ioMgr.restoreStream());
         }
         return nullptr;
     }()};
 
-    using TDataAdderCUPtr = const std::unique_ptr<ml::core::CDataAdder>;
-    TDataAdderCUPtr persister{[&ioMgr]() -> ml::core::CDataAdder* {
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    const TDataAdderUPtr persister{[&ioMgr]() -> TDataAdderUPtr {
         if (ioMgr.persistStream()) {
-            return new ml::api::CSingleStreamDataAdder(ioMgr.persistStream());
+            return std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
         }
         return nullptr;
     }()};
@@ -196,21 +195,20 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    using TBackgroundPersisterCUPtr = const std::unique_ptr<ml::api::CBackgroundPersister>;
-    TBackgroundPersisterCUPtr periodicPersister{
-        [persistInterval, &persister]() -> ml::api::CBackgroundPersister* {
-            if (persistInterval >= 0) {
-                return new ml::api::CBackgroundPersister(persistInterval, *persister);
-            }
-            return nullptr;
-        }()};
-
-    using InputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
-    InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> ml::api::CInputParser* {
-        if (lengthEncodedInput) {
-            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
+    const TBackgroundPersisterUPtr periodicPersister{[persistInterval, &persister]() -> TBackgroundPersisterUPtr {
+        if (persistInterval >= 0) {
+            return std::make_unique<ml::api::CBackgroundPersister>(persistInterval, *persister);
         }
-        return new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter);
+        return nullptr;
+    }()};
+
+    using InputParserCUPtr = std::unique_ptr<ml::api::CInputParser>;
+    const InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> InputParserCUPtr {
+        if (lengthEncodedInput) {
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        }
+        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
     }()};
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
