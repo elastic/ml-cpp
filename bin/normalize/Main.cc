@@ -101,23 +101,24 @@ int main(int argc, char** argv) {
     modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
-    using TInputParserCUPtr = const std::unique_ptr<ml::api::CInputParser>;
-    TInputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr]() -> ml::api::CInputParser* {
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    const TInputParserUPtr inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
-            return new ml::api::CLengthEncodedInputParser(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
         }
-        return new ml::api::CCsvInputParser(ioMgr.inputStream(),
-                                            ml::api::CCsvInputParser::COMMA);
+        return std::make_unique<ml::api::CCsvInputParser>(
+            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
     }()};
 
-    using TOutputHandlerCUPtr = const std::unique_ptr<ml::api::COutputHandler>;
-    TOutputHandlerCUPtr outputWriter{[writeCsv, &ioMgr]() -> ml::api::COutputHandler* {
+    using TOutputHandlerUPtr = std::unique_ptr<ml::api::COutputHandler>;
+    const TOutputHandlerUPtr outputWriter{[writeCsv, &ioMgr]() -> TOutputHandlerUPtr {
         if (writeCsv) {
-            return new ml::api::CCsvOutputWriter(ioMgr.outputStream());
+            return std::make_unique<ml::api::CCsvOutputWriter>(ioMgr.outputStream());
         }
-        return new ml::api::CLineifiedJsonOutputWriter(
-            {ml::api::CResultNormalizer::PROBABILITY_NAME,
-             ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
+        return std::make_unique<ml::api::CLineifiedJsonOutputWriter>(
+            ml::api::CLineifiedJsonOutputWriter::TStrSet
+                {ml::api::CResultNormalizer::PROBABILITY_NAME,
+                 ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
             ioMgr.outputStream());
     }()};
 
