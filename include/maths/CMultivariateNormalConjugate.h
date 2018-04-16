@@ -240,9 +240,8 @@ public:
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             TPoint x(samples[i]);
             TPoint n(maths_t::countForUpdate(weights[i]));
-            TPoint varianceScale =
-                TPoint(maths_t::seasonalVarianceScale(weights[i])) *
-                TPoint(maths_t::countVarianceScale(weights[i]));
+            TPoint varianceScale = TPoint(maths_t::seasonalVarianceScale(weights[i])) *
+                                   TPoint(maths_t::countVarianceScale(weights[i]));
             numberSamples += n;
             covariancePost.add(x, n / varianceScale);
         }

@@ -1100,7 +1100,7 @@ CLogNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(double percent
         LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2);
         return {x1, x2};
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute confidence interval: " << e.what());
+        LOG_ERROR(<< "Failed to compute confidence interval: " << e.what());
     }
 
     return this->marginalLikelihoodSupport();
