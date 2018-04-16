@@ -27,9 +27,8 @@
 
 #include "TestUtils.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <cmath>
+#include <memory>
 #include <vector>
 
 using namespace ml;
@@ -40,8 +39,8 @@ using TDoubleVec = std::vector<double>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
-using TDecompositionPtr = boost::shared_ptr<maths::CTimeSeriesDecomposition>;
-using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TDecompositionPtr = std::shared_ptr<maths::CTimeSeriesDecomposition>;
+using TPriorPtr = std::shared_ptr<maths::CPrior>;
 using TPriorPtrVec = std::vector<TPriorPtr>;
 
 core_t::TTime BUCKET_LENGTH{1800};
@@ -83,9 +82,9 @@ TPriorPtr makeResidualModel() {
 }
 
 void CTimeSeriesChangeDetectorTest::testNoChange() {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testNoChange  |");
-    LOG_DEBUG("+-----------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testNoChange  |");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -95,7 +94,7 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
     TDoubleVec samples;
     for (std::size_t t = 0u; t < 100; ++t) {
         if (t % 10 == 0) {
-            LOG_DEBUG(t << "%");
+            LOG_DEBUG(<< t << "%");
         }
 
         switch (t % 3) {
@@ -149,9 +148,9 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
 }
 
 void CTimeSeriesChangeDetectorTest::testLevelShift() {
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testLevelShift  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testLevelShift  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
 
@@ -161,9 +160,9 @@ void CTimeSeriesChangeDetectorTest::testLevelShift() {
 }
 
 void CTimeSeriesChangeDetectorTest::testLinearScale() {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testLinearScale  |");
-    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testLinearScale  |");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
 
     TGeneratorVec trends{smoothDaily, spikeyDaily};
 
@@ -173,9 +172,9 @@ void CTimeSeriesChangeDetectorTest::testLinearScale() {
 }
 
 void CTimeSeriesChangeDetectorTest::testTimeShift() {
-    LOG_DEBUG("+------------------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testTimeShift  |");
-    LOG_DEBUG("+------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testTimeShift  |");
+    LOG_DEBUG(<< "+------------------------------------------------+");
 
     TGeneratorVec trends{smoothDaily, spikeyDaily};
 
@@ -193,9 +192,9 @@ void CTimeSeriesChangeDetectorTest::testTimeShift() {
 }
 
 void CTimeSeriesChangeDetectorTest::testPersist() {
-    LOG_DEBUG("+----------------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testPersist  |");
-    LOG_DEBUG("+----------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testPersist  |");
+    LOG_DEBUG(<< "+----------------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -249,8 +248,8 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
             &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
             &restoredDetector, boost::cref(params), _1));
 
-        LOG_DEBUG("expected " << origDetector.checksum() << " got "
-                              << restoredDetector.checksum());
+        LOG_DEBUG(<< "expected " << origDetector.checksum() << " got "
+                  << restoredDetector.checksum());
         CPPUNIT_ASSERT_EQUAL(origDetector.checksum(), restoredDetector.checksum());
     }
 }
@@ -292,7 +291,7 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
     TDoubleVec samples;
     for (std::size_t t = 0u; t < 100; ++t) {
         if (t % 10 == 0) {
-            LOG_DEBUG(t << "%");
+            LOG_DEBUG(<< t << "%");
         }
 
         rng.generateNormalSamples(0.0, 1.0, 1000, samples);
@@ -348,7 +347,7 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
         meanBucketsToDetect.add(static_cast<double>(*bucketsToDetect));
     }
 
-    LOG_DEBUG("buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
+    LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanBucketsToDetect) <
                    expectedMeanBucketsToDetectChange);
 }

@@ -35,9 +35,9 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 void CNaiveBayesTest::testClassification() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CNaiveBayesTest::testClassification  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CNaiveBayesTest::testClassification  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     // We'll test classification using Gaussian naive Bayes. We
     // test:
@@ -129,8 +129,8 @@ void CNaiveBayesTest::testClassification() {
                 double p2_{p[0].second == 1 ? p[1].first : p[0].first};
 
                 if (i % 10 == 0) {
-                    LOG_DEBUG(i << ") expected P(1) = " << p1 << ", P(2) = " << p2
-                                << " got P(1) = " << p1_ << ", P(2) = " << p2_);
+                    LOG_DEBUG(<< i << ") expected P(1) = " << p1 << ", P(2) = " << p2
+                              << " got P(1) = " << p1_ << ", P(2) = " << p2_);
                 }
 
                 CPPUNIT_ASSERT_EQUAL(std::size_t(2), p.size());
@@ -166,7 +166,7 @@ void CNaiveBayesTest::testClassification() {
         }
 
         for (std::size_t i = 0u; i < 3; ++i) {
-            LOG_DEBUG("Mean relative error = "
+            LOG_DEBUG(<< "Mean relative error = "
                       << maths::CBasicStatistics::mean(meanErrors[i]));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
             meanMeanError += meanErrors[i];
@@ -175,9 +175,9 @@ void CNaiveBayesTest::testClassification() {
 }
 
 void CNaiveBayesTest::testPropagationByTime() {
-    LOG_DEBUG("+------------------------------------------+");
-    LOG_DEBUG("|  CNaiveBayesTest::testPropagationByTime  |");
-    LOG_DEBUG("+------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------+");
+    LOG_DEBUG(<< "|  CNaiveBayesTest::testPropagationByTime  |");
+    LOG_DEBUG(<< "+------------------------------------------+");
 
     // Make feature distributions drift over time and verify that
     // the classifier adapts.
@@ -215,9 +215,9 @@ void CNaiveBayesTest::testPropagationByTime() {
         TDoubleSizePrVec probabilities[]{
             nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}),
             nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
-        LOG_DEBUG("Aged class probabilities = "
+        LOG_DEBUG(<< "Aged class probabilities = "
                   << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG("Class probabilities = "
+        LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[0][0].second);
         CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
@@ -228,9 +228,9 @@ void CNaiveBayesTest::testPropagationByTime() {
         TDoubleSizePrVec probabilities[]{
             nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}),
             nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
-        LOG_DEBUG("Aged class probabilities = "
+        LOG_DEBUG(<< "Aged class probabilities = "
                   << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG("Class probabilities = "
+        LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[0][0].second);
         CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
@@ -240,9 +240,9 @@ void CNaiveBayesTest::testPropagationByTime() {
 }
 
 void CNaiveBayesTest::testMemoryUsage() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CNaiveBayesTest::testMemoryUsage  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CNaiveBayesTest::testMemoryUsage  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Check invariants.
 
@@ -275,18 +275,18 @@ void CNaiveBayesTest::testMemoryUsage() {
     TMemoryUsagePtr mem{new core::CMemoryUsage};
     nb->debugMemoryUsage(mem.get());
 
-    LOG_DEBUG("Memory = " << memoryUsage);
+    LOG_DEBUG(<< "Memory = " << memoryUsage);
     CPPUNIT_ASSERT_EQUAL(memoryUsage, mem->usage());
 
-    LOG_DEBUG("Memory = " << core::CMemory::dynamicSize(nb));
+    LOG_DEBUG(<< "Memory = " << core::CMemory::dynamicSize(nb));
     CPPUNIT_ASSERT_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
                          core::CMemory::dynamicSize(nb));
 }
 
 void CNaiveBayesTest::testPersist() {
-    LOG_DEBUG("+--------------------------------+");
-    LOG_DEBUG("|  CNaiveBayesTest::testPersist  |");
-    LOG_DEBUG("+--------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------+");
+    LOG_DEBUG(<< "|  CNaiveBayesTest::testPersist  |");
+    LOG_DEBUG(<< "+--------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -316,7 +316,7 @@ void CNaiveBayesTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Naive Bayes XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Naive Bayes XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
