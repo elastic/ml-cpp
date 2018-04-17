@@ -152,7 +152,9 @@ public:
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(double decayRate,
+                                double minimumBucketLength,
+                                core::CStateRestoreTraverser& traverser);
 
 private:
     //! The mean and variance in collection of buckets covering the period.

@@ -33,7 +33,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -160,19 +159,21 @@ public:
     using TOptionalUInt64 = boost::optional<uint64_t>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TInfluenceCalculatorCPtr = boost::shared_ptr<const CInfluenceCalculator>;
-    using TFeatureInfluenceCalculatorCPtrPr = std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
+    using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
+    using TFeatureInfluenceCalculatorCPtrPr =
+        std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
-    using TFeatureInfluenceCalculatorCPtrPrVecVec = std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
-    using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+    using TFeatureInfluenceCalculatorCPtrPrVecVec =
+        std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
+    using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TMathsModelPtrVec = std::vector<TMathsModelPtr>;
-    using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
-    using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
-    using TModelCPtr = boost::shared_ptr<const CAnomalyDetectorModel>;
-    using TCorrelationsPtr = boost::shared_ptr<maths::CTimeSeriesCorrelations>;
+    using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
+    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
+    using TModelCPtr = std::shared_ptr<const CAnomalyDetectorModel>;
+    using TCorrelationsPtr = std::shared_ptr<maths::CTimeSeriesCorrelations>;
     using CModelDetailsViewPtr = std::auto_ptr<CModelDetailsView>;
 
 public:
@@ -258,7 +259,10 @@ public:
     //! \param[in] time The time of interest.
     //! \return The value of \p feature in the bucket containing
     //! \p time if available and empty otherwise.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const = 0;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           core_t::TTime time) const = 0;
 
     //! Get the appropriate baseline bucket value of \p feature for
     //! the person identified by \p pid and the attribute identified
@@ -298,7 +302,8 @@ public:
     //! Print the people identified by \p pids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printPeople(const TSizeVec& pids, size_t limit = std::numeric_limits<size_t>::max()) const;
+    std::string printPeople(const TSizeVec& pids,
+                            size_t limit = std::numeric_limits<size_t>::max()) const;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
@@ -329,7 +334,8 @@ public:
     //! Print the attributes identified by \p cids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printAttributes(const TSizeVec& cids, size_t limit = std::numeric_limits<size_t>::max()) const;
+    std::string printAttributes(const TSizeVec& cids,
+                                size_t limit = std::numeric_limits<size_t>::max()) const;
     //@}
 
     //! \name Update
@@ -341,7 +347,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
+                                        core_t::TTime endTime,
+                                        CResourceMonitor& resourceMonitor) = 0;
 
     //! Update the model with the samples of the process in the
     //! time interval [\p startTime, \p endTime].
@@ -349,7 +357,9 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sample(core_t::TTime startTime,
+                        core_t::TTime endTime,
+                        CResourceMonitor& resourceMonitor) = 0;
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -358,7 +368,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor& resourceMonitor) = 0;
 
     //! Rolls time to \p endTime while skipping sampling the models for
     //! buckets within the gap.
@@ -430,10 +442,11 @@ public:
     //! \param[out] attributeProbabilities Filled in with the smallest
     //! \p numberAttributeProbabilities attribute probabilities and
     //! associated data describing the calculation.
-    virtual bool computeTotalProbability(const std::string& person,
-                                         std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble& probability,
-                                         TAttributeProbability1Vec& attributeProbabilities) const = 0;
+    virtual bool
+    computeTotalProbability(const std::string& person,
+                            std::size_t numberAttributeProbabilities,
+                            TOptionalDouble& probability,
+                            TAttributeProbability1Vec& attributeProbabilities) const = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -453,13 +466,16 @@ public:
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. Returns empty when the estimator
     //! is unable to produce an estimate.
-    TOptionalSize estimateMemoryUsage(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations) const;
+    TOptionalSize estimateMemoryUsage(std::size_t numberPeople,
+                                      std::size_t numberAttributes,
+                                      std::size_t numberCorrelations) const;
 
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. When an estimate cannot be produced,
     //! the memory usage is computed and the estimator is updated.
-    std::size_t
-    estimateMemoryUsageOrComputeAndUpdate(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations);
+    std::size_t estimateMemoryUsageOrComputeAndUpdate(std::size_t numberPeople,
+                                                      std::size_t numberAttributes,
+                                                      std::size_t numberCorrelations);
 
     //! Get the static size of this object - used for virtual hierarchies
     virtual std::size_t staticSize() const = 0;
@@ -497,7 +513,8 @@ protected:
         SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams& params, core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SModelParams& params,
+                                    core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -517,10 +534,13 @@ protected:
 
     //! \brief The feature correlate models.
     struct MODEL_EXPORT SFeatureCorrelateModels {
-        SFeatureCorrelateModels(model_t::EFeature feature, TMultivariatePriorPtr modelPrior, TCorrelationsPtr model);
+        SFeatureCorrelateModels(model_t::EFeature feature,
+                                TMultivariatePriorPtr modelPrior,
+                                TCorrelationsPtr model);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams& params, core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SModelParams& params,
+                                    core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -591,12 +611,16 @@ protected:
 protected:
     //! Remove heavy hitting people from the \p data if necessary.
     template<typename T, typename FILTER>
-    void applyFilter(model_t::EExcludeFrequent exclude, bool updateStatistics, const FILTER& filter, T& data) const {
+    void applyFilter(model_t::EExcludeFrequent exclude,
+                     bool updateStatistics,
+                     const FILTER& filter,
+                     T& data) const {
         if (this->params().s_ExcludeFrequent & exclude) {
             std::size_t initialSize = data.size();
             data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
             if (updateStatistics && data.size() != initialSize) {
-                core::CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations).increment(1);
+                core::CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations)
+                    .increment(1);
             }
         }
     }
@@ -622,7 +646,8 @@ protected:
 
     //! Get the influence calculator for the influencer field identified
     //! by \p iid and the \p feature.
-    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature, std::size_t iid) const;
+    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature,
+                                                    std::size_t iid) const;
 
     //! Get the person bucket counts.
     const TDoubleVec& personBucketCounts() const;
@@ -648,7 +673,10 @@ protected:
     const CInterimBucketCorrector& interimValueCorrector() const;
 
     //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    bool shouldIgnoreSample(model_t::EFeature feature,
+                            std::size_t pid,
+                            std::size_t cid,
+                            core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,
@@ -664,7 +692,8 @@ protected:
     bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist the interim bucket corrector.
-    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag, core::CStatePersistInserter& inserter) const;
+    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag,
+                                                     core::CStatePersistInserter& inserter) const;
 
     //! Create a stub version of maths::CModel for use when pruning people
     //! or attributes to free memory resource.
@@ -672,7 +701,7 @@ protected:
 
 private:
     using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
-    using TInterimBucketCorrectorPtr = boost::shared_ptr<CInterimBucketCorrector>;
+    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
 
 private:
     //! Set the current bucket total count.

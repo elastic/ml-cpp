@@ -104,7 +104,9 @@ public:
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
         std::size_t operator()(const TSizeSizePrStoredStringPtrPr& key) const {
-            uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first), static_cast<uint64_t>(key.first.second));
+            uint64_t seed = core::CHashing::hashCombine(
+                static_cast<uint64_t>(key.first.first),
+                static_cast<uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
@@ -112,19 +114,26 @@ public:
 
     //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
-        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs, const TSizeSizePrStoredStringPtrPr& rhs) const {
+        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs,
+                        const TSizeSizePrStoredStringPtrPr& rhs) const {
             return lhs.first == rhs.first && *lhs.second == *rhs.second;
         }
     };
 
     using TSizeSizePrStoredStringPtrPrUInt64UMap =
         boost::unordered_map<TSizeSizePrStoredStringPtrPr, uint64_t, SSizeSizePrStoredStringPtrPrHash, SSizeSizePrStoredStringPtrPrEqual>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr = TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapItr = TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVec = std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue = CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr = TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator;
-    using TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap = std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
+        TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapItr =
+        TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
+        std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
+        CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr =
+        TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator;
+    using TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap =
+        std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
@@ -213,7 +222,9 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    virtual bool processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor) = 0;
+    virtual bool processFields(const TStrCPtrVec& fieldValues,
+                               CEventData& result,
+                               CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
     bool addEventData(CEventData& data);
@@ -354,12 +365,15 @@ public:
     //! \tparam T This must be a vector of associative array from person
     //! id and/or attribute id to some corresponding value.
     template<typename F, typename T>
-    static void remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
+    static void remove(const TSizeVec& toRemove,
+                       const F& extractId,
+                       CBucketQueue<std::vector<T>>& queue) {
         for (auto bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
             for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
                 T& bucket = (*bucketItr)[i];
                 for (auto j = bucket.begin(); j != bucket.end(); /**/) {
-                    if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first))) {
+                    if (std::binary_search(toRemove.begin(), toRemove.end(),
+                                           extractId(j->first))) {
                         j = bucket.erase(j);
                     } else {
                         ++j;
@@ -374,7 +388,9 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const = 0;
+    virtual void featureData(core_t::TTime time,
+                             core_t::TTime bucketLength,
+                             TFeatureAnyPrVec& result) const = 0;
 
     //! Get a reference to the owning data gatherer.
     const CDataGatherer& dataGatherer() const;

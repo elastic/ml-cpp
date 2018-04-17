@@ -48,7 +48,7 @@ namespace model {
 //! locally never leaving process/io boundaries.
 class MODEL_EXPORT CForecastModelPersist final {
 public:
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
 
 public:
     class CPersist final {

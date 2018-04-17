@@ -21,7 +21,8 @@
 namespace ml {
 namespace core {
 
-CCompressUtils::CCompressUtils(bool lengthOnly, int level) : m_State(E_Unused), m_LengthOnly(lengthOnly) {
+CCompressUtils::CCompressUtils(bool lengthOnly, int level)
+    : m_State(E_Unused), m_LengthOnly(lengthOnly) {
     ::memset(&m_ZlibStrm, 0, sizeof(z_stream));
 
     m_ZlibStrm.zalloc = Z_NULL;
@@ -29,14 +30,14 @@ CCompressUtils::CCompressUtils(bool lengthOnly, int level) : m_State(E_Unused), 
 
     int ret(::deflateInit(&m_ZlibStrm, level));
     if (ret != Z_OK) {
-        LOG_ABORT("Error initialising Z stream: " << ::zError(ret));
+        LOG_ABORT(<< "Error initialising Z stream: " << ::zError(ret));
     }
 }
 
 CCompressUtils::~CCompressUtils() {
     int ret(::deflateEnd(&m_ZlibStrm));
     if (ret != Z_OK) {
-        LOG_ERROR("Error ending Z stream: " << ::zError(ret));
+        LOG_ERROR(<< "Error ending Z stream: " << ::zError(ret));
     }
 }
 
@@ -53,18 +54,18 @@ bool CCompressUtils::addString(const std::string& str) {
 
 bool CCompressUtils::compressedData(bool finish, TByteVec& result) {
     if (m_LengthOnly) {
-        LOG_ERROR("Cannot get compressed data from length-only compressor");
+        LOG_ERROR(<< "Cannot get compressed data from length-only compressor");
         return false;
     }
 
     if (m_State == E_Unused) {
-        LOG_ERROR("Cannot get compressed data - no strings added");
+        LOG_ERROR(<< "Cannot get compressed data - no strings added");
         return false;
     }
 
     if (finish && m_State == E_Compressing) {
         if (this->doCompress(finish, std::string()) == false) {
-            LOG_ERROR("Cannot finish compression");
+            LOG_ERROR(<< "Cannot finish compression");
             return false;
         }
     }
@@ -76,13 +77,13 @@ bool CCompressUtils::compressedData(bool finish, TByteVec& result) {
 
 bool CCompressUtils::compressedLength(bool finish, size_t& length) {
     if (m_State == E_Unused) {
-        LOG_ERROR("Cannot get compressed data - no strings added");
+        LOG_ERROR(<< "Cannot get compressed data - no strings added");
         return false;
     }
 
     if (finish && m_State == E_Compressing) {
         if (this->doCompress(finish, std::string()) == false) {
-            LOG_ERROR("Cannot finish compression");
+            LOG_ERROR(<< "Cannot finish compression");
             return false;
         }
     }
@@ -100,7 +101,7 @@ void CCompressUtils::reset() {
         // corruption must have occurred, because there's nowhere where we set
         // these pointers to NULL after initialisation, so it's reasonable to
         // abort.
-        LOG_ABORT("Error reseting Z stream: " << ::zError(ret));
+        LOG_ABORT(<< "Error reseting Z stream: " << ::zError(ret));
     }
     m_State = E_Unused;
 }
@@ -124,7 +125,7 @@ bool CCompressUtils::doCompress(bool finish, const std::string& str) {
         m_ZlibStrm.avail_out = CHUNK_SIZE;
         int ret(::deflate(&m_ZlibStrm, flush));
         if (ret == Z_STREAM_ERROR) {
-            LOG_ERROR("Error deflating: " << ::zError(ret));
+            LOG_ERROR(<< "Error deflating: " << ::zError(ret));
             return false;
         }
 

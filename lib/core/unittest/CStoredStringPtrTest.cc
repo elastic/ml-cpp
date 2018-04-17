@@ -25,11 +25,12 @@
 CppUnit::Test* CStoredStringPtrTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testPointerSemantics",
-                                                                        &CStoredStringPtrTest::testPointerSemantics));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testMemoryUsage", &CStoredStringPtrTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testHash", &CStoredStringPtrTest::testHash));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
+        "CStoredStringPtrTest::testPointerSemantics", &CStoredStringPtrTest::testPointerSemantics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
+        "CStoredStringPtrTest::testMemoryUsage", &CStoredStringPtrTest::testMemoryUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
+        "CStoredStringPtrTest::testHash", &CStoredStringPtrTest::testHash));
 
     return suiteOfTests;
 }
@@ -74,7 +75,8 @@ void CStoredStringPtrTest::testPointerSemantics() {
         // would be to leave the original value in the moved-from string
         std::string str2("my second string - long enough to not use the small string optimisation");
 
-        ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(std::move(str2));
+        ml::core::CStoredStringPtr ptr2 =
+            ml::core::CStoredStringPtr::makeStoredString(std::move(str2));
 
         if (ptr2) {
             CPPUNIT_ASSERT(ptr2 == ptr2);
@@ -107,7 +109,8 @@ void CStoredStringPtrTest::testMemoryUsage() {
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr1));
-        CPPUNIT_ASSERT_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
+        CPPUNIT_ASSERT_EQUAL(ml::core::CMemory::dynamicSize(&str1),
+                             ptr1.actualMemoryUsage());
     }
     {
         std::string str2("much longer - YUGE in fact!");
@@ -115,7 +118,8 @@ void CStoredStringPtrTest::testMemoryUsage() {
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(str2);
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr2));
-        CPPUNIT_ASSERT_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
+        CPPUNIT_ASSERT_EQUAL(ml::core::CMemory::dynamicSize(&str2),
+                             ptr2.actualMemoryUsage());
     }
 }
 

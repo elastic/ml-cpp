@@ -20,7 +20,7 @@
 
 #include <config/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace config {
@@ -56,7 +56,8 @@ public:
     virtual void finalise();
 
     //! No-op.
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! No-op.
     virtual bool persistState(core::CDataAdder& persister);
@@ -68,7 +69,7 @@ public:
     virtual api::COutputHandler& outputHandler();
 
 private:
-    using TImplPtr = boost::shared_ptr<CAutoconfigurerImpl>;
+    using TImplPtr = std::shared_ptr<CAutoconfigurerImpl>;
 
 private:
     //! The pointer to the actual implementation.

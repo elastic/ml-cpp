@@ -41,24 +41,25 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 
 void CStatisticalTestsTest::testCramerVonMises() {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CStatisticalTestsTest::testCramerVonMises  |");
-    LOG_DEBUG("+---------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------+");
+    LOG_DEBUG(<< "|  CStatisticalTestsTest::testCramerVonMises  |");
+    LOG_DEBUG(<< "+---------------------------------------------+");
 
     // These test that the test statistic p value percentiles
     // are correct if the random variable and the distribution
     // function are perfectly matched.
 
-    const std::size_t n[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 100, 200, 500};
+    const std::size_t n[] = {2,  3,  4,  5,  6,  7,   8,   9,  10,
+                             15, 20, 30, 40, 50, 100, 200, 500};
 
     test::CRandomNumbers rng;
 
     double averageMeanError = 0.0;
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
-        LOG_DEBUG("*** n = " << n[i] << " ***");
+        LOG_DEBUG(<< "*** n = " << n[i] << " ***");
         {
-            LOG_DEBUG("N(" << 5.0 << "," << std::sqrt(2.0) << ")");
+            LOG_DEBUG(<< "N(" << 5.0 << "," << std::sqrt(2.0) << ")");
             TDoubleVec samples;
             rng.generateNormalSamples(5.0, 2.0, n[i] * 1000, samples);
             boost::math::normal_distribution<> normal(5.0, std::sqrt(2.0));
@@ -76,19 +77,21 @@ void CStatisticalTestsTest::testCramerVonMises() {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp =
-                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
-                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp << ", error = " << std::fabs(pp - percentile));
+                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) -
+                                                p.begin()) /
+                            static_cast<double>(p.size());
+                LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
+                          << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
                 CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
-            LOG_DEBUG("meanError = " << meanError);
+            LOG_DEBUG(<< "meanError = " << meanError);
             CPPUNIT_ASSERT(meanError < 0.026);
             averageMeanError += meanError;
         }
         {
-            LOG_DEBUG("ln(N(" << 2.0 << "," << 1.0 << "))");
+            LOG_DEBUG(<< "ln(N(" << 2.0 << "," << 1.0 << "))");
             TDoubleVec samples;
             rng.generateLogNormalSamples(2.0, 1.0, n[i] * 1000, samples);
             boost::math::lognormal_distribution<> lognormal(2.0, 1.0);
@@ -106,28 +109,30 @@ void CStatisticalTestsTest::testCramerVonMises() {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp =
-                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
-                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp << ", error = " << std::fabs(pp - percentile));
+                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) -
+                                                p.begin()) /
+                            static_cast<double>(p.size());
+                LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
+                          << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
                 CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
-            LOG_DEBUG("meanError = " << meanError);
+            LOG_DEBUG(<< "meanError = " << meanError);
             CPPUNIT_ASSERT(meanError < 0.025);
             averageMeanError += meanError;
         }
     }
 
     averageMeanError /= 2.0 * static_cast<double>(boost::size(n));
-    LOG_DEBUG("averageMeanError = " << averageMeanError);
+    LOG_DEBUG(<< "averageMeanError = " << averageMeanError);
     CPPUNIT_ASSERT(averageMeanError < 0.011);
 }
 
 void CStatisticalTestsTest::testPersist() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CStatisticalTestsTest::testPersist  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CStatisticalTestsTest::testPersist  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Check that serialization is idempotent.
 
@@ -151,7 +156,7 @@ void CStatisticalTestsTest::testPersist() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("seasonal component XML representation:\n" << origXml);
+        LOG_DEBUG(<< "seasonal component XML representation:\n" << origXml);
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
@@ -174,10 +179,10 @@ void CStatisticalTestsTest::testPersist() {
 CppUnit::Test* CStatisticalTestsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testCramerVonMises",
-                                                                         &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
+        "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
+        "CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
 
     return suiteOfTests;
 }

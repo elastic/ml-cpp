@@ -90,8 +90,9 @@ public:
     bool initialized() const;
 
     //! Initialize the adaptive bucketing.
-    bool
-    initialize(core_t::TTime startTime = 0, core_t::TTime endTime = 0, const TFloatMeanAccumulatorVec& values = TFloatMeanAccumulatorVec());
+    bool initialize(core_t::TTime startTime = 0,
+                    core_t::TTime endTime = 0,
+                    const TFloatMeanAccumulatorVec& values = TFloatMeanAccumulatorVec());
 
     //! Get the size of this component.
     std::size_t size() const;
@@ -196,7 +197,9 @@ public:
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(double decayRate,
+                                double minimumBucketLength,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Get a jitter to apply to the prediction time.
     core_t::TTime jitter(core_t::TTime time);

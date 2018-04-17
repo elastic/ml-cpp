@@ -30,7 +30,9 @@ namespace {
 const char WILDCARD = '*';
 }
 
-CPatternSet::CPatternSet() : m_FullMatchPatterns(), m_PrefixPatterns(), m_SuffixPatterns(), m_ContainsPatterns() {
+CPatternSet::CPatternSet()
+    : m_FullMatchPatterns(), m_PrefixPatterns(), m_SuffixPatterns(),
+      m_ContainsPatterns() {
 }
 
 bool CPatternSet::initFromJson(const std::string& json) {
@@ -41,19 +43,20 @@ bool CPatternSet::initFromJson(const std::string& json) {
 
     rapidjson::Document doc;
     if (doc.Parse<0>(json.c_str()).HasParseError()) {
-        LOG_ERROR("An error occurred while parsing pattern set from JSON: " +
-                  std::string(rapidjson::GetParseError_En(doc.GetParseError())));
+        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " +
+                         std::string(rapidjson::GetParseError_En(doc.GetParseError())));
         return false;
     }
 
     if (!doc.IsArray()) {
-        LOG_ERROR("Could not parse pattern set from non-array JSON object: " << json);
+        LOG_ERROR(<< "Could not parse pattern set from non-array JSON object: " << json);
         return false;
     }
 
     for (unsigned int i = 0; i < doc.Size(); ++i) {
         if (!doc[i].IsString()) {
-            LOG_ERROR("Could not parse pattern set: unexpected non-string item in JSON: " << json);
+            LOG_ERROR(<< "Could not parse pattern set: unexpected non-string item in JSON: "
+                      << json);
             this->clear();
             return false;
         }
@@ -81,7 +84,9 @@ bool CPatternSet::initFromJson(const std::string& json) {
     this->sortAndPruneDuplicates(prefixPatterns);
     this->sortAndPruneDuplicates(suffixPatterns);
     this->sortAndPruneDuplicates(containsPatterns);
-    return m_FullMatchPatterns.build(fullPatterns) && m_PrefixPatterns.build(prefixPatterns) && m_SuffixPatterns.build(suffixPatterns) &&
+    return m_FullMatchPatterns.build(fullPatterns) &&
+           m_PrefixPatterns.build(prefixPatterns) &&
+           m_SuffixPatterns.build(suffixPatterns) &&
            m_ContainsPatterns.build(containsPatterns);
 }
 

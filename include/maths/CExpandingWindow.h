@@ -55,7 +55,10 @@ public:
     using TPredictor = std::function<double(core_t::TTime)>;
 
 public:
-    CExpandingWindow(core_t::TTime bucketLength, TTimeCRng bucketLengths, std::size_t size, double decayRate = 0.0);
+    CExpandingWindow(core_t::TTime bucketLength,
+                     TTimeCRng bucketLengths,
+                     std::size_t size,
+                     double decayRate = 0.0);
 
     //! Initialize by reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

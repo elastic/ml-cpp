@@ -27,11 +27,13 @@ namespace ml {
 namespace core {
 
 CHexUtils::CHexUtils(const uint8_t* pkt, size_t pktLen, bool printHeader, bool printAscii)
-    : m_Pkt(pkt), m_PktLen(pktLen), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
+    : m_Pkt(pkt), m_PktLen(pktLen), m_PrintHeader(printHeader),
+      m_PrintAscii(printAscii) {
 }
 
 CHexUtils::CHexUtils(const TDataVec& data, bool printHeader, bool printAscii)
-    : m_Pkt((data.size() > 0) ? &data[0] : 0), m_PktLen(data.size()), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
+    : m_Pkt((data.size() > 0) ? data.data() : nullptr), m_PktLen(data.size()),
+      m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
 }
 
 void CHexUtils::dump(const uint8_t* pkt, size_t pktLen) {
@@ -45,13 +47,14 @@ std::ostream& operator<<(std::ostream& strm, const CHexUtils& hex) {
         strm << "DataSize: " << hex.m_PktLen << " {" << core_t::LINE_ENDING;
     }
 
-    if (hex.m_Pkt != 0) {
+    if (hex.m_Pkt != nullptr) {
         strm << std::hex;
 
         std::string text;
 
         for (size_t i = 0; i < hex.m_PktLen; ++i) {
-            strm << std::setfill('0') << std::setw(2) << static_cast<uint32_t>(hex.m_Pkt[i]) << ' ';
+            strm << std::setfill('0') << std::setw(2)
+                 << static_cast<uint32_t>(hex.m_Pkt[i]) << ' ';
 
             if (::isprint(hex.m_Pkt[i])) {
                 text += static_cast<char>(hex.m_Pkt[i]);

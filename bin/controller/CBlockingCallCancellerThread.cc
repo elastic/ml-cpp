@@ -21,8 +21,10 @@
 namespace ml {
 namespace controller {
 
-CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId, std::istream& monitorStream)
-    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId), m_MonitorStream(monitorStream), m_Shutdown(false) {
+CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
+                                                           std::istream& monitorStream)
+    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
+      m_MonitorStream(monitorStream), m_Shutdown(false) {
 }
 
 void CBlockingCallCancellerThread::run() {
@@ -34,7 +36,7 @@ void CBlockingCallCancellerThread::run() {
     }
 
     if (core::CThread::cancelBlockedIo(m_PotentiallyBlockedThreadId) == false) {
-        LOG_WARN("Failed to cancel blocked IO in thread " << m_PotentiallyBlockedThreadId);
+        LOG_WARN(<< "Failed to cancel blocked IO in thread " << m_PotentiallyBlockedThreadId);
     }
 }
 
@@ -45,7 +47,7 @@ void CBlockingCallCancellerThread::shutdown() {
     // If this has an effect then the assumption is that the program is exiting
     // due to a reason other than the stream this object is monitoring ending.
     if (this->cancelBlockedIo() == false) {
-        LOG_WARN("Failed to cancel blocked IO in thread " << this->currentThreadId());
+        LOG_WARN(<< "Failed to cancel blocked IO in thread " << this->currentThreadId());
     }
 }
 }

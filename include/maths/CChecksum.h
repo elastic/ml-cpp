@@ -27,10 +27,10 @@
 
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -126,21 +126,27 @@ public:
 
     //! Checksum of double.
     static uint64_t dispatch(uint64_t seed, double target) {
-        return dispatch(seed, core::CStringUtils::typeToStringPrecise(target, core::CIEEE754::E_SinglePrecision));
+        return dispatch(seed, core::CStringUtils::typeToStringPrecise(
+                                  target, core::CIEEE754::E_SinglePrecision));
     }
 
     //! Checksum of a universal hash function.
-    static uint64_t dispatch(uint64_t seed, const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target) {
+    static uint64_t
+    dispatch(uint64_t seed,
+             const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target) {
         seed = core::CHashing::hashCombine(seed, static_cast<uint64_t>(target.a()));
         return core::CHashing::hashCombine(seed, static_cast<uint64_t>(target.b()));
     }
 
     //! Checksum of float storage.
-    static uint64_t dispatch(uint64_t seed, CFloatStorage target) { return dispatch(seed, target.toString()); }
+    static uint64_t dispatch(uint64_t seed, CFloatStorage target) {
+        return dispatch(seed, target.toString());
+    }
 
     //! Checksum of string.
     static uint64_t dispatch(uint64_t seed, const std::string& target) {
-        return core::CHashing::safeMurmurHash64(target.data(), static_cast<int>(target.size()), seed);
+        return core::CHashing::safeMurmurHash64(
+            target.data(), static_cast<int>(target.size()), seed);
     }
 
     //! Checksum a stored string pointer.
@@ -157,13 +163,15 @@ public:
     //! Checksum of a optional.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const boost::optional<T>& target) {
-        return !target ? seed : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return !target ? seed
+                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
     //! Checksum a pointer.
     template<typename T>
-    static uint64_t dispatch(uint64_t seed, const boost::shared_ptr<T>& target) {
-        return !target ? seed : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+    static uint64_t dispatch(uint64_t seed, const std::shared_ptr<T>& target) {
+        return !target ? seed
+                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
     //! Checksum a pair.
@@ -175,7 +183,9 @@ public:
 
     //! Checksum an Eigen dense vector.
     template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-    static uint64_t dispatch(uint64_t seed, const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& target) {
+    static uint64_t
+    dispatch(uint64_t seed,
+             const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& target) {
         std::ptrdiff_t dimension = target.size();
         if (dimension > 0) {
             for (std::ptrdiff_t i = 0; i + 1 < dimension; ++i) {
@@ -188,7 +198,8 @@ public:
 
     //! Checksum an Eigen sparse vector.
     template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-    static uint64_t dispatch(uint64_t seed, const Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& target) {
+    static uint64_t
+    dispatch(uint64_t seed, const Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& target) {
         using TIterator = typename Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>::InnerIterator;
         uint64_t result = seed;
         for (TIterator i(target, 0); i; ++i) {
@@ -200,9 +211,12 @@ public:
 
     //! Checksum of an annotated vector.
     template<typename VECTOR, typename ANNOTATION>
-    static uint64_t dispatch(uint64_t seed, const CAnnotatedVector<VECTOR, ANNOTATION>& target) {
-        seed = CChecksumImpl<typename selector<VECTOR>::value>::dispatch(seed, static_cast<const VECTOR&>(target));
-        return CChecksumImpl<typename selector<ANNOTATION>::value>::dispatch(seed, target.annotation());
+    static uint64_t
+    dispatch(uint64_t seed, const CAnnotatedVector<VECTOR, ANNOTATION>& target) {
+        seed = CChecksumImpl<typename selector<VECTOR>::value>::dispatch(
+            seed, static_cast<const VECTOR&>(target));
+        return CChecksumImpl<typename selector<ANNOTATION>::value>::dispatch(
+            seed, target.annotation());
     }
 };
 
@@ -249,7 +263,8 @@ public:
         using CItr = typename T::const_iterator;
         uint64_t result = seed;
         for (CItr itr = target.begin(); itr != target.end(); ++itr) {
-            result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(result, *itr);
+            result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(
+                result, *itr);
         }
         return result;
     }
@@ -262,7 +277,8 @@ public:
 
         TCRefVec ordered;
         ordered.reserve(target.size());
-        for (typename boost::unordered_set<T>::const_iterator itr = target.begin(); itr != target.end(); ++itr) {
+        for (typename boost::unordered_set<T>::const_iterator itr = target.begin();
+             itr != target.end(); ++itr) {
             ordered.push_back(TCRef(*itr));
         }
 
@@ -281,7 +297,8 @@ public:
 
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());
-        for (typename boost::unordered_map<U, V>::const_iterator itr = target.begin(); itr != target.end(); ++itr) {
+        for (typename boost::unordered_map<U, V>::const_iterator itr = target.begin();
+             itr != target.end(); ++itr) {
             ordered.push_back(TUCRefVCRefPr(TUCRef(itr->first), TVCRef(itr->second)));
         }
 
@@ -291,7 +308,9 @@ public:
     }
 
     //! Handle std::string which has a const_iterator.
-    static uint64_t dispatch(uint64_t seed, const std::string& target) { return CChecksumImpl<BasicChecksum>::dispatch(seed, target); }
+    static uint64_t dispatch(uint64_t seed, const std::string& target) {
+        return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
+    }
 };
 
 //! Convenience function to select implementation.

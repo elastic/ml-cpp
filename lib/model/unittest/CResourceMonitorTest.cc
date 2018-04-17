@@ -30,12 +30,12 @@ using namespace model;
 CppUnit::Test* CResourceMonitorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceMonitorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testMonitor", &CResourceMonitorTest::testMonitor));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testPruning", &CResourceMonitorTest::testPruning));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testExtraMemory", &CResourceMonitorTest::testExtraMemory));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>(
+        "CResourceMonitorTest::testMonitor", &CResourceMonitorTest::testMonitor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>(
+        "CResourceMonitorTest::testPruning", &CResourceMonitorTest::testPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>(
+        "CResourceMonitorTest::testExtraMemory", &CResourceMonitorTest::testExtraMemory));
     return suiteOfTests;
 }
 
@@ -51,32 +51,25 @@ void CResourceMonitorTest::testMonitor() {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig =
+        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
-                   function_t::E_IndividualMetric,
-                   false,
-                   model_t::E_XF_None,
-                   "value",
-                   "colour");
+                   function_t::E_IndividualMetric, false, model_t::E_XF_None,
+                   "value", "colour");
 
     CAnomalyDetector detector1(1, // identifier
-                               limits,
-                               modelConfig,
-                               EMPTY_STRING,
-                               FIRST_TIME,
+                               limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key));
 
     CAnomalyDetector detector2(2, // identifier
-                               limits,
-                               modelConfig,
-                               EMPTY_STRING,
-                               FIRST_TIME,
+                               limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key));
 
-    std::size_t mem =
-        detector1.memoryUsage() + detector2.memoryUsage() + CStringStore::names().memoryUsage() + CStringStore::influencers().memoryUsage();
+    std::size_t mem = detector1.memoryUsage() + detector2.memoryUsage() +
+                      CStringStore::names().memoryUsage() +
+                      CStringStore::influencers().memoryUsage();
 
     {
         // Test default constructor
@@ -85,7 +78,7 @@ void CResourceMonitorTest::testMonitor() {
         CPPUNIT_ASSERT_EQUAL(mon.m_ByteLimitLow + 1024, mon.m_ByteLimitHigh);
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
-        LOG_DEBUG("Resource limit is: " << mon.m_ByteLimitHigh);
+        LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
         if (sizeof(std::size_t) == 4) {
             // 32-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
@@ -289,7 +282,8 @@ void CResourceMonitorTest::testMonitor() {
         mon.m_CurrentAnomalyDetectorMemory += 1 + (origTotalMemory + 9) / 10;
         CPPUNIT_ASSERT(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
-        CPPUNIT_ASSERT_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10, m_CallbackResults.s_Usage);
+        CPPUNIT_ASSERT_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10,
+                             m_CallbackResults.s_Usage);
 
         // Huge increase should trigger a need
         mon.m_CurrentAnomalyDetectorMemory = 1000;
@@ -318,24 +312,19 @@ void CResourceMonitorTest::testPruning() {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig =
+        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
-                   function_t::E_IndividualMetric,
-                   false,
-                   model_t::E_XF_None,
-                   "value",
-                   "colour");
+                   function_t::E_IndividualMetric, false, model_t::E_XF_None,
+                   "value", "colour");
 
     CResourceMonitor& monitor = limits.resourceMonitor();
     monitor.memoryLimit(140);
 
     CAnomalyDetector detector(1, // identifier
-                              limits,
-                              modelConfig,
-                              EMPTY_STRING,
-                              FIRST_TIME,
+                              limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                               modelConfig.factory(key));
 
     core_t::TTime bucket = FIRST_TIME;
@@ -347,26 +336,26 @@ void CResourceMonitorTest::testPruning() {
     CPPUNIT_ASSERT_EQUAL(false, monitor.m_HasPruningStarted);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusOk, monitor.m_MemoryStatus);
 
-    LOG_DEBUG("Saturating the pruner");
+    LOG_DEBUG(<< "Saturating the pruner");
     // Add enough data to saturate the pruner
     this->addTestData(bucket, BUCKET_LENGTH, 1100, 3, startOffset, detector, monitor);
 
-    LOG_DEBUG("Window is now: " << monitor.m_PruneWindow);
+    LOG_DEBUG(<< "Window is now: " << monitor.m_PruneWindow);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_HasPruningStarted);
     CPPUNIT_ASSERT(monitor.m_PruneWindow < std::size_t(1000));
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_AllowAllocations);
 
-    LOG_DEBUG("Allowing pruner to relax");
+    LOG_DEBUG(<< "Allowing pruner to relax");
     // Add no new people and see that the window relaxes away from the minimum window
     this->addTestData(bucket, BUCKET_LENGTH, 100, 0, startOffset, detector, monitor);
-    LOG_DEBUG("Window is now: " << monitor.m_PruneWindow);
+    LOG_DEBUG(<< "Window is now: " << monitor.m_PruneWindow);
     std::size_t level = monitor.m_PruneWindow;
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_AllowAllocations);
     CPPUNIT_ASSERT(monitor.totalMemory() < monitor.m_PruneThreshold);
 
-    LOG_DEBUG("Testing fine-grained control");
+    LOG_DEBUG(<< "Testing fine-grained control");
     // Check that the window keeps growing now
     this->addTestData(bucket, BUCKET_LENGTH, 50, 0, startOffset, detector, monitor);
     CPPUNIT_ASSERT(monitor.m_PruneWindow > level);
@@ -390,25 +379,20 @@ void CResourceMonitorTest::testExtraMemory() {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig =
+        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
-                   function_t::E_IndividualMetric,
-                   false,
-                   model_t::E_XF_None,
-                   "value",
-                   "colour");
+                   function_t::E_IndividualMetric, false, model_t::E_XF_None,
+                   "value", "colour");
 
     CResourceMonitor& monitor = limits.resourceMonitor();
     // set the limit to 1 MB
     monitor.memoryLimit(1);
 
     CAnomalyDetector detector(1, // identifier
-                              limits,
-                              modelConfig,
-                              EMPTY_STRING,
-                              FIRST_TIME,
+                              limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                               modelConfig.factory(key));
 
     monitor.forceRefresh(detector);
@@ -448,7 +432,8 @@ void CResourceMonitorTest::addTestData(core_t::TTime& firstTime,
 
     std::size_t numBuckets = 0;
 
-    for (core_t::TTime time = firstTime; time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
+    for (core_t::TTime time = firstTime;
+         time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
          time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
         bool newBucket = false;
         for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {

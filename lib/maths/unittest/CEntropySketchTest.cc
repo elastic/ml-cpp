@@ -31,9 +31,9 @@
 using namespace ml;
 
 void CEntropySketchTest::testAll() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testPersist  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
@@ -56,9 +56,10 @@ void CEntropySketchTest::testAll() {
         rng.generateUniformSamples(1, 10, numberCategories[t], counts);
         std::size_t Z = std::accumulate(counts.begin(), counts.end(), 0);
 
-        maths::CEntropySketch entropy[] = {maths::CEntropySketch(static_cast<std::size_t>(K[0])),
-                                           maths::CEntropySketch(static_cast<std::size_t>(K[1])),
-                                           maths::CEntropySketch(static_cast<std::size_t>(K[2]))};
+        maths::CEntropySketch entropy[] = {
+            maths::CEntropySketch(static_cast<std::size_t>(K[0])),
+            maths::CEntropySketch(static_cast<std::size_t>(K[1])),
+            maths::CEntropySketch(static_cast<std::size_t>(K[2]))};
 
         for (std::size_t i = 0u; i < 3; ++i) {
             TSizeDoubleUMap p;
@@ -73,7 +74,7 @@ void CEntropySketchTest::testAll() {
                 h -= j->second * std::log(j->second);
             }
             if (t % 30 == 0) {
-                LOG_DEBUG("H_approx = " << ha << ", H_exact = " << h);
+                LOG_DEBUG(<< "H_approx = " << ha << ", H_exact = " << h);
             }
 
             meanError[i].add(std::fabs(ha - h) / h);
@@ -89,14 +90,16 @@ void CEntropySketchTest::testAll() {
     double maxMaxErrors[] = {0.14, 0.11, 0.08};
     double maxMeanErrors[] = {0.05, 0.04, 0.03};
     for (std::size_t i = 0u; i < 3; ++i) {
-        LOG_DEBUG("max error  = " << maxError[i][0]);
-        LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError[i]));
-        LOG_DEBUG("large deviations = " << core::CContainerPrinter::print(epsDeviations[i]));
+        LOG_DEBUG(<< "max error  = " << maxError[i][0]);
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError[i]));
+        LOG_DEBUG(<< "large deviations = "
+                  << core::CContainerPrinter::print(epsDeviations[i]));
         CPPUNIT_ASSERT(maxError[i][0] < maxMaxErrors[i]);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j) {
-            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 < 2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
+            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 <
+                           2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }
     }
 }
@@ -104,7 +107,8 @@ void CEntropySketchTest::testAll() {
 CppUnit::Test* CEntropySketchTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEntropySketchTest>("CEntropySketchTest::testAll", &CEntropySketchTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEntropySketchTest>(
+        "CEntropySketchTest::testAll", &CEntropySketchTest::testAll));
 
     return suiteOfTests;
 }

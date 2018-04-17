@@ -23,9 +23,11 @@
 namespace ml {
 namespace maths {
 
-bool CClustererStateSerialiser::
-operator()(const SDistributionRestoreParams& params, TClusterer1dPtr& ptr, core::CStateRestoreTraverser& traverser) {
-    return this->operator()(params, CClusterer1d::CDoNothing(), CClusterer1d::CDoNothing(), ptr, traverser);
+bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& params,
+                                           TClusterer1dPtr& ptr,
+                                           core::CStateRestoreTraverser& traverser) {
+    return this->operator()(params, CClusterer1d::CDoNothing(),
+                            CClusterer1d::CDoNothing(), ptr, traverser);
 }
 
 bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& params,
@@ -44,12 +46,12 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
             ptr.reset(new CKMeansOnline1d(params, traverser));
             ++numResults;
         } else {
-            LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
+            LOG_ERROR(<< "No clusterer corresponds to node name " << traverser.name());
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") clusterer tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") clusterer tags");
         ptr.reset();
         return false;
     }
@@ -57,8 +59,10 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
     return true;
 }
 
-void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer, core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(clusterer.persistenceTag(), boost::bind(&CClusterer1d::acceptPersistInserter, &clusterer, _1));
+void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
+                                           core::CStatePersistInserter& inserter) {
+    inserter.insertLevel(clusterer.persistenceTag(),
+                         boost::bind(&CClusterer1d::acceptPersistInserter, &clusterer, _1));
 }
 }
 }

@@ -33,14 +33,16 @@ CTopLevelDomainDb::CTopLevelDomainDb(const std::string& effectiveTldNamesFileNam
 bool CTopLevelDomainDb::init(void) {
     core::CTextFileWatcher watcher;
 
-    if (watcher.init(m_EffectiveTldNamesFileName, "\r?\n", core::CTextFileWatcher::E_Start) == false) {
-        LOG_ERROR("Can not open " << m_EffectiveTldNamesFileName);
+    if (watcher.init(m_EffectiveTldNamesFileName, "\r?\n",
+                     core::CTextFileWatcher::E_Start) == false) {
+        LOG_ERROR(<< "Can not open " << m_EffectiveTldNamesFileName);
         return false;
     }
 
     std::string remainder;
-    if (watcher.readAllLines(boost::bind(&CTopLevelDomainDb::readLine, this, _1), remainder) == false) {
-        LOG_ERROR("Error reading " << m_EffectiveTldNamesFileName);
+    if (watcher.readAllLines(boost::bind(&CTopLevelDomainDb::readLine, this, _1),
+                             remainder) == false) {
+        LOG_ERROR(<< "Error reading " << m_EffectiveTldNamesFileName);
         return false;
     }
 
@@ -77,14 +79,17 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Is it an exception?
     if (trimmedLine.front() == '!') {
         if (trimmedLine.size() < 2) {
-            LOG_WARN(trimmedLine << " not valid - ignoring.");
+            LOG_WARN(<< trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '!' character
-        if (m_EffectiveTldNamesExceptions.insert(trimmedLine.substr(1, std::string::npos)).second == false) {
+        if (m_EffectiveTldNamesExceptions
+                .insert(trimmedLine.substr(1, std::string::npos))
+                .second == false) {
             // Benign warning
-            LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+            LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName
+                     << " duplicate " << trimmedLine);
         }
         return true;
     }
@@ -92,14 +97,17 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Is it a wildcard?
     if (trimmedLine.front() == '*') {
         if (trimmedLine.size() < 2) {
-            LOG_WARN(trimmedLine << " not valid - ignoring.");
+            LOG_WARN(<< trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '*.' character
-        if (m_EffectiveTldNamesWildcards.insert(trimmedLine.substr(2, std::string::npos)).second == false) {
+        if (m_EffectiveTldNamesWildcards
+                .insert(trimmedLine.substr(2, std::string::npos))
+                .second == false) {
             // Benign warning
-            LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+            LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName
+                     << " duplicate " << trimmedLine);
         }
         return true;
     }
@@ -107,19 +115,21 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Normal insert
     if (m_EffectiveTldNames.insert(trimmedLine).second == false) {
         // Benign warning
-        LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+        LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName
+                 << " duplicate " << trimmedLine);
     }
 
     return true;
 }
 
-bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::string& registeredHostName) const {
+bool CTopLevelDomainDb::registeredDomainName(const std::string& host,
+                                             std::string& registeredHostName) const {
     std::string subDomain;
     std::string domain;
     std::string suffix;
 
     this->splitHostName(host, subDomain, domain, suffix);
-    //LOG_DEBUG(host << " sub:" << subDomain << " dom:" << domain << " suf:" << suffix);
+    //LOG_DEBUG(<< host << " sub:" << subDomain << " dom:" << domain << " suf:" << suffix);
 
     // Be strict here to comply with rules.
     // The caller can choose to use the host name instead of the domain
@@ -132,9 +142,12 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::strin
     return false;
 }
 
-void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const {
+void CTopLevelDomainDb::splitHostName(const std::string& host,
+                                      std::string& subDomain,
+                                      std::string& domain,
+                                      std::string& suffix) const {
     if (m_EffectiveTldNames.empty()) {
-        LOG_ERROR("No rules. Call ::init to initialize object.");
+        LOG_ERROR(<< "No rules. Call ::init to initialize object.");
     }
 
     bool isPunyCode = false;
@@ -143,7 +156,7 @@ void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subD
         isPunyCode = true;
 
         // Translate puny_code to idna as lookup file is in idna
-        LOG_FATAL("NOT HANDLED YET");
+        LOG_FATAL(<< "NOT HANDLED YET");
     }
 
     // First do all of this in lower cass
@@ -153,11 +166,14 @@ void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subD
 
     // Trasnlate back to ascii
     if (isPunyCode) {
-        LOG_FATAL("NOT HANDLED YET");
+        LOG_FATAL(<< "NOT HANDLED YET");
     }
 }
 
-void CTopLevelDomainDb::extract(const std::string& str, std::string& subDomain, std::string& domain, std::string& suffix) const {
+void CTopLevelDomainDb::extract(const std::string& str,
+                                std::string& subDomain,
+                                std::string& domain,
+                                std::string& suffix) const {
     /*
 https://publicsuffix.org/list/#list-format
 
@@ -171,7 +187,6 @@ The public suffix is the set of labels from the domain which directly match the 
 The registered or registrable domain is the public suffix plus one additional label.
 
 Some examples:
-
 
 */
     TSizeTypeVec periods;
@@ -194,7 +209,7 @@ Some examples:
             // Force an extra interation
             pos = str.find(PERIOD, pos);
             if (pos == std::string::npos) {
-                LOG_WARN("Unexpected domain for exception rule: '" << str);
+                LOG_WARN(<< "Unexpected domain for exception rule: '" << str);
             }
 
             pos = pos + PERIOD.size();
@@ -227,7 +242,7 @@ Some examples:
 // Some helpers
 namespace {
 
-typedef std::vector<std::string::size_type> TSizeTypeVec;
+using TSizeTypeVec = std::vector<std::string::size_type>;
 
 std::string::size_type _last(const TSizeTypeVec& v) {
     if (v.empty()) {
@@ -304,7 +319,8 @@ CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string& s
     // If more than one rule matches, the prevailing rule is the one which is an exception rule.
     // - check exception rules first
     // If the prevailing rule is a exception rule, modify it by removing the leftmost label.
-    if (m_EffectiveTldNamesExceptions.find(suffix) != m_EffectiveTldNamesExceptions.end()) {
+    if (m_EffectiveTldNamesExceptions.find(suffix) !=
+        m_EffectiveTldNamesExceptions.end()) {
         return E_ExceptionRule;
     }
     // If there is no matching exception rule, the prevailing rule is the one with the most labels.
@@ -312,7 +328,8 @@ CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string& s
         return E_Rule;
     }
     // If there is no matching exception rule, the prevailing rule is the one with the most labels.
-    if (m_EffectiveTldNamesWildcards.find(suffix) != m_EffectiveTldNamesWildcards.end()) {
+    if (m_EffectiveTldNamesWildcards.find(suffix) !=
+        m_EffectiveTldNamesWildcards.end()) {
         return E_WildcardRule;
     }
     // If no rules match, the prevailing rule is "*".

@@ -25,8 +25,8 @@ using namespace ml;
 CppUnit::Test* CMemoryUsageJsonWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageJsonWriterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>("CMemoryUsageJsonWriterTest::test", &CMemoryUsageJsonWriterTest::test));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>(
+        "CMemoryUsageJsonWriterTest::test", &CMemoryUsageJsonWriterTest::test));
 
     return suiteOfTests;
 }
@@ -63,7 +63,8 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.addItem(description);
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223,\"unused\":45678}}\n"), ss.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223,\"unused\":45678}}\n"),
+                             ss.str());
     }
     {
         // Check one empty array
@@ -76,7 +77,8 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[]}\n"), ss.str());
+        CPPUNIT_ASSERT_EQUAL(
+            std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[]}\n"), ss.str());
     }
     {
         // Check one full array
@@ -120,8 +122,7 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
-            ss.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
+                             ss.str());
     }
 }

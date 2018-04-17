@@ -50,7 +50,7 @@ void radix2fft(TComplexVec& f) {
     for (uint64_t i = 0; i < f.size(); ++i) {
         uint64_t j = CIntegerTools::reverseBits(i) >> (64 - bits);
         if (j > i) {
-            LOG_TRACE(j << " -> " << i);
+            LOG_TRACE(<< j << " -> " << i);
             std::swap(f[i], f[j]);
         }
     }
@@ -59,7 +59,8 @@ void radix2fft(TComplexVec& f) {
 
     for (std::size_t stride = 1; stride < f.size(); stride <<= 1) {
         for (std::size_t k = 0u; k < stride; ++k) {
-            double t = boost::math::double_constants::pi * static_cast<double>(k) / static_cast<double>(stride);
+            double t = boost::math::double_constants::pi *
+                       static_cast<double>(k) / static_cast<double>(stride);
             TComplex w(std::cos(t), std::sin(t));
             for (std::size_t start = k; start < f.size(); start += 2 * stride) {
                 TComplex fs = f[start];
@@ -91,7 +92,7 @@ void CSignal::fft(TComplexVec& f) {
     std::size_t p = CIntegerTools::nextPow2(n);
     std::size_t m = 1 << p;
 
-    LOG_TRACE("n = " << n << ", m = " << m);
+    LOG_TRACE(<< "n = " << n << ", m = " << m);
 
     if ((m >> 1) == n) {
         radix2fft(f);
@@ -99,7 +100,7 @@ void CSignal::fft(TComplexVec& f) {
         // We use Bluestein's trick to reformulate as a convolution
         // which can be computed by padding to a power of 2.
 
-        LOG_TRACE("Using Bluestein's trick");
+        LOG_TRACE(<< "Using Bluestein's trick");
 
         m = 2 * n - 1;
         p = CIntegerTools::nextPow2(m);
@@ -114,7 +115,8 @@ void CSignal::fft(TComplexVec& f) {
         a[0] = f[0] * chirp[0];
         b[0] = chirp[0];
         for (std::size_t i = 1u; i < n; ++i) {
-            double t = boost::math::double_constants::pi * static_cast<double>(i * i) / static_cast<double>(n);
+            double t = boost::math::double_constants::pi *
+                       static_cast<double>(i * i) / static_cast<double>(n);
             chirp.emplace_back(std::cos(t), std::sin(t));
             a[i] = f[i] * std::conj(chirp[i]);
             b[i] = b[m - i] = chirp[i];
@@ -160,7 +162,8 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
         double ni = CBasicStatistics::count(values[i]);
         double nj = CBasicStatistics::count(values[j]);
         if (ni > 0.0 && nj > 0.0) {
-            autocorrelation.add((CBasicStatistics::mean(values[i]) - mean) * (CBasicStatistics::mean(values[j]) - mean));
+            autocorrelation.add((CBasicStatistics::mean(values[i]) - mean) *
+                                (CBasicStatistics::mean(values[j]) - mean));
         }
     }
 
@@ -201,7 +204,8 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
                 f.resize(j - 1, TComplex(0.0, 0.0));
             } else {
                 for (std::size_t k = i; k < j; ++k) {
-                    double alpha = static_cast<double>(k - i + 1) / static_cast<double>(j - i + 1);
+                    double alpha = static_cast<double>(k - i + 1) /
+                                   static_cast<double>(j - i + 1);
                     double real = CBasicStatistics::mean(values[j]) - mean;
                     f.push_back((1.0 - alpha) * f[i - 1] + alpha * TComplex(real, 0.0));
                 }

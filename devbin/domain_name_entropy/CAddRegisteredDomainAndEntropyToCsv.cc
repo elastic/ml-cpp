@@ -29,25 +29,23 @@
 namespace ml {
 namespace domain_name_entropy {
 
-CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb& topLevelDomainDb,
-                                                                         const std::string& csvFileName,
-                                                                         const std::string& domainNameFieldName,
-                                                                         const std::string& timeFieldName,
-                                                                         const std::string& entropyFieldName)
-    : m_TopLevelDomainDb(topLevelDomainDb),
-      m_CsvFileName(csvFileName),
+CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(
+    const CTopLevelDomainDb& topLevelDomainDb,
+    const std::string& csvFileName,
+    const std::string& domainNameFieldName,
+    const std::string& timeFieldName,
+    const std::string& entropyFieldName)
+    : m_TopLevelDomainDb(topLevelDomainDb), m_CsvFileName(csvFileName),
       m_DomainNameFieldName(domainNameFieldName),
-      m_TimeFieldName(timeFieldName),
-      m_EntropyFieldName(entropyFieldName),
-      m_DomainNameFieldIndex(0),
-      m_TimeFieldIndex(0) {
+      m_TimeFieldName(timeFieldName), m_EntropyFieldName(entropyFieldName),
+      m_DomainNameFieldIndex(0), m_TimeFieldIndex(0) {
 }
 
 bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     core::CTextFileWatcher watcher;
 
     if (watcher.init(m_CsvFileName, "\r?\n", core::CTextFileWatcher::E_Start) == false) {
-        LOG_ERROR("Can not open " << m_CsvFileName);
+        LOG_ERROR(<< "Can not open " << m_CsvFileName);
         return false;
     }
 
@@ -55,10 +53,10 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     std::string lastTime;
 
     std::string remainder;
-    if (watcher.readAllLines(
-            boost::bind(&CAddRegisteredDomainAndEntropyToCsv::readLine, this, boost::ref(readHeader), boost::ref(lastTime), _1),
-            remainder) == false) {
-        LOG_ERROR("Error reading " << m_CsvFileName);
+    if (watcher.readAllLines(boost::bind(&CAddRegisteredDomainAndEntropyToCsv::readLine, this,
+                                         boost::ref(readHeader), boost::ref(lastTime), _1),
+                             remainder) == false) {
+        LOG_ERROR(<< "Error reading " << m_CsvFileName);
         return false;
     }
 
@@ -67,13 +65,15 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     return true;
 }
 
-bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string& lastTime, const std::string& line) {
+bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
+                                                   std::string& lastTime,
+                                                   const std::string& line) {
     static int count(0);
 
     ++count;
 
     if (count % 100 == 0) {
-        LOG_DEBUG("Read " << count << " lines");
+        LOG_DEBUG(<< "Read " << count << " lines");
     }
 
     // Split csv line
@@ -88,9 +88,10 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
 
     // Read the header if not done already
     if (readHeader == false) {
-        core::CStringUtils::TStrVecCItr itr2 = std::find(tokens.begin(), tokens.end(), m_DomainNameFieldName);
+        core::CStringUtils::TStrVecCItr itr2 =
+            std::find(tokens.begin(), tokens.end(), m_DomainNameFieldName);
         if (itr2 == tokens.end()) {
-            LOG_ERROR(m_DomainNameFieldName << " not in header line " << line);
+            LOG_ERROR(<< m_DomainNameFieldName << " not in header line " << line);
             return false;
         }
         core::CStringUtils::TStrVecCItr itr1 = tokens.begin();
@@ -98,7 +99,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
 
         itr2 = std::find(tokens.begin(), tokens.end(), m_TimeFieldName);
         if (itr2 == tokens.end()) {
-            LOG_ERROR(m_TimeFieldName << " not in header line " << line);
+            LOG_ERROR(<< m_TimeFieldName << " not in header line " << line);
             return false;
         }
         m_TimeFieldIndex = std::distance(itr1, itr2);
@@ -110,7 +111,8 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
 
     // We can not get here without a valid header
     if (m_DomainNameFieldIndex >= tokens.size() || m_TimeFieldIndex >= tokens.size()) {
-        LOG_ERROR("Out of range " << tokens.size() << " " << m_DomainNameFieldIndex << " " << m_TimeFieldIndex);
+        LOG_ERROR(<< "Out of range " << tokens.size() << " "
+                  << m_DomainNameFieldIndex << " " << m_TimeFieldIndex);
         return false;
     }
 
@@ -139,11 +141,13 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
     if (itr == m_RegisteredDomainEntropy.end()) {
         TCompressUtilsP compressedSubDomainsP(new CCompressUtils);
 
-        itr = m_RegisteredDomainEntropy.insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP)).first;
+        itr = m_RegisteredDomainEntropy
+                  .insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP))
+                  .first;
     }
 
     if (itr->second->compressString(false, subDomain) == false) {
-        LOG_ERROR("Unable to compress " << hostName);
+        LOG_ERROR(<< "Unable to compress " << hostName);
     }
 
     return true;
@@ -151,10 +155,11 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
 
 void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string& time) {
     // Finish all strings and dump
-    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin(); itr != m_RegisteredDomainEntropy.end(); ++itr) {
+    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin();
+         itr != m_RegisteredDomainEntropy.end(); ++itr) {
         size_t length;
         if (itr->second->compressedStringLength(true, length) == false) {
-            LOG_ERROR("Unable to process " << itr->first);
+            LOG_ERROR(<< "Unable to process " << itr->first);
         } else {
             std::cout << time << "," << itr->first << "," << length << std::endl;
         }

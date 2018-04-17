@@ -58,14 +58,16 @@ private:
 CppUnit::Test* CStatisticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
+        "CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
+        "CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
 
     return suiteOfTests;
 }
 
 void CStatisticsTest::testStatistics() {
-    LOG_TRACE("Starting Statistics test");
+    LOG_TRACE(<< "Starting Statistics test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     static const int N = 6;
@@ -104,11 +106,11 @@ void CStatisticsTest::testStatistics() {
     }
     CPPUNIT_ASSERT_EQUAL(uint64_t(0x1000000), stats.stat(TEST_STAT).value());
 
-    LOG_TRACE("Finished Statistics test");
+    LOG_TRACE(<< "Finished Statistics test");
 }
 
 void CStatisticsTest::testPersist() {
-    LOG_DEBUG("Starting persist test");
+    LOG_DEBUG(<< "Starting persist test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     // Check that a save/restore with all zeros is Ok
@@ -127,7 +129,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -155,7 +158,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -167,7 +171,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(newStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -179,7 +184,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -202,5 +208,5 @@ void CStatisticsTest::testPersist() {
         CPPUNIT_ASSERT(regex.matches(*i));
     }
 
-    LOG_DEBUG(output);
+    LOG_DEBUG(<< output);
 }

@@ -39,7 +39,7 @@ const double THRESHOLD = std::log(0.05);
 }
 
 void CDetectorEqualizerTest::testCorrect() {
-    LOG_DEBUG("*** CDetectorEqualizerTest::testCorrect ***");
+    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testCorrect ***");
 
     // Test that the distribution of scores are more similar after correcting.
 
@@ -80,18 +80,20 @@ void CDetectorEqualizerTest::testCorrect() {
     for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
         for (std::size_t j = 0u; j < i; ++j, ++k) {
             double increase =
-                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) / maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
+                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
+                maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
-            LOG_DEBUG("similarity increase = " << increase);
+            LOG_DEBUG(<< "similarity increase = " << increase);
             CPPUNIT_ASSERT(increase > 3.0);
         }
     }
-    LOG_DEBUG("mean similarity increase = " << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
+    LOG_DEBUG(<< "mean similarity increase = "
+              << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
     CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
 void CDetectorEqualizerTest::testAge() {
-    LOG_DEBUG("*** CDetectorEqualizerTest::testAge ***");
+    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testAge ***");
 
     // Test that propagation doesn't introduce a bias into the corrections.
 
@@ -129,15 +131,15 @@ void CDetectorEqualizerTest::testAge() {
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
             CPPUNIT_ASSERT(error < 0.18);
         }
-        LOG_DEBUG("mean bias  = " << maths::CBasicStatistics::mean(meanBias));
-        LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
+        LOG_DEBUG(<< "mean bias  = " << maths::CBasicStatistics::mean(meanBias));
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
         CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
 
 void CDetectorEqualizerTest::testPersist() {
-    LOG_DEBUG("*** CDetectorEqualizerTest::testPersist ***");
+    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testPersist ***");
 
     double scales[] = {1.0, 2.1, 3.2};
 
@@ -166,14 +168,15 @@ void CDetectorEqualizerTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("equalizer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "equalizer XML representation:\n" << origXml);
 
     model::CDetectorEqualizer restoredEqualizer;
     {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+            &model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
     }
 
     // Checksums should agree.
@@ -192,12 +195,12 @@ void CDetectorEqualizerTest::testPersist() {
 CppUnit::Test* CDetectorEqualizerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
 
     return suiteOfTests;
 }

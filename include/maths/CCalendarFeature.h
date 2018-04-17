@@ -33,7 +33,8 @@ namespace maths {
 //! IMPLEMENTATION:\n
 //! Note that this purposely doesn't use an enum for encoding the feature
 //! so that the member size is only 16 bits rather than sizeof(int).
-class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable<CCalendarFeature, boost::equality_comparable<CCalendarFeature>> {
+class MATHS_EXPORT CCalendarFeature
+    : boost::less_than_comparable<CCalendarFeature, boost::equality_comparable<CCalendarFeature>> {
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }

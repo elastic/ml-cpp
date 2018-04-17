@@ -67,7 +67,10 @@ double inner(const TDoubleVec& x, const TDoubleVec& y) {
     return result;
 }
 
-double logLikelihood(const TDoubleVecVec& x, const TDoubleVec& y, const TDoubleVec& lambda, const TDoubleVec& beta) {
+double logLikelihood(const TDoubleVecVec& x,
+                     const TDoubleVec& y,
+                     const TDoubleVec& lambda,
+                     const TDoubleVec& beta) {
     double result = 0.0;
     for (std::size_t i = 0u; i < y.size(); ++i) {
         double f = 0.0;
@@ -84,9 +87,9 @@ double logLikelihood(const TDoubleVecVec& x, const TDoubleVec& y, const TDoubleV
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
-    LOG_DEBUG("+-------------------------------------------------------------+");
-    LOG_DEBUG("|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
-    LOG_DEBUG("+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     static const double EPS = 5e-3;
 
@@ -104,7 +107,8 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         maths::lasso_logistic_regression_detail::CCyclicCoordinateDescent clg(50, 0.001);
 
         TDoubleVec lambda(2, 0.25);
-        double x_[][2] = {{0.1, 1.0}, {0.3, 1.0}, {0.4, 1.0}, {0.0, 1.0}, {1.0, 1.0}, {0.6, 1.0}, {0.7, 1.0}, {0.45, 1.0}};
+        double x_[][2] = {{0.1, 1.0}, {0.3, 1.0}, {0.4, 1.0}, {0.0, 1.0},
+                          {1.0, 1.0}, {0.6, 1.0}, {0.7, 1.0}, {0.45, 1.0}};
         double y_[] = {-1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0};
 
         TDoubleVecVec x;
@@ -116,18 +120,22 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         TDoubleVec beta1;
         std::size_t numberIterations;
         clg.run(x, y, lambda, beta1, numberIterations);
-        LOG_DEBUG("dense beta = " << core::CContainerPrinter::print(beta1) << ", numberIterations = " << numberIterations);
+        LOG_DEBUG(<< "dense beta = " << core::CContainerPrinter::print(beta1)
+                  << ", numberIterations = " << numberIterations);
 
         TDoubleVec beta2;
-        maths::lasso_logistic_regression_detail::CSparseMatrix xs(boost::size(x_), boost::size(x_[0]), xs_);
+        maths::lasso_logistic_regression_detail::CSparseMatrix xs(
+            boost::size(x_), boost::size(x_[0]), xs_);
         clg.run(xs, y, lambda, beta2, numberIterations);
-        LOG_DEBUG("sparse beta = " << core::CContainerPrinter::print(beta2) << ", numberIterations = " << numberIterations);
+        LOG_DEBUG(<< "sparse beta = " << core::CContainerPrinter::print(beta2)
+                  << ", numberIterations = " << numberIterations);
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(beta1), core::CContainerPrinter::print(beta2));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(beta1),
+                             core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
         double ll = logLikelihood(x, y, lambda, beta1);
-        LOG_DEBUG("log-likelihood = " << ll);
+        LOG_DEBUG(<< "log-likelihood = " << ll);
 
         double llMinusEps = 0.0;
         double llPlusEps = 0.0;
@@ -147,11 +155,13 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 
             llMinusEps += logLikelihood(x, y, lambda, betaMinusEps);
             llPlusEps += logLikelihood(x, y, lambda, betaPlusEps);
-            LOG_DEBUG("log-likelihood minus eps = " << llMinusEps / static_cast<double>(i + 1));
-            LOG_DEBUG("log-likelihood plus eps  = " << llPlusEps / static_cast<double>(i + 1));
+            LOG_DEBUG(<< "log-likelihood minus eps = "
+                      << llMinusEps / static_cast<double>(i + 1));
+            LOG_DEBUG(<< "log-likelihood plus eps  = "
+                      << llPlusEps / static_cast<double>(i + 1));
 
             double slope = (llPlusEps - llMinusEps) / length;
-            LOG_DEBUG("slope = " << slope);
+            LOG_DEBUG(<< "slope = " << slope);
             CPPUNIT_ASSERT(slope < 0.015);
         }
         CPPUNIT_ASSERT(ll > llMinusEps / 10.0);
@@ -172,7 +182,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
     for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
         decisionNormal[j] /= length;
     }
-    LOG_DEBUG("decisionNormal = " << core::CContainerPrinter::print(decisionNormal));
+    LOG_DEBUG(<< "decisionNormal = " << core::CContainerPrinter::print(decisionNormal));
 
     TDoubleVecVec x_(6, TDoubleVec(100, 0.0));
     TDoubleVec y_(100, 0.0);
@@ -195,7 +205,8 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         TDoubleVec beta;
         std::size_t numberIterations;
         clg.run(x, y, lambda, beta, numberIterations);
-        LOG_DEBUG("beta = " << core::CContainerPrinter::print(beta) << ", numberIterations = " << numberIterations);
+        LOG_DEBUG(<< "beta = " << core::CContainerPrinter::print(beta)
+                  << ", numberIterations = " << numberIterations);
 
         TDoubleVec effectiveDecisionNormal;
         for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
@@ -203,9 +214,10 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         }
 
         double theta =
-            std::acos(inner(effectiveDecisionNormal, decisionNormal) / std::sqrt(inner(effectiveDecisionNormal, effectiveDecisionNormal))) *
+            std::acos(inner(effectiveDecisionNormal, decisionNormal) /
+                      std::sqrt(inner(effectiveDecisionNormal, effectiveDecisionNormal))) *
             360.0 / boost::math::double_constants::two_pi;
-        LOG_DEBUG("angular error = " << theta << " deg");
+        LOG_DEBUG(<< "angular error = " << theta << " deg");
         CPPUNIT_ASSERT(theta < 7.5);
     }
 
@@ -215,9 +227,9 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse() {
-    LOG_DEBUG("+------------------------------------------------------------------------+");
-    LOG_DEBUG("|  CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse  |");
-    LOG_DEBUG("+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
     // TODO
 }
 
@@ -237,17 +249,20 @@ CppUnit::Test* CLassoLogisticRegressionTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescent", &CLassoLogisticRegressionTest::testCyclicCoordinateDescent));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse",
-                                                              &CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental",
-                                                              &CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testNormBasedLambda",
-                                                                                &CLassoLogisticRegressionTest::testNormBasedLambda));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testCrossValidatedLambda",
-                                                                                &CLassoLogisticRegressionTest::testCrossValidatedLambda));
+        "CLassoLogisticRegressionTest::testCyclicCoordinateDescent",
+        &CLassoLogisticRegressionTest::testCyclicCoordinateDescent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
+        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse",
+        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
+        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental",
+        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
+        "CLassoLogisticRegressionTest::testNormBasedLambda",
+        &CLassoLogisticRegressionTest::testNormBasedLambda));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
+        "CLassoLogisticRegressionTest::testCrossValidatedLambda",
+        &CLassoLogisticRegressionTest::testCrossValidatedLambda));
 
     return suiteOfTests;
 }

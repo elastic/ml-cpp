@@ -19,10 +19,10 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <memory>
 #include <string>
 
 namespace ml {
@@ -52,7 +52,7 @@ public:
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     //! Shared pointer to an instance of this class
-    using TDataTyperP = boost::shared_ptr<CDataTyper>;
+    using TDataTyperP = std::shared_ptr<CDataTyper>;
 
     //! Shared pointer to an instance of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
@@ -72,14 +72,21 @@ public:
     int computeType(bool isDryRun, const std::string& str, size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
-    virtual int computeType(bool isDryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen) = 0;
+    virtual int computeType(bool isDryRun,
+                            const TStrStrUMap& fields,
+                            const std::string& str,
+                            size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
     //! select the records that are classified as the given type when
     //! combined with the original search.  Note that the reverse search is
     //! only approximate - it may select more records than have actually
     //! been classified as the returned type.
-    virtual bool createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached) = 0;
+    virtual bool createReverseSearch(int type,
+                                     std::string& part1,
+                                     std::string& part2,
+                                     size_t& maxMatchingLength,
+                                     bool& wasCached) = 0;
 
     //! Has the data typer's state changed?
     virtual bool hasChanged() const = 0;

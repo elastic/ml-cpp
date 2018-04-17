@@ -29,16 +29,17 @@
 #include <iterator>
 
 namespace Eigen {
-#define LESS_OR_GREATER(l, r)                                                                                                              \
-    if (l < r) {                                                                                                                           \
-        return true;                                                                                                                       \
-    } else if (r > l) {                                                                                                                    \
-        return false;                                                                                                                      \
+#define LESS_OR_GREATER(l, r)                                                  \
+    if (l < r) {                                                               \
+        return true;                                                           \
+    } else if (r > l) {                                                        \
+        return false;                                                          \
     }
 
 //! Less than on Eigen sparse matrix.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs, const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
+bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
+               const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
     for (STORAGE_INDEX i = 0; i < lhs.rows(); ++i) {
@@ -51,7 +52,8 @@ bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs, const Spar
 
 //! Less than on Eigen sparse vector.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs, const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
+bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
+               const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     LESS_OR_GREATER(lhs.size(), rhs.size())
     for (STORAGE_INDEX i = 0; i < lhs.size(); ++i) {
         LESS_OR_GREATER(lhs.coeff(i), rhs(i))
@@ -76,13 +78,15 @@ bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lh
 
 //! Free swap picked up by std:: algorithms etc.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-void swap(SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs, SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
+void swap(SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
+          SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     lhs.swap(rhs);
 }
 
 //! Free swap picked up by std:: algorithms etc.
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-void swap(Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs, Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
+void swap(Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
+          Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
     lhs.swap(rhs);
 }
 
@@ -99,7 +103,9 @@ using CSparseMatrix = Eigen::SparseMatrix<SCALAR, FLAGS, std::ptrdiff_t>;
 //! \brief Gets a zero sparse matrix with specified dimensions.
 template<typename SCALAR, int FLAGS>
 struct SZero<CSparseMatrix<SCALAR, FLAGS>> {
-    static CSparseMatrix<SCALAR, FLAGS> get(std::ptrdiff_t rows, std::ptrdiff_t cols) { return CSparseMatrix<SCALAR, FLAGS>(rows, cols); }
+    static CSparseMatrix<SCALAR, FLAGS> get(std::ptrdiff_t rows, std::ptrdiff_t cols) {
+        return CSparseMatrix<SCALAR, FLAGS>(rows, cols);
+    }
 };
 
 //! The type of an element of a sparse matrix in coordinate form.
@@ -113,7 +119,9 @@ using CSparseVector = Eigen::SparseVector<SCALAR, FLAGS, std::ptrdiff_t>;
 //! \brief Gets a zero sparse vector with specified dimension.
 template<typename SCALAR, int FLAGS>
 struct SZero<CSparseVector<SCALAR, FLAGS>> {
-    static CSparseVector<SCALAR, FLAGS> get(std::ptrdiff_t dimension) { return CSparseVector<SCALAR, FLAGS>(dimension); }
+    static CSparseVector<SCALAR, FLAGS> get(std::ptrdiff_t dimension) {
+        return CSparseVector<SCALAR, FLAGS>(dimension);
+    }
 };
 
 //! The type of an element of a sparse vector in coordinate form.
@@ -122,7 +130,8 @@ using CSparseVectorCoordinate = Eigen::Triplet<SCALAR>;
 
 //! Create a tuple with which to initialize a sparse matrix.
 template<typename SCALAR>
-inline CSparseMatrixElement<SCALAR> matrixElement(std::ptrdiff_t row, std::ptrdiff_t column, SCALAR value) {
+inline CSparseMatrixElement<SCALAR>
+matrixElement(std::ptrdiff_t row, std::ptrdiff_t column, SCALAR value) {
     return CSparseMatrixElement<SCALAR>(row, column, value);
 }
 
@@ -134,15 +143,22 @@ inline CSparseVectorCoordinate<SCALAR> vectorCoordinate(std::ptrdiff_t row, SCAL
 
 //! \brief Adapts Eigen::SparseVector::InnerIterator for use with STL.
 template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
-class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
-    CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS>& vector, std::size_t index) : m_Vector(&vector), m_Base(vector, index) {}
+class CSparseVectorIndexIterator
+    : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
+    CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS>& vector, std::size_t index)
+        : m_Vector(&vector), m_Base(vector, index) {}
 
     bool operator==(const CSparseVectorIndexIterator& rhs) const {
-        return m_Vector == rhs.m_Vector && m_Base.row() == rhs.m_Base.row() && m_Base.col() == rhs.m_Base.col();
+        return m_Vector == rhs.m_Vector && m_Base.row() == rhs.m_Base.row() &&
+               m_Base.col() == rhs.m_Base.col();
     }
-    bool operator!=(const CSparseVectorIndexIterator& rhs) const { return !(*this == rhs); }
+    bool operator!=(const CSparseVectorIndexIterator& rhs) const {
+        return !(*this == rhs);
+    }
 
-    std::ptrdiff_t operator*() const { return std::max(m_Base.row(), m_Base.col()); }
+    std::ptrdiff_t operator*() const {
+        return std::max(m_Base.row(), m_Base.col());
+    }
 
     CSparseVectorIndexIterator& operator++() {
         ++m_Base;
@@ -164,13 +180,15 @@ private:
 
 //! Get an iterator over the indices of \p vector.
 template<typename SCALAR, int FLAGS>
-CSparseVectorIndexIterator<SCALAR, FLAGS> beginIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
+CSparseVectorIndexIterator<SCALAR, FLAGS>
+beginIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
     return CSparseVectorIndexIterator<SCALAR, FLAGS>(vector, 0);
 }
 
 //! Get the end iterator of the indices of \p vector.
 template<typename SCALAR, int FLAGS>
-CSparseVectorIndexIterator<SCALAR, FLAGS> endIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
+CSparseVectorIndexIterator<SCALAR, FLAGS>
+endIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
     return CSparseVectorIndexIterator<SCALAR, FLAGS>(vector, vector.data().size());
 }
 
@@ -181,7 +199,9 @@ using CDenseMatrix = Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic>;
 //! \brief Gets a zero dense vector with specified dimension.
 template<typename SCALAR>
 struct SZero<CDenseMatrix<SCALAR>> {
-    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols) { return CDenseMatrix<SCALAR>::Zero(rows, cols); }
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols) {
+        return CDenseMatrix<SCALAR>::Zero(rows, cols);
+    }
 };
 
 //! Rename to follow our conventions and add to ml::maths.
@@ -191,7 +211,9 @@ using CDenseVector = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
 //! \brief Gets a zero dense vector with specified dimension.
 template<typename SCALAR>
 struct SZero<CDenseVector<SCALAR>> {
-    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension) { return CDenseVector<SCALAR>::Zero(dimension); }
+    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension) {
+        return CDenseVector<SCALAR>::Zero(dimension);
+    }
 };
 
 //! \brief Eigen matrix typedef.
@@ -286,7 +308,9 @@ public:
 
     std::size_t rows() const { return m_Type->rows(); }
 
-    double get(std::size_t i, std::size_t j) const { return (m_Type->template selfadjointView<Eigen::Lower>())(i, j); }
+    double get(std::size_t i, std::size_t j) const {
+        return (m_Type->template selfadjointView<Eigen::Lower>())(i, j);
+    }
 
 private:
     const MATRIX* m_Type;

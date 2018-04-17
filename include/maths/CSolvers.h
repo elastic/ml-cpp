@@ -53,19 +53,27 @@ private:
     //! An inverse quadratic interpolation of three distinct
     //! function values. WARNING the caller must ensure that
     //! the \p fa != \p fb != \p fc.
-    static inline double
-    inverseQuadraticInterpolate(const double a, const double b, const double c, const double fa, const double fb, const double fc) {
-        return a * fb * fc / (fa - fb) / (fa - fc) + b * fa * fc / (fb - fa) / (fb - fc) + c * fa * fb / (fc - fa) / (fc - fb);
+    static inline double inverseQuadraticInterpolate(const double a,
+                                                     const double b,
+                                                     const double c,
+                                                     const double fa,
+                                                     const double fb,
+                                                     const double fc) {
+        return a * fb * fc / (fa - fb) / (fa - fc) +
+               b * fa * fc / (fb - fa) / (fb - fc) + c * fa * fb / (fc - fa) / (fc - fb);
     }
 
     //! A secant interpolation of two distinct function values.
     //! WARNING the caller must ensure that \p fa != \p fb.
-    static inline double secantInterpolate(const double a, const double b, const double fa, const double fb) {
+    static inline double
+    secantInterpolate(const double a, const double b, const double fa, const double fb) {
         return b - fb * (b - a) / (fb - fa);
     }
 
     //! Bisect the interval [\p a, \p b].
-    static inline double bisect(const double a, const double b) { return (a + b) / 2.0; }
+    static inline double bisect(const double a, const double b) {
+        return (a + b) / 2.0;
+    }
 
     //! Shift the values such that a = b and b = c.
     static inline void shift(double& a, double& b, const double c) {
@@ -174,8 +182,8 @@ private:
 
             double u = x + s;
             double fu = f(u);
-            LOG_TRACE("s = " << s << ", u = " << u)
-            LOG_TRACE("f(u) = " << fu << ", f(x) = " << fx);
+            LOG_TRACE(<< "s = " << s << ", u = " << u)
+            LOG_TRACE(<< "f(u) = " << fu << ", f(x) = " << fx);
 
             if (fu <= fx) {
                 u >= x ? a = x : b = x;
@@ -191,9 +199,9 @@ private:
                     fv = fu;
                 }
             }
-            LOG_TRACE("a = " << a << ", b = " << b);
-            LOG_TRACE("x = " << x << ", v = " << v << ", w = " << w);
-            LOG_TRACE("f(x) = " << fx << ", f(v) = " << fv << ", f(w) = " << fw);
+            LOG_TRACE(<< "a = " << a << ", b = " << b);
+            LOG_TRACE(<< "x = " << x << ", v = " << v << ", w = " << w);
+            LOG_TRACE(<< "f(x) = " << fx << ", f(v) = " << fv << ", f(w) = " << fw);
         } while (--n > 0);
 
         maxIterations -= n;
@@ -235,7 +243,12 @@ private:
             if (n < (3 * maxIterations) / 4) {
                 double minStep = step;
                 double maxStep = step * step;
-                step = fa == fb ? maxStep : std::min(std::max(std::fabs(b - a) / std::fabs(fb - fa) * std::fabs(fb), minStep), maxStep);
+                step = fa == fb
+                           ? maxStep
+                           : std::min(std::max(std::fabs(b - a) / std::fabs(fb - fa) *
+                                                   std::fabs(fb),
+                                               minStep),
+                                      maxStep);
             }
             a = b;
             fa = fb;
@@ -357,7 +370,8 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     template<typename F, typename EQUAL>
-    static inline void solve(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static inline void
+    solve(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -395,8 +409,14 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     template<typename F, typename EQUAL>
-    static void
-    solve(double& a, double& b, double fa, double fb, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static void solve(double& a,
+                      double& b,
+                      double fa,
+                      double fb,
+                      const F& f,
+                      std::size_t& maxIterations,
+                      const EQUAL& equal,
+                      double& bestGuess) {
         if (equal(a, b)) {
             // There is a bug in boost's solver for the case that
             // a == b so trap and return early.
@@ -409,14 +429,16 @@ public:
             // Need at least one step or the boost solver underflows
             // size_t.
             boost::uintmax_t n = std::max(maxIterations, std::size_t(1));
-            TDoubleDoublePr bracket = boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe, a, b, fa, fb, equal, n);
+            TDoubleDoublePr bracket =
+                boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(
+                    fSafe, a, b, fa, fb, equal, n);
             a = bracket.first;
             b = bracket.second;
             bestGuess = bisect(a, b);
             maxIterations = static_cast<std::size_t>(n);
             return;
         } catch (const std::exception& e) {
-            LOG_TRACE("Falling back to Brent's solver: " << e.what());
+            LOG_TRACE(<< "Falling back to Brent's solver: " << e.what());
             // Avoid compiler warning in the case of LOG_TRACE being compiled out
             static_cast<void>(&e);
         }
@@ -446,7 +468,8 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root.
     template<typename F, typename EQUAL>
-    static bool brent(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static bool
+    brent(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -485,8 +508,14 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root.
     template<typename F, typename EQUAL>
-    static bool
-    brent(double& a, double& b, double fa, double fb, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static bool brent(double& a,
+                      double& b,
+                      double fa,
+                      double fb,
+                      const F& f,
+                      std::size_t& maxIterations,
+                      const EQUAL& equal,
+                      double& bestGuess) {
         std::size_t n = maxIterations;
 
         if (fa == 0.0) {
@@ -518,13 +547,16 @@ public:
         double d = std::numeric_limits<double>::max();
 
         do {
-            double s = (fa != fc) && (fb != fc) ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc) : secantInterpolate(a, b, fa, fb);
+            double s = (fa != fc) && (fb != fc)
+                           ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc)
+                           : secantInterpolate(a, b, fa, fb);
 
             double e = (3.0 * a + b) / 4.0;
 
             if ((!(((s > e) && (s < b)) || ((s < e) && (s > b)))) ||
                 (bisected && ((std::fabs(s - b) >= std::fabs(b - c) / 2.0) || equal(b, c))) ||
-                (!bisected && ((std::fabs(s - b) >= std::fabs(c - d) / 2.0) || equal(c, d)))) {
+                (!bisected &&
+                 ((std::fabs(s - b) >= std::fabs(c - d) / 2.0) || equal(c, d)))) {
                 // Use bisection.
                 s = bisect(a, b);
                 bisected = true;
@@ -561,8 +593,9 @@ public:
             std::swap(a, b);
             std::swap(fa, fb);
         }
-        bestGuess = (fa != fc) && (fb != fc) ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc)
-                                             : (fa != fb ? secantInterpolate(a, b, fa, fb) : bisect(a, b));
+        bestGuess = (fa != fc) && (fb != fc)
+                        ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc)
+                        : (fa != fb ? secantInterpolate(a, b, fa, fb) : bisect(a, b));
         bestGuess = std::min(std::max(a, bestGuess), b);
         maxIterations -= n;
 
@@ -590,7 +623,12 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template<typename F, typename EQUAL>
-    static bool bisection(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static bool bisection(double& a,
+                          double& b,
+                          const F& f,
+                          std::size_t& maxIterations,
+                          const EQUAL& equal,
+                          double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -631,8 +669,14 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template<typename F, typename EQUAL>
-    static bool
-    bisection(double& a, double& b, double fa, double fb, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static bool bisection(double& a,
+                          double& b,
+                          double fa,
+                          double fb,
+                          const F& f,
+                          std::size_t& maxIterations,
+                          const EQUAL& equal,
+                          double& bestGuess) {
         std::size_t n = maxIterations;
         if (fa == 0.0) {
             // Root at left bracket.
@@ -706,9 +750,17 @@ public:
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
     template<typename F>
-    static inline void
-    minimize(double a, double b, double fa, double fb, const F& f, double tolerance, std::size_t& maxIterations, double& x, double& fx) {
-        minimize(a, b, fa, fb, f, tolerance, maxIterations, -std::numeric_limits<double>::max(), x, fx);
+    static inline void minimize(double a,
+                                double b,
+                                double fa,
+                                double fb,
+                                const F& f,
+                                double tolerance,
+                                std::size_t& maxIterations,
+                                double& x,
+                                double& fx) {
+        minimize(a, b, fa, fb, f, tolerance, maxIterations,
+                 -std::numeric_limits<double>::max(), x, fx);
     }
 
     //! Maximize the function \p f on the interval [\p a, \p b]
@@ -737,8 +789,15 @@ public:
     //! \param[out] x Set to argmax of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
     template<typename F>
-    static inline void
-    maximize(double a, double b, double fa, double fb, const F& f, double tolerance, std::size_t& maxIterations, double& x, double& fx) {
+    static inline void maximize(double a,
+                                double b,
+                                double fa,
+                                double fb,
+                                const F& f,
+                                double tolerance,
+                                std::size_t& maxIterations,
+                                double& x,
+                                double& fx) {
         CCompositeFunctions::CMinus<F> f_(f);
         minimize(a, b, -fa, -fb, f_, tolerance, maxIterations, x, fx);
         fx = -fx;
@@ -763,7 +822,7 @@ public:
         std::size_t n = p.size();
 
         if (n == 0) {
-            LOG_ERROR("Must provide points at which to evaluate function");
+            LOG_ERROR(<< "Must provide points at which to evaluate function");
             return false;
         }
 
@@ -774,15 +833,16 @@ public:
             fp[i] = fi;
             min.add(TDoubleSizePr(fi, i));
         }
-        LOG_TRACE("p    = " << core::CContainerPrinter::print(p));
-        LOG_TRACE("f(p) = " << core::CContainerPrinter::print(fp));
+        LOG_TRACE(<< "p    = " << core::CContainerPrinter::print(p));
+        LOG_TRACE(<< "f(p) = " << core::CContainerPrinter::print(fp));
 
         std::size_t i = min[0].second;
         std::size_t maxIterations = 5;
         if (i == 0) {
             minimize(p[0], p[1], fp[0], fp[1], f, 0.0, maxIterations, x, fx);
         } else if (i == n - 1) {
-            minimize(p[n - 2], p[n - 1], fp[n - 2], fp[n - 1], f, 0.0, maxIterations, x, fx);
+            minimize(p[n - 2], p[n - 1], fp[n - 2], fp[n - 1], f, 0.0,
+                     maxIterations, x, fx);
         } else {
             std::size_t ai = i - 1;
             std::size_t bi = i + 1;
@@ -792,7 +852,7 @@ public:
                 fx = fp[i];
             }
         }
-        LOG_TRACE("x = " << x << " fx = " << fx);
+        LOG_TRACE(<< "x = " << x << " fx = " << fx);
         return true;
     }
 
@@ -846,8 +906,14 @@ public:
     //! false otherwise.
     //! \note This will evaluate \p f at most 3 * \p maxIterations.
     template<typename F>
-    static bool
-    sublevelSet(double a, double b, double fa, double fb, const F& f, const double fc, std::size_t maxIterations, TDoubleDoublePr& result) {
+    static bool sublevelSet(double a,
+                            double b,
+                            double fa,
+                            double fb,
+                            const F& f,
+                            const double fc,
+                            std::size_t maxIterations,
+                            TDoubleDoublePr& result) {
         if (a > b) {
             std::swap(a, b);
             std::swap(fa, fb);
@@ -868,28 +934,29 @@ public:
 
         CCompositeFunctions::CMinusConstant<F> f_(f, fc);
 
-        LOG_TRACE("a = " << a << ", x = " << x << ", b = " << b);
-        LOG_TRACE("f_(a) = " << fa - fc << ", f_(x) = " << fx - fc << ", f_(b) = " << fb - fc);
+        LOG_TRACE(<< "a = " << a << ", x = " << x << ", b = " << b);
+        LOG_TRACE(<< "f_(a) = " << fa - fc << ", f_(x) = " << fx - fc
+                  << ", f_(b) = " << fb - fc);
 
         const double eps = std::sqrt(std::numeric_limits<double>::epsilon()) * b;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
-        LOG_TRACE("eps = " << eps);
+        LOG_TRACE(<< "eps = " << eps);
 
         try {
             std::size_t n = maxIterations;
             solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
-            LOG_TRACE("iterations = " << n);
+            LOG_TRACE(<< "iterations = " << n);
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to find left end point: " << e.what());
+            LOG_ERROR(<< "Failed to find left end point: " << e.what());
             return false;
         }
 
         try {
             std::size_t n = maxIterations;
             solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
-            LOG_TRACE("iterations = " << n);
+            LOG_TRACE(<< "iterations = " << n);
         } catch (std::exception& e) {
-            LOG_ERROR("Failed to find right end point: " << e.what());
+            LOG_ERROR(<< "Failed to find right end point: " << e.what());
             return false;
         }
 

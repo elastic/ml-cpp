@@ -87,10 +87,11 @@ const std::string QUANTILES("quantiles");
 //! Assumes the document contains the field.
 //! The caller is responsible for ensuring this, and a
 //! program crash is likely if this requirement is not met.
-double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc, const std::string& field) {
+double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
+                          const std::string& field) {
     CJsonOutputWriter::TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return 0.0;
     }
     return (*docPtr)[field].GetDouble();
@@ -99,8 +100,10 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc, co
 //! Sort rapidjson documents by the probability lowest to highest
 class CProbabilityLess {
 public:
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs, const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
-        return doubleFromDocument(lhs.first, PROBABILITY) < doubleFromDocument(rhs.first, PROBABILITY);
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
+        return doubleFromDocument(lhs.first, PROBABILITY) <
+               doubleFromDocument(rhs.first, PROBABILITY);
     }
 };
 
@@ -109,9 +112,11 @@ const CProbabilityLess PROBABILITY_LESS = CProbabilityLess();
 //! Sort rapidjson documents by detector name first then probability lowest to highest
 class CDetectorThenProbabilityLess {
 public:
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs, const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
         if (lhs.second == rhs.second) {
-            return doubleFromDocument(lhs.first, PROBABILITY) < doubleFromDocument(rhs.first, PROBABILITY);
+            return doubleFromDocument(lhs.first, PROBABILITY) <
+                   doubleFromDocument(rhs.first, PROBABILITY);
         }
         return lhs.second < rhs.second;
     }
@@ -122,7 +127,8 @@ const CDetectorThenProbabilityLess DETECTOR_PROBABILITY_LESS = CDetectorThenProb
 //! Sort influences from highes to lowest
 class CInfluencesLess {
 public:
-    bool operator()(const std::pair<const char*, double>& lhs, const std::pair<const char*, double>& rhs) const {
+    bool operator()(const std::pair<const char*, double>& lhs,
+                    const std::pair<const char*, double>& rhs) const {
         return lhs.second > rhs.second;
     }
 };
@@ -134,7 +140,8 @@ class CInfluencerGreater {
 public:
     CInfluencerGreater(const std::string& field) : m_Field(field) {}
 
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtr& lhs, const CJsonOutputWriter::TDocumentWeakPtr& rhs) const {
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtr& rhs) const {
         return doubleFromDocument(lhs, m_Field) > doubleFromDocument(rhs, m_Field);
     }
 
@@ -146,8 +153,10 @@ const CInfluencerGreater INFLUENCER_GREATER = CInfluencerGreater(INITIAL_INFLUEN
 const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(INITIAL_SCORE);
 }
 
-CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut)
-    : m_JobId(jobId), m_Writer(strmOut), m_LastNonInterimBucketTime(0), m_Finalised(false), m_RecordOutputLimit(0) {
+CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId,
+                                     core::CJsonOutputStreamWrapper& strmOut)
+    : m_JobId(jobId), m_Writer(strmOut), m_LastNonInterimBucketTime(0),
+      m_Finalised(false), m_RecordOutputLimit(0) {
     // Don't write any output in the constructor because, the way things work at
     // the moment, the output stream might be redirected after construction
 }
@@ -172,7 +181,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
 
     if (results.s_ResultType == CHierarchicalResultsWriter::E_SimpleCountResult) {
         if (!results.s_CurrentRate) {
-            LOG_ERROR("Simple count detector has no current rate");
+            LOG_ERROR(<< "Simple count detector has no current rate");
             return false;
         }
 
@@ -223,7 +232,8 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
 
         newDoc = m_Writer.makeStorableDoc();
         // remove the highest prob doc and insert new one
-        std::pop_heap(detectorDocumentsToWrite.begin(), detectorDocumentsToWrite.end(), PROBABILITY_LESS);
+        std::pop_heap(detectorDocumentsToWrite.begin(),
+                      detectorDocumentsToWrite.end(), PROBABILITY_LESS);
         detectorDocumentsToWrite.pop_back();
 
         detectorDocumentsToWrite.push_back(TDocumentWeakPtrIntPr(newDoc, results.s_Identifier));
@@ -244,24 +254,32 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
     this->addInfluences(results.s_Influences, newDoc);
 
     if (makeHeap) {
-        std::make_heap(detectorDocumentsToWrite.begin(), detectorDocumentsToWrite.end(), PROBABILITY_LESS);
+        std::make_heap(detectorDocumentsToWrite.begin(),
+                       detectorDocumentsToWrite.end(), PROBABILITY_LESS);
 
-        bucketData.s_HighestProbability = doubleFromDocument(detectorDocumentsToWrite.front().first, PROBABILITY);
+        bucketData.s_HighestProbability =
+            doubleFromDocument(detectorDocumentsToWrite.front().first, PROBABILITY);
         makeHeap = false;
     }
 
     return true;
 }
 
-bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time, const model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
+bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
+                                         const model::CHierarchicalResults::TNode& node,
+                                         bool isBucketInfluencer) {
     TDocumentWeakPtr newDoc = m_Writer.makeStorableDoc();
     SBucketData& bucketData = m_BucketDataByTime[time];
-    TDocumentWeakPtrVec& documents = (isBucketInfluencer) ? bucketData.s_BucketInfluencerDocuments : bucketData.s_InfluencerDocuments;
+    TDocumentWeakPtrVec& documents = (isBucketInfluencer)
+                                         ? bucketData.s_BucketInfluencerDocuments
+                                         : bucketData.s_InfluencerDocuments;
 
     bool isLimitedWrite(m_RecordOutputLimit > 0);
 
     if (isLimitedWrite && documents.size() == m_RecordOutputLimit) {
-        double& lowestScore = (isBucketInfluencer) ? bucketData.s_LowestBucketInfluencerScore : bucketData.s_LowestInfluencerScore;
+        double& lowestScore = (isBucketInfluencer)
+                                  ? bucketData.s_LowestBucketInfluencerScore
+                                  : bucketData.s_LowestInfluencerScore;
 
         if (node.s_NormalizedAnomalyScore < lowestScore) {
             //  Don't write this influencer
@@ -278,18 +296,22 @@ bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time, const model::CHiera
     bool sortVectorAfterWritingDoc = isLimitedWrite && documents.size() >= m_RecordOutputLimit;
 
     if (sortVectorAfterWritingDoc) {
-        std::sort(documents.begin(), documents.end(), isBucketInfluencer ? BUCKET_INFLUENCER_GREATER : INFLUENCER_GREATER);
+        std::sort(documents.begin(), documents.end(),
+                  isBucketInfluencer ? BUCKET_INFLUENCER_GREATER : INFLUENCER_GREATER);
     }
 
     if (isBucketInfluencer) {
         bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore =
-            std::max(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, node.s_NormalizedAnomalyScore);
+            std::max(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore,
+                     node.s_NormalizedAnomalyScore);
 
         bucketData.s_LowestBucketInfluencerScore =
-            std::min(bucketData.s_LowestBucketInfluencerScore, doubleFromDocument(documents.back(), INITIAL_SCORE));
+            std::min(bucketData.s_LowestBucketInfluencerScore,
+                     doubleFromDocument(documents.back(), INITIAL_SCORE));
     } else {
         bucketData.s_LowestInfluencerScore =
-            std::min(bucketData.s_LowestInfluencerScore, doubleFromDocument(documents.back(), INITIAL_INFLUENCER_SCORE));
+            std::min(bucketData.s_LowestInfluencerScore,
+                     doubleFromDocument(documents.back(), INITIAL_INFLUENCER_SCORE));
     }
 
     return true;
@@ -307,7 +329,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     TDocumentWeakPtr doc = m_Writer.makeStorableDoc();
     TDocumentPtr newDoc = doc.lock();
     if (!newDoc) {
-        LOG_ERROR("Failed to create new JSON document");
+        LOG_ERROR(<< "Failed to create new JSON document");
         return;
     }
     m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_NAME, TIME_INFLUENCER, *newDoc);
@@ -316,13 +338,14 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     m_Writer.addDoubleFieldToObj(INITIAL_SCORE, normalizedAnomalyScore, *newDoc);
     m_Writer.addDoubleFieldToObj(ANOMALY_SCORE, normalizedAnomalyScore, *newDoc);
 
-    bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore =
-        std::max(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, normalizedAnomalyScore);
+    bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore = std::max(
+        bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, normalizedAnomalyScore);
     bucketData.s_BucketInfluencerDocuments.push_back(doc);
 }
 
 bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessingTime) {
-    for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin(); iter != m_BucketDataByTime.end(); ++iter) {
+    for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin();
+         iter != m_BucketDataByTime.end(); ++iter) {
         this->writeBucket(isInterim, iter->first, iter->second, bucketProcessingTime);
         if (!isInterim) {
             m_LastNonInterimBucketTime = iter->first;
@@ -337,7 +360,8 @@ bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessing
     return true;
 }
 
-bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
+bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
+                                   const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
@@ -345,8 +369,10 @@ const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames() const {
     return EMPTY_FIELD_NAMES;
 }
 
-bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
-    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
+bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                 const TStrStrUMap& overrideDataRowFields) {
+    using TScopedAllocator =
+        core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
     TScopedAllocator scopedAllocator("CJsonOutputWriter::writeRow", m_Writer);
 
@@ -354,7 +380,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStr
 
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
-    for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin(); fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
+    for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
+         fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
         const std::string& name = fieldValueIter->first;
         const std::string& value = fieldValueIter->second;
 
@@ -364,7 +391,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStr
         }
     }
 
-    for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin(); fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
+    for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin();
+         fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
         const std::string& name = fieldValueIter->first;
         const std::string& value = fieldValueIter->second;
 
@@ -376,27 +404,31 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStr
     return true;
 }
 
-void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SBucketData& bucketData, uint64_t bucketProcessingTime) {
+void CJsonOutputWriter::writeBucket(bool isInterim,
+                                    core_t::TTime bucketTime,
+                                    SBucketData& bucketData,
+                                    uint64_t bucketProcessingTime) {
     // Write records
     if (!bucketData.s_DocumentsToWrite.empty()) {
         // Sort the results so they are grouped by detector and
         // ordered by probability
-        std::sort(bucketData.s_DocumentsToWrite.begin(), bucketData.s_DocumentsToWrite.end(), DETECTOR_PROBABILITY_LESS);
+        std::sort(bucketData.s_DocumentsToWrite.begin(),
+                  bucketData.s_DocumentsToWrite.end(), DETECTOR_PROBABILITY_LESS);
 
         m_Writer.StartObject();
         m_Writer.String(RECORDS);
         m_Writer.StartArray();
 
         // Iterate over the different detectors that we have results for
-        for (TDocumentWeakPtrIntPrVecItr detectorIter = bucketData.s_DocumentsToWrite.begin();
-             detectorIter != bucketData.s_DocumentsToWrite.end();
-             ++detectorIter) {
+        for (TDocumentWeakPtrIntPrVecItr detectorIter =
+                 bucketData.s_DocumentsToWrite.begin();
+             detectorIter != bucketData.s_DocumentsToWrite.end(); ++detectorIter) {
             // Write the document, adding some extra fields as we go
             int detectorIndex = detectorIter->second;
             TDocumentWeakPtr weakDoc = detectorIter->first;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -419,13 +451,13 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
         m_Writer.StartObject();
         m_Writer.String(INFLUENCERS);
         m_Writer.StartArray();
-        for (TDocumentWeakPtrVecItr influencerIter = bucketData.s_InfluencerDocuments.begin();
-             influencerIter != bucketData.s_InfluencerDocuments.end();
-             ++influencerIter) {
+        for (TDocumentWeakPtrVecItr influencerIter =
+                 bucketData.s_InfluencerDocuments.begin();
+             influencerIter != bucketData.s_InfluencerDocuments.end(); ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -468,13 +500,14 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
         // Write the array of influencers
         m_Writer.String(BUCKET_INFLUENCERS);
         m_Writer.StartArray();
-        for (TDocumentWeakPtrVecItr influencerIter = bucketData.s_BucketInfluencerDocuments.begin();
+        for (TDocumentWeakPtrVecItr influencerIter =
+                 bucketData.s_BucketInfluencerDocuments.begin();
              influencerIter != bucketData.s_BucketInfluencerDocuments.end();
              ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -493,13 +526,14 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
         // Write the array of partition-anonaly score pairs
         m_Writer.String(PARTITION_SCORES);
         m_Writer.StartArray();
-        for (TDocumentWeakPtrVecItr partitionScoresIter = bucketData.s_PartitionScoreDocuments.begin();
+        for (TDocumentWeakPtrVecItr partitionScoresIter =
+                 bucketData.s_PartitionScoreDocuments.begin();
              partitionScoresIter != bucketData.s_PartitionScoreDocuments.end();
              ++partitionScoresIter) {
             TDocumentWeakPtr weakDoc = *partitionScoresIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -524,48 +558,57 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
     m_Writer.EndObject();
 }
 
-void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
+void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults& results,
+                                        TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
     // record_score, probability, fieldName, byFieldName, byFieldValue, partitionFieldName,
     // partitionFieldValue, function, typical, actual. influences?
-    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE,
+                                 results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, results.s_ByFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue,
+                                         *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue, *docPtr);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(
+            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
+    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION,
+                                     results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
 }
 
-void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
+void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
+                                            TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
     // record_score, probability, fieldName, byFieldName,
     // overFieldName, overFieldValue, partitionFieldName, partitionFieldValue,
     // function, causes, influences?
-    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE,
+                                 results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
@@ -575,15 +618,19 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
     if (!results.s_OverFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, results.s_OverFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, results.s_OverFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
+                                         results.s_OverFieldValue, *docPtr, true);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(
+            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
+    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION,
+                                     results.s_FunctionDescription, *docPtr);
 
     // Add nested causes
     if (m_NestedDocs.size() > 0) {
@@ -592,7 +639,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
             rapidjson::Value& docAsValue = *nDocPtr;
@@ -603,14 +650,15 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
 
         m_NestedDocs.clear();
     } else {
-        LOG_WARN("Expected some causes for a population anomaly but got none");
+        LOG_WARN(<< "Expected some causes for a population anomaly but got none");
     }
 }
 
-void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
+void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results,
+                                                 TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -622,22 +670,28 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     if (!results.s_ByFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, results.s_ByFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue,
+                                         *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue, *docPtr);
     }
     if (!results.s_OverFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, results.s_OverFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, results.s_OverFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
+                                         results.s_OverFieldValue, *docPtr, true);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(
+            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
+    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION,
+                                     results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_PopulationAverage, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
 }
@@ -650,7 +704,7 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -662,31 +716,37 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
     using TCharPtrDoublePrVec = std::vector<TCharPtrDoublePr>;
     using TCharPtrDoublePrVecIter = TCharPtrDoublePrVec::iterator;
     using TCharPtrCharPtrDoublePrVecPr = std::pair<const char*, TCharPtrDoublePrVec>;
-    using TStrCharPtrCharPtrDoublePrVecPrUMap = boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr>;
+    using TStrCharPtrCharPtrDoublePrVecPrUMap =
+        boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr>;
     using TStrCharPtrCharPtrDoublePrVecPrUMapIter = TStrCharPtrCharPtrDoublePrVecPrUMap::iterator;
 
     TStrCharPtrCharPtrDoublePrVecPrUMap influences;
 
     // group by influence field
     for (const auto& influenceResult : influenceResults) {
-        TCharPtrCharPtrDoublePrVecPr infResult(influenceResult.first.first->c_str(), TCharPtrDoublePrVec());
+        TCharPtrCharPtrDoublePrVecPr infResult(influenceResult.first.first->c_str(),
+                                               TCharPtrDoublePrVec());
         auto insertResult = influences.emplace(*influenceResult.first.first, infResult);
 
-        insertResult.first->second.second.emplace_back(influenceResult.first.second->c_str(), influenceResult.second);
+        insertResult.first->second.second.emplace_back(
+            influenceResult.first.second->c_str(), influenceResult.second);
     }
 
     // Order by influence
-    for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin(); iter != influences.end(); ++iter) {
+    for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin();
+         iter != influences.end(); ++iter) {
         std::sort(iter->second.second.begin(), iter->second.second.end(), INFLUENCE_LESS);
     }
 
     rapidjson::Value influencesDoc = m_Writer.makeArray(influences.size());
 
-    for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin(); iter != influences.end(); ++iter) {
+    for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin();
+         iter != influences.end(); ++iter) {
         rapidjson::Value influenceDoc(rapidjson::kObjectType);
 
         rapidjson::Value values = m_Writer.makeArray(influences.size());
-        for (TCharPtrDoublePrVecIter arrayIter = iter->second.second.begin(); arrayIter != iter->second.second.end(); ++arrayIter) {
+        for (TCharPtrDoublePrVecIter arrayIter = iter->second.second.begin();
+             arrayIter != iter->second.second.end(); ++arrayIter) {
             m_Writer.pushBack(arrayIter->first, values);
         }
 
@@ -699,34 +759,41 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
     m_Writer.addMember(INFLUENCERS, influencesDoc, *docPtr);
 }
 
-void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
+void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TResults& results,
+                                           TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
     // record_score, probability, fieldName, byFieldName, byFieldValue, partitionFieldName,
     // partitionFieldValue, functionName, typical, actual, influences?
 
-    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE,
+                                 results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, results.s_ByFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue,
+                                         *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue, *docPtr);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName, *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(
+            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
+    m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION,
+                                     results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
 }
@@ -736,13 +803,15 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
                                             TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
     m_Writer.addDoubleFieldToObj(PROBABILITY, node.probability(), *docPtr);
-    m_Writer.addDoubleFieldToObj(isBucketInfluencer ? INITIAL_SCORE : INITIAL_INFLUENCER_SCORE, node.s_NormalizedAnomalyScore, *docPtr);
-    m_Writer.addDoubleFieldToObj(isBucketInfluencer ? ANOMALY_SCORE : INFLUENCER_SCORE, node.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addDoubleFieldToObj(isBucketInfluencer ? INITIAL_SCORE : INITIAL_INFLUENCER_SCORE,
+                                 node.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addDoubleFieldToObj(isBucketInfluencer ? ANOMALY_SCORE : INFLUENCER_SCORE,
+                                 node.s_NormalizedAnomalyScore, *docPtr);
     const std::string& personFieldName = *node.s_Spec.s_PersonFieldName;
     m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_NAME, personFieldName, *docPtr);
     if (isBucketInfluencer) {
@@ -750,22 +819,27 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
     } else {
         if (!personFieldName.empty()) {
             // If name is present then force output of value too, even when empty
-            m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_VALUE, *node.s_Spec.s_PersonFieldValue, *docPtr, true);
+            m_Writer.addStringFieldCopyToObj(
+                INFLUENCER_FIELD_VALUE, *node.s_Spec.s_PersonFieldValue, *docPtr, true);
         }
     }
 }
 
-void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
+void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
+                                           TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
-    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
-    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
+    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                     results.s_PartitionFieldName, *docPtr);
+    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                     results.s_PartitionFieldValue, *docPtr, true);
+    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE,
+                                 results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
 }
 
@@ -777,18 +851,20 @@ size_t CJsonOutputWriter::limitNumberRecords() const {
     return m_RecordOutputLimit;
 }
 
-void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer, core_t::TTime& persistTime) {
+void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
+                                          core_t::TTime& persistTime) {
     std::string quantilesState;
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
     m_Writer.StartObject();
     m_Writer.String(QUANTILES);
     // No need to copy the strings as the doc is written straight away
-    CModelSnapshotJsonWriter::writeQuantileState(m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
+    CModelSnapshotJsonWriter::writeQuantileState(
+        m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
     m_Writer.EndObject();
 
     persistTime = core::CTimeUtils::now();
-    LOG_DEBUG("Wrote quantiles state at " << persistTime);
+    LOG_DEBUG(<< "Wrote quantiles state at " << persistTime);
 }
 
 void CJsonOutputWriter::pushAllocator(const std::string& allocatorName) {
@@ -804,10 +880,11 @@ void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResult
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();
 
-    LOG_TRACE("Wrote memory usage results");
+    LOG_TRACE(<< "Wrote memory usage results");
 }
 
-void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd) {
+void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
+                                         core_t::TTime lastFinalizedBucketEnd) {
     m_Writer.StartObject();
     m_Writer.String(FLUSH);
     m_Writer.StartObject();
@@ -822,7 +899,7 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTi
 
     // this shouldn't hang in buffers, so flush
     m_Writer.flush();
-    LOG_TRACE("Wrote flush with ID " << flushId);
+    LOG_TRACE(<< "Wrote flush with ID " << flushId);
 }
 
 void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
@@ -855,13 +932,9 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
 }
 
 CJsonOutputWriter::SBucketData::SBucketData()
-    : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0),
-      s_InputEventCount(0),
-      s_RecordCount(0),
-      s_BucketSpan(0),
-      s_HighestProbability(-1),
-      s_LowestInfluencerScore(101.0),
-      s_LowestBucketInfluencerScore(101.0) {
+    : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0), s_InputEventCount(0),
+      s_RecordCount(0), s_BucketSpan(0), s_HighestProbability(-1),
+      s_LowestInfluencerScore(101.0), s_LowestBucketInfluencerScore(101.0) {
 }
 }
 }

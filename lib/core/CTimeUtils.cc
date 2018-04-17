@@ -31,7 +31,7 @@ namespace core {
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
-    return ::time(0);
+    return ::time(nullptr);
 }
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {
@@ -56,21 +56,25 @@ int64_t CTimeUtils::toEpochMs(core_t::TTime t) {
     return static_cast<int64_t>(t) * 1000;
 }
 
-bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
+bool CTimeUtils::strptime(const std::string& format,
+                          const std::string& dateTime,
+                          core_t::TTime& preTime) {
     if (CTimeUtils::strptimeSilent(format, dateTime, preTime) == false) {
-        LOG_ERROR("Unable to convert " << dateTime << " to " << format);
+        LOG_ERROR(<< "Unable to convert " << dateTime << " to " << format);
         return false;
     }
 
     return true;
 }
 
-bool CTimeUtils::strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
+bool CTimeUtils::strptimeSilent(const std::string& format,
+                                const std::string& dateTime,
+                                core_t::TTime& preTime) {
     struct tm t;
     ::memset(&t, 0, sizeof(struct tm));
 
     const char* ret(CStrPTime::strPTime(dateTime.c_str(), format.c_str(), &t));
-    if (ret == 0) {
+    if (ret == nullptr) {
         return false;
     }
 
@@ -123,7 +127,7 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std:
 
     CTimezone& tz = CTimezone::instance();
     if (tz.utcToLocal(t, out) == false) {
-        LOG_ERROR("Cannot convert time " << t << " : " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot convert time " << t << " : " << ::strerror(errno));
         result.clear();
         return;
     }
@@ -133,7 +137,7 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std:
 
     size_t ret(CStrFTime::strFTime(buf, SIZE, format.c_str(), &out));
     if (ret == 0) {
-        LOG_ERROR("Cannot convert time " << t << " : " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot convert time " << t << " : " << ::strerror(errno));
         result.clear();
         return;
     }
@@ -147,10 +151,10 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 
 // Initialise statics for the inner class CDateWordCache
 CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(0);
+volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
-    if (ms_Instance == 0) {
+    if (ms_Instance == nullptr) {
         CScopedFastLock lock(ms_InitMutex);
 
         // Even if we get into this code block in more than one thread, whatever
@@ -210,7 +214,8 @@ CTimeUtils::CDateWordCache::CDateWordCache() {
         m_DateWords.insert(buf);
     }
 
-    static const int DAYS_PER_MONTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    static const int DAYS_PER_MONTH[] = {31, 28, 31, 30, 31, 30,
+                                         31, 31, 30, 31, 30, 31};
 
     // Populate other month names and abbreviations
     for (int month = 1; month < 12; ++month) {
@@ -246,7 +251,7 @@ CTimeUtils::CDateWordCache::CDateWordCache() {
 }
 
 CTimeUtils::CDateWordCache::~CDateWordCache() {
-    ms_Instance = 0;
+    ms_Instance = nullptr;
 }
 }
 }

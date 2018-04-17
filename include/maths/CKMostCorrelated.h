@@ -73,7 +73,8 @@ public:
     using TVectorVec = std::vector<TVector>;
     using TSizeVectorUMap = boost::unordered_map<std::size_t, TVector>;
     using TVectorPackedBitVectorPr = std::pair<TVector, CPackedBitVector>;
-    using TSizeVectorPackedBitVectorPrUMap = boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>;
+    using TSizeVectorPackedBitVectorPrUMap =
+        boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>;
 
 public:
     CKMostCorrelated(std::size_t k, double decayRate, bool initialize = true);
@@ -88,7 +89,7 @@ public:
     void mostCorrelated(TSizeSizePrVec& result) const;
 
     //! Get the \p n most correlated variables.
-    void mostCorrelated(std::size_t n, TSizeSizePrVec& correlates, TDoubleVec* pearson = 0) const;
+    void mostCorrelated(std::size_t n, TSizeSizePrVec& correlates, TDoubleVec* pearson = nullptr) const;
 
     //! Get the most correlated variables correlations.
     void correlations(TDoubleVec& result) const;
@@ -176,7 +177,10 @@ protected:
 
         //! Estimate the correlation based on the projections
         //! \p px and \p py.
-        static double correlation(const TVector& px, const CPackedBitVector& ix, const TVector& py, const CPackedBitVector& iy);
+        static double correlation(const TVector& px,
+                                  const CPackedBitVector& ix,
+                                  const TVector& py,
+                                  const CPackedBitVector& iy);
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed) const;

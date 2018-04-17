@@ -179,7 +179,9 @@ size_t CStringUtils::replace(const std::string& from, const std::string& to, std
     return count;
 }
 
-size_t CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
+size_t CStringUtils::replaceFirst(const std::string& from,
+                                  const std::string& to,
+                                  std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -225,7 +227,7 @@ void CStringUtils::unEscape(char escape, std::string& str) {
         if (pos == std::string::npos) {
             break;
         } else if (pos + 1 == str.length()) {
-            LOG_WARN("String to be unescaped ends with escape character: " << str);
+            LOG_WARN(<< "String to be unescaped ends with escape character: " << str);
         }
 
         str.erase(pos, 1);
@@ -369,17 +371,25 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                                             : ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.2e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
+                  : ::sprintf(buf, "%.3g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
 
     case CIEEE754::E_SinglePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                                             : ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.6e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
+                  : ::sprintf(buf, "%.7g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
 
     case CIEEE754::E_DoublePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d)) : ::sprintf(buf, "%.15g", clampToReadable(d));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.14e", clampToReadable(d))
+                  : ::sprintf(buf, "%.15g", clampToReadable(d));
         break;
     }
 
@@ -390,7 +400,7 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     if (ret > 2) {
         // Look for an 'e'
         char* ptr(static_cast<char*>(::memchr(buf, 'e', ret - 1)));
-        if (ptr != 0) {
+        if (ptr != nullptr) {
             bool edit = false;
             bool minus = false;
 
@@ -439,21 +449,21 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert empty string to unsigned long long");
+            LOG_ERROR(<< "Unable to convert empty string to unsigned long long");
         }
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     unsigned long long ret(::strtoull(str.c_str(), &endPtr, 0));
 
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long long: "
+                      << ::strerror(errno));
         }
         return false;
     }
@@ -461,20 +471,20 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (ret == ULLONG_MAX && errno == ERANGE) // note ULLONG_MAX used for compatability with strtoull
     {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long long: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long long: first invalid character "
-                                                   << endPtr);
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long long: first invalid character "
+                      << endPtr);
         }
         return false;
     }
@@ -487,21 +497,21 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long& i) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert empty string to unsigned long");
+            LOG_ERROR(<< "Unable to convert empty string to unsigned long");
         }
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     unsigned long ret(::strtoul(str.c_str(), &endPtr, 0));
 
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long: "
+                      << ::strerror(errno));
         }
         return false;
     }
@@ -509,20 +519,20 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (ret == ULONG_MAX && errno == ERANGE) // note ULONG_MAX used for compatability with strtoul
     {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned long: first invalid character "
-                                                   << endPtr);
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned long: first invalid character "
+                      << endPtr);
         }
         return false;
     }
@@ -543,9 +553,9 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned i
     // Now check if the result is in range for unsigned int
     if (ret > std::numeric_limits<unsigned int>::max()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned int - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned int - out of range");
         }
         return false;
     }
@@ -566,9 +576,9 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned s
     // Now check if the result is in range for unsigned short
     if (ret > std::numeric_limits<unsigned short>::max()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to unsigned short - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to unsigned short - out of range");
         }
         return false;
     }
@@ -581,21 +591,21 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned s
 bool CStringUtils::_stringToType(bool silent, const std::string& str, long long& i) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert empty string to long long");
+            LOG_ERROR(<< "Unable to convert empty string to long long");
         }
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     long long ret(::strtoll(str.c_str(), &endPtr, 0));
 
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long long: "
+                      << ::strerror(errno));
         }
         return false;
     }
@@ -603,20 +613,20 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
     if ((ret == LLONG_MIN || ret == LLONG_MAX) && errno == ERANGE) // note LLONG_MAX used for compatability with strtoll
     {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long long: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long long: first invalid character "
-                                                   << endPtr);
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long long: first invalid character "
+                      << endPtr);
         }
         return false;
     }
@@ -629,21 +639,21 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
 bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert empty string to long");
+            LOG_ERROR(<< "Unable to convert empty string to long");
         }
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     long ret(::strtol(str.c_str(), &endPtr, 0));
 
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long: "
+                      << ::strerror(errno));
         }
         return false;
     }
@@ -651,20 +661,20 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     if ((ret == LONG_MIN || ret == LONG_MAX) && errno == ERANGE) // note LONG_MAX used for compatability with strtol
     {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to long: first invalid character "
-                                                   << endPtr);
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to long: first invalid character "
+                      << endPtr);
         }
         return false;
     }
@@ -684,9 +694,9 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, int& i) {
     // Now check if the result is in range for int
     if (ret < std::numeric_limits<int>::min() || ret > std::numeric_limits<int>::max()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to int - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to int - out of range");
         }
         return false;
     }
@@ -704,11 +714,12 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, short& i) 
     }
 
     // Now check if the result is in range for short
-    if (ret < std::numeric_limits<short>::min() || ret > std::numeric_limits<short>::max()) {
+    if (ret < std::numeric_limits<short>::min() ||
+        ret > std::numeric_limits<short>::max()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to short - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to short - out of range");
         }
         return false;
     }
@@ -722,7 +733,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, bool& ret)
     switch (str.length()) {
     case 0:
         if (!silent) {
-            LOG_ERROR("Cannot convert empty string to bool");
+            LOG_ERROR(<< "Cannot convert empty string to bool");
         }
         return false;
     case 1:
@@ -778,7 +789,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, bool& ret)
     long l(0);
     if (CStringUtils::_stringToType(silent, str, l) == false) {
         if (!silent) {
-            LOG_ERROR("Cannot convert " << str << " to bool");
+            LOG_ERROR(<< "Cannot convert " << str << " to bool");
         }
         return false;
     }
@@ -791,41 +802,41 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, bool& ret)
 bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR("Unable to convert empty string to double");
+            LOG_ERROR(<< "Unable to convert empty string to double");
         }
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     double ret(::strtod(str.c_str(), &endPtr));
 
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to double: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to double: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
     if ((ret == HUGE_VAL || ret == -HUGE_VAL) && errno == ERANGE) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to double: "
-                                                   << ::strerror(errno));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to double: "
+                      << ::strerror(errno));
         }
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str
-                                                   << "'"
-                                                      " to double: first invalid character "
-                                                   << endPtr);
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "'"
+                         " to double: first invalid character "
+                      << endPtr);
         }
         return false;
     }
@@ -838,7 +849,8 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
 bool CStringUtils::_stringToType(bool silent, const std::string& str, char& c) {
     if (str.length() != 1) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '" << str << "' to char: " << (str.empty() ? "too short" : "too long"));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "' to char: " << (str.empty() ? "too short" : "too long"));
         }
         return false;
     }
@@ -855,7 +867,10 @@ bool CStringUtils::_stringToType(bool /* silent */, const std::string& str, std:
     return true;
 }
 
-void CStringUtils::tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder) {
+void CStringUtils::tokenise(const std::string& delim,
+                            const std::string& str,
+                            TStrVec& tokens,
+                            std::string& remainder) {
     std::string::size_type pos(0);
 
     for (;;) {
@@ -870,7 +885,8 @@ void CStringUtils::tokenise(const std::string& delim, const std::string& str, TS
     }
 }
 
-std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std::string& str2) {
+std::string CStringUtils::longestCommonSubstr(const std::string& str1,
+                                              const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -917,7 +933,8 @@ std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std
     return common;
 }
 
-std::string CStringUtils::longestCommonSubsequence(const std::string& str1, const std::string& str2) {
+std::string CStringUtils::longestCommonSubsequence(const std::string& str1,
+                                                   const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -997,7 +1014,8 @@ std::string CStringUtils::wideToNarrow(const std::wstring& wideStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale()).narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale())
+        .narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
     return narrowStr;
 }
 
@@ -1010,7 +1028,8 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale()).widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale())
+        .widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
     return wideStr;
 }
 

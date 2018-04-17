@@ -18,7 +18,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -43,12 +43,14 @@ struct SModelRestoreParams;
 //! compatibility in the future as the classes evolve.
 class MATHS_EXPORT CModelStateSerialiser {
 public:
-    using TModelPtr = boost::shared_ptr<CModel>;
+    using TModelPtr = std::shared_ptr<CModel>;
 
 public:
     //! Construct the appropriate CPrior sub-class from its state
     //! document representation. Sets \p result to NULL on failure.
-    bool operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRestoreTraverser& traverser) const;
+    bool operator()(const SModelRestoreParams& params,
+                    TModelPtr& result,
+                    core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter
     void operator()(const CModel& model, core::CStatePersistInserter& inserter) const;

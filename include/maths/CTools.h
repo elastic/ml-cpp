@@ -128,7 +128,9 @@ public:
         double operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const;
         double operator()(const normal& normal_, double x, maths_t::ETail& tail) const;
         double operator()(const students_t& students, double x, maths_t::ETail& tail) const;
-        double operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const;
+        double operator()(const negative_binomial& negativeBinomial,
+                          double x,
+                          maths_t::ETail& tail) const;
         double operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const;
         double operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const;
         double operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const;
@@ -391,7 +393,8 @@ public:
     template<typename T>
     class CDifferentialEntropyKernel {
     public:
-        CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture) : m_Mixture(&mixture) {}
+        CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
+            : m_Mixture(&mixture) {}
 
         inline bool operator()(double x, double& result) const {
             double fx = pdf(*m_Mixture, x);
@@ -463,7 +466,8 @@ private:
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
             x.s_Exponent = 1022;
-            for (std::size_t i = 0u; i < BINS; ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
+            for (std::size_t i = 0u; i < BINS;
+                 ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                 double value;
                 static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
                               "SDoubleRep definition unsuitable for memcpy to double");
@@ -475,7 +479,9 @@ private:
         }
 
         //! Lookup log2 for a given mantissa.
-        const double& operator[](uint64_t mantissa) const { return m_Table[mantissa >> FAST_LOG_SHIFT]; }
+        const double& operator[](uint64_t mantissa) const {
+            return m_Table[mantissa >> FAST_LOG_SHIFT];
+        }
 
     private:
         //! The quantized log base 2 for the mantissa range.
@@ -513,12 +519,14 @@ private:
     }
     //! Get a writable location of the point \p x.
     template<typename T>
-    static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator& x) {
+    static double
+    location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator& x) {
         return CBasicStatistics::mean(x);
     }
     //! Set the mean of \p x to \p y.
     template<typename T>
-    static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator& x, double y) {
+    static void
+    setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator& x, double y) {
         x.s_Moments[0] = static_cast<T>(y);
     }
 
@@ -531,7 +539,8 @@ private:
     public:
         //! Create a new points group.
         template<typename T>
-        CGroup(std::size_t index, const T& points) : m_A(index), m_B(index), m_Centre() {
+        CGroup(std::size_t index, const T& points)
+            : m_A(index), m_B(index), m_Centre() {
             m_Centre.add(location(points[index]));
         }
 
@@ -623,7 +632,9 @@ public:
 
     //! Component-wise truncation of stack vectors.
     template<typename T, std::size_t N>
-    static CVectorNx1<T, N> truncate(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& a, const CVectorNx1<T, N>& b) {
+    static CVectorNx1<T, N> truncate(const CVectorNx1<T, N>& x,
+                                     const CVectorNx1<T, N>& a,
+                                     const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
         for (std::size_t i = 0u; i < N; ++i) {
             result(i) = truncate(result(i), a(i), b(i));
@@ -633,7 +644,8 @@ public:
 
     //! Component-wise truncation of heap vectors.
     template<typename T>
-    static CVector<T> truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
+    static CVector<T>
+    truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
         CVector<T> result(x);
         for (std::size_t i = 0u; i < result.dimension(); ++i) {
             result(i) = truncate(result(i), a(i), b(i));
@@ -643,8 +655,9 @@ public:
 
     //! Component-wise truncation of small vector.
     template<typename T, std::size_t N>
-    static core::CSmallVector<T, N>
-    truncate(const core::CSmallVector<T, N>& x, const core::CSmallVector<T, N>& a, const core::CSmallVector<T, N>& b) {
+    static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N>& x,
+                                             const core::CSmallVector<T, N>& a,
+                                             const core::CSmallVector<T, N>& b) {
         core::CSmallVector<T, N> result(x);
         for (std::size_t i = 0u; i < result.size(); ++i) {
             result[i] = truncate(result[i], a[i], b[i]);

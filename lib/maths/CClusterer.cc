@@ -21,7 +21,8 @@ namespace {
 const std::string INDEX_TAG("a");
 }
 
-CClustererTypes::CIndexGenerator::CIndexGenerator() : m_IndexHeap(new TSizeVec(1u, 0u)) {
+CClustererTypes::CIndexGenerator::CIndexGenerator()
+    : m_IndexHeap(new TSizeVec(1u, 0u)) {
 }
 
 bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -29,7 +30,7 @@ bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestor
 
     do {
         if (core::CPersistUtils::restore(INDEX_TAG, *m_IndexHeap, traverser) == false) {
-            LOG_ERROR("Invalid indices in " << traverser.value());
+            LOG_ERROR(<< "Invalid indices in " << traverser.value());
             return false;
         }
     } while (traverser.next());

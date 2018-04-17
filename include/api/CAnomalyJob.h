@@ -35,11 +35,11 @@
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -114,7 +114,8 @@ public:
     };
 
 public:
-    using TPersistCompleteFunc = std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport&)>;
+    using TPersistCompleteFunc =
+        std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport&)>;
     using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
     using TAnomalyDetectorPtrVecItr = std::vector<TAnomalyDetectorPtr>::iterator;
@@ -122,7 +123,8 @@ public:
     using TKeyVec = std::vector<model::CSearchKey>;
     using TKeyAnomalyDetectorPtrUMap =
         boost::unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>;
-    using TKeyCRefAnomalyDetectorPtrPr = std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
+    using TKeyCRefAnomalyDetectorPtrPr =
+        std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
     using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
     using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
     using TModelPlotDataVecCItr = TModelPlotDataVec::const_iterator;
@@ -153,7 +155,7 @@ public:
         TKeyCRefAnomalyDetectorPtrPrVec s_Detectors;
     };
 
-    using TBackgroundPersistArgsPtr = boost::shared_ptr<SBackgroundPersistArgs>;
+    using TBackgroundPersistArgsPtr = std::shared_ptr<SBackgroundPersistArgs>;
 
 public:
     CAnomalyJob(const std::string& jobId,
@@ -184,7 +186,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);
@@ -242,15 +245,18 @@ private:
     void resetBuckets(const std::string& controlMessage);
 
     //! Attempt to restore the detectors
-    bool restoreState(core::CStateRestoreTraverser& traverser, core_t::TTime& completeToTime, std::size_t& numDetectors);
+    bool restoreState(core::CStateRestoreTraverser& traverser,
+                      core_t::TTime& completeToTime,
+                      std::size_t& numDetectors);
 
     //! Attempt to restore one detector from an already-created traverser.
     bool restoreSingleDetector(core::CStateRestoreTraverser& traverser);
 
     //! Restore the detector identified by \p key and \p partitionFieldValue
     //! from \p traverser.
-    bool
-    restoreDetectorState(const model::CSearchKey& key, const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
+    bool restoreDetectorState(const model::CSearchKey& key,
+                              const std::string& partitionFieldValue,
+                              core::CStateRestoreTraverser& traverser);
 
     //! Persist current state in the background
     bool backgroundPersistState(CBackgroundPersister& backgroundPersister);
@@ -315,7 +321,9 @@ private:
 
     //! Parses the time range in a control message assuming the time range follows after a
     //! single character code (e.g. starts with 'i10 20').
-    bool parseTimeRangeInControlMessage(const std::string& controlMessage, core_t::TTime& start, core_t::TTime& end);
+    bool parseTimeRangeInControlMessage(const std::string& controlMessage,
+                                        core_t::TTime& start,
+                                        core_t::TTime& end);
 
     //! Update equalizers if not interim and aggregate.
     void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results);
@@ -329,7 +337,9 @@ private:
 
     //! Generate the model plot for the models of the specified detector in the
     //! specified time range.
-    void generateModelPlot(core_t::TTime startTime, core_t::TTime endTime, const model::CAnomalyDetector& detector);
+    void generateModelPlot(core_t::TTime startTime,
+                           core_t::TTime endTime,
+                           const model::CAnomalyDetector& detector);
 
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
@@ -344,7 +354,8 @@ private:
     //! the member variables of an object.  This makes it safer to call
     //! from within a persistence thread that's working off a cloned
     //! anomaly detector.
-    static void persistIndividualDetector(const model::CAnomalyDetector& detector, core::CStatePersistInserter& inserter);
+    static void persistIndividualDetector(const model::CAnomalyDetector& detector,
+                                          core::CStatePersistInserter& inserter);
 
     //! Iterate over the models, refresh their memory status, and send a report
     //! to the API
@@ -353,12 +364,13 @@ private:
     //! Update configuration
     void doForecast(const std::string& controlMessage);
 
-    model::CAnomalyDetector::TAnomalyDetectorPtr makeDetector(int identifier,
-                                                              const model::CAnomalyDetectorModelConfig& modelConfig,
-                                                              model::CLimits& limits,
-                                                              const std::string& partitionFieldValue,
-                                                              core_t::TTime firstTime,
-                                                              const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
+    model::CAnomalyDetector::TAnomalyDetectorPtr
+    makeDetector(int identifier,
+                 const model::CAnomalyDetectorModelConfig& modelConfig,
+                 model::CLimits& limits,
+                 const std::string& partitionFieldValue,
+                 core_t::TTime firstTime,
+                 const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
     //! Populate detector keys from the field config.
     void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
@@ -368,7 +380,9 @@ private:
 
     //! Extract the required fields from \p dataRowFields
     //! and add the new record to \p detector
-    void addRecord(const TAnomalyDetectorPtr detector, core_t::TTime time, const TStrStrUMap& dataRowFields);
+    void addRecord(const TAnomalyDetectorPtr detector,
+                   core_t::TTime time,
+                   const TStrStrUMap& dataRowFields);
 
 protected:
     //! Get all the detectors.

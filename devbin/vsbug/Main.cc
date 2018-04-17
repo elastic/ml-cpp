@@ -27,12 +27,14 @@ int main(int, char**) {
     eventTimes.push_back(1347019162);
 
     std::time_t endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    std::cout << "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size() << std::endl;
+    std::cout << "startTime = " << startTime << ", endTime = " << endTime
+              << ", # events = " << eventTimes.size() << std::endl;
 
     {
         std::time_t offset = endTime - startTime;
         unsigned long i = 0;
-        for (std::time_t bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength) {
+        for (std::time_t bucketStartTime = startTime; bucketStartTime < endTime;
+             bucketStartTime += bucketLength) {
             std::time_t bucketEndTime = bucketStartTime + bucketLength;
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::vector<std::time_t> temp;

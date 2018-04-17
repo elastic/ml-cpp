@@ -40,8 +40,8 @@
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
@@ -61,52 +61,42 @@ int main(int argc, char** argv) {
     bool isOutputFileNamedPipe(false);
     bool verbose(false);
     bool writeDetectorConfigs(false);
-    if (ml::autoconfig::CCmdLineParser::parse(argc,
-                                              argv,
-                                              logProperties,
-                                              logPipe,
-                                              delimiter,
-                                              lengthEncodedInput,
-                                              timeField,
-                                              timeFormat,
-                                              configFile,
-                                              inputFileName,
-                                              isInputFileNamedPipe,
-                                              outputFileName,
-                                              isOutputFileNamedPipe,
-                                              verbose,
-                                              writeDetectorConfigs) == false) {
+    if (ml::autoconfig::CCmdLineParser::parse(
+            argc, argv, logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            timeFormat, configFile, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, verbose, writeDetectorConfigs) == false) {
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
     if (ioMgr.initIo() == false) {
-        LOG_FATAL("Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
-    TScopedInputParserP inputParser;
-    if (lengthEncodedInput) {
-        inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
-    }
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    const TInputParserUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> TInputParserUPtr {
+        if (lengthEncodedInput) {
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        }
+        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
+    }()};
 
     // This manages the full parameterization of the autoconfigurer.
     ml::config::CAutoconfigurerParams params(timeField, timeFormat, verbose, writeDetectorConfigs);
@@ -119,19 +109,18 @@ int main(int argc, char** argv) {
     ml::config::CAutoconfigurer configurer(params, writer);
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(0, // no restoration at present
-                                   0, // no persistence at present
-                                   *inputParser,
-                                   configurer);
+    ml::api::CCmdSkeleton skeleton(nullptr, // no restoration at present
+                                   nullptr, // no persistence at present
+                                   *inputParser, configurer);
     if (skeleton.ioLoop() == false) {
-        LOG_FATAL("Ml autoconfig failed");
+        LOG_FATAL(<< "Ml autoconfig failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("Ml autoconfig exiting");
+    LOG_DEBUG(<< "Ml autoconfig exiting");
 
     return EXIT_SUCCESS;
 }

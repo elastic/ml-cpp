@@ -32,7 +32,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <atomic>
 #include <cstddef>
@@ -139,7 +138,8 @@ private:
 
 private:
     //! Refresh \p projections and update \p statistics.
-    static void updateStatistics(TVector2NMeanAccumulator& projections, TVector2MeanAccumulator& statistics);
+    static void updateStatistics(TVector2NMeanAccumulator& projections,
+                                 TVector2MeanAccumulator& statistics);
 
     //! Re-sample the projections.
     static void resample(core_t::TTime time);

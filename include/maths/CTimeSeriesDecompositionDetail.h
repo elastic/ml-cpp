@@ -29,10 +29,10 @@
 #include <maths/ImportExport.h>
 
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -118,7 +118,11 @@ public:
     //! \brief The message passed to indicate new components are being
     //! modeled.
     struct MATHS_EXPORT SNewComponents : public SMessage {
-        enum EComponent { E_DiurnalSeasonal, E_GeneralSeasonal, E_CalendarCyclic };
+        enum EComponent {
+            E_DiurnalSeasonal,
+            E_GeneralSeasonal,
+            E_CalendarCyclic
+        };
 
         SNewComponents(core_t::TTime time, core_t::TTime lastTime, EComponent component);
 
@@ -221,7 +225,7 @@ public:
 
     private:
         using TTimeAry = boost::array<core_t::TTime, 2>;
-        using TExpandingWindowPtr = boost::shared_ptr<CExpandingWindow>;
+        using TExpandingWindowPtr = std::shared_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
         //! Test types (categorised as short and long period tests).
@@ -301,7 +305,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TCalendarCyclicTestPtr = boost::shared_ptr<CCalendarCyclicTest>;
+        using TCalendarCyclicTestPtr = std::shared_ptr<CCalendarCyclicTest>;
 
     private:
         //! Handle \p symbol.
@@ -482,7 +486,9 @@ public:
         //! \brief The seasonal components of the decomposition.
         struct MATHS_EXPORT SSeasonal {
             //! Initialize by reading state from \p traverser.
-            bool acceptRestoreTraverser(double decayRate, core_t::TTime bucketLength, core::CStateRestoreTraverser& traverser);
+            bool acceptRestoreTraverser(double decayRate,
+                                        core_t::TTime bucketLength,
+                                        core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
             void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -534,12 +540,14 @@ public:
             TComponentErrorsVec s_PredictionErrors;
         };
 
-        using TSeasonalPtr = boost::shared_ptr<SSeasonal>;
+        using TSeasonalPtr = std::shared_ptr<SSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
         struct MATHS_EXPORT SCalendar {
             //! Initialize by reading state from \p traverser.
-            bool acceptRestoreTraverser(double decayRate, core_t::TTime bucketLength, core::CStateRestoreTraverser& traverser);
+            bool acceptRestoreTraverser(double decayRate,
+                                        core_t::TTime bucketLength,
+                                        core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
             void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -558,7 +566,9 @@ public:
             bool haveComponent(CCalendarFeature feature) const;
 
             //! Get the state to update.
-            void componentsAndErrors(core_t::TTime time, TCalendarComponentPtrVec& components, TComponentErrorsPtrVec& errors);
+            void componentsAndErrors(core_t::TTime time,
+                                     TCalendarComponentPtrVec& components,
+                                     TComponentErrorsPtrVec& errors);
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -588,7 +598,7 @@ public:
             TComponentErrorsVec s_PredictionErrors;
         };
 
-        using TCalendarPtr = boost::shared_ptr<SCalendar>;
+        using TCalendarPtr = std::shared_ptr<SCalendar>;
 
     private:
         //! Get the total size of the components.
@@ -677,17 +687,20 @@ public:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs, CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs,
+                 CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs, CTimeSeriesDecompositionDetail::CCalendarTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs,
+                 CTimeSeriesDecompositionDetail::CCalendarTest& rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CComponents& lhs, CTimeSeriesDecompositionDetail::CComponents& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CComponents& lhs,
+                 CTimeSeriesDecompositionDetail::CComponents& rhs) {
     lhs.swap(rhs);
 }
 }

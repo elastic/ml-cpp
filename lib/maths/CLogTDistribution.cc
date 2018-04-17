@@ -91,7 +91,8 @@ double mode(const CLogTDistribution& distribution) {
 
     double location = distribution.location();
 
-    return std::exp(location - (degreesFreedom + 1.0) / 2.0 + std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0 +
+                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
 CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution) {
@@ -112,7 +113,8 @@ CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distrib
 
     double location = distribution.location();
 
-    return std::exp(location - (degreesFreedom + 1.0) / 2.0 - std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0 -
+                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
 double pdf(const CLogTDistribution& distribution, double x) {
@@ -162,7 +164,7 @@ double cdf(const CLogTDistribution& distribution, double x) {
     //   m is the location.
 
     if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("Bad argument x = " << x);
+        LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
     } else if (x <= 0.0) {
         return 0.0;
@@ -183,7 +185,7 @@ double cdfComplement(const CLogTDistribution& distribution, double x) {
     // avoid cancellation errors.
 
     if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("Bad argument x = " << x);
+        LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
     } else if (x <= 0.0) {
         return 1.0;

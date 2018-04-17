@@ -31,10 +31,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -81,12 +80,12 @@ public:
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
 
-    using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
-    using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
-    using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
+    using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
+    using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
+    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
 
     //! A shared pointer to an instance of this class
-    using TAnomalyDetectorPtr = boost::shared_ptr<CAnomalyDetector>;
+    using TAnomalyDetectorPtr = std::shared_ptr<CAnomalyDetector>;
 
     using TOutputModelPlotDataFunc =
         std::function<void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>;
@@ -160,7 +159,8 @@ public:
     void zeroModelsToTime(core_t::TTime time);
 
     //! Populate the object from a state document
-    bool acceptRestoreTraverser(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const std::string& partitionFieldValue,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Restore state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
@@ -171,13 +171,15 @@ public:
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need this value before to restoring the
     //! detector.
-    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::string& partitionFieldValue);
+    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                                     std::string& partitionFieldValue);
 
     //! Find the detector keys given part of an state document.
     //!
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need these before to restoring the detector.
-    static bool keyAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, CSearchKey& key);
+    static bool keyAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                          CSearchKey& key);
 
     //! Persist the detector keys separately to the rest of the state.
     //! This must be done for a 100% streaming state restoration because
@@ -220,10 +222,14 @@ public:
     void addRecord(core_t::TTime time, const TStrCPtrVec& fieldValues);
 
     //! Update the results with this detector model's results.
-    void buildResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results);
+    void buildResults(core_t::TTime bucketStartTime,
+                      core_t::TTime bucketEndTime,
+                      CHierarchicalResults& results);
 
     //! Update the results with this detector model's results.
-    void buildInterimResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results);
+    void buildInterimResults(core_t::TTime bucketStartTime,
+                             core_t::TTime bucketEndTime,
+                             CHierarchicalResults& results);
 
     //! Generate the model plot data for the time series identified
     //! by \p terms.
@@ -315,11 +321,14 @@ private:
     //! Sample bucket statistics and any other state needed to compute
     //! probabilities in the interval [\p startTime, \p endTime], but
     //! does not update the model.
-    void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    void sampleBucketStatistics(core_t::TTime startTime,
+                                core_t::TTime endTime,
+                                CResourceMonitor& resourceMonitor);
 
     //! Restores the state that was formerly part of the model ensemble class.
     //! This includes the data gatherer and the model.
-    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
+    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string& partitionFieldValue,
+                                                   core::CStateRestoreTraverser& traverser);
 
     //! Restores the state that was formerly part of the live models
     //! in the model ensemble class.

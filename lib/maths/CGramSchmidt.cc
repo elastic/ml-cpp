@@ -36,7 +36,8 @@ void CGramSchmidt::swap(TVector& x, TVector& y) {
     x.swap(y);
 }
 
-const CGramSchmidt::TDoubleVec& CGramSchmidt::minusProjection(TDoubleVec& x, const TDoubleVec& e) {
+const CGramSchmidt::TDoubleVec& CGramSchmidt::minusProjection(TDoubleVec& x,
+                                                              const TDoubleVec& e) {
     sameDimension(x, e);
     double n = inner(x, e);
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -85,15 +86,17 @@ double CGramSchmidt::inner(const TVector& x, const TVector& y) {
 
 void CGramSchmidt::sameDimension(const TDoubleVec& x, const TDoubleVec& y) {
     if (x.size() != y.size()) {
-        throw std::runtime_error("Mismatching dimensions: " + core::CStringUtils::typeToString(x.size()) +
-                                 " != " + core::CStringUtils::typeToString(y.size()));
+        throw std::runtime_error(
+            "Mismatching dimensions: " + core::CStringUtils::typeToString(x.size()) +
+            " != " + core::CStringUtils::typeToString(y.size()));
     }
 }
 
 void CGramSchmidt::sameDimension(const TVector& x, const TVector& y) {
     if (x.dimension() != y.dimension()) {
-        throw std::runtime_error("Mismatching dimensions: " + core::CStringUtils::typeToString(x.dimension()) +
-                                 " != " + core::CStringUtils::typeToString(y.dimension()));
+        throw std::runtime_error(
+            "Mismatching dimensions: " + core::CStringUtils::typeToString(x.dimension()) +
+            " != " + core::CStringUtils::typeToString(y.dimension()));
     }
 }
 

@@ -23,9 +23,9 @@
 #include <core/CThread.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <functional>
+#include <memory>
 #include <queue>
 
 namespace ml {
@@ -71,10 +71,9 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CMessageQueue(RECEIVER& receiver, const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
-        : m_Thread(*this),
-          m_Condition(m_Mutex),
-          m_Receiver(receiver),
+    CMessageQueue(RECEIVER& receiver,
+                  const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
+        : m_Thread(*this), m_Condition(m_Mutex), m_Receiver(receiver),
           m_ShutdownFunc(shutdownFunc),
           // If timing is enabled, we need a buffer one bigger than the
           // number of times to average over.  If timing is disabled, the
@@ -88,7 +87,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 
@@ -119,7 +118,7 @@ public:
             pending = 0;
 
             // Should be fatal error
-            LOG_FATAL("Cannot dispatch to message queue.  Queue not initialised");
+            LOG_FATAL(<< "Cannot dispatch to message queue.  Queue not initialised");
             return;
         }
 
@@ -148,7 +147,7 @@ public:
     //! negative return value indicates an error.
     double rollingAverageProcessingTime() const {
         if (NUM_TO_TIME == 0) {
-            LOG_ERROR("Message queue timing is not switched on");
+            LOG_ERROR(<< "Message queue timing is not switched on");
 
             return -1.0;
         }
@@ -160,9 +159,10 @@ public:
         }
 
         if (m_Readings.front() > m_Readings.back()) {
-            LOG_ERROR("Time to process last " << NUM_TO_TIME << " messages is negative (-" << (m_Readings.front() - m_Readings.back())
-                                              << "ms).  "
-                                                 "Maybe the system clock has been put back?");
+            LOG_ERROR(<< "Time to process last " << NUM_TO_TIME << " messages is negative (-"
+                      << (m_Readings.front() - m_Readings.back())
+                      << "ms).  "
+                         "Maybe the system clock has been put back?");
             return -1.0;
         }
 
@@ -177,7 +177,8 @@ private:
     class CMessageQueueThread : public CThread {
     public:
         CMessageQueueThread(CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME>& messageQueue)
-            : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
+            : m_MessageQueue(messageQueue), m_ShuttingDown(false),
+              m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
         bool isRunning() const {
@@ -222,7 +223,8 @@ private:
                     // If the stop watch is running, update the history
                     // of readings
                     if (NUM_TO_TIME > 0 && m_MessageQueue.m_StopWatch.isRunning()) {
-                        m_MessageQueue.m_Readings.push_back(m_MessageQueue.m_StopWatch.lap());
+                        m_MessageQueue.m_Readings.push_back(
+                            m_MessageQueue.m_StopWatch.lap());
                     }
                 }
 
@@ -262,7 +264,7 @@ private:
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
         template<typename POINTEE>
-        void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
+        void destroyMsgDataUnlocked(std::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }
 

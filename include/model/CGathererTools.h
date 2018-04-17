@@ -32,9 +32,9 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -67,9 +67,11 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TSampleVec = std::vector<CSample>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMedianAccumulator = maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
+    using TMedianAccumulator =
+        maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    using TMaxAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
     using TVarianceAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;
     using TMultivariateMinAccumulator = CMetricMultivariateStatistic<TMinAccumulator>;
@@ -107,7 +109,8 @@ public:
             if (m_LastTime == FIRST_TIME) {
                 m_LastTime = time;
             } else {
-                m_Value.add(static_cast<double>(time - m_LastTime) / static_cast<double>(count));
+                m_Value.add(static_cast<double>(time - m_LastTime) /
+                            static_cast<double>(count));
                 m_LastTime = time;
             }
         }
@@ -153,14 +156,16 @@ public:
     //! \brief Multivariate mean statistic gatherer.
     //!
     //! See TMeanGatherer for details.
-    using TMultivariateMeanGatherer = CSampleGatherer<TMultivariateMeanAccumulator, model_t::E_IndividualMeanByPerson>;
+    using TMultivariateMeanGatherer =
+        CSampleGatherer<TMultivariateMeanAccumulator, model_t::E_IndividualMeanByPerson>;
 
     //! \brief Median statistic gatherer.
     //!
     //! DESCRIPTION:\n
     //! Wraps up the functionality to sample the median of a fixed number
     //! of measurements, which are supplied to the add function.
-    using TMedianGatherer = CSampleGatherer<TMedianAccumulator, model_t::E_IndividualMedianByPerson>;
+    using TMedianGatherer =
+        CSampleGatherer<TMedianAccumulator, model_t::E_IndividualMedianByPerson>;
 
     // TODO Add multivariate median.
 
@@ -177,7 +182,8 @@ public:
     //! \brief Multivariate minimum statistic gatherer.
     //!
     //! See TMinGatherer for details.
-    using TMultivariateMinGatherer = CSampleGatherer<TMultivariateMinAccumulator, model_t::E_IndividualMinByPerson>;
+    using TMultivariateMinGatherer =
+        CSampleGatherer<TMultivariateMinAccumulator, model_t::E_IndividualMinByPerson>;
 
     //! \brief Maximum statistic gatherer.
     //!
@@ -192,7 +198,8 @@ public:
     //! \brief Multivariate maximum statistic gatherer.
     //!
     //! See TMaxGatherer for details.
-    using TMultivariateMaxGatherer = CSampleGatherer<TMultivariateMaxAccumulator, model_t::E_IndividualMaxByPerson>;
+    using TMultivariateMaxGatherer =
+        CSampleGatherer<TMultivariateMaxAccumulator, model_t::E_IndividualMaxByPerson>;
 
     //! \brief Variance statistic gatherer.
     //!
@@ -202,7 +209,8 @@ public:
     //!
     //! This also computes the variance of all measurements in the current
     //! bucketing interval.
-    using TVarianceGatherer = CSampleGatherer<TVarianceAccumulator, model_t::E_IndividualVarianceByPerson>;
+    using TVarianceGatherer =
+        CSampleGatherer<TVarianceAccumulator, model_t::E_IndividualVarianceByPerson>;
 
     // TODO Add multivariate variance.
 
@@ -221,10 +229,12 @@ public:
         using TSampleVecQueue = CBucketQueue<TSampleVec>;
         using TSampleVecQueueItr = TSampleVecQueue::iterator;
         using TSampleVecQueueCItr = TSampleVecQueue::const_iterator;
-        using TStoredStringPtrDoubleUMap = boost::unordered_map<core::CStoredStringPtr, double>;
+        using TStoredStringPtrDoubleUMap =
+            boost::unordered_map<core::CStoredStringPtr, double>;
         using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
         using TStoredStringPtrDoubleUMapQueue = CBucketQueue<TStoredStringPtrDoubleUMap>;
-        using TStoredStringPtrDoubleUMapQueueCRItr = TStoredStringPtrDoubleUMapQueue::const_reverse_iterator;
+        using TStoredStringPtrDoubleUMapQueueCRItr =
+            TStoredStringPtrDoubleUMapQueue::const_reverse_iterator;
         using TStoredStringPtrDoubleUMapQueueVec = std::vector<TStoredStringPtrDoubleUMapQueue>;
         using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
@@ -240,7 +250,9 @@ public:
         std::size_t dimension() const;
 
         //! Get the feature data for the current bucketing interval.
-        SMetricFeatureData featureData(core_t::TTime time, core_t::TTime bucketLength, const TSampleVec& emptySample) const;
+        SMetricFeatureData featureData(core_t::TTime time,
+                                       core_t::TTime bucketLength,
+                                       const TSampleVec& emptySample) const;
 
         //! Returns false.
         bool sample(core_t::TTime time, unsigned int sampleCount);
@@ -259,7 +271,8 @@ public:
             TSampleVec& sum = m_BucketSums.get(time);
             if (sum.empty()) {
                 core_t::TTime bucketLength = m_BucketSums.bucketLength();
-                sum.push_back(CSample(maths::CIntegerTools::floor(time, bucketLength), TDoubleVec(1, 0.0), 1.0, 0.0));
+                sum.push_back(CSample(maths::CIntegerTools::floor(time, bucketLength),
+                                      TDoubleVec(1, 0.0), 1.0, 0.0));
             }
             (sum[0].value())[0] += value[0];
             sum[0].count() += static_cast<double>(count);

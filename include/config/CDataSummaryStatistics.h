@@ -61,8 +61,10 @@ public:
     double meanRate() const;
 
 protected:
-    using TMinTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
-    using TMaxTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>;
+    using TMinTimeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
+    using TMaxTimeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>;
 
 private:
     //! The earliest example time.
@@ -93,8 +95,11 @@ public:
     static const std::size_t TO_APPROXIMATE = 5000000;
 
 public:
-    explicit CCategoricalDataSummaryStatistics(std::size_t n, std::size_t toApproximate = TO_APPROXIMATE);
-    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other, std::size_t n, std::size_t toApproximate = TO_APPROXIMATE);
+    explicit CCategoricalDataSummaryStatistics(std::size_t n,
+                                               std::size_t toApproximate = TO_APPROXIMATE);
+    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other,
+                                      std::size_t n,
+                                      std::size_t toApproximate = TO_APPROXIMATE);
 
     //! Add an example at \p time.
     void add(core_t::TTime time, const std::string& example);
@@ -129,8 +134,10 @@ private:
     using TStrUInt64UMapItr = TStrUInt64UMap::iterator;
     using TStrUInt64UMapCItr = TStrUInt64UMap::const_iterator;
     using TStrUInt64UMapCItrVec = std::vector<TStrUInt64UMapCItr>;
-    using TMinSizeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1>;
-    using TMaxSizeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>>;
+    using TMinSizeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1>;
+    using TMaxSizeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>>;
     using TBjkstUniqueValuesVec = std::vector<maths::CBjkstUniqueValues>;
     using TEntropySketchVec = std::vector<maths::CEntropySketch>;
 

@@ -58,15 +58,18 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     template<typename T>
-    static TDoubleDoublePr marginalLikelihoodSupport(const std::vector<SMultimodalPriorMode<T>>& modes) {
+    static TDoubleDoublePr
+    marginalLikelihoodSupport(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.size() == 0) {
-            return std::make_pair(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
+            return std::make_pair(boost::numeric::bounds<double>::lowest(),
+                                  boost::numeric::bounds<double>::highest());
         }
         if (modes.size() == 1) {
             return modes[0].s_Prior->marginalLikelihoodSupport();
         }
 
-        TDoubleDoublePr result(boost::numeric::bounds<double>::highest(), boost::numeric::bounds<double>::lowest());
+        TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
+                               boost::numeric::bounds<double>::lowest());
 
         // We define this is as the union of the mode supports.
         for (std::size_t i = 0u; i < modes.size(); ++i) {
@@ -114,7 +117,8 @@ public:
             return modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weights);
         }
 
-        using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+        using TMaxAccumulator =
+            CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
         // We'll approximate this as the maximum likelihood mode (mode).
         double result = 0.0;
@@ -124,7 +128,9 @@ public:
         try {
             seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights));
             countVarianceScale = maths_t::countVarianceScale(weightStyles, weights);
-        } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale " << e.what()); }
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to get variance scale " << e.what());
+        }
 
         // Declared outside the loop to minimize number of times they
         // are created.
@@ -137,7 +143,8 @@ public:
             const T& prior = modes[i].s_Prior;
             mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight[0]);
             double likelihood;
-            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight, likelihood) &
+            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
+                                                  mode, weight, likelihood) &
                 (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
                 continue;
             }
@@ -156,9 +163,10 @@ public:
 
     //! Get the variance of the marginal likelihood.
     template<typename T>
-    static double marginalLikelihoodVariance(const std::vector<SMultimodalPriorMode<T>>& modes,
-                                             const maths_t::TWeightStyleVec& weightStyles,
-                                             const TDouble4Vec& weights) {
+    static double
+    marginalLikelihoodVariance(const std::vector<SMultimodalPriorMode<T>>& modes,
+                               const maths_t::TWeightStyleVec& weightStyles,
+                               const TDouble4Vec& weights) {
         if (modes.size() == 0) {
             return boost::numeric::bounds<double>::highest();
         }
@@ -173,8 +181,11 @@ public:
 
         double varianceScale = 1.0;
         try {
-            varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) * maths_t::countVarianceScale(weightStyles, weights);
-        } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale " << e.what()); }
+            varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) *
+                            maths_t::countVarianceScale(weightStyles, weights);
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to get variance scale " << e.what());
+        }
 
         double mean = marginalLikelihoodMean(modes);
 
@@ -199,11 +210,12 @@ public:
     //! where \f$m\f$ is the median of the distribution and \f$p\f$ is the
     //! the percentage of interest \p percentage.
     template<typename PRIOR, typename MODE>
-    static TDoubleDoublePr marginalLikelihoodConfidenceInterval(const PRIOR& prior,
-                                                                const std::vector<MODE>& modes,
-                                                                double percentage,
-                                                                const maths_t::TWeightStyleVec& weightStyles,
-                                                                const TDouble4Vec& weights) {
+    static TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(const PRIOR& prior,
+                                         const std::vector<MODE>& modes,
+                                         double percentage,
+                                         const maths_t::TWeightStyleVec& weightStyles,
+                                         const TDouble4Vec& weights) {
         TDoubleDoublePr support = marginalLikelihoodSupport(modes);
 
         if (isNonInformative(modes)) {
@@ -211,7 +223,8 @@ public:
         }
 
         if (modes.size() == 1) {
-            return modes[0].s_Prior->marginalLikelihoodConfidenceInterval(percentage, weightStyles, weights);
+            return modes[0].s_Prior->marginalLikelihoodConfidenceInterval(
+                percentage, weightStyles, weights);
         }
 
         percentage /= 100.0;
@@ -239,23 +252,27 @@ public:
         try {
             double f10 = f1(x0);
             double a = x0, b = x0, fa = f10, fb = f10;
-            LOG_TRACE("(a,b) = (" << a << "," << b << ")"
-                                  << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+            LOG_TRACE(<< "(a,b) = (" << a << "," << b << ")"
+                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
 
             std::size_t maxIterations = MAX_ITERATIONS;
             if ((f10 < 0 && !CSolvers::rightBracket(a, b, fa, fb, f1, maxIterations)) ||
                 (f10 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f1, maxIterations))) {
-                LOG_ERROR("Unable to bracket left percentile = " << p1 << ", (a,b) = (" << a << "," << b << ")"
-                                                                 << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                LOG_ERROR(<< "Unable to bracket left percentile = " << p1
+                          << ", (a,b) = (" << a << "," << b << ")"
+                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                 result.first = support.first;
             } else {
-                LOG_TRACE("(a,b) = (" << a << "," << b << ")"
-                                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                LOG_TRACE(<< "(a,b) = (" << a << "," << b << ")"
+                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                 maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
-                                                  std::min(std::numeric_limits<double>::epsilon() * b, EPS * p1 / std::max(fa, fb)));
+                CEqualWithTolerance<double> equal(
+                    CToleranceTypes::E_AbsoluteTolerance,
+                    std::min(std::numeric_limits<double>::epsilon() * b,
+                             EPS * p1 / std::max(fa, fb)));
                 CSolvers::solve(a, b, fa, fb, f1, maxIterations, equal, result.first);
-                LOG_TRACE("p1 = " << p1 << ", x = " << result.first << ", f(x) = " << fl(result.first));
+                LOG_TRACE(<< "p1 = " << p1 << ", x = " << result.first
+                          << ", f(x) = " << fl(result.first));
             }
 
             result.second = result.first;
@@ -269,22 +286,27 @@ public:
                 // Fall: nothing to do.
             } else if ((f20 < 0 && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations)) ||
                        (f20 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f2, maxIterations))) {
-                LOG_ERROR("Unable to bracket right percentile = " << p2 << ", (a,b) = (" << a << "," << b << ")"
-                                                                  << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                LOG_ERROR(<< "Unable to bracket right percentile = " << p2
+                          << ", (a,b) = (" << a << "," << b << ")"
+                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                 result.second = support.second;
             } else {
-                LOG_TRACE("(a,b) = [" << a << "," << b << "], "
-                                      << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
+                LOG_TRACE(<< "(a,b) = [" << a << "," << b << "], "
+                          << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
 
                 maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
-                                                  std::min(std::numeric_limits<double>::epsilon() * b, EPS * p2 / std::max(fa, fb)));
+                CEqualWithTolerance<double> equal(
+                    CToleranceTypes::E_AbsoluteTolerance,
+                    std::min(std::numeric_limits<double>::epsilon() * b,
+                             EPS * p2 / std::max(fa, fb)));
                 CSolvers::solve(a, b, fa, fb, f2, maxIterations, equal, result.second);
-                LOG_TRACE("p2 = " << p2 << ", x = " << result.second << ", f(x) = " << fu(result.second));
+                LOG_TRACE(<< "p2 = " << p2 << ", x = " << result.second
+                          << ", f(x) = " << fu(result.second));
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Unable to find left percentile: " << e.what() << ", percentiles = [" << p1 << "," << p2 << "]"
-                                                         << ", x0 = " << x0);
+            LOG_ERROR(<< "Unable to find left percentile: " << e.what()
+                      << ", percentiles = [" << p1 << "," << p2 << "]"
+                      << ", x0 = " << x0);
             return support;
         }
 
@@ -294,11 +316,12 @@ public:
     //! Calculate the log marginal likelihood function integrating over
     //! the prior density function.
     template<typename T>
-    static maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
-                                                                         const maths_t::TWeightStyleVec& weightStyles,
-                                                                         const TDouble1Vec& samples,
-                                                                         const TDouble4Vec1Vec& weights,
-                                                                         double& result) {
+    static maths_t::EFloatingPointErrorStatus
+    jointLogMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
+                               const maths_t::TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) {
         // The likelihood can be computed from the conditional likelihood
         // that a sample is from each mode. In particular, the likelihood
         // of a sample x is:
@@ -336,13 +359,17 @@ public:
         TSizeDoublePr5Vec modeLogLikelihoods;
         modeLogLikelihoods.reserve(modes.size());
 
-        double mean = maths_t::hasSeasonalVarianceScale(weightStyles, weights) ? marginalLikelihoodMean(modes) : 0.0;
+        double mean = maths_t::hasSeasonalVarianceScale(weightStyles, weights)
+                          ? marginalLikelihoodMean(modes)
+                          : 0.0;
         TDouble4Vec1Vec weight(1, TDouble4Vec(1, 1.0));
         try {
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 double n = maths_t::countForUpdate(weightStyles, weights[i]);
-                double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
-                double logSeasonalScale = seasonalScale != 1.0 ? std::log(seasonalScale) : 0.0;
+                double seasonalScale = std::sqrt(
+                    maths_t::seasonalVarianceScale(weightStyles, weights[i]));
+                double logSeasonalScale = seasonalScale != 1.0 ? std::log(seasonalScale)
+                                                               : 0.0;
 
                 sample[0] = mean + (samples[i] - mean) / seasonalScale;
                 weight[0][0] = maths_t::countVarianceScale(weightStyles, weights[i]);
@@ -355,7 +382,8 @@ public:
                 for (std::size_t j = 0u; j < modes.size(); ++j) {
                     double modeLogLikelihood;
                     maths_t::EFloatingPointErrorStatus status =
-                        modes[j].s_Prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, sample, weight, modeLogLikelihood);
+                        modes[j].s_Prior->jointLogMarginalLikelihood(
+                            TWeights::COUNT_VARIANCE, sample, weight, modeLogLikelihood);
                     if (status & maths_t::E_FpFailed) {
                         // Logging handled at a lower level.
                         return status;
@@ -380,7 +408,8 @@ public:
                     return maths_t::E_FpOverflowed;
                 }
 
-                LOG_TRACE("modeLogLikelihoods = " << core::CContainerPrinter::print(modeLogLikelihoods));
+                LOG_TRACE(<< "modeLogLikelihoods = "
+                          << core::CContainerPrinter::print(modeLogLikelihoods));
 
                 double sampleLikelihood = 0.0;
                 double Z = 0.0;
@@ -395,30 +424,33 @@ public:
                 sampleLikelihood /= Z;
                 double sampleLogLikelihood = n * (std::log(sampleLikelihood) + maxLogLikelihood);
 
-                LOG_TRACE("sample = " << core::CContainerPrinter::print(sample) << ", maxLogLikelihood = " << maxLogLikelihood
-                                      << ", sampleLogLikelihood = " << sampleLogLikelihood);
+                LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample)
+                          << ", maxLogLikelihood = " << maxLogLikelihood
+                          << ", sampleLogLikelihood = " << sampleLogLikelihood);
 
                 result += sampleLogLikelihood - n * logSeasonalScale;
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to compute likelihood: " << e.what());
+            LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
             return maths_t::E_FpFailed;
         }
 
         maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
         if (status & maths_t::E_FpFailed) {
-            LOG_ERROR("Failed to compute likelihood (" << SMultimodalPriorMode<T>::debugWeights(modes) << ")");
-            LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "Failed to compute likelihood ("
+                      << SMultimodalPriorMode<T>::debugWeights(modes) << ")");
+            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         }
-        LOG_TRACE("Joint log likelihood = " << result);
+        LOG_TRACE(<< "Joint log likelihood = " << result);
         return status;
     }
 
     //! Sample the marginal likelihood function.
     template<typename T>
-    static void
-    sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes, std::size_t numberSamples, TDouble1Vec& samples) {
+    static void sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                         std::size_t numberSamples,
+                                         TDouble1Vec& samples) {
         samples.clear();
 
         if (modes.size() == 1) {
@@ -443,11 +475,11 @@ public:
 
         CSampling::TSizeVec sampling;
         CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
-        LOG_TRACE("normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-                                         << ", sampling = " << core::CContainerPrinter::print(sampling));
+        LOG_TRACE(<< "normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
+                  << ", sampling = " << core::CContainerPrinter::print(sampling));
 
         if (sampling.size() != modes.size()) {
-            LOG_ERROR("Failed to sample marginal likelihood");
+            LOG_ERROR(<< "Failed to sample marginal likelihood");
             return;
         }
 
@@ -455,10 +487,10 @@ public:
         TDouble1Vec modeSamples;
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             modes[i].s_Prior->sampleMarginalLikelihood(sampling[i], modeSamples);
-            LOG_TRACE("modeSamples = " << core::CContainerPrinter::print(modeSamples));
+            LOG_TRACE(<< "modeSamples = " << core::CContainerPrinter::print(modeSamples));
             std::copy(modeSamples.begin(), modeSamples.end(), std::back_inserter(samples));
         }
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
     }
 
     //! Calculate minus the log of the joint c.d.f. of the marginal
@@ -471,7 +503,8 @@ public:
                                  const TDouble4Vec1Vec& weights,
                                  double& lowerBound,
                                  double& upperBound) {
-        return minusLogJointCdf(modes, CMinusLogJointCdf(), weightStyles, samples, weights, lowerBound, upperBound);
+        return minusLogJointCdf(modes, CMinusLogJointCdf(), weightStyles,
+                                samples, weights, lowerBound, upperBound);
     }
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
@@ -479,13 +512,15 @@ public:
     //! to cancellation errors at one, i.e. the smallest non-zero value
     //! this can return is the minimum double rather than epsilon.
     template<typename T>
-    static bool minusLogJointCdfComplement(const std::vector<SMultimodalPriorMode<T>>& modes,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble1Vec& samples,
-                                           const TDouble4Vec1Vec& weights,
-                                           double& lowerBound,
-                                           double& upperBound) {
-        return minusLogJointCdf(modes, CMinusLogJointCdfComplement(), weightStyles, samples, weights, lowerBound, upperBound);
+    static bool
+    minusLogJointCdfComplement(const std::vector<SMultimodalPriorMode<T>>& modes,
+                               const maths_t::TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& lowerBound,
+                               double& upperBound) {
+        return minusLogJointCdf(modes, CMinusLogJointCdfComplement(), weightStyles,
+                                samples, weights, lowerBound, upperBound);
     }
 
     //! Calculate the joint probability of seeing a lower likelihood
@@ -505,7 +540,7 @@ public:
         tail = maths_t::E_UndeterminedTail;
 
         if (samples.empty()) {
-            LOG_ERROR("Can't compute distribution for empty sample set");
+            LOG_ERROR(<< "Can't compute distribution for empty sample set");
             return false;
         }
 
@@ -561,7 +596,8 @@ public:
         switch (calculation) {
         case maths_t::E_OneSidedBelow:
             if (!minusLogJointCdf(modes, weightStyles, samples, weights, upperBound, lowerBound)) {
-                LOG_ERROR("Failed computing probability of less likely samples: " << core::CContainerPrinter::print(samples));
+                LOG_ERROR(<< "Failed computing probability of less likely samples: "
+                          << core::CContainerPrinter::print(samples));
                 return false;
             }
             lowerBound = std::exp(-lowerBound);
@@ -578,7 +614,8 @@ public:
 
             TDoubleDoublePr support = marginalLikelihoodSupport(modes);
             support.first = (1.0 + (support.first > 0.0 ? EPS : -EPS)) * support.first;
-            support.second = (1.0 + (support.first > 0.0 ? EPS : -EPS)) * support.second;
+            support.second = (1.0 + (support.first > 0.0 ? EPS : -EPS)) *
+                             support.second;
             double mean = marginalLikelihoodMean(modes);
 
             double a = boost::numeric::bounds<double>::highest();
@@ -592,10 +629,12 @@ public:
             }
             a = CTools::truncate(a, support.first, support.second);
             b = CTools::truncate(b, support.first, support.second);
-            LOG_TRACE("a = " << a << ", b = " << b << ", Z = " << Z);
+            LOG_TRACE(<< "a = " << a << ", b = " << b << ", Z = " << Z);
 
             std::size_t svi = static_cast<std::size_t>(
-                std::find(weightStyles.begin(), weightStyles.end(), maths_t::E_SampleSeasonalVarianceScaleWeight) - weightStyles.begin());
+                std::find(weightStyles.begin(), weightStyles.end(),
+                          maths_t::E_SampleSeasonalVarianceScaleWeight) -
+                weightStyles.begin());
 
             // Declared outside the loop to minimize the number of times
             // they are created.
@@ -613,24 +652,28 @@ public:
                 }
 
                 double fx;
-                maths_t::EFloatingPointErrorStatus status = jointLogMarginalLikelihood(modes, weightStyles, {x}, weight, fx);
+                maths_t::EFloatingPointErrorStatus status =
+                    jointLogMarginalLikelihood(modes, weightStyles, {x}, weight, fx);
                 if (status & maths_t::E_FpFailed) {
-                    LOG_ERROR("Unable to compute likelihood for " << x);
+                    LOG_ERROR(<< "Unable to compute likelihood for " << x);
                     return false;
                 }
                 if (status & maths_t::E_FpOverflowed) {
                     lowerBound = upperBound = 0.0;
                     return true;
                 }
-                LOG_TRACE("x = " << x << ", f(x) = " << fx);
+                LOG_TRACE(<< "x = " << x << ", f(x) = " << fx);
 
                 CPrior::CLogMarginalLikelihood logLikelihood(prior, weightStyles, weight);
 
-                CTools::CMixtureProbabilityOfLessLikelySample calculator(modes.size(), x, fx, a, b);
+                CTools::CMixtureProbabilityOfLessLikelySample calculator(
+                    modes.size(), x, fx, a, b);
                 for (const auto& mode : modes) {
                     double w = mode.weight() / Z;
-                    double centre = mode.s_Prior->marginalLikelihoodMode(weightStyles, weight[0]);
-                    double spread = std::sqrt(mode.s_Prior->marginalLikelihoodVariance(weightStyles, weight[0]));
+                    double centre = mode.s_Prior->marginalLikelihoodMode(
+                        weightStyles, weight[0]);
+                    double spread = std::sqrt(mode.s_Prior->marginalLikelihoodVariance(
+                        weightStyles, weight[0]));
                     calculator.addMode(w, centre, spread);
                     tail_ = tail_ | (x < centre ? maths_t::E_LeftTail : maths_t::E_RightTail);
                 }
@@ -641,7 +684,8 @@ public:
                 double lb, ub;
 
                 double l;
-                CEqualWithTolerance<double> lequal(CToleranceTypes::E_AbsoluteTolerance, EPS * a);
+                CEqualWithTolerance<double> lequal(
+                    CToleranceTypes::E_AbsoluteTolerance, EPS * a);
                 if (calculator.leftTail(logLikelihood, MAX_ITERATIONS, lequal, l)) {
                     wt[0] = l;
                     minusLogJointCdf(modes, weightStyles, wt, weight, lb, ub);
@@ -654,7 +698,8 @@ public:
                 }
 
                 double r;
-                CEqualWithTolerance<double> requal(CToleranceTypes::E_AbsoluteTolerance, EPS * b);
+                CEqualWithTolerance<double> requal(
+                    CToleranceTypes::E_AbsoluteTolerance, EPS * b);
                 if (calculator.rightTail(logLikelihood, MAX_ITERATIONS, requal, r)) {
                     wt[0] = r;
                     minusLogJointCdfComplement(modes, weightStyles, wt, weight, lb, ub);
@@ -671,14 +716,16 @@ public:
                     p = calculator.calculate(logLikelihood, sampleLowerBound);
                 }
 
-                LOG_TRACE("sampleLowerBound = " << sampleLowerBound << ", sampleUpperBound = " << sampleUpperBound << " p = " << p);
+                LOG_TRACE(<< "sampleLowerBound = " << sampleLowerBound
+                          << ", sampleUpperBound = " << sampleUpperBound << " p = " << p);
 
                 lowerBoundCalculator.add(CTools::truncate(sampleLowerBound + p, 0.0, 1.0));
                 upperBoundCalculator.add(CTools::truncate(sampleUpperBound + p, 0.0, 1.0));
             }
 
-            if (!lowerBoundCalculator.calculate(lowerBound) || !upperBoundCalculator.calculate(upperBound)) {
-                LOG_ERROR("Couldn't compute probability of less likely samples:"
+            if (!lowerBoundCalculator.calculate(lowerBound) ||
+                !upperBoundCalculator.calculate(upperBound)) {
+                LOG_ERROR(<< "Couldn't compute probability of less likely samples:"
                           << " " << lowerBoundCalculator << " " << upperBoundCalculator);
                 return false;
             }
@@ -686,8 +733,10 @@ public:
         } break;
 
         case maths_t::E_OneSidedAbove:
-            if (!minusLogJointCdfComplement(modes, weightStyles, samples, weights, upperBound, lowerBound)) {
-                LOG_ERROR("Failed computing probability of less likely samples: " << core::CContainerPrinter::print(samples));
+            if (!minusLogJointCdfComplement(modes, weightStyles, samples,
+                                            weights, upperBound, lowerBound)) {
+                LOG_ERROR(<< "Failed computing probability of less likely samples: "
+                          << core::CContainerPrinter::print(samples));
                 return false;
             }
             lowerBound = std::exp(-lowerBound);
@@ -702,12 +751,15 @@ public:
     //! Check if this is a non-informative prior.
     template<typename T>
     static bool isNonInformative(const std::vector<SMultimodalPriorMode<T>>& modes) {
-        return modes.empty() || (modes.size() == 1 && modes[0].s_Prior->isNonInformative());
+        return modes.empty() ||
+               (modes.size() == 1 && modes[0].s_Prior->isNonInformative());
     }
 
     //! Get a human readable description of the prior.
     template<typename T>
-    static void print(const std::vector<SMultimodalPriorMode<T>>& modes, const std::string& indent, std::string& result) {
+    static void print(const std::vector<SMultimodalPriorMode<T>>& modes,
+                      const std::string& indent,
+                      std::string& result) {
         result += "\n" + indent + "multimodal";
         if (isNonInformative(modes)) {
             result += " non-informative";
@@ -721,7 +773,8 @@ public:
         result += ":";
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             double weight = modes[i].weight() / Z;
-            std::string indent_ = indent + " weight " + core::CStringUtils::typeToStringPretty(weight) + "  ";
+            std::string indent_ = indent + " weight " +
+                                  core::CStringUtils::typeToStringPretty(weight) + "  ";
             modes[i].s_Prior->print(indent_, result);
         }
     }
@@ -737,7 +790,8 @@ private:
                         const TDouble4Vec1Vec& weights,
                         double& lowerBound,
                         double& upperBound) const {
-            return prior->minusLogJointCdf(weightStyles, samples, weights, lowerBound, upperBound);
+            return prior->minusLogJointCdf(weightStyles, samples, weights,
+                                           lowerBound, upperBound);
         }
     };
 
@@ -751,7 +805,8 @@ private:
                         const TDouble4Vec1Vec& weights,
                         double& lowerBound,
                         double& upperBound) const {
-            return prior->minusLogJointCdfComplement(weightStyles, samples, weights, lowerBound, upperBound);
+            return prior->minusLogJointCdfComplement(weightStyles, samples, weights,
+                                                     lowerBound, upperBound);
         }
     };
 
@@ -765,14 +820,20 @@ private:
         enum EStyle { E_Lower, E_Upper, E_Mean };
 
     public:
-        CLogCdf(EStyle style, const PRIOR& prior, const maths_t::TWeightStyleVec& weightStyles, const TDouble4Vec& weights)
-            : m_Style(style), m_Prior(&prior), m_WeightStyles(&weightStyles), m_Weights(1, weights), m_X(1u, 0.0) {}
+        CLogCdf(EStyle style,
+                const PRIOR& prior,
+                const maths_t::TWeightStyleVec& weightStyles,
+                const TDouble4Vec& weights)
+            : m_Style(style), m_Prior(&prior), m_WeightStyles(&weightStyles),
+              m_Weights(1, weights), m_X(1u, 0.0) {}
 
         double operator()(double x) const {
             m_X[0] = x;
             double lowerBound, upperBound;
-            if (!m_Prior->minusLogJointCdf(*m_WeightStyles, m_X, m_Weights, lowerBound, upperBound)) {
-                throw std::runtime_error("Unable to compute c.d.f. at " + core::CStringUtils::typeToString(x));
+            if (!m_Prior->minusLogJointCdf(*m_WeightStyles, m_X, m_Weights,
+                                           lowerBound, upperBound)) {
+                throw std::runtime_error("Unable to compute c.d.f. at " +
+                                         core::CStringUtils::typeToString(x));
             }
             switch (m_Style) {
             case E_Lower:
@@ -809,12 +870,13 @@ private:
         lowerBound = upperBound = 0.0;
 
         if (samples.empty()) {
-            LOG_ERROR("Can't compute c.d.f. for empty sample set");
+            LOG_ERROR(<< "Can't compute c.d.f. for empty sample set");
             return false;
         }
 
         if (modes.size() == 1) {
-            return minusLogCdf(modes[0].s_Prior, weightStyles, samples, weights, lowerBound, upperBound);
+            return minusLogCdf(modes[0].s_Prior, weightStyles, samples, weights,
+                               lowerBound, upperBound);
         }
 
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
@@ -835,12 +897,16 @@ private:
         modeUpperBounds.reserve(modes.size());
 
         try {
-            double mean = maths_t::hasSeasonalVarianceScale(weightStyles, weights) ? marginalLikelihoodMean(modes) : 0.0;
+            double mean = maths_t::hasSeasonalVarianceScale(weightStyles, weights)
+                              ? marginalLikelihoodMean(modes)
+                              : 0.0;
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weightStyles, weights[i]);
-                double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
-                double countVarianceScale = maths_t::countVarianceScale(weightStyles, weights[i]);
+                double seasonalScale = std::sqrt(
+                    maths_t::seasonalVarianceScale(weightStyles, weights[i]));
+                double countVarianceScale =
+                    maths_t::countVarianceScale(weightStyles, weights[i]);
 
                 if (isNonInformative(modes)) {
                     lowerBound -= n * std::log(CTools::IMPROPER_CDF);
@@ -848,7 +914,8 @@ private:
                     continue;
                 }
 
-                sample[0] = seasonalScale != 1.0 ? mean + (samples[i] - mean) / seasonalScale : samples[i];
+                sample[0] = seasonalScale != 1.0 ? mean + (samples[i] - mean) / seasonalScale
+                                                 : samples[i];
                 weight[0][0] = countVarianceScale;
 
                 // We re-normalize so that the maximum log c.d.f. is one
@@ -861,8 +928,10 @@ private:
                 for (std::size_t j = 0u; j < modes.size(); ++j) {
                     double modeLowerBound;
                     double modeUpperBound;
-                    if (!minusLogCdf(modes[j].s_Prior, TWeights::COUNT_VARIANCE, sample, weight, modeLowerBound, modeUpperBound)) {
-                        LOG_ERROR("Unable to compute c.d.f. for " << core::CContainerPrinter::print(samples));
+                    if (!minusLogCdf(modes[j].s_Prior, TWeights::COUNT_VARIANCE, sample,
+                                     weight, modeLowerBound, modeUpperBound)) {
+                        LOG_ERROR(<< "Unable to compute c.d.f. for "
+                                  << core::CContainerPrinter::print(samples));
                         return false;
                     }
                     minLowerBound.add(modeLowerBound);
@@ -875,27 +944,34 @@ private:
                 TMeanAccumulator sampleUpperBound;
 
                 for (std::size_t j = 0u; j < modes.size(); ++j) {
-                    LOG_TRACE("Mode -log(c.d.f.) = [" << modeLowerBounds[j] << "," << modeUpperBounds[j] << "]");
+                    LOG_TRACE(<< "Mode -log(c.d.f.) = [" << modeLowerBounds[j]
+                              << "," << modeUpperBounds[j] << "]");
                     double w = modes[j].weight();
                     // Divide through by the largest value to avoid underflow.
                     // Remember we are working with minus logs so the largest
                     // value corresponds to the smallest log.
-                    sampleLowerBound.add(std::exp(-(modeLowerBounds[j] - minLowerBound[0])), w);
-                    sampleUpperBound.add(std::exp(-(modeUpperBounds[j] - minUpperBound[0])), w);
+                    sampleLowerBound.add(
+                        std::exp(-(modeLowerBounds[j] - minLowerBound[0])), w);
+                    sampleUpperBound.add(
+                        std::exp(-(modeUpperBounds[j] - minUpperBound[0])), w);
                 }
 
-                lowerBound += n * std::max(minLowerBound[0] - std::log(CBasicStatistics::mean(sampleLowerBound)), 0.0);
-                upperBound += n * std::max(minUpperBound[0] - std::log(CBasicStatistics::mean(sampleUpperBound)), 0.0);
+                lowerBound += n * std::max(minLowerBound[0] -
+                                               std::log(CBasicStatistics::mean(sampleLowerBound)),
+                                           0.0);
+                upperBound += n * std::max(minUpperBound[0] -
+                                               std::log(CBasicStatistics::mean(sampleUpperBound)),
+                                           0.0);
 
-                LOG_TRACE("sample = " << core::CContainerPrinter::print(sample) << ", sample -log(c.d.f.) = [" << sampleLowerBound << ","
-                                      << sampleUpperBound << "]");
+                LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample) << ", sample -log(c.d.f.) = ["
+                          << sampleLowerBound << "," << sampleUpperBound << "]");
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to calculate c.d.f.: " << e.what());
+            LOG_ERROR(<< "Failed to calculate c.d.f.: " << e.what());
             return false;
         }
 
-        LOG_TRACE("Joint -log(c.d.f.) = [" << lowerBound << "," << upperBound << "]");
+        LOG_TRACE(<< "Joint -log(c.d.f.) = [" << lowerBound << "," << upperBound << "]");
 
         return true;
     }

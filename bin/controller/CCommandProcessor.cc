@@ -35,7 +35,8 @@ namespace controller {
 const std::string CCommandProcessor::START("start");
 const std::string CCommandProcessor::KILL("kill");
 
-CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths) : m_Spawner(permittedProcessPaths) {
+CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths)
+    : m_Spawner(permittedProcessPaths) {
 }
 
 void CCommandProcessor::processCommands(std::istream& stream) {
@@ -60,7 +61,7 @@ bool CCommandProcessor::handleCommand(const std::string& command) {
     tokens.erase(std::remove(tokens.begin(), tokens.end(), EMPTY_STRING), tokens.end());
 
     if (tokens.empty()) {
-        LOG_DEBUG("Ignoring empty command");
+        LOG_DEBUG(<< "Ignoring empty command");
         return false;
     }
 
@@ -75,7 +76,7 @@ bool CCommandProcessor::handleCommand(const std::string& command) {
         return this->handleKill(tokens);
     }
 
-    LOG_ERROR("Did not understand verb '" << verb << '\'');
+    LOG_ERROR(<< "Did not understand verb '" << verb << '\'');
     return false;
 }
 
@@ -85,7 +86,7 @@ bool CCommandProcessor::handleStart(TStrVec& tokens) {
     tokens.erase(tokens.begin());
 
     if (m_Spawner.spawn(processPath, tokens) == false) {
-        LOG_ERROR("Failed to start process '" << processPath << '\'');
+        LOG_ERROR(<< "Failed to start process '" << processPath << '\'');
         return false;
     }
 
@@ -95,12 +96,13 @@ bool CCommandProcessor::handleStart(TStrVec& tokens) {
 bool CCommandProcessor::handleKill(TStrVec& tokens) {
     core::CProcess::TPid pid = 0;
     if (tokens.size() != 1 || core::CStringUtils::stringToType(tokens[0], pid) == false) {
-        LOG_ERROR("Unexpected arguments for kill command: " << core::CContainerPrinter::print(tokens));
+        LOG_ERROR(<< "Unexpected arguments for kill command: "
+                  << core::CContainerPrinter::print(tokens));
         return false;
     }
 
     if (m_Spawner.terminateChild(pid) == false) {
-        LOG_ERROR("Failed to kill process with PID " << pid);
+        LOG_ERROR(<< "Failed to kill process with PID " << pid);
         return false;
     }
 

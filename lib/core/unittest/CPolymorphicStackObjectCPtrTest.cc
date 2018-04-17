@@ -52,7 +52,8 @@ public:
 
 void CPolymorphicStackObjectCPtrTest::testAll() {
     using TStackPtr12 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2>;
-    using TStackPtr1234 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4>;
+    using TStackPtr1234 =
+        core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4>;
 
     TStackPtr12 test1((CDerived1()));
     CPPUNIT_ASSERT_EQUAL(std::string("d1"), test1->iam());
@@ -86,8 +87,8 @@ void CPolymorphicStackObjectCPtrTest::testAll() {
 CppUnit::Test* CPolymorphicStackObjectCPtrTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPolymorphicStackObjectCPtrTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>("CPolymorphicStackObjectCPtrTest::testAll",
-                                                                                   &CPolymorphicStackObjectCPtrTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>(
+        "CPolymorphicStackObjectCPtrTest::testAll", &CPolymorphicStackObjectCPtrTest::testAll));
 
     return suiteOfTests;
 }

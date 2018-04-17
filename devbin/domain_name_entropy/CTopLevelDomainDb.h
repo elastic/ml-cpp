@@ -97,7 +97,10 @@ public:
     //! 'subdomain' - token above domain
     //! 'domain' - next token above suffix (domain+suffix) is registered domain
     //! 'suffix' - TLD suffix (if available)
-    void splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const;
+    void splitHostName(const std::string& host,
+                       std::string& subDomain,
+                       std::string& domain,
+                       std::string& suffix) const;
 
 private:
     enum ERuleType { E_ExceptionRule = 0, E_Rule, E_WildcardRule, E_NoMatch };
@@ -108,21 +111,33 @@ private:
     bool readLine(const std::string&);
 
     //! Internal extract domains using rules
-    void extract(const std::string& str, std::string& subDomain, std::string& domain, std::string& suffix) const;
+    void extract(const std::string& str,
+                 std::string& subDomain,
+                 std::string& domain,
+                 std::string& suffix) const;
 
-    typedef std::vector<std::string::size_type> TSizeTypeVec;
+    using TSizeTypeVec = std::vector<std::string::size_type>;
 
     //! If a normal rule matches, split domain
-    static void
-    ruleDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
+    static void ruleDomains(const std::string& str,
+                            const TSizeTypeVec& periods,
+                            std::string& subDomain,
+                            std::string& domain,
+                            std::string& suffix);
 
     //! If a wildcard rule matches, split domain
-    static void
-    wildcardDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
+    static void wildcardDomains(const std::string& str,
+                                const TSizeTypeVec& periods,
+                                std::string& subDomain,
+                                std::string& domain,
+                                std::string& suffix);
 
     //! If an exception rule matches, split domain
-    static void
-    exceptionDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
+    static void exceptionDomains(const std::string& str,
+                                 const TSizeTypeVec& periods,
+                                 std::string& subDomain,
+                                 std::string& domain,
+                                 std::string& suffix);
 
 private:
     static const std::string PERIOD;
@@ -131,7 +146,7 @@ private:
 private:
     const std::string m_EffectiveTldNamesFileName;
 
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
 
     TStrSet m_EffectiveTldNames;
     TStrSet m_EffectiveTldNamesExceptions;

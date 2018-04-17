@@ -48,16 +48,23 @@ public:
 
 private:
     bool parseRuleConditions(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
-    bool parseFilterId(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition);
+    bool parseFilterId(const rapidjson::Value& conditionObject,
+                       model::CRuleCondition& ruleCondition);
 
     static bool hasStringMember(const rapidjson::Value& object, const std::string& name);
     static bool hasArrayMember(const rapidjson::Value& object, const std::string& name);
-    static bool parseRuleActions(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
-    static bool parseConditionsConnective(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
-    static bool parseRuleConditionType(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition);
-    static bool parseCondition(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition);
-    static bool parseConditionOperator(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition);
-    static bool parseConditionThreshold(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition);
+    static bool parseRuleActions(const rapidjson::Value& ruleObject,
+                                 model::CDetectionRule& rule);
+    static bool parseConditionsConnective(const rapidjson::Value& ruleObject,
+                                          model::CDetectionRule& rule);
+    static bool parseRuleConditionType(const rapidjson::Value& ruleConditionObject,
+                                       model::CRuleCondition& ruleCondition);
+    static bool parseCondition(const rapidjson::Value& ruleConditionObject,
+                               model::CRuleCondition& ruleCondition);
+    static bool parseConditionOperator(const rapidjson::Value& conditionObject,
+                                       model::CRuleCondition& ruleCondition);
+    static bool parseConditionThreshold(const rapidjson::Value& conditionObject,
+                                        model::CRuleCondition& ruleCondition);
 
 private:
     //! The filters per id used by categorical rule conditions.

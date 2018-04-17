@@ -77,14 +77,20 @@ public:
     //! </pre>
     //!
     //! \note \p b should be greater than or equal to \p a.
-    virtual double meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const = 0;
+    virtual double
+    meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const = 0;
 
     //! \brief Get the integral of the product of two basis functions
     //! on the interval \f$[a,b]\f$, i.e.
     //! <pre class="fragment">
     //!   \f$\displaystyle \frac{1}{b - a} \int_a^b{\phi_{\epsilon}(\left \|u - c_1 \right \|)\phi_{\epsilon}(\left \|u - c_2 \right \|)}du\f$
     //! </pre>
-    virtual double product(double a, double b, double centre1, double centre2, double scale1 = 1.0, double scale2 = 1.0) const = 0;
+    virtual double product(double a,
+                           double b,
+                           double centre1,
+                           double centre2,
+                           double scale1 = 1.0,
+                           double scale2 = 1.0) const = 0;
 };
 
 //! \brief The Gaussian radial basis function.
@@ -124,11 +130,17 @@ public:
 
     //! \brief Get the mean square derivative of the basis function
     //! on the interval [\p a, \p b], i.e. the result of:
-    virtual double meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const;
+    virtual double
+    meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const;
 
     //! \brief Get the integral of the product of two basis functions
     //! on the interval [\p a, \p b].
-    virtual double product(double a, double b, double centre1, double centre2, double scale1 = 1.0, double scale2 = 1.0) const;
+    virtual double product(double a,
+                           double b,
+                           double centre1,
+                           double centre2,
+                           double scale1 = 1.0,
+                           double scale2 = 1.0) const;
 };
 
 //! \brief The inverse quadratic radial basis function.
@@ -168,11 +180,17 @@ public:
 
     //! \brief Get the mean square derivative of the basis function
     //! on the interval [\p a, \p b], i.e. the result of:
-    virtual double meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const;
+    virtual double
+    meanSquareDerivative(double a, double b, double centre, double scale = 1.0) const;
 
     //! \brief Get the integral of the product of two basis functions
     //! on the interval [\p a, \p b].
-    virtual double product(double a, double b, double centre1, double centre2, double scale1 = 1.0, double scale2 = 1.0) const;
+    virtual double product(double a,
+                           double b,
+                           double centre1,
+                           double centre2,
+                           double scale1 = 1.0,
+                           double scale2 = 1.0) const;
 };
 }
 }

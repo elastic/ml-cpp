@@ -27,7 +27,8 @@ std::string CShellArgQuoter::quote(const std::string& arg) {
     }
 
     // Simple command line options should not be quoted
-    if (arg.length() == 2 && (arg[0] == '/' || arg[0] == '-') && ::isalnum(static_cast<unsigned char>(arg[1]))) {
+    if (arg.length() == 2 && (arg[0] == '/' || arg[0] == '-') &&
+        ::isalnum(static_cast<unsigned char>(arg[1]))) {
         return arg;
     }
 

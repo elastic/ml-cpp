@@ -41,7 +41,8 @@ namespace core {
 template<typename MESSAGE, typename BUFFER>
 class CMessageBuffer {
 public:
-    CMessageBuffer(BUFFER& buffer) : m_Thread(*this), m_Condition(m_Mutex), m_Buffer(buffer) {}
+    CMessageBuffer(BUFFER& buffer)
+        : m_Thread(*this), m_Condition(m_Mutex), m_Buffer(buffer) {}
 
     virtual ~CMessageBuffer() {}
 
@@ -50,7 +51,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 
@@ -109,7 +110,8 @@ private:
             TMessageVec data;
 
             m_MessageBuffer.m_Buffer.flushAllMessages(data);
-            m_MessageBuffer.m_Buffer.processMessages(data, std::numeric_limits<core_t::TTime>::max());
+            m_MessageBuffer.m_Buffer.processMessages(
+                data, std::numeric_limits<core_t::TTime>::max());
 
             m_IsRunning = false;
 

@@ -45,7 +45,8 @@ namespace controller {
 //!
 class CBlockingCallCancellerThread : public core::CThread {
 public:
-    CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId, std::istream& monitorStream);
+    CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
+                                 std::istream& monitorStream);
 
 protected:
     //! Called when the thread is started.

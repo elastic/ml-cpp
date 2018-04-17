@@ -104,9 +104,12 @@ inline double square(double x) {
 template<typename DISTRIBUTION>
 class CPdf {
 public:
-    CPdf(const DISTRIBUTION& distribution, double target) : m_Distribution(distribution), m_Target(target) {}
+    CPdf(const DISTRIBUTION& distribution, double target)
+        : m_Distribution(distribution), m_Target(target) {}
 
-    double operator()(double x) const { return adapters::pdf(m_Distribution, x) - m_Target; }
+    double operator()(double x) const {
+        return adapters::pdf(m_Distribution, x) - m_Target;
+    }
 
 private:
     DISTRIBUTION m_Distribution;
@@ -125,7 +128,7 @@ inline double continuousSafePdf(const Distribution& distribution, double x) {
     if (x <= support.first || x >= support.second) {
         return 0.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN, distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN, distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::pdf(distribution, x);
@@ -141,7 +144,7 @@ inline double discreteSafePdf(const Distribution& distribution, double x) {
     if (x < support.first || x > support.second) {
         return 0.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN, distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN, distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::pdf(distribution, x);
@@ -155,7 +158,7 @@ inline double continuousSafeCdf(const Distribution& distribution, double x) {
     } else if (x >= support.second) {
         return 1.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN, distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN, distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::cdf(distribution, x);
@@ -173,7 +176,7 @@ inline double discreteSafeCdf(const Distribution& distribution, double x) {
     } else if (x > support.second) {
         return 1.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN, distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN, distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::cdf(distribution, x);
@@ -187,7 +190,7 @@ inline double continuousSafeCdfComplement(const Distribution& distribution, doub
     } else if (x >= support.second) {
         return 0.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN, distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN, distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::cdf(boost::math::complement(distribution, x));
@@ -205,7 +208,7 @@ inline double discreteSafeCdfComplement(const Distribution& distribution, double
     } else if (x > support.second) {
         return 0.0;
     } else if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("x = NaN distribution = " << typeid(Distribution).name());
+        LOG_ERROR(<< "x = NaN distribution = " << typeid(Distribution).name());
         return 0.0;
     }
     return boost::math::cdf(boost::math::complement(distribution, x));
@@ -252,7 +255,8 @@ double CTools::SMinusLogCdf::operator()(const students_t& students, double x) co
     return safeMinusLogCdf(safeCdf(students, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const negative_binomial& negativeBinomial, double x) const {
+double CTools::SMinusLogCdf::operator()(const negative_binomial& negativeBinomial,
+                                        double x) const {
     return safeMinusLogCdf(safeCdf(negativeBinomial, x));
 }
 
@@ -286,7 +290,8 @@ double CTools::SMinusLogCdfComplement::operator()(const students_t& students, do
     return safeMinusLogCdf(safeCdfComplement(students, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const negative_binomial& negativeBinomial, double x) const {
+double CTools::SMinusLogCdfComplement::
+operator()(const negative_binomial& negativeBinomial, double x) const {
     return safeMinusLogCdf(safeCdfComplement(negativeBinomial, x));
 }
 
@@ -294,7 +299,8 @@ double CTools::SMinusLogCdfComplement::operator()(const lognormal& logNormal, do
     return safeMinusLogCdf(safeCdfComplement(logNormal, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const CLogTDistribution& logt, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const CLogTDistribution& logt,
+                                                  double x) const {
     return safeMinusLogCdf(maths::cdfComplement(logt, x));
 }
 
@@ -312,13 +318,15 @@ CTools::CProbabilityOfLessLikelySample::CProbabilityOfLessLikelySample(maths_t::
     : m_Calculation(calculation) {
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const {
     // For any finite sample this is one.
     tail = maths_t::E_MixedOrNeitherTail;
     return 1.0;
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(normal_);
@@ -358,7 +366,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const normal& normal_,
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const students_t& students, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const students_t& students, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(students);
@@ -397,7 +406,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const students_t& stud
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const {
     x = std::floor(x);
 
     double px = 0.0;
@@ -418,14 +428,16 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
 
     case maths_t::E_OneSidedAbove:
         tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-        return truncate(2.0 * (safeCdfComplement(negativeBinomial, x) + safePdf(negativeBinomial, x)), 0.0, 1.0);
+        return truncate(2.0 * (safeCdfComplement(negativeBinomial, x) +
+                               safePdf(negativeBinomial, x)),
+                        0.0, 1.0);
     }
 
     double fx = safePdf(negativeBinomial, x);
     double r = negativeBinomial.successes();
     double p = negativeBinomial.success_fraction();
     double m = boost::math::mode(negativeBinomial);
-    LOG_TRACE("x = " << x << ", f(x) = " << fx);
+    LOG_TRACE(<< "x = " << x << ", f(x) = " << fx);
 
     // If the number of successes <= 1 the distribution is single sided.
     if (r <= 1.0) {
@@ -439,7 +451,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
     // is just P(y > x).
     if (x > m) {
         double f0 = safePdf(negativeBinomial, 0.0);
-        LOG_TRACE("f(0) = " << f0);
+        LOG_TRACE(<< "f(0) = " << f0);
         if (fx <= f0) {
             return truncate(safeCdfComplement(negativeBinomial, x) + fx, 0.0, 1.0);
         }
@@ -448,7 +460,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
     // Trap the case f(x) = f(m).
     double fm = safePdf(negativeBinomial, m);
 
-    LOG_TRACE("m = " << m << ", f(m) = " << fm);
+    LOG_TRACE(<< "m = " << m << ", f(m) = " << fm);
 
     if (fx >= fm) {
         return 1.0;
@@ -491,12 +503,13 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
 
         double logOneMinusP = std::log(1 - p);
 
-        b1 = std::floor(m + std::log(std::max(fx, MIN_DOUBLE) / std::max(fm, MIN_DOUBLE)) / logOneMinusP);
+        b1 = std::floor(m + std::log(std::max(fx, MIN_DOUBLE) / std::max(fm, MIN_DOUBLE)) /
+                                logOneMinusP);
         f1 = safePdf(negativeBinomial, b1);
         b2 = b1;
         f2 = f1;
 
-        LOG_TRACE("b1 = " << b1 << ", f(b1) = " << f1);
+        LOG_TRACE(<< "b1 = " << b1 << ", f(b1) = " << f1);
 
         double growthFactor = 0.25;
         double step = growthFactor * b2;
@@ -513,8 +526,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
 
             // We compute successively tighter lower bounds on the
             // bracket point.
-            double lowerBound = b2 + std::log(std::max(fx, MIN_DOUBLE) / std::max(f2, MIN_DOUBLE)) / logOneMinusP;
-            LOG_TRACE("b2 = " << b2 << ", f2 = " << f2 << ", bound = " << lowerBound);
+            double lowerBound =
+                b2 + std::log(std::max(fx, MIN_DOUBLE) / std::max(f2, MIN_DOUBLE)) / logOneMinusP;
+            LOG_TRACE(<< "b2 = " << b2 << ", f2 = " << f2 << ", bound = " << lowerBound);
 
             if (maxIterations <= 3 * MAX_ITERATIONS / 4) {
                 growthFactor *= 4.0;
@@ -523,8 +537,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
         }
     }
 
-    LOG_TRACE("Initial bracket = (" << b1 << "," << b2 << ")"
-                                    << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+    LOG_TRACE(<< "Initial bracket = (" << b1 << "," << b2 << ")"
+              << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
 
     px = x < m ? safeCdf(negativeBinomial, x) : safeCdfComplement(negativeBinomial, x);
     double y = POS_INF;
@@ -537,32 +551,37 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
         double eps = 0.05 * px / std::max(fx, MIN_DOUBLE);
         eps = std::max(eps, EPSILON * std::min(b1, b2));
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
-        CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(negativeBinomial, fx), maxIterations, equal, y);
-        LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
-                                << ", iterations = " << maxIterations << ", f(y) = " << safePdf(negativeBinomial, y) - fx
-                                << ", eps = " << eps);
+        CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(negativeBinomial, fx),
+                        maxIterations, equal, y);
+        LOG_TRACE(<< "bracket = (" << b1 << "," << b2 << ")"
+                  << ", iterations = " << maxIterations << ", f(y) = "
+                  << safePdf(negativeBinomial, y) - fx << ", eps = " << eps);
     } catch (const std::exception& e) {
         if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
             y = b1;
         } else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
             y = b2;
         } else {
-            LOG_ERROR("Failed in root finding: " << e.what() << ", x = " << x << ", bracket = (" << b1 << "," << b2 << ")"
-                                                 << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+            LOG_ERROR(<< "Failed in root finding: " << e.what() << ", x = " << x
+                      << ", bracket = (" << b1 << "," << b2 << ")"
+                      << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
             return truncate(px, 0.0, 1.0);
         }
     }
 
-    if ((x < m && y < m) || (x > m && y > m) || !(x >= support.first && x <= support.second)) {
-        LOG_ERROR("Bad root " << y << " (x = " << x << ")");
+    if ((x < m && y < m) || (x > m && y > m) ||
+        !(x >= support.first && x <= support.second)) {
+        LOG_ERROR(<< "Bad root " << y << " (x = " << x << ")");
     }
 
-    double py = x < m ? safeCdfComplement(negativeBinomial, y) : safeCdf(negativeBinomial, y);
+    double py = x < m ? safeCdfComplement(negativeBinomial, y)
+                      : safeCdf(negativeBinomial, y);
 
     return truncate(px + py + fx, 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(logNormal);
@@ -589,8 +608,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal& logNo
 
         double logx = std::log(x);
         double squareScale = square(logNormal.scale());
-        double discriminant =
-            std::sqrt(square(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) * (logx - logNormal.location()));
+        double discriminant = std::sqrt(
+            square(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
+                                      (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
         double y = m * std::exp(x > m ? -discriminant : discriminant);
@@ -609,7 +629,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal& logNo
     return px;
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = maths::support(logt);
@@ -635,7 +656,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
 
     double fx = pdf(logt, x);
     double m = mode(logt);
-    LOG_TRACE("x = " << x << ", f(x) = " << fx);
+    LOG_TRACE(<< "x = " << x << ", f(x) = " << fx);
 
     this->tail(x, m, tail);
 
@@ -650,7 +671,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     } else {
         double b1 = *localMinimum;
         double f1 = pdf(logt, b1);
-        LOG_TRACE("b1 = " << b1 << ", f(b1) = " << f1);
+        LOG_TRACE(<< "b1 = " << b1 << ", f(b1) = " << f1);
 
         if (f1 > fx) {
             return truncate(cdfComplement(logt, x), 0.0, 1.0);
@@ -659,8 +680,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
 
             double b2 = m;
             double f2 = pdf(logt, m);
-            LOG_TRACE("Initial bracket = (" << b1 << "," << b2 << ")"
-                                            << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+            LOG_TRACE(<< "Initial bracket = (" << b1 << "," << b2 << ")"
+                      << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
 
             double y = 0.0;
             try {
@@ -675,17 +696,20 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
                 eps = std::max(eps, EPSILON * std::min(b1, b2));
                 CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
                 std::size_t maxIterations = MAX_ITERATIONS;
-                CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(logt, fx), maxIterations, equal, y);
-                LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
-                                        << ", iterations = " << maxIterations << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
+                CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(logt, fx),
+                                maxIterations, equal, y);
+                LOG_TRACE(<< "bracket = (" << b1 << "," << b2 << ")"
+                          << ", iterations = " << maxIterations
+                          << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
             } catch (const std::exception& e) {
                 if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
                     y = b1;
                 } else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
                     y = b2;
                 } else {
-                    LOG_ERROR("Failed in root finding: " << e.what() << ", x = " << x << ", bracket = (" << b1 << "," << b2 << ")"
-                                                         << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+                    LOG_ERROR(<< "Failed in root finding: " << e.what() << ", x = " << x
+                              << ", bracket = (" << b1 << "," << b2 << ")"
+                              << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
                     return truncate(px, 0.0, 1.0);
                 }
             }
@@ -698,7 +722,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
 
     // For small x the density can be greater than the local mode.
     double fm = pdf(logt, m);
-    LOG_TRACE("f(m) = " << fm);
+    LOG_TRACE(<< "f(m) = " << fm);
     if (fx > fm) {
         return truncate(cdfComplement(logt, x), 0.0, 1.0);
     }
@@ -747,7 +771,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     double f1 = fBound < fx ? fm : fBound;
     double b2 = bound;
     double f2 = fBound;
-    LOG_TRACE("b1 = " << b1 << ", f(b1) = " << f1 << ", b2 = " << b2 << ", f(b2) = " << f2);
+    LOG_TRACE(<< "b1 = " << b1 << ", f(b1) = " << f1 << ", b2 = " << b2
+              << ", f(b2) = " << f2);
 
     std::size_t maxIterations = MAX_ITERATIONS;
 
@@ -771,7 +796,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
         // We compute successively tighter upper bounds on the
         // bracket point.
         double upperBound = b2 * f2 / fx;
-        LOG_TRACE("Bound = " << upperBound);
+        LOG_TRACE(<< "Bound = " << upperBound);
 
         if (maxIterations <= 3 * MAX_ITERATIONS / 4) {
             growthFactor *= 3.0;
@@ -783,8 +808,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
         }
     }
 
-    LOG_TRACE("Initial bracket = (" << b1 << "," << b2 << ")"
-                                    << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+    LOG_TRACE(<< "Initial bracket = (" << b1 << "," << b2 << ")"
+              << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
 
     px = cdf(logt, x);
     double y = POS_INF;
@@ -797,17 +822,20 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
         double eps = 0.05 * px / std::max(fx, MIN_DOUBLE);
         eps = std::max(eps, EPSILON * std::min(b1, b2));
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
-        CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(logt, fx), maxIterations, equal, y);
-        LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
-                                << ", iterations = " << maxIterations << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
+        CSolvers::solve(b1, b2, f1 - fx, f2 - fx, makePdf(logt, fx),
+                        maxIterations, equal, y);
+        LOG_TRACE(<< "bracket = (" << b1 << "," << b2 << ")"
+                  << ", iterations = " << maxIterations
+                  << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
     } catch (const std::exception& e) {
         if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
             y = b1;
         } else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
             y = b2;
         } else {
-            LOG_ERROR("Failed in root finding: " << e.what() << ", x = " << x << ", bracket = (" << b1 << "," << b2 << ")"
-                                                 << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
+            LOG_ERROR(<< "Failed in root finding: " << e.what() << ", x = " << x
+                      << ", bracket = (" << b1 << "," << b2 << ")"
+                      << ", f(bracket) = (" << f1 - fx << "," << f2 - fx << ")");
             return truncate(px, 0.0, 1.0);
         }
     }
@@ -815,7 +843,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     return truncate(px + cdfComplement(logt, y), 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(gamma_);
@@ -848,7 +877,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
     const unsigned int MAX_ITERATIONS = 20u;
 
     double m = boost::math::mode(gamma_);
-    LOG_TRACE("x = " << x << ", mode = " << m);
+    LOG_TRACE(<< "x = " << x << ", mode = " << m);
 
     this->tail(x, m, tail);
 
@@ -876,8 +905,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
 
         for (;;) {
             y[(i + 1) % 2] = x + m * std::log(y[i % 2] / x);
-            LOG_TRACE("y = " << y[(i + 1) % 2]);
-            if (++i == MAX_ITERATIONS || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
+            LOG_TRACE(<< "y = " << y[(i + 1) % 2]);
+            if (++i == MAX_ITERATIONS ||
+                std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
                 break;
             }
         }
@@ -902,8 +932,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
 
         for (;;) {
             y[(i + 1) % 2] = x * std::exp(-(x - y[i % 2]) / m);
-            LOG_TRACE("y = " << y[(i + 1) % 2]);
-            if (++i == MAX_ITERATIONS || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
+            LOG_TRACE(<< "y = " << y[(i + 1) % 2]);
+            if (++i == MAX_ITERATIONS ||
+                std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
                 break;
             }
         }
@@ -911,7 +942,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
 
     double fx = safePdf(gamma_, x);
     double fy = safePdf(gamma_, y[i % 2]);
-    LOG_TRACE("f(x) = " << fx << ", f(y) = " << fy);
+    LOG_TRACE(<< "f(x) = " << fx << ", f(y) = " << fy);
 
     if (std::fabs(fx - fy) <= PDF_TOLERANCE * std::max(fx, fy)) {
         if (x > y[i % 2]) {
@@ -956,8 +987,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
         fb = safePdf(gamma_, b);
     }
 
-    LOG_TRACE("Initial bracket = (" << a << ", " << b << ")"
-                                    << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
+    LOG_TRACE(<< "Initial bracket = (" << a << ", " << b << ")"
+              << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
 
     px = x > m ? safeCdfComplement(gamma_, x) : safeCdf(gamma_, x);
 
@@ -974,9 +1005,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
         std::size_t maxIterations = MAX_ITERATIONS / 2;
         double candidate;
-        CSolvers::solve(a, b, fa - fx, fb - fx, makePdf(gamma_, fx), maxIterations, equal, candidate);
-        LOG_TRACE("bracket = (" << a << "," << b << ")"
-                                << ", iterations = " << maxIterations << ", f(candidate) = " << safePdf(gamma_, candidate) - fx);
+        CSolvers::solve(a, b, fa - fx, fb - fx, makePdf(gamma_, fx),
+                        maxIterations, equal, candidate);
+        LOG_TRACE(<< "bracket = (" << a << "," << b << ")"
+                  << ", iterations = " << maxIterations
+                  << ", f(candidate) = " << safePdf(gamma_, candidate) - fx);
 
         if (std::fabs(safePdf(gamma_, candidate) - fx) < std::fabs(fy - fx)) {
             y[i % 2] = candidate;
@@ -987,20 +1020,23 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma& gamma_, d
         } else if (std::fabs(fb - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = b;
         } else {
-            LOG_ERROR("Failed in bracketed solver: " << e.what() << ", x = " << x << ", bracket = (" << a << ", " << b << ")"
-                                                     << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
+            LOG_ERROR(<< "Failed in bracketed solver: " << e.what()
+                      << ", x = " << x << ", bracket = (" << a << ", " << b << ")"
+                      << ", f(bracket) = (" << fa - fx << "," << fb - fx << ")");
             return truncate(px, 0.0, 1.0);
         }
     }
 
-    LOG_TRACE("f(x) = " << fx << ", f(y) = " << safePdf(gamma_, y[i % 2]));
+    LOG_TRACE(<< "f(x) = " << fx << ", f(y) = " << safePdf(gamma_, y[i % 2]));
 
-    double py = x > y[i % 2] ? safeCdf(gamma_, y[i % 2]) : safeCdfComplement(gamma_, y[i % 2]);
+    double py = x > y[i % 2] ? safeCdf(gamma_, y[i % 2])
+                             : safeCdfComplement(gamma_, y[i % 2]);
 
     return truncate(px + py, 0.0, 1.0);
 }
 
-double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
+double CTools::CProbabilityOfLessLikelySample::
+operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support(0.0, 1.0);
@@ -1100,7 +1136,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
 
         // Max sure y is supported by the p.d.f.
         if (y[i % 2] > support.second) {
-            return truncate(sp.second ? safeCdf(beta_, x) : safeCdfComplement(beta_, x), 0.0, 1.0);
+            return truncate(sp.second ? safeCdf(beta_, x) : safeCdfComplement(beta_, x),
+                            0.0, 1.0);
         }
 
         y[i % 2] = std::max(y[i % 2], sp.first);
@@ -1133,7 +1170,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
 
         // Max sure y is supported by the p.d.f.
         if (y[i % 2] < support.first) {
-            return truncate(sp.second ? safeCdfComplement(beta_, x) : safeCdf(beta_, x), 0.0, 1.0);
+            return truncate(sp.second ? safeCdfComplement(beta_, x) : safeCdf(beta_, x),
+                            0.0, 1.0);
         }
 
         y[i % 2] = std::min(y[i % 2], sp.first);
@@ -1141,7 +1179,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
 
     double fx = safePdf(beta_, x);
     double fy = safePdf(beta_, y[i % 2]);
-    LOG_TRACE("f(x) = " << fx << ", f(y) = " << fy);
+    LOG_TRACE(<< "f(x) = " << fx << ", f(y) = " << fy);
 
     TDoubleDoublePr bracket(support);
     TDoubleDoublePr fBracket(0.0, 0.0);
@@ -1152,10 +1190,10 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
             if (x > y[i % 2]) {
                 std::swap(x, y[i % 2]);
             }
-            return truncate(sp.second ? safeCdf(beta_, x) + safeCdfComplement(beta_, y[i % 2])
-                                      : safeCdf(beta_, y[i % 2]) - safeCdf(beta_, x),
-                            0.0,
-                            1.0);
+            return truncate(sp.second
+                                ? safeCdf(beta_, x) + safeCdfComplement(beta_, y[i % 2])
+                                : safeCdf(beta_, y[i % 2]) - safeCdf(beta_, x),
+                            0.0, 1.0);
         } else if (error > 0.0) {
             if (x < sp.first) {
                 bracket = std::make_pair(y[i % 2], bracket.second);
@@ -1175,8 +1213,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
             fBracket = std::make_pair(fa, fb);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to evaluate p.d.f.: " << e.what() << ", alpha = " << beta_.alpha() << ", beta = " << beta_.beta() << ", x = " << x
-                                                << ", y = " << y[i % 2]);
+        LOG_ERROR(<< "Failed to evaluate p.d.f.: " << e.what()
+                  << ", alpha = " << beta_.alpha() << ", beta = " << beta_.beta()
+                  << ", x = " << x << ", y = " << y[i % 2]);
         return 1.0;
     }
 
@@ -1185,8 +1224,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
         std::swap(fBracket.first, fBracket.second);
     }
 
-    LOG_TRACE("Initial bracket = " << core::CContainerPrinter::print(bracket)
-                                   << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+    LOG_TRACE(<< "Initial bracket = " << core::CContainerPrinter::print(bracket)
+              << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
 
     try {
         double eps = 0.05 / fx;
@@ -1194,11 +1233,12 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
         std::size_t maxIterations = MAX_ITERATIONS;
         double candidate;
-        CSolvers::solve(
-            bracket.first, bracket.second, fBracket.first, fBracket.second, makePdf(beta_, fx), maxIterations, equal, candidate);
+        CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second,
+                        makePdf(beta_, fx), maxIterations, equal, candidate);
 
-        LOG_TRACE("bracket = " << core::CContainerPrinter::print(bracket) << ", iterations = " << maxIterations
-                               << ", f(candidate) = " << safePdf(beta_, candidate) - fx << ", eps = " << eps);
+        LOG_TRACE(<< "bracket = " << core::CContainerPrinter::print(bracket)
+                  << ", iterations = " << maxIterations << ", f(candidate) = "
+                  << safePdf(beta_, candidate) - fx << ", eps = " << eps);
 
         if (std::fabs(safePdf(beta_, candidate) - fx) < std::fabs(fy - fx)) {
             y[i % 2] = candidate;
@@ -1209,8 +1249,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
         } else if (std::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = bracket.second;
         } else {
-            LOG_ERROR("Failed in bracketed solver: " << e.what() << ", x = " << x << ", bracket " << core::CContainerPrinter::print(bracket)
-                                                     << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+            LOG_ERROR(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
+                      << ", bracket " << core::CContainerPrinter::print(bracket)
+                      << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
             return 1.0;
         }
     }
@@ -1219,13 +1260,17 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta& beta_, dou
         std::swap(x, y[i % 2]);
     }
 
-    return truncate(
-        sp.second ? safeCdf(beta_, x) + safeCdfComplement(beta_, y[i % 2]) : safeCdf(beta_, y[i % 2]) - safeCdf(beta_, x), 0.0, 1.0);
+    return truncate(sp.second ? safeCdf(beta_, x) + safeCdfComplement(beta_, y[i % 2])
+                              : safeCdf(beta_, y[i % 2]) - safeCdf(beta_, x),
+                    0.0, 1.0);
 }
 
-bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr& support, double x, double& px, maths_t::ETail& tail) const {
+bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr& support,
+                                                   double x,
+                                                   double& px,
+                                                   maths_t::ETail& tail) const {
     if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("Bad argument x = " << x);
+        LOG_ERROR(<< "Bad argument x = " << x);
         tail = maths_t::E_MixedOrNeitherTail;
         return false;
     } else if (x < support.first) {
@@ -1267,11 +1312,12 @@ void CTools::CProbabilityOfLessLikelySample::tail(double x, double mode, maths_t
 
 //////// CMixtureProbabilityOfLessLikelySample Implementation ////////
 
-CTools::CMixtureProbabilityOfLessLikelySample::CMixtureProbabilityOfLessLikelySample(std::size_t n,
-                                                                                     double x,
-                                                                                     double logFx,
-                                                                                     double a,
-                                                                                     double b)
+CTools::CMixtureProbabilityOfLessLikelySample::CMixtureProbabilityOfLessLikelySample(
+    std::size_t n,
+    double x,
+    double logFx,
+    double a,
+    double b)
     : m_X(x), m_LogFx(logFx), m_A(a), m_B(b) {
     m_Endpoints.reserve(4 * n + 2);
     m_Endpoints.push_back(a);
@@ -1286,7 +1332,9 @@ void CTools::CMixtureProbabilityOfLessLikelySample::reinitialize(double x, doubl
     m_Endpoints.push_back(m_B);
 }
 
-void CTools::CMixtureProbabilityOfLessLikelySample::addMode(double weight, double modeMean, double modeSd) {
+void CTools::CMixtureProbabilityOfLessLikelySample::addMode(double weight,
+                                                            double modeMean,
+                                                            double modeSd) {
     double deviation = m_LogFx - fastLog(weight) + LOG_ROOT_TWO_PI + fastLog(modeSd);
     if (deviation >= 0.0) {
         deviation = 0.0;
@@ -1309,15 +1357,17 @@ void CTools::CMixtureProbabilityOfLessLikelySample::addMode(double weight, doubl
 
 void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec& intervals) {
     std::sort(m_Endpoints.begin(), m_Endpoints.end());
-    m_Endpoints.erase(std::unique(m_Endpoints.begin(), m_Endpoints.end()), m_Endpoints.end());
+    m_Endpoints.erase(std::unique(m_Endpoints.begin(), m_Endpoints.end()),
+                      m_Endpoints.end());
     intervals.reserve(m_Endpoints.size() - 1);
     for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
         intervals.emplace_back(m_Endpoints[i - 1], m_Endpoints[i]);
     }
-    LOG_TRACE("intervals = " << core::CContainerPrinter::print(intervals));
+    LOG_TRACE(<< "intervals = " << core::CContainerPrinter::print(intervals));
 }
 
-const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI = 0.5 * std::log(boost::math::double_constants::two_pi);
+const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI =
+    0.5 * std::log(boost::math::double_constants::two_pi);
 
 //////// SIntervalExpectation Implementation ////////
 
@@ -1343,10 +1393,12 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
         return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
     }
 
-    return mean + 2.0 * sd * (expa - expb) / boost::math::double_constants::root_two_pi / (erfb - erfa);
+    return mean + 2.0 * sd * (expa - expb) /
+                      boost::math::double_constants::root_two_pi / (erfb - erfa);
 }
 
-double CTools::SIntervalExpectation::operator()(const lognormal& logNormal, double a, double b) const {
+double CTools::SIntervalExpectation::
+operator()(const lognormal& logNormal, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
@@ -1372,7 +1424,8 @@ double CTools::SIntervalExpectation::operator()(const lognormal& logNormal, doub
     if (erfb - erfa < std::sqrt(EPSILON)) {
         double expa = loga == NEG_INF ? 0.0 : std::exp(-a_ * a_);
         double expb = logb == POS_INF ? 0.0 : std::exp(-b_ * b_);
-        return expa == expb ? (2.0 * a / (a + b)) * b : (expa + expb) / (expa / a + expb / b);
+        return expa == expb ? (2.0 * a / (a + b)) * b
+                            : (expa + expb) / (expa / a + expb / b);
     }
 
     double erfa_ = a_ == NEG_INF ? -1.0 : boost::math::erf(a_);
@@ -1425,46 +1478,56 @@ using AllowOverflow = policy<overflow_error<user_error>>;
 
 inline boost::math::normal_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::normal_distribution<>& normal) {
-    return boost::math::normal_distribution<double, math_policy::AllowOverflow>(normal.mean(), normal.standard_deviation());
+    return boost::math::normal_distribution<double, math_policy::AllowOverflow>(
+        normal.mean(), normal.standard_deviation());
 }
 
 inline boost::math::students_t_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::students_t_distribution<>& students) {
-    return boost::math::students_t_distribution<double, math_policy::AllowOverflow>(students.degrees_of_freedom());
+    return boost::math::students_t_distribution<double, math_policy::AllowOverflow>(
+        students.degrees_of_freedom());
 }
 
 inline boost::math::poisson_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::poisson_distribution<>& poisson) {
-    return boost::math::poisson_distribution<double, math_policy::AllowOverflow>(poisson.mean());
+    return boost::math::poisson_distribution<double, math_policy::AllowOverflow>(
+        poisson.mean());
 }
 
 inline boost::math::negative_binomial_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::negative_binomial_distribution<>& negativeBinomial) {
-    return boost::math::negative_binomial_distribution<double, math_policy::AllowOverflow>(negativeBinomial.successes(),
-                                                                                           negativeBinomial.success_fraction());
+    return boost::math::negative_binomial_distribution<double, math_policy::AllowOverflow>(
+        negativeBinomial.successes(), negativeBinomial.success_fraction());
 }
 
 inline boost::math::lognormal_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::lognormal_distribution<>& logNormal) {
-    return boost::math::lognormal_distribution<double, math_policy::AllowOverflow>(logNormal.location(), logNormal.scale());
+    return boost::math::lognormal_distribution<double, math_policy::AllowOverflow>(
+        logNormal.location(), logNormal.scale());
 }
 
-inline boost::math::gamma_distribution<double, math_policy::AllowOverflow> allowOverflow(const boost::math::gamma_distribution<>& gamma) {
-    return boost::math::gamma_distribution<double, math_policy::AllowOverflow>(gamma.shape(), gamma.scale());
+inline boost::math::gamma_distribution<double, math_policy::AllowOverflow>
+allowOverflow(const boost::math::gamma_distribution<>& gamma) {
+    return boost::math::gamma_distribution<double, math_policy::AllowOverflow>(
+        gamma.shape(), gamma.scale());
 }
 
-inline boost::math::beta_distribution<double, math_policy::AllowOverflow> allowOverflow(const boost::math::beta_distribution<>& beta) {
-    return boost::math::beta_distribution<double, math_policy::AllowOverflow>(beta.alpha(), beta.beta());
+inline boost::math::beta_distribution<double, math_policy::AllowOverflow>
+allowOverflow(const boost::math::beta_distribution<>& beta) {
+    return boost::math::beta_distribution<double, math_policy::AllowOverflow>(
+        beta.alpha(), beta.beta());
 }
 
 inline boost::math::binomial_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::binomial_distribution<>& binomial) {
-    return boost::math::binomial_distribution<double, math_policy::AllowOverflow>(binomial.trials(), binomial.success_fraction());
+    return boost::math::binomial_distribution<double, math_policy::AllowOverflow>(
+        binomial.trials(), binomial.success_fraction());
 }
 
 inline boost::math::chi_squared_distribution<double, math_policy::AllowOverflow>
 allowOverflow(const boost::math::chi_squared_distribution<>& chi2) {
-    return boost::math::chi_squared_distribution<double, math_policy::AllowOverflow>(chi2.degrees_of_freedom());
+    return boost::math::chi_squared_distribution<double, math_policy::AllowOverflow>(
+        chi2.degrees_of_freedom());
 }
 }
 
@@ -1673,25 +1736,28 @@ double CTools::deviation(double p) {
         if (adjP >= SMALL_PROBABILITY) {
             // We use a linear scaling based on the inverse probability
             // into the range (0.0, 1.0].
-            result = SMALL_PROBABILITY_DEVIATION * (1.0 / adjP - INV_LARGEST_SIGNIFICANT_PROBABILITY) /
+            result = SMALL_PROBABILITY_DEVIATION *
+                     (1.0 / adjP - INV_LARGEST_SIGNIFICANT_PROBABILITY) /
                      (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY);
         } else if (adjP >= MINUSCULE_PROBABILITY) {
             // We use a linear scaling based on the log probability into
             // the range (1.0, 50.0].
-            result = SMALL_PROBABILITY_DEVIATION + (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION) *
-                                                       (-std::log(adjP) - MINUS_LOG_SMALL_PROBABILITY) /
-                                                       (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY);
+            result = SMALL_PROBABILITY_DEVIATION +
+                     (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION) *
+                         (-std::log(adjP) - MINUS_LOG_SMALL_PROBABILITY) /
+                         (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY);
         } else {
             // We use a linear scaling based on the log probability into
             // the range (50.0, 100.0].
-            result = MINUSCULE_PROBABILITY_DEVIATION + (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION) *
-                                                           (-std::log(adjP) - MINUS_LOG_MINUSCULE_PROBABILITY) /
-                                                           (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY);
+            result = MINUSCULE_PROBABILITY_DEVIATION +
+                     (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION) *
+                         (-std::log(adjP) - MINUS_LOG_MINUSCULE_PROBABILITY) /
+                         (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY);
         }
     }
 
     if (!(result >= 0.0 && result <= MAX_DEVIATION)) {
-        LOG_ERROR("Deviation " << result << " out of range, p =" << p);
+        LOG_ERROR(<< "Deviation " << result << " out of range, p =" << p);
     }
 
     return result;
@@ -1709,23 +1775,27 @@ double CTools::inverseDeviation(double deviation) {
         // We invert the linear scaling of the inverse probability
         // into the range (0.0, 1.0].
         result = 1.0 / (INV_LARGEST_SIGNIFICANT_PROBABILITY +
-                        (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY) * deviation / SMALL_PROBABILITY_DEVIATION);
+                        (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY) *
+                            deviation / SMALL_PROBABILITY_DEVIATION);
     } else if (adjDeviation <= MINUSCULE_PROBABILITY_DEVIATION) {
         // We invert the linear scaling of the log probability
         // into the range (1.0, 50.0].
-        result = std::exp(-(MINUS_LOG_SMALL_PROBABILITY + (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY) *
-                                                              (deviation - SMALL_PROBABILITY_DEVIATION) /
-                                                              (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION)));
+        result = std::exp(
+            -(MINUS_LOG_SMALL_PROBABILITY +
+              (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY) *
+                  (deviation - SMALL_PROBABILITY_DEVIATION) /
+                  (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION)));
     } else {
         // We invert the linear scaling of the log probability
         // into the range (50.0, 100.0].
-        result = std::exp(-(MINUS_LOG_MINUSCULE_PROBABILITY + (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY) *
-                                                                  (deviation - MINUSCULE_PROBABILITY_DEVIATION) /
-                                                                  (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION)));
+        result = std::exp(-(MINUS_LOG_MINUSCULE_PROBABILITY +
+                            (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY) *
+                                (deviation - MINUSCULE_PROBABILITY_DEVIATION) /
+                                (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION)));
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
-        LOG_ERROR("Probability " << result << " out of range, deviation =" << deviation);
+        LOG_ERROR(<< "Probability " << result << " out of range, deviation =" << deviation);
     }
 
     return result;
@@ -1759,7 +1829,8 @@ double CTools::differentialEntropy(const normal& normal_) {
     //   m is the mean and variance of the normal distribution.
 
     double variance = boost::math::variance(normal_);
-    return 0.5 * std::log(boost::math::double_constants::two_pi * boost::math::double_constants::e * variance);
+    return 0.5 * std::log(boost::math::double_constants::two_pi *
+                          boost::math::double_constants::e * variance);
 }
 
 double CTools::differentialEntropy(const lognormal& logNormal) {
@@ -1771,7 +1842,9 @@ double CTools::differentialEntropy(const lognormal& logNormal) {
 
     double location = logNormal.location();
     double scale = logNormal.scale();
-    return 0.5 * std::log(boost::math::double_constants::two_pi * boost::math::double_constants::e * square(scale)) + location;
+    return 0.5 * std::log(boost::math::double_constants::two_pi *
+                          boost::math::double_constants::e * square(scale)) +
+           location;
 }
 
 double CTools::differentialEntropy(const gamma& gamma_) {
@@ -1784,7 +1857,8 @@ double CTools::differentialEntropy(const gamma& gamma_) {
 
     double shape = gamma_.shape();
     double scale = gamma_.scale();
-    return shape + std::log(scale) + boost::math::lgamma(shape) + (1 - shape) * boost::math::digamma(shape);
+    return shape + std::log(scale) + boost::math::lgamma(shape) +
+           (1 - shape) * boost::math::digamma(shape);
 }
 
 //////// CGroup Implementation ////////
@@ -1808,16 +1882,18 @@ bool CTools::CGroup::overlap(const CGroup& other, double separation) const {
     double lr{this->rightEndpoint(separation)};
     double rl{other.leftEndpoint(separation)};
     double rr{other.rightEndpoint(separation)};
-    return !(TOL * (lr + separation) <= rl || ll >= TOL * (rr + separation) || TOL * (rr + separation) <= ll ||
-             rl >= TOL * (lr + separation));
+    return !(TOL * (lr + separation) <= rl || ll >= TOL * (rr + separation) ||
+             TOL * (rr + separation) <= ll || rl >= TOL * (lr + separation));
 }
 
 double CTools::CGroup::leftEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) - static_cast<double>(m_B - m_A) * separation / 2.0;
+    return CBasicStatistics::mean(m_Centre) -
+           static_cast<double>(m_B - m_A) * separation / 2.0;
 }
 
 double CTools::CGroup::rightEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) + static_cast<double>(m_B - m_A) * separation / 2.0;
+    return CBasicStatistics::mean(m_Centre) +
+           static_cast<double>(m_B - m_A) * separation / 2.0;
 }
 
 const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;

@@ -52,8 +52,10 @@ double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
-CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/, double /*confidence*/, int /*components*/, bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
+                                                                double /*confidence*/,
+                                                                int /*components*/,
+                                                                bool /*smooth*/) const {
     return {0.0, 0.0};
 }
 
@@ -66,7 +68,9 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
     result.clear();
 }
 
-double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/, double value, double /*confidence*/) const {
+double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
+                                             double value,
+                                             double /*confidence*/) const {
     return value;
 }
 
@@ -74,8 +78,10 @@ double CTimeSeriesDecompositionStub::meanVariance() const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
-CTimeSeriesDecompositionStub::scale(core_t::TTime /*time*/, double /*variance*/, double /*confidence*/, bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*time*/,
+                                                             double /*variance*/,
+                                                             double /*confidence*/,
+                                                             bool /*smooth*/) const {
     return {1.0, 1.0};
 }
 

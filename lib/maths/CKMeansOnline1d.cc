@@ -50,20 +50,26 @@ namespace detail {
 //! \brief Orders two normals by their means.
 struct SNormalMeanLess {
 public:
-    bool operator()(const CNormalMeanPrecConjugate& lhs, const CNormalMeanPrecConjugate& rhs) const {
+    bool operator()(const CNormalMeanPrecConjugate& lhs,
+                    const CNormalMeanPrecConjugate& rhs) const {
         return lhs.marginalLikelihoodMean() < rhs.marginalLikelihoodMean();
     }
-    bool operator()(double lhs, const CNormalMeanPrecConjugate& rhs) const { return lhs < rhs.marginalLikelihoodMean(); }
-    bool operator()(const CNormalMeanPrecConjugate& lhs, double rhs) const { return lhs.marginalLikelihoodMean() < rhs; }
+    bool operator()(double lhs, const CNormalMeanPrecConjugate& rhs) const {
+        return lhs < rhs.marginalLikelihoodMean();
+    }
+    bool operator()(const CNormalMeanPrecConjugate& lhs, double rhs) const {
+        return lhs.marginalLikelihoodMean() < rhs;
+    }
 };
 
 //! Get the log of the likelihood that \p point is from \p normal.
-double logLikelihoodFromCluster(const TDouble1Vec& sample, const CNormalMeanPrecConjugate& normal) {
+double logLikelihoodFromCluster(const TDouble1Vec& sample,
+                                const CNormalMeanPrecConjugate& normal) {
     double likelihood;
-    maths_t::EFloatingPointErrorStatus status =
-        normal.jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
+    maths_t::EFloatingPointErrorStatus status = normal.jointLogMarginalLikelihood(
+        CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("Unable to compute probability for: " << sample[0]);
+        LOG_ERROR(<< "Unable to compute probability for: " << sample[0]);
         return core::constants::LOG_MIN_DOUBLE - 1.0;
     }
     if (status & maths_t::E_FpOverflowed) {
@@ -85,11 +91,14 @@ CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
     m_Clusters.assign(clusters.begin(), clusters.end());
 }
 
-CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser, this, boost::cref(params), _1));
+CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params,
+                                 core::CStateRestoreTraverser& traverser) {
+    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser,
+                                           this, boost::cref(params), _1));
 }
 
-bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
+bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                             core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == CLUSTER_TAG) {
@@ -107,7 +116,8 @@ std::string CKMeansOnline1d::persistenceTag() const {
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter, &m_Clusters[i], _1));
+        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                                      &m_Clusters[i], _1));
     }
 }
 
@@ -141,7 +151,7 @@ bool CKMeansOnline1d::hasCluster(std::size_t index) const {
 
 bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     result = m_Clusters[index].marginalLikelihoodMean();
@@ -150,7 +160,7 @@ bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
 
 bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     result = std::sqrt(m_Clusters[index].marginalLikelihoodVariance());
@@ -161,11 +171,12 @@ void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
     result.clear();
 
     if (m_Clusters.empty()) {
-        LOG_ERROR("No clusters");
+        LOG_ERROR(<< "No clusters");
         return;
     }
 
-    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(), point, detail::SNormalMeanLess());
+    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(),
+                                         point, detail::SNormalMeanLess());
 
     if (rightCluster == m_Clusters.end()) {
         --rightCluster;
@@ -231,7 +242,7 @@ void CKMeansOnline1d::propagateForwardsByTime(double time) {
 
 bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const {
     if (!this->hasCluster(index)) {
-        LOG_ERROR("Cluster " << index << " doesn't exist");
+        LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
     TDouble1Vec samples_;

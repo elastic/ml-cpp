@@ -16,25 +16,28 @@
 
 #include <core/CoreTypes.h>
 
-#include <boost/make_shared.hpp>
-
 namespace ml {
 namespace core {
 
 CXmlNodeWithChildren::CXmlNodeWithChildren() : CXmlNode() {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name)
+    : CXmlNode(name) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value) : CXmlNode(name, value) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value)
+    : CXmlNode(name, value) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value, const CXmlNode::TStrStrMap& attributes)
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name,
+                                           const std::string& value,
+                                           const CXmlNode::TStrStrMap& attributes)
     : CXmlNode(name, value, attributes) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg) : CXmlNode(arg), m_Children(arg.m_Children) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg)
+    : CXmlNode(arg), m_Children(arg.m_Children) {
 }
 
 CXmlNodeWithChildren::~CXmlNodeWithChildren() {
@@ -50,12 +53,12 @@ CXmlNodeWithChildren& CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren
 }
 
 void CXmlNodeWithChildren::addChild(const CXmlNode& child) {
-    m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>());
+    m_Children.push_back(std::make_shared<CXmlNodeWithChildren>());
     m_Children.back()->CXmlNode::operator=(child);
 }
 
 void CXmlNodeWithChildren::addChild(const CXmlNodeWithChildren& child) {
-    m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>(child));
+    m_Children.push_back(std::make_shared<CXmlNodeWithChildren>(child));
 }
 
 void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP& childP) {
@@ -79,9 +82,10 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const {
     strRep += core_t::LINE_ENDING;
 
     // Now add children at next level of indenting
-    for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end(); ++childIter) {
+    for (TChildNodePVecCItr childIter = m_Children.begin();
+         childIter != m_Children.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
-        if (child != 0) {
+        if (child != nullptr) {
             strRep += child->dump(indent + 1);
         }
     }

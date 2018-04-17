@@ -62,25 +62,33 @@ public:
 public:
     CXMeansForTest(std::size_t kmax) : maths::CXMeans<POINT, COST>(kmax) {}
 
-    void improveParams(std::size_t kmeansIterations) { this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations); }
+    void improveParams(std::size_t kmeansIterations) {
+        this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations);
+    }
 
     bool improveStructure(std::size_t clusterSeeds, std::size_t kmeansIterations) {
         return this->maths::CXMeans<POINT, COST>::improveStructure(clusterSeeds, kmeansIterations);
     }
 
-    const TUInt64USet& inactive() const { return this->maths::CXMeans<POINT, COST>::inactive(); }
+    const TUInt64USet& inactive() const {
+        return this->maths::CXMeans<POINT, COST>::inactive();
+    }
 };
 
 template<typename POINT>
 double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
-    return -0.5 * d * std::log(boost::math::double_constants::two_pi * variance) - 0.5 * r * r / variance;
+    return -0.5 * d * std::log(boost::math::double_constants::two_pi * variance) -
+           0.5 * r * r / variance;
 }
 
 class CEmpiricalKullbackLeibler {
 public:
-    double value() const { return maths::CBasicStatistics::mean(m_Divergence) - std::log(maths::CBasicStatistics::count(m_Divergence)); }
+    double value() const {
+        return maths::CBasicStatistics::mean(m_Divergence) -
+               std::log(maths::CBasicStatistics::count(m_Divergence));
+    }
 
     template<typename POINT>
     void add(const std::vector<POINT>& points) {
@@ -114,19 +122,19 @@ void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
             counts.resize(std::max(counts.size(), clusters[i][j] + 1));
             ++counts[clusters[i][j]];
         }
-        purities[i] = static_cast<double>(*std::max_element(counts.begin(), counts.end())) / static_cast<double>(clusters[i].size());
+        purities[i] =
+            static_cast<double>(*std::max_element(counts.begin(), counts.end())) /
+            static_cast<double>(clusters[i].size());
     }
 }
 }
 
 void CXMeansTest::testCluster() {
-    LOG_DEBUG("+----------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testCluster  |");
-    LOG_DEBUG("+----------------------------+");
+    LOG_DEBUG(<< "+----------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testCluster  |");
+    LOG_DEBUG(<< "+----------------------------+");
 
     // Test basic accessors and checksum functionality of cluster.
-
-    using TDoubleVec = std::vector<double>;
 
     maths::CSampling::seed();
 
@@ -136,7 +144,7 @@ void CXMeansTest::testCluster() {
     rng.generateUniformSamples(-100.0, 400.0, 800, samples);
 
     for (std::size_t t = 0u; t < 100; ++t) {
-        LOG_DEBUG("Test " << t);
+        LOG_DEBUG(<< "Test " << t);
         {
             maths::CXMeans<TVector2>::CCluster cluster1;
             maths::CXMeans<TVector2>::CCluster cluster2;
@@ -187,13 +195,11 @@ void CXMeansTest::testCluster() {
 }
 
 void CXMeansTest::testImproveStructure() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testImproveStructure  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testImproveStructure  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // Test improve structure finds an obvious split of the data.
-
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
@@ -203,7 +209,7 @@ void CXMeansTest::testImproveStructure() {
     TMeanAccumulator meanError;
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("Test " << t);
+        LOG_DEBUG(<< "Test " << t);
 
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
@@ -226,7 +232,7 @@ void CXMeansTest::testImproveStructure() {
         }
         std::sort(clusters.begin(), clusters.end());
         std::sort(oldChecksums.begin(), oldChecksums.end());
-        LOG_DEBUG("centres = " << core::CContainerPrinter::print(clusters));
+        LOG_DEBUG(<< "centres = " << core::CContainerPrinter::print(clusters));
 
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
@@ -246,22 +252,23 @@ void CXMeansTest::testImproveStructure() {
         std::sort(newChecksums.begin(), newChecksums.end());
 
         TUInt64Vec inactive;
-        std::set_intersection(
-            oldChecksums.begin(), oldChecksums.end(), newChecksums.begin(), newChecksums.end(), std::back_inserter(inactive));
-        LOG_DEBUG("inactive = " << core::CContainerPrinter::print(inactive));
+        std::set_intersection(oldChecksums.begin(), oldChecksums.end(),
+                              newChecksums.begin(), newChecksums.end(),
+                              std::back_inserter(inactive));
+        LOG_DEBUG(<< "inactive = " << core::CContainerPrinter::print(inactive));
         for (std::size_t i = 0u; i < inactive.size(); ++i) {
             CPPUNIT_ASSERT(xmeans.inactive().count(inactive[i]) > 0);
         }
     }
 
-    LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
+    LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.25);
 }
 
 void CXMeansTest::testImproveParams() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testImproveParams  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testImproveParams  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Test that improve params is equivalent to a round of k-means
     // on current state cluster centres.
@@ -272,7 +279,7 @@ void CXMeansTest::testImproveParams() {
     double covariances[][3] = {{10.0, -3.0, 15.0}, {20.0, 2.0, 5.0}};
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("Test " << t);
+        LOG_DEBUG(<< "Test " << t);
 
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
@@ -295,7 +302,7 @@ void CXMeansTest::testImproveParams() {
             seedCentres.push_back(xmeans.clusters()[i].centre());
         }
         std::sort(seedCentres.begin(), seedCentres.end());
-        LOG_DEBUG("seed centres = " << core::CContainerPrinter::print(seedCentres));
+        LOG_DEBUG(<< "seed centres = " << core::CContainerPrinter::print(seedCentres));
 
         kmeans.setCentres(seedCentres);
         kmeans.run(5);
@@ -311,16 +318,17 @@ void CXMeansTest::testImproveParams() {
         }
         std::sort(centres.begin(), centres.end());
 
-        LOG_DEBUG("expected centres = " << core::CContainerPrinter::print(expectedCentres));
-        LOG_DEBUG("centres          = " << core::CContainerPrinter::print(centres));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCentres), core::CContainerPrinter::print(centres));
+        LOG_DEBUG(<< "expected centres = " << core::CContainerPrinter::print(expectedCentres));
+        LOG_DEBUG(<< "centres          = " << core::CContainerPrinter::print(centres));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCentres),
+                             core::CContainerPrinter::print(centres));
     }
 }
 
 void CXMeansTest::testOneCluster() {
-    LOG_DEBUG("+-------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testOneCluster  |");
-    LOG_DEBUG("+-------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testOneCluster  |");
+    LOG_DEBUG(<< "+-------------------------------+");
 
     // Test it typically chooses just one cluster and that when we
     // do choose to split it is because a spherical Gaussian is a
@@ -339,12 +347,12 @@ void CXMeansTest::testOneCluster() {
     TVector2VecVec points;
 
     for (std::size_t t = 0; t < 50; ++t) {
-        LOG_DEBUG("*** test = " << t << " ***");
+        LOG_DEBUG(<< "*** test = " << t << " ***");
 
         TSizeVec sizes(1, size);
         rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
-        LOG_DEBUG("  mean       = " << core::CContainerPrinter::print(means));
+        LOG_DEBUG(<< "  mean       = " << core::CContainerPrinter::print(means));
 
         CEmpiricalKullbackLeibler kl;
         kl.add(points[0]);
@@ -358,9 +366,10 @@ void CXMeansTest::testOneCluster() {
             klc.add(xmeans.clusters()[i].points());
         }
 
-        LOG_DEBUG("  centres               = " << core::CContainerPrinter::print(xmeans.centres()));
-        LOG_DEBUG("  points empirical KL   = " << kl.value());
-        LOG_DEBUG("  clusters empirical KL = " << klc.value());
+        LOG_DEBUG(<< "  centres               = "
+                  << core::CContainerPrinter::print(xmeans.centres()));
+        LOG_DEBUG(<< "  points empirical KL   = " << kl.value());
+        LOG_DEBUG(<< "  clusters empirical KL = " << klc.value());
 
         meanNumberClusters.add(static_cast<double>(xmeans.clusters().size()));
         if (xmeans.clusters().size() > 1) {
@@ -368,14 +377,15 @@ void CXMeansTest::testOneCluster() {
         }
     }
 
-    LOG_DEBUG("mean number clusters = " << maths::CBasicStatistics::mean(meanNumberClusters));
+    LOG_DEBUG(<< "mean number clusters = "
+              << maths::CBasicStatistics::mean(meanNumberClusters));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanNumberClusters) < 1.15);
 }
 
 void CXMeansTest::testFiveClusters() {
-    LOG_DEBUG("+---------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testFiveClusters  |");
-    LOG_DEBUG("+---------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testFiveClusters  |");
+    LOG_DEBUG(<< "+---------------------------------+");
 
     // Test x-means clustering quality on data with five clusters.
 
@@ -399,11 +409,11 @@ void CXMeansTest::testFiveClusters() {
     //file.open("results.m");
 
     for (std::size_t t = 0; t < 50; ++t) {
-        LOG_DEBUG("*** test = " << t + 1 << " ***");
+        LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
 
         rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
-        LOG_DEBUG("  means       = " << core::CContainerPrinter::print(means));
+        LOG_DEBUG(<< "  means       = " << core::CContainerPrinter::print(means));
 
         flatPoints.clear();
         CEmpiricalKullbackLeibler kl;
@@ -436,17 +446,19 @@ void CXMeansTest::testFiveClusters() {
 
                 std::size_t k = 0u;
                 for (/**/; k < points.size(); ++k) {
-                    for (TVector2VecCItr itr = std::lower_bound(points[k].begin(), points[k].end(), clusterPoints[j]),
-                                         end = std::upper_bound(points[k].begin(), points[k].end(), clusterPoints[j]);
-                         itr != end;
-                         ++itr) {
+                    for (TVector2VecCItr
+                             itr = std::lower_bound(points[k].begin(), points[k].end(),
+                                                    clusterPoints[j]),
+                             end = std::upper_bound(points[k].begin(), points[k].end(),
+                                                    clusterPoints[j]);
+                         itr != end; ++itr) {
                         if (clusterPoints[j] == *itr) {
                             goto FoundPoint;
                         }
                     }
                 }
 
-                LOG_ERROR("Didn't find " << clusterPoints[j]);
+                LOG_ERROR(<< "Didn't find " << clusterPoints[j]);
                 CPPUNIT_ASSERT(false);
 
             FoundPoint:
@@ -464,15 +476,19 @@ void CXMeansTest::testFiveClusters() {
         TMeanAccumulator totalPurity;
         for (std::size_t i = 0u; i < purities.size(); ++i) {
             minPurity = std::min(minPurity, purities[i]);
-            totalPurity.add(purities[i], static_cast<double>(xmeans.clusters()[i].size()));
+            totalPurity.add(purities[i],
+                            static_cast<double>(xmeans.clusters()[i].size()));
         }
 
-        LOG_DEBUG("  centres               = " << core::CContainerPrinter::print(xmeans.centres()));
-        LOG_DEBUG("  purities              = " << core::CContainerPrinter::print(purities));
-        LOG_DEBUG("  points empirical KL   = " << kl.value());
-        LOG_DEBUG("  clusters empirical KL = " << klc.value());
-        LOG_DEBUG("  minPurity             = " << minPurity);
-        LOG_DEBUG("  totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
+        LOG_DEBUG(<< "  centres               = "
+                  << core::CContainerPrinter::print(xmeans.centres()));
+        LOG_DEBUG(<< "  purities              = "
+                  << core::CContainerPrinter::print(purities));
+        LOG_DEBUG(<< "  points empirical KL   = " << kl.value());
+        LOG_DEBUG(<< "  clusters empirical KL = " << klc.value());
+        LOG_DEBUG(<< "  minPurity             = " << minPurity);
+        LOG_DEBUG(<< "  totalPurity           = "
+                  << maths::CBasicStatistics::mean(totalPurity));
         CPPUNIT_ASSERT(minPurity > 0.39);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(totalPurity) > 0.54);
 
@@ -481,10 +497,12 @@ void CXMeansTest::testFiveClusters() {
         meanTotalPurity.add(maths::CBasicStatistics::mean(totalPurity));
     }
 
-    LOG_DEBUG("mean number clusters = " << maths::CBasicStatistics::mean(meanNumberClusters));
-    LOG_DEBUG("sd number clusters = " << std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
-    LOG_DEBUG("KL gain = " << maths::CBasicStatistics::mean(klgain));
-    LOG_DEBUG("mean total purity = " << maths::CBasicStatistics::mean(meanTotalPurity));
+    LOG_DEBUG(<< "mean number clusters = "
+              << maths::CBasicStatistics::mean(meanNumberClusters));
+    LOG_DEBUG(<< "sd number clusters = "
+              << std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
+    LOG_DEBUG(<< "KL gain = " << maths::CBasicStatistics::mean(klgain));
+    LOG_DEBUG(<< "mean total purity = " << maths::CBasicStatistics::mean(meanTotalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, maths::CBasicStatistics::mean(meanNumberClusters), 0.3);
     CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
@@ -493,15 +511,17 @@ void CXMeansTest::testFiveClusters() {
 }
 
 void CXMeansTest::testTwentyClusters() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testTwentyClusters  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testTwentyClusters  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // Test x-means clustering quality on data with twenty clusters.
 
     maths::CSampling::seed();
 
-    const std::size_t sizes_[] = {1800, 800, 1100, 400, 600, 400, 600, 1300, 400, 900, 500, 700, 400, 800, 1500, 1200, 500, 300, 1200, 800};
+    const std::size_t sizes_[] = {1800, 800,  1100, 400, 600,  400, 600,
+                                  1300, 400,  900,  500, 700,  400, 800,
+                                  1500, 1200, 500,  300, 1200, 800};
     TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
 
     test::CRandomNumbers rng;
@@ -527,7 +547,7 @@ void CXMeansTest::testTwentyClusters() {
     xmeans.setPoints(flatPoints);
     xmeans.run(4, 4, 5);
 
-    LOG_DEBUG("# clusters = " << xmeans.clusters().size());
+    LOG_DEBUG(<< "# clusters = " << xmeans.clusters().size());
 
     //std::ofstream file;
     //file.open("results.m");
@@ -548,17 +568,19 @@ void CXMeansTest::testTwentyClusters() {
 
             std::size_t k = 0u;
             for (/**/; k < points.size(); ++k) {
-                for (TVector2VecCItr itr = std::lower_bound(points[k].begin(), points[k].end(), clusterPoints[j]),
-                                     end = std::upper_bound(points[k].begin(), points[k].end(), clusterPoints[j]);
-                     itr != end;
-                     ++itr) {
+                for (TVector2VecCItr
+                         itr = std::lower_bound(points[k].begin(),
+                                                points[k].end(), clusterPoints[j]),
+                         end = std::upper_bound(points[k].begin(),
+                                                points[k].end(), clusterPoints[j]);
+                     itr != end; ++itr) {
                     if (clusterPoints[j] == *itr) {
                         goto FoundPoint;
                     }
                 }
             }
 
-            LOG_ERROR("Didn't find " << clusterPoints[j]);
+            LOG_ERROR(<< "Didn't find " << clusterPoints[j]);
             CPPUNIT_ASSERT(false);
 
         FoundPoint:
@@ -579,32 +601,38 @@ void CXMeansTest::testTwentyClusters() {
         totalPurity.add(purities[i], static_cast<double>(xmeans.clusters()[i].size()));
     }
 
-    LOG_DEBUG("purities              = " << core::CContainerPrinter::print(purities));
-    LOG_DEBUG("points empirical KL   = " << kl.value());
-    LOG_DEBUG("clusters empirical KL = " << klc.value());
-    LOG_DEBUG("minPurity             = " << minPurity);
-    LOG_DEBUG("totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
+    LOG_DEBUG(<< "purities              = " << core::CContainerPrinter::print(purities));
+    LOG_DEBUG(<< "points empirical KL   = " << kl.value());
+    LOG_DEBUG(<< "clusters empirical KL = " << klc.value());
+    LOG_DEBUG(<< "minPurity             = " << minPurity);
+    LOG_DEBUG(<< "totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
-    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()), std::fabs(kl.value())));
+    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()),
+                                                              std::fabs(kl.value())));
     CPPUNIT_ASSERT(minPurity > 0.4);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }
 
 void CXMeansTest::testPoorlyConditioned() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CXMeansTest::testPoorlyConditioned  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansTest::testPoorlyConditioned  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test we can handle poorly conditioned covariance matrices.
 
     maths::CSampling::seed();
 
-    double points_[][2] = {{0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},    {4.0, 2.0},    {5.0, 2.5},    {6.0, 3.0},
-                           {7.0, 3.5},    {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2}, {101.5, 22.0}, {104.0, 23.0},
-                           {102.6, 21.4}, {101.3, 22.0}, {101.2, 21.0}, {101.1, 22.1}, {101.7, 23.0}, {101.0, 24.0}, {50.0, 50.0},
-                           {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},  {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},
-                           {53.0, 52.0},  {52.0, 54.0},  {52.0, 52.0},  {52.0, 52.0},  {53.0, 52.0},  {51.0, 52.0}};
+    double points_[][2] = {
+        {0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},
+        {4.0, 2.0},    {5.0, 2.5},    {6.0, 3.0},    {7.0, 3.5},
+        {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2},
+        {101.5, 22.0}, {104.0, 23.0}, {102.6, 21.4}, {101.3, 22.0},
+        {101.2, 21.0}, {101.1, 22.1}, {101.7, 23.0}, {101.0, 24.0},
+        {50.0, 50.0},  {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},
+        {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},
+        {53.0, 52.0},  {52.0, 54.0},  {52.0, 52.0},  {52.0, 52.0},
+        {53.0, 52.0},  {51.0, 52.0}};
 
     TVector2Vec cluster1;
     for (std::size_t i = 0u; i < 10; ++i) {
@@ -624,7 +652,7 @@ void CXMeansTest::testPoorlyConditioned() {
 
     maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_BIC>> xmeans(5);
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** test = " << t << " ***");
+        LOG_DEBUG(<< "*** test = " << t << " ***");
 
         TVector2Vec points;
         for (std::size_t i = 0u; i < boost::size(points_); ++i) {
@@ -634,12 +662,13 @@ void CXMeansTest::testPoorlyConditioned() {
         xmeans.setPoints(points);
         xmeans.run(4, 4, 5);
 
-        LOG_DEBUG("# clusters = " << xmeans.clusters().size());
+        LOG_DEBUG(<< "# clusters = " << xmeans.clusters().size());
         for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
-            LOG_DEBUG("points = " << core::CContainerPrinter::print(clusterPoints));
-            CPPUNIT_ASSERT(clusterPoints == cluster1 || clusterPoints == cluster2 || clusterPoints == cluster3);
+            LOG_DEBUG(<< "points = " << core::CContainerPrinter::print(clusterPoints));
+            CPPUNIT_ASSERT(clusterPoints == cluster1 || clusterPoints == cluster2 ||
+                           clusterPoints == cluster3);
         }
     }
 }
@@ -647,13 +676,20 @@ void CXMeansTest::testPoorlyConditioned() {
 CppUnit::Test* CXMeansTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testCluster", &CXMeansTest::testCluster));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveStructure", &CXMeansTest::testImproveStructure));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveParams", &CXMeansTest::testImproveParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testOneCluster", &CXMeansTest::testOneCluster));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testFiveClusters", &CXMeansTest::testFiveClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testTwentyClusters", &CXMeansTest::testTwentyClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testPoorlyConditioned", &CXMeansTest::testPoorlyConditioned));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testCluster", &CXMeansTest::testCluster));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testImproveStructure", &CXMeansTest::testImproveStructure));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testImproveParams", &CXMeansTest::testImproveParams));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testOneCluster", &CXMeansTest::testOneCluster));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testFiveClusters", &CXMeansTest::testFiveClusters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testTwentyClusters", &CXMeansTest::testTwentyClusters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
+        "CXMeansTest::testPoorlyConditioned", &CXMeansTest::testPoorlyConditioned));
 
     return suiteOfTests;
 }

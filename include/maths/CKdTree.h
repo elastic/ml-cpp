@@ -82,7 +82,9 @@ public:
     class CCoordinateLess {
     public:
         CCoordinateLess(std::size_t i) : m_I(i) {}
-        bool operator()(const POINT& lhs, const POINT& rhs) const { return lhs(m_I) < rhs(m_I); }
+        bool operator()(const POINT& lhs, const POINT& rhs) const {
+            return lhs(m_I) < rhs(m_I);
+        }
 
     private:
         std::size_t m_I;
@@ -90,13 +92,15 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
+        SNode(SNode* parent, const POINT& point)
+            : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr),
+              s_RightChild(nullptr), s_Point(point) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
             if (s_Parent) {
                 if (s_Parent->s_LeftChild != this && s_Parent->s_RightChild != this) {
-                    LOG_ERROR("Not parent's child");
+                    LOG_ERROR(<< "Not parent's child");
                     return false;
                 }
             }
@@ -104,11 +108,13 @@ public:
             std::size_t coordinate = this->depth() % dimension;
             CCoordinateLess less(coordinate);
             if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", left child = "
+                          << s_LeftChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             if (s_RightChild && less(s_RightChild->s_Point, s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", right child = "
+                          << s_RightChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             return true;
@@ -147,10 +153,9 @@ public:
         m_Dimension = points[0].dimension();
         m_Nodes.clear();
         m_Nodes.reserve(points.size());
-        this->buildRecursively(0, // Parent pointer
-                               0, // Split coordinate
-                               points.begin(),
-                               points.end());
+        this->buildRecursively(nullptr, // Parent pointer
+                               0,       // Split coordinate
+                               points.begin(), points.end());
     }
 
     //! Get the number of points in the tree.
@@ -158,18 +163,17 @@ public:
 
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
-        const POINT* nearest = 0;
+        const POINT* nearest = nullptr;
 
         if (m_Nodes.empty()) {
             return nearest;
         }
 
-        TCoordinatePrecise distanceToNearest = std::numeric_limits<TCoordinatePrecise>::max();
-        return this->nearestNeighbour(point,
-                                      m_Nodes[0],
+        TCoordinatePrecise distanceToNearest =
+            std::numeric_limits<TCoordinatePrecise>::max();
+        return this->nearestNeighbour(point, m_Nodes[0],
                                       0, // Split coordinate,
-                                      nearest,
-                                      distanceToNearest);
+                                      nearest, distanceToNearest);
     }
 
     //! Branch and bound search for nearest \p n neighbours of \p point.
@@ -181,8 +185,7 @@ public:
         }
 
         TNearestAccumulator nearest(n);
-        this->nearestNeighbours(point,
-                                m_Nodes[0],
+        this->nearestNeighbours(point, m_Nodes[0],
                                 0, // Split coordinate,
                                 nearest);
 
@@ -240,11 +243,13 @@ private:
         m_Nodes.push_back(SNode(parent, *median));
         SNode* node = &m_Nodes.back();
         if (median - begin > 0) {
-            SNode* leftChild = this->buildRecursively(node, (coordinate + 1) % m_Dimension, begin, median);
+            SNode* leftChild = this->buildRecursively(
+                node, (coordinate + 1) % m_Dimension, begin, median);
             node->s_LeftChild = leftChild;
         }
         if (end - median > 1) {
-            SNode* rightChild = this->buildRecursively(node, (coordinate + 1) % m_Dimension, median + 1, end);
+            SNode* rightChild = this->buildRecursively(
+                node, (coordinate + 1) % m_Dimension, median + 1, end);
             node->s_RightChild = rightChild;
         }
         return node;
@@ -264,7 +269,8 @@ private:
         }
 
         if (node.s_LeftChild || node.s_RightChild) {
-            TCoordinatePrecise distanceToHyperplane = point(coordinate) - node.s_Point(coordinate);
+            TCoordinatePrecise distanceToHyperplane = point(coordinate) -
+                                                      node.s_Point(coordinate);
 
             SNode* primary = node.s_LeftChild;
             SNode* secondary = node.s_RightChild;
@@ -273,9 +279,11 @@ private:
             }
 
             std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
-            nearest = this->nearestNeighbour(point, *primary, nextCoordinate, nearest, distanceToNearest);
+            nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
+                                             nearest, distanceToNearest);
             if (secondary && std::fabs(distanceToHyperplane) < distanceToNearest) {
-                nearest = this->nearestNeighbour(point, *secondary, nextCoordinate, nearest, distanceToNearest);
+                nearest = this->nearestNeighbour(point, *secondary, nextCoordinate,
+                                                 nearest, distanceToNearest);
             }
         }
 
@@ -283,13 +291,17 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    void nearestNeighbours(const POINT& point, const SNode& node, std::size_t coordinate, TNearestAccumulator& nearest) const {
+    void nearestNeighbours(const POINT& point,
+                           const SNode& node,
+                           std::size_t coordinate,
+                           TNearestAccumulator& nearest) const {
         TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
 
         nearest.add(TCoordinatePrecisePointPr(distance, node.s_Point));
 
         if (node.s_LeftChild || node.s_RightChild) {
-            TCoordinatePrecise distanceToHyperplane = point(coordinate) - node.s_Point(coordinate);
+            TCoordinatePrecise distanceToHyperplane = point(coordinate) -
+                                                      node.s_Point(coordinate);
 
             SNode* primary = node.s_LeftChild;
             SNode* secondary = node.s_RightChild;

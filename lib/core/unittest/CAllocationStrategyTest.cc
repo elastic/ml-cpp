@@ -32,7 +32,7 @@ template<typename T>
 void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();
-    LOG_DEBUG("Size " << s << ", capacity " << c);
+    LOG_DEBUG(<< "Size " << s << ", capacity " << c);
     CPPUNIT_ASSERT(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
 }
 
@@ -82,7 +82,7 @@ void CAllocationStrategyTest::test() {
 CppUnit::Test* CAllocationStrategyTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAllocationStrategyTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAllocationStrategyTest>("CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAllocationStrategyTest>(
+        "CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
     return suiteOfTests;
 }

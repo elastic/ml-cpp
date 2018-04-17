@@ -35,7 +35,8 @@ const std::string QUANTILES("quantiles");
 const std::string QUANTILE_STATE("quantile_state");
 }
 
-CModelSnapshotJsonWriter::CModelSnapshotJsonWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut)
+CModelSnapshotJsonWriter::CModelSnapshotJsonWriter(const std::string& jobId,
+                                                   core::CJsonOutputStreamWrapper& strmOut)
     : m_JobId(jobId), m_Writer(strmOut) {
     // Don't write any output in the constructor because, the way things work at
     // the moment, the output stream might be redirected after construction
@@ -76,15 +77,17 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
     // write normalizerState here
     m_Writer.String(QUANTILES);
 
-    writeQuantileState(m_JobId, report.s_NormalizerState, report.s_LatestFinalResultTime, m_Writer);
+    writeQuantileState(m_JobId, report.s_NormalizerState,
+                       report.s_LatestFinalResultTime, m_Writer);
 
     m_Writer.EndObject();
     m_Writer.EndObject();
 
     m_Writer.flush();
 
-    LOG_DEBUG("Wrote model snapshot report with ID " << report.s_SnapshotId << " for: " << report.s_Description
-                                                     << ", latest final results at " << report.s_LatestFinalResultTime);
+    LOG_DEBUG(<< "Wrote model snapshot report with ID " << report.s_SnapshotId
+              << " for: " << report.s_Description
+              << ", latest final results at " << report.s_LatestFinalResultTime);
 }
 
 void CModelSnapshotJsonWriter::writeQuantileState(const std::string& jobId,

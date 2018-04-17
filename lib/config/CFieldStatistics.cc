@@ -27,13 +27,20 @@ namespace {
 //! \brief Adds an example to the summary statistics.
 class CAddToStatistics : public boost::static_visitor<void> {
 public:
-    CAddToStatistics(core_t::TTime time, const std::string& example) : m_Time(time), m_Example(&example) {}
+    CAddToStatistics(core_t::TTime time, const std::string& example)
+        : m_Time(time), m_Example(&example) {}
 
-    void operator()(CDataSummaryStatistics& summary) const { summary.add(m_Time); }
+    void operator()(CDataSummaryStatistics& summary) const {
+        summary.add(m_Time);
+    }
 
-    void operator()(CCategoricalDataSummaryStatistics& summary) const { summary.add(m_Time, *m_Example); }
+    void operator()(CCategoricalDataSummaryStatistics& summary) const {
+        summary.add(m_Time, *m_Example);
+    }
 
-    void operator()(CNumericDataSummaryStatistics& summary) const { summary.add(m_Time, *m_Example); }
+    void operator()(CNumericDataSummaryStatistics& summary) const {
+        summary.add(m_Time, *m_Example);
+    }
 
 private:
     core_t::TTime m_Time;
@@ -41,10 +48,9 @@ private:
 };
 }
 
-CFieldStatistics::CFieldStatistics(const std::string& fieldName, const CAutoconfigurerParams& params)
-    : m_Params(params),
-      m_FieldName(fieldName),
-      m_NumberExamples(0),
+CFieldStatistics::CFieldStatistics(const std::string& fieldName,
+                                   const CAutoconfigurerParams& params)
+    : m_Params(params), m_FieldName(fieldName), m_NumberExamples(0),
       m_Semantics(params.dataType(fieldName)),
       m_SummaryStatistics(CDataSummaryStatistics()) {
 }
@@ -60,12 +66,14 @@ void CFieldStatistics::maybeStartCapturingTypeStatistics() {
 
             config_t::EDataType type = m_Semantics.type();
 
-            LOG_DEBUG("Classified '" << m_FieldName << "' as " << config_t::print(type));
+            LOG_DEBUG(<< "Classified '" << m_FieldName << "' as " << config_t::print(type));
             if (config_t::isCategorical(type)) {
-                m_SummaryStatistics = CCategoricalDataSummaryStatistics(*summary, this->params().numberOfMostFrequentFieldsCounts());
+                m_SummaryStatistics = CCategoricalDataSummaryStatistics(
+                    *summary, this->params().numberOfMostFrequentFieldsCounts());
                 this->replayBuffer();
             } else if (config_t::isNumeric(type)) {
-                m_SummaryStatistics = CNumericDataSummaryStatistics(*summary, config_t::isInteger(type));
+                m_SummaryStatistics = CNumericDataSummaryStatistics(
+                    *summary, config_t::isInteger(type));
                 this->replayBuffer();
             }
         }

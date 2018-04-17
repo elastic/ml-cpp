@@ -25,42 +25,35 @@ namespace core {
 const std::string CDelimiter::DEFAULT_DELIMITER(",");
 
 CDelimiter::CDelimiter()
-    : m_Valid(m_Delimiter.init(DEFAULT_DELIMITER)),
-      m_HaveFollowingRegex(false),
-      m_WaiveFollowingRegexAfterTime(false),
-      m_Quote('\0'),
-      m_Escape('\0') {
+    : m_Valid(m_Delimiter.init(DEFAULT_DELIMITER)), m_HaveFollowingRegex(false),
+      m_WaiveFollowingRegexAfterTime(false), m_Quote('\0'), m_Escape('\0') {
 }
 
 CDelimiter::CDelimiter(const std::string& delimiter)
-    : m_Valid(m_Delimiter.init(delimiter)),
-      m_HaveFollowingRegex(false),
-      m_WaiveFollowingRegexAfterTime(false),
-      m_Quote('\0'),
-      m_Escape('\0') {
+    : m_Valid(m_Delimiter.init(delimiter)), m_HaveFollowingRegex(false),
+      m_WaiveFollowingRegexAfterTime(false), m_Quote('\0'), m_Escape('\0') {
     if (!m_Valid) {
-        LOG_ERROR("Unable to set delimiter regex to " << delimiter);
+        LOG_ERROR(<< "Unable to set delimiter regex to " << delimiter);
     }
 }
 
 CDelimiter::CDelimiter(const std::string& delimiter, const std::string& followingRegex, bool orTime)
     : m_Valid(m_Delimiter.init(delimiter)),
       m_HaveFollowingRegex(m_FollowingRegex.init(followingRegex)),
-      m_WaiveFollowingRegexAfterTime(orTime),
-      m_Quote('\0'),
-      m_Escape('\0') {
+      m_WaiveFollowingRegexAfterTime(orTime), m_Quote('\0'), m_Escape('\0') {
     if (!m_Valid) {
-        LOG_ERROR("Unable to set delimiter regex to " << delimiter);
+        LOG_ERROR(<< "Unable to set delimiter regex to " << delimiter);
     }
 
     if (!m_HaveFollowingRegex) {
-        LOG_ERROR("Unable to set following regex to " << followingRegex);
+        LOG_ERROR(<< "Unable to set following regex to " << followingRegex);
     }
 }
 
 bool CDelimiter::operator==(const CDelimiter& rhs) const {
     if (m_Valid != rhs.m_Valid || m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
-        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime || m_Quote != rhs.m_Quote || m_Escape != rhs.m_Escape) {
+        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime ||
+        m_Quote != rhs.m_Quote || m_Escape != rhs.m_Escape) {
         return false;
     }
 
@@ -85,7 +78,9 @@ bool CDelimiter::operator!=(const CDelimiter& rhs) const {
 }
 
 // Check whether the text that followed the primary delimiter was acceptable
-bool CDelimiter::isFollowingTextAcceptable(size_t searchPos, const std::string& str, bool timePassed) const {
+bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
+                                           const std::string& str,
+                                           bool timePassed) const {
     bool answer(false);
 
     if (m_HaveFollowingRegex) {
@@ -113,12 +108,17 @@ std::string CDelimiter::delimiter() const {
     return m_Delimiter.str();
 }
 
-void CDelimiter::tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& remainder) const {
+void CDelimiter::tokenise(const std::string& str,
+                          CStringUtils::TStrVec& tokens,
+                          std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, false, tokens, exampleDelimiter, remainder);
 }
 
-void CDelimiter::tokenise(const std::string& str, bool timePassed, CStringUtils::TStrVec& tokens, std::string& remainder) const {
+void CDelimiter::tokenise(const std::string& str,
+                          bool timePassed,
+                          CStringUtils::TStrVec& tokens,
+                          std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, timePassed, tokens, exampleDelimiter, remainder);
 }
@@ -139,7 +139,7 @@ void CDelimiter::tokenise(const std::string& str,
     exampleDelimiter.clear();
 
     if (!m_Valid) {
-        LOG_ERROR("Cannot tokenise using invalid delimiter");
+        LOG_ERROR(<< "Cannot tokenise using invalid delimiter");
         remainder.clear();
         return;
     }
@@ -173,7 +173,8 @@ void CDelimiter::tokenise(const std::string& str,
         }
 
         // Search for the delimiter
-        bool found(m_Delimiter.search(expectingQuote ? (quotePos + 1) : searchPos, str, delimStartPos, delimLength));
+        bool found(m_Delimiter.search(expectingQuote ? (quotePos + 1) : searchPos,
+                                      str, delimStartPos, delimLength));
         if (!found) {
             if (expectingQuote && quotePos < str.length()) {
                 // If we're expecting a quote and find one, treat this as
@@ -192,8 +193,8 @@ void CDelimiter::tokenise(const std::string& str,
 
         // Check for stray quotes
         if (!expectingQuote && quotePos <= delimStartPos) {
-            LOG_WARN("String to be delimited does not conform to config:"
-                     " quote pos "
+            LOG_WARN(<< "String to be delimited does not conform to config:"
+                        " quote pos "
                      << quotePos << " delim pos " << delimStartPos);
         }
 

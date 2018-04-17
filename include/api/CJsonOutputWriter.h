@@ -31,10 +31,10 @@
 #include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -106,8 +106,8 @@ namespace api {
 //!
 class API_EXPORT CJsonOutputWriter : public COutputHandler {
 public:
-    using TDocumentPtr = boost::shared_ptr<rapidjson::Document>;
-    using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
+    using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
+    using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
     using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
     using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
     using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
@@ -128,7 +128,7 @@ public:
     using TStringDoublePr = std::pair<std::string, double>;
     using TStringDoublePrVec = std::vector<TStringDoublePr>;
 
-    using TValuePtr = boost::shared_ptr<rapidjson::Value>;
+    using TValuePtr = std::shared_ptr<rapidjson::Value>;
 
     //! Structure to buffer up information about each bucket that we have
     //! unwritten results for
@@ -204,7 +204,8 @@ public:
     virtual const TStrVec& fieldNames() const;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -230,7 +231,9 @@ public:
     virtual bool acceptResult(const CHierarchicalResultsWriter::TResults& results);
 
     //! Accept the influencer
-    bool acceptInfluencer(core_t::TTime time, const model::CHierarchicalResults::TNode& node, bool isBucketInfluencer);
+    bool acceptInfluencer(core_t::TTime time,
+                          const model::CHierarchicalResults::TNode& node,
+                          bool isBucketInfluencer);
 
     //! Creates a time bucket influencer.
     //! If limitNumberRecords is set add this influencer after all other influencers
@@ -238,7 +241,10 @@ public:
     //! than the others.
     //! Only one per bucket is expected, this does not add to the influencer
     //! count if limitNumberRecords is used
-    virtual void acceptBucketTimeInfluencer(core_t::TTime time, double probability, double rawAnomalyScore, double normalizedAnomalyScore);
+    virtual void acceptBucketTimeInfluencer(core_t::TTime time,
+                                            double probability,
+                                            double rawAnomalyScore,
+                                            double normalizedAnomalyScore);
 
     //! This method must be called after all the results for a given bucket
     //! are available.  It triggers the writing of the results.
@@ -259,7 +265,8 @@ public:
                                  const TStrSet& examples);
 
     //! Persist a normalizer by writing its state to the output
-    void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer, core_t::TTime& persistTime);
+    void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
+                           core_t::TTime& persistTime);
 
 private:
     template<typename>
@@ -276,29 +283,39 @@ private:
 private:
     //! Write out all the JSON documents that have been built up for
     //! a particular bucket
-    void writeBucket(bool isInterim, core_t::TTime bucketTime, SBucketData& bucketData, uint64_t bucketProcessingTime);
+    void writeBucket(bool isInterim,
+                     core_t::TTime bucketTime,
+                     SBucketData& bucketData,
+                     uint64_t bucketProcessingTime);
 
     //! Add the fields for a metric detector
-    void addMetricFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
+    void addMetricFields(const CHierarchicalResultsWriter::TResults& results,
+                         TDocumentWeakPtr weakDoc);
 
     //! Write the fields for a population detector
-    void addPopulationFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
+    void addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
+                             TDocumentWeakPtr weakDoc);
 
     //! Write the fields for a population detector cause
-    void addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
+    void addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results,
+                                  TDocumentWeakPtr weakDoc);
 
     //! Write the fields for an event rate detector
-    void addEventRateFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
+    void addEventRateFields(const CHierarchicalResultsWriter::TResults& results,
+                            TDocumentWeakPtr weakDoc);
 
     //! Add the influencer fields to the doc
-    void addInfluencerFields(bool isBucketInfluencer, const model::CHierarchicalResults::TNode& node, TDocumentWeakPtr weakDoc);
+    void addInfluencerFields(bool isBucketInfluencer,
+                             const model::CHierarchicalResults::TNode& node,
+                             TDocumentWeakPtr weakDoc);
 
     //! Write the influence results.
     void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
                        TDocumentWeakPtr weakDoc);
 
     //! Write partition score & probability
-    void addPartitionScores(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
+    void addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
+                            TDocumentWeakPtr weakDoc);
 
 private:
     //! The job ID

@@ -24,7 +24,8 @@ const char CJsonOutputStreamWrapper::JSON_ARRAY_START('[');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_END(']');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_DELIMITER(',');
 
-CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream) : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
+CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
+    : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
     // initialize the bufferpool
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
         m_StringBuffers[i].Reserve(BUFFER_START_SIZE);
@@ -38,12 +39,14 @@ CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
     m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_END); });
 }
 
-void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer) {
+void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
+                                             rapidjson::StringBuffer*& buffer) {
     buffer = m_StringBufferQueue.pop();
     writer.Reset(*buffer);
 }
 
-void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer* buffer) {
+void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
+                                             rapidjson::StringBuffer* buffer) {
     writer.Flush();
 
     // check for data that has to be written
@@ -64,7 +67,8 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, rapidjs
     }
 }
 
-void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer) {
+void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
+                                           rapidjson::StringBuffer*& buffer) {
     writer.Flush();
 
     m_ConcurrentOutputStream([this, buffer](std::ostream& o) {

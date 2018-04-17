@@ -21,7 +21,8 @@
 CppUnit::Test* CThreadPoolTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>("CThreadPoolTest::testPool", &CThreadPoolTest::testPool));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>(
+        "CThreadPoolTest::testPool", &CThreadPoolTest::testPool));
 
     return suiteOfTests;
 }
@@ -29,11 +30,11 @@ CppUnit::Test* CThreadPoolTest::suite() {
 namespace {
 
 void first_task() {
-    LOG_DEBUG("first task is running");
+    LOG_DEBUG(<< "first task is running");
 }
 
 void second_task() {
-    LOG_DEBUG("second task is running");
+    LOG_DEBUG(<< "second task is running");
 }
 }
 

@@ -42,7 +42,8 @@ CMemoryUsageEstimator::CMemoryUsageEstimator()
       m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1) {
 }
 
-CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
+CMemoryUsageEstimator::TOptionalSize
+CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
     using TDoubleArray = boost::array<double, E_NumberPredictors>;
 
     if (m_Values.size() < E_NumberPredictors) {
@@ -63,9 +64,11 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
     bool origin = true;
     for (std::size_t i = 0u; i < predictors.size(); ++i) {
         origin &= (predictors[i] == 0);
-        if (predictors[i] - static_cast<size_t>(x0[i]) > this->maximumExtrapolation(static_cast<EComponent>(i))) {
-            LOG_TRACE("Sample too big for variance of predictor(" << i << "): " << predictors[i] << " > "
-                                                                  << this->maximumExtrapolation(static_cast<EComponent>(i)));
+        if (predictors[i] - static_cast<size_t>(x0[i]) >
+            this->maximumExtrapolation(static_cast<EComponent>(i))) {
+            LOG_TRACE(<< "Sample too big for variance of predictor(" << i
+                      << "): " << predictors[i] << " > "
+                      << this->maximumExtrapolation(static_cast<EComponent>(i)));
             return TOptionalSize();
         }
     }
@@ -84,11 +87,13 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
         }
         y(i) = static_cast<double>(m_Values[i].second) - c0;
     }
-    Eigen::MatrixXd theta = X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
+    Eigen::MatrixXd theta =
+        X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
 
     double predicted = c0;
     for (std::size_t i = 0u; i < E_NumberPredictors; ++i) {
-        predicted += std::max(theta(i), 0.0) * (static_cast<double>(predictors[i]) - x0[i]);
+        predicted += std::max(theta(i), 0.0) *
+                     (static_cast<double>(predictors[i]) - x0[i]);
     }
     std::size_t mem = static_cast<std::size_t>(predicted + 0.5);
     ++m_NumEstimatesSinceValue;
@@ -98,7 +103,8 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
 }
 
 void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t memory) {
-    LOG_TRACE("Add Value for " << core::CContainerPrinter::print(predictors) << ": " << memory);
+    LOG_TRACE(<< "Add Value for " << core::CContainerPrinter::print(predictors)
+              << ": " << memory);
 
     m_NumEstimatesSinceValue = 0;
 
@@ -109,7 +115,8 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
         for (std::size_t i = 0u; closestDistance > 0 && i < m_Values.size(); ++i) {
             std::size_t distance = 0u;
             for (std::size_t j = 0u; j < predictors.size(); ++j) {
-                distance += std::max(m_Values[i].first[j], predictors[j]) - std::min(m_Values[i].first[j], predictors[j]);
+                distance += std::max(m_Values[i].first[j], predictors[j]) -
+                            std::min(m_Values[i].first[j], predictors[j]);
             }
             if (distance < closestDistance) {
                 closest = i;
@@ -140,7 +147,7 @@ bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser&
         const std::string& name = traverser.name();
         if (name == VALUES_TAG) {
             if (!core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser)) {
-                LOG_ERROR("Failed to restore values");
+                LOG_ERROR(<< "Failed to restore values");
                 return false;
             }
         }

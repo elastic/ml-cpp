@@ -34,11 +34,15 @@ namespace controller {
 //!
 class CCmdLineParser {
 public:
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
 public:
     //! Parse the arguments and return options if appropriate.
-    static bool parse(int argc, const char* const* argv, std::string& jvmPidStr, std::string& logPipe, std::string& commandPipe);
+    static bool parse(int argc,
+                      const char* const* argv,
+                      std::string& jvmPidStr,
+                      std::string& logPipe,
+                      std::string& commandPipe);
 
 private:
     static const std::string DESCRIPTION;

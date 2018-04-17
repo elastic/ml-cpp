@@ -31,7 +31,8 @@ const core::CPatternSet EMPTY_FILTER;
 
 using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
 
-CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold) : s_Op(op), s_Threshold(threshold) {
+CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
+    : s_Op(op), s_Threshold(threshold) {
 }
 
 bool CRuleCondition::SCondition::test(double value) const {
@@ -49,7 +50,8 @@ bool CRuleCondition::SCondition::test(double value) const {
 }
 
 CRuleCondition::CRuleCondition()
-    : m_Type(E_NumericalActual), m_Condition(E_LT, 0.0), m_FieldName(), m_FieldValue(), m_ValueFilter(EMPTY_FILTER) {
+    : m_Type(E_NumericalActual), m_Condition(E_LT, 0.0), m_FieldName(),
+      m_FieldValue(), m_ValueFilter(EMPTY_FILTER) {
 }
 
 void CRuleCondition::type(ERuleConditionType ruleType) {
@@ -73,7 +75,7 @@ void CRuleCondition::valueFilter(const core::CPatternSet& valueFilter) {
 }
 
 bool CRuleCondition::isCategorical() const {
-    return m_Type == E_Categorical;
+    return m_Type == E_CategoricalMatch || m_Type == E_CategoricalComplement;
 }
 
 bool CRuleCondition::isNumerical() const {
@@ -90,16 +92,19 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
     const CDataGatherer& gatherer = model.dataGatherer();
 
     if (this->isCategorical()) {
+        bool containsValue{false};
         if (m_FieldName == gatherer.partitionFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.partitionFieldValue());
+            containsValue = m_ValueFilter.get().contains(gatherer.partitionFieldValue());
         } else if (m_FieldName == gatherer.personFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.personName(pid));
+            containsValue = m_ValueFilter.get().contains(gatherer.personName(pid));
         } else if (m_FieldName == gatherer.attributeFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.attributeName(cid));
+            containsValue = m_ValueFilter.get().contains(gatherer.attributeName(cid));
         } else {
-            LOG_ERROR("Unexpected fieldName = " << m_FieldName);
+            LOG_ERROR(<< "Unexpected fieldName = " << m_FieldName);
             return false;
         }
+
+        return (m_Type == E_CategoricalComplement) ? !containsValue : containsValue;
     } else {
         if (m_FieldValue.empty() == false) {
             if (isScoped) {
@@ -109,7 +114,8 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                 // Thus we ignore the supplied pid/cid and instead look up
                 // the time series identifier that matches the condition's m_FieldValue.
                 bool successfullyResolvedId =
-                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid) : gatherer.personId(m_FieldValue, pid);
+                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid)
+                                         : gatherer.personId(m_FieldValue, pid);
                 if (successfullyResolvedId == false) {
                     return false;
                 }
@@ -118,9 +124,10 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                 //   - empty
                 //   - the person field name if the detector has only an over field or only a by field
                 //   - the attribute field name if the detector has both over and by fields
-                const std::string& fieldValue = model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
-                                                    ? gatherer.attributeName(cid)
-                                                    : gatherer.personName(pid);
+                const std::string& fieldValue =
+                    model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
+                        ? gatherer.attributeName(cid)
+                        : gatherer.personName(pid);
                 if (m_FieldValue != fieldValue) {
                     return false;
                 }
@@ -138,8 +145,10 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
                                     core_t::TTime time) const {
     TDouble1Vec value;
     switch (m_Type) {
-    case E_Categorical: {
-        LOG_ERROR("Should never check numerical condition for categorical rule condition");
+    case E_CategoricalMatch:
+    case E_CategoricalComplement: {
+        LOG_ERROR(<< "Should never check numerical condition for categorical "
+                     "rule condition");
         return false;
     }
     case E_NumericalActual: {
@@ -147,7 +156,8 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
         break;
     }
     case E_NumericalTypical: {
-        value = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        value = model.baselineBucketMean(feature, pid, cid, resultType,
+                                         EMPTY_CORRELATED, time);
         if (value.empty()) {
             // Means prior is non-informative
             return false;
@@ -156,13 +166,15 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     }
     case E_NumericalDiffAbs: {
         value = model.currentBucketValue(feature, pid, cid, time);
-        TDouble1Vec typical = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        TDouble1Vec typical = model.baselineBucketMean(feature, pid, cid, resultType,
+                                                       EMPTY_CORRELATED, time);
         if (typical.empty()) {
             // Means prior is non-informative
             return false;
         }
         if (value.size() != typical.size()) {
-            LOG_ERROR("Cannot apply rule condition: cannot calculate difference between "
+            LOG_ERROR(<< "Cannot apply rule condition: cannot calculate difference "
+                         "between "
                       << "actual and typical values due to different dimensions.");
             return false;
         }
@@ -177,11 +189,11 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     }
     }
     if (value.empty()) {
-        LOG_ERROR("Value for rule comparison could not be calculated");
+        LOG_ERROR(<< "Value for rule comparison could not be calculated");
         return false;
     }
     if (value.size() > 1) {
-        LOG_ERROR("Numerical rules do not support multivariate analysis");
+        LOG_ERROR(<< "Numerical rules do not support multivariate analysis");
         return false;
     }
 
@@ -198,17 +210,23 @@ std::string CRuleCondition::print() const {
         result += ")";
     }
     result += " ";
+
     if (this->isCategorical()) {
+        if (m_Type == E_CategoricalComplement) {
+            result += "NOT ";
+        }
         result += "IN FILTER";
     } else {
-        result += this->print(m_Condition.s_Op) + " " + core::CStringUtils::typeToString(m_Condition.s_Threshold);
+        result += this->print(m_Condition.s_Op) + " " +
+                  core::CStringUtils::typeToString(m_Condition.s_Threshold);
     }
     return result;
 }
 
 std::string CRuleCondition::print(ERuleConditionType type) const {
     switch (type) {
-    case E_Categorical:
+    case E_CategoricalMatch:
+    case E_CategoricalComplement:
         return "";
     case E_NumericalActual:
         return "ACTUAL";

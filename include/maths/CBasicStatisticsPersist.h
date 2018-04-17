@@ -86,7 +86,7 @@ inline std::string typeToString(const CSymmetricMatrixNxN<T, N>& value) {
 template<typename T, unsigned int ORDER>
 bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std::string& str) {
     if (str.empty()) {
-        LOG_ERROR("Empty accumulator representation");
+        LOG_ERROR(<< "Empty accumulator representation");
         return false;
     }
 
@@ -107,7 +107,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
     }
 
     if (!basic_statistics_detail::stringToType(token, s_Count)) {
-        LOG_ERROR("Invalid count : element " << token << " in " << str);
+        LOG_ERROR(<< "Invalid count : element " << token << " in " << str);
         return false;
     }
 
@@ -122,7 +122,8 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
         }
 
         if (!basic_statistics_detail::stringToType(token, s_Moments[index++])) {
-            LOG_ERROR("Invalid moment " << index << " : element " << token << " in " << str);
+            LOG_ERROR(<< "Invalid moment " << index << " : element " << token
+                      << " in " << str);
             return false;
         }
 
@@ -162,7 +163,7 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
         count = str.find_first_of(CLinearAlgebra::DELIMITER, count + 1);
     }
     if (!s_Count.fromDelimited(str.substr(0, count))) {
-        LOG_ERROR("Failed to extract counts from " << str.substr(0, count));
+        LOG_ERROR(<< "Failed to extract counts from " << str.substr(0, count));
         return false;
     }
 
@@ -172,13 +173,13 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
         means = str.find_first_of(CLinearAlgebra::DELIMITER, means + 1);
     }
     if (!s_Mean.fromDelimited(str.substr(0, means))) {
-        LOG_ERROR("Failed to extract means from " << str.substr(0, means));
+        LOG_ERROR(<< "Failed to extract means from " << str.substr(0, means));
         return false;
     }
 
     str = str.substr(means + 1);
     if (!s_Covariances.fromDelimited(str)) {
-        LOG_ERROR("Failed to extract covariances from " << str);
+        LOG_ERROR(<< "Failed to extract covariances from " << str);
         return false;
     }
 
@@ -187,8 +188,8 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
 
 template<typename T, std::size_t N>
 std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited() const {
-    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() + CLinearAlgebra::DELIMITER +
-           s_Covariances.toDelimited();
+    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
+           CLinearAlgebra::DELIMITER + s_Covariances.toDelimited();
 }
 
 template<typename T, std::size_t N>
@@ -216,7 +217,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
     std::size_t delimPos{value.find(INTERNAL_DELIMITER)};
     if (delimPos == std::string::npos) {
         if (basic_statistics_detail::stringToType(value, statistic) == false) {
-            LOG_ERROR("Invalid statistic in '" << value << "'");
+            LOG_ERROR(<< "Invalid statistic in '" << value << "'");
             return false;
         }
         m_Statistics[--m_UnusedCount] = statistic;
@@ -229,16 +230,17 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
     statistic_.reserve(15);
     statistic_.assign(value, 0, delimPos);
     if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
-        LOG_ERROR("Invalid statistic '" << statistic_ << "' in '" << value << "'");
+        LOG_ERROR(<< "Invalid statistic '" << statistic_ << "' in '" << value << "'");
         return false;
     }
     m_Statistics[--m_UnusedCount] = statistic;
 
     while (delimPos != value.size()) {
-        std::size_t nextDelimPos{std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
+        std::size_t nextDelimPos{
+            std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
         statistic_.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
         if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
-            LOG_ERROR("Invalid statistic '" << statistic_ << "' in '" << value << "'");
+            LOG_ERROR(<< "Invalid statistic '" << statistic_ << "' in '" << value << "'");
             return false;
         }
         m_Statistics[--m_UnusedCount] = statistic;

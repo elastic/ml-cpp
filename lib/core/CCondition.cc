@@ -25,16 +25,16 @@ namespace ml {
 namespace core {
 
 CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
-    int ret(::pthread_cond_init(&m_Condition, 0));
+    int ret(::pthread_cond_init(&m_Condition, nullptr));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 CCondition::~CCondition() {
     int ret(::pthread_cond_destroy(&m_Condition));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
@@ -43,7 +43,7 @@ bool CCondition::wait() {
     // caller must check a condition that will detect spurious wakeups
     int ret(::pthread_cond_wait(&m_Condition, &m_Mutex.m_Mutex));
     if (ret != 0) {
-        LOG_WARN(::strerror(errno));
+        LOG_WARN(<< ::strerror(errno));
         return false;
     }
 
@@ -62,7 +62,7 @@ bool CCondition::wait(uint32_t t) {
     int ret(::pthread_cond_timedwait(&m_Condition, &m_Mutex.m_Mutex, &tm));
     if (ret != 0) {
         if (ret != ETIMEDOUT) {
-            LOG_WARN(t << ' ' << ::strerror(errno));
+            LOG_WARN(<< t << ' ' << ::strerror(errno));
             return false;
         }
     }
@@ -73,21 +73,21 @@ bool CCondition::wait(uint32_t t) {
 void CCondition::signal() {
     int ret(::pthread_cond_signal(&m_Condition));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CCondition::broadcast() {
     int ret(::pthread_cond_broadcast(&m_Condition));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 bool CCondition::convert(uint32_t t, timespec& tm) {
     timeval now;
-    if (::gettimeofday(&now, 0) < 0) {
-        LOG_WARN(::strerror(errno));
+    if (::gettimeofday(&now, nullptr) < 0) {
+        LOG_WARN(<< ::strerror(errno));
         return false;
     }
 

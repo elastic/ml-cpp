@@ -41,7 +41,7 @@ using TDoubleVec = std::vector<double>;
 std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    person.resize(gatherer->fieldsOfInterest().size(), 0);
+    person.resize(gatherer->fieldsOfInterest().size(), nullptr);
     CEventData result;
     CResourceMonitor resourceMonitor;
     gatherer->processFields(person, result, resourceMonitor);
@@ -98,7 +98,7 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG("Memory used by model: " << model.memoryUsage());
+    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage());
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
@@ -109,12 +109,12 @@ void CModelMemoryTest::testOnlineEventRateModel() {
 
         time += bucketLength;
     }
-    LOG_INFO("Sizeof model now: " << model.memoryUsage());
+    LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG("Debug sizeof model: " << memoryUsage.usage());
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
@@ -151,7 +151,8 @@ void CModelMemoryTest::testOnlineMetricModel() {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG("Memory used by model: " << model.memoryUsage() << " / " << core::CMemory::dynamicSize(model));
+    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / "
+              << core::CMemory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 
@@ -161,28 +162,29 @@ void CModelMemoryTest::testOnlineMetricModel() {
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p", values[j] + (i == anomalousBucket ? anomaly : 0.0));
+            addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p",
+                       values[j] + (i == anomalousBucket ? anomaly : 0.0));
         }
         model.sample(time, time + bucketLength, resourceMonitor);
 
         time += bucketLength;
     }
-    LOG_INFO("Sizeof model now: " << model.memoryUsage());
+    LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG("Debug sizeof model: " << memoryUsage.usage());
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
 CppUnit::Test* CModelMemoryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
-                                                                    &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
+        "CModelMemoryTest::testOnlineEventRateModel", &CModelMemoryTest::testOnlineEventRateModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
+        "CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
 
     return suiteOfTests;
 }

@@ -46,18 +46,18 @@ bool CCompressUtils::compressString(bool finish, const std::string& str) {
         m_ZlibStrm.opaque = Z_NULL;
         int ret = ::deflateInit(&m_ZlibStrm, level);
         if (ret != Z_OK) {
-            LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
+            LOG_ERROR(<< "Error initializing Z stream: " << ::zError(ret));
             return false;
         }
         m_State = E_Compressing;
         break;
     }
     case E_Uncompressing: {
-        LOG_ERROR("Can not compress uncompressed stream");
+        LOG_ERROR(<< "Can not compress uncompressed stream");
         return false;
     }
     case E_IsFinished: {
-        LOG_ERROR("Can not compress finished stream");
+        LOG_ERROR(<< "Can not compress finished stream");
         return false;
     }
     }
@@ -78,7 +78,7 @@ bool CCompressUtils::compressString(bool finish, const std::string& str) {
         m_ZlibStrm.avail_out = CHUNK;
         int ret = ::deflate(&m_ZlibStrm, flush); // no bad return value
         if (ret == Z_STREAM_ERROR) {
-            LOG_ERROR("Error writing Z stream: " << ::zError(ret));
+            LOG_ERROR(<< "Error writing Z stream: " << ::zError(ret));
             return false;
         }
         size_t have = CHUNK - m_ZlibStrm.avail_out;
@@ -96,7 +96,8 @@ bool CCompressUtils::compressString(bool finish, const std::string& str) {
 }
 
 bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
-    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
+    if ((finish == true && m_State == E_IsFinished) ||
+        (finish == false && m_State == E_Compressing)) {
         buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
         return true;
     }
@@ -110,7 +111,8 @@ bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
 }
 
 bool CCompressUtils::compressedStringLength(bool finish, size_t& length) {
-    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
+    if ((finish == true && m_State == E_IsFinished) ||
+        (finish == false && m_State == E_Compressing)) {
         length = m_Buffer.size();
         return true;
     }
@@ -147,7 +149,7 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
             int ret = ::inflateInit(&m_ZlibStrm, level);
             if (ret != Z_OK)
             {
-                LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
+                LOG_ERROR(<< "Error initializing Z stream: " << ::zError(ret));
                 return false;
             }
             m_State = E_Uncompressing;
@@ -155,12 +157,12 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
         }
         case E_Compressing:
         {
-            LOG_ERROR("Can not compress uncompressed stream");
+            LOG_ERROR(<< "Can not compress uncompressed stream");
             return false;
         }
         case E_IsFinished:
         {
-            LOG_ERROR("Can not uncompress finished stream");
+            LOG_ERROR(<< "Can not uncompress finished stream");
             return false;
         }
     }
@@ -177,7 +179,7 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
         int ret = ::inflate(&m_ZlibStrm, Z_NO_FLUSH);    // no bad return value 
         if (ret == Z_STREAM_ERROR)
         {
-            LOG_ERROR("Error reading Z stream: " << ::zError(ret));
+            LOG_ERROR(<< "Error reading Z stream: " << ::zError(ret));
             return false;
         }
         switch (ret)
@@ -185,7 +187,7 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
             case Z_NEED_DICT:
             case Z_DATA_ERROR:
             case Z_MEM_ERROR:
-                LOG_ERROR("Error reading Z stream: " << ::zError(ret));
+                LOG_ERROR(<< "Error reading Z stream: " << ::zError(ret));
                 return false;
         }
         
@@ -201,7 +203,7 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
 
     if (ret != Z_STREAM_END)
     {
-        LOG_ERROR("Error reading Z stream: " << ::zError(ret));
+        LOG_ERROR(<< "Error reading Z stream: " << ::zError(ret));
         return false;
     }
 

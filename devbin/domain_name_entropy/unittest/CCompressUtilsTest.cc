@@ -24,10 +24,10 @@ using namespace domain_name_entropy;
 CppUnit::Test* CCompressUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testCompressString1", &CCompressUtilsTest::testCompressString1));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testCompressString2", &CCompressUtilsTest::testCompressString2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testCompressString1", &CCompressUtilsTest::testCompressString1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testCompressString2", &CCompressUtilsTest::testCompressString2));
     return suiteOfTests;
 }
 

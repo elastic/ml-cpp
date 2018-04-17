@@ -17,22 +17,24 @@
 #include <core/CLogger.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace core {
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool() : m_MaxRecycled(m_Recycled.max_size()) {
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool()
+    : m_MaxRecycled(m_Recycled.max_size()) {
 }
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled) : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
+    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
 }
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() {
     if (m_Recycled.empty()) {
-        return boost::make_shared<CXmlNodeWithChildren>();
+        return std::make_shared<CXmlNodeWithChildren>();
     }
 
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(m_Recycled.back());
@@ -40,7 +42,8 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() 
     return nodePtr;
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(std::string name, std::string value) {
+CXmlNodeWithChildren::TXmlNodeWithChildrenP
+CXmlNodeWithChildrenPool::newNode(std::string name, std::string value) {
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(this->newNode());
 
     // We take advantage of friendship here to set the node's name and value
@@ -56,15 +59,16 @@ CXmlNodeWithChildrenPool::newNode(const std::string& name, double value, CIEEE75
 }
 
 void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) {
-    if (nodePtr == 0) {
-        LOG_ERROR("Unexpected NULL pointer");
+    if (nodePtr == nullptr) {
+        LOG_ERROR(<< "Unexpected NULL pointer");
         return;
     }
 
     if (m_Recycled.size() < m_MaxRecycled) {
         // We take advantage of friendship here to clear the node's attribute vector
         nodePtr->m_Attributes.clear();
-        std::for_each(nodePtr->m_Children.rbegin(), nodePtr->m_Children.rend(), boost::bind(&CXmlNodeWithChildrenPool::recycle, this, _1));
+        std::for_each(nodePtr->m_Children.rbegin(), nodePtr->m_Children.rend(),
+                      boost::bind(&CXmlNodeWithChildrenPool::recycle, this, _1));
         nodePtr->m_Children.clear();
         m_Recycled.push_back(nodePtr);
 

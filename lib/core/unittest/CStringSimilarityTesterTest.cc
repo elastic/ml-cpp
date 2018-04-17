@@ -28,23 +28,27 @@
 CppUnit::Test* CStringSimilarityTesterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testStringSimilarity",
-                                                                               &CStringSimilarityTesterTest::testStringSimilarity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance",
-                                                                               &CStringSimilarityTesterTest::testLevensteinDistance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance2",
-                                                                               &CStringSimilarityTesterTest::testLevensteinDistance2));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
-                                                             &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
-                                                             &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
-                                                             &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testWeightedEditDistance",
-                                                                               &CStringSimilarityTesterTest::testWeightedEditDistance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testStringSimilarity",
+        &CStringSimilarityTesterTest::testStringSimilarity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testLevensteinDistance",
+        &CStringSimilarityTesterTest::testLevensteinDistance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testLevensteinDistance2",
+        &CStringSimilarityTesterTest::testLevensteinDistance2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
+        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
+        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
+        &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
+        "CStringSimilarityTesterTest::testWeightedEditDistance",
+        &CStringSimilarityTesterTest::testWeightedEditDistance));
 
     return suiteOfTests;
 }
@@ -68,15 +72,15 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
 
     double similarity1(0.0);
     CPPUNIT_ASSERT(sst.similarity(str1, str2, similarity1));
-    LOG_DEBUG("similarity1 = " << similarity1);
+    LOG_DEBUG(<< "similarity1 = " << similarity1);
 
     double similarity2(0.0);
     CPPUNIT_ASSERT(sst.similarity(str3, str4, similarity2));
-    LOG_DEBUG("similarity2 = " << similarity2);
+    LOG_DEBUG(<< "similarity2 = " << similarity2);
 
     double similarity3(0.0);
     CPPUNIT_ASSERT(sst.similarity(str5, str6, similarity3));
-    LOG_DEBUG("similarity3 = " << similarity3);
+    LOG_DEBUG(<< "similarity3 = " << similarity3);
 
     // If the method is going to be of any use, these conditions
     // must hold
@@ -85,21 +89,21 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
 
     double similarity4(0.0);
     CPPUNIT_ASSERT(sst.similarity(str7, str8, similarity4));
-    LOG_DEBUG("similarity4 = " << similarity4);
+    LOG_DEBUG(<< "similarity4 = " << similarity4);
 
     // This is a boundary case that could cause division by 0
     CPPUNIT_ASSERT_EQUAL(1.0, similarity4);
 
     double similarity5(0.0);
     CPPUNIT_ASSERT(sst.similarityEx(str3, str4, &::isdigit, similarity5));
-    LOG_DEBUG("similarity5 = " << similarity5);
+    LOG_DEBUG(<< "similarity5 = " << similarity5);
 
     std::string str3Stripped(sst.strippedString(str3, &::isdigit));
     std::string str4Stripped(sst.strippedString(str4, &::isdigit));
 
     double similarity6(0.0);
     CPPUNIT_ASSERT(sst.similarity(str3Stripped, str4Stripped, similarity6));
-    LOG_DEBUG("similarity6 = " << similarity6);
+    LOG_DEBUG(<< "similarity6 = " << similarity6);
 
     // Stripping the strings within the similarityEx method or separately should
     // give the same results
@@ -113,7 +117,7 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
 
     double similarity7(0.0);
     CPPUNIT_ASSERT(sst.similarity(str5, str5CompLen, str6, str6CompLen, similarity7));
-    LOG_DEBUG("similarity7 = " << similarity7);
+    LOG_DEBUG(<< "similarity7 = " << similarity7);
 
     // Passing in pre-calculated compressed lengths of the individual string
     // should give the same results as letting the similarity method calculate
@@ -122,7 +126,7 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
 
     double similarity8(0.0);
     CPPUNIT_ASSERT(sst.similarity(str6, str6CompLen, str5, str5CompLen, similarity8));
-    LOG_DEBUG("similarity8 = " << similarity8);
+    LOG_DEBUG(<< "similarity8 = " << similarity8);
 
     // Results should be symmetrical when passing in pre-calculated compressed
     // lengths
@@ -130,7 +134,7 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
 
     double similarity9(0.0);
     CPPUNIT_ASSERT(sst.similarity(str6, str5, similarity9));
-    LOG_DEBUG("similarity9 = " << similarity9);
+    LOG_DEBUG(<< "similarity9 = " << similarity9);
 
     // Results should be symmetrical when letting the similarity method calculate
     // everything
@@ -276,7 +280,8 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting Levenstein distance throughput test for low commonality strings at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting Levenstein distance throughput test for low commonality strings at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
@@ -288,10 +293,12 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished Levenstein distance throughput test for low commonality strings at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished Levenstein distance throughput test for low commonality strings at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Levenstein distance throughput test for low commonality strings with size "
-             << TEST_SIZE << " and maximum string length " << MAX_LEN << " took " << (end - start) << " seconds");
+    LOG_INFO(<< "Levenstein distance throughput test for low commonality strings with size "
+             << TEST_SIZE << " and maximum string length " << MAX_LEN
+             << " took " << (end - start) << " seconds");
 }
 
 void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
@@ -318,7 +325,8 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting Levenstein distance throughput test for similar strings at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting Levenstein distance throughput test for similar strings at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
@@ -330,10 +338,12 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished Levenstein distance throughput test for similar strings at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished Levenstein distance throughput test for similar strings at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Levenstein distance throughput test for similar strings with size "
-             << TEST_SIZE << " and " << EXTRA_CHARS << " extra characters took " << (end - start) << " seconds");
+    LOG_INFO(<< "Levenstein distance throughput test for similar strings with size "
+             << TEST_SIZE << " and " << EXTRA_CHARS << " extra characters took "
+             << (end - start) << " seconds");
 }
 
 void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence() {
@@ -351,11 +361,16 @@ void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence() {
     // Remember we're calling private implementation methods here that require:
     // 1) Neither input sequence is empty
     // 2) The first input sequence is no longer than the second input sequence
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, cat), sst.berghelRoachEditDistance(cat, cat));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, dog), sst.berghelRoachEditDistance(cat, dog));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, mouse), sst.berghelRoachEditDistance(cat, mouse));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, elephant), sst.berghelRoachEditDistance(cat, elephant));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(mouse, elephant), sst.berghelRoachEditDistance(mouse, elephant));
+    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, cat),
+                         sst.berghelRoachEditDistance(cat, cat));
+    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, dog),
+                         sst.berghelRoachEditDistance(cat, dog));
+    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, mouse),
+                         sst.berghelRoachEditDistance(cat, mouse));
+    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, elephant),
+                         sst.berghelRoachEditDistance(cat, elephant));
+    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(mouse, elephant),
+                         sst.berghelRoachEditDistance(mouse, elephant));
 }
 
 void CStringSimilarityTesterTest::testWeightedEditDistance() {

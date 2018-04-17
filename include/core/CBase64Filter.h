@@ -85,12 +85,14 @@ public:
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
         while (done < n) {
-            std::streamsize toCopy = std::min(std::streamsize(n - done), std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
+            std::streamsize toCopy =
+                std::min(std::streamsize(n - done),
+                         std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
             m_Buffer.insert(m_Buffer.end(), s + done, s + done + toCopy);
             done += toCopy;
             this->Encode(snk, false);
         }
-        LOG_TRACE("Base64 write " << n);
+        LOG_TRACE(<< "Base64 write " << n);
         return n;
     }
 
@@ -106,7 +108,8 @@ private:
     //! the converted output into the stream snk
     template<typename SINK>
     void Encode(SINK& snk, bool isFinal) {
-        using TUInt8BufCItrTransformItr = boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>;
+        using TUInt8BufCItrTransformItr =
+            boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>;
         using TBase64Text = boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr>;
 
         TUInt8BufItr endItr = m_Buffer.end();
@@ -131,7 +134,7 @@ private:
                 e += '=';
             }
         }
-        LOG_TRACE("Encoded: " << e);
+        LOG_TRACE(<< "Encoded: " << e);
         boost::iostreams::write(snk, e.c_str(), e.length());
     }
 
@@ -191,27 +194,31 @@ public:
         std::streamsize done = 0;
         char buf[4096];
         while (done < n) {
-            std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()), std::streamsize(n - done));
-            LOG_TRACE("Trying to copy " << toCopy << " bytes into stream, max " << n << ", available " << m_BufferOut.size());
+            std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()),
+                                              std::streamsize(n - done));
+            LOG_TRACE(<< "Trying to copy " << toCopy << " bytes into stream, max "
+                      << n << ", available " << m_BufferOut.size());
             for (std::streamsize i = 0; i < toCopy; i++) {
                 s[done++] = m_BufferOut.front();
                 m_BufferOut.pop_front();
             }
-            LOG_TRACE("Eos: " << m_Eos << ", In: " << m_BufferIn.empty() << ", Out: " << m_BufferOut.empty());
+            LOG_TRACE(<< "Eos: " << m_Eos << ", In: " << m_BufferIn.empty()
+                      << ", Out: " << m_BufferOut.empty());
             if (done == n) {
                 break;
             }
             if ((done > 0) && m_BufferIn.empty() && m_BufferOut.empty() && m_Eos) {
-                LOG_TRACE("Base64 READ " << done << ", from n " << n << ", left " << m_BufferOut.size());
+                LOG_TRACE(<< "Base64 READ " << done << ", from n " << n
+                          << ", left " << m_BufferOut.size());
                 return done;
             }
 
             // grab some data if we need it
             if ((m_BufferIn.size() < 4) && (m_Eos == false)) {
                 std::streamsize readBytes = boost::iostreams::read(src, buf, 4096);
-                LOG_TRACE("Read " << readBytes << " from input stream");
+                LOG_TRACE(<< "Read " << readBytes << " from input stream");
                 if (readBytes == -1) {
-                    LOG_TRACE("Got EOS from underlying store");
+                    LOG_TRACE(<< "Got EOS from underlying store");
                     m_Eos = true;
                 } else {
                     for (std::streamsize i = 0; i < readBytes; i++) {
@@ -240,11 +247,12 @@ public:
             }
             this->Decode(m_Eos);
             if (m_Eos && m_BufferOut.empty() && m_BufferIn.empty() && (done == 0)) {
-                LOG_TRACE("Returning -1 from read");
+                LOG_TRACE(<< "Returning -1 from read");
                 return -1;
             }
         }
-        LOG_TRACE("Base64 READ " << done << ", from n " << n << ", left " << m_BufferOut.size());
+        LOG_TRACE(<< "Base64 READ " << done << ", from n " << n << ", left "
+                  << m_BufferOut.size());
         return done;
     }
 
@@ -256,8 +264,10 @@ private:
     //! Perform the conversion from Base64 to raw bytes
     void Decode(bool isFinal) {
         // Base64 turns 4 characters into 3 bytes
-        using TUInt8BufCItrBinaryBase64Itr = boost::archive::iterators::binary_from_base64<TUInt8BufCItr>;
-        using TBase64Binary = boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t>;
+        using TUInt8BufCItrBinaryBase64Itr =
+            boost::archive::iterators::binary_from_base64<TUInt8BufCItr>;
+        using TBase64Binary =
+            boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t>;
 
         std::size_t inBytes = m_BufferIn.size();
         if (inBytes == 0) {
@@ -274,14 +284,14 @@ private:
             }
 
             for (std::size_t i = 0; i < inBytes % 4; i++) {
-                LOG_TRACE("Ignoring end bytes of " << inBytes);
+                LOG_TRACE(<< "Ignoring end bytes of " << inBytes);
                 --endItr;
             }
         } else {
             // We can only work with 4 or more bytes, so with fewer there is something
             // wrong, and there can't be a sensible outcome
             if (inBytes < 4) {
-                LOG_ERROR("Invalid size of stream for decoding: " << inBytes);
+                LOG_ERROR(<< "Invalid size of stream for decoding: " << inBytes);
                 m_BufferIn.clear();
                 return;
             }
@@ -295,9 +305,10 @@ private:
                 paddingBytes++;
             }
         }
-        LOG_TRACE("About to decode: " << std::string(m_BufferIn.begin(), endItr));
+        LOG_TRACE(<< "About to decode: " << std::string(m_BufferIn.begin(), endItr));
 
-        m_BufferOut.insert(m_BufferOut.end(), TBase64Binary(m_BufferIn.begin()), TBase64Binary(endItr));
+        m_BufferOut.insert(m_BufferOut.end(), TBase64Binary(m_BufferIn.begin()),
+                           TBase64Binary(endItr));
 
         // Remove padding bytes off the back of the stream
         m_BufferOut.erase_end(paddingBytes);

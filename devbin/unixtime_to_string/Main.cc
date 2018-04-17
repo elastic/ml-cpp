@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
     core_t::TTime t(0);
     if (core::CStringUtils::stringToType(argv[1], t) == false) {
-        LOG_FATAL("Unable to convert " << argv[1] << " to integer");
+        LOG_FATAL(<< "Unable to convert " << argv[1] << " to integer");
         return EXIT_FAILURE;
     }
 

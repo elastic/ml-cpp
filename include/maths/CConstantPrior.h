@@ -74,13 +74,17 @@ public:
     virtual bool needsOffset() const;
 
     //! No-op.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyle,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
     virtual double offset() const;
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyle,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
@@ -92,24 +96,28 @@ public:
     virtual double marginalLikelihoodMean() const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                          const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! All confidence intervals are the point [constant, constant].
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(double percentage,
-                                                                 const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                                                 const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
-    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                              const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
-    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                                          const TDouble1Vec& samples,
-                                                                          const TDouble4Vec1Vec& weights,
-                                                                          double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const;
 
     //! Get \p numberSamples times the constant.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;

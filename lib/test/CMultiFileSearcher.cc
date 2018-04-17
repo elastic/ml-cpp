@@ -17,9 +17,8 @@
 #include <core/CDataAdder.h>
 #include <core/CLogger.h>
 
-#include <boost/make_shared.hpp>
-
 #include <fstream>
+#include <memory>
 #include <utility>
 
 namespace ml {
@@ -27,13 +26,16 @@ namespace test {
 
 const std::string CMultiFileSearcher::JSON_FILE_EXT(".json");
 
-CMultiFileSearcher::CMultiFileSearcher(std::string baseFilename, std::string baseDocId, std::string fileExtension)
-    : m_BaseFilename(std::move(baseFilename)), m_BaseDocId(std::move(baseDocId)), m_FileExtension(std::move(fileExtension)) {
+CMultiFileSearcher::CMultiFileSearcher(std::string baseFilename,
+                                       std::string baseDocId,
+                                       std::string fileExtension)
+    : m_BaseFilename(std::move(baseFilename)), m_BaseDocId(std::move(baseDocId)),
+      m_FileExtension(std::move(fileExtension)) {
 }
 
 CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, size_t limit) {
     if (limit != 1) {
-        LOG_ERROR("File searcher can only operate with a limit of 1");
+        LOG_ERROR(<< "File searcher can only operate with a limit of 1");
         return TIStreamP();
     }
 
@@ -58,7 +60,7 @@ CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, s
     // Failure to open the file is not necessarily an error - the calling method
     // will decide.  Therefore, return a pointer to the stream even if it's not
     // in the "good" state.
-    return boost::make_shared<std::ifstream>(filename.c_str());
+    return std::make_shared<std::ifstream>(filename.c_str());
 }
 }
 }

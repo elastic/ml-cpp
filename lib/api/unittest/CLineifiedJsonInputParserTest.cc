@@ -28,10 +28,12 @@
 CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputArbitrary",
-                                                                                 &CLineifiedJsonInputParserTest::testThroughputArbitrary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputCommon",
-                                                                                 &CLineifiedJsonInputParserTest::testThroughputCommon));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
+        "CLineifiedJsonInputParserTest::testThroughputArbitrary",
+        &CLineifiedJsonInputParserTest::testThroughputArbitrary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
+        "CLineifiedJsonInputParserTest::testThroughputCommon",
+        &CLineifiedJsonInputParserTest::testThroughputCommon));
 
     return suiteOfTests;
 }
@@ -62,7 +64,7 @@ public:
             str.append(block);
         }
 
-        LOG_DEBUG("Input size is " << str.length());
+        LOG_DEBUG(<< "Input size is " << str.length());
 
         return str;
     }
@@ -92,12 +94,12 @@ private:
 }
 
 void CLineifiedJsonInputParserTest::testThroughputArbitrary() {
-    LOG_INFO("Testing assuming arbitrary fields in JSON documents");
+    LOG_INFO(<< "Testing assuming arbitrary fields in JSON documents");
     this->runTest(false);
 }
 
 void CLineifiedJsonInputParserTest::testThroughputCommon() {
-    LOG_INFO("Testing assuming all JSON documents have the same fields");
+    LOG_INFO(<< "Testing assuming all JSON documents have the same fields");
     this->runTest(true);
 }
 
@@ -105,7 +107,7 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
-    LOG_DEBUG("Creating throughput test data");
+    LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
@@ -125,14 +127,15 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
     CVisitor visitor;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
+             << (end - start) << " seconds");
 }

@@ -24,7 +24,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -52,14 +52,16 @@ struct SDistributionRestoreParams;
 //! to potential competitors.
 class MATHS_EXPORT CClustererStateSerialiser {
 public:
-    using TClusterer1dPtr = boost::shared_ptr<CClusterer1d>;
+    using TClusterer1dPtr = std::shared_ptr<CClusterer1d>;
 
 public:
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
     //!
     //! \note Sets \p ptr to NULL on failure.
-    bool operator()(const SDistributionRestoreParams& params, TClusterer1dPtr& ptr, core::CStateRestoreTraverser& traverser);
+    bool operator()(const SDistributionRestoreParams& params,
+                    TClusterer1dPtr& ptr,
+                    core::CStateRestoreTraverser& traverser);
 
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
@@ -80,9 +82,10 @@ public:
     //! \note Sets \p ptr to NULL on failure.
     template<typename T, std::size_t N>
     bool operator()(const SDistributionRestoreParams& params,
-                    boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
+                    std::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
-        return this->operator()(params, CClustererTypes::CDoNothing(), CClustererTypes::CDoNothing(), ptr, traverser);
+        return this->operator()(params, CClustererTypes::CDoNothing(),
+                                CClustererTypes::CDoNothing(), ptr, traverser);
     }
 
     //! Construct the appropriate CClusterer sub-class from its state
@@ -93,22 +96,24 @@ public:
     bool operator()(const SDistributionRestoreParams& params,
                     const CClustererTypes::TSplitFunc& splitFunc,
                     const CClustererTypes::TMergeFunc& mergeFunc,
-                    boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
+                    std::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
         std::size_t numResults(0);
 
         do {
             const std::string& name = traverser.name();
             if (name == CClustererTypes::X_MEANS_ONLINE_TAG) {
-                ptr.reset(CXMeansOnlineFactory::restore<T, N>(params, splitFunc, mergeFunc, traverser));
+                ptr.reset(CXMeansOnlineFactory::restore<T, N>(params, splitFunc,
+                                                              mergeFunc, traverser));
                 ++numResults;
             } else {
-                LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
+                LOG_ERROR(<< "No clusterer corresponds to node name "
+                          << traverser.name());
             }
         } while (traverser.next());
 
         if (numResults != 1) {
-            LOG_ERROR("Expected 1 (got " << numResults << ") clusterer tags");
+            LOG_ERROR(<< "Expected 1 (got " << numResults << ") clusterer tags");
             ptr.reset();
             return false;
         }
@@ -118,8 +123,11 @@ public:
 
     //! Persist state by passing information to the supplied inserter.
     template<typename T, std::size_t N>
-    void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer, core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(clusterer.persistenceTag(), boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter, &clusterer, _1));
+    void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
+                    core::CStatePersistInserter& inserter) {
+        inserter.insertLevel(clusterer.persistenceTag(),
+                             boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
+                                         &clusterer, _1));
     }
 };
 }

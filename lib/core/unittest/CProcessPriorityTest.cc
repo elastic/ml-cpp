@@ -19,8 +19,8 @@
 CppUnit::Test* CProcessPriorityTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessPriorityTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessPriorityTest>("CProcessPriorityTest::testReducePriority",
-                                                                        &CProcessPriorityTest::testReducePriority));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessPriorityTest>(
+        "CProcessPriorityTest::testReducePriority", &CProcessPriorityTest::testReducePriority));
 
     return suiteOfTests;
 }

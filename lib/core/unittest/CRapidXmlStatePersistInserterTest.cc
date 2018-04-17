@@ -20,8 +20,9 @@
 CppUnit::Test* CRapidXmlStatePersistInserterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>("CRapidXmlStatePersistInserterTest::testPersist",
-                                                                                     &CRapidXmlStatePersistInserterTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>(
+        "CRapidXmlStatePersistInserterTest::testPersist",
+        &CRapidXmlStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }
@@ -48,7 +49,7 @@ void CRapidXmlStatePersistInserterTest::testPersist() {
     std::string xml;
     inserter.toXml(xml);
 
-    LOG_DEBUG("XML is: " << xml);
+    LOG_DEBUG(<< "XML is: " << xml);
 
     inserter.toXml(false, xml);
     CPPUNIT_ASSERT_EQUAL(std::string("<root attr1=\"attrVal1\" "

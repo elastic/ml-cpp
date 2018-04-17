@@ -39,15 +39,16 @@ CppUnit::Test* CInterimBucketCorrectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue", &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
-                                                             &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
-                                                             &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testPersist",
-                                                                               &CInterimBucketCorrectorTest::testPersist));
+        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",
+        &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
+        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
+        &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
+        "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
+        &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
+        "CInterimBucketCorrectorTest::testPersist", &CInterimBucketCorrectorTest::testPersist));
 
     return suiteOfTests;
 }
@@ -201,13 +202,14 @@ void CInterimBucketCorrectorTest::testPersist() {
         corrector.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_TRACE("XML:\n" << origXml);
+    LOG_TRACE(<< "XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
-    traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
+    traverser.traverseSubLevel(boost::bind(
+        &CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
 
     correction = restoredCorrector.corrections(now, 50, 1000, value);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);

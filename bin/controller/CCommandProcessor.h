@@ -52,7 +52,7 @@ namespace controller {
 //!
 class CCommandProcessor {
 public:
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
 public:
     //! Possible commands

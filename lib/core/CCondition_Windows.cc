@@ -32,7 +32,7 @@ CCondition::~CCondition() {
 bool CCondition::wait() {
     BOOL success(SleepConditionVariableCS(&m_Condition, &m_Mutex.m_Mutex, INFINITE));
     if (success == FALSE) {
-        LOG_WARN("Condition wait failed : " << CWindowsError());
+        LOG_WARN(<< "Condition wait failed : " << CWindowsError());
         return false;
     }
 
@@ -44,7 +44,7 @@ bool CCondition::wait(uint32_t t) {
     if (success == FALSE) {
         DWORD errorCode(GetLastError());
         if (errorCode != WAIT_TIMEOUT && errorCode != ERROR_TIMEOUT) {
-            LOG_WARN("Condition wait failed : " << CWindowsError(errorCode));
+            LOG_WARN(<< "Condition wait failed : " << CWindowsError(errorCode));
             return false;
         }
     }

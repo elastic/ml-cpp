@@ -23,8 +23,6 @@
 #include <core/CWindowsError.h>
 #include <core/WindowsSafe.h>
 
-#include <boost/make_shared.hpp>
-
 #include <map>
 
 namespace ml {
@@ -61,13 +59,13 @@ public:
     bool terminatePid(CProcess::TPid pid) {
         HANDLE handle = this->handleForPid(pid);
         if (handle == INVALID_HANDLE_VALUE) {
-            LOG_ERROR("Will not attempt to kill process " << pid << ": not a child process");
+            LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
             return false;
         }
 
         UINT exitCode = 0;
         if (TerminateProcess(handle, exitCode) == FALSE) {
-            LOG_ERROR("Failed to kill process " << pid << ": " << CWindowsError());
+            LOG_ERROR(<< "Failed to kill process " << pid << ": " << CWindowsError());
             return false;
         }
 
@@ -106,7 +104,7 @@ protected:
     }
 
     virtual void shutdown() {
-        LOG_DEBUG("Shutting down spawned process tracker thread");
+        LOG_DEBUG(<< "Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
         m_Condition.signal();
@@ -144,15 +142,16 @@ private:
 }
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
-    : m_PermittedProcessPaths(permittedProcessPaths), m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+    : m_PermittedProcessPaths(permittedProcessPaths),
+      m_TrackerThread(std::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
-        LOG_ERROR("Failed to start spawned process tracker thread");
+        LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }
 }
 
 CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     if (m_TrackerThread->stop() == false) {
-        LOG_ERROR("Failed to stop spawned process tracker thread");
+        LOG_ERROR(<< "Failed to stop spawned process tracker thread");
     }
 }
 
@@ -161,13 +160,17 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
     return this->spawn(processPath, args, dummy);
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid) {
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
+                  processPath) == m_PermittedProcessPaths.end()) {
+        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
-    bool processPathHasExeExt(processPath.length() > 4 && processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
+    bool processPathHasExeExt(processPath.length() > 4 &&
+                              processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
 
     // Windows takes command lines as a single string
     std::string cmdLine(CShellArgQuoter::quote(processPath));
@@ -189,30 +192,25 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
-        if (CreateProcess((processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
-                          const_cast<char*>(cmdLine.c_str()),
-                          0,
-                          0,
-                          FALSE,
-                          // The CREATE_NO_WINDOW flag is used instead of
-                          // DETACHED_PROCESS, as Visual Studio 2017 optimises
-                          // away the file handles that underlie stdin, stdout
-                          // and stderr if a process has no knowledge of any
-                          // console.  With CREATE_NO_WINDOW the process will
-                          // not initially be attached to any console, but has
-                          // the option to attach to its parent process's
-                          // console later on, and this appears to prevent the
-                          // file handles being optimised away.  This wouldn't
-                          // be a problem if we redirected stderr using
-                          // freopen(), but instead we redirect the underlying
-                          // OS level file handles so that we can revert the
-                          // redirection.
-                          CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
-                          0,
-                          0,
-                          &startupInfo,
-                          &processInformation) == FALSE) {
-            LOG_ERROR("Failed to spawn '" << processPath << "': " << CWindowsError());
+        if (CreateProcess(
+                (processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
+                const_cast<char*>(cmdLine.c_str()), 0, 0, FALSE,
+                // The CREATE_NO_WINDOW flag is used instead of
+                // DETACHED_PROCESS, as Visual Studio 2017 optimises
+                // away the file handles that underlie stdin, stdout
+                // and stderr if a process has no knowledge of any
+                // console.  With CREATE_NO_WINDOW the process will
+                // not initially be attached to any console, but has
+                // the option to attach to its parent process's
+                // console later on, and this appears to prevent the
+                // file handles being optimised away.  This wouldn't
+                // be a problem if we redirected stderr using
+                // freopen(), but instead we redirect the underlying
+                // OS level file handles so that we can revert the
+                // redirection.
+                CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
+                &processInformation) == FALSE) {
+            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;
         }
 
@@ -220,7 +218,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         m_TrackerThread->addPid(childPid, processInformation.hProcess);
     }
 
-    LOG_DEBUG("Spawned '" << processPath << "' with PID " << childPid);
+    LOG_DEBUG(<< "Spawned '" << processPath << "' with PID " << childPid);
 
     CloseHandle(processInformation.hThread);
 

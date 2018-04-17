@@ -22,7 +22,8 @@
 CppUnit::Test* CMessageBufferTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageBufferTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageBufferTest>("CMessageBufferTest::testAll", &CMessageBufferTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageBufferTest>(
+        "CMessageBufferTest::testAll", &CMessageBufferTest::testAll));
 
     return suiteOfTests;
 }
@@ -37,7 +38,7 @@ public:
 
     void addMessage(const std::string& str) {
         if ((m_Buffer.size() % 1000) == 0) {
-            LOG_DEBUG("Received " << m_Buffer.size() << " strings");
+            LOG_DEBUG(<< "Received " << m_Buffer.size() << " strings");
         }
         m_Buffer.push_back(str);
     }
@@ -45,7 +46,7 @@ public:
     uint32_t flushInterval() const { return m_FlushInterval; }
 
     ml::core_t::TTime flushMessages(TStrVec& messages) {
-        LOG_DEBUG("Flush messages " << m_Buffer.size());
+        LOG_DEBUG(<< "Flush messages " << m_Buffer.size());
 
         messages = m_Buffer;
 
@@ -62,7 +63,7 @@ public:
     void processMessages(const TStrVec& messages, ml::core_t::TTime) {
         m_Results.insert(m_Results.end(), messages.begin(), messages.end());
 
-        LOG_DEBUG("Processed " << messages.size() << " " << m_Results.size() << " messages");
+        LOG_DEBUG(<< "Processed " << messages.size() << " " << m_Results.size() << " messages");
     }
 
     size_t size() const { return m_Results.size(); }
@@ -83,13 +84,13 @@ void CMessageBufferTest::testAll() {
 
     size_t max(100000);
 
-    LOG_DEBUG("Sending " << max << " strings");
+    LOG_DEBUG(<< "Sending " << max << " strings");
 
     for (size_t i = 0; i < max; ++i) {
         queue.addMessage("Test string");
     }
 
-    LOG_DEBUG("Sent all strings");
+    LOG_DEBUG(<< "Sent all strings");
 
     queue.stop();
 

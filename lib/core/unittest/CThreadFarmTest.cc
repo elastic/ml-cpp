@@ -28,8 +28,10 @@
 CppUnit::Test* CThreadFarmTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive", &CThreadFarmTest::testSendReceive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>(
+        "CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>(
+        "CThreadFarmTest::testSendReceive", &CThreadFarmTest::testSendReceive));
 
     return suiteOfTests;
 }
@@ -37,7 +39,7 @@ CppUnit::Test* CThreadFarmTest::suite() {
 void CThreadFarmTest::testNumCpus() {
     unsigned int numCpus(boost::thread::hardware_concurrency());
 
-    LOG_INFO("Number of CPUs on this machine is " << numCpus);
+    LOG_INFO(<< "Number of CPUs on this machine is " << numCpus);
 }
 
 namespace {
@@ -68,7 +70,8 @@ private:
 class CHandler {
 public:
     void processResult(const CString& result) {
-        LOG_DEBUG("Process result " << result.str() << " in thread " << ml::core::CThread::currentThreadId());
+        LOG_DEBUG(<< "Process result " << result.str() << " in thread "
+                  << ml::core::CThread::currentThreadId());
 
         ml::core::CScopedLock lock(m_Mutex);
         m_OutstandingOutput.erase(result.str());
@@ -84,7 +87,7 @@ public:
 
         TStrSet::iterator iter = m_OutstandingOutput.begin();
         if (iter != m_OutstandingOutput.end()) {
-            LOG_WARN("Result: " << *iter << " is still outstanding");
+            LOG_WARN(<< "Result: " << *iter << " is still outstanding");
         }
 
         return m_OutstandingOutput.empty();
@@ -102,11 +105,11 @@ public:
     CProcessor(const std::string& id) : m_Id(id) {}
 
     void msgToResult(const std::string& str, CString& result) {
-        LOG_DEBUG("messageToResult " << str);
+        LOG_DEBUG(<< "messageToResult " << str);
 
         result = (str + ' ' + m_Id);
 
-        LOG_DEBUG("messageToResult " << result.str());
+        LOG_DEBUG(<< "messageToResult " << result.str());
     }
 
 private:
@@ -132,7 +135,7 @@ void CThreadFarmTest::testSendReceive() {
 
     size_t max(10);
 
-    LOG_DEBUG("Sending " << max << " strings");
+    LOG_DEBUG(<< "Sending " << max << " strings");
 
     char id = 'A';
     for (size_t i = 0; i < max; ++i) {
@@ -147,17 +150,17 @@ void CThreadFarmTest::testSendReceive() {
         handler.addExpectedOutput(message + " 3");
         handler.addExpectedOutput(message + " 4");
 
-        LOG_DEBUG("Add message " << message);
+        LOG_DEBUG(<< "Add message " << message);
         CPPUNIT_ASSERT(farm.addMessage(message));
 
         ++id;
     }
 
-    LOG_DEBUG("Sent all strings");
+    LOG_DEBUG(<< "Sent all strings");
 
     CPPUNIT_ASSERT(farm.stop());
 
-    LOG_DEBUG("Farm stopped");
+    LOG_DEBUG(<< "Farm stopped");
 
     CPPUNIT_ASSERT(handler.haveAllExpected());
 }

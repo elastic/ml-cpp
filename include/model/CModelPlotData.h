@@ -58,7 +58,8 @@ public:
 public:
     using TStrByFieldDataUMap = boost::unordered_map<std::string, SByFieldData>;
     using TFeatureStrByFieldDataUMapPr = std::pair<model_t::EFeature, TStrByFieldDataUMap>;
-    using TFeatureStrByFieldDataUMapUMap = boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap>;
+    using TFeatureStrByFieldDataUMapUMap =
+        boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap>;
     using TIntStrByFieldDataUMapUMap = boost::unordered_map<int, TStrByFieldDataUMap>;
     using TFeatureStrByFieldDataUMapUMapCItr = TFeatureStrByFieldDataUMapUMap::const_iterator;
 

@@ -19,9 +19,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -35,7 +34,7 @@ struct SDistributionRestoreParams;
 //! \brief Factory for multivariate multimodal priors.
 class MATHS_EXPORT CMultivariateMultimodalPriorFactory {
 public:
-    using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
 
 public:
     //! Create a new non-informative multivariate normal prior.
@@ -49,8 +48,10 @@ public:
                                     const CMultivariatePrior& seedPrior);
 
     //! Create reading state from its state document representation.
-    static bool
-    restore(std::size_t dimension, const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser);
+    static bool restore(std::size_t dimension,
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
 }
 }

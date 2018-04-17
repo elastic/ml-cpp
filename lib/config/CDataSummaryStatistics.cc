@@ -69,7 +69,8 @@ core_t::TTime CDataSummaryStatistics::latest() const {
 }
 
 double CDataSummaryStatistics::meanRate() const {
-    return static_cast<double>(m_Count) / static_cast<double>(m_Latest[0] - m_Earliest[0]);
+    return static_cast<double>(m_Count) /
+           static_cast<double>(m_Latest[0] - m_Earliest[0]);
 }
 
 void CDataSummaryStatistics::add(core_t::TTime time) {
@@ -78,34 +79,31 @@ void CDataSummaryStatistics::add(core_t::TTime time) {
     ++m_Count;
 }
 
-CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t n, std::size_t toApproximate)
-    : m_ToApproximate(toApproximate),
-      m_Approximating(toApproximate == 0),
+CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t n,
+                                                                     std::size_t toApproximate)
+    : m_ToApproximate(toApproximate), m_Approximating(toApproximate == 0),
       m_DistinctValues(DS_NUMBER_HASHES, DS_MAX_SIZE),
-      m_CountSketch(CS_ROWS, CS_COLUMNS),
-      m_N(std::max(n, std::size_t(1))),
+      m_CountSketch(CS_ROWS, CS_COLUMNS), m_N(std::max(n, std::size_t(1))),
       m_TopN(topNSize(m_N)), // This is important to stop invalidation of
                              // the lowest top-n iterator by an insertion.
-      m_LowestTopN(m_TopN.end()),
-      m_EmpiricalEntropy(ES_K),
-      m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
+      m_LowestTopN(m_TopN.end()), m_EmpiricalEntropy(ES_K),
+      m_DistinctNGrams(NUMBER_N_GRAMS,
+                       maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
       m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
 }
 
 CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other,
                                                                      std::size_t n,
                                                                      std::size_t toApproximate)
-    : CDataSummaryStatistics(other),
-      m_ToApproximate(toApproximate),
+    : CDataSummaryStatistics(other), m_ToApproximate(toApproximate),
       m_Approximating(toApproximate == 0),
       m_DistinctValues(DS_NUMBER_HASHES, DS_MAX_SIZE),
-      m_CountSketch(CS_ROWS, CS_COLUMNS),
-      m_N(std::max(n, std::size_t(1))),
+      m_CountSketch(CS_ROWS, CS_COLUMNS), m_N(std::max(n, std::size_t(1))),
       m_TopN(topNSize(m_N)), // This is important to stop invalidation of
                              // the lowest top-n iterator by an insertion.
-      m_LowestTopN(m_TopN.end()),
-      m_EmpiricalEntropy(ES_K),
-      m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
+      m_LowestTopN(m_TopN.end()), m_EmpiricalEntropy(ES_K),
+      m_DistinctNGrams(NUMBER_N_GRAMS,
+                       maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
       m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
 }
 
@@ -200,7 +198,8 @@ double CCategoricalDataSummaryStatistics::meanCountInRemainders() const {
     }
 
     return static_cast<double>(this->count() - std::min(total, this->count())) /
-           static_cast<double>(std::max(static_cast<std::size_t>(m_DistinctValues.number()), m_TopN.size()));
+           static_cast<double>(std::max(
+               static_cast<std::size_t>(m_DistinctValues.number()), m_TopN.size()));
 }
 
 void CCategoricalDataSummaryStatistics::addNGrams(std::size_t n, const std::string& example) {
@@ -225,9 +224,11 @@ void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh() {
 }
 
 void CCategoricalDataSummaryStatistics::updateCalibrators(std::size_t category_) {
-    uint32_t category = m_Approximating ? static_cast<uint32_t>(category_) : CTools::category32(category_);
-    std::size_t i =
-        std::lower_bound(m_Calibrators.begin(), m_Calibrators.end(), category, maths::COrderings::SFirstLess()) - m_Calibrators.begin();
+    uint32_t category = m_Approximating ? static_cast<uint32_t>(category_)
+                                        : CTools::category32(category_);
+    std::size_t i = std::lower_bound(m_Calibrators.begin(), m_Calibrators.end(),
+                                     category, maths::COrderings::SFirstLess()) -
+                    m_Calibrators.begin();
     if (i == m_Calibrators.size() || m_Calibrators[i].first != category) {
         if (m_Calibrators.size() < 5) {
             m_Calibrators.insert(m_Calibrators.begin() + i, std::make_pair(category, 1));
@@ -247,14 +248,17 @@ double CCategoricalDataSummaryStatistics::calibratedCount(std::size_t category) 
     TMeanAccumulator error;
     if (m_CountSketch.sketched()) {
         for (std::size_t j = 0u; j < m_Calibrators.size(); ++j) {
-            error.add(m_CountSketch.count(m_Calibrators[j].first) - static_cast<double>(m_Calibrators[j].second));
+            error.add(m_CountSketch.count(m_Calibrators[j].first) -
+                      static_cast<double>(m_Calibrators[j].second));
         }
     }
-    return m_CountSketch.count(static_cast<uint32_t>(category)) - maths::CBasicStatistics::mean(error);
+    return m_CountSketch.count(static_cast<uint32_t>(category)) -
+           maths::CBasicStatistics::mean(error);
 }
 
 void CCategoricalDataSummaryStatistics::findLowestTopN() {
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TStrUInt64UMapItr, 1, TDerefSecondLess>;
+    using TMinAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<TStrUInt64UMapItr, 1, TDerefSecondLess>;
     TMinAccumulator lowest;
     for (TStrUInt64UMapItr i = m_TopN.begin(); i != m_TopN.end(); ++i) {
         lowest.add(i);
@@ -263,7 +267,8 @@ void CCategoricalDataSummaryStatistics::findLowestTopN() {
 }
 
 void CCategoricalDataSummaryStatistics::topN(TStrUInt64UMapCItrVec& result) const {
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TStrUInt64UMapCItr, TDerefSecondGreater>;
+    using TMaxAccumulator =
+        maths::CBasicStatistics::COrderStatisticsHeap<TStrUInt64UMapCItr, TDerefSecondGreater>;
     TMaxAccumulator topN(m_N);
     for (TStrUInt64UMapCItr i = m_TopN.begin(); i != m_TopN.end(); ++i) {
         topN.add(i);
@@ -273,31 +278,30 @@ void CCategoricalDataSummaryStatistics::topN(TStrUInt64UMapCItrVec& result) cons
 }
 
 CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(bool integer)
-    : m_NonNumericCount(0),
-      m_QuantileSketch(maths::CQuantileSketch::E_Linear, QS_SIZE),
+    : m_NonNumericCount(0), m_QuantileSketch(maths::CQuantileSketch::E_Linear, QS_SIZE),
       m_Clusters(integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData,
                  maths::CAvailableModeDistributions::NORMAL,
                  maths_t::E_ClustersFractionWeight,
                  0.0,                      // No decay
                  CLUSTER_MINIMUM_FRACTION, // We're only interested in clusters which
-                                           // comprise at least 0.5% of the data.
-                 CLUSTER_MINIMUM_COUNT)    // We need a few points to get a reasonable
-                                           // variance estimate.
+                 // comprise at least 0.5% of the data.
+                 CLUSTER_MINIMUM_COUNT) // We need a few points to get a reasonable
+                                        // variance estimate.
 {
 }
 
-CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics& other, bool integer)
-    : CDataSummaryStatistics(other),
-      m_NonNumericCount(0),
+CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics& other,
+                                                             bool integer)
+    : CDataSummaryStatistics(other), m_NonNumericCount(0),
       m_QuantileSketch(maths::CQuantileSketch::E_Linear, QS_SIZE),
       m_Clusters(integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData,
                  maths::CAvailableModeDistributions::NORMAL,
                  maths_t::E_ClustersFractionWeight,
                  0.0,                      // No decay
                  CLUSTER_MINIMUM_FRACTION, // We're only interested in clusters which
-                                           // comprise at least 0.5% of the data.
-                 CLUSTER_MINIMUM_COUNT)    // Need a few points to get a reasonable
-                                           // variance estimate.
+                 // comprise at least 0.5% of the data.
+                 CLUSTER_MINIMUM_COUNT) // Need a few points to get a reasonable
+                                        // variance estimate.
 {
 }
 
@@ -355,21 +359,25 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
         weights.reserve(n);
         modes.reserve(n);
         for (std::size_t i = 0u; i < n; ++i) {
-            LOG_TRACE("weight = " << clusters[i].count() << ", mean = " << clusters[i].centre() << ", sd = " << clusters[i].spread());
+            LOG_TRACE(<< "weight = " << clusters[i].count() << ", mean = "
+                      << clusters[i].centre() << ", sd = " << clusters[i].spread());
             weights.push_back(clusters[i].count());
-            modes.push_back(boost::math::normal_distribution<>(clusters[i].centre(), clusters[i].spread()));
+            modes.push_back(boost::math::normal_distribution<>(
+                clusters[i].centre(), clusters[i].spread()));
         }
 
         TGMM gmm(weights, modes);
 
-        static const double QUANTILES[] = {0.001, 0.005, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.995, 0.999};
+        static const double QUANTILES[] = {0.001, 0.005, 0.05, 0.1,   0.2,
+                                           0.3,   0.4,   0.5,  0.6,   0.7,
+                                           0.8,   0.9,   0.95, 0.995, 0.999};
 
         TDoubleVec pillars;
         pillars.reserve(boost::size(QUANTILES));
         for (std::size_t i = 0u; i < boost::size(QUANTILES); ++i) {
             pillars.push_back(maths::quantile(gmm, QUANTILES[i]));
         }
-        LOG_TRACE("pillars = " << core::CContainerPrinter::print(pillars));
+        LOG_TRACE(<< "pillars = " << core::CContainerPrinter::print(pillars));
 
         result.reserve(10 * boost::size(QUANTILES));
         for (std::size_t i = 1u; i < pillars.size(); ++i) {
@@ -381,7 +389,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute density chart: " << e.what());
+        LOG_ERROR(<< "Failed to compute density chart: " << e.what());
         return false;
     }
     return true;

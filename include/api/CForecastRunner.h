@@ -31,12 +31,12 @@
 #include <model/CResourceMonitor.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <condition_variable>
 #include <functional>
 #include <list>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -116,7 +116,7 @@ private:
 
 public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
-    using TOStreamConcurrentWrapperPtr = boost::shared_ptr<TOStreamConcurrentWrapper>;
+    using TOStreamConcurrentWrapperPtr = std::shared_ptr<TOStreamConcurrentWrapper>;
 
     using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
@@ -124,7 +124,7 @@ public:
     using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
@@ -132,7 +132,9 @@ public:
     //! Initialize and start the forecast runner thread
     //! \p jobId The job ID
     //! \p strmOut The output stream to write forecast results to
-    CForecastRunner(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut, model::CResourceMonitor& resourceMonitor);
+    CForecastRunner(const std::string& jobId,
+                    core::CJsonOutputStreamWrapper& strmOut,
+                    model::CResourceMonitor& resourceMonitor);
 
     //! Destructor, cancels all queued forecast requests, finishes a running forecast.
     //! To finish all remaining forecasts call finishForecasts() first.
@@ -151,7 +153,9 @@ public:
     //! \param controlMessage The control message retrieved.
     //! \param detectors vector of detectors (shallow copy)
     //! \return true if the forecast request passed validation
-    bool pushForecastJob(const std::string& controlMessage, const TAnomalyDetectorPtrVec& detectors, const core_t::TTime lastResultsTime);
+    bool pushForecastJob(const std::string& controlMessage,
+                         const TAnomalyDetectorPtrVec& detectors,
+                         const core_t::TTime lastResultsTime);
 
     //! Blocks and waits until all queued forecasts are done
     void finishForecasts();
@@ -216,7 +220,8 @@ private:
     };
 
 private:
-    using TErrorFunc = std::function<void(const SForecast& forecastJob, const std::string& message)>;
+    using TErrorFunc =
+        std::function<void(const SForecast& forecastJob, const std::string& message)>;
 
 private:
     //! The worker loop
@@ -245,10 +250,11 @@ private:
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool parseAndValidateForecastRequest(const std::string& controlMessage,
-                                                SForecast& forecastJob,
-                                                const core_t::TTime lastResultsTime,
-                                                const TErrorFunc& errorFunction = TErrorFunc());
+    static bool
+    parseAndValidateForecastRequest(const std::string& controlMessage,
+                                    SForecast& forecastJob,
+                                    const core_t::TTime lastResultsTime,
+                                    const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID

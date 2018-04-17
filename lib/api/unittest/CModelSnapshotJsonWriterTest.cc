@@ -30,8 +30,8 @@ using namespace api;
 
 CppUnit::Test* CModelSnapshotJsonWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelSnapshotJsonWriterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelSnapshotJsonWriterTest>("CModelSnapshotJsonWriterTest::testWrite",
-                                                                                &CModelSnapshotJsonWriterTest::testWrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelSnapshotJsonWriterTest>(
+        "CModelSnapshotJsonWriterTest::testWrite", &CModelSnapshotJsonWriterTest::testWrite));
     return suiteOfTests;
 }
 
@@ -81,36 +81,45 @@ void CModelSnapshotJsonWriterTest::testWrite() {
     CPPUNIT_ASSERT(snapshot.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(snapshot["job_id"].GetString()));
     CPPUNIT_ASSERT(snapshot.HasMember("min_version"));
-    CPPUNIT_ASSERT_EQUAL(std::string("6.3.0"), std::string(snapshot["min_version"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("6.3.0"),
+                         std::string(snapshot["min_version"].GetString()));
     CPPUNIT_ASSERT(snapshot.HasMember("snapshot_id"));
-    CPPUNIT_ASSERT_EQUAL(std::string("test_snapshot_id"), std::string(snapshot["snapshot_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("test_snapshot_id"),
+                         std::string(snapshot["snapshot_id"].GetString()));
     CPPUNIT_ASSERT(snapshot.HasMember("snapshot_doc_count"));
     CPPUNIT_ASSERT_EQUAL(int64_t(15), snapshot["snapshot_doc_count"].GetInt64());
     CPPUNIT_ASSERT(snapshot.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1521046309000), snapshot["timestamp"].GetInt64());
     CPPUNIT_ASSERT(snapshot.HasMember("description"));
-    CPPUNIT_ASSERT_EQUAL(std::string("the snapshot description"), std::string(snapshot["description"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("the snapshot description"),
+                         std::string(snapshot["description"].GetString()));
     CPPUNIT_ASSERT(snapshot.HasMember("latest_record_time_stamp"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1521046409000), snapshot["latest_record_time_stamp"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(1521046409000),
+                         snapshot["latest_record_time_stamp"].GetInt64());
     CPPUNIT_ASSERT(snapshot.HasMember("latest_result_time_stamp"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1521040000000), snapshot["latest_result_time_stamp"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(1521040000000),
+                         snapshot["latest_result_time_stamp"].GetInt64());
 
     CPPUNIT_ASSERT(snapshot.HasMember("model_size_stats"));
     const rapidjson::Value& modelSizeStats = snapshot["model_size_stats"];
     CPPUNIT_ASSERT(modelSizeStats.HasMember("job_id"));
-    CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(modelSizeStats["job_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("job"),
+                         std::string(modelSizeStats["job_id"].GetString()));
     CPPUNIT_ASSERT(modelSizeStats.HasMember("model_bytes"));
     CPPUNIT_ASSERT_EQUAL(int64_t(20000), modelSizeStats["model_bytes"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("total_by_field_count"));
     CPPUNIT_ASSERT_EQUAL(int64_t(3), modelSizeStats["total_by_field_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("total_partition_field_count"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1), modelSizeStats["total_partition_field_count"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(1),
+                         modelSizeStats["total_partition_field_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("total_over_field_count"));
     CPPUNIT_ASSERT_EQUAL(int64_t(150), modelSizeStats["total_over_field_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("bucket_allocation_failures_count"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(4), modelSizeStats["bucket_allocation_failures_count"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(
+        int64_t(4), modelSizeStats["bucket_allocation_failures_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("memory_status"));
-    CPPUNIT_ASSERT_EQUAL(std::string("ok"), std::string(modelSizeStats["memory_status"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("ok"),
+                         std::string(modelSizeStats["memory_status"].GetString()));
     CPPUNIT_ASSERT(modelSizeStats.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1521046309000), modelSizeStats["timestamp"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("log_time"));
@@ -120,7 +129,8 @@ void CModelSnapshotJsonWriterTest::testWrite() {
     CPPUNIT_ASSERT(quantiles.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(quantiles["job_id"].GetString()));
     CPPUNIT_ASSERT(quantiles.HasMember("quantile_state"));
-    CPPUNIT_ASSERT_EQUAL(std::string("some normalizer state"), std::string(quantiles["quantile_state"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("some normalizer state"),
+                         std::string(quantiles["quantile_state"].GetString()));
     CPPUNIT_ASSERT(quantiles.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1521040000000), quantiles["timestamp"].GetInt64());
 }

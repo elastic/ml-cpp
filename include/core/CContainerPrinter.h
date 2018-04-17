@@ -24,7 +24,6 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 
 #include <memory>
@@ -140,7 +139,9 @@ private:
     }
 
     //! Fast CStringUtil implementation.
-    inline static std::string print_(bool value, true_ /*is arithmetic*/) { return CStringUtils::typeToStringPretty(value); }
+    inline static std::string print_(bool value, true_ /*is arithmetic*/) {
+        return CStringUtils::typeToStringPretty(value);
+    }
 
     //! Slow std::ostringstream stream implementation.
     template<typename T>
@@ -201,7 +202,7 @@ public:
 //!   mymap.insert(std::make_pair(2,5));
 //!   std::cout << "mymap = " << CContainerPrinter::print(mymap) << std::endl;
 //!
-//!   std::vector<boost::shared_ptr<int> > myvec(3, boost::shared_ptr<int>(new int(1));
+//!   std::vector<std::shared_ptr<int> > myvec(3, std::shared_ptr<int>(new int(1));
 //!   std::cout << "myvec = " << CContainerPrinter::print(myvec) << std::endl;
 //!
 //!   std::list<std::pair<double, double>* > mylist;
@@ -244,7 +245,7 @@ private:
     //! Print a non associative element pointer to const for debug.
     template<typename T>
     static std::string printElement(const T* value) {
-        if (value == 0) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -255,7 +256,7 @@ private:
     //! Print a non associative element pointer for debug.
     template<typename T>
     static std::string printElement(T* value) {
-        if (value == 0) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -266,7 +267,7 @@ private:
     //! Print a std::auto_ptr.
     template<typename T>
     static std::string printElement(const std::auto_ptr<T>& value) {
-        if (value.get() == 0) {
+        if (value.get() == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -284,8 +285,8 @@ private:
 
     //! Print a boost::shared_pointer.
     template<typename T>
-    static std::string printElement(const boost::shared_ptr<T>& value) {
-        if (value == boost::shared_ptr<T>()) {
+    static std::string printElement(const std::shared_ptr<T>& value) {
+        if (value == std::shared_ptr<T>()) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -311,7 +312,8 @@ private:
     template<typename U, typename V>
     static std::string printElement(const std::pair<U, V>& value) {
         std::ostringstream result;
-        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
+        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", "
+               << printElement(boost::unwrap_ref(value.second)) << ")";
         return result.str();
     }
 
@@ -354,7 +356,8 @@ public:
     //! Print a STL compliant container for debug.
     template<typename CONTAINER>
     static std::string print(const CONTAINER& container) {
-        return print(boost::unwrap_ref(container).begin(), boost::unwrap_ref(container).end());
+        return print(boost::unwrap_ref(container).begin(),
+                     boost::unwrap_ref(container).end());
     }
 
     //! Specialization for arrays.

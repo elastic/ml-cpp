@@ -39,10 +39,12 @@ const uint64_t CHashing::CUniversalHash::BIG_PRIME = 4294967291ull;
 boost::random::mt11213b CHashing::CUniversalHash::ms_Generator;
 CFastMutex CHashing::CUniversalHash::ms_Mutex;
 
-CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash() : m_M(1000), m_A(1), m_B(0) {
+CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash()
+    : m_M(1000), m_A(1), m_B(0) {
 }
 
-CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(uint32_t m, uint32_t a, uint32_t b) : m_M(m), m_A(a), m_B(b) {
+CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(uint32_t m, uint32_t a, uint32_t b)
+    : m_M(m), m_A(a), m_B(b) {
 }
 
 uint32_t CHashing::CUniversalHash::CUInt32Hash::m() const {
@@ -59,14 +61,17 @@ uint32_t CHashing::CUniversalHash::CUInt32Hash::b() const {
 
 std::string CHashing::CUniversalHash::CUInt32Hash::print() const {
     std::ostringstream result;
-    result << "\"((" << m_A << " * x + " << m_B << ") mod " << BIG_PRIME << ") mod " << m_M << "\"";
+    result << "\"((" << m_A << " * x + " << m_B << ") mod " << BIG_PRIME
+           << ") mod " << m_M << "\"";
     return result.str();
 }
 
-CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash() : m_A(1), m_B(0) {
+CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash()
+    : m_A(1), m_B(0) {
 }
 
-CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(uint32_t a, uint32_t b) : m_A(a), m_B(b) {
+CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(uint32_t a, uint32_t b)
+    : m_A(a), m_B(b) {
 }
 
 uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a() const {
@@ -83,14 +88,16 @@ std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print() const {
     return result.str();
 }
 
-CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b) : m_M(m), m_A(a), m_B(b) {
+CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b)
+    : m_M(m), m_A(a), m_B(b) {
 }
 
 uint32_t CHashing::CUniversalHash::CUInt32VecHash::m() const {
     return m_M;
 }
 
-const CHashing::CUniversalHash::TUInt32Vec& CHashing::CUniversalHash::CUInt32VecHash::a() const {
+const CHashing::CUniversalHash::TUInt32Vec&
+CHashing::CUniversalHash::CUInt32VecHash::a() const {
     return m_A;
 }
 
@@ -108,25 +115,31 @@ std::string CHashing::CUniversalHash::CUInt32VecHash::print() const {
     return result.str();
 }
 
-CHashing::CUniversalHash::CToString::CToString(const char delimiter) : m_Delimiter(delimiter) {
+CHashing::CUniversalHash::CToString::CToString(const char delimiter)
+    : m_Delimiter(delimiter) {
 }
 
-std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32UnrestrictedHash& hash) const {
-    return CStringUtils::typeToString(hash.a()) + m_Delimiter + CStringUtils::typeToString(hash.b());
-}
-
-std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash& hash) const {
-    return CStringUtils::typeToString(hash.m()) + m_Delimiter + CStringUtils::typeToString(hash.a()) + m_Delimiter +
+std::string CHashing::CUniversalHash::CToString::
+operator()(const CUInt32UnrestrictedHash& hash) const {
+    return CStringUtils::typeToString(hash.a()) + m_Delimiter +
            CStringUtils::typeToString(hash.b());
 }
 
-CHashing::CUniversalHash::CFromString::CFromString(const char delimiter) : m_Delimiter(delimiter) {
+std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash& hash) const {
+    return CStringUtils::typeToString(hash.m()) + m_Delimiter +
+           CStringUtils::typeToString(hash.a()) + m_Delimiter +
+           CStringUtils::typeToString(hash.b());
 }
 
-bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const {
+CHashing::CUniversalHash::CFromString::CFromString(const char delimiter)
+    : m_Delimiter(delimiter) {
+}
+
+bool CHashing::CUniversalHash::CFromString::
+operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const {
     std::size_t delimPos = token.find(m_Delimiter);
     if (delimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
 
@@ -134,27 +147,28 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
     uint32_t b;
     m_Token.assign(token, 0, delimPos);
     if (CStringUtils::stringToType(m_Token, a) == false) {
-        LOG_ERROR("Invalid multiplier in " << m_Token);
+        LOG_ERROR(<< "Invalid multiplier in " << m_Token);
         return false;
     }
     m_Token.assign(token, delimPos + 1, token.length() - delimPos);
     if (CStringUtils::stringToType(m_Token, b) == false) {
-        LOG_ERROR("Invalid offset in " << m_Token);
+        LOG_ERROR(<< "Invalid offset in " << m_Token);
         return false;
     }
     hash = CUInt32UnrestrictedHash(a, b);
 
     return true;
 }
-bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token, CUInt32Hash& hash) const {
+bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
+                                                       CUInt32Hash& hash) const {
     std::size_t firstDelimPos = token.find(m_Delimiter);
     if (firstDelimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
     std::size_t secondDelimPos = token.find(m_Delimiter, firstDelimPos + 1);
     if (secondDelimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
 
@@ -163,17 +177,17 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
     uint32_t b;
     m_Token.assign(token, 0, firstDelimPos);
     if (CStringUtils::stringToType(m_Token, m) == false) {
-        LOG_ERROR("Invalid range in " << m_Token);
+        LOG_ERROR(<< "Invalid range in " << m_Token);
         return false;
     }
     m_Token.assign(token, firstDelimPos + 1, secondDelimPos - firstDelimPos - 1);
     if (CStringUtils::stringToType(m_Token, a) == false) {
-        LOG_ERROR("Invalid offset in " << m_Token);
+        LOG_ERROR(<< "Invalid offset in " << m_Token);
         return false;
     }
     m_Token.assign(token, secondDelimPos + 1, token.length() - secondDelimPos);
     if (CStringUtils::stringToType(m_Token, b) == false) {
-        LOG_ERROR("Invalid multiplier in " << m_Token);
+        LOG_ERROR(<< "Invalid multiplier in " << m_Token);
         return false;
     }
     hash = CUInt32Hash(m, a, b);
@@ -190,16 +204,18 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
         CScopedFastLock scopedLock(ms_Mutex);
 
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
-        std::generate_n(std::back_inserter(a), k, boost::bind(uniform1, boost::ref(ms_Generator)));
+        std::generate_n(std::back_inserter(a), k,
+                        boost::bind(uniform1, boost::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
-                LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                 a[i] = 1u;
             }
         }
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
-        std::generate_n(std::back_inserter(b), k, boost::bind(uniform0, boost::ref(ms_Generator)));
+        std::generate_n(std::back_inserter(b), k,
+                        boost::bind(uniform0, boost::ref(ms_Generator)));
     }
 
     result.reserve(k);
@@ -208,7 +224,8 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
     }
 }
 
-void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32UnrestrictedHashVec& result) {
+void CHashing::CUniversalHash::generateHashes(std::size_t k,
+                                              TUInt32UnrestrictedHashVec& result) {
     TUInt32Vec a, b;
     a.reserve(k);
     b.reserve(k);
@@ -217,16 +234,18 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32Unrestricted
         CScopedFastLock scopedLock(ms_Mutex);
 
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
-        std::generate_n(std::back_inserter(a), k, boost::bind(uniform1, boost::ref(ms_Generator)));
+        std::generate_n(std::back_inserter(a), k,
+                        boost::bind(uniform1, boost::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
-                LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                 a[i] = 1u;
             }
         }
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
-        std::generate_n(std::back_inserter(b), k, boost::bind(uniform0, boost::ref(ms_Generator)));
+        std::generate_n(std::back_inserter(b), k,
+                        boost::bind(uniform0, boost::ref(ms_Generator)));
     }
 
     result.reserve(k);
@@ -235,7 +254,10 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32Unrestricted
     }
 }
 
-void CHashing::CUniversalHash::generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result) {
+void CHashing::CUniversalHash::generateHashes(std::size_t k,
+                                              std::size_t n,
+                                              uint32_t m,
+                                              TUInt32VecHashVec& result) {
     using TUInt32VecVec = std::vector<TUInt32Vec>;
 
     TUInt32VecVec a;
@@ -250,17 +272,19 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, std::size_t n, uint
             a.push_back(TUInt32Vec());
             a.back().reserve(n);
             TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
-            std::generate_n(std::back_inserter(a.back()), n, boost::bind(uniform1, boost::ref(ms_Generator)));
+            std::generate_n(std::back_inserter(a.back()), n,
+                            boost::bind(uniform1, boost::ref(ms_Generator)));
             for (std::size_t j = 0u; j < a.back().size(); ++j) {
                 if ((a.back())[j] == 0) {
-                    LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                    LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                     (a.back())[j] = 1u;
                 }
             }
         }
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
-        std::generate_n(std::back_inserter(b), k, boost::bind(uniform0, boost::ref(ms_Generator)));
+        std::generate_n(std::back_inserter(b), k,
+                        boost::bind(uniform0, boost::ref(ms_Generator)));
     }
 
     result.reserve(k);

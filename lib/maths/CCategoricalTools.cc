@@ -39,14 +39,15 @@ const double LOG_TWO = std::log(2.0);
 
 //! A fast lower bound for the binomial probability of \p m
 //! successes for \p n trials and probability of success \p p.
-inline maths_t::EFloatingPointErrorStatus logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double& result) {
+inline maths_t::EFloatingPointErrorStatus
+logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
 
     result = 0.0;
 
     if (!(p >= 0.0 || p <= 1.0)) {
-        LOG_ERROR("Bad probability: " << p);
+        LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
     if (p == 0.0) {
@@ -80,7 +81,8 @@ inline maths_t::EFloatingPointErrorStatus logBinomialProbabilityFastLowerBound(s
     static const double CONSTANT = std::log(boost::math::double_constants::root_two_pi) - 2.0;
 
     double p_ = m_ / n_;
-    result = -0.5 * std::log(n_ * (1.0 - p_) * p_) + m_ * std::log(p / p_) + (n_ - m_) * std::log((1.0 - p) / (1.0 - p_)) + CONSTANT;
+    result = -0.5 * std::log(n_ * (1.0 - p_) * p_) + m_ * std::log(p / p_) +
+             (n_ - m_) * std::log((1.0 - p) / (1.0 - p_)) + CONSTANT;
     return maths_t::E_FpNoErrors;
 }
 
@@ -88,9 +90,10 @@ inline maths_t::EFloatingPointErrorStatus logBinomialProbabilityFastLowerBound(s
 //! binomial, i.e. the probability of seeing m or a larger value
 //! from a binomial with \p trials and probability of success
 //! \p p.
-maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus
+logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
-        LOG_ERROR("Invalid sample: " << m << " > " << n);
+        LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
@@ -101,7 +104,7 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t
         return maths_t::E_FpNoErrors;
     }
     if (!(p >= 0.0 && p <= 1.0)) {
-        LOG_ERROR("Bad probability: " << p);
+        LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
     if (p == 0.0) {
@@ -131,11 +134,13 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t
 
         double eps = (m_ - n_ * p) / n_;
         double q = p + eps;
-        double chernoff = m_ * (q * std::log(p / q) + (1.0 - q) * std::log((1.0 - p) / (1.0 - q)));
+        double chernoff = m_ * (q * std::log(p / q) +
+                                (1.0 - q) * std::log((1.0 - p) / (1.0 - q)));
         result = std::min(chernoff + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n << ", p = " << p);
+        LOG_ERROR(<< "Failed to calculate c.d.f. complement: " << e.what()
+                  << ", n = " << n << ", p = " << p);
     }
 
     return maths_t::E_FpOverflowed;
@@ -145,9 +150,10 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t
 //! binomial, i.e. the probability of seeing m or a larger value
 //! from a binomial with \p trials and probability of success
 //! \p p.
-maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus
+logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
-        LOG_ERROR("Invalid sample: " << m << " > " << n);
+        LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
@@ -158,7 +164,7 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t
         return maths_t::E_FpNoErrors;
     }
     if (!(p >= 0.0 && p <= 1.0)) {
-        LOG_ERROR("Bad probability: " << p);
+        LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
     if (p == 0.0) {
@@ -216,16 +222,20 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t
         }
 
         double logf;
-        maths_t::EFloatingPointErrorStatus status = logBinomialProbabilityFastLowerBound(n, p, m, logf);
+        maths_t::EFloatingPointErrorStatus status =
+            logBinomialProbabilityFastLowerBound(n, p, m, logf);
         if (status & maths_t::E_FpAllErrors) {
             result = logf;
             return status;
         }
-        double bound = logf + std::log(1.0 + n_ / (m_ + 1.0) * (std::exp(p / (1.0 - p) * (n_ - m_) / n_) - 1.0));
+        double bound =
+            logf + std::log(1.0 + n_ / (m_ + 1.0) *
+                                      (std::exp(p / (1.0 - p) * (n_ - m_) / n_) - 1.0));
         result = std::min(bound + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n << ", p = " << p);
+        LOG_ERROR(<< "Failed to calculate c.d.f. complement: " << e.what()
+                  << ", n = " << n << ", p = " << p);
     }
 
     return maths_t::E_FpFailed;
@@ -234,9 +244,10 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t
 //! Get the log of right tail probability, i.e. the probability
 //! of seeing m or a larger value from a binomial with \p trials
 //! and probability of success \p p.
-maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus
+logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
-        LOG_ERROR("Invalid sample: " << m << " > " << n);
+        LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
@@ -247,7 +258,7 @@ maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n, double
         return maths_t::E_FpNoErrors;
     }
     if (!(p >= 0.0 && p <= 1.0)) {
-        LOG_ERROR("Bad probability: " << p);
+        LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
     if (p == 0.0) {
@@ -275,15 +286,20 @@ maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n, double
         // upper bound.
 
         double lb, ub;
-        maths_t::EFloatingPointErrorStatus status = logRightTailProbabilityLowerBound(n, p, m, lb);
+        maths_t::EFloatingPointErrorStatus status =
+            logRightTailProbabilityLowerBound(n, p, m, lb);
         if (status & maths_t::E_FpAllErrors) {
-            result = status == maths_t::E_FpOverflowed ? boost::numeric::bounds<double>::lowest() : 0.0;
+            result = status == maths_t::E_FpOverflowed
+                         ? boost::numeric::bounds<double>::lowest()
+                         : 0.0;
             return status;
         }
 
         status = logRightTailProbabilityUpperBound(n, p, m, ub);
         if (status & maths_t::E_FpAllErrors) {
-            result = status == maths_t::E_FpOverflowed ? boost::numeric::bounds<double>::lowest() : 0.0;
+            result = status == maths_t::E_FpOverflowed
+                         ? boost::numeric::bounds<double>::lowest()
+                         : 0.0;
             return status;
         }
 
@@ -308,7 +324,8 @@ maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n, double
         result = std::min(std::log(oneMinusF + f) + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n << ", p = " << p);
+        LOG_ERROR(<< "Failed to calculate c.d.f. complement: " << e.what()
+                  << ", n = " << n << ", p = " << p);
     }
 
     return maths_t::E_FpFailed;
@@ -322,7 +339,9 @@ bool CCategoricalTools::probabilityOfLessLikelyMultinomialSample(const TDoubleVe
     result = 1.0;
 
     if (i.size() != ni.size()) {
-        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " " << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: "
+                  << core::CContainerPrinter::print(i) << " "
+                  << core::CContainerPrinter::print(ni));
         return false;
     }
 
@@ -346,7 +365,9 @@ double CCategoricalTools::probabilityOfCategory(std::size_t n, const double prob
     return probability;
 }
 
-bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec& probabilities, const double n, double& result) {
+bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec& probabilities,
+                                                   const double n,
+                                                   double& result) {
     // We imagine drawing n samples from a multinomial random variable
     // with m categories. We'd like to calculate how many distinct
     // categories we'd expect in this sample of n. This quantity is
@@ -396,7 +417,8 @@ double CCategoricalTools::logBinomialCoefficient(std::size_t n, std::size_t m) {
     }
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
-    return boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) - boost::math::lgamma(n_ - m_ + 1.0);
+    return boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) -
+           boost::math::lgamma(n_ - m_ + 1.0);
 }
 
 double CCategoricalTools::binomialCoefficient(std::size_t n, std::size_t m) {
@@ -411,7 +433,9 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     result.clear();
 
     if (i.size() != ni.size()) {
-        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " " << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: "
+                  << core::CContainerPrinter::print(i) << " "
+                  << core::CContainerPrinter::print(ni));
         return false;
     }
 
@@ -446,7 +470,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     probabilities_.reserve(i.size());
     for (std::size_t i_ = 0u; i_ < i.size(); ++i_) {
         if (i[i_] >= probabilities.size()) {
-            LOG_ERROR("Bad category: " << i[i_] << " out of range");
+            LOG_ERROR(<< "Bad category: " << i[i_] << " out of range");
             return false;
         }
         probabilities_.push_back(probabilities[i[i_]]);
@@ -475,7 +499,8 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
             if (sample[j] > static_cast<std::size_t>((n_ + 1.0) * pj)) {
                 std::size_t nj = sample[j];
                 double lowerBound;
-                if (logRightTailProbabilityLowerBound(n, pj, nj, lowerBound) & maths_t::E_FpAllErrors) {
+                if (logRightTailProbabilityLowerBound(n, pj, nj, lowerBound) &
+                    maths_t::E_FpAllErrors) {
                     continue;
                 }
                 if (logPMin > lowerBound) {
@@ -498,7 +523,8 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     return 0.0;
 }
 
-maths_t::EFloatingPointErrorStatus CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus
+CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
@@ -507,7 +533,7 @@ maths_t::EFloatingPointErrorStatus CCategoricalTools::logBinomialProbability(std
     result = 0.0;
 
     if (!(p >= 0.0 && p <= 1.0)) {
-        LOG_ERROR("Bad probability: " << p);
+        LOG_ERROR(<< "Bad probability: " << p);
         return maths_t::E_FpFailed;
     }
     if (p == 0.0) {
@@ -527,19 +553,23 @@ maths_t::EFloatingPointErrorStatus CCategoricalTools::logBinomialProbability(std
 
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
-    result = std::min(boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) - boost::math::lgamma(n_ - m_ + 1.0) +
+    result = std::min(boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) -
+                          boost::math::lgamma(n_ - m_ + 1.0) +
                           m_ * std::log(p) + (n_ - m_) * std::log(1.0 - p),
                       0.0);
     return maths_t::E_FpNoErrors;
 }
 
 maths_t::EFloatingPointErrorStatus
-CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities, const TSizeVec& ni, double& result) {
+CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
+                                             const TSizeVec& ni,
+                                             double& result) {
     result = 0.0;
 
     if (probabilities.size() != ni.size()) {
-        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(probabilities) << " "
-                                                         << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: "
+                  << core::CContainerPrinter::print(probabilities) << " "
+                  << core::CContainerPrinter::print(ni));
         return maths_t::E_FpFailed;
     }
 
@@ -556,7 +586,7 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities, co
         if (ni_ > 0.0) {
             double pi_ = probabilities[i];
             if (!(pi_ >= 0.0 || pi_ <= 1.0)) {
-                LOG_ERROR("Bad probability: " << pi_);
+                LOG_ERROR(<< "Bad probability: " << pi_);
                 return maths_t::E_FpFailed;
             }
             if (pi_ == 0.0) {

@@ -31,7 +31,9 @@ struct SFromString {
     bool operator()(const std::string& token, T& value) const {
         return core::CStringUtils::stringToType(token, value);
     }
-    bool operator()(const std::string& token, CFloatStorage& value) const { return value.fromString(token); }
+    bool operator()(const std::string& token, CFloatStorage& value) const {
+        return value.fromString(token);
+    }
 };
 
 //! \brief Converts a vector component / matrix element to a string.
@@ -40,18 +42,24 @@ struct SToString {
     std::string operator()(const T& value) const {
         return core::CStringUtils::typeToString(value);
     }
-    std::string operator()(double value) const { return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision); }
-    std::string operator()(CFloatStorage value) const { return value.toString(); }
+    std::string operator()(double value) const {
+        return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision);
+    }
+    std::string operator()(CFloatStorage value) const {
+        return value.toString();
+    }
 };
 
 template<typename STORAGE>
 bool SSymmetricMatrix<STORAGE>::fromDelimited(const std::string& str) {
-    return core::CPersistUtils::fromString(str, SFromString(), m_LowerTriangle, CLinearAlgebra::DELIMITER);
+    return core::CPersistUtils::fromString(str, SFromString(), m_LowerTriangle,
+                                           CLinearAlgebra::DELIMITER);
 }
 
 template<typename STORAGE>
 std::string SSymmetricMatrix<STORAGE>::toDelimited() const {
-    return core::CPersistUtils::toString(m_LowerTriangle, SToString(), CLinearAlgebra::DELIMITER);
+    return core::CPersistUtils::toString(m_LowerTriangle, SToString(),
+                                         CLinearAlgebra::DELIMITER);
 }
 
 template<typename STORAGE>

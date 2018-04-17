@@ -108,46 +108,40 @@ bool equal(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs)
 }
 
 //! Check if both underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs, const TStoredStringPtrStoredStringPtrPr& rhs) {
-    return unset(lhs.first) == unset(rhs.first) && *lhs.first == *rhs.first && unset(lhs.second) == unset(rhs.second) &&
-           *lhs.second == *rhs.second;
+bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
+           const TStoredStringPtrStoredStringPtrPr& rhs) {
+    return unset(lhs.first) == unset(rhs.first) && *lhs.first == *rhs.first &&
+           unset(lhs.second) == unset(rhs.second) && *lhs.second == *rhs.second;
 }
 
 //! Orders nodes by the value of their person field.
 struct SPersonValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(*lhs->s_Spec.s_PartitionFieldName,
-                                                          *lhs->s_Spec.s_PartitionFieldValue,
-                                                          *lhs->s_Spec.s_PersonFieldName,
-                                                          *lhs->s_Spec.s_PersonFieldValue,
-                                                          lhs->s_Spec.s_IsPopulation,
-                                                          *rhs->s_Spec.s_PartitionFieldName,
-                                                          *rhs->s_Spec.s_PartitionFieldValue,
-                                                          *rhs->s_Spec.s_PersonFieldName,
-                                                          *rhs->s_Spec.s_PersonFieldValue,
-                                                          rhs->s_Spec.s_IsPopulation);
+        return maths::COrderings::lexicographical_compare(
+            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
+            *lhs->s_Spec.s_PersonFieldName, *lhs->s_Spec.s_PersonFieldValue,
+            lhs->s_Spec.s_IsPopulation, *rhs->s_Spec.s_PartitionFieldName,
+            *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName,
+            *rhs->s_Spec.s_PersonFieldValue, rhs->s_Spec.s_IsPopulation);
     }
 };
 
 //! Orders nodes by the name of their person field.
 struct SPersonNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(*lhs->s_Spec.s_PartitionFieldName,
-                                                          *lhs->s_Spec.s_PartitionFieldValue,
-                                                          *lhs->s_Spec.s_PersonFieldName,
-                                                          *rhs->s_Spec.s_PartitionFieldName,
-                                                          *rhs->s_Spec.s_PartitionFieldValue,
-                                                          *rhs->s_Spec.s_PersonFieldName);
+        return maths::COrderings::lexicographical_compare(
+            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
+            *lhs->s_Spec.s_PersonFieldName, *rhs->s_Spec.s_PartitionFieldName,
+            *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName);
     }
 };
 
 //! Orders nodes by the value of their partition field.
 struct SPartitionValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(*lhs->s_Spec.s_PartitionFieldName,
-                                                          *lhs->s_Spec.s_PartitionFieldValue,
-                                                          *rhs->s_Spec.s_PartitionFieldName,
-                                                          *rhs->s_Spec.s_PartitionFieldValue);
+        return maths::COrderings::lexicographical_compare(
+            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
+            *rhs->s_Spec.s_PartitionFieldName, *rhs->s_Spec.s_PartitionFieldValue);
     }
 };
 
@@ -170,7 +164,11 @@ SNode* address(SNode& value) {
 
 //! Aggregate the nodes in a layer.
 template<typename LESS, typename ITR, typename FACTORY>
-void aggregateLayer(ITR beginLayer, ITR endLayer, CHierarchicalResults& results, FACTORY newNode, std::vector<SNode*>& newLayer) {
+void aggregateLayer(ITR beginLayer,
+                    ITR endLayer,
+                    CHierarchicalResults& results,
+                    FACTORY newNode,
+                    std::vector<SNode*>& newLayer) {
     using TNodePtrVec = std::vector<SNode*>;
     using TNodeCPtrNodePtrVecMap = std::map<TNodeCPtr, TNodePtrVec, LESS>;
 
@@ -184,7 +182,7 @@ void aggregateLayer(ITR beginLayer, ITR endLayer, CHierarchicalResults& results,
     newLayer.reserve(aggregation.size());
 
     for (const auto& children : aggregation) {
-        LOG_TRACE("aggregating = " << core::CContainerPrinter::print(children.second));
+        LOG_TRACE(<< "aggregating = " << core::CContainerPrinter::print(children.second));
         if (children.second.size() > 1) {
             SNode& aggregate = (results.*newNode)();
             bool population = false;
@@ -221,12 +219,14 @@ public:
         } else {
             for (const auto& child : node.s_Children) {
                 for (const auto& influence : child->s_AnnotatedProbability.s_Influences) {
-                    if (equal({node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue}, influence.first) ||
-                        equal({node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue}, influence.first)) {
-                        auto i = std::lower_bound(node.s_AnnotatedProbability.s_Influences.begin(),
-                                                  node.s_AnnotatedProbability.s_Influences.end(),
-                                                  influence.first,
-                                                  maths::COrderings::SFirstLess());
+                    if (equal({node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue},
+                              influence.first) ||
+                        equal({node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue},
+                              influence.first)) {
+                        auto i = std::lower_bound(
+                            node.s_AnnotatedProbability.s_Influences.begin(),
+                            node.s_AnnotatedProbability.s_Influences.end(),
+                            influence.first, maths::COrderings::SFirstLess());
                         if (i == node.s_AnnotatedProbability.s_Influences.end()) {
                             node.s_AnnotatedProbability.s_Influences.push_back(influence);
                         } else if (!equal(i->first, influence.first)) {
@@ -242,23 +242,18 @@ public:
 } // unnamed::
 
 SResultSpec::SResultSpec()
-    : s_Detector(0),
-      s_IsSimpleCount(false),
-      s_IsPopulation(false),
-      s_UseNull(false),
-      s_PartitionFieldName(UNSET_STRING),
-      s_PartitionFieldValue(UNSET_STRING),
-      s_PersonFieldName(UNSET_STRING),
-      s_PersonFieldValue(UNSET_STRING),
-      s_ValueFieldName(UNSET_STRING),
-      s_FunctionName(UNSET_STRING),
-      s_ByFieldName(UNSET_STRING),
-      s_Function(function_t::E_IndividualCount) {
+    : s_Detector(0), s_IsSimpleCount(false), s_IsPopulation(false), s_UseNull(false),
+      s_PartitionFieldName(UNSET_STRING), s_PartitionFieldValue(UNSET_STRING),
+      s_PersonFieldName(UNSET_STRING), s_PersonFieldValue(UNSET_STRING),
+      s_ValueFieldName(UNSET_STRING), s_FunctionName(UNSET_STRING),
+      s_ByFieldName(UNSET_STRING), s_Function(function_t::E_IndividualCount) {
 }
 
 std::string SResultSpec::print() const {
-    return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount) + '/' + core::CStringUtils::typeToStringPretty(s_IsPopulation) +
-           '/' + *s_FunctionName + '/' + *s_PartitionFieldName + '/' + *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' +
+    return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount) +
+           '/' + core::CStringUtils::typeToStringPretty(s_IsPopulation) + '/' +
+           *s_FunctionName + '/' + *s_PartitionFieldName + '/' +
+           *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' +
            *s_PersonFieldValue + '/' + *s_ValueFieldName + '\'';
 }
 
@@ -298,44 +293,44 @@ bool SResultSpec::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser
         RESTORE_BUILT_IN(SIMPLE_COUNT_TAG, s_IsSimpleCount)
         RESTORE_BUILT_IN(POPULATION_TAG, s_IsPopulation)
         RESTORE_BUILT_IN(USE_NULL_TAG, s_UseNull)
-        RESTORE_SETUP_TEARDOWN(
-            FUNCTION_TAG, int f = 0, core::CPersistUtils::restore(FUNCTION_TAG, f, traverser), s_Function = function_t::EFunction(f))
-        RESTORE_NO_ERROR(PARTITION_FIELD_NAME_TAG, s_PartitionFieldName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(PARTITION_FIELD_VALUE_TAG, s_PartitionFieldValue = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(PERSON_FIELD_NAME_TAG, s_PersonFieldName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(PERSON_FIELD_VALUE_TAG, s_PersonFieldValue = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(VALUE_FIELD_NAME_TAG, s_ValueFieldName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(FUNCTION_NAME_TAG, s_FunctionName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(BY_FIELD_NAME_TAG, s_ByFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_SETUP_TEARDOWN(FUNCTION_TAG, int f = 0,
+                               core::CPersistUtils::restore(FUNCTION_TAG, f, traverser),
+                               s_Function = function_t::EFunction(f))
+        RESTORE_NO_ERROR(
+            PARTITION_FIELD_NAME_TAG,
+            s_PartitionFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(
+            PARTITION_FIELD_VALUE_TAG,
+            s_PartitionFieldValue = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(PERSON_FIELD_NAME_TAG,
+                         s_PersonFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(
+            PERSON_FIELD_VALUE_TAG,
+            s_PersonFieldValue = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(VALUE_FIELD_NAME_TAG,
+                         s_ValueFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(FUNCTION_NAME_TAG,
+                         s_FunctionName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(BY_FIELD_NAME_TAG,
+                         s_ByFieldName = CStringStore::names().get(traverser.value()))
     } while (traverser.next());
     return true;
 }
 
 SNode::SNode()
-    : s_Parent(0),
-      s_AnnotatedProbability(1.0),
-      s_Detector(-3),
-      s_AggregationStyle(-1),
-      s_SmallestChildProbability(1.0),
-      s_SmallestDescendantProbability(1.0),
-      s_RawAnomalyScore(0.0),
-      s_NormalizedAnomalyScore(0.0),
-      s_Model(0),
-      s_BucketStartTime(0),
+    : s_Parent(nullptr), s_AnnotatedProbability(1.0), s_Detector(-3),
+      s_AggregationStyle(-1), s_SmallestChildProbability(1.0),
+      s_SmallestDescendantProbability(1.0), s_RawAnomalyScore(0.0),
+      s_NormalizedAnomalyScore(0.0), s_Model(nullptr), s_BucketStartTime(0),
       s_BucketLength(0) {
 }
 
 SNode::SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability)
-    : s_Parent(0),
-      s_Spec(simpleSearch),
-      s_Detector(simpleSearch.s_Detector),
-      s_AggregationStyle(-1),
+    : s_Parent(nullptr), s_Spec(simpleSearch),
+      s_Detector(simpleSearch.s_Detector), s_AggregationStyle(-1),
       s_SmallestChildProbability(annotatedProbability.s_Probability),
-      s_SmallestDescendantProbability(1.0),
-      s_RawAnomalyScore(0.0),
-      s_NormalizedAnomalyScore(0.0),
-      s_Model(0),
-      s_BucketStartTime(0),
+      s_SmallestDescendantProbability(1.0), s_RawAnomalyScore(0.0),
+      s_NormalizedAnomalyScore(0.0), s_Model(nullptr), s_BucketStartTime(0),
       s_BucketLength(0) {
     s_AnnotatedProbability.swap(annotatedProbability);
 }
@@ -355,30 +350,37 @@ void SNode::propagateFields() {
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
     for (std::size_t i = 1u; i < s_Children.size(); ++i) {
-        if (!unset(s_Spec.s_PartitionFieldName) && !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
+        if (!unset(s_Spec.s_PartitionFieldName) &&
+            !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
             s_Spec.s_PartitionFieldName = UNSET_STRING;
             s_Spec.s_PartitionFieldValue = UNSET_STRING;
             s_Spec.s_PersonFieldName = UNSET_STRING;
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
-        if (!unset(s_Spec.s_PartitionFieldValue) && !equal(s_Spec.s_PartitionFieldValue, s_Children[i]->s_Spec.s_PartitionFieldValue)) {
+        if (!unset(s_Spec.s_PartitionFieldValue) &&
+            !equal(s_Spec.s_PartitionFieldValue, s_Children[i]->s_Spec.s_PartitionFieldValue)) {
             s_Spec.s_PartitionFieldValue = UNSET_STRING;
             s_Spec.s_PersonFieldName = UNSET_STRING;
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
-        if (!unset(s_Spec.s_PersonFieldName) && !equal(s_Spec.s_PersonFieldName, s_Children[i]->s_Spec.s_PersonFieldName)) {
+        if (!unset(s_Spec.s_PersonFieldName) &&
+            !equal(s_Spec.s_PersonFieldName, s_Children[i]->s_Spec.s_PersonFieldName)) {
             s_Spec.s_PersonFieldName = UNSET_STRING;
         }
-        if (!unset(s_Spec.s_PersonFieldValue) && !equal(s_Spec.s_PersonFieldValue, s_Children[i]->s_Spec.s_PersonFieldValue)) {
+        if (!unset(s_Spec.s_PersonFieldValue) &&
+            !equal(s_Spec.s_PersonFieldValue, s_Children[i]->s_Spec.s_PersonFieldValue)) {
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
     }
 }
 
 std::string SNode::print() const {
-    return s_Spec.print() + ": " + core::CStringUtils::typeToStringPretty(this->probability()) + ", " +
+    return s_Spec.print() + ": " +
+           core::CStringUtils::typeToStringPretty(this->probability()) + ", " +
            core::CStringUtils::typeToStringPretty(s_RawAnomalyScore) +
-           (s_AnnotatedProbability.s_Influences.empty() ? "" : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
+           (s_AnnotatedProbability.s_Influences.empty()
+                ? ""
+                : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
 }
 
 void SNode::swap(SNode& other) {
@@ -397,7 +399,8 @@ void SNode::swap(SNode& other) {
     std::swap(s_BucketLength, other.s_BucketLength);
 }
 
-void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodePtrSizeUMap& nodePointers) const {
+void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter,
+                                   TNodePtrSizeUMap& nodePointers) const {
     std::size_t index = nodePointers.emplace(this, nodePointers.size()).first->second;
     inserter.insertValue(SELF_TAG, index);
     core::CPersistUtils::persist(SPEC_TAG, s_Spec, inserter);
@@ -412,11 +415,12 @@ void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodeP
     inserter.insertValue(BUCKET_LENGTH_TAG, s_BucketLength);
 }
 
-void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const {
-    if (s_Parent != 0) {
+void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter,
+                                   const TNodePtrSizeUMap& nodePointers) const {
+    if (s_Parent != nullptr) {
         auto found = nodePointers.find(s_Parent);
         if (found == nodePointers.end()) {
-            LOG_ERROR("Parent not in persistence hierarchy!");
+            LOG_ERROR(<< "Parent not in persistence hierarchy!");
             return;
         }
         core::CPersistUtils::persist(PARENT_TAG, found->second, inserter);
@@ -425,22 +429,24 @@ void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const 
     for (const auto& child : s_Children) {
         auto found = nodePointers.find(child);
         if (found == nodePointers.end()) {
-            LOG_ERROR("Child not in persistence hierarchy!");
+            LOG_ERROR(<< "Child not in persistence hierarchy!");
             return;
         }
         core::CPersistUtils::persist(CHILD_TAG, found->second, inserter);
     }
 }
 
-bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSizeNodePtrUMap& nodePointers) {
+bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
+                                    TSizeNodePtrUMap& nodePointers) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(SELF_TAG,
-                               std::size_t index = 0,
+        RESTORE_SETUP_TEARDOWN(SELF_TAG, std::size_t index = 0,
                                core::CStringUtils::stringToType(traverser.value(), index),
                                nodePointers.insert(std::make_pair(index, this)))
         RESTORE(SPEC_TAG, core::CPersistUtils::restore(SPEC_TAG, s_Spec, traverser))
-        RESTORE(ANNOTATED_PROBABILITY_TAG, core::CPersistUtils::restore(ANNOTATED_PROBABILITY_TAG, s_AnnotatedProbability, traverser))
+        RESTORE(ANNOTATED_PROBABILITY_TAG,
+                core::CPersistUtils::restore(ANNOTATED_PROBABILITY_TAG,
+                                             s_AnnotatedProbability, traverser))
         RESTORE_BUILT_IN(DETECTOR_TAG, s_Detector);
         RESTORE_BUILT_IN(AGGREGATION_STYLE_TAG, s_AggregationStyle);
         RESTORE_BUILT_IN(SMALLEST_CHILD_TAG, s_SmallestChildProbability)
@@ -453,29 +459,32 @@ bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSi
     return true;
 }
 
-bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, const TSizeNodePtrUMap& nodePointers) {
+bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
+                                    const TSizeNodePtrUMap& nodePointers) {
     do {
         const std::string& name = traverser.name();
         std::size_t index = 0;
         if (name == PARENT_TAG) {
             if (!core::CPersistUtils::restore(PARENT_TAG, index, traverser)) {
-                LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
+                          << traverser.value());
                 return false;
             }
             auto found = nodePointers.find(index);
             if (found == nodePointers.end()) {
-                LOG_ERROR("Parent not in persistence hierarchy!");
+                LOG_ERROR(<< "Parent not in persistence hierarchy!");
                 return false;
             }
             s_Parent = found->second;
         } else if (name == CHILD_TAG) {
             if (!core::CPersistUtils::restore(CHILD_TAG, index, traverser)) {
-                LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
+                          << traverser.value());
                 return false;
             }
             auto found = nodePointers.find(index);
             if (found == nodePointers.end()) {
-                LOG_ERROR("Parent not in persistence hierarchy!");
+                LOG_ERROR(<< "Parent not in persistence hierarchy!");
                 return false;
             }
             s_Children.push_back(found->second);
@@ -492,7 +501,8 @@ void swap(SNode& node1, SNode& node2) {
 
 using namespace hierarchical_results_detail;
 
-CHierarchicalResults::CHierarchicalResults() : m_ResultType(model_t::CResultType::E_Final) {
+CHierarchicalResults::CHierarchicalResults()
+    : m_ResultType(model_t::CResultType::E_Final) {
 }
 
 void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability& annotatedProbability,
@@ -541,7 +551,9 @@ void CHierarchicalResults::addModelResult(int detector,
     spec.s_PersonFieldName = CStringStore::names().get(personFieldName);
     spec.s_PersonFieldValue = CStringStore::names().get(personFieldValue);
     spec.s_ValueFieldName = CStringStore::names().get(valueFieldName);
-    spec.s_ByFieldName = (model ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName()) : UNSET_STRING);
+    spec.s_ByFieldName =
+        (model ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName())
+               : UNSET_STRING);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
     leaf.s_BucketStartTime = bucketStartTime;
@@ -555,13 +567,14 @@ void CHierarchicalResults::addInfluencer(const std::string& name) {
 void CHierarchicalResults::buildHierarchy() {
     using TNodePtrVec = std::vector<SNode*>;
 
-    m_Nodes.erase(std::remove_if(m_Nodes.begin(), m_Nodes.end(), isAggregate), m_Nodes.end());
+    m_Nodes.erase(std::remove_if(m_Nodes.begin(), m_Nodes.end(), isAggregate),
+                  m_Nodes.end());
 
     // To make life easier for downstream code, bring a simple count node
     // to the front of the deque (if there is one).
     auto simpleCountItr = m_Nodes.end();
     for (auto i = m_Nodes.begin(); i != m_Nodes.end(); ++i) {
-        i->s_Parent = 0;
+        i->s_Parent = nullptr;
         if (i->s_Spec.s_IsSimpleCount) {
             simpleCountItr = i;
         }
@@ -576,34 +589,38 @@ void CHierarchicalResults::buildHierarchy() {
     TNodePtrVec layer;
     TNodePtrVec newLayer;
 
-    LOG_TRACE("Distinct values of the person field");
+    LOG_TRACE(<< "Distinct values of the person field");
     {
-        aggregateLayer<SPersonValueLess>(m_Nodes.begin(), m_Nodes.end(), *this, &CHierarchicalResults::newNode, layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        aggregateLayer<SPersonValueLess>(m_Nodes.begin(), m_Nodes.end(), *this,
+                                         &CHierarchicalResults::newNode, layer);
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct person field names");
+    LOG_TRACE(<< "Distinct person field names");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPersonNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
+        aggregateLayer<SPersonNameLess>(layer.begin(), layer.end(), *this,
+                                        &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct partition field values");
+    LOG_TRACE(<< "Distinct partition field values");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPartitionValueLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
+        aggregateLayer<SPartitionValueLess>(layer.begin(), layer.end(), *this,
+                                            &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct partition field names");
+    LOG_TRACE(<< "Distinct partition field names");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPartitionNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
+        aggregateLayer<SPartitionNameLess>(layer.begin(), layer.end(), *this,
+                                           &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
     if (layer.size() > 1) {
@@ -615,23 +632,24 @@ void CHierarchicalResults::buildHierarchy() {
             population |= layer[i]->s_Spec.s_IsPopulation;
         }
         root.s_Spec.s_IsPopulation = population;
-        LOG_TRACE("root = " << root.print());
+        LOG_TRACE(<< "root = " << root.print());
     }
 
-    LOG_TRACE("Propagating influences");
+    LOG_TRACE(<< "Propagating influences");
 
     CCommonInfluencePropagator influencePropagator;
     this->bottomUpBreadthFirst(influencePropagator);
 }
 
 void CHierarchicalResults::createPivots() {
-    LOG_TRACE("Creating pivots");
+    LOG_TRACE(<< "Creating pivots");
 
     for (const auto& node : m_Nodes) {
         const auto& parentInfluences = node.s_Parent->s_AnnotatedProbability.s_Influences;
         for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
             if (node.s_Parent &&
-                std::binary_search(parentInfluences.begin(), parentInfluences.end(), influence, maths::COrderings::SFirstLess())) {
+                std::binary_search(parentInfluences.begin(), parentInfluences.end(),
+                                   influence, maths::COrderings::SFirstLess())) {
                 continue;
             }
             this->newPivot(influence.first).s_Children.push_back(&node);
@@ -647,22 +665,23 @@ void CHierarchicalResults::createPivots() {
 
 const CHierarchicalResults::TNode* CHierarchicalResults::root() const {
     if (m_Nodes.empty()) {
-        return 0;
+        return nullptr;
     }
     if (m_Nodes.size() == 1) {
         return &m_Nodes.front();
     }
     const TNode& result = m_Nodes.back();
     if (isLeaf(result)) {
-        return 0;
+        return nullptr;
     }
     return &result;
 }
 
-const CHierarchicalResults::TNode* CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
-                                                                    const TStoredStringPtr& influencerValue) const {
+const CHierarchicalResults::TNode*
+CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
+                                 const TStoredStringPtr& influencerValue) const {
     auto i = m_PivotNodes.find({influencerName, influencerValue});
-    return i != m_PivotNodes.end() ? &i->second : 0;
+    return i != m_PivotNodes.end() ? &i->second : nullptr;
 }
 
 void CHierarchicalResults::bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const {
@@ -726,13 +745,17 @@ model_t::CResultType CHierarchicalResults::resultType() const {
 void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     using TStoredStringPtrNodeMapCItr = TStoredStringPtrNodeMap::const_iterator;
     using TStoredStringPtrNodeMapCItrVec = std::vector<TStoredStringPtrNodeMapCItr>;
-    using TStoredStringPtrStoredStringPtrPrNodeMapCItr = TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator;
-    using TStoredStringPtrStoredStringPtrPrNodeMapCItrVec = std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr>;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItr =
+        TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItrVec =
+        std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr>;
 
     TNodePtrSizeUMap nodePointers;
 
     for (const auto& node : m_Nodes) {
-        inserter.insertLevel(NODES_1_TAG, boost::bind(&SNode::acceptPersistInserter1, boost::cref(node), _1, boost::ref(nodePointers)));
+        inserter.insertLevel(NODES_1_TAG, boost::bind(&SNode::acceptPersistInserter1,
+                                                      boost::cref(node), _1,
+                                                      boost::ref(nodePointers)));
     }
 
     // Sort the keys by *value* order to ensure consistent persist state.
@@ -741,12 +764,15 @@ void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& in
     for (auto i = m_PivotNodes.begin(); i != m_PivotNodes.end(); ++i) {
         pivotIterators.push_back(i);
     }
-    std::sort(pivotIterators.begin(), pivotIterators.end(), core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
+    std::sort(pivotIterators.begin(), pivotIterators.end(),
+              core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
     for (auto i : pivotIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first.first, inserter);
         core::CPersistUtils::persist(PIVOT_VALUE_TAG, *i->first.second, inserter);
         inserter.insertLevel(PIVOT_NODES_1_TAG,
-                             boost::bind(&SNode::acceptPersistInserter1, boost::cref(i->second), _1, boost::ref(nodePointers)));
+                             boost::bind(&SNode::acceptPersistInserter1,
+                                         boost::cref(i->second), _1,
+                                         boost::ref(nodePointers)));
     }
 
     // Sort the keys by *value* order to ensure consistent persist state.
@@ -755,28 +781,37 @@ void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& in
     for (auto i = m_PivotRootNodes.begin(); i != m_PivotRootNodes.end(); ++i) {
         pivotRootIterators.push_back(i);
     }
-    std::sort(pivotRootIterators.begin(), pivotRootIterators.end(), core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
+    std::sort(pivotRootIterators.begin(), pivotRootIterators.end(),
+              core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
     for (auto i : pivotRootIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first, inserter);
         inserter.insertLevel(PIVOT_ROOT_NODES_1_TAG,
-                             boost::bind(&SNode::acceptPersistInserter1, boost::cref(i->second), _1, boost::ref(nodePointers)));
+                             boost::bind(&SNode::acceptPersistInserter1,
+                                         boost::cref(i->second), _1,
+                                         boost::ref(nodePointers)));
     }
 
     for (const auto& node : m_Nodes) {
-        inserter.insertLevel(NODES_2_TAG, boost::bind(&SNode::acceptPersistInserter2, boost::cref(node), _1, boost::cref(nodePointers)));
+        inserter.insertLevel(NODES_2_TAG, boost::bind(&SNode::acceptPersistInserter2,
+                                                      boost::cref(node), _1,
+                                                      boost::cref(nodePointers)));
     }
 
     for (auto i : pivotIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first.first, inserter);
         core::CPersistUtils::persist(PIVOT_VALUE_TAG, *i->first.second, inserter);
         inserter.insertLevel(PIVOT_NODES_2_TAG,
-                             boost::bind(&SNode::acceptPersistInserter2, boost::cref(i->second), _1, boost::cref(nodePointers)));
+                             boost::bind(&SNode::acceptPersistInserter2,
+                                         boost::cref(i->second), _1,
+                                         boost::cref(nodePointers)));
     }
 
     for (auto i : pivotRootIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first, inserter);
         inserter.insertLevel(PIVOT_ROOT_NODES_2_TAG,
-                             boost::bind(&SNode::acceptPersistInserter2, boost::cref(i->second), _1, boost::cref(nodePointers)));
+                             boost::bind(&SNode::acceptPersistInserter2,
+                                         boost::cref(i->second), _1,
+                                         boost::cref(nodePointers)));
     }
 }
 
@@ -788,34 +823,41 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(NODES_1_TAG,
-                               m_Nodes.push_back(SNode()),
-                               traverser.traverseSubLevel(
-                                   boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(m_Nodes.back()), _1, boost::ref(nodePointers))),
-                               /**/)
+        RESTORE_SETUP_TEARDOWN(
+            NODES_1_TAG, m_Nodes.push_back(SNode()),
+            traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1,
+                                                   boost::ref(m_Nodes.back()),
+                                                   _1, boost::ref(nodePointers))),
+            /**/)
         if (name == NODES_2_TAG) {
             if (nodesFullyRestored > m_Nodes.size()) {
-                LOG_ERROR("Invalid restore index for node: " << nodesFullyRestored);
+                LOG_ERROR(<< "Invalid restore index for node: " << nodesFullyRestored);
             }
             if (traverser.traverseSubLevel(boost::bind(
-                    &SNode::acceptRestoreTraverser2, boost::ref(m_Nodes[nodesFullyRestored]), _1, boost::cref(nodePointers))) == false) {
-                LOG_ERROR("Failed to restore node");
+                    &SNode::acceptRestoreTraverser2, boost::ref(m_Nodes[nodesFullyRestored]),
+                    _1, boost::cref(nodePointers))) == false) {
+                LOG_ERROR(<< "Failed to restore node");
                 return false;
             }
             ++nodesFullyRestored;
             continue;
         }
-        RESTORE_NO_ERROR(PIVOT_NAME_TAG, influencerName = CStringStore::influencers().get(traverser.value()))
-        RESTORE_NO_ERROR(PIVOT_VALUE_TAG, influencerValue = CStringStore::influencers().get(traverser.value()))
+        RESTORE_NO_ERROR(
+            PIVOT_NAME_TAG,
+            influencerName = CStringStore::influencers().get(traverser.value()))
+        RESTORE_NO_ERROR(
+            PIVOT_VALUE_TAG,
+            influencerValue = CStringStore::influencers().get(traverser.value()))
         if (name == PIVOT_NODES_1_TAG) {
             if (!influencerName || !influencerValue) {
-                LOG_ERROR("Invalid influencers for node");
+                LOG_ERROR(<< "Invalid influencers for node");
                 return false;
             }
             SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) ==
-                false) {
-                LOG_ERROR("Failed to restore pivot node");
+            if (traverser.traverseSubLevel(
+                    boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node),
+                                _1, boost::ref(nodePointers))) == false) {
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -823,13 +865,14 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
             continue;
         } else if (name == PIVOT_NODES_2_TAG) {
             if (!influencerName || !influencerValue) {
-                LOG_ERROR("Invalid influencers for node");
+                LOG_ERROR(<< "Invalid influencers for node");
                 return false;
             }
             SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) ==
-                false) {
-                LOG_ERROR("Failed to restore pivot node");
+            if (traverser.traverseSubLevel(
+                    boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node),
+                                _1, boost::cref(nodePointers))) == false) {
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -838,13 +881,14 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         }
         if (name == PIVOT_ROOT_NODES_1_TAG) {
             if (!influencerName) {
-                LOG_ERROR("Invalid influencer for node");
+                LOG_ERROR(<< "Invalid influencer for node");
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) ==
-                false) {
-                LOG_ERROR("Failed to restore pivot node");
+            if (traverser.traverseSubLevel(
+                    boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node),
+                                _1, boost::ref(nodePointers))) == false) {
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -852,13 +896,14 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         }
         if (name == PIVOT_ROOT_NODES_2_TAG) {
             if (!influencerName) {
-                LOG_ERROR("Invalid influencer for node");
+                LOG_ERROR(<< "Invalid influencer for node");
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) ==
-                false) {
-                LOG_ERROR("Failed to restore pivot node");
+            if (traverser.traverseSubLevel(
+                    boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node),
+                                _1, boost::cref(nodePointers))) == false) {
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -881,12 +926,15 @@ CHierarchicalResults::TNode& CHierarchicalResults::newNode() {
     return m_Nodes.back();
 }
 
-CHierarchicalResults::TNode& CHierarchicalResults::newLeaf(const TResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability) {
+CHierarchicalResults::TNode&
+CHierarchicalResults::newLeaf(const TResultSpec& simpleSearch,
+                              SAnnotatedProbability& annotatedProbability) {
     m_Nodes.emplace_back(simpleSearch, annotatedProbability);
     return m_Nodes.back();
 }
 
-CHierarchicalResults::TNode& CHierarchicalResults::newPivot(TStoredStringPtrStoredStringPtrPr key) {
+CHierarchicalResults::TNode&
+CHierarchicalResults::newPivot(TStoredStringPtrStoredStringPtrPr key) {
     TNode& result = m_PivotNodes[key];
     result.s_Spec.s_PersonFieldName = key.first;
     result.s_Spec.s_PersonFieldValue = key.second;
@@ -900,7 +948,8 @@ CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TStoredStr
     return result;
 }
 
-void CHierarchicalResults::postorderDepthFirst(const TNode* node, CHierarchicalResultsVisitor& visitor) const {
+void CHierarchicalResults::postorderDepthFirst(const TNode* node,
+                                               CHierarchicalResultsVisitor& visitor) const {
     for (const auto& child : node->s_Children) {
         this->postorderDepthFirst(child, visitor);
     }
@@ -919,12 +968,15 @@ bool CHierarchicalResultsVisitor::isLeaf(const TNode& node) {
 }
 
 bool CHierarchicalResultsVisitor::isPartitioned(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) && unset(node.s_Spec.s_PartitionFieldValue);
+    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
+           unset(node.s_Spec.s_PartitionFieldValue);
 }
 
 bool CHierarchicalResultsVisitor::isPartition(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) && !unset(node.s_Spec.s_PartitionFieldValue) &&
-           (CHierarchicalResultsVisitor::isRoot(node) || unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
+    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
+           !unset(node.s_Spec.s_PartitionFieldValue) &&
+           (CHierarchicalResultsVisitor::isRoot(node) ||
+            unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
 }
 
 bool CHierarchicalResultsVisitor::isPerson(const TNode& node) {
@@ -932,11 +984,13 @@ bool CHierarchicalResultsVisitor::isPerson(const TNode& node) {
         return false;
     }
     if (!isPopulation(node)) {
-        return unset(node.s_Spec.s_PersonFieldValue) || CHierarchicalResultsVisitor::isRoot(node) ||
+        return unset(node.s_Spec.s_PersonFieldValue) ||
+               CHierarchicalResultsVisitor::isRoot(node) ||
                unset(node.s_Parent->s_Spec.s_PersonFieldName);
     }
     return !unset(node.s_Spec.s_PersonFieldValue) &&
-           (CHierarchicalResultsVisitor::isRoot(node) || (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
+           (CHierarchicalResultsVisitor::isRoot(node) ||
+            (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
 }
 
 bool CHierarchicalResultsVisitor::isAttribute(const TNode& node) {
@@ -957,9 +1011,11 @@ bool CHierarchicalResultsVisitor::isPopulation(const TNode& node) {
     return node.s_Spec.s_IsPopulation;
 }
 
-const CHierarchicalResultsVisitor::TNode* CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode& node) {
+const CHierarchicalResultsVisitor::TNode*
+CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode& node) {
     const TNode* result = &node;
-    for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false); result = result->s_Parent) {
+    for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false);
+         result = result->s_Parent) {
     }
     return result;
 }
@@ -979,7 +1035,8 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits& limits,
     // condition the UI can be very confusing, as it's not necessarily possible
     // to find anything when searching upwards from lowest level anomalies to
     // the aggregated levels above.
-    if (p < limits.unusualProbabilityThreshold() && isTypeForWhichWeWriteResults(node, pivot)) {
+    if (p < limits.unusualProbabilityThreshold() &&
+        isTypeForWhichWeWriteResults(node, pivot)) {
         return true;
     }
 
@@ -1013,7 +1070,8 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits& limits,
     // a low probability themselves or be in branch of the results tree which
     // contains low probability results.
     for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
-        const TNode* influencer = results.influencer(influence.first.first, influence.first.second);
+        const TNode* influencer =
+            results.influencer(influence.first.first, influence.first.second);
         if (influencer && p <= OUTPUT_TOLERANCE * influencer->s_SmallestDescendantProbability &&
             shouldWriteResult(limits, results, *influencer, /*pivot = */ true)) {
             return true;

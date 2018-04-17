@@ -22,9 +22,9 @@
 #include <core/CThread.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <functional>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -65,13 +65,11 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CBlockingMessageQueue(RECEIVER& receiver, const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
-        : m_Thread(*this),
-          m_ProducerCondition(m_Mutex),
-          m_ConsumerCondition(m_Mutex),
-          m_Receiver(receiver),
-          m_Queue(QUEUE_CAPACITY),
-          m_ShutdownFunc(shutdownFunc) {}
+    CBlockingMessageQueue(RECEIVER& receiver,
+                          const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
+        : m_Thread(*this), m_ProducerCondition(m_Mutex),
+          m_ConsumerCondition(m_Mutex), m_Receiver(receiver),
+          m_Queue(QUEUE_CAPACITY), m_ShutdownFunc(shutdownFunc) {}
 
     virtual ~CBlockingMessageQueue() {}
 
@@ -80,7 +78,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 
@@ -111,7 +109,7 @@ public:
             pending = 0;
 
             // Should be fatal error
-            LOG_FATAL("Cannot dispatch to message queue.  Queue not initialised");
+            LOG_FATAL(<< "Cannot dispatch to message queue.  Queue not initialised");
             return;
         }
 
@@ -153,7 +151,8 @@ private:
     class CMessageQueueThread : public CThread {
     public:
         CMessageQueueThread(CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY>& messageQueue)
-            : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
+            : m_MessageQueue(messageQueue), m_ShuttingDown(false),
+              m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
         bool isRunning() const {
@@ -229,7 +228,7 @@ private:
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
         template<typename POINTEE>
-        void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
+        void destroyMsgDataUnlocked(std::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }
 

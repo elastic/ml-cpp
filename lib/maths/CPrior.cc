@@ -47,7 +47,7 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
     if (CMathsFuncs::isFinite(value)) {
         result = value;
     } else {
-        LOG_ERROR("Invalid decay rate " << value);
+        LOG_ERROR(<< "Invalid decay rate " << value);
         result = fallback;
     }
 }
@@ -56,10 +56,12 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
 const std::size_t ADJUST_OFFSET_TRIALS = 20;
 }
 
-CPrior::CPrior() : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
+CPrior::CPrior()
+    : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
-CPrior::CPrior(maths_t::EDataType dataType, double decayRate) : m_DataType(dataType), m_NumberSamples(0) {
+CPrior::CPrior(maths_t::EDataType dataType, double decayRate)
+    : m_DataType(dataType), m_NumberSamples(0) {
     detail::setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
@@ -100,13 +102,17 @@ double CPrior::offsetMargin() const {
     return 0.0;
 }
 
-void CPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& /*samples*/, const TDouble4Vec1Vec& weights) {
+void CPrior::addSamples(const TWeightStyleVec& weightStyles,
+                        const TDouble1Vec& /*samples*/,
+                        const TDouble4Vec1Vec& weights) {
     double n = 0.0;
     try {
         for (const auto& weight : weights) {
             n += maths_t::countForUpdate(weightStyles, weight);
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to extract sample counts: " << e.what()); }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to extract sample counts: " << e.what());
+    }
     this->addSamples(n);
 }
 
@@ -114,7 +120,8 @@ double CPrior::nearestMarginalLikelihoodMean(double /*value*/) const {
     return this->marginalLikelihoodMean();
 }
 
-CPrior::TDouble1Vec CPrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights) const {
+CPrior::TDouble1Vec CPrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                                    const TDouble4Vec& weights) const {
     return TDouble1Vec{this->marginalLikelihoodMode(weightStyles, weights)};
 }
 
@@ -165,8 +172,8 @@ CPrior::SPlot CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double w
 
     for (auto x : plot.s_Abscissa) {
         double likelihood;
-        maths_t::EFloatingPointErrorStatus status =
-            this->jointLogMarginalLikelihood(CConstantWeights::COUNT, {x}, CConstantWeights::SINGLE_UNIT, likelihood);
+        maths_t::EFloatingPointErrorStatus status = this->jointLogMarginalLikelihood(
+            CConstantWeights::COUNT, {x}, CConstantWeights::SINGLE_UNIT, likelihood);
         if (status & maths_t::E_FpFailed) {
             // Ignore point.
         } else if (status & maths_t::E_FpOverflowed) {
@@ -201,12 +208,16 @@ double CPrior::unmarginalizedParameters() const {
     return 0.0;
 }
 
-void CPrior::adjustOffsetResamples(double minimumSample, TDouble1Vec& resamples, TDouble4Vec1Vec& resamplesWeights) const {
+void CPrior::adjustOffsetResamples(double minimumSample,
+                                   TDouble1Vec& resamples,
+                                   TDouble4Vec1Vec& resamplesWeights) const {
     this->sampleMarginalLikelihood(ADJUST_OFFSET_SAMPLE_SIZE, resamples);
     std::size_t n = resamples.size();
-    resamples.erase(std::remove_if(resamples.begin(), resamples.end(), std::not1(CMathsFuncs::SIsFinite())), resamples.end());
+    resamples.erase(std::remove_if(resamples.begin(), resamples.end(),
+                                   std::not1(CMathsFuncs::SIsFinite())),
+                    resamples.end());
     if (resamples.size() != n) {
-        LOG_ERROR("Bad samples (" << this->debug() << ")");
+        LOG_ERROR(<< "Bad samples (" << this->debug() << ")");
         n = resamples.size();
     }
     for (std::size_t i = 0u; i < n; ++i) {
@@ -225,7 +236,8 @@ double CPrior::adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
                                     const TDouble4Vec1Vec& weights,
                                     COffsetCost& cost,
                                     CApplyOffset& apply) {
-    if (samples.empty() || CMathsFuncs::beginFinite(samples) == CMathsFuncs::endFinite(samples)) {
+    if (samples.empty() ||
+        CMathsFuncs::beginFinite(samples) == CMathsFuncs::endFinite(samples)) {
         return 0.0;
     }
 
@@ -241,7 +253,8 @@ double CPrior::adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
     // likelihood of these samples w.r.t. the offset.
 
     double margin = this->offsetMargin();
-    double minimumSample = *std::min_element(CMathsFuncs::beginFinite(samples), CMathsFuncs::endFinite(samples));
+    double minimumSample = *std::min_element(CMathsFuncs::beginFinite(samples),
+                                             CMathsFuncs::endFinite(samples));
     if (minimumSample + this->offset() >= margin) {
         return 0.0;
     }
@@ -265,12 +278,16 @@ double CPrior::adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
     this->adjustOffsetResamples(minimumSample, resamples, resamplesWeights);
 
     double before;
-    this->jointLogMarginalLikelihood(CConstantWeights::COUNT, resamples, resamplesWeights, before);
+    this->jointLogMarginalLikelihood(CConstantWeights::COUNT, resamples,
+                                     resamplesWeights, before);
 
     double maximumSample = *std::max_element(samples.begin(), samples.end());
-    double range = resamples.empty() ? maximumSample - minimumSample
-                                     : std::max(maximumSample - minimumSample, resamples[resamples.size() - 1] - resamples[0]);
-    double increment = std::max((range - margin) / static_cast<double>(ADJUST_OFFSET_TRIALS - 1), 0.0);
+    double range = resamples.empty()
+                       ? maximumSample - minimumSample
+                       : std::max(maximumSample - minimumSample,
+                                  resamples[resamples.size() - 1] - resamples[0]);
+    double increment = std::max(
+        (range - margin) / static_cast<double>(ADJUST_OFFSET_TRIALS - 1), 0.0);
 
     if (increment > 0.0) {
         TDouble1Vec trialOffsets;
@@ -281,13 +298,15 @@ double CPrior::adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
         }
         double likelihood;
         CSolvers::globalMinimize(trialOffsets, cost, offset, likelihood);
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", offset = " << offset << ", likelihood = " << likelihood);
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
+                  << ", offset = " << offset << ", likelihood = " << likelihood);
     }
 
     apply(offset);
 
     double after;
-    this->jointLogMarginalLikelihood(CConstantWeights::COUNT, resamples, resamplesWeights, after);
+    this->jointLogMarginalLikelihood(CConstantWeights::COUNT, resamples,
+                                     resamplesWeights, after);
     return std::min(after - before, 0.0);
 }
 
@@ -327,20 +346,23 @@ CPrior::CLogMarginalLikelihood::CLogMarginalLikelihood(const CPrior& prior,
 double CPrior::CLogMarginalLikelihood::operator()(double x) const {
     double result;
     if (!this->operator()(x, result)) {
-        throw std::runtime_error("Unable to compute likelihood at " + core::CStringUtils::typeToString(x));
+        throw std::runtime_error("Unable to compute likelihood at " +
+                                 core::CStringUtils::typeToString(x));
     }
     return result;
 }
 
 bool CPrior::CLogMarginalLikelihood::operator()(double x, double& result) const {
     m_X[0] = x;
-    return !(m_Prior->jointLogMarginalLikelihood(*m_WeightStyles, m_X, *m_Weights, result) & maths_t::E_FpFailed);
+    return !(m_Prior->jointLogMarginalLikelihood(*m_WeightStyles, m_X, *m_Weights, result) &
+             maths_t::E_FpFailed);
 }
 
 ////////// CPrior::COffsetParameters Implementation //////////
 
 CPrior::COffsetParameters::COffsetParameters(CPrior& prior)
-    : m_Prior(&prior), m_WeightStyles(0), m_Samples(0), m_Weights(0), m_Resamples(0), m_ResamplesWeights(0) {
+    : m_Prior(&prior), m_WeightStyles(nullptr), m_Samples(nullptr),
+      m_Weights(nullptr), m_Resamples(0), m_ResamplesWeights(0) {
 }
 
 void CPrior::COffsetParameters::samples(const maths_t::TWeightStyleVec& weightStyles,
@@ -399,21 +421,23 @@ double CPrior::COffsetCost::computeCost(double offset) const {
     double resamplesLogLikelihood = 0.0;
     maths_t::EFloatingPointErrorStatus status;
     if (this->resamples().size() > 0) {
-        status =
-            this->prior().jointLogMarginalLikelihood(TWeights::COUNT, this->resamples(), this->resamplesWeights(), resamplesLogLikelihood);
+        status = this->prior().jointLogMarginalLikelihood(
+            TWeights::COUNT, this->resamples(), this->resamplesWeights(), resamplesLogLikelihood);
         if (status != maths_t::E_FpNoErrors) {
-            LOG_ERROR("Failed evaluating log-likelihood at "
-                      << offset << " for samples " << core::CContainerPrinter::print(this->resamples()) << " and weights "
-                      << core::CContainerPrinter::print(this->resamplesWeights()) << ", the prior is " << this->prior().print()
-                      << ": status " << status);
+            LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for samples "
+                      << core::CContainerPrinter::print(this->resamples()) << " and weights "
+                      << core::CContainerPrinter::print(this->resamplesWeights()) << ", the prior is "
+                      << this->prior().print() << ": status " << status);
         }
     }
     double samplesLogLikelihood;
-    status = this->prior().jointLogMarginalLikelihood(this->weightStyles(), this->samples(), this->weights(), samplesLogLikelihood);
+    status = this->prior().jointLogMarginalLikelihood(
+        this->weightStyles(), this->samples(), this->weights(), samplesLogLikelihood);
     if (status != maths_t::E_FpNoErrors) {
-        LOG_ERROR("Failed evaluating log-likelihood at " << offset << " for " << core::CContainerPrinter::print(this->samples())
-                                                         << " and weights " << core::CContainerPrinter::print(this->weights())
-                                                         << ", the prior is " << this->prior().print() << ": status " << status);
+        LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for "
+                  << core::CContainerPrinter::print(this->samples()) << " and weights "
+                  << core::CContainerPrinter::print(this->weights()) << ", the prior is "
+                  << this->prior().print() << ": status " << status);
     }
     return -(resamplesLogLikelihood + samplesLogLikelihood);
 }
