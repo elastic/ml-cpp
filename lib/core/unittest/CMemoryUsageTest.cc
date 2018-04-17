@@ -1071,8 +1071,12 @@ void CMemoryUsageTest::testStringClear() {
 }
 
 void CMemoryUsageTest::testSharedPointer() {
+<<<<<<< Updated upstream
     LOG_DEBUG(<< "*** testSharedPointer ***");
     using TIntVecPtr = std::shared_ptr<TIntVec>;
+=======
+    using TIntVecPtr = boost::shared_ptr<TIntVec>;
+>>>>>>> Stashed changes
     using TIntVecPtrVec = std::vector<TIntVecPtr>;
     using TStrPtr = std::shared_ptr<std::string>;
     using TStrPtrVec = std::vector<TStrPtr>;
@@ -1152,7 +1156,6 @@ void CMemoryUsageTest::testSharedPointer() {
 }
 
 void CMemoryUsageTest::testRawPointer() {
-    LOG_DEBUG(<< "*** testRawPointer ***");
     std::string* strPtr = nullptr;
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
 
@@ -1166,8 +1169,6 @@ void CMemoryUsageTest::testRawPointer() {
 }
 
 void CMemoryUsageTest::testSmallVector() {
-    LOG_DEBUG(<< "*** testSmallVector ***");
-
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 2>;
     using TDouble6Vec = core::CSmallVector<double, 6>;

@@ -180,10 +180,6 @@ double sumSquareResiduals(const TVector2VecVec& points) {
 }
 
 void CKMeansFastTest::testDataPropagation() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testDataPropagation  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
@@ -214,10 +210,6 @@ void CKMeansFastTest::testDataPropagation() {
 }
 
 void CKMeansFastTest::testFilter() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testFilter  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     // Test that the closest centre to each point is never removed
     // by the centre filter and that we get good speed up in terms
     // of the number of centre point comparisons avoided.
@@ -286,10 +278,6 @@ void CKMeansFastTest::testFilter() {
 }
 
 void CKMeansFastTest::testCentroids() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testCentroids  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Check that the centroids computed are the centroids for
     // each cluster, i.e. the centroid of the points closest to
     // each cluster centre.
@@ -367,10 +355,6 @@ void CKMeansFastTest::testCentroids() {
 }
 
 void CKMeansFastTest::testClosestPoints() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testClosestPoints  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Check the obvious invariant that the closest point to each
     // centre is closer to that centre than any other.
 
@@ -439,10 +423,6 @@ void CKMeansFastTest::testClosestPoints() {
 }
 
 void CKMeansFastTest::testRun() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testRun  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     // Test k-means correctly identifies two separated uniform
     // random clusters in the data.
 
@@ -488,10 +468,6 @@ void CKMeansFastTest::testRun() {
 }
 
 void CKMeansFastTest::testRunWithSphericalClusters() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testRunWithSphericalClusters  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their
     // spherical cluster representation.
@@ -567,10 +543,6 @@ void CKMeansFastTest::testRunWithSphericalClusters() {
 }
 
 void CKMeansFastTest::testPlusPlus() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CKMeansFastTest::testPlusPlus  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test the k-means++ sampling scheme always samples all the
     // clusters present in the data and generally results in lower
     // square residuals of the points from the cluster centres.

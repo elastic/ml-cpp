@@ -157,10 +157,6 @@ std::string print(maths_t::EDataType dataType) {
 }
 
 void CMultivariateMultimodalPriorTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -223,10 +219,6 @@ void CMultivariateMultimodalPriorTest::testMultipleUpdate() {
 }
 
 void CMultivariateMultimodalPriorTest::testPropagation() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testPropagation  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // Test that propagation doesn't affect the marginal likelihood
     // mean and the marginal likelihood variance increases (due to
     // influence of the prior uncertainty) after propagation.
@@ -292,10 +284,6 @@ void CMultivariateMultimodalPriorTest::testPropagation() {
 }
 
 void CMultivariateMultimodalPriorTest::testSingleMode() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testSingleMode  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that we stably get one cluster.
 
     maths::CSampling::seed();
@@ -318,10 +306,6 @@ void CMultivariateMultimodalPriorTest::testSingleMode() {
 }
 
 void CMultivariateMultimodalPriorTest::testMultipleModes() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMultipleModes  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // We check that for data generated from multiple modes
     // we get something close to the generating distribution.
     // In particular, we test the log likelihood of the data
@@ -406,10 +390,6 @@ void CMultivariateMultimodalPriorTest::testMultipleModes() {
 }
 
 void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testSplitAndMerge  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test clustering which changes over time.
 
     maths::CSampling::seed();
@@ -534,10 +514,6 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     // Test that:
     //   1) The likelihood is normalized.
     //   2) E[X] w.r.t. the likelihood is equal to the predictive distribution mean.
@@ -660,14 +636,6 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean "
-                 " |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-
     // Test that the marginal likelihood mean is close to the sample
     // mean for a multimodal distribution.
 
@@ -713,14 +681,6 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode "
-                 " |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-
     // Test that the sample mode is close to the generating distribution mode.
 
     using TMaxAccumulator =
@@ -783,10 +743,6 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-
     // We're going to test the following properties of the sampling:
     //   1) That the sampled mean and covariance are close to the marginal
     //      likelihood mean and covariance.
@@ -881,10 +837,6 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-
     // Test that the probability is approximately equal to the chance of drawing
     // a less likely sample from generating distribution.
 
@@ -977,26 +929,14 @@ void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CMultivariateMultimodalPriorTest::testIntegerData() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testIntegerData  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // TODO
 }
 
 void CMultivariateMultimodalPriorTest::testLowVariationData() {
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testLowVariationData  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     // TODO
 }
 
 void CMultivariateMultimodalPriorTest::testLatLongData() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testLatLongData  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
     using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
 
@@ -1050,10 +990,6 @@ void CMultivariateMultimodalPriorTest::testLatLongData() {
 }
 
 void CMultivariateMultimodalPriorTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Check that persist/restore is idempotent.
 
     maths::CSampling::seed();

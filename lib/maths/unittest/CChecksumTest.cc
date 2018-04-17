@@ -63,10 +63,6 @@ using TBarVec = std::vector<SBar>;
 }
 
 void CChecksumTest::testMemberChecksum() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testMemberChecksum  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     LOG_DEBUG(<< "");
@@ -83,10 +79,6 @@ void CChecksumTest::testMemberChecksum() {
 }
 
 void CChecksumTest::testContainers() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testContainers  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     test::CRandomNumbers rng;
@@ -195,10 +187,6 @@ void CChecksumTest::testContainers() {
 }
 
 void CChecksumTest::testNullable() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testNullable  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     // Test optional and pointers.
@@ -232,10 +220,6 @@ void CChecksumTest::testNullable() {
 }
 
 void CChecksumTest::testAccumulators() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testAccumulators  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     // Test accumulators.
@@ -253,10 +237,6 @@ void CChecksumTest::testAccumulators() {
 }
 
 void CChecksumTest::testPair() {
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testPair  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     // Test pair.
@@ -292,10 +272,6 @@ void CChecksumTest::testPair() {
 }
 
 void CChecksumTest::testArray() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testArray  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     double a[] = {1.0, 23.8, 15.2, 14.7};
@@ -314,10 +290,6 @@ void CChecksumTest::testArray() {
 }
 
 void CChecksumTest::testCombinations() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CChecksumTest::testCombinations  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     uint64_t seed = 1679023009937ull;
 
     test::CRandomNumbers rng;

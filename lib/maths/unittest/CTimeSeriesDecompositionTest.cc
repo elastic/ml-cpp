@@ -55,10 +55,6 @@ const core_t::TTime YEAR = core::constants::YEAR;
 }
 
 void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSuperpositionOfSines  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 100 * WEEK + 1; time += HALF_HOUR) {
@@ -158,10 +154,6 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
 }
 
 void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testDistortedPeriodic  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     const core_t::TTime bucketLength = HOUR;
     const core_t::TTime startTime = 0;
     const TDoubleVec timeseries{
@@ -346,10 +338,6 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
 }
 
 void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testMinimizeLongComponents  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     double weights[] = {1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
 
     TTimeVec times;
@@ -469,10 +457,6 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
 }
 
 void CTimeSeriesDecompositionTest::testWeekend() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testWeekend  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     double weights[] = {0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     TTimeVec times;
@@ -575,10 +559,6 @@ void CTimeSeriesDecompositionTest::testWeekend() {
 }
 
 void CTimeSeriesDecompositionTest::testSinglePeriodicity() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSinglePeriodicity  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
@@ -692,10 +672,6 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity() {
 }
 
 void CTimeSeriesDecompositionTest::testSeasonalOnset() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSeasonalOnset  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     const double daily[] = {0.0,  0.0,  0.0,  0.0,  5.0,  5.0,  5.0,  40.0,
                             40.0, 40.0, 30.0, 30.0, 35.0, 35.0, 40.0, 50.0,
                             60.0, 80.0, 80.0, 10.0, 5.0,  0.0,  0.0,  0.0};
@@ -810,10 +786,6 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
 }
 
 void CTimeSeriesDecompositionTest::testVarianceScale() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testVarianceScale  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Test that variance scales are correctly computed.
 
     test::CRandomNumbers rng;
@@ -959,10 +931,6 @@ void CTimeSeriesDecompositionTest::testVarianceScale() {
 }
 
 void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSpikeyDataProblemCase  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1110,10 +1078,6 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testDiurnalProblemCase  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1226,10 +1190,6 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1336,10 +1296,6 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Daily Periodic") {
@@ -1448,10 +1404,6 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
 }
 
 void CTimeSeriesDecompositionTest::testLongTermTrend() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testLongTermTrend  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     const core_t::TTime length = 120 * DAY;
 
     TTimeVec times;
@@ -1466,7 +1418,8 @@ void CTimeSeriesDecompositionTest::testLongTermTrend() {
     //TDoubleVec f;
     //TDoubleVec values;
 
-    LOG_DEBUG(<< "Linear Ramp") {
+    LOG_DEBUG(<< "Linear Ramp");
+    {
         for (core_t::TTime time = 0; time < length; time += HALF_HOUR) {
             times.push_back(time);
             trend.push_back(5.0 + static_cast<double>(time) / static_cast<double>(DAY));
@@ -1619,10 +1572,6 @@ void CTimeSeriesDecompositionTest::testLongTermTrend() {
 }
 
 void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-
     // Test long term mean reverting component plus daily periodic component.
 
     TTimeVec times;
@@ -1713,10 +1662,6 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
 }
 
 void CTimeSeriesDecompositionTest::testNonDiurnal() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testNonDiurnal  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Hourly") {
@@ -1902,10 +1847,6 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
 }
 
 void CTimeSeriesDecompositionTest::testYearly() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testYearly  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     using TDouble1Vec = core::CSmallVector<double, 1>;
 
     test::CRandomNumbers rng;
@@ -1971,10 +1912,6 @@ void CTimeSeriesDecompositionTest::testYearly() {
 }
 
 void CTimeSeriesDecompositionTest::testCalendar() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testCalendar  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // Test that we significantly reduce the error on the last Friday of each
     // month after estimating the appropriate component.
 
@@ -2054,10 +1991,6 @@ void CTimeSeriesDecompositionTest::testCalendar() {
 }
 
 void CTimeSeriesDecompositionTest::testConditionOfTrend() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testConditionOfTrend  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     auto trend = [](core_t::TTime time) {
         return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
     };
@@ -2078,10 +2011,6 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend() {
 }
 
 void CTimeSeriesDecompositionTest::testSwap() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSwap  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
 
@@ -2121,10 +2050,6 @@ void CTimeSeriesDecompositionTest::testSwap() {
 }
 
 void CTimeSeriesDecompositionTest::testPersist() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Check that serialization is idempotent.
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
@@ -2177,10 +2102,6 @@ void CTimeSeriesDecompositionTest::testPersist() {
 }
 
 void CTimeSeriesDecompositionTest::testUpgrade() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testUpgrade  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;

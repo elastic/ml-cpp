@@ -57,8 +57,6 @@ maths::CMultimodalPrior multimodal() {
 }
 
 void CModelToolsTest::testFuzzyDeduplicate() {
-    LOG_DEBUG(<< "*** CModelToolsTest::testFuzzyDeduplicate ***");
-
     test::CRandomNumbers rng;
 
     TDoubleVec values;
@@ -182,8 +180,6 @@ void CModelToolsTest::testFuzzyDeduplicate() {
 }
 
 void CModelToolsTest::testProbabilityCache() {
-    LOG_DEBUG(<< "*** CModelToolsTest::testProbabilityCache ***");
-
     using TBool2Vec = core::CSmallVector<bool, 2>;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;

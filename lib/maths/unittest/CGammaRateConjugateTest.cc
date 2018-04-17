@@ -50,10 +50,6 @@ CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_Continuou
 }
 
 void CGammaRateConjugateTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -127,10 +123,6 @@ void CGammaRateConjugateTest::testMultipleUpdate() {
 }
 
 void CGammaRateConjugateTest::testPropagation() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testPropagation  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // The quantities are preserved up to the solving tolerance given that
     // the updated count is still relatively large so the digamma function
     // is very nearly equal to the log function.
@@ -163,10 +155,6 @@ void CGammaRateConjugateTest::testPropagation() {
 }
 
 void CGammaRateConjugateTest::testShapeEstimation() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testShapeEstimation  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // The idea here is to check that the likelihood shape estimate converges
     // to the correct value for a range of distribution parameters. We do not
     // use any explicit bounds on the convergence rates so simply check that
@@ -230,10 +218,6 @@ void CGammaRateConjugateTest::testShapeEstimation() {
 }
 
 void CGammaRateConjugateTest::testRateEstimation() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testRateEstimation  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // We are going to test that we correctly estimate a distribution
     // for the rate of the gamma process by checking that the true
     // rate of a gamma process lies in various confidence intervals
@@ -288,10 +272,6 @@ void CGammaRateConjugateTest::testRateEstimation() {
 }
 
 void CGammaRateConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {maths_t::E_ContinuousData, maths_t::E_IntegerData};
     for (std::size_t t = 0u; t < boost::size(dataTypes); ++t) {
@@ -498,10 +478,6 @@ void CGammaRateConjugateTest::testMarginalLikelihood() {
 }
 
 void CGammaRateConjugateTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
 
@@ -544,10 +520,6 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMean() {
 }
 
 void CGammaRateConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
 
@@ -594,10 +566,6 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CGammaRateConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
     // marginal likelihood.
@@ -652,10 +620,6 @@ void CGammaRateConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CGammaRateConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
     //      likelihood mean.
@@ -746,10 +710,6 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CGammaRateConjugateTest::testCdf() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testCdf  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Test error cases.
     //
     // Test some invariants:
@@ -800,10 +760,6 @@ void CGammaRateConjugateTest::testCdf() {
 }
 
 void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal
     // likelihood, up to the sampling error.
@@ -928,10 +884,6 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CGammaRateConjugateTest::testAnomalyScore() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testAnomalyScore  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // This test pushes 500 samples through the filter and adds in
     // anomalous signals in the bins at 30, 120, 300 and 420 with
     // magnitude 4, 5, 10 and 15 standard deviations, respectively,
@@ -1055,10 +1007,6 @@ void CGammaRateConjugateTest::testAnomalyScore() {
 }
 
 void CGammaRateConjugateTest::testOffset() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testOffset  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // The idea of this test is to check that the offset correctly cancels
     // out a translation applied to a gamma distributed data set.
 
@@ -1123,10 +1071,6 @@ void CGammaRateConjugateTest::testOffset() {
 }
 
 void CGammaRateConjugateTest::testIntegerData() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testIntegerData  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // If the data are discrete then we approximate the discrete distribution
     // by saying it is uniform on the intervals [n,n+1] for each integral n.
     // The idea of this test is to check that the inferred model agrees in the
@@ -1224,10 +1168,6 @@ void CGammaRateConjugateTest::testIntegerData() {
 }
 
 void CGammaRateConjugateTest::testLowVariationData() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testLowVariationData  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     {
         CGammaRateConjugate filter(makePrior(maths_t::E_IntegerData));
         for (std::size_t i = 0u; i < 100; ++i) {
@@ -1256,10 +1196,6 @@ void CGammaRateConjugateTest::testLowVariationData() {
 }
 
 void CGammaRateConjugateTest::testPersist() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testPersist  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -1308,10 +1244,6 @@ void CGammaRateConjugateTest::testPersist() {
 }
 
 void CGammaRateConjugateTest::testVarianceScale() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testVarianceScale  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // The strategy for this test is to check we correctly account
     // for variance scaling by scaling the variance of a collection
     // of samples and then checking that the percentiles for those
@@ -1600,10 +1532,6 @@ void CGammaRateConjugateTest::testVarianceScale() {
 }
 
 void CGammaRateConjugateTest::testNegativeSample() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testNegativeSample  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // Test that we recover roughly the same distribution after adjusting
     // the offset. The idea of this test is to run two priors side by side,
     // one with a large enough offset that it never needs to adjust the

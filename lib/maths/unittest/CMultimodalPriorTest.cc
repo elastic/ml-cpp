@@ -142,10 +142,6 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T>& mixture
 }
 
 void CMultimodalPriorTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -183,10 +179,6 @@ void CMultimodalPriorTest::testMultipleUpdate() {
 }
 
 void CMultimodalPriorTest::testPropagation() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testPropagation  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Test that propagation doesn't affect the marginal likelihood
     // mean and the marginal likelihood confidence intervals increase
     // (due to influence of the prior uncertainty) after propagation.
@@ -243,10 +235,6 @@ void CMultimodalPriorTest::testPropagation() {
 }
 
 void CMultimodalPriorTest::testSingleMode() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testSingleMode  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // We test the log likelihood of the data for the estimated
     // distributions versus the generating distributions. Note
     // that the generating distribution doesn't necessarily have
@@ -399,10 +387,6 @@ void CMultimodalPriorTest::testSingleMode() {
 }
 
 void CMultimodalPriorTest::testMultipleModes() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMultipleModes  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     // We check that for data generated from multiple modes
     // we get something close to the generating distribution.
     // In particular, we test the log likelihood of the data
@@ -691,10 +675,6 @@ void CMultimodalPriorTest::testMultipleModes() {
 }
 
 void CMultimodalPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     using TNormalVec = std::vector<boost::math::normal_distribution<>>;
 
     // Check that the c.d.f. <= 1 at extreme.
@@ -876,10 +856,6 @@ void CMultimodalPriorTest::testMarginalLikelihood() {
 }
 
 void CMultimodalPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that the marginal likelihood mode is at a local
     // minimum of the likelihood function. And we don't find
     // a higher likelihood location with high probability.
@@ -969,10 +945,6 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-
     // Test that marginal likelihood confidence intervals are
     // what we'd expect for various variance scales.
 
@@ -1086,10 +1058,6 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
 }
 
 void CMultimodalPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal likelihood
     //      mean.
@@ -1214,10 +1182,6 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultimodalPriorTest::testCdf() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testCdf  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test error cases.
     //
     // Test some invariants:
@@ -1277,10 +1241,6 @@ void CMultimodalPriorTest::testCdf() {
 }
 
 void CMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     using TNormalVec = std::vector<boost::math::normal_distribution<>>;
     using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
     using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
@@ -1493,10 +1453,6 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CMultimodalPriorTest::testLargeValues() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testLargeValues  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // Check that the confidence interval calculation stays
     // well conditioned for very large values.
 
@@ -1658,10 +1614,6 @@ void CMultimodalPriorTest::testLargeValues() {
 }
 
 void CMultimodalPriorTest::testSeasonalVarianceScale() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testSeasonalVarianceScale  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // We are test:
     //   1) The marginal likelihood is normalized.
     //   2) E[(X - m)^2] w.r.t. the log-likelihood is scaled.
@@ -1820,10 +1772,6 @@ void CMultimodalPriorTest::testSeasonalVarianceScale() {
 }
 
 void CMultimodalPriorTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CMultimodalPriorTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec samples1;

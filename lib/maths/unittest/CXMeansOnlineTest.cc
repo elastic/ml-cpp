@@ -73,10 +73,6 @@ bool restore(const maths::SDistributionRestoreParams& params,
 }
 
 void CXMeansOnlineTest::testCluster() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testCluster  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Test the core functionality of cluster.
 
     TXMeans2 clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight, 0.1);
@@ -219,10 +215,6 @@ void CXMeansOnlineTest::testCluster() {
 }
 
 void CXMeansOnlineTest::testClusteringVanilla() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testClusteringVanilla  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // This tests that the chance of splitting data with a single
     // cluster is low and that we accurately find a small number
     // of significant clusters.
@@ -330,10 +322,6 @@ void CXMeansOnlineTest::testClusteringVanilla() {
 }
 
 void CXMeansOnlineTest::testClusteringWithOutliers() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testClusteringWithOutliers  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test that we are still able to find significant clusters
     // in the presence of a small number of significant outliers.
 
@@ -432,10 +420,6 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
 }
 
 void CXMeansOnlineTest::testManyClusters() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testManyClusters  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
@@ -518,10 +502,6 @@ void CXMeansOnlineTest::testManyClusters() {
 }
 
 void CXMeansOnlineTest::testAdaption() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testAdaption  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Test a case where the cluster pattern changes over time.
     // Specifically, the data set starts with one cluster then
     // a new cluster appears and subsequently disappears.
@@ -626,10 +606,6 @@ void CXMeansOnlineTest::testAdaption() {
 }
 
 void CXMeansOnlineTest::testLargeHistory() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testLargeHistory  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // If we get a lot of history, because we detect that the system
     // is stable and reduce the decay rate then we should also reduce
     // the fraction of points required to create a cluster.
@@ -670,10 +646,6 @@ void CXMeansOnlineTest::testLargeHistory() {
 }
 
 void CXMeansOnlineTest::testLatLongData() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testLatLongData  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
     using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -740,10 +712,6 @@ void CXMeansOnlineTest::testLatLongData() {
 }
 
 void CXMeansOnlineTest::testPersist() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnlineTest::testPersist  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Check that persistence is idempotent.
 
     test::CRandomNumbers rng;

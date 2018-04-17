@@ -278,8 +278,6 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
 void CMetricModelTest::testSample() {
-    LOG_DEBUG(<< "*** testSample ***");
-
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
     SModelParams params(bucketLength);
@@ -532,8 +530,6 @@ void CMetricModelTest::testSample() {
 }
 
 void CMetricModelTest::testMultivariateSample() {
-    LOG_DEBUG(<< "*** testMultivariateSample ***");
-
     using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
@@ -715,8 +711,6 @@ void CMetricModelTest::testMultivariateSample() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForMetric() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForMetric ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -779,8 +773,6 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForMedian() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForMedian ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -855,8 +847,6 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowMean() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForLowMean ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -919,8 +909,6 @@ void CMetricModelTest::testProbabilityCalculationForLowMean() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighMean() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForHighMean ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -981,8 +969,6 @@ void CMetricModelTest::testProbabilityCalculationForHighMean() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowSum() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForLowSum ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -1042,8 +1028,6 @@ void CMetricModelTest::testProbabilityCalculationForLowSum() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighSum() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForLowSum ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -1103,14 +1087,10 @@ void CMetricModelTest::testProbabilityCalculationForHighSum() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForLatLong() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForLatLong ***");
-
     // TODO
 }
 
 void CMetricModelTest::testInfluence() {
-    LOG_DEBUG(<< "*** testInfluence ***");
-
     using TStrDoubleDoubleTr = core::CTriple<std::string, double, double>;
     using TStrDoubleDoubleTrVec = std::vector<TStrDoubleDoubleTr>;
     using TStrDoubleDoubleTrVecVec = std::vector<TStrDoubleDoubleTrVec>;
@@ -1354,14 +1334,10 @@ void CMetricModelTest::testInfluence() {
 }
 
 void CMetricModelTest::testLatLongInfluence() {
-    LOG_DEBUG(<< "*** testLatLongInfluence ***");
-
     // TODO
 }
 
 void CMetricModelTest::testPrune() {
-    LOG_DEBUG(<< "*** testPrune ***");
-
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     using TSizeVec = std::vector<std::size_t>;
@@ -1569,8 +1545,6 @@ void CMetricModelTest::testKey() {
 }
 
 void CMetricModelTest::testSkipSampling() {
-    LOG_DEBUG(<< "*** testSkipSampling ***");
-
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
     SModelParams params(bucketLength);
@@ -1659,8 +1633,6 @@ void CMetricModelTest::testSkipSampling() {
 }
 
 void CMetricModelTest::testExplicitNulls() {
-    LOG_DEBUG(<< "*** testExplicitNulls ***");
-
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
     SModelParams params(bucketLength);
@@ -1756,8 +1728,6 @@ void CMetricModelTest::testExplicitNulls() {
 }
 
 void CMetricModelTest::testVarp() {
-    LOG_DEBUG(<< "*** testVarp ***");
-
     core_t::TTime startTime(500000);
     core_t::TTime bucketLength(1000);
     SModelParams params(bucketLength);
@@ -1884,8 +1854,6 @@ void CMetricModelTest::testVarp() {
 }
 
 void CMetricModelTest::testInterimCorrections() {
-    LOG_DEBUG(<< "*** testInterimCorrections ***");
-
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
     SModelParams params(bucketLength);
@@ -1976,8 +1944,6 @@ void CMetricModelTest::testInterimCorrections() {
 }
 
 void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
-    LOG_DEBUG(<< "*** testInterimCorrectionsWithCorrelations ***");
-
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
     SModelParams params(bucketLength);
@@ -2072,8 +2038,6 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
 }
 
 void CMetricModelTest::testCorrelatePersist() {
-    LOG_DEBUG(<< "*** testCorrelatePersist ***");
-
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 
@@ -2150,8 +2114,6 @@ void CMetricModelTest::testCorrelatePersist() {
 }
 
 void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored() {
-    LOG_DEBUG(<< "*** testSummaryCountZeroRecordsAreIgnored ***");
-
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
     SModelParams params(bucketLength);
@@ -2220,8 +2182,6 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored() {
 }
 
 void CMetricModelTest::testDecayRateControl() {
-    LOG_DEBUG(<< "*** testDecayRateControl ***");
-
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
 
@@ -2415,8 +2375,6 @@ void CMetricModelTest::testDecayRateControl() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForLowMedian() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForLowMedian ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -2479,8 +2437,6 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian() {
 }
 
 void CMetricModelTest::testProbabilityCalculationForHighMedian() {
-    LOG_DEBUG(<< "*** testProbabilityCalculationForHighMedian ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -2541,8 +2497,6 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian() {
 }
 
 void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
-
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.

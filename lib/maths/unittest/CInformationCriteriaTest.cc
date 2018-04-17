@@ -50,10 +50,6 @@ double logfGaussian(const POINT& mean, const MATRIX& covariance, const POINT& x)
 }
 
 void CInformationCriteriaTest::testSphericalGaussian() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CInformationCriteriaTest::testSphericalGaussian  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Check that the information criterion values are the expected
     // values for the generating distribution.
 
@@ -206,10 +202,6 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 }
 
 void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their
     // spherical cluster representation.
@@ -271,10 +263,6 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
 }
 
 void CInformationCriteriaTest::testGaussian() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CInformationCriteriaTest::testGaussian  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     maths::CSampling::seed();
 
     {
@@ -421,10 +409,6 @@ void CInformationCriteriaTest::testGaussian() {
 }
 
 void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-
     using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
     using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
     using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;

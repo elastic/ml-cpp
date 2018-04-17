@@ -316,8 +316,6 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 } // unnamed::
 
 void CEventRateModelTest::testOnlineCountSample() {
-    LOG_DEBUG(<< "*** testOnlineCountSample ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
     SModelParams params(bucketLength);
@@ -419,8 +417,6 @@ void CEventRateModelTest::testOnlineCountSample() {
 }
 
 void CEventRateModelTest::testOnlineNonZeroCountSample() {
-    LOG_DEBUG(<< "*** testOnlineNonZeroCountSample ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
     SModelParams params(bucketLength);
@@ -494,8 +490,6 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
 }
 
 void CEventRateModelTest::testOnlineRare() {
-    LOG_DEBUG(<< "*** testOnlineRare ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
     SModelParams params(bucketLength);
@@ -578,8 +572,6 @@ void CEventRateModelTest::testOnlineRare() {
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculation() {
-    LOG_DEBUG(<< "*** testOnlineProbabilityCalculation ***");
-
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
@@ -638,8 +630,6 @@ void CEventRateModelTest::testOnlineProbabilityCalculation() {
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount() {
-    LOG_DEBUG(<< "*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(100);
     std::size_t lowNonZeroCountBucket = 6u;
@@ -690,8 +680,6 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount() {
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount() {
-    LOG_DEBUG(<< "*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(100);
     std::size_t lowNonZeroCountBucket = 6u;
@@ -742,8 +730,6 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount() 
 }
 
 void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
-    LOG_DEBUG(<< "*** testOnlineCorrelatedNoTrend ***");
-
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
@@ -949,8 +935,6 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 }
 
 void CEventRateModelTest::testOnlineCorrelatedTrend() {
-    LOG_DEBUG(<< "*** testOnlineCorrelatedTrend ***");
-
     // FIXME
     return;
 
@@ -1075,8 +1059,6 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
 }
 
 void CEventRateModelTest::testPrune() {
-    LOG_DEBUG(<< "*** testPrune ***");
-
     using TUInt64VecVec = std::vector<TUInt64Vec>;
     using TEventDataVec = std::vector<CEventData>;
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
@@ -1389,8 +1371,6 @@ void CEventRateModelTest::testModelsWithValueFields() {
 }
 
 void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
-    LOG_DEBUG(<< "*** testCountProbabilityCalculationWithInfluence ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
 
@@ -1734,8 +1714,6 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
 }
 
 void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence() {
-    LOG_DEBUG(<< "*** testCountProbabilityCalculationWithInfluence ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
 
@@ -2064,8 +2042,6 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
 }
 
 void CEventRateModelTest::testOnlineRareWithInfluence() {
-    LOG_DEBUG(<< "*** testOnlineRareWithInfluence ***");
-
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
     SModelParams params(bucketLength);
@@ -2176,8 +2152,6 @@ void CEventRateModelTest::testOnlineRareWithInfluence() {
 }
 
 void CEventRateModelTest::testSkipSampling() {
-    LOG_DEBUG(<< "*** testSkipSampling ***");
-
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
     std::size_t maxAgeBuckets(5);
@@ -2265,8 +2239,6 @@ void CEventRateModelTest::testSkipSampling() {
 }
 
 void CEventRateModelTest::testExplicitNulls() {
-    LOG_DEBUG(<< "*** testExplicitNulls ***");
-
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
     std::string summaryCountField("count");
@@ -2368,8 +2340,6 @@ void CEventRateModelTest::testExplicitNulls() {
 }
 
 void CEventRateModelTest::testInterimCorrections() {
-    LOG_DEBUG(<< "*** testInterimCorrections ***");
-
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
     core_t::TTime endTime(2 * 24 * bucketLength);
@@ -2490,8 +2460,6 @@ void CEventRateModelTest::testInterimCorrections() {
 }
 
 void CEventRateModelTest::testInterimCorrectionsWithCorrelations() {
-    LOG_DEBUG(<< "*** testInterimCorrectionsWithCorrelations ***");
-
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
 
@@ -2576,8 +2544,6 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations() {
 }
 
 void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored() {
-    LOG_DEBUG(<< "*** testSummaryCountZeroRecordsAreIgnored ***");
-
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
     SModelParams params(bucketLength);
@@ -2641,8 +2607,6 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored() {
 }
 
 void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
-    LOG_DEBUG(<< "*** testComputeProbabilityGivenDetectionRule ***");
-
     CRuleCondition condition;
     condition.type(CRuleCondition::E_NumericalActual);
     condition.condition().s_Op = CRuleCondition::E_LT;
@@ -2690,8 +2654,6 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
 }
 
 void CEventRateModelTest::testDecayRateControl() {
-    LOG_DEBUG(<< "*** testDecayRateControl ***");
-
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
 
@@ -2891,8 +2853,6 @@ void CEventRateModelTest::testDecayRateControl() {
 }
 
 void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
-
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.

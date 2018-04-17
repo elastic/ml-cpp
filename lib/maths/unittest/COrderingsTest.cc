@@ -59,10 +59,6 @@ void swap(CDictionary& lhs, CDictionary& rhs) {
 }
 
 void COrderingsTest::testOptionalOrdering() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testOptionalOrdering  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     TOptionalDouble null;
     TOptionalDouble one(1.0);
     TOptionalDouble two(2.0);
@@ -98,10 +94,6 @@ void COrderingsTest::testOptionalOrdering() {
 }
 
 void COrderingsTest::testPtrOrdering() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testPtrOrdering  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     const double* null = nullptr;
     double one_(1.0);
     double two_(2.0);
@@ -138,10 +130,6 @@ void COrderingsTest::testPtrOrdering() {
 }
 
 void COrderingsTest::testLess() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testLess  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     maths::COrderings::SLess less;
 
     {
@@ -219,10 +207,6 @@ void COrderingsTest::testLess() {
 }
 
 void COrderingsTest::testFirstLess() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testFirstLess  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     maths::COrderings::SFirstLess less;
 
     CPPUNIT_ASSERT(less(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
@@ -258,10 +242,6 @@ void COrderingsTest::testFirstLess() {
 }
 
 void COrderingsTest::testFirstGreater() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testFirstGreater  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     maths::COrderings::SFirstGreater greater;
 
     CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
@@ -297,10 +277,6 @@ void COrderingsTest::testFirstGreater() {
 }
 
 void COrderingsTest::testSecondLess() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testSecondLess  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     maths::COrderings::SSecondLess less;
 
     CPPUNIT_ASSERT(!less(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
@@ -340,10 +316,6 @@ void COrderingsTest::testSecondLess() {
 }
 
 void COrderingsTest::testSecondGreater() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testSecondGreater  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     maths::COrderings::SSecondGreater greater;
 
     CPPUNIT_ASSERT(greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
@@ -383,10 +355,6 @@ void COrderingsTest::testSecondGreater() {
 }
 
 void COrderingsTest::testDereference() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testDereference  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     using TDoubleVec = std::vector<double>;
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
@@ -408,10 +376,6 @@ void COrderingsTest::testDereference() {
 }
 
 void COrderingsTest::testLexicographicalCompare() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testLexicographicalCompare  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
 
@@ -558,10 +522,6 @@ void COrderingsTest::testLexicographicalCompare() {
 }
 
 void COrderingsTest::testSimultaneousSort() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  COrderingsTest::testSimultaneousSort  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDoubleDoublePr = std::pair<double, double>;

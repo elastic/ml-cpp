@@ -83,10 +83,6 @@ void gaussianSamples(test::CRandomNumbers& rng,
 }
 
 void CMultivariateNormalConjugateTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     maths::CSampling::seed();
 
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
@@ -171,10 +167,6 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate() {
 }
 
 void CMultivariateNormalConjugateTest::testPropagation() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testPropagation  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // Test that propagation doesn't affect the marginal likelihood
     // mean and expected precision.
 
@@ -221,10 +213,6 @@ void CMultivariateNormalConjugateTest::testPropagation() {
 }
 
 void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMeanVectorEstimation  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-
     // We are going to test that we correctly estimate a distribution
     // for the mean of a multivariate normal by checking that the true
     // mean lies in various confidence intervals the correct percentage
@@ -318,10 +306,6 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
 }
 
 void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-
     // We are going to test that we correctly estimate a distribution
     // for the precision of a multivariate normal by checking that the
     // true precision lies in various confidence intervals the correct
@@ -430,10 +414,6 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
 }
 
 void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     // Test that:
     //   1) The likelihood is normalized.
     //   2) E[X] w.r.t. the likelihood is equal to the predictive distribution mean.
@@ -552,14 +532,6 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
 }
 
 void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateNormalConjugateTest::testMarginalLikelihoodMode "
-                 " |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----+");
-
     // Test that the marginal likelihood mode is at a stationary maximum
     // of the likelihood function.
 
@@ -611,10 +583,6 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------+");
-
     // We're going to test three properties of the sampling:
     //   1) That the sample mean is equal to the marginal likelihood mean.
     //   2) The sample variance is close to the marginal likelihood variance.
@@ -716,10 +684,6 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-
     // Test that the probability is approximately equal to the chance of drawing
     // a less likely sample from generating distribution.
 
@@ -803,10 +767,6 @@ void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CMultivariateNormalConjugateTest::testIntegerData() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testIntegerData  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // If the data are discrete then we approximate the discrete distribution
     // by saying it is uniform on the intervals [n,n+1] for each integral n.
     // The idea of this test is to check that the inferred model agrees in the
@@ -887,10 +847,6 @@ void CMultivariateNormalConjugateTest::testIntegerData() {
 }
 
 void CMultivariateNormalConjugateTest::testLowVariationData() {
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testLowVariationData  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     {
         maths::CMultivariateNormalConjugate<2> filter(
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_IntegerData));
@@ -921,10 +877,6 @@ void CMultivariateNormalConjugateTest::testLowVariationData() {
 }
 
 void CMultivariateNormalConjugateTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Check that persist/restore is idempotent.
 
     const double mean[] = {10.0, 20.0};
@@ -979,10 +931,6 @@ void CMultivariateNormalConjugateTest::testPersist() {
 }
 
 void CMultivariateNormalConjugateTest::calibrationExperiment() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     using TVector10 = maths::CVectorNx1<double, 10>;
     using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
 
@@ -1083,10 +1031,6 @@ void CMultivariateNormalConjugateTest::calibrationExperiment() {
 }
 
 void CMultivariateNormalConjugateTest::dataGenerator() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::dataGenerator  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     const double means[][2] = {{10.0, 20.0}, {30.0, 25.0}, {50.0, 5.0}, {100.0, 50.0}};
     const double covariances[][3] = {
         {3.0, 2.0, 2.0}, {6.0, -4.0, 5.0}, {4.0, 1.0, 3.0}, {20.0, -12.0, 12.0}};

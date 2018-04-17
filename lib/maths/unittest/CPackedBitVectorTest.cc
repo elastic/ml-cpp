@@ -43,10 +43,6 @@ std::string toBitString(const TBoolVec& v) {
 }
 
 void CPackedBitVectorTest::testCreation() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testCreation  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     maths::CPackedBitVector test1(3, true);
     LOG_DEBUG(<< "test1 = " << test1);
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), test1.dimension());
@@ -117,10 +113,6 @@ void CPackedBitVectorTest::testCreation() {
 }
 
 void CPackedBitVectorTest::testExtend() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testExtend  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     maths::CPackedBitVector test1;
     test1.extend(true);
     LOG_DEBUG(<< "test1 = " << test1);
@@ -185,10 +177,6 @@ void CPackedBitVectorTest::testExtend() {
 }
 
 void CPackedBitVectorTest::testContract() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testContract  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     maths::CPackedBitVector test1;
     test1.extend(true);
     test1.extend(true);
@@ -228,10 +216,6 @@ void CPackedBitVectorTest::testContract() {
 }
 
 void CPackedBitVectorTest::testOperators() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testOperators  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
@@ -251,10 +235,6 @@ void CPackedBitVectorTest::testOperators() {
 }
 
 void CPackedBitVectorTest::testInner() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testInner  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     using TVector = maths::CVector<double>;
     using TVectorVec = std::vector<TVector>;
 
@@ -317,10 +297,6 @@ void CPackedBitVectorTest::testInner() {
 }
 
 void CPackedBitVectorTest::testBitwiseOr() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testBitwiseOr  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     using TBitSetVec = std::vector<std::bitset<50>>;
 
     test::CRandomNumbers rng;
@@ -368,10 +344,6 @@ void CPackedBitVectorTest::testBitwiseOr() {
 }
 
 void CPackedBitVectorTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CPackedBitVectorTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     bool bits[] = {true,  true,  false, false, true,
                    false, false, false, true,  true};
 

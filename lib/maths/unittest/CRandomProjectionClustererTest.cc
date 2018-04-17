@@ -83,10 +83,6 @@ public:
 }
 
 void CRandomProjectionClustererTest::testGenerateProjections() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testGenerateProjections  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     using TVectorArrayVec = CRandomProjectionClustererForTest<5>::TVectorArrayVec;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -165,10 +161,6 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
 }
 
 void CRandomProjectionClustererTest::testClusterProjections() {
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testClusterProjections  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     // Test that we get the cluster weights, means and covariance
     // matrices, and the sampled points we expect. Note that we
     // create a trivial to cluster data set since we don't want
@@ -267,10 +259,6 @@ void CRandomProjectionClustererTest::testClusterProjections() {
 }
 
 void CRandomProjectionClustererTest::testNeighbourhoods() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testNeighbourhoods  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // Test that the neighbourhoods for each point agree reasonably
     // accurately with the points nearest neighbours. The agreement
     // isn't perfect because we don't store the full points so are
@@ -361,10 +349,6 @@ void CRandomProjectionClustererTest::testNeighbourhoods() {
 }
 
 void CRandomProjectionClustererTest::testSimilarities() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testSimilarities  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     std::size_t dimension = 30u;
@@ -448,10 +432,6 @@ void CRandomProjectionClustererTest::testSimilarities() {
 }
 
 void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testClusterNeighbourhoods  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     // Test we recover the true clusters.
 
     test::CRandomNumbers rng;
@@ -530,11 +510,7 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
     }
 }
 
-void CRandomProjectionClustererTest::testAccuracy() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testAccuracy  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-}
+void CRandomProjectionClustererTest::testAccuracy() {}
 
 CppUnit::Test* CRandomProjectionClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");

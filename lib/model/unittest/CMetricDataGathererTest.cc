@@ -163,8 +163,6 @@ const std::string EMPTY_STRING;
 }
 
 void CMetricDataGathererTest::singleSeriesTests() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::singleSeriesTests ***");
-
     // Test that the various statistics come back as we suspect.
 
     const core_t::TTime startTime = 0;
@@ -428,8 +426,6 @@ void CMetricDataGathererTest::singleSeriesTests() {
 }
 
 void CMetricDataGathererTest::multipleSeriesTests() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::multipleSeriesTests ***");
-
     // Test that the various statistics come back as we suspect
     // for multiple people.
 
@@ -660,8 +656,6 @@ void CMetricDataGathererTest::multipleSeriesTests() {
 }
 
 void CMetricDataGathererTest::testSampleCount() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testSampleCount ***");
-
     // Test that we set sensible sample counts for each person.
 
     // Person 1 has constant update rate of 4 values per bucket.
@@ -732,8 +726,6 @@ void CMetricDataGathererTest::testSampleCount() {
 }
 
 void CMetricDataGathererTest::testRemovePeople() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testRemovePeople ***");
-
     // Test various combinations of removed people.
 
     const core_t::TTime startTime = 0;
@@ -886,8 +878,6 @@ void CMetricDataGathererTest::testRemovePeople() {
 }
 
 void CMetricDataGathererTest::testSum() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testSum ***");
-
     // Test sum and non-zero sum work as expected.
 
     const core_t::TTime bucketLength = 600;
@@ -982,8 +972,6 @@ void CMetricDataGathererTest::testSum() {
 }
 
 void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::singleSeriesOutOfOrderTests ***");
-
     // Test that the various statistics come back as we suspect.
 
     const core_t::TTime startTime = 0;
@@ -1178,8 +1166,6 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
 }
 
 void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testResetBucketGivenSingleSeries ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -1293,8 +1279,6 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
 }
 
 void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testResetBucketGivenMultipleSeries ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -1535,8 +1519,6 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
 }
 
 void CMetricDataGathererTest::testInfluenceStatistics() {
-    LOG_DEBUG(<< "*** CMetricDataGathererTest::testInfluenceStatistics ***");
-
     using TTimeDoubleStrStrTuple =
         boost::tuple<core_t::TTime, double, std::string, std::string>;
     using TDoubleDoublePr = std::pair<double, double>;
