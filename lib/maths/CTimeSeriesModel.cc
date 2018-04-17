@@ -1015,8 +1015,7 @@ bool CUnivariateTimeSeriesModel::probability(const CModelProbabilityParams& para
         // Declared outside the loop to minimize the number of times they are created.
         TSize10Vec variable(1);
         TDouble10Vec1Vec sample{TDouble10Vec(2)};
-        TDouble10VecWeightsAry1Vec weights{
-            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2)};
+        TDouble10VecWeightsAry1Vec weights{maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
         TDouble2Vec probabilityBucketEmpty(2);
         TDouble10Vec2Vec pli, pui;
         TTail10Vec ti;
