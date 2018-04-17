@@ -238,7 +238,7 @@ void CForecastRunner::forecastWorker() {
                 boost::filesystem::remove_all(temporaryFolder, errorCode);
                 if (errorCode) {
                     // not an error: there is also cleanup code on X-pack side
-                    LOG_WARN("Failed to cleanup temporary data from: "
+                    LOG_WARN(<< "Failed to cleanup temporary data from: "
                              << forecastJob.s_TemporaryFolder << " error "
                              << errorCode.message());
                     return;
@@ -359,7 +359,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             return false;
         }
 
-        LOG_INFO("Forecast of large model requested (requires "
+        LOG_INFO(<< "Forecast of large model requested (requires "
                  << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
 
         boost::system::error_code errorCode;
@@ -372,7 +372,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             return false;
         }
 
-        LOG_DEBUG("Persisting to: " << temporaryFolder.string());
+        LOG_DEBUG(<< "Persisting to: " << temporaryFolder.string());
         persistOnDisk = true;
     } else {
         forecastJob.s_TemporaryFolder.clear();
@@ -494,8 +494,8 @@ bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path
     auto spaceInfo = boost::filesystem::space(path, errorCode);
 
     if (errorCode) {
-        LOG_ERROR("Failed to retrieve disk information for "
-                  << path << " error " << errorCode.message());
+        LOG_ERROR(<< "Failed to retrieve disk information for " << path
+                  << " error " << errorCode.message());
         return false;
     }
 

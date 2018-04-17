@@ -32,10 +32,6 @@ using namespace ml;
 using namespace model;
 
 void CForecastModelPersistTest::testPersistAndRestore() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CForecastModelPersistTest::testPersistAndRestore  |");
-    LOG_DEBUG("+----------------------------------------------------+");
-
     core_t::TTime bucketLength{1800};
     double minimumSeasonalVarianceScale = 0.2;
     SModelParams params{bucketLength};

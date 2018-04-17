@@ -52,7 +52,7 @@ namespace core {
     if (name == tag) {                                                             \
         int value;                                                                 \
         if (core::CStringUtils::stringToType(traverser.value(), value) == false) { \
-            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());    \
+            LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value()); \
             return false;                                                          \
         }                                                                          \
         target = enumtype(value);                                                  \

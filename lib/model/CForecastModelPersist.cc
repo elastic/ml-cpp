@@ -91,12 +91,12 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
     }
 
     if (m_RestoreTraverser.name() != FORECAST_MODEL_PERSIST_TAG) {
-        LOG_ERROR("Failed to restore forecast model, unexpected tag");
+        LOG_ERROR(<< "Failed to restore forecast model, unexpected tag");
         return false;
     }
 
     if (!m_RestoreTraverser.hasSubLevel()) {
-        LOG_ERROR("Failed to restore forecast model, unexpected format");
+        LOG_ERROR(<< "Failed to restore forecast model, unexpected format");
         return false;
     }
 
@@ -105,7 +105,7 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
             CForecastModelPersist::CRestore::restoreOneModel, _1,
             boost::cref(m_ModelParams), m_MinimumSeasonalVarianceScale,
             boost::ref(originalModel), boost::ref(feature), boost::ref(byFieldValue)))) {
-        LOG_ERROR("Failed to restore forecast model, internal error");
+        LOG_ERROR(<< "Failed to restore forecast model, internal error");
         return false;
     }
 
@@ -135,7 +135,7 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
         RESTORE_BUILT_IN(BY_FIELD_VALUE_TAG, byFieldValue)
         if (name == MODEL_TAG) {
             if (!restoredDataType) {
-                LOG_ERROR("Failed to restore forecast model, datatype missing");
+                LOG_ERROR(<< "Failed to restore forecast model, datatype missing");
                 return false;
             }
 
@@ -150,7 +150,7 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
             if (!traverser.traverseSubLevel(
                     boost::bind<bool>(maths::CModelStateSerialiser(),
                                       boost::cref(params), boost::ref(model), _1))) {
-                LOG_ERROR("Failed to restore forecast model, model missing");
+                LOG_ERROR(<< "Failed to restore forecast model, model missing");
                 return false;
             }
         }
@@ -158,7 +158,7 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
 
     // only the by_field_value can be empty
     if (!model || !restoredFeature || !restoredDataType) {
-        LOG_ERROR("Failed to restore forecast model, data missing");
+        LOG_ERROR(<< "Failed to restore forecast model, data missing");
         return false;
     }
 
