@@ -57,7 +57,8 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
 
     return new CEventRateModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         this->defaultCategoricalPrior(), influenceCalculators);
 }
@@ -257,6 +258,10 @@ void CEventRateModelFactory::features(const TFeatureVec& features) {
 
 void CEventRateModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
+}
+
+double CEventRateModelFactory::minimumSeasonalVarianceScale() const {
+    return 0.4;
 }
 
 CEventRateModelFactory::TStrCRefVec CEventRateModelFactory::partitioningFields() const {
