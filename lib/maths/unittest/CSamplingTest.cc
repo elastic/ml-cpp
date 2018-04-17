@@ -123,10 +123,6 @@ double frobenius(const TDoubleVecVec& m) {
 }
 
 void CSamplingTest::testMultinomialSample() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CSamplingTest::testMultinomialSample  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     using TSizeVecDoubleMap = std::map<TSizeVec, double>;
     using TSizeVecDoubleMapCItr = TSizeVecDoubleMap::const_iterator;
 
@@ -167,10 +163,6 @@ void CSamplingTest::testMultinomialSample() {
 }
 
 void CSamplingTest::testMultivariateNormalSample() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CSamplingTest::testMultivariateNormalSample  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();

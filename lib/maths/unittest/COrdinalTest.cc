@@ -44,11 +44,6 @@ std::string precisePrint(T x) {
 }
 
 void COrdinalTest::testEqual() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  COrdinalTest::testEqual  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     test::CRandomNumbers rng;
 
     for (std::size_t i = 0u; i < 1000; ++i) {
@@ -122,11 +117,6 @@ void COrdinalTest::testEqual() {
 }
 
 void COrdinalTest::testLess() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+--------------------------+");
-    LOG_DEBUG(<< "|  COrdinalTest::testLess  |");
-    LOG_DEBUG(<< "+--------------------------+");
-
     test::CRandomNumbers rng;
 
     // Test some random orderings on integer types which don't overflow.
@@ -214,11 +204,6 @@ void COrdinalTest::testLess() {
 }
 
 void COrdinalTest::testIsNan() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  COrdinalTest::testIsNan  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     maths::COrdinal nan;
     CPPUNIT_ASSERT(nan.isNan());
 
@@ -259,11 +244,6 @@ void COrdinalTest::testIsNan() {
 }
 
 void COrdinalTest::testAsDouble() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  COrdinalTest::testAsDouble  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     // Check that double conversion is as expected.
 
     test::CRandomNumbers rng;
@@ -296,11 +276,6 @@ void COrdinalTest::testAsDouble() {
 }
 
 void COrdinalTest::testHash() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+--------------------------+");
-    LOG_DEBUG(<< "|  COrdinalTest::testHash  |");
-    LOG_DEBUG(<< "+--------------------------+");
-
     // Test that hashing works over the full range of the distinct types.
 
     using TSizeUSet = boost::unordered_set<std::size_t>;

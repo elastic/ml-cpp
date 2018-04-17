@@ -29,10 +29,6 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 
 void CCountMinSketchTest::testCounts() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CCountMinSketchTest::testCounts  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
@@ -128,10 +124,6 @@ void CCountMinSketchTest::testCounts() {
 }
 
 void CCountMinSketchTest::testSwap() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CCountMinSketchTest::testSwap  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec counts1;
@@ -191,10 +183,6 @@ void CCountMinSketchTest::testSwap() {
 }
 
 void CCountMinSketchTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CCountMinSketchTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec counts;

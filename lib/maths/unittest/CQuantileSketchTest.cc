@@ -81,10 +81,6 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 }
 
 void CQuantileSketchTest::testAdd() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testAdd  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 5);
 
     // Test adding a point.
@@ -107,10 +103,6 @@ void CQuantileSketchTest::testAdd() {
 }
 
 void CQuantileSketchTest::testReduce() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testReduce  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     LOG_DEBUG(<< "*** Linear ***");
     {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 6);
@@ -267,10 +259,6 @@ void CQuantileSketchTest::testReduce() {
 }
 
 void CQuantileSketchTest::testMerge() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testMerge  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     {
         // Simple merge no reduction.
 
@@ -332,10 +320,6 @@ void CQuantileSketchTest::testMerge() {
 }
 
 void CQuantileSketchTest::testMedian() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testMedian  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     LOG_DEBUG(<< "*** Exact ***");
     {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
@@ -395,10 +379,6 @@ void CQuantileSketchTest::testMedian() {
 }
 
 void CQuantileSketchTest::testPropagateForwardByTime() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testPropagateForwardByTime  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Check that the count is reduced and the invariants still hold.
 
     test::CRandomNumbers rng;
@@ -415,10 +395,6 @@ void CQuantileSketchTest::testPropagateForwardByTime() {
 }
 
 void CQuantileSketchTest::testQuantileAccuracy() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testQuantileAccuracy  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Test on a variety of random data sets versus the corresponding
     // quantile in the raw data.
 
@@ -515,10 +491,6 @@ void CQuantileSketchTest::testQuantileAccuracy() {
 }
 
 void CQuantileSketchTest::testCdf() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testCdf  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test that quantile and c.d.f. are idempotent.
 
     test::CRandomNumbers rng;
@@ -593,10 +565,6 @@ void CQuantileSketchTest::testCdf() {
 }
 
 void CQuantileSketchTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CQuantileSketchTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     test::CRandomNumbers generator;
     TDoubleVec samples;
     generator.generateUniformSamples(0.0, 5000.0, 500u, samples);

@@ -50,10 +50,6 @@ private:
 }
 
 void CCalendarFeatureTest::testInitialize() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarFeatureTest::testInitialize  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Check we get the expected features.
 
     test::CRandomNumbers rng;
@@ -82,10 +78,6 @@ void CCalendarFeatureTest::testInitialize() {
 }
 
 void CCalendarFeatureTest::testComparison() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarFeatureTest::testComparison  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Check some comparison invariants.
 
     test::CRandomNumbers rng;
@@ -120,10 +112,6 @@ void CCalendarFeatureTest::testComparison() {
 }
 
 void CCalendarFeatureTest::testOffset() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarFeatureTest::testOffset  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Check some properties of offset. Specifically,
     //    - offset(time + delta) = offset(time) + delta provided
     //      times are in same month except when the delta crosses
@@ -264,10 +252,6 @@ void CCalendarFeatureTest::testOffset() {
 }
 
 void CCalendarFeatureTest::testPersist() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CCalendarFeatureTest::testPersist  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     maths::CCalendarFeature::TCalendarFeature4Ary features =
         maths::CCalendarFeature::features(core::CTimeUtils::now());
 

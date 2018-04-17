@@ -83,10 +83,6 @@ private:
 }
 
 void CPriorTest::testExpectation() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CPriorTest::testExpectation  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     test::CRandomNumbers rng;

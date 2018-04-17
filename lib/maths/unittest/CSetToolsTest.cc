@@ -34,10 +34,6 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 
 void CSetToolsTest::testInplaceSetDifference() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CSetToolsTest::testInplaceSetDifference  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     // Test some edge cases.
     {
         LOG_DEBUG(<< "Edge cases");
@@ -117,10 +113,6 @@ void CSetToolsTest::testInplaceSetDifference() {
 }
 
 void CSetToolsTest::testSetSizes() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CSetToolsTest::testSetSizes  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     {
         LOG_DEBUG(<< "Edge cases");
 
@@ -218,10 +210,6 @@ void CSetToolsTest::testSetSizes() {
 }
 
 void CSetToolsTest::testJaccard() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CSetToolsTest::testJaccard  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     {
         LOG_DEBUG(<< "Edge cases");
 
@@ -272,10 +260,6 @@ void CSetToolsTest::testJaccard() {
 }
 
 void CSetToolsTest::testOverlap() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CSetToolsTest::testOverlap  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     {
         LOG_DEBUG(<< "Edge cases");
 

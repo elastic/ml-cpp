@@ -96,10 +96,6 @@ using maths_t::E_IntegerData;
 }
 
 void COneOfNPriorTest::testFilter() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testFilter  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     TPriorPtrVec models;
     models.push_back(TPriorPtr(
         maths::CGammaRateConjugate::nonInformativePrior(E_ContinuousData).clone()));
@@ -140,10 +136,6 @@ void COneOfNPriorTest::testFilter() {
 }
 
 void COneOfNPriorTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -227,10 +219,6 @@ void COneOfNPriorTest::testMultipleUpdate() {
 }
 
 void COneOfNPriorTest::testWeights() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testWeights  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -307,10 +295,6 @@ void COneOfNPriorTest::testWeights() {
 }
 
 void COneOfNPriorTest::testModels() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testModels  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test the models posterior mean values.
 
     // Since the component model's posterior distributions are tested
@@ -399,10 +383,6 @@ void COneOfNPriorTest::testModels() {
 }
 
 void COneOfNPriorTest::testModelSelection() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testModelSelection  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -553,10 +533,6 @@ void COneOfNPriorTest::testModelSelection() {
 }
 
 void COneOfNPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {E_ContinuousData, E_IntegerData};
 
@@ -656,10 +632,6 @@ void COneOfNPriorTest::testMarginalLikelihood() {
 }
 
 void COneOfNPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
 
@@ -767,10 +739,6 @@ void COneOfNPriorTest::testMarginalLikelihoodMean() {
 }
 
 void COneOfNPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // Test that the marginal likelihood mode is near the maximum
     // of the marginal likelihood.
 
@@ -871,10 +839,6 @@ void COneOfNPriorTest::testMarginalLikelihoodMode() {
 }
 
 void COneOfNPriorTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
     // marginal likelihood.
@@ -995,10 +959,6 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
 }
 
 void COneOfNPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     // Test we sample the constitute priors in proportion to their weights.
 
     const double mean = 5.0;
@@ -1072,10 +1032,6 @@ void COneOfNPriorTest::testSampleMarginalLikelihood() {
 }
 
 void COneOfNPriorTest::testCdf() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testCdf  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Test error cases and the invariant "cdf" + "cdf complement" = 1
 
     const double mean = 20.0;
@@ -1121,10 +1077,6 @@ void COneOfNPriorTest::testCdf() {
 }
 
 void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // We simply test that the calculation yields the weighted sum
     // of component model calculations (which is its definition).
 
@@ -1240,10 +1192,6 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 }
 
 void COneOfNPriorTest::testPersist() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  COneOfNPriorTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Check that persist/restore is idempotent.
 
     TPriorPtrVec models;

@@ -58,10 +58,6 @@ std::string print(maths::CSplineTypes::EType type) {
 }
 
 void CSplineTest::testNatural() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testNatural  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     // Test cubic spline with the natural boundary condition,
     // i.e. the case that the curvature vanishes at the interval
     // end points.
@@ -131,10 +127,6 @@ void CSplineTest::testNatural() {
 }
 
 void CSplineTest::testParabolicRunout() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testParabolicRunout  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     {
         double x_[] = {0.0, 20.0, 21.0, 30.0, 56.0, 100.0, 102.0};
         double y_[] = {1.0, 5.0, 4.0, 13.0, 20.0, 12.0, 17.0};
@@ -204,10 +196,6 @@ void CSplineTest::testParabolicRunout() {
 }
 
 void CSplineTest::testPeriodic() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testPeriodic  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     {
         double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
         TDoubleVec x(boost::begin(x_), boost::end(x_));
@@ -261,10 +249,6 @@ void CSplineTest::testPeriodic() {
 }
 
 void CSplineTest::testMean() {
-    LOG_DEBUG(<< "+-------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testMean  |");
-    LOG_DEBUG(<< "+-------------------------+");
-
     // Test that the mean of the cubic spline agrees with its
     // (numerical) integral and the expected mean of the cosine
     // over a whole number of periods.
@@ -366,10 +350,6 @@ void CSplineTest::testMean() {
 }
 
 void CSplineTest::testIllposed() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testIllposed  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Test a case where some of the knot points are colocated.
 
     double x_[] = {0.0,  0.0,  10.0, 10.0, 15.0, 15.5,
@@ -406,10 +386,6 @@ void CSplineTest::testIllposed() {
 }
 
 void CSplineTest::testSlope() {
-    LOG_DEBUG(<< "+--------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testSlope  |");
-    LOG_DEBUG(<< "+--------------------------+");
-
     // Test that the slope and absolute slope agree with the
     // numerical derivatives of the value.
 
@@ -519,10 +495,6 @@ void CSplineTest::testSlope() {
 }
 
 void CSplineTest::testSplineReference() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CSplineTest::testSplineReference  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     using TFloatVec = std::vector<maths::CFloatStorage>;
     using TFloatVecRef = boost::reference_wrapper<TFloatVec>;
     using TDoubleVecRef = boost::reference_wrapper<TDoubleVec>;

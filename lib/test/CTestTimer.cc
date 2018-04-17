@@ -21,8 +21,14 @@
 namespace ml {
 namespace test {
 
-void CTestTimer::startTest(CppUnit::Test* /* test */) {
+void CTestTimer::startTest(CppUnit::Test* test) {
     m_StopWatch.reset(true);
+    if (test != nullptr) {
+        std::string testName{"|  " + test->getName() + "  |"};
+        LOG_DEBUG(<< "+" << std::string(testName.length() - 2, '-') << "+");
+        LOG_DEBUG(<< testName);
+        LOG_DEBUG(<< "+" << std::string(testName.length() - 2, '-') << "+");
+    }
 }
 
 void CTestTimer::endTest(CppUnit::Test* test) {

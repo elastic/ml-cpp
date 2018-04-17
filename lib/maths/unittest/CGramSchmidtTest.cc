@@ -99,10 +99,6 @@ const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
 }
 
 void CGramSchmidtTest::testOrthogonality() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CGramSchmidtTest::testOrthogonality  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -156,10 +152,6 @@ void CGramSchmidtTest::testOrthogonality() {
 }
 
 void CGramSchmidtTest::testNormalisation() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CGramSchmidtTest::testNormalisation  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -211,10 +203,6 @@ void CGramSchmidtTest::testNormalisation() {
 }
 
 void CGramSchmidtTest::testSpan() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CGramSchmidtTest::testSpan  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -294,10 +282,6 @@ void CGramSchmidtTest::testSpan() {
 }
 
 void CGramSchmidtTest::testEdgeCases() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CGramSchmidtTest::testEdgeCases  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     {
         LOG_DEBUG(<< "*** Test zero vector ***");
 

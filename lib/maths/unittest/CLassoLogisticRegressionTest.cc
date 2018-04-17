@@ -87,10 +87,6 @@ double logLikelihood(const TDoubleVecVec& x,
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     static const double EPS = 5e-3;
 
     test::CRandomNumbers rng;
@@ -227,9 +223,6 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
     // TODO
 }
 

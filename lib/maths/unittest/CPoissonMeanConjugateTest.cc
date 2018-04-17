@@ -54,10 +54,6 @@ using CPoissonMeanConjugate = CPriorTestInterfaceMixin<maths::CPoissonMeanConjug
 }
 
 void CPoissonMeanConjugateTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -128,10 +124,6 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
 }
 
 void CPoissonMeanConjugateTest::testPropagation() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testPropagation  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // Test that propagation doesn't affect the expected values
     // of likelihood mean.
 
@@ -160,10 +152,6 @@ void CPoissonMeanConjugateTest::testPropagation() {
 }
 
 void CPoissonMeanConjugateTest::testMeanEstimation() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMeanEstimation  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // We are going to test that we correctly estimate a distribution
     // for the mean of the Poisson process by checking that the true
     // mean of a Poisson process lies in various confidence intervals
@@ -221,10 +209,6 @@ void CPoissonMeanConjugateTest::testMeanEstimation() {
 }
 
 void CPoissonMeanConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     {
         // Check that the marginal likelihood and c.d.f. agree for some
         // test data and that the c.d.f. <= 1.
@@ -361,10 +345,6 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
 }
 
 void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
 
@@ -402,10 +382,6 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     const double rates[] = {0.1, 5.0, 100.0};
 
     test::CRandomNumbers rng;
@@ -448,10 +424,6 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
     //      likelihood mean.
@@ -532,10 +504,6 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CPoissonMeanConjugateTest::testCdf() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testCdf  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test error cases.
     //
     // Test some invariants:
@@ -586,10 +554,6 @@ void CPoissonMeanConjugateTest::testCdf() {
 }
 
 void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal
     // likelihood, up to the sampling error.
@@ -719,10 +683,6 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CPoissonMeanConjugateTest::testAnomalyScore() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testAnomalyScore  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // This test pushes 500 samples through the filter and adds in
     // anomalous signals in the bins at 30, 120, 300 and 420 with
     // magnitude 4, 5, 10 and 15 standard deviations, respectively,
@@ -840,10 +800,6 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
 }
 
 void CPoissonMeanConjugateTest::testOffset() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testOffset  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // The idea of this test is to check that the offset correctly cancels
     // out a translation applied to a log-normally distributed data set.
 
@@ -904,10 +860,6 @@ void CPoissonMeanConjugateTest::testOffset() {
 }
 
 void CPoissonMeanConjugateTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     const double rate = 5.0;
 
     test::CRandomNumbers rng;
@@ -957,10 +909,6 @@ void CPoissonMeanConjugateTest::testPersist() {
 }
 
 void CPoissonMeanConjugateTest::testNegativeSample() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testNegativeSample  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test that we recover roughly the same distribution after adjusting
     // the offset. The idea of this test is to run two priors side by side,
     // one with a large enough offset that it never needs to adjust the

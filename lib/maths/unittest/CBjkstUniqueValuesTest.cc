@@ -45,10 +45,6 @@ uint8_t trailingZeros(uint32_t x) {
 }
 
 void CBjkstUniqueValuesTest::testTrailingZeros() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testTrailingZeros  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     uint32_t n = 1;
     for (uint8_t i = 0; i < 32; n <<= 1, ++i) {
         CPPUNIT_ASSERT_EQUAL(i, CBjkstUniqueValues::trailingZeros(n));
@@ -67,10 +63,6 @@ void CBjkstUniqueValuesTest::testTrailingZeros() {
 }
 
 void CBjkstUniqueValuesTest::testNumber() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testNumber  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test the approximation errors.
 
     const std::size_t numberTests = 1000u;
@@ -134,10 +126,6 @@ void CBjkstUniqueValuesTest::testNumber() {
 }
 
 void CBjkstUniqueValuesTest::testRemove() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testRemove  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Check that our error is controlled if we add and remove
     // categories. Note because compression is an irreversible
     // operation we expect higher relative error if the number
@@ -200,10 +188,6 @@ void CBjkstUniqueValuesTest::testRemove() {
 }
 
 void CBjkstUniqueValuesTest::testSwap() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testSwap  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TSizeVec categories1;
@@ -263,10 +247,6 @@ void CBjkstUniqueValuesTest::testSwap() {
 }
 
 void CBjkstUniqueValuesTest::testSmall() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testSmall  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test that there is zero error for small distinct
     // counts. This is managed by switching to use a sketch
     // only when exceeding the memory threshold.
@@ -308,10 +288,6 @@ void CBjkstUniqueValuesTest::testSmall() {
 }
 
 void CBjkstUniqueValuesTest::testPersist() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TSizeVec categories;

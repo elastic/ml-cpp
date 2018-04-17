@@ -144,8 +144,6 @@ const std::string EMPTY_STRING;
 } // unnamed::
 
 void CMetricPopulationDataGathererTest::testMean() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMean ***");
-
     // Test that we correctly sample the bucket means.
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -211,8 +209,6 @@ void CMetricPopulationDataGathererTest::testMean() {
 }
 
 void CMetricPopulationDataGathererTest::testMin() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMin ***");
-
     // Test that we correctly sample the bucket minimums.
 
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
@@ -277,8 +273,6 @@ void CMetricPopulationDataGathererTest::testMin() {
 }
 
 void CMetricPopulationDataGathererTest::testMax() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMax ***");
-
     // Test that we correctly sample the bucket maximums.
 
     using TMaxAccumulator =
@@ -344,8 +338,6 @@ void CMetricPopulationDataGathererTest::testMax() {
 }
 
 void CMetricPopulationDataGathererTest::testSum() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testSum ***");
-
     // Test that we correctly sample the bucket sums.
 
     const core_t::TTime startTime = 1373932800;
@@ -400,8 +392,6 @@ void CMetricPopulationDataGathererTest::testSum() {
 }
 
 void CMetricPopulationDataGathererTest::testSampleCount() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testSampleCount ***");
-
     // Test that we set sensible sample counts for each attribute.
 
     const core_t::TTime startTime = 1373932800;
@@ -465,8 +455,6 @@ void CMetricPopulationDataGathererTest::testSampleCount() {
 }
 
 void CMetricPopulationDataGathererTest::testFeatureData() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testFeatureData ***");
-
     // Test we correctly sample the mean, minimum and maximum statistics.
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -651,8 +639,6 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
 }
 
 void CMetricPopulationDataGathererTest::testRemovePeople() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testRemovePeople ***");
-
     // Check that all the state is correctly updated when some
     // people are removed.
 
@@ -795,8 +781,6 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
 }
 
 void CMetricPopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
-
     // Check that all the state is correctly updated when some
     // attributes are removed.
 
@@ -919,8 +903,6 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
 }
 
 void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testInfluenceStatistics ***");
-
     using TDoubleDoublePr = std::pair<double, double>;
     using TStrDoubleDoublePrPr = std::pair<std::string, TDoubleDoublePr>;
     using TStrDoubleDoublePrPrVec = std::vector<TStrDoubleDoublePrPr>;
@@ -1036,8 +1018,6 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
 }
 
 void CMetricPopulationDataGathererTest::testPersistence() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testPersistence ***");
-
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
     SModelParams params(bucketLength);
@@ -1108,8 +1088,6 @@ void CMetricPopulationDataGathererTest::testPersistence() {
 }
 
 void CMetricPopulationDataGathererTest::testReleaseMemory() {
-    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
-
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
 

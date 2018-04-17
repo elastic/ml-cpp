@@ -178,10 +178,6 @@ TDoubleVec switching(test::CRandomNumbers& rng,
 }
 
 void CTrendComponentTest::testValueAndVariance() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendComponentTest::testValueAndVariance  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Check that the prediction bias is small in the long run
     // and that the predicted variance approximately matches the
     // variance observed in prediction errors.
@@ -223,10 +219,6 @@ void CTrendComponentTest::testValueAndVariance() {
 }
 
 void CTrendComponentTest::testDecayRate() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendComponentTest::testDecayRate  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test that the trend short range predictions approximately
     // match a regression model with the same decay rate.
 
@@ -282,10 +274,6 @@ void CTrendComponentTest::testDecayRate() {
 }
 
 void CTrendComponentTest::testForecast() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendComponentTest::testForecast  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Check the forecast errors for a variety of signals.
 
     test::CRandomNumbers rng;
@@ -386,10 +374,6 @@ void CTrendComponentTest::testForecast() {
 }
 
 void CTrendComponentTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendComponentTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Check that serialization is idempotent.
 
     test::CRandomNumbers rng;

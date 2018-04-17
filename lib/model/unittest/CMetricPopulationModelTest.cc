@@ -297,8 +297,6 @@ void processBucket(core_t::TTime time,
 }
 
 void CMetricPopulationModelTest::testBasicAccessors() {
-    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testBasicAccessors ***");
-
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
@@ -445,8 +443,6 @@ void CMetricPopulationModelTest::testBasicAccessors() {
 }
 
 void CMetricPopulationModelTest::testMinMaxAndMean() {
-    LOG_DEBUG(<< "*** testMinMaxAndMean ***");
-
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
@@ -605,8 +601,6 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
 }
 
 void CMetricPopulationModelTest::testVarp() {
-    LOG_DEBUG(<< "*** testVarp ***");
-
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
     SModelParams params(bucketLength);
@@ -707,8 +701,6 @@ void CMetricPopulationModelTest::testVarp() {
 }
 
 void CMetricPopulationModelTest::testComputeProbability() {
-    LOG_DEBUG(<< "*** testComputeProbability ***");
-
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     // Test that we correctly pick out synthetic the anomalies,
@@ -806,8 +798,6 @@ void CMetricPopulationModelTest::testComputeProbability() {
 }
 
 void CMetricPopulationModelTest::testPrune() {
-    LOG_DEBUG(<< "*** testPrune ***");
-
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
@@ -1010,8 +1000,6 @@ void CMetricPopulationModelTest::testPrune() {
 }
 
 void CMetricPopulationModelTest::testKey() {
-    LOG_DEBUG(<< "*** testKey ***");
-
     function_t::EFunction countFunctions[] = {
         function_t::E_PopulationMetric, function_t::E_PopulationMetricMean,
         function_t::E_PopulationMetricMin, function_t::E_PopulationMetricMax,
@@ -1046,8 +1034,6 @@ void CMetricPopulationModelTest::testKey() {
 }
 
 void CMetricPopulationModelTest::testFrequency() {
-    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testFrequency ***");
-
     // Test we correctly compute frequencies for people and attributes.
 
     const core_t::TTime bucketLength = 600;
@@ -1134,8 +1120,6 @@ void CMetricPopulationModelTest::testFrequency() {
 }
 
 void CMetricPopulationModelTest::testSampleRateWeight() {
-    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testSampleRateWeight ***");
-
     // Test that we correctly compensate for heavy hitters.
 
     // There are 10 attributes.
@@ -1255,8 +1239,6 @@ void CMetricPopulationModelTest::testSampleRateWeight() {
 }
 
 void CMetricPopulationModelTest::testPeriodicity() {
-    LOG_DEBUG(<< "*** testPeriodicity ***");
-
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
@@ -1440,8 +1422,6 @@ void CMetricPopulationModelTest::testPersistence() {
 }
 
 void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
-
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.

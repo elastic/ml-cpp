@@ -32,11 +32,6 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
 void CDataSemanticsTest::testBinary() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CDataSemanticsTest::testBinary  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Try a numeric and non-numeric example of a binary variable.
 
     std::string categories[][2] = {{"false", "true"}, {"0", "1"}};
@@ -58,11 +53,6 @@ void CDataSemanticsTest::testBinary() {
 }
 
 void CDataSemanticsTest::testNonNumericCategorical() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSemanticsTest::testNonNumericCategorical  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test we identify non-numerical non-binary data as categorical.
 
     test::CRandomNumbers rng;
@@ -86,11 +76,6 @@ void CDataSemanticsTest::testNonNumericCategorical() {
 }
 
 void CDataSemanticsTest::testNumericCategorical() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSemanticsTest::testNumericCategorical  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // Test plausible http status code distribution is correctly
     // identified as categorical.
 
@@ -118,11 +103,6 @@ void CDataSemanticsTest::testNumericCategorical() {
 }
 
 void CDataSemanticsTest::testInteger() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CDataSemanticsTest::testInteger  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Test a variety of uni- and multi-modal distributions.
 
     test::CRandomNumbers rng;
@@ -216,11 +196,6 @@ void CDataSemanticsTest::testInteger() {
 }
 
 void CDataSemanticsTest::testReal() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CDataSemanticsTest::testReal  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Test a variety of uni- and multi-modal distributions.
 
     test::CRandomNumbers rng;

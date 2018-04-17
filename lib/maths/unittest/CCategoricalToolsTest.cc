@@ -32,23 +32,11 @@ using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-}
+void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {}
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-}
+void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {}
 
 void CCategoricalToolsTest::testExpectedDistinctCategories() {
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
@@ -389,10 +377,6 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 }
 
 void CCategoricalToolsTest::testLogBinomialProbability() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCategoricalToolsTest::testLogBinomialProbability  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // Test the calculation matches the boost::binomial_distribution.
 
     double n[] = {10, 100, 10000};
@@ -435,10 +419,6 @@ void CCategoricalToolsTest::testLogBinomialProbability() {
 }
 
 void CCategoricalToolsTest::testLogMultinomialProbability() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CCategoricalToolsTest::testLogMultinomialProbability  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Test:
     //   1) The two category case matches the binomial.
     //   2) The marginal matches the binomial.

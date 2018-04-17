@@ -45,10 +45,6 @@ std::string print(const T& t) {
 }
 
 void CKdTreeTest::testBuild() {
-    LOG_DEBUG(<< "+--------------------------+");
-    LOG_DEBUG(<< "|  CKdTreeTest::testBuild  |");
-    LOG_DEBUG(<< "+--------------------------+");
-
     const std::size_t numberTests = 200;
 
     test::CRandomNumbers rng;
@@ -83,10 +79,6 @@ void CKdTreeTest::testBuild() {
 }
 
 void CKdTreeTest::testNearestNeighbour() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CKdTreeTest::testNearestNeighbour  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     const std::size_t numberTests = 200;
 
     test::CRandomNumbers rng;

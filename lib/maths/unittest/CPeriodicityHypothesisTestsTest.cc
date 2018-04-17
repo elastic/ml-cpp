@@ -51,10 +51,6 @@ const core_t::TTime WEEK{core::constants::WEEK};
 }
 
 void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testNonPeriodic  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test a variety of synthetic non-periodic signals.
 
     TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
@@ -114,10 +110,6 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
 }
 
 void CPeriodicityHypothesisTestsTest::testDiurnal() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testDiurnal  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // Test the recall for a variety of synthetic periodic signals
     // and for a number of real data examples.
 
@@ -336,10 +328,6 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 }
 
 void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testNonDiurnal  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Test the recall for periods in the range [DAY / 5, 5 * DAY].
 
     TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
@@ -418,10 +406,6 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 }
 
 void CPeriodicityHypothesisTestsTest::testWithSparseData() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testTestWithSparseData  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Daily Periodic") {
@@ -553,10 +537,6 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
 }
 
 void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testTestForPeriods  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test the ability to correctly find and test for periodic
     // signals without being told the periods to test a-priori.
 

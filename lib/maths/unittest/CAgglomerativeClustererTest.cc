@@ -191,10 +191,6 @@ std::string print(maths::CAgglomerativeClusterer::EObjective o) {
 }
 
 void CAgglomerativeClustererTest::testNode() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CAgglomerativeClustererTest::testNode  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     double heights[] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.5, 1.9, 4.0};
 
     maths::CAgglomerativeClusterer::CNode nodes[] = {
@@ -259,10 +255,6 @@ void CAgglomerativeClustererTest::testNode() {
 }
 
 void CAgglomerativeClustererTest::testSimplePermutations() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CAgglomerativeClustererTest::testSimplePermutations  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     double x[] = {1.0, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
@@ -315,10 +307,6 @@ void CAgglomerativeClustererTest::testSimplePermutations() {
 }
 
 void CAgglomerativeClustererTest::testDegenerate() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CAgglomerativeClustererTest::testDegenerate  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     double x[] = {1.0, 3.2, 3.2, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
@@ -389,10 +377,6 @@ void CAgglomerativeClustererTest::testDegenerate() {
 }
 
 void CAgglomerativeClustererTest::testRandom() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CAgglomerativeClustererTest::testRandom  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     std::size_t n = 20u;

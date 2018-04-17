@@ -61,10 +61,6 @@ CLogNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_C
 }
 
 void CLogNormalMeanPrecConjugateTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -149,10 +145,6 @@ void CLogNormalMeanPrecConjugateTest::testMultipleUpdate() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testPropagation() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testPropagation  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that propagation doesn't affect the expected values
     // of likelihood mean and precision.
 
@@ -186,10 +178,6 @@ void CLogNormalMeanPrecConjugateTest::testPropagation() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMeanEstimation() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMeanEstimation  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // We are going to test that we correctly estimate the distribution
     // for the mean of the exponentiated Gaussian of a log-normal process
     // by checking that the true mean lies in various confidence intervals
@@ -249,10 +237,6 @@ void CLogNormalMeanPrecConjugateTest::testMeanEstimation() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testPrecisionEstimation  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     // We are going to test that we correctly estimate a distribution for
     // the precision of the exponentiated Gaussian of a log-normal process by
     // checking that the true precision lies in various confidence intervals
@@ -314,10 +298,6 @@ void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {maths_t::E_ContinuousData, maths_t::E_IntegerData};
     for (std::size_t t = 0u; t < boost::size(dataTypes); ++t) {
@@ -529,10 +509,6 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
 
@@ -582,10 +558,6 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------------+");
-
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
 
@@ -639,10 +611,6 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
     // marginal likelihood.
@@ -691,10 +659,6 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
     //      likelihood mean.
@@ -775,10 +739,6 @@ void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testCdf() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testCdf  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // Test error cases.
     //
     // Test some invariants:
@@ -830,10 +790,6 @@ void CLogNormalMeanPrecConjugateTest::testCdf() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
-
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal
     // likelihood, up to the sampling error.
@@ -967,10 +923,6 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testAnomalyScore() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testAnomalyScore  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     // This test pushes 500 samples through the filter and adds in
     // anomalous signals in the bins at 30, 120, 300 and 420 with
     // magnitude 4, 5, 10 and 15 standard deviations, respectively,
@@ -1096,10 +1048,6 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testOffset() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testOffset  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // The idea of this test is to check that the offset correctly cancels
     // out a translation applied to a log-normally distributed data set.
 
@@ -1165,10 +1113,6 @@ void CLogNormalMeanPrecConjugateTest::testOffset() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testIntegerData() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testIntegerData  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // If the data are discrete then we approximate the discrete distribution
     // by saying it is uniform on the intervals [n,n+1] for each integral n.
     // The idea of this test is to check that the inferred model agrees in the
@@ -1290,10 +1234,6 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testLowVariationData() {
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testLowVariationData  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------+");
-
     {
         CLogNormalMeanPrecConjugate filter(makePrior(maths_t::E_IntegerData));
         for (std::size_t i = 0u; i < 100; ++i) {
@@ -1322,10 +1262,6 @@ void CLogNormalMeanPrecConjugateTest::testLowVariationData() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     const double location = std::log(10.0);
     const double squareScale = 3.0;
 
@@ -1375,10 +1311,6 @@ void CLogNormalMeanPrecConjugateTest::testPersist() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testVarianceScale() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testVarianceScale  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // The strategy for this test is to check we correctly account
     // for variance scaling by scaling the variance of a collection
     // of samples and then checking that the percentiles for those
@@ -1725,10 +1657,6 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testNegativeSample() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testNegativeSample  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     // Test that we recover roughly the same distribution after adjusting
     // the offset. The idea of this test is to run two priors side by side,
     // one with a large enough offset that it never needs to adjust the

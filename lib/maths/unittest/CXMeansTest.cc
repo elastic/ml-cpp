@@ -130,10 +130,6 @@ void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
 }
 
 void CXMeansTest::testCluster() {
-    LOG_DEBUG(<< "+----------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testCluster  |");
-    LOG_DEBUG(<< "+----------------------------+");
-
     // Test basic accessors and checksum functionality of cluster.
 
     maths::CSampling::seed();
@@ -195,10 +191,6 @@ void CXMeansTest::testCluster() {
 }
 
 void CXMeansTest::testImproveStructure() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testImproveStructure  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test improve structure finds an obvious split of the data.
 
     maths::CSampling::seed();
@@ -266,10 +258,6 @@ void CXMeansTest::testImproveStructure() {
 }
 
 void CXMeansTest::testImproveParams() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testImproveParams  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Test that improve params is equivalent to a round of k-means
     // on current state cluster centres.
 
@@ -326,10 +314,6 @@ void CXMeansTest::testImproveParams() {
 }
 
 void CXMeansTest::testOneCluster() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testOneCluster  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     // Test it typically chooses just one cluster and that when we
     // do choose to split it is because a spherical Gaussian is a
     // bad approximation.
@@ -383,10 +367,6 @@ void CXMeansTest::testOneCluster() {
 }
 
 void CXMeansTest::testFiveClusters() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testFiveClusters  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test x-means clustering quality on data with five clusters.
 
     maths::CSampling::seed();
@@ -511,10 +491,6 @@ void CXMeansTest::testFiveClusters() {
 }
 
 void CXMeansTest::testTwentyClusters() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testTwentyClusters  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Test x-means clustering quality on data with twenty clusters.
 
     maths::CSampling::seed();
@@ -615,10 +591,6 @@ void CXMeansTest::testTwentyClusters() {
 }
 
 void CXMeansTest::testPoorlyConditioned() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansTest::testPoorlyConditioned  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // Test we can handle poorly conditioned covariance matrices.
 
     maths::CSampling::seed();

@@ -39,8 +39,6 @@ const double THRESHOLD = std::log(0.05);
 }
 
 void CDetectorEqualizerTest::testCorrect() {
-    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testCorrect ***");
-
     // Test that the distribution of scores are more similar after correcting.
 
     double scales[] = {1.0, 2.1, 3.2};
@@ -93,8 +91,6 @@ void CDetectorEqualizerTest::testCorrect() {
 }
 
 void CDetectorEqualizerTest::testAge() {
-    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testAge ***");
-
     // Test that propagation doesn't introduce a bias into the corrections.
 
     double scales[] = {1.0, 2.1, 3.2};
@@ -139,8 +135,6 @@ void CDetectorEqualizerTest::testAge() {
 }
 
 void CDetectorEqualizerTest::testPersist() {
-    LOG_DEBUG(<< "*** CDetectorEqualizerTest::testPersist ***");
-
     double scales[] = {1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer origEqualizer;

@@ -30,8 +30,6 @@ void CToolsTest::testDataGatherers() {
 }
 
 void CToolsTest::testProbabilityAggregator() {
-    LOG_DEBUG(<< "****** CToolsTest::testProbabilityAggregator ******");
-
     // Test a variety of min aggregations.
 
     {

@@ -22,11 +22,6 @@
 using namespace ml;
 
 void CAutoconfigurerParamsTest::testDefaults() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CAutoconfigurerParamsTest::testDefaults  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     config::CAutoconfigurerParams params("time", "", false, false);
     std::string actual = params.print();
     std::string expected =
@@ -78,11 +73,6 @@ void CAutoconfigurerParamsTest::testDefaults() {
 }
 
 void CAutoconfigurerParamsTest::testInit() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CAutoconfigurerParamsTest::testInit  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     config::CAutoconfigurerParams params("time", "", false, false);
 
     params.init("testfiles/parameters.conf");
