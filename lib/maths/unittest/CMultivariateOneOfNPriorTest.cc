@@ -120,10 +120,6 @@ std::string print(maths_t::EDataType dataType) {
 }
 
 void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -209,10 +205,6 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
 }
 
 void CMultivariateOneOfNPriorTest::testPropagation() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testPropagation  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test that propagation doesn't affect the marginal likelihood
     // mean and the marginal likelihood variance increases (due to
     // influence of the prior uncertainty) after propagation.
@@ -285,10 +277,6 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
 }
 
 void CMultivariateOneOfNPriorTest::testWeightUpdate() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testWeightUpdate  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     // Test that the weights stay normalized over update.
 
     maths::CSampling::seed();
@@ -358,10 +346,6 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
 }
 
 void CMultivariateOneOfNPriorTest::testModelUpdate() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testModelUpdate  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     const TSizeVec n{400, 600};
@@ -395,18 +379,10 @@ void CMultivariateOneOfNPriorTest::testModelUpdate() {
 }
 
 void CMultivariateOneOfNPriorTest::testModelSelection() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testModelSelection  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // TODO When copula models are available.
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Test that:
     //   1) The likelihood is normalized.
     //   2) E[X] w.r.t. the likelihood is equal to the predictive distribution mean.
@@ -655,10 +631,6 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
@@ -725,10 +697,6 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+----------------------------------------------------+");
-
     // Test that the marginal likelihood mode is near the maximum
     // of the marginal likelihood.
 
@@ -837,10 +805,6 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------+");
-
     // Test we sample the constitute priors in proportion to their weights.
 
     maths::CSampling::seed();
@@ -901,10 +865,6 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-
     // We simply test that the calculation is close to the weighted
     // sum of component model calculations.
 
@@ -972,10 +932,6 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 }
 
 void CMultivariateOneOfNPriorTest::testPersist() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Check that persist/restore is idempotent.
 
     const TSizeVec n{100};

@@ -24,11 +24,6 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
 void CReportWriterTest::testPretty() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CReportWriterTest::testPretty  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     test::CRandomNumbers rng;
 
     core_t::TTime startTime = 1459468810;
@@ -127,12 +122,7 @@ void CReportWriterTest::testPretty() {
     LOG_DEBUG(<< o.str());
 }
 
-void CReportWriterTest::testJSON() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CReportWriterTest::testJSON  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-}
+void CReportWriterTest::testJSON() {}
 
 CppUnit::Test* CReportWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");

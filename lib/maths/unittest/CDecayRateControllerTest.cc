@@ -22,10 +22,6 @@ using namespace ml;
 using namespace handy_typedefs;
 
 void CDecayRateControllerTest::testLowCov() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CDecayRateControllerTest::testLowCov  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Supply small but biased errors so we increase the decay
     // rate to its maximum then gradually reduce the error to
     // less than the coefficient of variation cutoff to control
@@ -50,10 +46,6 @@ void CDecayRateControllerTest::testLowCov() {
 }
 
 void CDecayRateControllerTest::testOrderedErrors() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CDecayRateControllerTest::testOrderedErrors  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     // Test that if we add a number of ordered samples, such
     // that overall they don't have bias, the decay rate is
     // not increased.
@@ -76,10 +68,6 @@ void CDecayRateControllerTest::testOrderedErrors() {
 }
 
 void CDecayRateControllerTest::testPersist() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CDecayRateControllerTest::testPersist  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
 
     test::CRandomNumbers rng;

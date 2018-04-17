@@ -22,10 +22,6 @@
 using namespace ml;
 
 void CEntropySketchTest::testAll() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
     using TSizeDoubleUMapCItr = TSizeDoubleUMap::const_iterator;

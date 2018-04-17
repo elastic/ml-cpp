@@ -137,10 +137,6 @@ private:
 }
 
 void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-
     // Test case that overflows boost incomplete gamma function.
 
     {
@@ -267,10 +263,6 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
 }
 
 void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+---------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+---------------------------------------------------------------------------+");
-
     {
         std::ifstream ifs("testfiles/probabilities");
 
@@ -378,10 +370,6 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
 }
 
 void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testProbabilityExtremeSample  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     // The idea of this test is to check that the extreme sample
     // probability is correctly predicted.
 
@@ -448,10 +436,6 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
 }
 
 void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
-    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
-
     // We perform four tests:
     //   1) A test that the numerical integral is close to the
     //      closed form integral.

@@ -28,11 +28,6 @@ std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec& 
 }
 
 void CDetectorEnumeratorTest::testAll() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CDetectorEnumeratorTest::testAll  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     std::string empty;
     config::CAutoconfigurerParams params(empty, empty, false, false);
     config::CDetectorEnumerator enumerator(params);

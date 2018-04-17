@@ -42,10 +42,6 @@ const core_t::TTime WEEK = core::constants::WEEK;
 }
 
 void CTrendTestsTest::testRandomizedPeriodicity() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendTestsTest::testRandomizedPeriodicity  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMaxAccumulator =
@@ -134,10 +130,6 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
 }
 
 void CTrendTestsTest::testCalendarCyclic() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CTrendTestsTest::testCalendarCyclic  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     using TOptionalFeature = maths::CCalendarCyclicTest::TOptionalFeature;
 
     core::CTimezone::instance().timezoneName("GMT");
@@ -289,10 +281,6 @@ void CTrendTestsTest::testCalendarCyclic() {
 }
 
 void CTrendTestsTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CTrendTestsTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     // Check that persistence is idempotent.
 
     LOG_DEBUG(<< "Test CRandomizedPeriodicityTest");

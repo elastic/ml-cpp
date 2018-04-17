@@ -41,10 +41,6 @@ using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using CMultinomialConjugate = CPriorTestInterfaceMixin<maths::CMultinomialConjugate>;
 
 void CMultinomialConjugateTest::testMultipleUpdate() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testMultipleUpdate  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -73,10 +69,6 @@ void CMultinomialConjugateTest::testMultipleUpdate() {
 }
 
 void CMultinomialConjugateTest::testPropagation() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testPropagation  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // Test that propagation doesn't affect the expected values
     // of probabilities.
 
@@ -115,10 +107,6 @@ void CMultinomialConjugateTest::testPropagation() {
 }
 
 void CMultinomialConjugateTest::testProbabilityEstimation() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testProbabilityEstimation  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // We are going to test that we correctly estimate the distribution
     // for the probabilities of a multinomial process by checking that
     // the true probabilities lie in various confidence intervals the
@@ -200,10 +188,6 @@ void CMultinomialConjugateTest::testProbabilityEstimation() {
 }
 
 void CMultinomialConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     {
         // For a single sample the log likelihood of the i'th category is
         // equal to log(p(i)) where p(i) is the i'th category expected
@@ -388,10 +372,6 @@ void CMultinomialConjugateTest::testMarginalLikelihood() {
 }
 
 void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     // Test that we sample categories in proportion to their marginal
     // probabilities. We test two cases:
     //   1) The probabilities exactly divide the requested number of samples n.
@@ -474,10 +454,6 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
-
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 
@@ -807,10 +783,6 @@ void CMultinomialConjugateTest::testAnomalyScore() {
 }
 
 void CMultinomialConjugateTest::testRemoveCategories() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testRemoveCategories  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     double rawCategories[] = {1.0, 3.0, 15.0, 17.0, 19.0, 20.0};
     double rawConcentrations[] = {1.0, 2.0, 1.5, 12.0, 10.0, 2.0};
 
@@ -887,10 +859,6 @@ void CMultinomialConjugateTest::testRemoveCategories() {
 }
 
 void CMultinomialConjugateTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     const double rawCategories[] = {-1.0, 5.0, 2.1, 78.0, 15.3};
     const double rawProbabilities[] = {0.1, 0.2, 0.35, 0.3, 0.05};
     const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
