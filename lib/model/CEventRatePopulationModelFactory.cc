@@ -65,12 +65,11 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
     }
 
     return new CEventRatePopulationModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), false),
+        this->modelParams(), dataGatherer,
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), false),
         this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators);
+        this->defaultCorrelates(features), influenceCalculators);
 }
 
 CAnomalyDetectorModel*

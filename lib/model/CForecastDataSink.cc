@@ -77,7 +77,8 @@ CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWr
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(const SModelParams& modelParams)
-    : s_ModelParams(modelParams), s_DetectorIndex(), s_ToForecastPersisted(), s_ByFieldName(), s_MinimumSeasonalVarianceScale(0.0) {
+    : s_ModelParams(modelParams), s_DetectorIndex(), s_ToForecastPersisted(),
+      s_ByFieldName(), s_MinimumSeasonalVarianceScale(0.0) {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries&& other)

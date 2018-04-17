@@ -45,10 +45,9 @@ const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED(
     "Forecast cannot be executed as job requires data to have been processed and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_MEMORY_LIMIT(
-    "Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB while disk space is exceeded");
-const std::string
-    CForecastRunner::ERROR_MEMORY_LIMIT_DISK("Forecast cannot be executed as forecast memory usage is predicted to exceed 500MB");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB while disk space is exceeded");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISK(
+    "Forecast cannot be executed as forecast memory usage is predicted to exceed 500MB");
 const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISKSPACE(
     "Forecast cannot be executed as models exceed internal memory limit and available disk space is insufficient");
 const std::string CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS("Forecast is not supported for population analysis");
@@ -63,8 +62,7 @@ CForecastRunner::SForecast::SForecast()
     : s_ForecastId(), s_ForecastAlias(), s_ForecastSeries(), s_CreateTime(0),
       s_StartTime(0), s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0),
       s_NumberOfModels(0), s_NumberOfForecastableModels(0), s_MemoryUsage(0),
-      s_Messages(),
-      s_TemporaryFolder() {
+      s_Messages(), s_TemporaryFolder() {
 }
 
 CForecastRunner::SForecast::SForecast(SForecast&& other)
@@ -162,7 +160,8 @@ void CForecastRunner::forecastWorker() {
                 // initialize persistence restore exactly once
                 if (!series.s_ToForecastPersisted.empty()) {
                     modelRestore.reset(new model::CForecastModelPersist::CRestore(
-                        series.s_ModelParams, series.s_MinimumSeasonalVarianceScale, series.s_ToForecastPersisted));
+                        series.s_ModelParams, series.s_MinimumSeasonalVarianceScale,
+                        series.s_ToForecastPersisted));
                 }
 
                 while (series.s_ToForecast.empty() == false || modelRestore != nullptr) {
@@ -173,7 +172,8 @@ void CForecastRunner::forecastWorker() {
                         std::string byFieldValue;
 
                         if (modelRestore->nextModel(model, feature, byFieldValue)) {
-                            series.s_ToForecast.emplace_back(feature, std::move(model), byFieldValue);
+                            series.s_ToForecast.emplace_back(
+                                feature, std::move(model), byFieldValue);
                         } else // restorer exhausted, no need for further restoring
                         {
                             modelRestore.reset();
@@ -238,8 +238,9 @@ void CForecastRunner::forecastWorker() {
                 boost::filesystem::remove_all(temporaryFolder, errorCode);
                 if (errorCode) {
                     // not an error: there is also cleanup code on X-pack side
-                    LOG_WARN("Failed to cleanup temporary data from: " << forecastJob.s_TemporaryFolder << " error "
-                                                                       << errorCode.message());
+                    LOG_WARN("Failed to cleanup temporary data from: "
+                             << forecastJob.s_TemporaryFolder << " error "
+                             << errorCode.message());
                     return;
                 }
             }
@@ -313,7 +314,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
                                       prerequisites.s_IsSupportedFunction;
         totalMemoryUsage += prerequisites.s_MemoryUsageForDetector;
 
-        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY && forecastJob.s_TemporaryFolder.empty()) {
+        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY &&
+            forecastJob.s_TemporaryFolder.empty()) {
             // note: for now MAX_FORECAST_MODEL_MEMORY is a static limit, a user can not change it
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT);
             return false;
@@ -357,14 +359,16 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             return false;
         }
 
-        LOG_INFO("Forecast of large model requested (requires " << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
+        LOG_INFO("Forecast of large model requested (requires "
+                 << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
 
         boost::system::error_code errorCode;
         boost::filesystem::create_directories(temporaryFolder, errorCode);
         if (errorCode) {
-            this->sendErrorMessage(forecastJob,
-                                   "Forecast internal error, failed to create temporary folder " + temporaryFolder.string() +
-                                       " error: " + errorCode.message());
+            this->sendErrorMessage(
+                forecastJob,
+                "Forecast internal error, failed to create temporary folder " +
+                    temporaryFolder.string() + " error: " + errorCode.message());
             return false;
         }
 
@@ -380,7 +384,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             continue;
         }
 
-        forecastJob.s_ForecastSeries.emplace_back(detector->getForecastModels(persistOnDisk, forecastJob.s_TemporaryFolder));
+        forecastJob.s_ForecastSeries.emplace_back(detector->getForecastModels(
+            persistOnDisk, forecastJob.s_TemporaryFolder));
     }
 
     return this->push(forecastJob);
@@ -489,7 +494,8 @@ bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path
     auto spaceInfo = boost::filesystem::space(path, errorCode);
 
     if (errorCode) {
-        LOG_ERROR("Failed to retrieve disk information for " << path << " error " << errorCode.message());
+        LOG_ERROR("Failed to retrieve disk information for "
+                  << path << " error " << errorCode.message());
         return false;
     }
 

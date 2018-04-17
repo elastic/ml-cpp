@@ -65,7 +65,8 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
 
     return new CMetricModel(
         this->modelParams(), dataGatherer,
-                            this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), true),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features),
         this->defaultCorrelates(features), influenceCalculators);
 }

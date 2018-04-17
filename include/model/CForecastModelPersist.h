@@ -56,7 +56,9 @@ public:
         explicit CPersist(const std::string& temporaryPath);
 
         //! add a model to the persistence
-        void addModel(const maths::CModel* model, const model_t::EFeature feature, const std::string& byFieldValue);
+        void addModel(const maths::CModel* model,
+                      const model_t::EFeature feature,
+                      const std::string& byFieldValue);
 
         //! close the outputStream
         const std::string& finalizePersistAndGetFile();
@@ -80,7 +82,9 @@ public:
 
     class CRestore final {
     public:
-        explicit CRestore(const SModelParams& modelParams, double minimumSeasonalVarianceScale, const std::string& fileName);
+        explicit CRestore(const SModelParams& modelParams,
+                          double minimumSeasonalVarianceScale,
+                          const std::string& fileName);
 
         //! add a model to the persistence
         bool nextModel(TMathsModelPtr& model, model_t::EFeature& feature, std::string& byFieldValue);

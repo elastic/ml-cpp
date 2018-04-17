@@ -65,13 +65,11 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
     }
 
     return new CEventRateModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        this->defaultCategoricalPrior(),
-        influenceCalculators);
+        this->modelParams(), dataGatherer,
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        this->defaultCategoricalPrior(), influenceCalculators);
 }
 
 CAnomalyDetectorModel*
