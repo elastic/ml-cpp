@@ -16,8 +16,8 @@ namespace maths {
 namespace multivariate_multimodal_prior_detail {
 
 using TDoubleVec = std::vector<double>;
-using TDouble10Vec = CMultivariatePrior::TDouble10Vec;
-using TDouble10Vec4Vec = CMultivariatePrior::TDouble10Vec4Vec;
+using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
+using TDouble10VecWeightsAry1Vec = CMultivariatePrior::TDouble10VecWeightsAry1Vec;
 
 namespace {
 
@@ -38,9 +38,8 @@ std::string printIndices(const TModeVec& modes) {
 
 maths_t::EFloatingPointErrorStatus
 jointLogMarginalLikelihood(const TModeVec& modes,
-                           const maths_t::TWeightStyleVec& weightStyles,
                            const TDouble10Vec1Vec& sample,
-                           const TDouble10Vec4Vec1Vec& weights,
+                           const TDouble10VecWeightsAry1Vec& weights,
                            TSizeDoublePr3Vec& modeLogLikelihoods,
                            double& result) {
     try {
@@ -51,14 +50,14 @@ jointLogMarginalLikelihood(const TModeVec& modes,
 
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             double modeLogLikelihood;
-            maths_t::EFloatingPointErrorStatus status = modes[i].s_Prior->jointLogMarginalLikelihood(
-                weightStyles, sample, weights, modeLogLikelihood);
+            maths_t::EFloatingPointErrorStatus status =
+                modes[i].s_Prior->jointLogMarginalLikelihood(sample, weights, modeLogLikelihood);
             if (status & maths_t::E_FpFailed) {
                 // Logging handled at a lower level.
                 return status;
             }
             if (!(status & maths_t::E_FpOverflowed)) {
-                modeLogLikelihoods.push_back({i, modeLogLikelihood});
+                modeLogLikelihoods.emplace_back(i, modeLogLikelihood);
                 maxLogLikelihood = std::max(maxLogLikelihood, modeLogLikelihood);
             }
         }
@@ -151,9 +150,10 @@ void sampleMarginalLikelihood(const TModeVec& modes,
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
-    double Z = std::accumulate(
-        modes.begin(), modes.end(), 0.0,
-        [](double sum, const TMode& mode) { return sum + mode.weight(); });
+    auto addWeight = [](double sum, const TMode& mode) {
+        return sum + mode.weight();
+    };
+    double Z = std::accumulate(modes.begin(), modes.end(), 0.0, addWeight);
 
     std::string separator_ = separator + separator;
 
@@ -182,7 +182,7 @@ void modeMergeCallback(std::size_t dimension,
 
     double wl = 0.0;
     double wr = 0.0;
-    double n = 0.0;
+    double w = 0.0;
     std::size_t nl = 0;
     std::size_t nr = 0;
     TDouble10Vec1Vec samples;
@@ -191,7 +191,7 @@ void modeMergeCallback(std::size_t dimension,
                                  CSetTools::CIndexInSet(leftMergeIndex));
     if (leftMode != modes.end()) {
         wl = leftMode->s_Prior->numberSamples();
-        n += wl;
+        w += wl;
         TDouble10Vec1Vec leftSamples;
         leftMode->s_Prior->sampleMarginalLikelihood(numberSamples, leftSamples);
         nl = leftSamples.size();
@@ -206,7 +206,7 @@ void modeMergeCallback(std::size_t dimension,
                                   CSetTools::CIndexInSet(rightMergeIndex));
     if (rightMode != modes.end()) {
         wr = rightMode->s_Prior->numberSamples();
-        n += wr;
+        w += wr;
         TDouble10Vec1Vec rightSamples;
         rightMode->s_Prior->sampleMarginalLikelihood(numberSamples, rightSamples);
         nr = rightSamples.size();
@@ -217,7 +217,7 @@ void modeMergeCallback(std::size_t dimension,
                   << ", merged index = " << targetIndex);
     }
 
-    if (n > 0.0) {
+    if (w > 0.0) {
         double nl_ = static_cast<double>(nl);
         double nr_ = static_cast<double>(nr);
         double Z = (nl_ * wl + nr_ * wr) / (nl_ + nr_);
@@ -226,37 +226,30 @@ void modeMergeCallback(std::size_t dimension,
     }
 
     LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-    LOG_TRACE(<< "n = " << n << ", wl = " << wl << ", wr = " << wr);
+    LOG_TRACE(<< "w = " << w << ", wl = " << wl << ", wr = " << wr);
 
-    double ns = std::min(n, 4.0);
-    double s = static_cast<double>(samples.size());
+    double ws = std::min(w, 4.0);
+    double n = static_cast<double>(samples.size());
 
-    TDouble10Vec leftSeedWeight(dimension, wl * ns / s);
-    TDouble10Vec rightSeedWeight(dimension, wl * ns / s);
-    TDouble10Vec4Vec1Vec weights;
+    TDouble10VecWeightsAry1Vec weights;
     weights.reserve(samples.size());
-    weights.resize(nl, TDouble10Vec1Vec(1, leftSeedWeight));
-    weights.resize(nl + nr, TDouble10Vec1Vec(1, rightSeedWeight));
-    newMode.s_Prior->addSamples(CConstantWeights::COUNT, samples, weights);
+    weights.resize(nl, maths_t::countWeight(wl * ws / n, dimension));
+    weights.resize(nl + nr, maths_t::countWeight(wr * ws / n, dimension));
+    newMode.s_Prior->addSamples(samples, weights);
 
-    double weight = (n - ns) / s;
-    if (weight > 0.0) {
-        for (std::size_t i = 0u; i < dimension; ++i) {
-            leftSeedWeight[i] = wl * weight;
-            rightSeedWeight[i] = wr * weight;
-        }
+    if (w > ws) {
         weights.clear();
-        weights.resize(nl, TDouble10Vec1Vec(1, leftSeedWeight));
-        weights.resize(nl + nr, TDouble10Vec1Vec(1, rightSeedWeight));
-        newMode.s_Prior->addSamples(CConstantWeights::COUNT, samples, weights);
+        weights.resize(nl, maths_t::countWeight(wl * (w - ws) / n, dimension));
+        weights.resize(nl + nr, maths_t::countWeight(wr * (w - ws) / n, dimension));
+        newMode.s_Prior->addSamples(samples, weights);
     }
 
     // Remove the merged modes.
     TSizeSet mergedIndices;
     mergedIndices.insert(leftMergeIndex);
     mergedIndices.insert(rightMergeIndex);
-    modes.erase(std::remove_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(mergedIndices)),
-                modes.end());
+    auto isMergeIndex = CSetTools::CIndexInSet(mergedIndices);
+    modes.erase(std::remove_if(modes.begin(), modes.end(), isMergeIndex), modes.end());
 
     // Add the new mode.
     LOG_TRACE(<< "Creating mode with index " << targetIndex);

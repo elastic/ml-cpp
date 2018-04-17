@@ -97,14 +97,12 @@ void CMultivariateConstantPrior::setToNonInformative(double /*offset*/, double /
     m_Constant.reset();
 }
 
-void CMultivariateConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/,
-                                              const TDouble10Vec1Vec& /*samples*/,
-                                              const TDouble10Vec4Vec1Vec& /*weights*/) {
+void CMultivariateConstantPrior::adjustOffset(const TDouble10Vec1Vec& /*samples*/,
+                                              const TDouble10VecWeightsAry1Vec& /*weights*/) {
 }
 
-void CMultivariateConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/,
-                                            const TDouble10Vec1Vec& samples,
-                                            const TDouble10Vec4Vec1Vec& /*weights*/) {
+void CMultivariateConstantPrior::addSamples(const TDouble10Vec1Vec& samples,
+                                            const TDouble10VecWeightsAry1Vec& /*weights*/) {
     if (m_Constant || samples.empty()) {
         return;
     }
@@ -186,8 +184,7 @@ CMultivariateConstantPrior::marginalLikelihoodMean() const {
 }
 
 CMultivariateConstantPrior::TDouble10Vec
-CMultivariateConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                                   const TDouble10Vec4Vec& /*weights*/) const {
+CMultivariateConstantPrior::marginalLikelihoodMode(const TDouble10VecWeightsAry& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
@@ -210,9 +207,8 @@ CMultivariateConstantPrior::marginalLikelihoodVariances() const {
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultivariateConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                       const TDouble10Vec1Vec& samples,
-                                                       const TDouble10Vec4Vec1Vec& weights,
+CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                                                       const TDouble10VecWeightsAry1Vec& weights,
                                                        double& result) const {
     result = 0.0;
 
@@ -254,8 +250,7 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& we
             return maths_t::E_FpOverflowed;
         }
 
-        numberSamples += this->smallest(
-            maths_t::countForUpdate(m_Dimension, weightStyles, weights[i]));
+        numberSamples += this->smallest(maths_t::countForUpdate(weights[i]));
     }
 
     result = numberSamples * core::constants::LOG_MAX_DOUBLE;

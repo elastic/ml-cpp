@@ -39,8 +39,7 @@ using TDoubleVec = std::vector<double>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
 using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::size_t>;
 using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
 using TErrorBarVec = std::vector<maths::SErrorBar>;
@@ -248,7 +247,8 @@ void CForecastTest::testNonNegative() {
     //TDoubleVec uy;
 
     core_t::TTime time{0};
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    std::vector<maths_t::TDouble2VecWeightsAry> weights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t d = 0u; d < 20; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
@@ -257,7 +257,6 @@ void CForecastTest::testNonNegative() {
             params.integer(false)
                 .nonNegative(true)
                 .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
             double y{std::max(*value, 0.0)};
@@ -349,14 +348,10 @@ void CForecastTest::testFinancialIndex() {
 
     std::size_t n{5 * timeseries.size() / 6};
 
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t i = 0u; i < n; ++i) {
         maths::CModelAddSamplesParams params;
-        params.integer(false)
-            .propagationInterval(1.0)
-            .weightStyles(maths::CConstantWeights::COUNT)
-            .trendWeights(weights)
-            .priorWeights(weights);
+        params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
         model.addSamples(
             params, {core::make_triple(timeseries[i].first,
                                        TDouble2Vec{timeseries[i].second}, TAG)});
@@ -457,18 +452,14 @@ void CForecastTest::test(TTrend trend,
         &controllers);
 
     core_t::TTime time{0};
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t d = 0u; d < daysToLearn; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance, 86400 / bucketLength, noise);
 
         for (std::size_t i = 0u; i < noise.size(); ++i, time += bucketLength) {
             maths::CModelAddSamplesParams params;
-            params.integer(false)
-                .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
-                .trendWeights(weights)
-                .priorWeights(weights);
+            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
             double yi{trend(time, noise[i])};
             model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
             //actual.push_back(yi);

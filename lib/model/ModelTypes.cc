@@ -556,7 +556,7 @@ unsigned minimumSampleCount(EFeature feature) {
     case E_IndividualHighMedianByPerson:
         return 1;
 
-        // Population variance needs a minimum population size
+    // Population variance needs a minimum population size
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
     case E_IndividualHighVarianceByPerson:
@@ -583,7 +583,7 @@ unsigned minimumSampleCount(EFeature feature) {
     case E_PopulationSumVelocityByPersonAndAttribute:
         return 1;
 
-        // Population variance needs a minimum population size
+    // Population variance needs a minimum population size
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
     case E_PopulationHighVarianceByPersonAndAttribute:
@@ -1699,20 +1699,15 @@ std::string print(EFeature feature) {
     case E_PopulationHighUniqueCountByBucketPersonAndAttribute:
         return "'high unique count per bucket by person and attribute'";
     case E_PopulationLowCountsByBucketPersonAndAttribute:
-        return "'low values of non-zero count per bucket by person and "
-               "attribute'";
+        return "'low values of non-zero count per bucket by person and attribute'";
     case E_PopulationHighCountsByBucketPersonAndAttribute:
-        return "'high values of non-zero count per bucket by person and "
-               "attribute'";
+        return "'high values of non-zero count per bucket by person and attribute'";
     case E_PopulationInfoContentByBucketPersonAndAttribute:
-        return "'information content of value per bucket by person and "
-               "attribute'";
+        return "'information content of value per bucket by person and attribute'";
     case E_PopulationLowInfoContentByBucketPersonAndAttribute:
-        return "'low information content of value per bucket by person and "
-               "attribute'";
+        return "'low information content of value per bucket by person and attribute'";
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
-        return "'high information content of value per bucket by person and "
-               "attribute'";
+        return "'high information content of value per bucket by person and attribute'";
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
         return "'time-of-day per bucket by person and attribute'";
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
@@ -1764,23 +1759,17 @@ std::string print(EFeature feature) {
     case E_PeersLowUniqueCountByBucketPersonAndAttribute:
         return "'low unique count per bucket by peers of person and attribute'";
     case E_PeersHighUniqueCountByBucketPersonAndAttribute:
-        return "'high unique count per bucket by peers of person and "
-               "attribute'";
+        return "'high unique count per bucket by peers of person and attribute'";
     case E_PeersLowCountsByBucketPersonAndAttribute:
-        return "'low values of non-zero count per bucket by peers of person "
-               "and attribute'";
+        return "'low values of non-zero count per bucket by peers of person and attribute'";
     case E_PeersHighCountsByBucketPersonAndAttribute:
-        return "'high values of non-zero count per bucket by peers of person "
-               "and attribute'";
+        return "'high values of non-zero count per bucket by peers of person and attribute'";
     case E_PeersInfoContentByBucketPersonAndAttribute:
-        return "'information content of value per bucket by peers of person "
-               "and attribute'";
+        return "'information content of value per bucket by peers of person and attribute'";
     case E_PeersLowInfoContentByBucketPersonAndAttribute:
-        return "'low information content of value per bucket by peers of "
-               "person and attribute'";
+        return "'low information content of value per bucket by peers of person and attribute'";
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
-        return "'high information content of value per bucket by peers of "
-               "person and attribute'";
+        return "'high information content of value per bucket by peers of person and attribute'";
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
         return "'time-of-day per bucket by peers of person and attribute'";
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:

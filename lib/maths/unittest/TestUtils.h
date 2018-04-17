@@ -21,13 +21,9 @@
 namespace ml {
 namespace handy_typedefs {
 using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
 using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
-using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
 using TDouble10Vec10Vec = core::CSmallVector<TDouble10Vec, 10>;
-using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
 using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecVec = std::vector<TVector2Vec>;
@@ -47,8 +43,7 @@ class CPriorTestInterface {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePr1Vec = core::CSmallVector<TDoubleDoublePr, 1>;
-    using TWeightStyleVec = maths_t::TWeightStyleVec;
-    using TWeights = maths::CConstantWeights;
+    using TWeights = maths_t::CUnitWeights;
 
 public:
     explicit CPriorTestInterface(maths::CPrior& prior);
@@ -209,14 +204,13 @@ public:
 
     bool operator()(const maths::CVectorNx1<double, N>& x, double& result) const {
         m_X[0].assign(x.begin(), x.end());
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X,
-                                            SINGLE_UNIT, result);
+        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, result);
         result = std::exp(result);
         return true;
     }
 
 private:
-    static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
+    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
 
 private:
     const maths::CMultivariatePrior* m_Prior;
@@ -224,9 +218,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+ml::maths_t::TDouble10VecWeightsAry1Vec CUnitKernel<N>::SINGLE_UNIT{
+    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
@@ -239,15 +232,14 @@ public:
                     maths::CVectorNx1<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X,
-                                            SINGLE_UNIT, likelihood);
+        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, likelihood);
         likelihood = std::exp(likelihood);
         result = x * likelihood;
         return true;
     }
 
 private:
-    static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
+    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
 
 private:
     const maths::CMultivariatePrior* m_Prior;
@@ -255,9 +247,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+ml::maths_t::TDouble10VecWeightsAry1Vec CMeanKernel<N>::SINGLE_UNIT{
+    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>
@@ -271,15 +262,14 @@ public:
                     maths::CSymmetricMatrixNxN<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X,
-                                            SINGLE_UNIT, likelihood);
+        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, likelihood);
         likelihood = std::exp(likelihood);
         result = (x - m_Mean).outer() * likelihood;
         return true;
     }
 
 private:
-    static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
+    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
 
 private:
     const maths::CMultivariatePrior* m_Prior;
@@ -288,9 +278,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CCovarianceKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+ml::maths_t::TDouble10VecWeightsAry1Vec CCovarianceKernel<N>::SINGLE_UNIT{
+    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! A constant function.
 double constant(core_t::TTime time);

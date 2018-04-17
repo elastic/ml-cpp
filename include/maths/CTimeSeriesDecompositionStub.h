@@ -37,8 +37,7 @@ public:
     //! No-op returning false.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec& weights = TWeights::UNIT);
+                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT);
 
     //! No-op.
     virtual void propagateForwardsTo(core_t::TTime time);

@@ -20,8 +20,6 @@
 namespace ml {
 namespace model {
 namespace {
-const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleSeasonalVarianceScaleWeight,
-                                             maths_t::E_SampleCountVarianceScaleWeight};
 const std::string EMPTY_STRING("");
 }
 
@@ -76,7 +74,6 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
     using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2Vec3Vec = core::CSmallVector<TDouble2Vec, 3>;
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
 
     if (this->isByFieldIdActive(byFieldId)) {
         const maths::CModel* model = this->model(feature, byFieldId);
@@ -86,16 +83,18 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
 
         std::size_t dimension = model_t::dimension(feature);
 
-        TDouble2Vec4Vec weights(WEIGHT_STYLES.size());
-        weights[0] = model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time);
-        weights[1].assign(dimension, this->countVarianceScale(feature, byFieldId, time));
+        maths_t::TDouble2VecWeightsAry weights(
+            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+        maths_t::setSeasonalVarianceScale(
+            model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+        maths_t::setCountVarianceScale(
+            TDouble2Vec(dimension, this->countVarianceScale(feature, byFieldId, time)), weights);
 
         TDouble1VecDouble1VecPr support(model_t::support(feature));
         TDouble2Vec supportLower(support.first);
         TDouble2Vec supportUpper(support.second);
 
-        TDouble2Vec3Vec interval(model->confidenceInterval(time, boundsPercentile,
-                                                           WEIGHT_STYLES, weights));
+        TDouble2Vec3Vec interval(model->confidenceInterval(time, boundsPercentile, weights));
 
         if (interval.size() == 3) {
             TDouble2Vec lower = maths::CTools::truncate(interval[0], supportLower, supportUpper);

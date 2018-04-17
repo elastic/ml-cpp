@@ -61,8 +61,7 @@ void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketL
         s_SampleCountFactor = CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
         if (s_LatencyBuckets > 50) {
             LOG_WARN(<< "There are a large number of buckets in the latency window. "
-                        "Please ensure sufficient resources are available for this "
-                        "job.");
+                        "Please ensure sufficient resources are available for this job.");
         }
     }
 }

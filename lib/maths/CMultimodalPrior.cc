@@ -231,9 +231,8 @@ bool CMultimodalPrior::needsOffset() const {
     return false;
 }
 
-double CMultimodalPrior::adjustOffset(const TWeightStyleVec& weightStyles,
-                                      const TDouble1Vec& samples,
-                                      const TDouble4Vec1Vec& weights) {
+double CMultimodalPrior::adjustOffset(const TDouble1Vec& samples,
+                                      const TDoubleWeightsAry1Vec& weights) {
     double result = 0.0;
 
     if (this->needsOffset()) {
@@ -244,9 +243,7 @@ double CMultimodalPrior::adjustOffset(const TWeightStyleVec& weightStyles,
                 auto j = std::find_if(m_Modes.begin(), m_Modes.end(),
                                       CSetTools::CIndexInSet(cluster.first));
                 if (j != m_Modes.end()) {
-                    result += j->s_Prior->adjustOffset(
-                        weightStyles, TDouble1Vec(1, samples[i]),
-                        TDouble4Vec1Vec(1, weights[i]));
+                    result += j->s_Prior->adjustOffset({samples[i]}, {weights[i]});
                 }
             }
         }
@@ -263,13 +260,11 @@ double CMultimodalPrior::offset() const {
     return offset;
 }
 
-void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
-                                  const TDouble1Vec& samples,
-                                  const TDouble4Vec1Vec& weights) {
+void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
+                                  const TDoubleWeightsAry1Vec& weights) {
     if (samples.empty()) {
         return;
     }
-
     if (samples.size() != weights.size()) {
         LOG_ERROR(<< "Mismatch in samples '"
                   << core::CContainerPrinter::print(samples) << "' and weights '"
@@ -277,7 +272,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
         return;
     }
 
-    this->adjustOffset(weightStyles_, samples, weights);
+    this->adjustOffset(samples, weights);
 
     // This uses a clustering methodology (defined by m_Clusterer)
     // to assign each sample to a cluster. Each cluster has its own
@@ -301,31 +296,14 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
 
     // Declared outside the loop to minimize the number of times it
     // is initialized.
-    TWeightStyleVec weightStyles(weightStyles_);
     TDouble1Vec sample(1);
-    TDouble4Vec1Vec weight(1);
+    TDoubleWeightsAry1Vec weight(1);
     TSizeDoublePr2Vec clusters;
 
-    std::size_t indices[maths_t::NUMBER_WEIGHT_STYLES];
-    std::size_t missing = weightStyles.size() + 1;
-    std::fill_n(indices, maths_t::NUMBER_WEIGHT_STYLES, missing);
-    for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
-        indices[weightStyles[i]] = i;
-    }
-    std::size_t seasonal = indices[maths_t::E_SampleSeasonalVarianceScaleWeight];
-    std::size_t count = indices[maths_t::E_SampleCountWeight];
-    std::size_t winsorisation = indices[maths_t::E_SampleWinsorisationWeight];
-    if (count == missing) {
-        count = weightStyles.size();
-        weightStyles.push_back(maths_t::E_SampleCountWeight);
-    }
-
     try {
-        bool hasSeasonalScale = !this->isNonInformative() && seasonal != missing;
-        double mean = (!this->isNonInformative() &&
-                       maths_t::hasSeasonalVarianceScale(weightStyles_, weights))
-                          ? this->marginalLikelihoodMean()
-                          : 0.0;
+        bool hasSeasonalScale = !this->isNonInformative() &&
+                                maths_t::hasSeasonalVarianceScale(weights);
+        double mean = hasSeasonalScale ? this->marginalLikelihoodMean() : 0.0;
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double x = samples[i];
@@ -334,22 +312,22 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
                 continue;
             }
             if (hasSeasonalScale) {
-                x = mean + (x - mean) / std::sqrt(weights[i][seasonal]);
+                x = mean + (x - mean) /
+                               std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
             }
 
             sample[0] = x;
             weight[0] = weights[i];
-            weight[0].resize(weightStyles.size(), 1.0);
-            if (seasonal != missing) {
-                weight[0][seasonal] = 1.0;
-            }
+            maths_t::setSeasonalVarianceScale(1.0, weight[0]);
 
             clusters.clear();
-            m_Clusterer->add(x, clusters, weight[0][count]);
+            m_Clusterer->add(x, clusters, maths_t::count(weight[0]));
 
-            double Z = std::accumulate(
-                m_Modes.begin(), m_Modes.end(), weight[0][count],
-                [](double sum, const TMode& mode) { return sum + mode.weight(); });
+            auto addModeWeight = [](double sum, const TMode& mode) {
+                return sum + mode.weight();
+            };
+            double Z = std::accumulate(m_Modes.begin(), m_Modes.end(),
+                                       maths_t::count(weight[0]), addModeWeight);
 
             double n = 0.0;
             for (const auto& cluster : clusters) {
@@ -360,14 +338,15 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
                     m_Modes.emplace_back(cluster.first, m_SeedPrior);
                     k = m_Modes.end() - 1;
                 }
-                weight[0][count] = cluster.second;
-                if (winsorisation != missing) {
-                    double& ww = weight[0][winsorisation];
+                maths_t::setCount(cluster.second, weight[0]);
+                if (maths_t::isWinsorised(weight)) {
+                    double ww = maths_t::winsorisationWeight(weight[0]);
                     double f = (k->weight() + cluster.second) / Z;
-                    ww = std::max(1.0 - (1.0 - ww) / f, ww * f);
+                    maths_t::setWinsorisationWeight(
+                        std::max(1.0 - (1.0 - ww) / f, ww * f), weight[0]);
                 }
-                k->s_Prior->addSamples(weightStyles, sample, weight);
-                n += maths_t::countForUpdate(weightStyles, weight[0]);
+                k->s_Prior->addSamples(sample, weight);
+                n += maths_t::countForUpdate(weight[0]);
             }
             this->addSamples(n);
         }
@@ -381,7 +360,6 @@ void CMultimodalPrior::propagateForwardsByTime(double time) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
-
     if (this->isNonInformative()) {
         // Nothing to be done.
         return;
@@ -412,6 +390,7 @@ double CMultimodalPrior::marginalLikelihoodMean() const {
 }
 
 double CMultimodalPrior::nearestMarginalLikelihoodMean(double value) const {
+
     if (m_Modes.empty()) {
         return 0.0;
     }
@@ -429,53 +408,47 @@ double CMultimodalPrior::nearestMarginalLikelihoodMean(double value) const {
     return result;
 }
 
-double CMultimodalPrior::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble4Vec& weights) const {
-    return CMultimodalPriorUtils::marginalLikelihoodMode(m_Modes, weightStyles, weights);
+double CMultimodalPrior::marginalLikelihoodMode(const TDoubleWeightsAry& weights) const {
+    return CMultimodalPriorUtils::marginalLikelihoodMode(m_Modes, weights);
 }
 
 CMultimodalPrior::TDouble1Vec
-CMultimodalPrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                          const TDouble4Vec& weights) const {
+CMultimodalPrior::marginalLikelihoodModes(const TDoubleWeightsAry& weights) const {
     TDouble1Vec result(m_Modes.size());
     for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
-        result[i] = m_Modes[i].s_Prior->marginalLikelihoodMode(weightStyles, weights);
+        result[i] = m_Modes[i].s_Prior->marginalLikelihoodMode(weights);
     }
     return result;
 }
 
-double CMultimodalPrior::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
-                                                    const TDouble4Vec& weights) const {
-    return CMultimodalPriorUtils::marginalLikelihoodVariance(m_Modes, weightStyles, weights);
+double CMultimodalPrior::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
+    return CMultimodalPriorUtils::marginalLikelihoodVariance(m_Modes, weights);
 }
 
 TDoubleDoublePr
 CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
-                                                       const TWeightStyleVec& weightStyles,
-                                                       const TDouble4Vec& weights) const {
+                                                       const TDoubleWeightsAry& weights) const {
     return CMultimodalPriorUtils::marginalLikelihoodConfidenceInterval(
-        *this, m_Modes, percentage, weightStyles, weights);
+        *this, m_Modes, percentage, weights);
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultimodalPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                             const TDouble1Vec& samples,
-                                             const TDouble4Vec1Vec& weights,
+CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                                             const TDoubleWeightsAry1Vec& weights,
                                              double& result) const {
+
     result = 0.0;
 
     if (samples.empty()) {
         LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
-
     if (samples.size() != weights.size()) {
         LOG_ERROR(<< "Mismatch in samples '"
                   << core::CContainerPrinter::print(samples) << "' and weights '"
                   << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
-
     if (this->isNonInformative()) {
         // The non-informative likelihood is improper and effectively
         // zero everywhere. We use minus max double because
@@ -489,14 +462,15 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles
         return maths_t::E_FpOverflowed;
     }
 
-    return m_Modes.size() == 1 ? m_Modes[0].s_Prior->jointLogMarginalLikelihood(
-                                     weightStyles, samples, weights, result)
-                               : CMultimodalPriorUtils::jointLogMarginalLikelihood(
-                                     m_Modes, weightStyles, samples, weights, result);
+    return m_Modes.size() == 1
+               ? m_Modes[0].s_Prior->jointLogMarginalLikelihood(samples, weights, result)
+               : CMultimodalPriorUtils::jointLogMarginalLikelihood(
+                     m_Modes, samples, weights, result);
 }
 
 void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
                                                 TDouble1Vec& samples) const {
+
     samples.clear();
 
     if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -506,34 +480,30 @@ void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
     CMultimodalPriorUtils::sampleMarginalLikelihood(m_Modes, numberSamples, samples);
 }
 
-bool CMultimodalPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                        const TDouble1Vec& samples,
-                                        const TDouble4Vec1Vec& weights,
+bool CMultimodalPrior::minusLogJointCdf(const TDouble1Vec& samples,
+                                        const TDoubleWeightsAry1Vec& weights,
                                         double& lowerBound,
                                         double& upperBound) const {
-    return CMultimodalPriorUtils::minusLogJointCdf(m_Modes, weightStyles, samples,
-                                                   weights, lowerBound, upperBound);
+    return CMultimodalPriorUtils::minusLogJointCdf(m_Modes, samples, weights,
+                                                   lowerBound, upperBound);
 }
 
-bool CMultimodalPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                                  const TDouble1Vec& samples,
-                                                  const TDouble4Vec1Vec& weights,
+bool CMultimodalPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                                  const TDoubleWeightsAry1Vec& weights,
                                                   double& lowerBound,
                                                   double& upperBound) const {
     return CMultimodalPriorUtils::minusLogJointCdfComplement(
-        m_Modes, weightStyles, samples, weights, lowerBound, upperBound);
+        m_Modes, samples, weights, lowerBound, upperBound);
 }
 
 bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                      const TWeightStyleVec& weightStyles,
                                                       const TDouble1Vec& samples,
-                                                      const TDouble4Vec1Vec& weights,
+                                                      const TDoubleWeightsAry1Vec& weights,
                                                       double& lowerBound,
                                                       double& upperBound,
                                                       maths_t::ETail& tail) const {
     return CMultimodalPriorUtils::probabilityOfLessLikelySamples(
-        *this, m_Modes, calculation, weightStyles, samples, weights, lowerBound,
-        upperBound, tail);
+        *this, m_Modes, calculation, samples, weights, lowerBound, upperBound, tail);
 }
 
 bool CMultimodalPrior::isNonInformative() const {
@@ -593,6 +563,7 @@ std::size_t CMultimodalPrior::numberModes() const {
 }
 
 bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
+
     bool result = true;
 
     if (m_Modes.size() != m_Clusterer->numberClusters()) {
@@ -643,6 +614,7 @@ CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior& prior
 void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
                                                       std::size_t leftSplitIndex,
                                                       std::size_t rightSplitIndex) const {
+
     LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
     TModeVec& modes = m_Prior->m_Modes;
@@ -673,19 +645,17 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
         }
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
-        double nl = pLeft * numberSamples;
-        double ns = std::min(nl, 4.0);
+        double wl = pLeft * numberSamples;
+        double ws = std::min(wl, 4.0);
         double n = static_cast<double>(samples.size());
-        LOG_TRACE(<< "# left = " << nl);
+        LOG_TRACE(<< "# left = " << wl);
 
-        double seedWeight = ns / n;
-        TDouble4Vec1Vec weights(samples.size(), TDouble4Vec{seedWeight});
-        modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
+        TDoubleWeightsAry1Vec weights(samples.size(), maths_t::countWeight(ws / n));
+        modes.back().s_Prior->addSamples(samples, weights);
 
-        double weight = (nl - ns) / n;
-        if (weight > 0.0) {
-            weights.assign(weights.size(), TDouble4Vec{weight});
-            modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
+        if (wl > ws) {
+            weights.assign(weights.size(), maths_t::countWeight((wl - ws) / n));
+            modes.back().s_Prior->addSamples(samples, weights);
             LOG_TRACE(<< modes.back().s_Prior->print());
         }
     }
@@ -699,19 +669,17 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
         }
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
-        double nr = pRight * numberSamples;
-        double ns = std::min(nr, 4.0);
+        double wr = pRight * numberSamples;
+        double ws = std::min(wr, 4.0);
         double n = static_cast<double>(samples.size());
         LOG_TRACE(<< "# right = " << nr);
 
-        double seedWeight = ns / n;
-        TDouble4Vec1Vec weights(samples.size(), TDouble4Vec{seedWeight});
-        modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
+        TDoubleWeightsAry1Vec weights(samples.size(), maths_t::countWeight(ws / n));
+        modes.back().s_Prior->addSamples(samples, weights);
 
-        double weight = (nr - ns) / n;
-        if (weight > 0.0) {
-            weights.assign(weights.size(), TDouble4Vec{weight});
-            modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
+        if (wr > ws) {
+            weights.assign(weights.size(), maths_t::countWeight((wr - ws) / n));
+            modes.back().s_Prior->addSamples(samples, weights);
             LOG_TRACE(<< modes.back().s_Prior->print());
         }
     }
@@ -733,6 +701,7 @@ CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior& prior
 void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex,
                                                       std::size_t rightMergeIndex,
                                                       std::size_t targetIndex) const {
+
     LOG_TRACE(<< "Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
     TModeVec& modes = m_Prior->m_Modes;
@@ -742,7 +711,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
 
     double wl = 0.0;
     double wr = 0.0;
-    double n = 0.0;
+    double w = 0.0;
     std::size_t nl = 0;
     std::size_t nr = 0;
     TDouble1Vec samples;
@@ -751,7 +720,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
                                  CSetTools::CIndexInSet(leftMergeIndex));
     if (leftMode != modes.end()) {
         wl = leftMode->s_Prior->numberSamples();
-        n += wl;
+        w += wl;
         TDouble1Vec leftSamples;
         leftMode->s_Prior->sampleMarginalLikelihood(MODE_MERGE_NUMBER_SAMPLES, leftSamples);
         nl = leftSamples.size();
@@ -764,7 +733,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
                                   CSetTools::CIndexInSet(rightMergeIndex));
     if (rightMode != modes.end()) {
         wr = rightMode->s_Prior->numberSamples();
-        n += wr;
+        w += wr;
         TDouble1Vec rightSamples;
         rightMode->s_Prior->sampleMarginalLikelihood(MODE_MERGE_NUMBER_SAMPLES, rightSamples);
         nr = rightSamples.size();
@@ -773,7 +742,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
         LOG_ERROR(<< "Couldn't find mode for " << rightMergeIndex);
     }
 
-    if (n > 0.0) {
+    if (w > 0.0) {
         double nl_ = static_cast<double>(nl);
         double nr_ = static_cast<double>(nr);
         double Z = (nl_ * wl + nr_ * wr) / (nl_ + nr_);
@@ -782,24 +751,22 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
     }
 
     LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-    LOG_TRACE(<< "n = " << n << ", wl = " << wl << ", wr = " << wr);
+    LOG_TRACE(<< "w = " << w << ", wl = " << wl << ", wr = " << wr);
 
-    double ns = std::min(n, 4.0);
-    double s = static_cast<double>(samples.size());
+    double ws = std::min(w, 4.0);
+    double n = static_cast<double>(samples.size());
 
-    double seedWeight = ns / s;
-    TDouble4Vec1Vec weights;
+    TDoubleWeightsAry1Vec weights;
     weights.reserve(samples.size());
-    weights.resize(nl, TDouble1Vec{wl * seedWeight});
-    weights.resize(nl + nr, TDouble1Vec{wr * seedWeight});
-    newMode.s_Prior->addSamples(TWeights::COUNT, samples, weights);
+    weights.resize(nl, maths_t::countWeight(wl * ws / n));
+    weights.resize(nl + nr, maths_t::countWeight(wr * ws / n));
+    newMode.s_Prior->addSamples(samples, weights);
 
-    double weight = (n - ns) / s;
-    if (weight > 0.0) {
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
-            weights[i][0] *= weight / seedWeight;
-        }
-        newMode.s_Prior->addSamples(TWeights::COUNT, samples, weights);
+    if (w > ws) {
+        weights.clear();
+        weights.resize(nl, maths_t::countWeight(wl * (w - ws) / n));
+        weights.resize(nl + nr, maths_t::countWeight(wr * (w - ws) / n));
+        newMode.s_Prior->addSamples(samples, weights);
     }
 
     // Remove the merged modes.

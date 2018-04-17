@@ -41,6 +41,7 @@ using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
+using TWeightFunc = maths_t::TDoubleWeightsAry (*)(double);
 
 CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
                               const double& offset = 0.0,
@@ -57,7 +58,7 @@ void CGammaRateConjugateTest::testMultipleUpdate() {
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
-    const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
+    const maths_t::EDataType dataTypes[]{maths_t::E_IntegerData, maths_t::E_ContinuousData};
 
     const double shape = 2.0;
     const double scale = 3.0;
@@ -72,7 +73,7 @@ void CGammaRateConjugateTest::testMultipleUpdate() {
         CGammaRateConjugate filter2(filter1);
 
         for (std::size_t j = 0; j < samples.size(); ++j) {
-            filter1.addSamples(TDouble1Vec(1, samples[j]));
+            filter1.addSamples(TDouble1Vec{samples[j]});
         }
         filter2.addSamples(samples);
 
@@ -91,13 +92,13 @@ void CGammaRateConjugateTest::testMultipleUpdate() {
         filter1.addSamples(samples);
         CGammaRateConjugate filter2(filter1);
 
-        maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
         for (std::size_t j = 0u; j < scaledSamples.size(); ++j) {
-            filter1.addSamples(weightStyle, TDouble1Vec(1, scaledSamples[j]),
-                               TDouble4Vec1Vec(1, TDouble4Vec(1, 2.0)));
+            filter1.addSamples({scaledSamples[j]},
+                               {ml::maths_t::countVarianceScaleWeight(2.0)});
         }
-        filter2.addSamples(weightStyle, scaledSamples,
-                           TDouble4Vec1Vec(scaledSamples.size(), TDouble4Vec(1, 2.0)));
+        filter2.addSamples(scaledSamples, maths_t::TDoubleWeightsAry1Vec(
+                                              scaledSamples.size(),
+                                              maths_t::countVarianceScaleWeight(2.0)));
 
         using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.03);
@@ -114,11 +115,9 @@ void CGammaRateConjugateTest::testMultipleUpdate() {
         std::size_t count = 10;
 
         for (std::size_t j = 0u; j < count; ++j) {
-            filter1.addSamples(TDouble1Vec(1, x));
+            filter1.addSamples(TDouble1Vec{x});
         }
-        filter2.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                           TDouble1Vec(1, x),
-                           TDouble4Vec1Vec(1, TDouble4Vec(1, static_cast<double>(count))));
+        filter2.addSamples({x}, {maths_t::countWeight(static_cast<double>(count))});
 
         using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.01);
@@ -306,17 +305,14 @@ void CGammaRateConjugateTest::testMarginalLikelihood() {
         rng.generateGammaSamples(shape, scale, 200, samples);
         filter.addSamples(samples);
 
-        maths_t::ESampleWeightStyle weightStyles[] = {
-            maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight,
-            maths_t::E_SampleCountWeight};
-        double weights[] = {0.1, 1.0, 10.0};
+        TWeightFunc weightsFuncs[]{static_cast<TWeightFunc>(maths_t::countWeight),
+                                   static_cast<TWeightFunc>(maths_t::winsorisationWeight)};
+        double weights[]{0.1, 0.9, 10.0};
 
-        for (std::size_t i = 0u; i < boost::size(weightStyles); ++i) {
+        for (std::size_t i = 0u; i < boost::size(weightsFuncs); ++i) {
             for (std::size_t j = 0u; j < boost::size(weights); ++j) {
                 double lb, ub;
-                filter.minusLogJointCdf(
-                    maths_t::TWeightStyleVec(1, weightStyles[i]), TDouble1Vec(1, 1000.0),
-                    TDouble4Vec1Vec(1, TDouble4Vec(1, weights[j])), lb, ub);
+                filter.minusLogJointCdf({1000.0}, {weightsFuncs[i](weights[j])}, lb, ub);
                 LOG_DEBUG(<< "-log(c.d.f) = " << (lb + ub) / 2.0);
                 CPPUNIT_ASSERT(lb >= 0.0);
                 CPPUNIT_ASSERT(ub >= 0.0);
@@ -465,13 +461,12 @@ void CGammaRateConjugateTest::testMarginalLikelihood() {
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 4e-3);
     }
     {
-        maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-        TDouble4Vec weight(1, 1.0);
+        maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
         TMeanAccumulator totalError;
         for (std::size_t i = 0u; i < boost::size(varianceScales); ++i) {
             TMeanAccumulator error;
             double vs = varianceScales[i];
-            weight[0] = vs;
+            maths_t::setCountVarianceScale(vs, weight);
             LOG_DEBUG(<< "*** vs = " << vs << " ***");
             for (std::size_t j = 0u; j < boost::size(percentages); ++j) {
                 boost::math::gamma_distribution<> scaledGamma(shape / vs, vs * scale);
@@ -479,8 +474,8 @@ void CGammaRateConjugateTest::testMarginalLikelihood() {
                     scaledGamma, (50.0 - percentages[j] / 2.0) / 100.0);
                 double q2 = boost::math::quantile(
                     scaledGamma, (50.0 + percentages[j] / 2.0) / 100.0);
-                TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(
-                    percentages[j], weightStyle, weight);
+                TDoubleDoublePr interval =
+                    filter.marginalLikelihoodConfidenceInterval(percentages[j], weight);
                 LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
                           << ", interval = " << core::CContainerPrinter::print(interval));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.4);
@@ -569,22 +564,19 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode() {
             filter.addSamples(samples);
 
             TMeanAccumulator relativeError;
-            maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-            TDouble4Vec weight(1, 1.0);
+            maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
             for (std::size_t k = 0u; k < boost::size(varianceScales); ++k) {
                 double vs = varianceScales[k];
-                weight[0] = vs;
+                maths_t::setCountVarianceScale(vs, weight);
                 boost::math::gamma_distribution<> scaledGamma(shapes[i] / vs,
                                                               vs * scales[j]);
                 double expectedMode = boost::math::mode(scaledGamma);
-                LOG_DEBUG(<< "marginalLikelihoodMode = "
-                          << filter.marginalLikelihoodMode(weightStyle, weight)
+                LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weight)
                           << ", expectedMode = " << expectedMode);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    expectedMode, filter.marginalLikelihoodMode(weightStyle, weight),
-                    0.28 * expectedMode + 0.3);
-                double error = std::fabs(
-                    filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
+                                             filter.marginalLikelihoodMode(weight),
+                                             0.28 * expectedMode + 0.3);
+                double error = std::fabs(filter.marginalLikelihoodMode(weight) - expectedMode);
                 relativeError.add(error == 0.0 ? 0.0 : error / expectedMode);
             }
             LOG_DEBUG(<< "relativeError = " << maths::CBasicStatistics::mean(relativeError));
@@ -769,7 +761,6 @@ void CGammaRateConjugateTest::testCdf() {
 
     filter.addSamples(samples);
 
-    maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountWeight);
     double lowerBound;
     double upperBound;
     CPPUNIT_ASSERT(!filter.minusLogJointCdf(TDouble1Vec(), lowerBound, upperBound));
@@ -867,11 +858,9 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples() {
                 meanError.add(std::fabs(px - (lb + ub) / 2.0));
             }
 
-            maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-
             for (std::size_t k = 0u; k < boost::size(vs); ++k) {
-                double mode = filter.marginalLikelihoodMode(weightStyle,
-                                                            TDouble1Vec(1, vs[k]));
+                double mode = filter.marginalLikelihoodMode(
+                    maths_t::countVarianceScaleWeight(vs[k]));
                 double ss[] = {0.9 * mode, 1.1 * mode};
 
                 LOG_DEBUG(<< "vs = " << vs[k] << ", mode = " << mode);
@@ -881,42 +870,52 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples() {
 
                 {
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[0]),
-                        TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_TwoSided, {ss[0]},
+                        {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     if (mode > 0.0) {
                         filter.probabilityOfLessLikelySamples(
-                            maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2),
-                            TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                            maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
+                            maths_t::TDoubleWeightsAry1Vec(
+                                2, maths_t::countVarianceScaleWeight(vs[k])),
+                            lb, ub, tail);
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                         filter.probabilityOfLessLikelySamples(
-                            maths_t::E_OneSidedBelow, weightStyle,
-                            TDouble1Vec(ss, ss + 2),
-                            TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                            maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
+                            maths_t::TDoubleWeightsAry1Vec(
+                                2, maths_t::countVarianceScaleWeight(vs[k])),
+                            lb, ub, tail);
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                         filter.probabilityOfLessLikelySamples(
-                            maths_t::E_OneSidedAbove, weightStyle,
-                            TDouble1Vec(ss, ss + 2),
-                            TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                            maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
+                            maths_t::TDoubleWeightsAry1Vec(
+                                2, maths_t::countVarianceScaleWeight(vs[k])),
+                            lb, ub, tail);
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                     }
                 }
                 if (mode > 0.0) {
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[1]),
-                        TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_TwoSided, {ss[1]},
+                        {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_OneSidedBelow, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_OneSidedAbove, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
@@ -1267,9 +1266,7 @@ void CGammaRateConjugateTest::testPersist() {
 
     maths::CGammaRateConjugate origFilter(makePrior(maths_t::E_ContinuousData, 0.1));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
 
@@ -1330,10 +1327,11 @@ void CGammaRateConjugateTest::testVarianceScale() {
     // Finally, we test update with scaled samples produces the
     // correct posterior.
 
-    maths_t::ESampleWeightStyle scales[] = {maths_t::E_SampleSeasonalVarianceScaleWeight,
-                                            maths_t::E_SampleCountVarianceScaleWeight};
+    TWeightFunc weightsFuncs[]{
+        static_cast<TWeightFunc>(maths_t::seasonalVarianceScaleWeight),
+        static_cast<TWeightFunc>(maths_t::countVarianceScaleWeight)};
 
-    for (std::size_t s = 0u; s < boost::size(scales); ++s) {
+    for (std::size_t s = 0u; s < boost::size(weightsFuncs); ++s) {
         const double shape = 3.0;
         const double scale = 3.0;
 
@@ -1407,10 +1405,8 @@ void CGammaRateConjugateTest::testVarianceScale() {
                     double lowerBound, upperBound;
                     maths_t::ETail tail;
                     CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, maths_t::TWeightStyleVec(1, scales[s]),
-                        TDouble1Vec(1, scaledSamples[j]),
-                        TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
-                        lowerBound, upperBound, tail));
+                        maths_t::E_TwoSided, {scaledSamples[j]},
+                        {weightsFuncs[s](varianceScales[i])}, lowerBound, upperBound, tail));
                     CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                     double probability = (lowerBound + upperBound) / 2.0;
                     probabilities.push_back(probability);
@@ -1469,12 +1465,10 @@ void CGammaRateConjugateTest::testVarianceScale() {
 
             for (std::size_t j = 0u; j < scaledSamples.size(); ++j) {
                 double logLikelihood = 0.0;
-                CPPUNIT_ASSERT_EQUAL(
-                    maths_t::E_FpNoErrors,
-                    filter.jointLogMarginalLikelihood(
-                        maths_t::TWeightStyleVec(1, scales[s]),
-                        TDouble1Vec(1, scaledSamples[j]),
-                        TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])), logLikelihood));
+                CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
+                                     filter.jointLogMarginalLikelihood(
+                                         {scaledSamples[j]},
+                                         {weightsFuncs[s](varianceScales[i])}, logLikelihood));
                 differentialEntropy -= logLikelihood;
             }
 
@@ -1495,7 +1489,7 @@ void CGammaRateConjugateTest::testVarianceScale() {
     const double maximumMeanMeanError[] = {0.01, 0.01};
     const double maximumMeanVarianceError[] = {0.08, 0.05};
 
-    for (std::size_t s = 0u; s < boost::size(scales); ++s) {
+    for (std::size_t s = 0u; s < boost::size(weightsFuncs); ++s) {
         for (std::size_t t = 0u; t < boost::size(dataTypes); ++t) {
             const double shapes[] = {1.0,    10.0,     100.0,
                                      1000.0, 100000.0, 1000000.0};
@@ -1503,9 +1497,8 @@ void CGammaRateConjugateTest::testVarianceScale() {
                                     1000.0, 100000.0, 1000000.0};
             const double varianceScales[] = {0.1, 0.5, 1.0, 2.0, 10.0, 100.0};
 
-            maths_t::TWeightStyleVec weightStyle(1, scales[s]);
             TDoubleVec samples;
-            TDouble4Vec1Vec weights;
+            maths_t::TDoubleWeightsAry1Vec weights;
 
             test::CRandomNumbers rng;
 
@@ -1544,13 +1537,13 @@ void CGammaRateConjugateTest::testVarianceScale() {
 
                             rng.generateGammaSamples(shape, 1.0 / rate, 200, samples);
                             weights.clear();
-                            weights.resize(samples.size(), TDouble4Vec(1, 1.0));
-                            filter.addSamples(weightStyle, samples, weights);
+                            weights.resize(samples.size(), maths_t::CUnitWeights::UNIT);
+                            filter.addSamples(samples, weights);
                             rng.generateGammaSamples(scaledShape, 1.0 / scaledRate,
                                                      200, samples);
                             weights.clear();
-                            weights.resize(samples.size(), TDouble4Vec(1, scale));
-                            filter.addSamples(weightStyle, samples, weights);
+                            weights.resize(samples.size(), weightsFuncs[s](scale));
+                            filter.addSamples(samples, weights);
 
                             double estimatedMean = filter.likelihoodShape() /
                                                    filter.likelihoodRate();
