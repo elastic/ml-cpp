@@ -137,12 +137,8 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TDoubleVec = std::vector<double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
     using TDouble10Vec = core::CSmallVector<double, 10>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
-    using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
-    using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
     using TSizeDoublePr = std::pair<std::size_t, double>;

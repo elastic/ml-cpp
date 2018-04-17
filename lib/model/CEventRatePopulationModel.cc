@@ -51,9 +51,6 @@ namespace {
 
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
-using TBool2Vec = core::CSmallVector<bool, 2>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
 using TSizeSizePrFeatureDataPrVec = CEventRatePopulationModel::TSizeSizePrFeatureDataPrVec;
 using TFeatureSizeSizePrFeatureDataPrVecPr =
@@ -65,7 +62,7 @@ using TSizeFuzzyDeduplicateUMap =
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights {
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2Vec4VecVec s_Weights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_Weights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -77,11 +74,6 @@ const std::string FEATURE_MODELS_TAG("d");
 const std::string FEATURE_CORRELATE_MODELS_TAG("e");
 const std::string MEMORY_ESTIMATOR_TAG("f");
 const std::string EMPTY_STRING("");
-
-const maths_t::TWeightStyleVec SAMPLE_WEIGHT_STYLES{
-    maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight};
-const maths_t::TWeightStyleVec
-    PROBABILITY_WEIGHT_STYLES(1, maths_t::E_SampleSeasonalVarianceScaleWeight);
 }
 
 CEventRatePopulationModel::CEventRatePopulationModel(
@@ -383,6 +375,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
+            std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(<< model_t::print(feature) << ": "
@@ -462,13 +455,18 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                                             : attribute.s_Values.size();
 
                 if (duplicate < attribute.s_Values.size()) {
-                    attribute.s_Weights[duplicate][0][0] +=
-                        this->sampleRateWeight(pid, cid) * this->learnRate(feature);
+                    double weight{this->sampleRateWeight(pid, cid) * this->learnRate(feature)};
+                    maths_t::addCount(TDouble2Vec{weight}, attribute.s_Weights[duplicate]);
                 } else {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);
-                    attribute.s_Weights.emplace_back(TDouble2Vec4Vec{
-                        {this->sampleRateWeight(pid, cid) * this->learnRate(feature)},
-                        model->winsorisationWeight(1.0, sampleTime, {value})});
+                    attribute.s_Weights.push_back(
+                        maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                    auto& weight = attribute.s_Weights.back();
+                    maths_t::setCount(TDouble2Vec{this->sampleRateWeight(pid, cid) *
+                                                  this->learnRate(feature)},
+                                      weight);
+                    maths_t::setWinsorisationWeight(
+                        model->winsorisationWeight(1.0, sampleTime, {value}), weight);
                 }
             }
 
@@ -478,7 +476,6 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
-                    .weightStyles(SAMPLE_WEIGHT_STYLES)
                     .trendWeights(attribute.second.s_Weights)
                     .priorWeights(attribute.second.s_Weights);
                 maths::CModel* model{this->model(feature, cid)};
@@ -490,7 +487,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
         }
 
         for (const auto& feature : m_FeatureCorrelatesModels) {
-            feature.s_Models->processSamples(SAMPLE_WEIGHT_STYLES);
+            feature.s_Models->processSamples();
         }
 
         m_AttributeProbabilities = TCategoryProbabilityCache(m_AttributeProbabilityPrior);
@@ -603,13 +600,11 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
             const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, startTime);
             TSizeSizePr range = personRange(data, pid);
             for (std::size_t j = range.first; j < range.second; ++j) {
-                TDouble1Vec category(
-                    1, static_cast<double>(CDataGatherer::extractAttributeId(data[j])));
-                TDouble4Vec1Vec weights(
-                    1, TDouble4Vec(1, static_cast<double>(
-                                          CDataGatherer::extractData(data[j]).s_Count)));
-                personAttributeProbabilityPrior.addSamples(
-                    maths::CConstantWeights::COUNT, category, weights);
+                TDouble1Vec category{
+                    static_cast<double>(CDataGatherer::extractAttributeId(data[j]))};
+                maths_t::TDoubleWeightsAry1Vec weights{maths_t::countWeight(
+                    static_cast<double>(CDataGatherer::extractData(data[j]).s_Count))};
+                personAttributeProbabilityPrior.addSamples(category, weights);
             }
             continue;
         }
@@ -1020,8 +1015,8 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel* model{this->model(feature, cid)};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    TDouble2Vec4Vec weight{
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)};
+    maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
     double value{model_t::offsetCountToZero(
         feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
 
@@ -1031,7 +1026,7 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
     params.s_Time.assign(1, TTime2Vec{time});
     params.s_Value.assign(1, TDouble2Vec{value});
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
-        double mode{params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weight)[0]};
+        double mode{params.s_Model->mode(time, weight)[0]};
         TDouble2Vec correction{this->interimValueCorrector().corrections(
             time, this->currentBucketTotalCount(), mode, value)};
         params.s_Value[0] += correction;
@@ -1039,10 +1034,10 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
             CCorrectionKey(feature, pid, cid), correction);
     }
     params.s_Count = 1.0;
-    params.s_ComputeProbabilityParams.tag(pid)
+    params.s_ComputeProbabilityParams
+        .tag(pid) // new line
         .addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES)
-        .addBucketEmpty(TBool2Vec(1, false))
+        .addBucketEmpty({false})
         .addWeights(weight);
 }
 

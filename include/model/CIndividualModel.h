@@ -262,7 +262,7 @@ protected:
     maths::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Sample the correlate models.
-    void sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles);
+    void sampleCorrelateModels();
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,

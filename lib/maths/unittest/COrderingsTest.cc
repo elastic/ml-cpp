@@ -570,8 +570,7 @@ void COrderingsTest::testSimultaneousSort() {
 
         std::string expectedKeys("[0.2, 0.7, 1, 1.1, 5, 7]");
         std::string expectedValues1("[~, ;, q, e, y, w]");
-        std::string expectedValues2("[(1.3, 1.9), (1.2, 10.1), (2.1, 1.1), "
-                                    "(3.2, 12.9), (1.3, 6.2), (2, 1)]");
+        std::string expectedValues2("[(1.3, 1.9), (1.2, 10.1), (2.1, 1.1), (3.2, 12.9), (1.3, 6.2), (2, 1)]");
 
         maths::COrderings::simultaneousSort(keys, values1, values2);
         LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
@@ -601,9 +600,7 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         std::string expectedKeys("[0.1, 0.7, 0.9, 1.4, 4, 5.1, 7.1, 80]");
         std::string expectedValues1("[23, ;;, ~1, b4, pq, zz, a1, sss]");
-        std::string expectedValues2("[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), "
-                                    "(7.2, 22.9), (10.3, 13.2), (0.3, 16.2), "
-                                    "(1, 1), (21.2, 11.1)]");
+        std::string expectedValues2("[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), (7.2, 22.9), (10.3, 13.2), (0.3, 16.2), (1, 1), (21.2, 11.1)]");
 
         maths::COrderings::simultaneousSort(keys, values1, values2, values3);
         LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));

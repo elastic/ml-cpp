@@ -146,16 +146,16 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
         maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
-        TDouble4Vec1Vec weights(i, maths::CConstantWeights::UNIT);
-        attributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
+        maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
+        attributePrior.addSamples(samples, weights);
     }
 
     maths::CMultinomialConjugate personAttributePrior(
         maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
-        TDouble4Vec1Vec weights(2 * i, maths::CConstantWeights::UNIT);
-        personAttributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
+        maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);
+        personAttributePrior.addSamples(samples, weights);
     }
 
     SAnnotatedProbability result;
@@ -226,16 +226,16 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
         maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
-        TDouble4Vec1Vec weights(i, maths::CConstantWeights::UNIT);
-        attributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
+        maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
+        attributePrior.addSamples(samples, weights);
     }
 
     maths::CMultinomialConjugate personAttributePrior(
         maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
-        TDouble4Vec1Vec weights(2 * i, maths::CConstantWeights::UNIT);
-        personAttributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
+        maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);
+        personAttributePrior.addSamples(samples, weights);
     }
 
     SAnnotatedProbability result;

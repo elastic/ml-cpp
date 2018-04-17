@@ -59,20 +59,10 @@ namespace {
 using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-using TBool2Vec = core::CSmallVector<bool, 2>;
 
 // We use short field names to reduce the state size
 const std::string INDIVIDUAL_STATE_TAG("a");
-
-const maths_t::TWeightStyleVec SAMPLE_WEIGHT_STYLES{
-    maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight,
-    maths_t::E_SampleCountVarianceScaleWeight};
-const maths_t::TWeightStyleVec PROBABILITY_WEIGHT_STYLES{
-    maths_t::E_SampleSeasonalVarianceScaleWeight, maths_t::E_SampleCountVarianceScaleWeight};
 }
 
 CMetricModel::CMetricModel(const SModelParams& params,
@@ -233,8 +223,8 @@ void CMetricModel::sample(core_t::TTime startTime,
 
         // Declared outside the loop to minimize the number of times they are created.
         maths::CModel::TTimeDouble2VecSizeTrVec values;
-        maths::CModelAddSamplesParams::TDouble2Vec4VecVec trendWeights;
-        maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights;
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec trendWeights;
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec priorWeights;
 
         for (auto& featureData : m_CurrentBucketStats.s_FeatureData) {
             model_t::EFeature feature = featureData.first;
@@ -274,15 +264,16 @@ void CMetricModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
+                std::size_t n = samples.size();
                 double derate = this->derate(pid, sampleTime);
                 double interval =
                     (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) *
                     emptyBucketWeight;
-                double count = this->params().s_MaximumUpdatesPerBucket > 0.0 &&
-                                       samples.size() > 0
+                double count = this->params().s_MaximumUpdatesPerBucket > 0.0 && n > 0
                                    ? this->params().s_MaximumUpdatesPerBucket /
-                                         static_cast<double>(samples.size())
+                                         static_cast<double>(n)
                                    : 1.0;
+                double ceff = emptyBucketWeight * count * this->learnRate(feature);
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket(time)
                           << ", feature = " << model_t::print(feature)
@@ -295,31 +286,32 @@ void CMetricModel::sample(core_t::TTime startTime,
                 model->params().probabilityBucketEmpty(
                     this->probabilityBucketEmpty(feature, pid));
 
-                values.resize(samples.size());
-                trendWeights.resize(samples.size(), TDouble2Vec4Vec(3));
-                priorWeights.resize(samples.size(), TDouble2Vec4Vec(3));
-                for (std::size_t i = 0u; i < samples.size(); ++i) {
+                values.resize(n);
+                trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                priorWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                for (std::size_t i = 0u; i < n; ++i) {
                     core_t::TTime ti = samples[i].time();
                     TDouble2Vec vi(samples[i].value(dimension));
                     double vs = samples[i].varianceScale();
                     values[i] = core::make_triple(
                         model_t::sampleTime(feature, time, bucketLength, ti),
                         vi, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
-                    trendWeights[i][0].assign(dimension, emptyBucketWeight * count *
-                                                             this->learnRate(feature) / vs);
-                    trendWeights[i][1] = model->winsorisationWeight(derate, ti, vi);
-                    trendWeights[i][2].assign(dimension, vs);
-                    priorWeights[i][0].assign(dimension, emptyBucketWeight * count *
-                                                             this->learnRate(feature));
-                    priorWeights[i][1] = trendWeights[i][1];
-                    priorWeights[i][2].assign(dimension, vs);
+                    maths_t::setCount(TDouble2Vec(dimension, ceff / vs), trendWeights[i]);
+                    maths_t::setWinsorisationWeight(
+                        model->winsorisationWeight(derate, ti, vi), trendWeights[i]);
+                    maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
+                                                   trendWeights[i]);
+                    maths_t::setCount(TDouble2Vec(dimension, ceff), priorWeights[i]);
+                    maths_t::setWinsorisationWeight(
+                        maths_t::winsorisationWeight(trendWeights[i]), priorWeights[i]);
+                    maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
+                                                   priorWeights[i]);
                 }
 
                 maths::CModelAddSamplesParams params;
                 params.integer(data_.second.s_IsInteger)
                     .nonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(interval)
-                    .weightStyles(SAMPLE_WEIGHT_STYLES)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights);
 
@@ -329,7 +321,7 @@ void CMetricModel::sample(core_t::TTime startTime,
             }
         }
 
-        this->sampleCorrelateModels(SAMPLE_WEIGHT_STYLES);
+        this->sampleCorrelateModels();
     }
 }
 
@@ -548,15 +540,17 @@ void CMetricModel::fill(model_t::EFeature feature,
                         core_t::TTime bucketTime,
                         bool interim,
                         CProbabilityAndInfluenceCalculator::SParams& params) const {
+
     std::size_t dimension{model_t::dimension(feature)};
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
     const TOptionalSample& bucket{data->s_BucketValue};
     const maths::CModel* model{this->model(feature, pid)};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
-    TDouble2Vec4Vec weights(2);
-    weights[0] = model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time);
-    weights[1].assign(dimension, bucket->varianceScale());
+    maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+    maths_t::setSeasonalVarianceScale(
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+    maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
 
     params.s_Feature = feature;
@@ -565,7 +559,7 @@ void CMetricModel::fill(model_t::EFeature feature,
     params.s_Time.assign(1, TTime2Vec{time});
     params.s_Value.assign(1, bucket->value());
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
-        TDouble2Vec mode(params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weights));
+        TDouble2Vec mode(params.s_Model->mode(time, weights));
         TDouble2Vec correction(this->interimValueCorrector().corrections(
             time, this->currentBucketTotalCount(), mode, bucket->value(dimension)));
         params.s_Value[0] += correction;
@@ -574,9 +568,8 @@ void CMetricModel::fill(model_t::EFeature feature,
     }
     params.s_Count = bucket->count();
     params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES)
-        .addBucketEmpty(TBool2Vec(1, !count || *count == 0))
+        .addCalculation(model_t::probabilityCalculation(feature)) // new line
+        .addBucketEmpty({!count || *count == 0})
         .addWeights(weights);
 }
 
@@ -586,6 +579,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                         bool interim,
                         CProbabilityAndInfluenceCalculator::SCorrelateParams& params,
                         TStrCRefDouble1VecDouble1VecPrPrVecVecVec& influenceValues) const {
+
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
 
     const CDataGatherer& gatherer{this->dataGatherer()};
@@ -603,9 +597,7 @@ void CMetricModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES);
+    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature));
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]
@@ -626,11 +618,13 @@ void CMetricModel::fill(model_t::EFeature feature,
         params.s_Variables[i] = variables;
         const maths::CModel* models[]{
             model, this->model(feature, correlates[i][variables[1]])};
-        TDouble2Vec4Vec weight(2, TDouble2Vec(2, 1.0));
-        weight[0][variables[0]] = models[0]->seasonalWeight(
+        maths_t::TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
+        TDouble2Vec scale(2);
+        scale[variables[0]] = models[0]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
-        weight[0][variables[1]] = models[1]->seasonalWeight(
+        scale[variables[1]] = models[1]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
+        maths_t::setSeasonalVarianceScale(scale, weight);
 
         const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);
@@ -651,8 +645,9 @@ void CMetricModel::fill(model_t::EFeature feature,
                 params.s_Values[i][2 * j + 0] = bucket0->value()[j];
                 params.s_Values[i][2 * j + 1] = bucket1->value()[j];
             }
-            weight[1][variables[0]] = bucket0->varianceScale();
-            weight[1][variables[1]] = bucket1->varianceScale();
+            scale[variables[0]] = bucket0->varianceScale();
+            scale[variables[1]] = bucket1->varianceScale();
+            maths_t::setCountVarianceScale(scale, weight);
             for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
                 for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
@@ -682,14 +677,13 @@ void CMetricModel::fill(model_t::EFeature feature,
         count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
         count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
         params.s_ComputeProbabilityParams
-            .addBucketEmpty(TBool2Vec{!count[0] || *count[0] == 0,
-                                      !count[1] || *count[1] == 0})
+            .addBucketEmpty({!count[0] || *count[0] == 0, !count[1] || *count[1] == 0}) // new line
             .addWeights(weight);
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         core_t::TTime time{bucketTime + bucketLength / 2};
         TDouble2Vec1Vec modes(params.s_Model->correlateModes(
-            time, PROBABILITY_WEIGHT_STYLES, params.s_ComputeProbabilityParams.weights()));
+            time, params.s_ComputeProbabilityParams.weights()));
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             if (!params.s_Values.empty()) {
                 TDouble2Vec value_{params.s_Values[i][0], params.s_Values[i][1]};
@@ -700,7 +694,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                 }
                 this->currentBucketInterimCorrections().emplace(
                     core::make_triple(feature, pid, params.s_Correlated[i]),
-                    TDouble1Vec(1, correction[params.s_Variables[i][0]]));
+                    TDouble1Vec{correction[params.s_Variables[i][0]]});
             }
         }
     }

@@ -563,9 +563,9 @@ maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pi
                : nullptr;
 }
 
-void CIndividualModel::sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles) {
+void CIndividualModel::sampleCorrelateModels() {
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        feature.s_Models->processSamples(weightStyles);
+        feature.s_Models->processSamples();
     }
 }
 

@@ -73,14 +73,12 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! No-op.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyle,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights);
+    virtual void adjustOffset(const TDouble10Vec1Vec& samples,
+                              const TDouble10VecWeightsAry1Vec& weights);
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec& weightStyle,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights);
+    virtual void addSamples(const TDouble10Vec1Vec& samples,
+                            const TDouble10VecWeightsAry1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
@@ -100,8 +98,7 @@ public:
     virtual TDouble10Vec marginalLikelihoodMean() const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const;
 
     //! Get the covariance matrix of the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const;
@@ -112,9 +109,8 @@ public:
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const;
 
     //! Get \p numberSamples times the constant.
