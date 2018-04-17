@@ -52,41 +52,36 @@ void CMathsMemoryTest::testPriors() {
     CConstantPrior constantPrior(d);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), constantPrior.memoryUsage());
 
-    CGammaRateConjugate::TWeightStyleVec weightStyles;
     CGammaRateConjugate::TDoubleVec samples;
-    CGammaRateConjugate::TDoubleVecVec weights;
-
-    weightStyles.push_back(maths_t::E_SampleCountWeight);
     samples.push_back(0.996);
-    CGammaRateConjugate::TDoubleVec weight;
-    weight.push_back(0.2);
-    weights.push_back(weight);
+    maths_t::TDoubleWeightsAry weight(maths_t::countWeight(0.2));
+    maths_t::TDoubleWeightsAry1Vec weights{weight};
 
     CGammaRateConjugate gammaRateConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
-    gammaRateConjugate.addSamples(weightStyles, samples, weights);
+    gammaRateConjugate.addSamples(samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
 
     CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData,
                                                    0.0, 0.9, 0.8, 0.7, 0.2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
-    logNormalConjugate.addSamples(weightStyles, samples, weights);
+    logNormalConjugate.addSamples(samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
 
     CPoissonMeanConjugate poissonConjugate(0.0, 0.8, 0.7, 0.3);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
-    poissonConjugate.addSamples(weightStyles, samples, weights);
+    poissonConjugate.addSamples(samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
 
     CNormalMeanPrecConjugate normalConjugate(maths_t::E_ContinuousData, 0.0,
                                              0.9, 0.8, 0.7, 0.2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
-    normalConjugate.addSamples(weightStyles, samples, weights);
+    normalConjugate.addSamples(samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
 
     CMultinomialConjugate multinomialConjugate;
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
-    multinomialConjugate.addSamples(weightStyles, samples, weights);
+    multinomialConjugate.addSamples(samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
 
     CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
@@ -120,7 +115,7 @@ void CMathsMemoryTest::testPriors() {
 
     std::size_t initialMultimodalPriorSize = multimodalPrior.memoryUsage();
 
-    multimodalPrior.addSamples(weightStyles, samples, weights);
+    multimodalPrior.addSamples(samples, weights);
     CPPUNIT_ASSERT(initialMultimodalPriorSize < multimodalPrior.memoryUsage());
 
     core::CMemoryUsage mem;

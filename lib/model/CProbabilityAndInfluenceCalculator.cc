@@ -36,9 +36,7 @@ using TSize1Vec = CProbabilityAndInfluenceCalculator::TSize1Vec;
 using TSize2Vec = CProbabilityAndInfluenceCalculator::TSize2Vec;
 using TDouble1Vec = CProbabilityAndInfluenceCalculator::TDouble1Vec;
 using TDouble2Vec = CProbabilityAndInfluenceCalculator::TDouble2Vec;
-using TDouble4Vec = CProbabilityAndInfluenceCalculator::TDouble4Vec;
 using TDouble2Vec1Vec = CProbabilityAndInfluenceCalculator::TDouble2Vec1Vec;
-using TDouble4Vec1Vec = CProbabilityAndInfluenceCalculator::TDouble4Vec1Vec;
 using TDouble1VecDoublePr = CProbabilityAndInfluenceCalculator::TDouble1VecDoublePr;
 using TBool2Vec = CProbabilityAndInfluenceCalculator::TBool2Vec;
 using TTime2Vec = CProbabilityAndInfluenceCalculator::TTime2Vec;
@@ -57,8 +55,6 @@ using TStoredStringPtrStoredStringPtrPrDoublePrVec =
     CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
 using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
@@ -167,10 +163,10 @@ public:
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        params.addBucketEmpty(TBool2Vec{n == ni});
         for (std::size_t i = 0u; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
+        params.addBucketEmpty({n == ni});
     }
 
     //! Correlates.
@@ -199,10 +195,10 @@ public:
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& intersection) const {
-        params.addBucketEmpty(TBool2Vec{ni == 0});
         for (std::size_t i = 0u; i < vi.size(); ++i) {
             intersection[i] = vi[i];
         }
+        params.addBucketEmpty({ni == 0});
     }
 
     //! Correlates.
@@ -231,18 +227,14 @@ public:
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        params.addBucketEmpty(TBool2Vec{n == ni});
         for (std::size_t d = 0u; d < v.size(); ++d) {
-            for (std::size_t i = 0u; i < params.weightStyles().size(); ++i) {
-                if (params.weightStyles()[i] == maths_t::E_SampleCountVarianceScaleWeight) {
-                    params.weights()[0][i][d] *= n / (n - ni);
-                    break;
-                }
-            }
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::accumulator(n, v[d]) -
                 maths::CBasicStatistics::accumulator(ni, vi[d]));
         }
+        maths_t::multiplyCountVarianceScale(TDouble2Vec(v.size(), n / (n - ni)),
+                                            params.weights()[0]);
+        params.addBucketEmpty({n == ni});
     }
 
     //! Correlates.
@@ -255,16 +247,13 @@ public:
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = ((n[d] - ni[d]) == 0);
-            for (std::size_t i = 0u; i < params.weightStyles().size(); ++i) {
-                if (params.weightStyles()[i] == maths_t::E_SampleCountVarianceScaleWeight) {
-                    params.weights()[0][i][d] *= n[d] / (n[d] - ni[d]);
-                    break;
-                }
-            }
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::accumulator(n[d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni[d], vi[d]));
         }
+        maths_t::multiplyCountVarianceScale(
+            TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
+            params.weights()[0]);
         params.addBucketEmpty(bucketEmpty);
     }
 };
@@ -280,18 +269,14 @@ public:
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
         std::size_t dimension = v.size() / 2;
-        params.addBucketEmpty(TBool2Vec{n == ni});
         for (std::size_t d = 0u; d < dimension; ++d) {
-            for (std::size_t i = 0u; i < params.weightStyles().size(); ++i) {
-                if (params.weightStyles()[i] == maths_t::E_SampleCountVarianceScaleWeight) {
-                    params.weights()[0][i][d] *= n / (n - ni);
-                    break;
-                }
-            }
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::accumulator(n, v[dimension + d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni, vi[dimension + d], vi[d]));
         }
+        maths_t::multiplyCountVarianceScale(TDouble2Vec(dimension, n / (n - ni)),
+                                            params.weights()[0]);
+        params.addBucketEmpty({n == ni});
     }
 
     //! Correlates.
@@ -304,17 +289,14 @@ public:
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = ((n[d] - ni[d]) == 0);
-            for (std::size_t i = 0u; i < params.weightStyles().size(); ++i) {
-                if (params.weightStyles()[i] == maths_t::E_SampleCountVarianceScaleWeight) {
-                    params.weights()[0][i][d] *= n[d] / (n[d] - ni[d]);
-                    break;
-                }
-            }
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::accumulator(n[d], v[2 + d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni[d], vi[2 + d], vi[d]));
         }
         params.addBucketEmpty(bucketEmpty);
+        maths_t::multiplyCountVarianceScale(
+            TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
+            params.weights()[0]);
     }
 };
 
@@ -393,7 +375,7 @@ void doComputeInfluences(model_t::EFeature feature,
     TSize1Vec mostAnomalousCorrelate;
 
     double logp = maths::CTools::fastLog(probability);
-    TDouble2Vec4Vec1Vec weights(params.weights());
+    maths_t::TDouble2VecWeightsAry1Vec weights(params.weights());
     for (auto i = influencerValues.begin(); i != influencerValues.end(); ++i) {
         params.weights(weights).updateAnomalyModel(false);
 
@@ -486,7 +468,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
     TSize1Vec mostAnomalousCorrelate;
 
     double logp = std::log(probability);
-    TDouble2Vec4Vec1Vec weights(params.weights());
+    maths_t::TDouble2VecWeightsAry1Vec weights(params.weights());
     for (const auto& influence_ : influencerValues) {
         params.weights(weights).updateAnomalyModel(false);
 
@@ -647,7 +629,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
         return false;
     }
 
-    // Maybe check the cache.
+    // Check the cache.
     if (!model_t::isConstant(feature) && m_ProbabilityCache) {
         TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
         model.detrend(time, params.seasonalConfidenceInterval(), values);
@@ -905,7 +887,6 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& pa
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
         TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
@@ -934,7 +915,6 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
         params_.addCalculation(maths_t::E_OneSidedAbove)
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
         LOG_TRACE(<< "influencerValues = "
@@ -984,7 +964,6 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) cons
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
         TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
@@ -1015,7 +994,6 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& par
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
         LOG_TRACE(<< "influencerValues = "
@@ -1043,7 +1021,6 @@ void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
         TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
@@ -1074,7 +1051,6 @@ void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
         LOG_TRACE(<< "influencerValues = "
@@ -1102,7 +1078,6 @@ void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
         TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
@@ -1134,7 +1109,6 @@ void CVarianceInfluenceCalculator::computeInfluences(TCorrelateParams& params) c
         params_
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
-            .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
         LOG_TRACE(<< "influencerValues = "

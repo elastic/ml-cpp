@@ -148,10 +148,8 @@ int main(int argc, char** argv) {
     }()};
 
     if (persistInterval >= 0 && persister == nullptr) {
-        LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
-                     "'persistInterval' argument "
-                     "unless a place to persist to has been specified "
-                     "using the 'persist' argument");
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                     "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
     using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;

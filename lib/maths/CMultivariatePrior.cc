@@ -92,20 +92,15 @@ void CMultivariatePrior::decayRate(double value) {
     setDecayRate(value, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CMultivariatePrior::addSamples(const TWeightStyleVec& weightStyles,
-                                    const TDouble10Vec1Vec& /*samples*/,
-                                    const TDouble10Vec4Vec1Vec& weights) {
+void CMultivariatePrior::addSamples(const TDouble10Vec1Vec& /*samples*/,
+                                    const TDouble10VecWeightsAry1Vec& weights) {
     std::size_t d = this->dimension();
     TDouble10Vec n(d, 0.0);
-    try {
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
-            TDouble10Vec wi = maths_t::countForUpdate(d, weightStyles, weights[i]);
-            for (std::size_t j = 0u; j < d; ++j) {
-                n[j] += wi[j];
-            }
+    for (const auto& weight : weights) {
+        TDouble10Vec n_ = maths_t::countForUpdate(weight);
+        for (std::size_t i = 0u; i < d; ++i) {
+            n[i] += n_[i];
         }
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to extract sample counts: " << e.what());
     }
     this->addSamples(smallest(n));
 }
@@ -116,15 +111,13 @@ CMultivariatePrior::nearestMarginalLikelihoodMean(const TDouble10Vec& /*value*/)
 }
 
 CMultivariatePrior::TDouble10Vec1Vec
-CMultivariatePrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                            const TDouble10Vec4Vec& weights) const {
-    return TDouble10Vec1Vec{this->marginalLikelihoodMode(weightStyles, weights)};
+CMultivariatePrior::marginalLikelihoodModes(const TDouble10VecWeightsAry& weights) const {
+    return TDouble10Vec1Vec{this->marginalLikelihoodMode(weights)};
 }
 
 bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                        const TWeightStyleVec& weightStyles,
                                                         const TDouble10Vec1Vec& samples,
-                                                        const TDouble10Vec4Vec1Vec& weights,
+                                                        const TDouble10VecWeightsAry1Vec& weights,
                                                         const TSize10Vec& coordinates,
                                                         TDouble10Vec2Vec& lowerBounds,
                                                         TDouble10Vec2Vec& upperBounds,
@@ -149,18 +142,17 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     }
 
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+    using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
     using TJointProbabilityOfLessLikelySamplesVec =
         core::CSmallVector<CJointProbabilityOfLessLikelySamples, 10>;
 
     static const TSize10Vec NO_MARGINS;
     static const TSizeDoublePr10Vec NO_CONDITIONS;
 
-    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] = {
+    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2]{
         TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
         TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
-    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2] = {
+    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2]{
         TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
         TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
 
@@ -168,7 +160,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     TSize10Vec marginalize(d - 1);
     TSizeDoublePr10Vec condition(d - 1);
     TDouble1Vec sc(1);
-    TDouble4Vec1Vec wc{TDouble4Vec(weightStyles.size())};
+    TDoubleWeightsAry1Vec wc(1);
 
     for (std::size_t i = 0; i < coordinates.size(); ++i) {
         std::size_t coordinate = coordinates[i];
@@ -196,8 +188,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
             double lb[2], ub[2];
             maths_t::ETail tc[2];
 
-            if (!margin->probabilityOfLessLikelySamples(
-                    calculation, weightStyles, sc, wc, lb[0], ub[0], tc[0])) {
+            if (!margin->probabilityOfLessLikelySamples(calculation, sc, wc,
+                                                        lb[0], ub[0], tc[0])) {
                 LOG_ERROR(<< "Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
@@ -206,8 +198,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
 
             TUnivariatePriorPtr conditional(
                 this->univariate(NO_MARGINS, condition).first);
-            if (!conditional->probabilityOfLessLikelySamples(
-                    calculation, weightStyles, sc, wc, lb[1], ub[1], tc[1])) {
+            if (!conditional->probabilityOfLessLikelySamples(calculation, sc, wc,
+                                                             lb[1], ub[1], tc[1])) {
                 LOG_ERROR(<< "Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
@@ -236,9 +228,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
 }
 
 bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                        const TWeightStyleVec& weightStyles,
                                                         const TDouble10Vec1Vec& samples,
-                                                        const TDouble10Vec4Vec1Vec& weights,
+                                                        const TDouble10VecWeightsAry1Vec& weights,
                                                         double& lowerBound,
                                                         double& upperBound,
                                                         TTail10Vec& tail) const {
@@ -256,13 +247,13 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     std::iota(coordinates.begin(), coordinates.end(), 0);
 
     TDouble10Vec1Vec sample(1);
-    TDouble10Vec4Vec1Vec weight(1);
+    TDouble10VecWeightsAry1Vec weight(1);
     TDouble10Vec2Vec lbs;
     TDouble10Vec2Vec ubs;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         sample[0] = samples[i];
         weight[0] = weights[i];
-        if (!this->probabilityOfLessLikelySamples(calculation, weightStyles, sample, weight,
+        if (!this->probabilityOfLessLikelySamples(calculation, sample, weight,
                                                   coordinates, lbs, ubs, tail)) {
             return false;
         }
@@ -290,6 +281,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
 
 std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
                                                                 std::size_t y) const {
+
     // We'll plot the marginal likelihood function over a range where
     // most of the mass is, i.e. the 99% confidence interval.
 
@@ -351,8 +343,8 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     yabscissa << "];" << core_t::LINE_ENDING;
 
     likelihood << "likelihood = [";
-    TDouble10Vec1Vec sample(1, TDouble10Vec(2));
-    TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
+    TDouble10Vec1Vec sample{TDouble10Vec(2)};
+    TDouble10VecWeightsAry1Vec weight(TWeights::singleUnit<TDouble10Vec>(2));
     x_ = xRange.first;
     for (std::size_t i = 0u; i < POINTS; ++i, x_ += dx) {
         y_ = yRange.first;
@@ -360,7 +352,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
             sample[0][0] = x_;
             sample[0][1] = y_;
             double l;
-            xyMargin->jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, weight, l);
+            xyMargin->jointLogMarginalLikelihood(sample, weight, l);
             likelihood << std::exp(l) << " ";
         }
         likelihood << core_t::LINE_ENDING;
@@ -412,7 +404,7 @@ void CMultivariatePrior::addSamples(double n) {
 }
 
 bool CMultivariatePrior::check(const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights) const {
+                               const TDouble10VecWeightsAry1Vec& weights) const {
     if (samples.size() != weights.size()) {
         LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
                   << weights << "'");
@@ -435,16 +427,14 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec& samples,
 
 bool CMultivariatePrior::check(const TSize10Vec& marginalize,
                                const TSizeDoublePr10Vec& condition) const {
-    static const auto FIRST = [](const TSizeDoublePr& pair) {
-        return pair.first;
-    };
+    const auto first = [](const TSizeDoublePr& pair) { return pair.first; };
     std::size_t d = this->dimension();
     if ((marginalize.size() > 0 && marginalize.back() >= d) ||
         (condition.size() > 0 && condition.back().first >= d) ||
         CSetTools::setIntersectSize(
             marginalize.begin(), marginalize.end(),
-            boost::make_transform_iterator(condition.begin(), FIRST),
-            boost::make_transform_iterator(condition.end(), FIRST)) != 0) {
+            boost::make_transform_iterator(condition.begin(), first),
+            boost::make_transform_iterator(condition.end(), first)) != 0) {
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << marginalize << "'"
                   << ", condition '" << condition << "'");

@@ -1048,9 +1048,8 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
         if (decomposition.addPoint(time, value)) {
             model.setToNonInformative(0.0, 0.01);
         }
-        model.addSamples(maths_t::TWeightStyleVec{maths_t::E_SampleCountWeight},
-                         TDoubleVec{decomposition.detrend(time, value, 70.0)},
-                         TDoubleVecVec{TDoubleVec(1, 1.0)});
+        model.addSamples({decomposition.detrend(time, value, 70.0)},
+                         maths_t::CUnitWeights::SINGLE_UNIT);
     }
 
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
@@ -1079,11 +1078,9 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
         double lb, ub;
         maths_t::ETail tail;
         model.probabilityOfLessLikelySamples(
-            maths_t::E_TwoSided,
-            maths_t::TWeightStyleVec{maths_t::E_SampleSeasonalVarianceScaleWeight},
-            TDoubleVec{decomposition.detrend(time, value, 70.0)},
-            TDoubleVecVec{TDoubleVec{
-                std::max(decomposition.scale(time, variance, 70.0).second, 0.25)}},
+            maths_t::E_TwoSided, {decomposition.detrend(time, value, 70.0)},
+            {maths_t::seasonalVarianceScaleWeight(
+                std::max(decomposition.scale(time, variance, 70.0).second, 0.25))},
             lb, ub, tail);
         double pScaled = (lb + ub) / 2.0;
         pMinScaled = std::min(pMinScaled, pScaled);
@@ -1095,10 +1092,8 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
         //probs.push_back(-std::log(pScaled));
 
         model.probabilityOfLessLikelySamples(
-            maths_t::E_TwoSided,
-            maths_t::TWeightStyleVec(1, maths_t::E_SampleSeasonalVarianceScaleWeight),
-            TDoubleVec(1, decomposition.detrend(time, value, 70.0)),
-            TDoubleVecVec(1, TDoubleVec(1, 1.0)), lb, ub, tail);
+            maths_t::E_TwoSided, {decomposition.detrend(time, value, 70.0)},
+            maths_t::CUnitWeights::SINGLE_UNIT, lb, ub, tail);
         double pUnscaled = (lb + ub) / 2.0;
         pMinUnscaled = std::min(pMinUnscaled, pUnscaled);
     }
@@ -2219,17 +2214,13 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
         LOG_DEBUG(<< "Saved state size = " << xml.size());
 
         std::string values;
-        load("testfiles/"
-             "CTimeSeriesDecomposition.6.2.seasonal.expected_values.txt",
-             values);
+        load("testfiles/CTimeSeriesDecomposition.6.2.seasonal.expected_values.txt", values);
         LOG_DEBUG(<< "Expected values size = " << values.size());
         TStrVec expectedValues;
         core::CStringUtils::tokenise(";", values, expectedValues, empty);
 
         std::string scales;
-        load("testfiles/"
-             "CTimeSeriesDecomposition.6.2.seasonal.expected_scales.txt",
-             scales);
+        load("testfiles/CTimeSeriesDecomposition.6.2.seasonal.expected_scales.txt", scales);
         LOG_DEBUG(<< "Expected scales size = " << scales.size());
         TStrVec expectedScales;
         core::CStringUtils::tokenise(";", scales, expectedScales, empty);
@@ -2276,24 +2267,18 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
     LOG_DEBUG(<< "*** Trend and Seasonal Components ***");
     {
         std::string xml;
-        load("testfiles/"
-             "CTimeSeriesDecomposition.6.2.trend_and_seasonal.state.xml",
-             xml);
+        load("testfiles/CTimeSeriesDecomposition.6.2.trend_and_seasonal.state.xml", xml);
         LOG_DEBUG(<< "Saved state size = " << xml.size());
 
         std::string values;
-        load("testfiles/"
-             "CTimeSeriesDecomposition.6.2.trend_and_seasonal.expected_values."
-             "txt",
+        load("testfiles/CTimeSeriesDecomposition.6.2.trend_and_seasonal.expected_values.txt",
              values);
         LOG_DEBUG(<< "Expected values size = " << values.size());
         TStrVec expectedValues;
         core::CStringUtils::tokenise(";", values, expectedValues, empty);
 
         std::string scales;
-        load("testfiles/"
-             "CTimeSeriesDecomposition.6.2.trend_and_seasonal.expected_scales."
-             "txt",
+        load("testfiles/CTimeSeriesDecomposition.6.2.trend_and_seasonal.expected_scales.txt",
              scales);
         LOG_DEBUG(<< "Expected scales size = " << scales.size());
         TStrVec expectedScales;

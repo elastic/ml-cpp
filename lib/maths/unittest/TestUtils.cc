@@ -46,8 +46,8 @@ public:
         double lowerBound, upperBound;
 
         m_X[0] = x;
-        if (!m_Prior->minusLogJointCdf(CConstantWeights::COUNT_VARIANCE, m_X,
-                                       CConstantWeights::SINGLE_UNIT, lowerBound, upperBound)) {
+        if (!m_Prior->minusLogJointCdf(m_X, maths_t::CUnitWeights::SINGLE_UNIT,
+                                       lowerBound, upperBound)) {
             // We have no choice but to throw because this is
             // invoked inside a boost root finding function.
 
@@ -101,71 +101,51 @@ CPriorTestInterface::CPriorTestInterface(CPrior& prior) : m_Prior(&prior) {
 }
 
 void CPriorTestInterface::addSamples(const TDouble1Vec& samples) {
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    m_Prior->addSamples(TWeights::COUNT, samples, weights);
+    maths_t::TDoubleWeightsAry1Vec weights(samples.size(), TWeights::UNIT);
+    m_Prior->addSamples(samples, weights);
 }
 
 maths_t::EFloatingPointErrorStatus
 CPriorTestInterface::jointLogMarginalLikelihood(const TDouble1Vec& samples,
                                                 double& result) const {
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    return m_Prior->jointLogMarginalLikelihood(TWeights::COUNT, samples, weights, result);
+    maths_t::TDoubleWeightsAry1Vec weights(samples.size(), TWeights::UNIT);
+    return m_Prior->jointLogMarginalLikelihood(samples, weights, result);
 }
 
 bool CPriorTestInterface::minusLogJointCdf(const TDouble1Vec& samples,
                                            double& lowerBound,
                                            double& upperBound) const {
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    return m_Prior->minusLogJointCdf(TWeights::COUNT, samples, weights, lowerBound, upperBound);
+    maths_t::TDoubleWeightsAry1Vec weights(samples.size(), TWeights::UNIT);
+    return m_Prior->minusLogJointCdf(samples, weights, lowerBound, upperBound);
 }
 
 bool CPriorTestInterface::minusLogJointCdfComplement(const TDouble1Vec& samples,
                                                      double& lowerBound,
                                                      double& upperBound) const {
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    return m_Prior->minusLogJointCdfComplement(TWeights::COUNT, samples,
-                                               weights, lowerBound, upperBound);
+    maths_t::TDoubleWeightsAry1Vec weights(samples.size(), TWeights::UNIT);
+    return m_Prior->minusLogJointCdfComplement(samples, weights, lowerBound, upperBound);
 }
 
 bool CPriorTestInterface::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
                                                          const TDouble1Vec& samples,
                                                          double& lowerBound,
                                                          double& upperBound) const {
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
+    maths_t::TDoubleWeightsAry1Vec weights(samples.size(), TWeights::UNIT);
     maths_t::ETail tail;
-    return m_Prior->probabilityOfLessLikelySamples(
-        calculation, TWeights::COUNT, samples, weights, lowerBound, upperBound, tail);
+    return m_Prior->probabilityOfLessLikelySamples(calculation, samples, weights,
+                                                   lowerBound, upperBound, tail);
 }
 
 bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculation,
                                        const TDouble1Vec& samples,
                                        double& result) const {
-    TDoubleDoublePr1Vec weightedSamples;
-    weightedSamples.reserve(samples.size());
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        weightedSamples.push_back(std::make_pair(samples[i], 1.0));
-    }
-    return this->anomalyScore(calculation, maths_t::E_SampleCountWeight,
-                              weightedSamples, result);
-}
 
-bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculation,
-                                       maths_t::ESampleWeightStyle weightStyle,
-                                       const TDoubleDoublePr1Vec& samples,
-                                       double& result) const {
     result = 0.0;
-
-    TWeightStyleVec weightStyles(1, weightStyle);
-    TDouble1Vec samples_(samples.size());
-    TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        samples_[i] = samples[i].first;
-        weights[i][0] = samples[i].second;
-    }
 
     double lowerBound, upperBound;
     maths_t::ETail tail;
-    if (!m_Prior->probabilityOfLessLikelySamples(calculation, weightStyles, samples_, weights,
+    if (!m_Prior->probabilityOfLessLikelySamples(calculation, samples,
+                                                 maths_t::CUnitWeights::SINGLE_UNIT,
                                                  lowerBound, upperBound, tail)) {
         LOG_ERROR(<< "Failed computing probability of less likely samples");
         return false;
@@ -179,6 +159,7 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
 bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
                                                             double eps,
                                                             double& result) const {
+
     result = 0.0;
 
     percentage /= 100.0;
@@ -215,6 +196,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
 }
 
 bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
+
     using TMarginalLikelihood =
         CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&>;
     using TFunctionTimesMarginalLikelihood =
@@ -258,6 +240,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
 }
 
 bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) const {
+
     using TMarginalLikelihood =
         CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&>;
     using TResidualTimesMarginalLikelihood =

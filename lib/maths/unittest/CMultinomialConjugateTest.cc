@@ -509,24 +509,12 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
             // Large update limit.
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[0]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 10000.0))); // P = 0.10
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[1]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 12000.0))); // P = 0.12
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[2]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 29000.0))); // P = 0.29
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[3]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 39000.0))); // P = 0.39
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[4]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 4000.0))); // P = 0.04
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[5]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 6000.0))); // P = 0.06
+            filter.addSamples({categories[0]}, {maths_t::countWeight(10000.0)}); // P = 0.10
+            filter.addSamples({categories[1]}, {maths_t::countWeight(12000.0)}); // P = 0.12
+            filter.addSamples({categories[2]}, {maths_t::countWeight(29000.0)}); // P = 0.29
+            filter.addSamples({categories[3]}, {maths_t::countWeight(39000.0)}); // P = 0.39
+            filter.addSamples({categories[4]}, {maths_t::countWeight(4000.0)}); // P = 0.04
+            filter.addSamples({categories[5]}, {maths_t::countWeight(6000.0)}); // P = 0.06
 
             // We expect the following probabilities for each category:
             //   P(1.1) = 0.20
@@ -557,24 +545,12 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
             // Large update limit.
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[0]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 11000.0))); // P = 0.11
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[1]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 11000.0))); // P = 0.11
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[2]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 29000.0))); // P = 0.29
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[3]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 39000.0))); // P = 0.39
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[4]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 5000.0))); // P = 0.05
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[5]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 5000.0))); // P = 0.05
+            filter.addSamples({categories[0]}, {maths_t::countWeight(11000.0)}); // P = 0.11
+            filter.addSamples({categories[1]}, {maths_t::countWeight(11000.0)}); // P = 0.11
+            filter.addSamples({categories[2]}, {maths_t::countWeight(29000.0)}); // P = 0.29
+            filter.addSamples({categories[3]}, {maths_t::countWeight(39000.0)}); // P = 0.39
+            filter.addSamples({categories[4]}, {maths_t::countWeight(5000.0)}); // P = 0.05
+            filter.addSamples({categories[5]}, {maths_t::countWeight(5000.0)}); // P = 0.05
 
             // We expect the following probabilities for each category:
             //   P(1.1) = P(1.2) = 0.32
@@ -602,24 +578,12 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
             // Large update limit.
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[0]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 15000.0))); // P = 0.15
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[1]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 15000.0))); // P = 0.15
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[2]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 30000.0))); // P = 0.30
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[3]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 30000.0))); // P = 0.30
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[4]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 5000.0))); // P = 0.05
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[5]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 5000.0))); // P = 0.05
+            filter.addSamples({categories[0]}, {maths_t::countWeight(15000.0)}); // P = 0.15
+            filter.addSamples({categories[1]}, {maths_t::countWeight(15000.0)}); // P = 0.15
+            filter.addSamples({categories[2]}, {maths_t::countWeight(30000.0)}); // P = 0.30
+            filter.addSamples({categories[3]}, {maths_t::countWeight(30000.0)}); // P = 0.30
+            filter.addSamples({categories[4]}, {maths_t::countWeight(5000.0)}); // P = 0.05
+            filter.addSamples({categories[5]}, {maths_t::countWeight(5000.0)}); // P = 0.05
 
             // We expect the following probabilities for each category:
             //   P(1.1) = P(1.2) = 0.40
@@ -711,24 +675,12 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
             // Large update limit.
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[0]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 10000.0))); // P = 0.10
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[1]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 12000.0))); // P = 0.12
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[2]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 29000.0))); // P = 0.29
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[3]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 39000.0))); // P = 0.39
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[4]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 4000.0))); // P = 0.04
-            filter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, categories[5]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 6000.0))); // P = 0.06
+            filter.addSamples({categories[0]}, {maths_t::countWeight(10000.0)}); // P = 0.10
+            filter.addSamples({categories[1]}, {maths_t::countWeight(12000.0)}); // P = 0.12
+            filter.addSamples({categories[2]}, {maths_t::countWeight(29000.0)}); // P = 0.29
+            filter.addSamples({categories[3]}, {maths_t::countWeight(39000.0)}); // P = 0.39
+            filter.addSamples({categories[4]}, {maths_t::countWeight(4000.0)}); // P = 0.04
+            filter.addSamples({categories[5]}, {maths_t::countWeight(6000.0)}); // P = 0.06
 
             double expectedProbabilities[] = {0.2, 0.32, 0.61, 1.0, 0.04, 0.1};
 
@@ -826,10 +778,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
         CMultinomialConjugate filter(
             CMultinomialConjugate::nonInformativePrior(categories.size()));
         for (std::size_t i = 0u; i < categories.size(); ++i) {
-            filter.addSamples(
-                maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                TDouble1Vec(1, categories[i]),
-                TDouble4Vec1Vec(1, TDouble4Vec(1, rawProbabilities[i] * 100.0)));
+            filter.addSamples({categories[i]},
+                              {maths_t::countWeight(rawProbabilities[i] * 100.0)});
         }
 
         TDoubleVec lowerBounds, upperBounds;
@@ -962,9 +912,7 @@ void CMultinomialConjugateTest::testPersist() {
     rng.generateMultinomialSamples(categories, probabilities, 100, samples);
     maths::CMultinomialConjugate origFilter(CMultinomialConjugate::nonInformativePrior(5));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();

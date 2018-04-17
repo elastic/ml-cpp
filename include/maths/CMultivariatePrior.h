@@ -47,19 +47,19 @@ public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
     using TDouble10Vec2Vec = core::CSmallVector<TDouble10Vec, 2>;
-    using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
     using TDouble10Vec10Vec = core::CSmallVector<TDouble10Vec, 10>;
-    using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
     using TDouble10VecDouble10VecPr = std::pair<TDouble10Vec, TDouble10Vec>;
     using TSize10Vec = core::CSmallVector<std::size_t, 10>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr10Vec = core::CSmallVector<TSizeDoublePr, 10>;
-    using TWeightStyleVec = maths_t::TWeightStyleVec;
     using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
+    using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
+    using TDouble10VecWeightsAry1Vec = maths_t::TDouble10VecWeightsAry1Vec;
     using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
     using TUnivariatePriorPtrDoublePr = std::pair<TUnivariatePriorPtr, double>;
     using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
     using TPriorPtrDoublePr = std::pair<TPriorPtr, double>;
+    using TWeights = maths_t::CUnitWeights;
 
 public:
     //! The value of the decay rate to fall back to using if the input
@@ -137,26 +137,18 @@ public:
     //! For priors with non-negative support this adjusts the offset used
     //! to extend the support to handle negative samples.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void adjustOffset(const TDouble10Vec1Vec& samples,
+                              const TDouble10VecWeightsAry1Vec& weights) = 0;
 
     //! Update the prior with a collection of independent samples from the
     //! process.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void addSamples(const TDouble10Vec1Vec& samples,
+                            const TDouble10VecWeightsAry1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -202,12 +194,11 @@ public:
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const = 0;
+    virtual TDouble10Vec
+    marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                                     const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TDouble10VecWeightsAry& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const = 0;
@@ -218,16 +209,12 @@ public:
     //! Calculate the log marginal likelihood function, integrating over the
     //! prior density function.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const = 0;
 
     //! Sample the marginal likelihood function.
@@ -258,9 +245,6 @@ public:
     //!
     //! \param[in] calculation The style of the probability calculation
     //! (see model_t::EProbabilityCalculation for details).
-    //! \param[in] weightStyles Controls the interpretation of the weights
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[in] coordinates The coordinates for which to compute probabilities.
@@ -275,9 +259,8 @@ public:
     //! a value of zero is not well defined and a value of infinity is not well
     //! handled. (Very large values are handled though.)
     bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                        const TWeightStyleVec& weightStyles,
                                         const TDouble10Vec1Vec& samples,
-                                        const TDouble10Vec4Vec1Vec& weights,
+                                        const TDouble10VecWeightsAry1Vec& weights,
                                         const TSize10Vec& coordinates,
                                         TDouble10Vec2Vec& lowerBounds,
                                         TDouble10Vec2Vec& upperBounds,
@@ -289,9 +272,6 @@ public:
     //!
     //! \param[in] calculation The style of the probability calculation
     //! (see model_t::EProbabilityCalculation for details).
-    //! \param[in] weightStyles Controls the interpretation of the weights
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] lowerBound Filled in with a lower bound for the probability
@@ -307,9 +287,8 @@ public:
     //! a value of zero is not well defined and a value of infinity is not well
     //! handled. (Very large values are handled though.)
     bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                        const TWeightStyleVec& weightStyles,
                                         const TDouble10Vec1Vec& samples,
-                                        const TDouble10Vec4Vec1Vec& weights,
+                                        const TDouble10VecWeightsAry1Vec& weights,
                                         double& lowerBound,
                                         double& upperBound,
                                         TTail10Vec& tail) const;
@@ -400,7 +379,7 @@ protected:
     void addSamples(double n);
 
     //! Check that the samples and weights are consistent.
-    bool check(const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) const;
+    bool check(const TDouble10Vec1Vec& samples, const TDouble10VecWeightsAry1Vec& weights) const;
 
     //! Check that the variables to marginalize out and condition on
     //! are consistent.

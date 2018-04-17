@@ -113,15 +113,11 @@ public:
     //! This samples the current marginal likelihood and uses these samples
     //! to reconstruct the prior with adjusted offset.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TDouble1Vec& samples,
+                                const TDoubleWeightsAry1Vec& weights);
 
     //! Get the current offset.
     virtual double offset() const;
@@ -129,14 +125,9 @@ public:
     //! Update the prior with a collection of independent samples from the
     //! Poisson variable.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -154,14 +145,11 @@ public:
     virtual double marginalLikelihoodMean() const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -173,29 +161,23 @@ public:
     //! the percentage of interest \p percentage.
     //!
     //! \param[in] percentage The percentage of interest.
-    //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the Poisson mean.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                               const TDoubleWeightsAry1Vec& weights,
                                double& result) const;
 
     //! Sample the marginal likelihood function.
@@ -210,18 +192,14 @@ public:
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
     //! at \p samples.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples The samples of interest.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] lowerBound Filled in with \f$-\log(\prod_i{F(x_i)})\f$
     //! where \f$F(.)\f$ is the c.d.f. and \f$\{x_i\}\f$ are the samples.
     //! \param[out] upperBound Equal to \p lowerBound.
     //! \note The samples are assumed to be independent.
-    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                  const TDouble1Vec& samples,
-                                  const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdf(const TDouble1Vec& samples,
+                                  const TDoubleWeightsAry1Vec& weights,
                                   double& lowerBound,
                                   double& upperBound) const;
 
@@ -231,9 +209,8 @@ public:
     //! can return is the minimum double rather than epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                            const TDouble1Vec& samples,
-                                            const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                            const TDoubleWeightsAry1Vec& weights,
                                             double& lowerBound,
                                             double& upperBound) const;
 
@@ -242,9 +219,6 @@ public:
     //!
     //! \param[in] calculation The style of the probability calculation
     //! (see model_t::EProbabilityCalculation for details).
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples The samples of interest.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] lowerBound Filled in with the probability of the set
@@ -255,9 +229,8 @@ public:
     //! are in or neither.
     //! \note The samples are assumed to be independent.
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec& weightStyles,
                                                 const TDouble1Vec& samples,
-                                                const TDouble4Vec1Vec& weights,
+                                                const TDoubleWeightsAry1Vec& weights,
                                                 double& lowerBound,
                                                 double& upperBound,
                                                 maths_t::ETail& tail) const;

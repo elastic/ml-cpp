@@ -213,9 +213,8 @@ public:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on "
-                                "persist: "
-                             << i << " >= " << m_Queue.size()
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
+                             << " >= " << m_Queue.size()
                              << ".  Extra buckets will be ignored.");
                     // Restore into a temporary
                     T dummy;
@@ -256,9 +255,8 @@ private:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on "
-                                "persist: "
-                             << i << " >= " << m_Queue.size()
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
+                             << " >= " << m_Queue.size()
                              << ".  Extra buckets will be ignored.");
                     if (traverser.hasSubLevel()) {
                         // Restore into a temporary

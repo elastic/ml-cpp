@@ -449,8 +449,7 @@ private:
                     result[lastCid] = TSizeTUMap<T>(1);
                 } else if (name == PERSON_TAG) {
                     if (!seenCid) {
-                        LOG_ERROR(<< "Incorrect format - person before "
-                                     "attribute ID in "
+                        LOG_ERROR(<< "Incorrect format - person before attribute ID in "
                                   << traverser.value());
                         return false;
                     }
@@ -1168,8 +1167,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
             allOk = false;
         }
         if (m_FieldNames.size() > m_FieldMetricCategories.size() + i) {
-            LOG_ERROR(<< "Inconsistency - more statistic field names than "
-                         "metric categories "
+            LOG_ERROR(<< "Inconsistency - more statistic field names than metric categories "
                       << m_FieldNames.size() - i << " > "
                       << m_FieldMetricCategories.size());
             allOk = false;
