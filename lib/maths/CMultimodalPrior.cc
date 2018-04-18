@@ -672,7 +672,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
         double wr = pRight * numberSamples;
         double ws = std::min(wr, 4.0);
         double n = static_cast<double>(samples.size());
-        LOG_TRACE(<< "# right = " << nr);
+        LOG_TRACE(<< "# right = " << wr);
 
         TDoubleWeightsAry1Vec weights(samples.size(), maths_t::countWeight(ws / n));
         modes.back().s_Prior->addSamples(samples, weights);
