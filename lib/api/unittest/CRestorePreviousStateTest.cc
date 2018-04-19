@@ -47,7 +47,8 @@ struct SRestoreTestConfig {
     bool s_CategorizerRestoreIsSymmetric;
 };
 
-const std::vector<SRestoreTestConfig> BWC_VERSIONS{SRestoreTestConfig{"5.6.0", false, true}, SRestoreTestConfig{"6.0.0", false, true}};
+const std::vector<SRestoreTestConfig> BWC_VERSIONS{
+    SRestoreTestConfig{"5.6.0", false, true}, SRestoreTestConfig{"6.0.0", false, true}};
 }
 
 CppUnit::Test* CRestorePreviousStateTest::suite() {

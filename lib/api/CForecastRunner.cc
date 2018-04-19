@@ -44,17 +44,9 @@ const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not 
 const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Insufficient history to forecast for all models");
 
 CForecastRunner::SForecast::SForecast()
-    : s_ForecastId(),
-      s_ForecastSeries(),
-      s_CreateTime(0),
-      s_StartTime(0),
-      s_Duration(0),
-      s_ExpiryTime(0),
-      s_BoundsPercentile(0),
-      s_NumberOfModels(0),
-      s_NumberOfForecastableModels(0),
-      s_MemoryUsage(0),
-      s_Messages() {
+    : s_ForecastId(), s_ForecastSeries(), s_CreateTime(0), s_StartTime(0),
+      s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0), s_NumberOfModels(0),
+      s_NumberOfForecastableModels(0), s_MemoryUsage(0), s_Messages() {
 }
 
 CForecastRunner::SForecast::SForecast(SForecast&& other)
@@ -124,14 +116,10 @@ void CForecastRunner::forecastWorker() {
             uint64_t lastStatsUpdate = 0;
 
             LOG_TRACE(<< "about to create sink");
-            model::CForecastDataSink sink(m_JobId,
-                                          forecastJob.s_ForecastId,
-                                          forecastJob.s_CreateTime,
-                                          forecastJob.s_StartTime,
-                                          forecastJob.forecastEnd(),
-                                          forecastJob.s_ExpiryTime,
-                                          forecastJob.s_MemoryUsage,
-                                          m_ConcurrentOutputStream);
+            model::CForecastDataSink sink(
+                m_JobId, forecastJob.s_ForecastId, forecastJob.s_CreateTime,
+                forecastJob.s_StartTime, forecastJob.forecastEnd(), forecastJob.s_ExpiryTime,
+                forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
 
             std::string message;
 
@@ -408,14 +396,10 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
     LOG_DEBUG(<< "job passed forecast validation, scheduled for forecasting");
-    model::CForecastDataSink sink(m_JobId,
-                                  forecastJob.s_ForecastId,
-                                  forecastJob.s_CreateTime,
-                                  forecastJob.s_StartTime,
-                                  forecastJob.forecastEnd(),
-                                  forecastJob.s_ExpiryTime,
-                                  forecastJob.s_MemoryUsage,
-                                  m_ConcurrentOutputStream);
+    model::CForecastDataSink sink(m_JobId, forecastJob.s_ForecastId,
+                                  forecastJob.s_CreateTime, forecastJob.s_StartTime,
+                                  forecastJob.forecastEnd(), forecastJob.s_ExpiryTime,
+                                  forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
     sink.writeScheduledMessage();
 }
 
@@ -431,16 +415,14 @@ void CForecastRunner::sendFinalMessage(const SForecast& forecastJob,
 }
 
 template<typename WRITE>
-void CForecastRunner::sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const {
-    model::CForecastDataSink sink(m_JobId,
-                                  forecastJob.s_ForecastId,
-                                  forecastJob.s_CreateTime,
-                                  forecastJob.s_StartTime,
-                                  forecastJob.forecastEnd(),
+void CForecastRunner::sendMessage(WRITE write,
+                                  const SForecast& forecastJob,
+                                  const std::string& message) const {
+    model::CForecastDataSink sink(m_JobId, forecastJob.s_ForecastId, forecastJob.s_CreateTime,
+                                  forecastJob.s_StartTime, forecastJob.forecastEnd(),
                                   // in an error case use the default expiry time
                                   forecastJob.s_CreateTime + DEFAULT_EXPIRY_TIME,
-                                  forecastJob.s_MemoryUsage,
-                                  m_ConcurrentOutputStream);
+                                  forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
     (sink.*write)(message);
 }
 

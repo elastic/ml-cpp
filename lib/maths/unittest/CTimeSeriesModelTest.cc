@@ -1921,7 +1921,8 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
     // TODO LOG_DEBUG(<< "Correlations with tags (for population)");
 }
 
-void CTimeSeriesModelTest::testProbabilityWithCorrelations() {}
+void CTimeSeriesModelTest::testProbabilityWithCorrelations() {
+}
 
 void CTimeSeriesModelTest::testAnomalyModel() {
     using TSizeVec = std::vector<std::size_t>;

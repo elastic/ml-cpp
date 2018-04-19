@@ -41,11 +41,13 @@ public:
     //! Constructors
     /*! \param os Output stream.
         */
-    explicit CRapidJsonPrettyWriter(OUTPUT_STREAM& os) : TRapidJsonPrettyWriterBase(os) {}
+    explicit CRapidJsonPrettyWriter(OUTPUT_STREAM& os)
+        : TRapidJsonPrettyWriterBase(os) {}
 
     explicit CRapidJsonPrettyWriter() : TRapidJsonPrettyWriterBase() {}
 
-    CRapidJsonPrettyWriter(CRapidJsonPrettyWriter&& rhs) : TRapidJsonPrettyWriterBase(std::move(rhs)) {}
+    CRapidJsonPrettyWriter(CRapidJsonPrettyWriter&& rhs)
+        : TRapidJsonPrettyWriterBase(std::move(rhs)) {}
 };
 }
 }

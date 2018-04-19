@@ -107,7 +107,8 @@ public:
         m_JsonPoolAllocators.push(std::make_shared<CRapidJsonPoolAllocator>());
     }
 
-    CRapidJsonWriterBase(CRapidJsonWriterBase&& rhs) : TRapidJsonWriterBase(std::move(rhs)) {}
+    CRapidJsonWriterBase(CRapidJsonWriterBase&& rhs)
+        : TRapidJsonWriterBase(std::move(rhs)) {}
 
     // No need for an explicit destructor here as the allocators clear themselves
     // on destruction.

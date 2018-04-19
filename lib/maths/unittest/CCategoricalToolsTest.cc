@@ -23,9 +23,11 @@ using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {}
+void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {
+}
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {}
+void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {
+}
 
 void CCategoricalToolsTest::testExpectedDistinctCategories() {
     using TDoubleVecVec = std::vector<TDoubleVec>;

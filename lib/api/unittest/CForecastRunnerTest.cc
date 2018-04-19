@@ -87,9 +87,10 @@ void CForecastRunnerTest::testSummaryCount() {
         populateJob(generateRecordWithSummaryCount, job);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
-        dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"42\"" +
-                        ",\"create_time\": \"1511370819\"" + ",\"expires_in\": \"" + std::to_string(100 * ml::core::constants::DAY) +
-                        "\" }";
+        dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) +
+                        ",\"forecast_id\": \"42\"" +
+                        ",\"create_time\": \"1511370819\"" + ",\"expires_in\": \"" +
+                        std::to_string(100 * ml::core::constants::DAY) + "\" }";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
     }
 
@@ -120,8 +121,10 @@ void CForecastRunnerTest::testSummaryCount() {
     CPPUNIT_ASSERT(lastElement.HasMember("model_forecast_request_stats"));
     const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
-    CPPUNIT_ASSERT_EQUAL(std::string("42"), std::string(forecastStats["forecast_id"].GetString()));
-    CPPUNIT_ASSERT_EQUAL(1511370819 * int64_t(1000), forecastStats["forecast_create_timestamp"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(std::string("42"),
+                         std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(1511370819 * int64_t(1000),
+                         forecastStats["forecast_create_timestamp"].GetInt64());
     CPPUNIT_ASSERT(forecastStats.HasMember("processed_record_count"));
     CPPUNIT_ASSERT_EQUAL(13, forecastStats["processed_record_count"].GetInt());
     CPPUNIT_ASSERT_EQUAL(1.0, forecastStats["forecast_progress"].GetDouble());
@@ -169,10 +172,13 @@ void CForecastRunnerTest::testPopulation() {
     const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT(!doc.HasParseError());
-    CPPUNIT_ASSERT_EQUAL(std::string("31"), std::string(forecastStats["forecast_id"].GetString()));
-    CPPUNIT_ASSERT_EQUAL(std::string("failed"), std::string(forecastStats["forecast_status"].GetString()));
-    CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS,
-                         std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("31"),
+                         std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("failed"),
+                         std::string(forecastStats["forecast_status"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(
+        ml::api::CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS,
+        std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     CPPUNIT_ASSERT_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
                          forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
@@ -211,10 +217,13 @@ void CForecastRunnerTest::testRare() {
     const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT(!doc.HasParseError());
-    CPPUNIT_ASSERT_EQUAL(std::string("42"), std::string(forecastStats["forecast_id"].GetString()));
-    CPPUNIT_ASSERT_EQUAL(std::string("failed"), std::string(forecastStats["forecast_status"].GetString()));
-    CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS,
-                         std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("42"),
+                         std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("failed"),
+                         std::string(forecastStats["forecast_status"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(
+        ml::api::CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS,
+        std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     CPPUNIT_ASSERT_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
                          forecastStats["forecast_expiry_timestamp"].GetInt64());
 }

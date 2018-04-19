@@ -183,16 +183,11 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
-        if (CreateProcess((processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
-                          const_cast<char*>(cmdLine.c_str()),
-                          0,
-                          0,
-                          FALSE,
-                          CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS,
-                          0,
-                          0,
-                          &startupInfo,
-                          &processInformation) == FALSE) {
+        if (CreateProcess(
+                (processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
+                const_cast<char*>(cmdLine.c_str()), 0, 0, FALSE,
+                CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS, 0, 0, &startupInfo,
+                &processInformation) == FALSE) {
             LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;
         }

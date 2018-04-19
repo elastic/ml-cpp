@@ -41,11 +41,13 @@ public:
     //! Constructors
     /*! \param os Output stream.
         */
-    explicit CRapidJsonLineWriter(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {}
+    explicit CRapidJsonLineWriter(OUTPUT_STREAM& os)
+        : TRapidJsonWriterBase(os) {}
 
     explicit CRapidJsonLineWriter() : TRapidJsonWriterBase() {}
 
-    CRapidJsonLineWriter(CRapidJsonLineWriter&& rhs) : TRapidJsonWriterBase(std::move(rhs)) {}
+    CRapidJsonLineWriter(CRapidJsonLineWriter&& rhs)
+        : TRapidJsonWriterBase(std::move(rhs)) {}
 
     //! Overwrites the Writer::StartObject in order to count nested objects
     bool StartObject() {

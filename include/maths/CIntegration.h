@@ -411,7 +411,8 @@ public:
 
     public:
         static const CSparseGaussLegendreQuadrature& instance() {
-            const CSparseGaussLegendreQuadrature* tmp = ms_Instance.load(atomic_t::memory_order_acquire);
+            const CSparseGaussLegendreQuadrature* tmp =
+                ms_Instance.load(atomic_t::memory_order_acquire);
             if (!tmp) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
                 tmp = ms_Instance.load(atomic_t::memory_order_relaxed);
@@ -652,7 +653,8 @@ private:
 };
 
 template<CIntegration::EOrder O, CIntegration::EDimension D>
-atomic_t::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*> CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
+atomic_t::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*>
+    CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 }
 }
 

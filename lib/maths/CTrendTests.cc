@@ -350,8 +350,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE(<< "Updating daily random projections at " << time);
         if (time >= ms_DayResampled.load(atomic_t::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL) {
-            resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections, ms_DayRandomProjections);
-            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL), atomic_t::memory_order_release);
+            resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections,
+                     ms_DayRandomProjections);
+            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL),
+                                  atomic_t::memory_order_release);
         }
     }
 
@@ -360,8 +362,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE(<< "Updating weekly random projections at " << time);
         if (time >= ms_WeekResampled.load(atomic_t::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL) {
-            resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections, ms_WeekRandomProjections);
-            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL), atomic_t::memory_order_release);
+            resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections,
+                     ms_WeekRandomProjections);
+            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL),
+                                   atomic_t::memory_order_release);
         }
     }
 }

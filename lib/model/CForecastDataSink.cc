@@ -86,15 +86,9 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
                                      core_t::TTime expiryTime,
                                      size_t memoryUsage,
                                      core::CJsonOutputStreamWrapper& outStream)
-    : m_JobId(jobId),
-      m_ForecastId(forecastId),
-      m_Writer(outStream),
-      m_NumRecordsWritten(0),
-      m_CreateTime(createTime),
-      m_StartTime(startTime),
-      m_EndTime(endTime),
-      m_ExpiryTime(expiryTime),
-      m_MemoryUsage(memoryUsage) {
+    : m_JobId(jobId), m_ForecastId(forecastId), m_Writer(outStream),
+      m_NumRecordsWritten(0), m_CreateTime(createTime), m_StartTime(startTime),
+      m_EndTime(endTime), m_ExpiryTime(expiryTime), m_MemoryUsage(memoryUsage) {
 }
 
 void CForecastDataSink::writeStats(const double progress,

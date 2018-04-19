@@ -63,8 +63,12 @@ private:
 
 class CAtomicAdder : public ml::core::CThread {
 public:
-    CAtomicAdder(uint32_t sleepTime, uint32_t iterations, uint32_t increment, atomic_t::atomic_uint_fast32_t& variable)
-        : m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
+    CAtomicAdder(uint32_t sleepTime,
+                 uint32_t iterations,
+                 uint32_t increment,
+                 atomic_t::atomic_uint_fast32_t& variable)
+        : m_SleepTime(sleepTime), m_Iterations(iterations),
+          m_Increment(increment), m_Variable(variable) {}
 
 protected:
     void run() {
