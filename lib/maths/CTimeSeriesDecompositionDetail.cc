@@ -654,11 +654,12 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
             for (auto i : {E_Short, E_Long}) {
                 m_Windows[i].reset(this->newWindow(i));
                 if (m_Windows[i]) {
-                    // Since all bucket lengths are divisors of longer
-                    // ones this finds the unique rightmost time which
-                    // is an integer multiple of all bucket lengths. It
-                    // is important to align start times so that we try
-                    // the short test first when for shorter periods.
+                    // Since all permitted bucket lengths are divisors
+                    // of longer ones, this finds the unique rightmost
+                    // time which is an integer multiple of all windows'
+                    // bucket lengths. It is important to align start
+                    // times so that we try the short test first when
+                    // testing for shorter periods.
                     time_ = CIntegerTools::floor(time_, m_Windows[i]->bucketLength());
                 }
             }
