@@ -131,7 +131,8 @@ void CReportWriterTest::testPretty() {
     LOG_DEBUG(<< o.str());
 }
 
-void CReportWriterTest::testJSON() {}
+void CReportWriterTest::testJSON() {
+}
 
 CppUnit::Test* CReportWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");

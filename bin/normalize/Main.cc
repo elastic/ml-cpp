@@ -116,9 +116,9 @@ int main(int argc, char** argv) {
             return std::make_unique<ml::api::CCsvOutputWriter>(ioMgr.outputStream());
         }
         return std::make_unique<ml::api::CLineifiedJsonOutputWriter>(
-            ml::api::CLineifiedJsonOutputWriter::TStrSet
-                {ml::api::CResultNormalizer::PROBABILITY_NAME,
-                 ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
+            ml::api::CLineifiedJsonOutputWriter::TStrSet{
+                ml::api::CResultNormalizer::PROBABILITY_NAME,
+                ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
             ioMgr.outputStream());
     }()};
 
