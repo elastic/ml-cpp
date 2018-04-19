@@ -59,6 +59,7 @@ const std::string RESIDUAL_MOMENTS_TAG{"c"};
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
 const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
 const double MAX_CONDITION{1e12};
+const double MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION{0.01};
 const core_t::TTime UNSET_TIME{0};
 }
 
@@ -210,11 +211,16 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
 
     TMeanAccumulator prediction_;
-    {
-        TDoubleVec factors(this->factors(std::abs(time - m_LastUpdate)));
-        for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
-            prediction_.add(m_Models[i].s_Regression.predict(scaledTime, MAX_CONDITION),
-                            factors[i] * CBasicStatistics::mean(m_Models[i].s_Weight));
+
+    TDoubleVec weights(this->factors(std::abs(time - m_LastUpdate)));
+    double Z{0.0};
+    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+        weights[i] *= CBasicStatistics::mean(m_Models[i].s_Weight);
+        Z += weights[i];
+    }
+    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+        if (weights[i] > MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION * Z) {
+            prediction_.add(m_Models[i].s_Regression.predict(scaledTime, MAX_CONDITION), weights[i]);
         }
     }
 
