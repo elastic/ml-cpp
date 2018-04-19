@@ -14,6 +14,7 @@
 # strictly prohibited.
 #
 
+# Ensure $CPP_SRC_HOME is set
 CPP_SRC_HOME=${CPP_SRC_HOME:-`git rev-parse --show-toplevel`}
 
 # Ensure clang-format is available
@@ -26,7 +27,7 @@ fi
 REQUIRED_CLANG_FORMAT_VERSION=5.0.1
 FOUND_CLANG_FORMAT_VERSION=$(expr "`clang-format --version`" : ".* \([0-9].[0-9].[0-9]\)")
 
-if [ -z ${FOUND_CLANG_FORMAT_VERSION} ] ; then
+if [ -z "${FOUND_CLANG_FORMAT_VERSION}" ] ; then
     echo "ERROR: Required clang-format major version ${REQUIRED_CLANG_FORMAT_VERSION} not found."
     echo "       Could not determine clang-format version."
     exit 2
