@@ -28,8 +28,8 @@ public:
     void testSeasonalOnset();
     void testVarianceScale();
     void testSpikeyDataProblemCase();
-    void testDiurnalProblemCase();
-    void testComplexDiurnalProblemCase();
+    void testVeryLargeValuesProblemCase();
+    void testMixedSmoothAndSpikeyDataProblemCase();
     void testDiurnalPeriodicityWithMissingValues();
     void testLongTermTrend();
     void testLongTermTrendAndPeriodicity();
