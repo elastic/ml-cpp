@@ -5,8 +5,6 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-# Reformats Ml native source code, using clang-format,  to ensure consistency.
-
 # Ensure $CPP_SRC_HOME is set
 CPP_SRC_HOME=${CPP_SRC_HOME:-`git rev-parse --show-toplevel`}
 
@@ -32,4 +30,31 @@ if [ "${REQUIRED_CLANG_FORMAT_VERSION}" != "${FOUND_CLANG_FORMAT_VERSION}" ] ; t
     exit 3
 fi
 
-find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -exec clang-format -i {} \;
+FILES=()
+
+if [ "x$1" = "x--all" ] ; then
+    # Batch mode - check everything and only display errors
+    INFILES=`find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -print`
+    for FILE in ${INFILES}; do
+        if ! cmp -s ${FILE} <(clang-format ${FILE}); then
+            FILES+=("${FILE}")
+        fi
+    done
+else
+    # Local mode - check changed files only and report which files are checked
+    INFILES=`git diff --name-only --diff-filter=ACMRT | grep -v 3rd_party | grep -E "\.(cc|h)$"`
+    for FILE in ${INFILES}; do
+        FQFILE=${CPP_SRC_HOME}/${FILE}
+        echo "Checking: ${FILE}"
+        if ! cmp -s ${FQFILE} <(clang-format ${FQFILE}); then
+            FILES+=("${FILE}")
+        fi
+    done
+fi
+
+if [ -n "${FILES}" ] ; then
+    echo "A format error has been detected within the following files:"
+    printf "%s\n" "${FILES[@]}"
+    exit 4
+fi
+
