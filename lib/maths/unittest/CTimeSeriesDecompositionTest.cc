@@ -20,6 +20,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CTimeZone.h>
 #include <core/Constants.h>
 
 #include <maths/CDecayRateController.h>
@@ -2322,4 +2323,13 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
         "CTimeSeriesDecompositionTest::testUpgrade", &CTimeSeriesDecompositionTest::testUpgrade));
 
     return suiteOfTests;
+}
+
+void CTimeSeriesDecompositionTest::setUp() {
+    m_TimeZone = core::CTimezone::instance().timezoneName();
+    core::CTimezone::instance().setTimezone("GMT");
+}
+
+void CTimeSeriesDecompositionTest::tearDown() {
+    core::CTimezone::instance().setTimezone("m_TimeZone");
 }
