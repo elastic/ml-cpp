@@ -510,7 +510,8 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
     }
 }
 
-void CRandomProjectionClustererTest::testAccuracy() {}
+void CRandomProjectionClustererTest::testAccuracy() {
+}
 
 CppUnit::Test* CRandomProjectionClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");
