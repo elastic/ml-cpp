@@ -1073,12 +1073,8 @@ private:
             return result;
         }
 
-            //! Update the statistics with \p x.
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-        __attribute__((__noinline__))
-#endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-        bool
-        add(const T& x) {
+        //! Update the statistics with \p x.
+        bool add(const T& x) {
             if (m_UnusedCount > 0) {
                 m_Statistics[--m_UnusedCount] = x;
 
