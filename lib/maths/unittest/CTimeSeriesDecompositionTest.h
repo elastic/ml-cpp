@@ -44,9 +44,6 @@ public:
     static CppUnit::Test* suite();
     virtual void setUp();
     virtual void tearDown();
-
-private:
-    std::string m_TimeZone;
 };
 
 #endif // INCLUDED_CTimeSeriesDecompositionTest_h

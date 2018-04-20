@@ -2328,10 +2328,9 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
 }
 
 void CTimeSeriesDecompositionTest::setUp() {
-    m_TimeZone = core::CTimezone::instance().timezoneName();
     core::CTimezone::instance().setTimezone("GMT");
 }
 
 void CTimeSeriesDecompositionTest::tearDown() {
-    core::CTimezone::instance().setTimezone("m_TimeZone");
+    core::CTimezone::instance().setTimezone("");
 }
