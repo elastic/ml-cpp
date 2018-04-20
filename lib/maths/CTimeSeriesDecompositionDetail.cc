@@ -647,16 +647,28 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
             for (auto i : {E_Short, E_Long}) {
                 m_Windows[i].reset(this->newWindow(i));
                 if (m_Windows[i]) {
-                    m_Windows[i]->initialize(time_);
+                    // Since all permitted bucket lengths are divisors
+                    // of longer ones, this finds the unique rightmost
+                    // time which is an integer multiple of all windows'
+                    // bucket lengths. It is important to align start
+                    // times so that we try the short test first when
+                    // testing for shorter periods.
+                    time_ = CIntegerTools::floor(time_, m_Windows[i]->bucketLength());
+                }
+            }
+            for (auto& window : m_Windows) {
+                if (window) {
+                    window->initialize(time_);
                 }
             }
         };
 
         switch (state) {
         case PT_TEST:
-            if (std::all_of(
-                    m_Windows.begin(), m_Windows.end(),
-                    [](const TExpandingWindowPtr& window) { return !window; })) {
+            if (std::all_of(m_Windows.begin(), m_Windows.end(),
+                            [](const TExpandingWindowPtr& window) {
+                                return window == nullptr;
+                            })) {
                 initialize(time);
             }
             break;
@@ -691,6 +703,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandi
         }
         return false;
     };
+
     return window && (window->needToCompress(time) || shouldTest(window));
 }
 
