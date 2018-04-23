@@ -31,18 +31,18 @@ You will need to fork the repository and clone it to your local machine. See the
 
 Once your changes and tests are ready to submit for review:
 1.  Test your changes
-2.  Run the test suite to make sure that nothing is broken. See the TESTING file for help running tests.
-3.  Please make sure you have signed our Contributor License Agreement. 
+2.  Run the test suite to make sure that nothing is broken. See below for help running tests.
+3.  Please make sure you have signed our [Contributor License Agreement](https://www.elastic.co/contributor-agreement). 
     1.  We are not asking you to assign copyright to us, but to give us the right to distribute your code without restriction. We ask this of all contributors in order to assure our users of the origin and continuing existence of the code. You only need to sign the CLA once.
     2.  If you provide any data samples as part of unit tests or otherwise, then please make sure these do not contain confidential information. If data is subject to any license terms please ensure this attribution is clearly stated. 
 4.  Rebase your changes
 5.  Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
 6.  Submit a pull request
-7.  Push your local changes to your forked copy of the repository and submit a pull request. In the pull request, choose a title which sums up the changes that you have made, and in the body provide more details about what your changes do. Also mention the number of the issue where discussion has taken place, eg "Closes #123".
+7.  Push your local changes to your forked copy of the repository and [submit a pull request](https://help.github.com/articles/about-pull-requests/). In the pull request, choose a title which sums up the changes that you have made, and in the body provide more details about what your changes do. Also mention the number of the issue where discussion has taken place, eg `Closes #123`.
 
-Then sit back and wait. There will probably be discussion about the pull request and, if any changes are needed, we would love to work with you to get your pull request merged into ....
+Then sit back and wait. There will probably be discussion about the pull request and, if any changes are needed, we would love to work with you to get your pull request merged into ml-cpp.
 
-Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from master, you can merge master into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is integrated via GitHub.
+Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from master, you can merge master into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is [integrated via GitHub](https://blog.github.com/2016-04-01-squash-your-commits/).
 
 ## Working with the ml-cpp codebase
 **Repository**: https://github.com/elastic/ml-cpp
@@ -50,5 +50,5 @@ Please adhere to the general guideline that you should never force push to a pub
 1.  Set up a build machine by following the instructions in the build-setup directory
 2.  Do your changes. 
 3.  If you change code, follow the existing coding style.
-4.  Write a test, unit tests are located under lib/{module}/unittest
+4.  Write a test, unit tests are located under `lib/{module}/unittest`
 5.  Test your changes (`make test`)
