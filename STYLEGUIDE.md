@@ -173,7 +173,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 1.  Error conditions SHOULD always be returned early
 1.  The declaration of all variables SHOULD be given the minimal possible scope
 1.  Return codes SHOULD preserve the abstraction and encapsulation of the class - functions should not return an error specific to the internal implementation
-1.  assert() MUST NOT be used
+1.  `assert()` MUST NOT be used
 1.  C-style casts MUST NOT be used
 1.  Macros SHOULD NOT be used
 1.  Objects and references SHOULD be used in preference to pointers
@@ -189,8 +189,8 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
   Const pointer (not pointer to const object) | Calling function
   Reference                                   | Calling function
   Const reference                             | Calling function
-
-1.  Explicit integer definitions, specifying size, SHOULD be used
+  
+19.  Explicit integer definitions, specifying size, SHOULD be used
 1.  Member functions MUST be scoped with `this->` when called
 1.  Floating point variables SHOULD be double
 1.  Lambdas SHOULD be used in preference to any form of  `bind`
@@ -224,7 +224,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 ## Documentation
 
 1.  Source code MUST be readable. This is of primary importance
-1.  `Doxygen` MUST be used to comment all source files
+1.  Doxygen MUST be used to comment all source files
 1.  Header files MUST be commented for Doxygen in standard format.
     The following MUST be included for all top-level classes:
     1.  Brief summary
@@ -253,9 +253,9 @@ The CPPUNIT framework is used for testing the Elastic Machine Learning C++ code.
 
 1.  The number of lines in a method SHOULD be kept to a minimum
 1.  C++ functions SHOULD be used in preference to C
-1.  reinterpret_cast MUST only be used when interfacing with 3<sup>rd</sup> party code
-1.  dynamic_cast SHOULD be used judiciously
-1.  const_cast SHOULD be used judiciously
+1.  `reinterpret_cast` MUST only be used when interfacing with 3<sup>rd</sup> party code
+1.  `dynamic_cast` SHOULD be used judiciously
+1.  `const_cast` SHOULD be used judiciously
 1.  Classes SHOULD NOT inherit from more than one base class
 1.  All code SHOULD compile with no warnings
 1.  Overloaded function parameters SHOULD NOT be implicitly convertible
