@@ -47,7 +47,7 @@ Please adhere to the general guideline that you should never force push to a pub
 ## Working with the ml-cpp codebase
 **Repository**: https://github.com/elastic/ml-cpp
 
-1.  Set up a build machine by following the instructions in the build-setup directory
+1.  Set up a build machine by following the instructions in the [build-setup](build-setup) directory
 2.  Do your changes. 
 3.  If you change code, follow the existing coding style.
 4.  Write a test, unit tests are located under `lib/{module}/unittest`
