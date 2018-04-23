@@ -59,8 +59,8 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_BucketSpan(bucketSpan), s_FunctionName(functionName),
       s_FunctionDescription(functionDescription),
       s_FunctionValue(functionValue), s_PopulationAverage(populationAverage),
-      s_BaselineRate(0.0), s_CurrentRate(currentRate), s_BaselineMean(0.0),
-      s_CurrentMean(0.0), s_RawAnomalyScore(rawAnomalyScore),
+      s_BaselineRate(0.0), s_CurrentRate(currentRate), s_BaselineMean{0.0},
+      s_CurrentMean{0.0}, s_RawAnomalyScore(rawAnomalyScore),
       s_NormalizedAnomalyScore(normalizedAnomalyScore), s_Probability(probability),
       s_Influences(influences), s_Identifier(identifier) {
 }
@@ -99,7 +99,7 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_OverFieldValue(EMPTY_STRING), s_MetricValueField(metricValueField),
       s_BucketStartTime(bucketStartTime), s_BucketSpan(bucketSpan),
       s_FunctionName(functionName), s_FunctionDescription(functionDescription),
-      s_FunctionValue(0.0), s_PopulationAverage(0.0), s_BaselineRate(baselineRate),
+      s_FunctionValue{0.0}, s_PopulationAverage{0.0}, s_BaselineRate(baselineRate),
       s_CurrentRate(currentRate), s_BaselineMean(baselineMean),
       s_CurrentMean(currentMean), s_RawAnomalyScore(rawAnomalyScore),
       s_NormalizedAnomalyScore(normalizedAnomalyScore), s_Probability(probability),
