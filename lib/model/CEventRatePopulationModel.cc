@@ -366,7 +366,6 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
-            std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(<< model_t::print(feature) << ": "
