@@ -324,10 +324,6 @@ void CRegressionTest::testShiftGradient() {
 }
 
 void CRegressionTest::testLinearScale() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testLinearScale  |");
-    LOG_DEBUG("+------------------------------------+");
-
     // Test that linearly scaling a regression linearly
     // scales all the parameters.
 

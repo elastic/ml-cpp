@@ -11,6 +11,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CTimezone.h>
 #include <core/Constants.h>
 
 #include <maths/CDecayRateController.h>
@@ -1065,7 +1066,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
     CPPUNIT_ASSERT(pMinScaled > 1e11 * pMinUnscaled);
 }
 
-void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
+void CTimeSeriesDecompositionTest::testVeryLargeValuesProblemCase() {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1151,9 +1152,9 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.27 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.72 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.16 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.32 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.70 * totalMaxValue);
+    CPPUNIT_ASSERT(totalPercentileError < 0.21 * totalSumValue);
 
     //file << "hold on;\n";
     //file << "t = " << core::CContainerPrinter::print(times) << ";\n";
@@ -1175,7 +1176,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(scale), 0.07);
 }
 
-void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
+void CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase() {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1265,9 +1266,9 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.18 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.42 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.08 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.38 * totalMaxValue);
+    CPPUNIT_ASSERT(totalPercentileError < 0.07 * totalSumValue);
 
     //file << "hold on;\n";
     //file << "t = " << core::CContainerPrinter::print(times) << ";\n";
@@ -1282,7 +1283,8 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
 void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "Daily Periodic") {
+    LOG_DEBUG(<< "Daily Periodic");
+    {
         //std::ofstream file;
         //file.open("results.m");
         //TDoubleVec times;
@@ -1328,7 +1330,8 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
         //file << "plot(t(1:length(fe)), fe);\n";
     }
 
-    LOG_DEBUG(<< "Weekly") {
+    LOG_DEBUG(<< "Weekly Periodic");
+    {
         //std::ofstream file;
         //file.open("results.m");
         //TDoubleVec times;
@@ -2254,11 +2257,11 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
         "CTimeSeriesDecompositionTest::testSpikeyDataProblemCase",
         &CTimeSeriesDecompositionTest::testSpikeyDataProblemCase));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-        "CTimeSeriesDecompositionTest::testDiurnalProblemCase",
-        &CTimeSeriesDecompositionTest::testDiurnalProblemCase));
+        "CTimeSeriesDecompositionTest::testVeryLargeValuesProblemCase",
+        &CTimeSeriesDecompositionTest::testVeryLargeValuesProblemCase));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-        "CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase",
-        &CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase));
+        "CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase",
+        &CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues",
         &CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues));
@@ -2287,4 +2290,12 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
         "CTimeSeriesDecompositionTest::testUpgrade", &CTimeSeriesDecompositionTest::testUpgrade));
 
     return suiteOfTests;
+}
+
+void CTimeSeriesDecompositionTest::setUp() {
+    core::CTimezone::instance().setTimezone("GMT");
+}
+
+void CTimeSeriesDecompositionTest::tearDown() {
+    core::CTimezone::instance().setTimezone("");
 }
