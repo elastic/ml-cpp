@@ -50,10 +50,6 @@ bool closerToX(const TBoundingBox4& bb, const TVector4& x, const TVector4& y) {
 }
 
 void CBoundingBoxTest::testAdd() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CBoundingBoxTest::testAdd  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     double points[][2] = {{-1.0, 5.0}, {2.0, 20.0}, {10.0, 4.0}, {-10.0, -3.0}, {200.0, 50.0}};
 
     TBoundingBox2 bb(TVector2(&points[0][0], &points[0][0] + 2));
@@ -99,10 +95,6 @@ void CBoundingBoxTest::testAdd() {
 }
 
 void CBoundingBoxTest::testCloserTo() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CBoundingBoxTest::testCloserTo  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     const std::size_t n = 1000;
 
     test::CRandomNumbers rng;
@@ -120,7 +112,7 @@ void CBoundingBoxTest::testCloserTo() {
         TBoundingBox2 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j < probes.size(); j += 4) {
+        for (std::size_t j = 0u; j + 4 <= probes.size(); j += 4) {
             TVector2 y1(&probes[j], &probes[j + 2]);
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
@@ -145,7 +137,7 @@ void CBoundingBoxTest::testCloserTo() {
         TBoundingBox4 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j < probes.size(); j += 4) {
+        for (std::size_t j = 0u; j + 8 <= probes.size(); j += 4) {
             TVector4 y1(&probes[j], &probes[j + 4]);
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);

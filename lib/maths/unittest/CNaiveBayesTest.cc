@@ -19,10 +19,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/normal.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <cmath>
+#include <memory>
 
 using namespace ml;
 
@@ -35,10 +34,6 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 void CNaiveBayesTest::testClassification() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CNaiveBayesTest::testClassification  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // We'll test classification using Gaussian naive Bayes. We
     // test:
     //   - We get the probabilities we expect using if the underlying
@@ -175,10 +170,6 @@ void CNaiveBayesTest::testClassification() {
 }
 
 void CNaiveBayesTest::testPropagationByTime() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CNaiveBayesTest::testPropagationByTime  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     // Make feature distributions drift over time and verify that
     // the classifier adapts.
 
@@ -240,14 +231,10 @@ void CNaiveBayesTest::testPropagationByTime() {
 }
 
 void CNaiveBayesTest::testMemoryUsage() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CNaiveBayesTest::testMemoryUsage  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     // Check invariants.
 
-    using TMemoryUsagePtr = boost::scoped_ptr<core::CMemoryUsage>;
-    using TNaiveBayesPtr = boost::shared_ptr<maths::CNaiveBayes>;
+    using TMemoryUsagePtr = std::unique_ptr<core::CMemoryUsage>;
+    using TNaiveBayesPtr = std::shared_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
 
@@ -284,10 +271,6 @@ void CNaiveBayesTest::testMemoryUsage() {
 }
 
 void CNaiveBayesTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------+");
-    LOG_DEBUG(<< "|  CNaiveBayesTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec trainingData[4];

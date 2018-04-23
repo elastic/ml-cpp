@@ -46,8 +46,6 @@ namespace maths {
 namespace {
 
 using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TSizeVec = std::vector<std::size_t>;
 using TTuple = CNaturalBreaksClassifier::TTuple;
@@ -91,7 +89,7 @@ maths_t::EFloatingPointErrorStatus logLikelihoodFromCluster(double point,
     double likelihood;
 
     maths_t::EFloatingPointErrorStatus status = normal.jointLogMarginalLikelihood(
-        CConstantWeights::COUNT, {point}, CConstantWeights::SINGLE_UNIT, likelihood);
+        {point}, maths_t::CUnitWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed) {
         LOG_ERROR(<< "Unable to compute likelihood for: " << point);
         return status;
@@ -189,6 +187,7 @@ void BICGain(maths_t::EDataType dataType,
              double& distance,
              double& nl,
              double& nr) {
+
     // The basic idea is to compute the difference between the
     // Bayes Information Content (BIC) for one and two clusters
     // for the sketch defined by the categories passed to this
@@ -407,6 +406,7 @@ void BICGain(maths_t::EDataType dataType,
 //! \param[in] interval The Winsorisation interval.
 //! \param[in,out] category The category to Winsorise.
 void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
+
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
@@ -477,6 +477,7 @@ bool splitSearch(double minimumCount,
                  double smallest,
                  const TTupleVec& categories,
                  TSizeVec& result) {
+
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     LOG_TRACE(<< "begin split search");
@@ -539,11 +540,11 @@ bool splitSearch(double minimumCount,
         if (!satisfiesCount) {
             // Recurse to the (one) node with sufficient count.
             if (nl > minimumCount && candidate[0] - node.first > 1) {
-                node = std::make_pair(node.first, candidate[0]);
+                node = {node.first, candidate[0]};
                 continue;
             }
             if (nr > minimumCount && node.second - candidate[0] > 1) {
-                node = std::make_pair(candidate[0], node.second);
+                node = {candidate[0], node.second};
                 continue;
             }
         } else if (satisfiesDistance) {
@@ -794,6 +795,7 @@ bool CXMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
 }
 
 void CXMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, double count) const {
+
     result.clear();
 
     if (m_Clusters.empty()) {
@@ -801,8 +803,8 @@ void CXMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
         return;
     }
 
-    TClusterVecCItr rightCluster = std::lower_bound(
-        m_Clusters.begin(), m_Clusters.end(), point, detail::SClusterCentreLess());
+    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(),
+                                         point, detail::SClusterCentreLess());
 
     if (rightCluster == m_Clusters.end()) {
         --rightCluster;
@@ -830,7 +832,7 @@ void CXMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
         // also that we do not want to soft assign the point to a
         // cluster if its probability is close to zero.
 
-        TClusterVecCItr leftCluster = rightCluster;
+        auto leftCluster = rightCluster;
         --leftCluster;
         double likelihoodLeft = leftCluster->logLikelihoodFromCluster(m_WeightCalc, point);
         double likelihoodRight = rightCluster->logLikelihoodFromCluster(m_WeightCalc, point);
@@ -854,14 +856,15 @@ void CXMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
 }
 
 void CXMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, double count) {
+
     m_HistoryLength += 1.0;
     m_Smallest.add(point);
     m_Largest.add(point);
 
     clusters.clear();
 
-    TClusterVecItr rightCluster = std::lower_bound(
-        m_Clusters.begin(), m_Clusters.end(), point, detail::SClusterCentreLess());
+    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(),
+                                         point, detail::SClusterCentreLess());
 
     if (rightCluster == m_Clusters.end()) {
         --rightCluster;
@@ -871,7 +874,7 @@ void CXMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
         if (this->maybeSplit(rightCluster)) {
             this->cluster(point, clusters, count);
         } else if (rightCluster != m_Clusters.begin()) {
-            TClusterVecItr leftCluster = rightCluster;
+            auto leftCluster = rightCluster;
             --leftCluster;
             if (this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
@@ -884,7 +887,7 @@ void CXMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
         if (this->maybeSplit(rightCluster)) {
             this->cluster(point, clusters, count);
         } else {
-            TClusterVecItr leftCluster = rightCluster;
+            auto leftCluster = rightCluster;
             ++rightCluster;
             if (this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
@@ -893,7 +896,7 @@ void CXMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
     } else {
         // See the cluster member function for more details on
         // soft assignment.
-        TClusterVecItr leftCluster = rightCluster;
+        auto leftCluster = rightCluster;
         --leftCluster;
         double likelihoodLeft = leftCluster->logLikelihoodFromCluster(m_WeightCalc, point);
         double likelihoodRight = rightCluster->logLikelihoodFromCluster(m_WeightCalc, point);
@@ -1025,6 +1028,7 @@ const CXMeansOnline1d::TClusterVec& CXMeansOnline1d::clusters() const {
 }
 
 std::string CXMeansOnline1d::printClusters() const {
+
     if (m_Clusters.empty()) {
         return std::string();
     }
@@ -1052,10 +1056,7 @@ std::string CXMeansOnline1d::printClusters() const {
         weightSum += m_Clusters[i].weight(m_WeightCalc);
     }
 
-    static const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-    static const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
-
-    TDouble1Vec x(1, range.first);
+    TDouble1Vec x{range.first};
     double increment = (range.second - range.first) / (POINTS - 1.0);
 
     std::ostringstream coordinatesStr;
@@ -1067,7 +1068,7 @@ std::string CXMeansOnline1d::printClusters() const {
         for (std::size_t j = 0u; j < m_Clusters.size(); ++j) {
             double logLikelihood;
             const CPrior& prior = m_Clusters[j].prior();
-            if (!(prior.jointLogMarginalLikelihood(COUNT_WEIGHT, x, UNIT_WEIGHT, logLikelihood) &
+            if (!(prior.jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT, logLikelihood) &
                   (maths_t::E_FpFailed | maths_t::E_FpOverflowed))) {
                 likelihood += m_Clusters[j].weight(m_WeightCalc) / weightSum *
                               std::exp(logLikelihood);
@@ -1144,6 +1145,7 @@ double CXMeansOnline1d::minimumSplitCount() const {
 }
 
 bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster) {
+
     if (cluster == m_Clusters.end()) {
         return false;
     }
@@ -1165,6 +1167,7 @@ bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster) {
 }
 
 bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1, TClusterVecItr cluster2) {
+
     if (cluster1 == m_Clusters.end() || cluster2 == m_Clusters.end()) {
         return false;
     }
@@ -1187,6 +1190,7 @@ bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1, TClusterVecItr cluster
 }
 
 bool CXMeansOnline1d::prune() {
+
     if (m_Clusters.size() <= 1) {
         return false;
     }
@@ -1216,13 +1220,14 @@ bool CXMeansOnline1d::prune() {
 }
 
 TDoubleDoublePr CXMeansOnline1d::winsorisationInterval() const {
+
     double f = (1.0 - m_WinsorisationConfidenceInterval) / 2.0;
 
     if (f * this->count() < 1.0) {
         // Don't bother if we don't expect a sample outside the
         // Winsorisation interval.
-        return std::make_pair(boost::numeric::bounds<double>::lowest() / 2.0,
-                              boost::numeric::bounds<double>::highest() / 2.0);
+        return {boost::numeric::bounds<double>::lowest() / 2.0,
+                boost::numeric::bounds<double>::highest() / 2.0};
     }
 
     // The Winsorisation interval are the positions corresponding
@@ -1305,8 +1310,7 @@ void CXMeansOnline1d::CCluster::dataType(maths_t::EDataType dataType) {
 }
 
 void CXMeansOnline1d::CCluster::add(double point, double count) {
-    m_Prior.addSamples(CConstantWeights::COUNT, TDouble1Vec(1, point),
-                       TDouble4Vec1Vec(1, TDouble4Vec(1, count)));
+    m_Prior.addSamples({point}, {maths_t::countWeight(count)});
     m_Structure.add(point, count);
 }
 
@@ -1373,6 +1377,7 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
                                  double smallest,
                                  const TDoubleDoublePr& interval,
                                  CIndexGenerator& indexGenerator) {
+
     // We do our clustering top down to minimize space and avoid
     // making splits before we are confident they exist. This is
     // important for anomaly detection because we do *not* want
@@ -1437,6 +1442,7 @@ bool CXMeansOnline1d::CCluster::shouldMerge(CCluster& other,
                                             CAvailableModeDistributions distributions,
                                             double smallest,
                                             const TDoubleDoublePr& interval) {
+
     if (m_Structure.buffering() || m_Structure.size() == 0 ||
         other.m_Structure.size() == 0) {
         return false;
@@ -1469,6 +1475,7 @@ bool CXMeansOnline1d::CCluster::shouldMerge(CCluster& other,
 
 CXMeansOnline1d::CCluster
 CXMeansOnline1d::CCluster::merge(CCluster& other, CIndexGenerator& indexGenerator) {
+
     TTupleVec left, right;
     m_Structure.categories(1, 0, left);
     other.m_Structure.categories(1, 0, right);

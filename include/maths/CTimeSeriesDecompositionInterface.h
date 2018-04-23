@@ -11,7 +11,6 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/Constants.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -36,8 +35,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface {
 public:
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
-    using TDoubleAry = boost::array<double, 2>;
-    using TWeights = CConstantWeights;
+    using TWeights = maths_t::CUnitWeights;
     using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
 
     //! The components of the decomposition.
@@ -75,9 +73,6 @@ public:
     //!
     //! \param[in] time The time of the function point.
     //! \param[in] value The function value at \p time.
-    //! \param[in] weightStyles The styles of \p weights. Both the
-    //! count and the Winsorisation weight styles have an effect.
-    //! See maths_t::ESampleWeightStyle for more details.
     //! \param[in] weights The weights of \p value. The smaller
     //! the product count weight the less influence \p value has
     //! on the trend and it's local variance.
@@ -85,8 +80,7 @@ public:
     //! and false otherwise.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec& weights = TWeights::UNIT) = 0;
+                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT) = 0;
 
     //! Apply \p change at \p time.
     //!

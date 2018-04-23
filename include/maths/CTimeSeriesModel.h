@@ -47,9 +47,9 @@ double tailWinsorisationWeight(const CMultivariatePrior& prior,
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
-    using TDouble4Vec = core::CSmallVector<double, 4>;
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
+    using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
@@ -105,19 +105,15 @@ public:
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec mode(core_t::TTime time,
-                             const maths_t::TWeightStyleVec& weightStyles,
-                             const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const;
 
     //! Get the most likely value for each correlate time series
     //! at \p time, if there are any.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const TDouble2VecWeightsAry1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const TDouble2VecWeightsAry& weights) const;
 
     //! Remove any trend components from \p value.
     virtual void detrend(const TTime2Vec1Vec& time,
@@ -133,8 +129,7 @@ public:
     //! confidence interval for the time series at \p time.
     virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
                                                double confidenceInterval,
-                                               const maths_t::TWeightStyleVec& weightStyles,
-                                               const TDouble2Vec4Vec& weights) const;
+                                               const TDouble2VecWeightsAry& weights) const;
 
     //! Forecast the time series and get its \p confidenceInterval
     //! percentage confidence interval between \p startTime and
@@ -185,7 +180,7 @@ public:
     //! \name Helpers
     //@{
     //! Unpack the weights in \p weights.
-    static TDouble4Vec unpack(const TDouble2Vec4Vec& weights);
+    static TDoubleWeightsAry unpack(const TDouble2VecWeightsAry& weights);
 
     //! Reinitialize \p residualModel using the detrended values
     //! from \p slidingWindow.
@@ -211,7 +206,7 @@ private:
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
@@ -237,9 +232,8 @@ private:
     EUpdateResult applyChange(const SChangeDescription& change);
 
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const maths_t::TWeightStyleVec& trendStyles,
-                              const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2Vec4VecVec& trendWeights);
+    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
+                              const TDouble2VecWeightsAryVec& trendWeights);
 
     //! Compute the prediction errors for \p sample.
     void appendPredictionErrors(double interval, double sample, TDouble1VecVec (&result)[2]);
@@ -344,8 +338,7 @@ public:
     using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble2Vec = core::CSmallVector<double, 2>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+    using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
     using TSize2Vec = core::CSmallVector<std::size_t, 2>;
@@ -370,7 +363,7 @@ public:
         //! The tags for each sample.
         TSize1Vec s_Tags;
         //! The sample weights.
-        TDouble4Vec1Vec s_Weights;
+        TDoubleWeightsAry1Vec s_Weights;
         //! The interval by which to age the correlation model.
         double s_Interval;
         //! The decay rate multiplier.
@@ -394,7 +387,7 @@ public:
     //!
     //! \note This should be called exactly once after every univariate
     //! time series model has added its samples.
-    void processSamples(const maths_t::TWeightStyleVec& weightStyles);
+    void processSamples();
 
     //! Refresh the models to account for any changes to the correlation
     //! estimates.
@@ -505,9 +498,9 @@ private:
 class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
-    using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
     using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
     using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
+    using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
@@ -562,18 +555,14 @@ public:
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec mode(core_t::TTime time,
-                             const maths_t::TWeightStyleVec& weightStyles,
-                             const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const TDouble2VecWeightsAry1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const TDouble2VecWeightsAry& weights) const;
 
     //! Remove any trend components from \p value.
     virtual void detrend(const TTime2Vec1Vec& time,
@@ -589,8 +578,7 @@ public:
     //! confidence interval for the time series at \p time.
     virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
                                                double confidenceInterval,
-                                               const maths_t::TWeightStyleVec& weightStyles,
-                                               const TDouble2Vec4Vec& weights) const;
+                                               const TDouble2VecWeightsAry& weights) const;
 
     //! Not currently supported.
     virtual bool forecast(core_t::TTime startTime,
@@ -639,7 +627,7 @@ public:
     //! \name Helpers
     //@{
     //! Unpack the weights in \p weights.
-    static TDouble10Vec4Vec unpack(const TDouble2Vec4Vec& weights);
+    static TDouble10VecWeightsAry unpack(const TDouble2VecWeightsAry& weights);
 
     //! Reinitialize \p residualModel using the detrended values
     //! from \p slidingWindow.
@@ -664,7 +652,7 @@ public:
 private:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
@@ -673,9 +661,8 @@ private:
 
 private:
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const maths_t::TWeightStyleVec& trendStyles,
-                              const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2Vec4VecVec& trendWeights);
+    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
+                              const TDouble2VecWeightsAryVec& trendWeights);
 
     //! Compute the prediction errors for \p sample.
     void appendPredictionErrors(double interval,

@@ -19,8 +19,6 @@ using TDoubleRng = core::CVectorRange<TDoubleVec>;
 using TDoubleCRng = core::CVectorRange<const TDoubleVec>;
 
 void CVectorRangeTest::testCreation() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testCreation ***");
-
     {
         TDoubleVec values1{1.0, 0.1, 0.7, 9.8};
         TDoubleVec values2{3.1, 1.4, 5.7, 1.2};
@@ -56,8 +54,6 @@ void CVectorRangeTest::testCreation() {
 }
 
 void CVectorRangeTest::testAccessors() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testAccessors ***");
-
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
     TDoubleRng range14{values, 1, 4};
@@ -89,8 +85,6 @@ void CVectorRangeTest::testAccessors() {
 }
 
 void CVectorRangeTest::testIterators() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testIterators ***");
-
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
     TDoubleRng range14{values, 1, 4};
@@ -115,8 +109,6 @@ void CVectorRangeTest::testIterators() {
 }
 
 void CVectorRangeTest::testSizing() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testSizing ***");
-
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
     TDoubleRng range11{values, 1, 1};
@@ -140,8 +132,6 @@ void CVectorRangeTest::testSizing() {
 }
 
 void CVectorRangeTest::testModifiers() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testModifiers ***");
-
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
     TDoubleVec values2{2.0, 3.5, 8.1, 1.8};
 
@@ -222,8 +212,6 @@ void CVectorRangeTest::testModifiers() {
 }
 
 void CVectorRangeTest::testComparisons() {
-    LOG_DEBUG(<< "*** CVectorRangeTest::testComparisons ***");
-
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
     TDoubleVec values2{1.2, 0.1, 0.7, 9.8, 18.0};
 

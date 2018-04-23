@@ -37,10 +37,6 @@ std::string printBits(uint64_t x) {
 }
 
 void CIntegerToolsTest::testNextPow2() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testNextPow2  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
 
     test::CRandomNumbers rng;
@@ -62,10 +58,6 @@ void CIntegerToolsTest::testNextPow2() {
 }
 
 void CIntegerToolsTest::testReverseBits() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testReverseBits  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TSizeVec values;
@@ -88,10 +80,6 @@ void CIntegerToolsTest::testReverseBits() {
 }
 
 void CIntegerToolsTest::testGcd() {
-    LOG_DEBUG(<< "+------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testGcd  |");
-    LOG_DEBUG(<< "+------------------------------+");
-
     // Construct a set of integers out of prime factors so we know
     // what the g.c.d. should be.
 
@@ -188,10 +176,6 @@ void CIntegerToolsTest::testGcd() {
 }
 
 void CIntegerToolsTest::testBinomial() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testBinomial  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     unsigned int n[] = {1u, 2u, 5u, 7u, 10u};
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {

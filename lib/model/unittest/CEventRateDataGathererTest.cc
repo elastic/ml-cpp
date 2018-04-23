@@ -292,8 +292,6 @@ void importCsvData(CDataGatherer& gatherer,
 } // namespace
 
 void CEventRateDataGathererTest::testLatencyPersist() {
-    LOG_DEBUG(<< "*** testLatencyPersist ***");
-
     core_t::TTime bucketLength = 3600;
     core_t::TTime latency = 5 * bucketLength;
     core_t::TTime startTime = 1420192800;
@@ -720,8 +718,6 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
 }
 
 void CEventRateDataGathererTest::testRemovePeople() {
-    LOG_DEBUG(<< "*** testRemovePeople ***");
-
     // Test various combinations of removed people.
 
     const core_t::TTime startTime = 0;
@@ -1297,8 +1293,6 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
 }
 
 void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored() {
-    LOG_DEBUG(<< "*** testArrivalBeforeLatencyWindowIsIgnored ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1340,8 +1334,6 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored() {
 }
 
 void CEventRateDataGathererTest::testResetBucketGivenSingleSeries() {
-    LOG_DEBUG(<< "*** testResetBucketGivenSingleSeries ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1398,8 +1390,6 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries() {
 }
 
 void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries() {
-    LOG_DEBUG(<< "*** testResetBucketGivenMultipleSeries ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1460,8 +1450,6 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries() {
 }
 
 void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable() {
-    LOG_DEBUG(<< "*** testResetBucketGivenBucketNotAvailable ***");
-
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(1);
@@ -1865,7 +1853,6 @@ void CEventRateDataGathererTest::testDistinctStrings() {
 }
 
 void CEventRateDataGathererTest::testDiurnalFeatures() {
-    LOG_DEBUG(<< "*** testDiurnalFeatures ***");
     const std::string person("p");
     const std::string attribute("a");
     const std::string emptyString("");

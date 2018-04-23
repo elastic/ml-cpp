@@ -116,10 +116,6 @@ double mean(const TDoubleDoublePr& x) {
 }
 
 void CSeasonalComponentTest::testNoPeriodicity() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testNoPeriodicity  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     const core_t::TTime startTime = 1354492800;
 
     TTimeDoublePrVec function;
@@ -212,10 +208,6 @@ void CSeasonalComponentTest::testNoPeriodicity() {
 }
 
 void CSeasonalComponentTest::testConstantPeriodic() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testConstantPeriodic  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     const core_t::TTime startTime = 1354492800;
 
     test::CRandomNumbers rng;
@@ -432,10 +424,6 @@ void CSeasonalComponentTest::testConstantPeriodic() {
 }
 
 void CSeasonalComponentTest::testTimeVaryingPeriodic() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testTimeVaryingPeriodic  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Test a signal with periodicity which changes slowly
     // over time.
 
@@ -557,10 +545,6 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic() {
 }
 
 void CSeasonalComponentTest::testVeryLowVariation() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testVeryLowVariation  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // Test we very accurately fit low variation data.
 
     const core_t::TTime startTime = 1354492800;
@@ -655,10 +639,6 @@ void CSeasonalComponentTest::testVeryLowVariation() {
 }
 
 void CSeasonalComponentTest::testVariance() {
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testVariance  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Check that we estimate a periodic variance.
@@ -704,10 +684,6 @@ void CSeasonalComponentTest::testVariance() {
 }
 
 void CSeasonalComponentTest::testPersist() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentTest::testPersist  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // Check that persistence is idempotent.
 
     const core_t::TTime startTime = 1354492800;

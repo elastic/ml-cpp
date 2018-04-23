@@ -65,11 +65,9 @@ struct MATHS_EXPORT SChangeDescription {
 //! good explanation of the recent behaviour.
 class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector {
 public:
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
-    using TWeightStyleVec = maths_t::TWeightStyleVec;
+    using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
@@ -100,9 +98,7 @@ public:
     double decisionFunction(std::size_t& change) const;
 
     //! Add \p samples to the change detector.
-    void addSamples(const TWeightStyleVec& weightStyles,
-                    const TTimeDoublePr1Vec& samples,
-                    const TDouble4Vec1Vec& weights);
+    void addSamples(const TTimeDoublePr1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
     //! Check if we should stop testing.
     bool stopTesting() const;
@@ -153,11 +149,9 @@ namespace time_series_change_detector_detail {
 class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
-    using TWeightStyleVec = maths_t::TWeightStyleVec;
+    using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
@@ -184,9 +178,8 @@ public:
 
     //! Update the change model with \p samples.
     virtual void addSamples(const std::size_t count,
-                            TWeightStyleVec weightStyles,
                             const TTimeDoublePr1Vec& samples,
-                            TDouble4Vec1Vec weights) = 0;
+                            TDoubleWeightsAry1Vec weights) = 0;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -212,13 +205,10 @@ protected:
     double expectedLogLikelihood() const;
 
     //! Update the log-likelihood with \p samples.
-    void updateLogLikelihood(const TWeightStyleVec& weightStyles,
-                             const TDouble1Vec& samples,
-                             const TDouble4Vec1Vec& weights);
+    void updateLogLikelihood(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
     //! Update the expected log-likelihoods.
-    void updateExpectedLogLikelihood(const TWeightStyleVec& weightStyles,
-                                     const TDouble4Vec1Vec& weights);
+    void updateExpectedLogLikelihood(const TDoubleWeightsAry1Vec& weights);
 
     //! Get the time series trend model.
     const CTimeSeriesDecompositionInterface& trendModel() const;
@@ -267,9 +257,8 @@ public:
 
     //! Get the log likelihood of \p samples.
     virtual void addSamples(const std::size_t count,
-                            TWeightStyleVec weightStyles,
                             const TTimeDoublePr1Vec& samples,
-                            TDouble4Vec1Vec weights);
+                            TDoubleWeightsAry1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -303,9 +292,8 @@ public:
 
     //! Update with \p samples.
     virtual void addSamples(const std::size_t count,
-                            TWeightStyleVec weightStyles,
                             const TTimeDoublePr1Vec& samples,
-                            TDouble4Vec1Vec weights);
+                            TDoubleWeightsAry1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -352,9 +340,8 @@ public:
 
     //! Update with \p samples.
     virtual void addSamples(const std::size_t count,
-                            TWeightStyleVec weightStyles,
                             const TTimeDoublePr1Vec& samples,
-                            TDouble4Vec1Vec weights);
+                            TDoubleWeightsAry1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -402,9 +389,8 @@ public:
 
     //! Update with \p samples.
     virtual void addSamples(const std::size_t count,
-                            TWeightStyleVec weightStyles,
                             const TTimeDoublePr1Vec& samples,
-                            TDouble4Vec1Vec weights);
+                            TDoubleWeightsAry1Vec weights);
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;

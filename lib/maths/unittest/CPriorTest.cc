@@ -57,36 +57,28 @@ public:
 
 public:
     CMinusLogLikelihood(const maths::CPrior& prior)
-        : m_Prior(&prior), m_WeightStyle(1, maths_t::E_SampleCountWeight),
-          m_X(1, 0.0), m_Weight(1, TDoubleVec(1, 1.0)) {}
+        : m_Prior(&prior), m_X(1, 0.0) {}
 
     bool operator()(const double& x, double& result) const {
         m_X[0] = x;
-        maths_t::EFloatingPointErrorStatus status =
-            m_Prior->jointLogMarginalLikelihood(m_WeightStyle, m_X, m_Weight, result);
+        maths_t::EFloatingPointErrorStatus status = m_Prior->jointLogMarginalLikelihood(
+            m_X, maths_t::CUnitWeights::SINGLE_UNIT, result);
         result = -result;
         return !(status & maths_t::E_FpFailed);
     }
 
 private:
     const maths::CPrior* m_Prior;
-    maths_t::TWeightStyleVec m_WeightStyle;
     mutable TDoubleVec m_X;
-    TDoubleVecVec m_Weight;
 };
 }
 
 void CPriorTest::testExpectation() {
-    LOG_DEBUG(<< "+-------------------------------+");
-    LOG_DEBUG(<< "|  CPriorTest::testExpectation  |");
-    LOG_DEBUG(<< "+-------------------------------+");
-
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
 
     test::CRandomNumbers rng;
 
-    CNormalMeanPrecConjugate prior(
+    maths::CNormalMeanPrecConjugate prior(
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData));
 
     TDoubleVec samples;
@@ -94,7 +86,8 @@ void CPriorTest::testExpectation() {
 
     TMeanVarAccumulator moments;
     moments.add(samples);
-    prior.addSamples(samples);
+    prior.addSamples(samples, maths_t::TDoubleWeightsAry1Vec(
+                                  samples.size(), maths_t::CUnitWeights::UNIT));
 
     double trueMean = maths::CBasicStatistics::mean(moments);
     LOG_DEBUG(<< "true mean = " << trueMean);

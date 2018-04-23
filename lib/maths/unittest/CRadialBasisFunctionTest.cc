@@ -56,10 +56,6 @@ private:
 }
 
 void CRadialBasisFunctionTest::testDerivative() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testDerivative  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -111,10 +107,6 @@ void CRadialBasisFunctionTest::testDerivative() {
 }
 
 void CRadialBasisFunctionTest::testMean() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testMean  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -174,10 +166,6 @@ void CRadialBasisFunctionTest::testMean() {
 }
 
 void CRadialBasisFunctionTest::testMeanSquareDerivative() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testMean  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -238,10 +226,6 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
 }
 
 void CRadialBasisFunctionTest::testProduct() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testProduct  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};

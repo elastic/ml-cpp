@@ -32,11 +32,6 @@ using TStrVec = std::vector<std::string>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 void CDataSummaryStatisticsTest::testRate() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+----------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testRate  |");
-    LOG_DEBUG(<< "+----------------------------------------+");
-
     // Test we correctly estimate a range of rates.
 
     double rate[] = {10.0, 100.0, 500.0};
@@ -62,11 +57,6 @@ void CDataSummaryStatisticsTest::testRate() {
 }
 
 void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testCategoricalDistinctCount  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------+");
-
     // Test we correctly compute the distinct count with and
     // without sketching.
 
@@ -105,11 +95,6 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
 }
 
 void CDataSummaryStatisticsTest::testCategoricalTopN() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testCategoricalTopN  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     // Test we are able to accurately estimate the counts of some
     // heavy hitting categories.
 
@@ -172,11 +157,6 @@ void CDataSummaryStatisticsTest::testCategoricalTopN() {
 }
 
 void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testNumericBasicStatistics  |");
-    LOG_DEBUG(<< "+----------------------------------------------------------+");
-
     // Test the minimum, median and maximum of a variety of data sets.
 
     {
@@ -250,11 +230,6 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
 }
 
 void CDataSummaryStatisticsTest::testNumericDistribution() {
-    LOG_DEBUG(<< "");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testNumericDistribution  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec samples;

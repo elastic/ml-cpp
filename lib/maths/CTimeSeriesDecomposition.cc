@@ -213,8 +213,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const maths_t::TWeightStyleVec& weightStyles,
-                                        const maths_t::TDouble4Vec& weights) {
+                                        const maths_t::TDoubleWeightsAry& weights) {
     CComponents::CScopeNotifyOnStateChange result{m_Components};
 
     time += m_TimeShift;
@@ -227,7 +226,6 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{time,
                       lastTime,
                       value,
-                      weightStyles,
                       weights,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),

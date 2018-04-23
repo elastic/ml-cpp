@@ -211,8 +211,6 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
 void CEventRatePopulationModelTest::testBasicAccessors() {
-    LOG_DEBUG(<< "*** testBasicAccessors ***");
-
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
@@ -318,15 +316,13 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
 }
 
 void CEventRatePopulationModelTest::testFeatures() {
-    LOG_DEBUG(<< "*** testFeatures ***");
-
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2VecVec = std::vector<TDouble2Vec>;
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
+    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TSizeSet = std::set<std::size_t>;
     using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
     using TStrStrPr = std::pair<std::string, std::string>;
@@ -337,12 +333,10 @@ void CEventRatePopulationModelTest::testFeatures() {
     using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
-    using TDouble2VecVecDouble2Vec4VecVecPr = std::pair<TDouble2VecVec, TDouble2Vec4VecVec>;
-    using TSizeDouble2VecVecDouble2Vec4VecVecPrMap =
-        std::map<std::size_t, TDouble2VecVecDouble2Vec4VecVecPr>;
-
-    static const maths_t::TWeightStyleVec WEIGHT_STYLES{
-        maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight};
+    using TDouble2VecVecDouble2VecWeightsAryVecPr =
+        std::pair<TDouble2VecVec, TDouble2VecWeightsAryVec>;
+    using TSizeDouble2VecVecDouble2VecWeightsAryVecPrMap =
+        std::map<std::size_t, TDouble2VecVecDouble2VecWeightsAryVecPr>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -397,7 +391,7 @@ void CEventRatePopulationModelTest::testFeatures() {
                     expectedNonZeroCounts[{pid, cid}] = count.second;
                 }
 
-                TSizeDouble2VecVecDouble2Vec4VecVecPrMap populationSamples;
+                TSizeDouble2VecVecDouble2VecWeightsAryVecPrMap populationSamples;
                 for (const auto& count_ : expectedNonZeroCounts) {
                     std::size_t pid = count_.first.first;
                     std::size_t cid = count_.first.second;
@@ -411,14 +405,17 @@ void CEventRatePopulationModelTest::testFeatures() {
                     }
 
                     TDoubleVec sample(1, count);
-                    TDouble2Vec4Vec weight{{model->sampleRateWeight(pid, cid)},
-                                           model_->winsorisationWeight(1.0, time, sample)};
+                    TDouble2VecWeightsAry weight(
+                        maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                    maths_t::setCount(TDouble2Vec{model->sampleRateWeight(pid, cid)}, weight);
+                    maths_t::setWinsorisationWeight(
+                        model_->winsorisationWeight(1.0, time, sample), weight);
                     populationSamples[cid].first.push_back({sample[0]});
                     populationSamples[cid].second.push_back(weight);
                 }
                 for (auto& samples_ : populationSamples) {
                     std::size_t cid = samples_.first;
-                    TDouble2Vec4VecVec& weights = samples_.second.second;
+                    TDouble2VecWeightsAryVec& weights = samples_.second.second;
                     maths::COrderings::simultaneousSort(samples_.second.first, weights);
                     maths::CModel::TTimeDouble2VecSizeTrVec samples;
                     for (const auto& sample : samples_.second.first) {
@@ -428,7 +425,6 @@ void CEventRatePopulationModelTest::testFeatures() {
                     params_.integer(true)
                         .nonNegative(true)
                         .propagationInterval(1.0)
-                        .weightStyles(WEIGHT_STYLES)
                         .trendWeights(weights)
                         .priorWeights(weights);
                     expectedPopulationModels[cid]->addSamples(params_, samples);
@@ -477,8 +473,6 @@ void CEventRatePopulationModelTest::testFeatures() {
 }
 
 void CEventRatePopulationModelTest::testComputeProbability() {
-    LOG_DEBUG(<< "*** testComputeProbability ***");
-
     // Check that we get the probabilities we expect.
 
     using TAnomalyVec = std::vector<SAnomaly>;
@@ -564,8 +558,6 @@ void CEventRatePopulationModelTest::testComputeProbability() {
 }
 
 void CEventRatePopulationModelTest::testPrune() {
-    LOG_DEBUG(<< "*** testPrune ***");
-
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
@@ -740,8 +732,6 @@ void CEventRatePopulationModelTest::testPrune() {
 }
 
 void CEventRatePopulationModelTest::testKey() {
-    LOG_DEBUG(<< "*** testKey ***");
-
     function_t::EFunction countFunctions[] = {function_t::E_PopulationCount,
                                               function_t::E_PopulationDistinctCount,
                                               function_t::E_PopulationRare,
@@ -780,8 +770,6 @@ void CEventRatePopulationModelTest::testKey() {
 }
 
 void CEventRatePopulationModelTest::testFrequency() {
-    LOG_DEBUG(<< "*** CEventRatePopulationModelTest::testFrequency ***");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Test we correctly compute frequencies for people and attributes.
@@ -871,8 +859,6 @@ void CEventRatePopulationModelTest::testFrequency() {
 }
 
 void CEventRatePopulationModelTest::testSampleRateWeight() {
-    LOG_DEBUG(<< "*** CEventRatePopulationModelTest::testSampleRateWeight ***");
-
     // Test that we correctly compensate for heavy hitters.
 
     // There are 10 attributes.
@@ -992,8 +978,6 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
 }
 
 void CEventRatePopulationModelTest::testPeriodicity() {
-    LOG_DEBUG(<< "*** testPeriodicity ***");
-
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
@@ -1114,8 +1098,6 @@ void CEventRatePopulationModelTest::testPeriodicity() {
 }
 
 void CEventRatePopulationModelTest::testSkipSampling() {
-    LOG_DEBUG(<< "*** testSkipSampling ***");
-
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
     std::size_t maxAgeBuckets(5);
@@ -1201,8 +1183,6 @@ void CEventRatePopulationModelTest::testSkipSampling() {
 }
 
 void CEventRatePopulationModelTest::testInterimCorrections() {
-    LOG_DEBUG(<< "*** testInterimCorrections ***");
-
     core_t::TTime startTime(3600);
     std::size_t bucketLength(3600);
     SModelParams params(bucketLength);
@@ -1285,8 +1265,6 @@ void CEventRatePopulationModelTest::testInterimCorrections() {
 }
 
 void CEventRatePopulationModelTest::testPersistence() {
-    LOG_DEBUG(<< "*** testPersistence ***");
-
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
 
@@ -1354,8 +1332,6 @@ void CEventRatePopulationModelTest::testPersistence() {
 }
 
 void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
-
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.
@@ -1436,9 +1412,8 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     // Checksums will be different because a model is created for attribute a3
     CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelWithSkipView =
-        modelWithSkip->details();
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
+    auto modelWithSkipView = modelWithSkip->details();
+    auto modelNoSkipView = modelNoSkip->details();
 
     // but the underlying models for attributes a1 and a2 are the same
     uint64_t withSkipChecksum =

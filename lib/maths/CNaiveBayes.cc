@@ -18,6 +18,7 @@
 #include <maths/CPriorStateSerialiser.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
+#include <maths/MathsTypes.h>
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -41,7 +42,7 @@ CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior(const CPr
 }
 
 void CNaiveBayesFeatureDensityFromPrior::add(const TDouble1Vec& x) {
-    m_Prior->addSamples(CConstantWeights::COUNT, x, CConstantWeights::SINGLE_UNIT);
+    m_Prior->addSamples(x, maths_t::CUnitWeights::SINGLE_UNIT);
 }
 
 CNaiveBayesFeatureDensityFromPrior* CNaiveBayesFeatureDensityFromPrior::clone() const {
@@ -67,7 +68,7 @@ void CNaiveBayesFeatureDensityFromPrior::acceptPersistInserter(core::CStatePersi
 
 double CNaiveBayesFeatureDensityFromPrior::logValue(const TDouble1Vec& x) const {
     double result;
-    if (m_Prior->jointLogMarginalLikelihood(CConstantWeights::COUNT, x, CConstantWeights::SINGLE_UNIT,
+    if (m_Prior->jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
         LOG_ERROR("Bad density value at " << x << " for " << m_Prior->print());
         return boost::numeric::bounds<double>::lowest();
@@ -77,9 +78,9 @@ double CNaiveBayesFeatureDensityFromPrior::logValue(const TDouble1Vec& x) const 
 
 double CNaiveBayesFeatureDensityFromPrior::logMaximumValue() const {
     double result;
-    if (m_Prior->jointLogMarginalLikelihood(
-            CConstantWeights::COUNT, {m_Prior->marginalLikelihoodMode()},
-            CConstantWeights::SINGLE_UNIT, result) != maths_t::E_FpNoErrors) {
+    if (m_Prior->jointLogMarginalLikelihood({m_Prior->marginalLikelihoodMode()},
+                                            maths_t::CUnitWeights::SINGLE_UNIT,
+                                            result) != maths_t::E_FpNoErrors) {
         LOG_ERROR("Bad density value for " << m_Prior->print());
         return boost::numeric::bounds<double>::lowest();
     }

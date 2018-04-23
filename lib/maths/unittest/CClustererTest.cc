@@ -18,10 +18,6 @@
 using namespace ml;
 
 void CClustererTest::testIndexGenerator() {
-    LOG_DEBUG(<< "+--------------------------------------+");
-    LOG_DEBUG(<< "|  CClustererTest::testIndexGenerator  |");
-    LOG_DEBUG(<< "+--------------------------------------+");
-
     // We test the invariants that:
     //   1) It never produces duplicate index.
     //   2) The highest index in the set is less than the

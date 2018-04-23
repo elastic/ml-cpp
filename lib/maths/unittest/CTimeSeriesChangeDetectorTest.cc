@@ -82,10 +82,6 @@ TPriorPtr makeResidualModel() {
 }
 
 void CTimeSeriesChangeDetectorTest::testNoChange() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testNoChange  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec variances{1.0, 10.0, 20.0, 30.0, 100.0, 1000.0};
@@ -118,8 +114,7 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
         auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
             trendModel->addPoint(time, x);
             double detrended{trendModel->detrend(time, x, 0.0)};
-            residualModel->addSamples(maths::CConstantWeights::COUNT,
-                                      {detrended}, {{1.0}});
+            residualModel->addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
             residualModel->propagateForwardsByTime(1.0);
         };
 
@@ -134,8 +129,7 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
             24 * core::constants::HOUR, 14.0};
         for (std::size_t i = 950u; i < samples.size(); ++i) {
             addSampleToModel(time, samples[i]);
-            detector.addSamples(maths::CConstantWeights::COUNT,
-                                {{time, samples[i]}}, {{1.0}});
+            detector.addSamples({{time, samples[i]}}, maths_t::CUnitWeights::SINGLE_UNIT);
             if (detector.stopTesting()) {
                 break;
             }
@@ -148,42 +142,26 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
 }
 
 void CTimeSeriesChangeDetectorTest::testLevelShift() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testLevelShift  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
-
     this->testChange(
         trends, maths::SChangeDescription::E_LevelShift,
         [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.5; }, 5.0, 15.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testLinearScale() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testLinearScale  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     TGeneratorVec trends{smoothDaily, spikeyDaily};
-
     this->testChange(
         trends, maths::SChangeDescription::E_LinearScale,
         [](TGenerator trend, core_t::TTime time) { return 3.0 * trend(time); }, 3.0, 15.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testTimeShift() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testTimeShift  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     TGeneratorVec trends{smoothDaily, spikeyDaily};
-
     this->testChange(trends, maths::SChangeDescription::E_TimeShift,
                      [](TGenerator trend, core_t::TTime time) {
                          return trend(time - core::constants::HOUR);
                      },
                      -static_cast<double>(core::constants::HOUR), 24.0);
-
     this->testChange(trends, maths::SChangeDescription::E_TimeShift,
                      [](TGenerator trend, core_t::TTime time) {
                          return trend(time + core::constants::HOUR);
@@ -192,10 +170,6 @@ void CTimeSeriesChangeDetectorTest::testTimeShift() {
 }
 
 void CTimeSeriesChangeDetectorTest::testPersist() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CTimeSeriesChangeDetectorTest::testPersist  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -207,8 +181,7 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
     auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
         trendModel->addPoint(time, x);
         double detrended{trendModel->detrend(time, x, 0.0)};
-        residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended},
-                                  maths::CConstantWeights::SINGLE_UNIT);
+        residualModel->addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
         residualModel->propagateForwardsByTime(1.0);
     };
 
@@ -302,10 +275,9 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
 
         auto addSampleToModel = [&trendModel, &residualModel](
                                     core_t::TTime time, double x, double weight) {
-            trendModel->addPoint(time, x, maths::CConstantWeights::COUNT, {weight});
+            trendModel->addPoint(time, x, maths_t::countWeight(weight));
             double detrended{trendModel->detrend(time, x, 0.0)};
-            residualModel->addSamples(maths::CConstantWeights::COUNT,
-                                      {detrended}, {{weight}});
+            residualModel->addSamples({detrended}, {maths_t::countWeight(weight)});
             residualModel->propagateForwardsByTime(1.0);
         };
 
@@ -325,7 +297,7 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
             double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
 
             addSampleToModel(time, x, 0.5);
-            detector.addSamples(maths::CConstantWeights::COUNT, {{time, x}}, {{1.0}});
+            detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT);
 
             auto change = detector.change();
             if (change) {

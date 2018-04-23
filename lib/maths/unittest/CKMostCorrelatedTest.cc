@@ -168,10 +168,6 @@ void estimateCorrelation(const std::size_t trials,
 }
 
 void CKMostCorrelatedTest::testCorrelation() {
-    LOG_DEBUG(<< "+-----------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testCorrelation  |")
-    LOG_DEBUG(<< "+-----------------------------------------+")
-
     // Check that the proposed estimator is unbiased.
 
     maths::CSampling::seed();
@@ -230,10 +226,6 @@ void CKMostCorrelatedTest::testCorrelation() {
 }
 
 void CKMostCorrelatedTest::testNextProjection() {
-    LOG_DEBUG(<< "+--------------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testNextProjection  |")
-    LOG_DEBUG(<< "+--------------------------------------------+")
-
     // Test that aging happens correctly and that the projections
     // are have low mutual information.
 
@@ -346,10 +338,6 @@ void CKMostCorrelatedTest::testNextProjection() {
 }
 
 void CKMostCorrelatedTest::testMostCorrelated() {
-    LOG_DEBUG(<< "+--------------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testMostCorrelated  |")
-    LOG_DEBUG(<< "+--------------------------------------------+")
-
     // Check the variables with the highest estimated correlation emerge.
 
     using TMaxCorrelationAccumulator =
@@ -405,10 +393,6 @@ void CKMostCorrelatedTest::testMostCorrelated() {
 }
 
 void CKMostCorrelatedTest::testRemoveVariables() {
-    LOG_DEBUG(<< "+---------------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testRemoveVariables  |")
-    LOG_DEBUG(<< "+---------------------------------------------+")
-
     // Test we correctly remove correlated pairs which include a variable
     // to prune.
     //
@@ -460,10 +444,6 @@ void CKMostCorrelatedTest::testRemoveVariables() {
 }
 
 void CKMostCorrelatedTest::testAccuracy() {
-    LOG_DEBUG(<< "+--------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testAccuracy  |")
-    LOG_DEBUG(<< "+--------------------------------------+")
-
     // Check that we consistently find the most correlated pairs of variables.
     //
     // For ten variables [0, ..., 9] create correlated pairs { (0, 1), (2, 3),
@@ -519,10 +499,6 @@ void CKMostCorrelatedTest::testAccuracy() {
 }
 
 void CKMostCorrelatedTest::testStability() {
-    LOG_DEBUG(<< "+---------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testStability  |")
-    LOG_DEBUG(<< "+---------------------------------------+")
-
     // For twenty variables [0, ..., 19] create correlated pairs { (0, 1),
     // (2, 3), (4, 5), (6, 7), (8, 9), (10, 11), (12, 13), (14, 15), (16, 17),
     // (18, 19) } with correlations of { (0, 1), (2, 3), (4, 5), (6, 7),
@@ -577,10 +553,6 @@ void CKMostCorrelatedTest::testStability() {
 }
 
 void CKMostCorrelatedTest::testChangingCorrelation() {
-    LOG_DEBUG(<< "+-------------------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testChangingCorrelation  |")
-    LOG_DEBUG(<< "+-------------------------------------------------+")
-
     // Test that we correctly identify a newly emerging correlation.
     //
     // For ten variables [0, ..., 9] create correlated pairs { (0, 1), (2, 3),
@@ -632,10 +604,6 @@ void CKMostCorrelatedTest::testChangingCorrelation() {
 }
 
 void CKMostCorrelatedTest::testMissingData() {
-    LOG_DEBUG(<< "+-----------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testMissingData  |")
-    LOG_DEBUG(<< "+-----------------------------------------+")
-
     // Test the case that some of the metric values are missing.
     //
     // For ten variables [0, ..., 9] create correlated pairs { (0, 1), (2, 3),
@@ -697,10 +665,6 @@ void CKMostCorrelatedTest::testMissingData() {
 }
 
 void CKMostCorrelatedTest::testScale() {
-    LOG_DEBUG(<< "+-----------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testScale  |")
-    LOG_DEBUG(<< "+-----------------------------------+")
-
     // Test runtime is approximately linear in the number of variables
     // if we look for O(number of variables) correlations.
 
@@ -806,10 +770,6 @@ void CKMostCorrelatedTest::testScale() {
 }
 
 void CKMostCorrelatedTest::testPersistence() {
-    LOG_DEBUG(<< "+-----------------------------------------+")
-    LOG_DEBUG(<< "|  CKMostCorrelatedTest::testPersistence  |")
-    LOG_DEBUG(<< "+-----------------------------------------+")
-
     // Check that persistence is idempotent.
 
     maths::CSampling::seed();

@@ -24,10 +24,6 @@
 using namespace ml;
 
 void CProbabilityCalibratorTest::testCalibration() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CProbabilityCalibratorTest::testCalibration  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
     using CLogNormalMeanPrecConjugate =
         CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
