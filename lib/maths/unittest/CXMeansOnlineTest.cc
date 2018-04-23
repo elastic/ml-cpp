@@ -627,16 +627,18 @@ void CXMeansOnlineTest::testLargeHistory() {
 
     TPointVec samples;
     for (std::size_t i = 0u; i < samples1.size(); i += 2) {
-        samples.push_back(TPoint(TDoubleVec(&samples1[i], &samples1[i + 2])));
+        samples.emplace_back(TDoubleVec(&samples1[i], &samples1[i + 2]));
     }
     for (std::size_t i = 0u; i < samples2.size(); i += 2) {
-        samples.push_back(TPoint(TDoubleVec(&samples2[i], &samples2[i + 2])));
+        samples.emplace_back(TDoubleVec(&samples2[i], &samples2[i + 2]));
     }
     rng.random_shuffle(samples.begin() + 5000, samples.end());
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        reference.add(samples[i]);
-        clusterer.add(samples[i]);
+    for (const auto& sample : samples) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            reference.add(sample);
+            clusterer.add(sample);
+        }
         reference.propagateForwardsByTime(1.0);
         clusterer.propagateForwardsByTime(1.0);
     }

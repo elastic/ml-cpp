@@ -857,7 +857,6 @@ void CXMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
 
 void CXMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, double count) {
 
-    m_HistoryLength += 1.0;
     m_Smallest.add(point);
     m_Largest.add(point);
 
@@ -962,7 +961,7 @@ void CXMeansOnline1d::propagateForwardsByTime(double time) {
         LOG_ERROR(<< "Can't propagate backwards in time");
         return;
     }
-    m_HistoryLength *= std::exp(-m_DecayRate * time);
+    m_HistoryLength = (m_HistoryLength + time) * std::exp(-m_DecayRate * time);
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         m_Clusters[i].propagateForwardsByTime(time);
     }
