@@ -1,0 +1,45 @@
+Contributing to X-Pack Machine Learning Core
+
+We love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the Elastic Stack itself.
+
+We enjoy working with contributors, note we have a Code of Conduct, please follow it in all your interactions.
+Bug reports
+If you think you have found a bug in ml-cpp, first make sure that you are testing against the latest version of the Elastic Stack - your issue may already have been fixed. If not, search our issues list on GitHub in case a similar issue has already been opened.
+It is very helpful if you can prepare a reproduction of the bug. In other words, provide a small test case which we can run to confirm your bug. It makes it easier to find the problem and to fix it.
+
+If you run into a problem that might be a data related issue, something where you can't clearly say it is a bug - for example: `Why is my anomaly not found?` - we encourage you to contact the team via our Discuss forums before opening an issue. 
+
+Important note: It really helps if you provide a data samples that describe any issues found. If you do provide any data samples, then please make sure this data is not in anyway confidential. If the data is subject to any license terms, please ensure that restrictions for its do not apply and that attribution is clearly made. 
+Feature requests
+If you find yourself wishing for a feature that doesn't exist, you are probably not alone. There are bound to be others out there with similar needs. Open an issue on our issues list on GitHub which describes the feature you would like to see, why you need it, and how it should work.
+Contributing code and documentation changes
+If you have a bugfix or new feature that you would like to contribute to ml-cpp, please find or open an issue about it first. Talk about what you would like to do. It may be that somebody is already working on it, or that there are particular issues that you should know about before implementing the change.
+We enjoy working with contributors to get their code accepted. There are many approaches to fixing a problem and it is important to find the best approach before writing too much code.
+The process for contributing to any of the Elastic repositories is similar. Details for individual projects can be found below.
+If you want to get started in the project, a good idea is to check issues labeled with help wanted. These are issues that should help newcomers to the project get something achieved without too much hassle.
+Fork and clone the repository
+You will need to fork the repository and clone it to your local machine. See the Github help page for help.
+Submitting your changes
+Once your changes and tests are ready to submit for review:
+Test your changes
+Run the test suite to make sure that nothing is broken. See the TESTING file for help running tests.
+Sign the Contributor License Agreement
+Please make sure you have signed our Contributor License Agreement. 
+We are not asking you to assign copyright to us, but to give us the right to distribute your code without restriction. We ask this of all contributors in order to assure our users of the origin and continuing existence of the code. You only need to sign the CLA once.
+If you provide any data samples as part of unit tests or otherwise, then please make sure these do not contain confidential information. If data is subject to any license terms please ensure this attribution is clearly stated. 
+Rebase your changes
+Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
+Submit a pull request
+Push your local changes to your forked copy of the repository and submit a pull request. In the pull request, choose a title which sums up the changes that you have made, and in the body provide more details about what your changes do. Also mention the number of the issue where discussion has taken place, eg "Closes #123".
+Then sit back and wait. There will probably be discussion about the pull request and, if any changes are needed, we would love to work with you to get your pull request merged into ....
+
+Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from master, you can merge master into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is integrated via GitHub.
+
+Working with the ml-cpp codebase
+Repository: https://github.com/elastic/ml-cpp
+
+Set up a build machine by following the instructions in the build-setup directory
+Do your changes. 
+If you change code, follow the existing coding style.
+Write a test, unit tests are located under lib/{module}/unittest
+Test your changes (`make test`)
