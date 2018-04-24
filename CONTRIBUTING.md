@@ -57,6 +57,6 @@ Please adhere to the general guideline that you should never force push to a pub
 
 1.  Set up a build machine by following the instructions in the [build-setup](build-setup) directory
 1.  Do your changes. 
-1.  If you change code, follow the existing coding style.
+1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
 1.  Write a test, unit tests are located under `lib/{module}/unittest`
 1.  Test your changes (`make test`)
