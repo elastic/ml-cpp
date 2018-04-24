@@ -31,14 +31,22 @@ You will need to fork the repository and clone it to your local machine. See the
 
 Once your changes and tests are ready to submit for review:
 1.  Test your changes
-1.  Run the test suite to make sure that nothing is broken. See below for help running tests.
-1.  Please make sure you have signed our [Contributor License Agreement](https://www.elastic.co/contributor-agreement). 
+
+    Run the test suite to make sure that nothing is broken. See below for help running tests.
+
+1.  Sign the Contributor License Agreement
+
+    Please make sure you have signed our [Contributor License Agreement](https://www.elastic.co/contributor-agreement). 
     1.  We are not asking you to assign copyright to us, but to give us the right to distribute your code without restriction. We ask this of all contributors in order to assure our users of the origin and continuing existence of the code. You only need to sign the CLA once.
     1.  If you provide any data samples as part of unit tests or otherwise, then please make sure these do not contain confidential information. If data is subject to any license terms please ensure this attribution is clearly stated. 
+
 1.  Rebase your changes
-1.  Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
+
+    Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
+
 1.  Submit a pull request
-1.  Push your local changes to your forked copy of the repository and [submit a pull request](https://help.github.com/articles/about-pull-requests/). In the pull request, choose a title which sums up the changes that you have made, and in the body provide more details about what your changes do. Also mention the number of the issue where discussion has taken place, eg `Closes #123`.
+
+    Push your local changes to your forked copy of the repository and [submit a pull request](https://help.github.com/articles/about-pull-requests/). In the pull request, choose a title which sums up the changes that you have made, and in the body provide more details about what your changes do. Also mention the number of the issue where discussion has taken place, eg `Closes #123`.
 
 Then sit back and wait. There will probably be discussion about the pull request and, if any changes are needed, we would love to work with you to get your pull request merged into ml-cpp.
 
