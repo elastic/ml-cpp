@@ -19,6 +19,8 @@ Important note: It really helps if you provide a data samples that describe any 
 
 If you find yourself wishing for a feature that doesn't exist, you are probably not alone. There are bound to be others out there with similar needs. Open an issue on our issues list on GitHub which describes the feature you would like to see, why you need it, and how it should work.
 
+Similar to bugs, enhancements related to the UI should be raised in the [kibana](https://github.com/elastic/kibana/) repo, and enhancements related to the backend REST API should be raised in the [elasticsearch](https://github.com/elastic/elasticsearch) repo.
+
 ## Contributing code and documentation changes
 
 If you have a bugfix or new feature that you would like to contribute to ml-cpp, please find or open an issue about it first. Talk about what you would like to do. It may be that somebody is already working on it, or that there are particular issues that you should know about before implementing the change.
