@@ -13,7 +13,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure apt-get is up to date and required packages are installed
 RUN \
   apt-get update && \
-  apt-get install --no-install-recommends -y apt-utils git wget xz-utils
+  apt-get install --no-install-recommends -y git wget xz-utils
 
 # Install the version of LLVM mandated for code formatting
 RUN \
