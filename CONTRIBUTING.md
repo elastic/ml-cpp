@@ -11,7 +11,7 @@ It is very helpful if you can prepare a reproduction of the bug. In other words,
 
 If you run into a problem that might be a data related issue, something where you can't clearly say it is a bug - for example: "Why is my anomaly not found?" - we encourage you to contact the team via our [Discuss](https://discuss.elastic.co/) forums before opening an issue. 
 
-Important note: It really helps if you provide a data samples that describe any issues found. If you do provide any data samples, then please make sure this data is not in anyway confidential. If the data is subject to any license terms, please ensure that restrictions for its do not apply and that attribution is clearly made. 
+Important note: It really helps if you provide a data samples that describe any issues found. If you do provide any data samples, then please make sure this data is not in anyway confidential. If the data is subject to any license terms, please ensure that there are no restrictions on its usage or redistribution and that attribution is clearly made. 
 
 ## Feature requests
 
