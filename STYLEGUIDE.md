@@ -84,8 +84,8 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 
 
 1.  All source files MUST be formatted with the `clang-format` tool  prior to check in.
-    1.  This procedure can be simplified by use of the `dev-tools/clang-format.sh` script.
-    1.  The same specific version of `clang-format` used by the `clang-format.sh` script MUST be used
+    1.  This procedure can be simplified by use of the [dev-tools/clang-format.sh](dev-tools/clang-format.sh) script.
+    1.  The same specific version of `clang-format` used by the [clang-format.sh](dev-tools/clang-format.sh) script MUST be used. It is recommended that this be obtained from the pre-built binary packages of LLVM available from http://releases.llvm.org/download.html
 1.  The standard header file layout MUST be observed
 
     Header files MUST contain the following items in the order defined below
@@ -182,15 +182,15 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 1.  A class wrapper SHOULD be used to avoid dangling resources
 1.  Resource ownership MUST be indicated by parameter type
 
-  Argument, Passed By                         | Memory Ownership
-  ------------------------------------------- | ----------------
-  Value                                       | N/A
-  Pointer                                     | Called function
-  Const pointer (not pointer to const object) | Calling function
-  Reference                                   | Calling function
-  Const reference                             | Calling function
-  
-19.  Explicit integer definitions, specifying size, SHOULD be used
+       Argument, Passed By                         | Memory Ownership
+       ------------------------------------------- | ----------------
+       Value                                       | N/A
+       Pointer                                     | Called function
+       Const pointer (not pointer to const object) | Calling function
+       Reference                                   | Calling function
+       Const reference                             | Calling function
+
+1.  Explicit integer definitions, specifying size, SHOULD be used
 1.  Member functions MUST be scoped with `this->` when called
 1.  Floating point variables SHOULD be `double`
 1.  Lambdas SHOULD be used in preference to any form of `bind`
