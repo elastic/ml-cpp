@@ -58,3 +58,5 @@ if [ -n "${FILES}" ] ; then
     exit 4
 fi
 
+echo "No format errors detected"
+
