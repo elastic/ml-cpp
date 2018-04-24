@@ -125,8 +125,6 @@ void CTimeUtilsTest::testStrptime() {
         std::string dateTime("1122334455");
 
         std::string format("%s");
-
-        ml::core_t::TTime expected(1122334455);
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
@@ -144,6 +142,7 @@ void CTimeUtilsTest::testStrptime() {
         // the --timeformat option the time is assumed to be in epoch format and converted
         // by a simple string to number conversion rather than using strptime().  So it
         // really would be a waste of effort getting %s to work on Windows at this time.
+        ml::core_t::TTime expected(1122334455);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
 #endif
     }

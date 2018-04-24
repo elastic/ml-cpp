@@ -182,7 +182,7 @@ void CFlatPrefixTreeTest::testRandom() {
 
         for (std::size_t i = 0; i < lookups.size(); ++i) {
             CPPUNIT_ASSERT(prefixTree.matchesFully(lookups[i]) ==
-                           set.count(lookups[i]) > 0);
+                           (set.count(lookups[i]) > 0));
         }
     }
 

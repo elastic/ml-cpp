@@ -928,8 +928,6 @@ void COneOfNPrior::print(const std::string& indent, std::string& result) const {
         result += " non-informative";
     }
 
-    static const double MINIMUM_SIGNIFICANT_WEIGHT = 0.05;
-
     result += ':';
     result += core_t::LINE_ENDING + indent + " # samples " +
               core::CStringUtils::typeToStringPretty(this->numberSamples());
