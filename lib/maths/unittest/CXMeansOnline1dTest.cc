@@ -730,7 +730,7 @@ void CXMeansOnline1dTest::testLargeHistory() {
     samples.insert(samples.end(), samples2.begin(), samples2.end());
     rng.random_shuffle(samples.begin() + 5000, samples.end());
 
-    for (const auto& sample :  samples) {
+    for (const auto& sample : samples) {
         for (std::size_t i = 0; i < 3; ++i) {
             reference.add(sample);
             clusterer.add(sample);
