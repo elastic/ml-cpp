@@ -8,7 +8,7 @@ We enjoy working with contributors, note we have a [Code of Conduct](https://www
 
 If you think you have found a bug in ml-cpp, first make sure that you are testing against the latest version of the Elastic Stack - your issue may already have been fixed. Please be aware that the machine learning code is split between the [ml-cpp](https://github.com/elastic/ml-cpp/), [elasticsearch](https://github.com/elastic/elasticsearch) and [kibana](https://github.com/elastic/kibana/) repos. If your bug is related to the UI then the [kibana](https://github.com/elastic/kibana/issues) repo is likely to be a more appropriate place to raise it. And if it's related to the backend REST API then the [elasticsearch](https://github.com/elastic/elasticsearch/issues) repo is likely the most appropriate place.
 
-Before opening a new issue please search the issues list(https://github.com/elastic/ml-cpp/issues) on GitHub in case a similar issue has already been opened.
+Before opening a new issue please search the [issues list](https://github.com/elastic/ml-cpp/issues) on GitHub in case a similar issue has already been opened.
 It is very helpful if you can prepare a reproduction of the bug. In other words, provide a small test case which we can run to confirm your bug. It makes it easier to find the problem and to fix it.
 
 If you run into a problem that might be a data related issue, something where you can't clearly say it is a bug - for example: "Why is my anomaly not found?" - we encourage you to contact the team via our [Discuss](https://discuss.elastic.co/) forums before opening an issue. 
