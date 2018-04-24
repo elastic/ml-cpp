@@ -110,7 +110,6 @@ CDataCountStatistics* byOverAndPartitionStatistics(const CAutoconfigurerParams& 
     return new CByOverAndPartitionDataCountStatistics(params);
 }
 
-const std::string EMPTY;
 const std::size_t DV_NUMBER_HASHES = 7;
 const std::size_t DV_MAX_SIZE = 1000;
 const maths::CBjkstUniqueValues BJKST(DV_NUMBER_HASHES, DV_MAX_SIZE);

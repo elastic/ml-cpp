@@ -77,17 +77,6 @@ void hashActive(EEntity entity,
     }
 }
 
-//! Update \p hashes with the hash of the active entities in \p values.
-template<typename T>
-void hashActive(EEntity entity,
-                const CDataGatherer& gatherer,
-                const std::vector<std::pair<model_t::EFeature, std::vector<T>>>& values,
-                TStrCRefUInt64Map& hashes) {
-    for (const auto& value : values) {
-        hashActive(entity, gatherer, value.second, hashes);
-    }
-}
-
 const std::size_t COUNT_MIN_SKETCH_ROWS = 3u;
 const std::size_t COUNT_MIN_SKETCH_COLUMNS = 500u;
 const std::size_t BJKST_HASHES = 3u;

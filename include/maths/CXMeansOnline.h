@@ -805,8 +805,6 @@ public:
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
     virtual void add(const TPointPrecise& x, TSizeDoublePr2Vec& clusters, double count = 1.0) {
-        m_HistoryLength += 1.0;
-
         if (m_Clusters.size() == 1) {
             LOG_TRACE(<< "Adding " << x << " to " << m_Clusters[0].centre());
             m_Clusters[0].add(x, count);
@@ -896,7 +894,7 @@ public:
             LOG_ERROR(<< "Can't propagate backwards in time");
             return;
         }
-        m_HistoryLength *= std::exp(-m_DecayRate * time);
+        m_HistoryLength = (m_HistoryLength + time) * std::exp(-m_DecayRate * time);
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             m_Clusters[i].propagateForwardsByTime(time);
         }

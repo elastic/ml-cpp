@@ -7,7 +7,9 @@
 #include <model/CCountingModel.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CPersistUtils.h>
 
+#include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
