@@ -444,7 +444,8 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
 
         LOG_TRACE(<< "interval = [" << yl << "," << yr << "]");
         LOG_TRACE(<< "l = " << l << ", r = " << r);
-        LOG_TRACE(<< "[x(l), x(r)] = [" << oldEndpoints[l - 1] << "," << oldEndpoints[r] << "]");
+        LOG_TRACE(<< "[x(l), x(r)] = [" << oldEndpoints[l - 1] << ","
+                  << oldEndpoints[r] << "]");
 
         double xl{oldEndpoints[l - 1]};
         double xr{oldEndpoints[l]};
@@ -517,7 +518,8 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     for (std::size_t i = 0u; i < m; ++i) {
         double c{buckets[i].s_Regression.count()};
         if (c > 0.0) {
-            buckets[i].s_Regression.scale(count * (oldEndpoints[i + 1] - oldEndpoints[i]) / c);
+            buckets[i].s_Regression.scale(
+                count * (oldEndpoints[i + 1] - oldEndpoints[i]) / c);
         }
     }
 
