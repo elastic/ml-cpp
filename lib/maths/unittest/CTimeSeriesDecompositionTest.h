@@ -19,8 +19,8 @@ public:
     void testSeasonalOnset();
     void testVarianceScale();
     void testSpikeyDataProblemCase();
-    void testDiurnalProblemCase();
-    void testComplexDiurnalProblemCase();
+    void testVeryLargeValuesProblemCase();
+    void testMixedSmoothAndSpikeyDataProblemCase();
     void testDiurnalPeriodicityWithMissingValues();
     void testLongTermTrend();
     void testLongTermTrendAndPeriodicity();
@@ -33,6 +33,8 @@ public:
     void testUpgrade();
 
     static CppUnit::Test* suite();
+    virtual void setUp();
+    virtual void tearDown();
 };
 
 #endif // INCLUDED_CTimeSeriesDecompositionTest_h
