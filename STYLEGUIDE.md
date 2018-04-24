@@ -47,7 +47,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 	using TSizeDoubleMap = std::map<std::size_t, double>
  	```
 1.  Constants MUST be named as per `CONSTANT_NAME`
-1.  Macros MUST be named as per `MACRO_NAME(…)`. However...
+1.  Macros MUST be named as per `MACRO_NAME(...)`. However...
 1. Macros SHOULD NOT be used unless unavoidable
 1.  Files MUST be named as per `CClassName.cc`, `CClassName.h` if they contain a single or principle class named `CClassName`
 1.  Files containing primarily global typedefs  SHOULD be named as per `<Identifier>Types.h` where `<Identifier> `pertains to the file contents.
@@ -89,7 +89,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 1.  The standard header file layout MUST be observed
 
     Header files MUST contain the following items in the order defined below
-    1.  Copyright statement
+    1.  [Copyright statement](copyright_code_header.txt)
     1.  Include guard of the form
         ```
         #ifdef INCLUDED_[<namespace>_]<class name>_h
@@ -116,11 +116,11 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
     1.  End of namespace for this library/application
     1.  Judicious use of blank lines SHOULD be used to separate each of the above items.
 1.  Standard ordering of `#include` statements SHOULD be followed
-    1.  Own include file – for `.cc` files including their own `.h`
+    1.  Own include file - for `.cc` files including their own `.h`
     1.  Other ML include files
     1.  3<sup>rd</sup> party library include files (including Boost)
     1.  Standard C++ include files
-    1.  Standard C include files. However C++ header wrappers SHOULD be included in preference to the equivalent C header, e.g include  `cstdlib` in preference to `stdlib.h`
+    1.  Standard C include files. However C++ header wrappers SHOULD be included in preference to the equivalent C header, e.g include `cstdlib` in preference to `stdlib.h`
 1.  Include files SHOULD be grouped by library/subdirectory, with a blank line between each grouping. `clang-format` is then able to sort in alphabetical order within each grouped section.  It is best practice to list the ML include files in the build order of the libraries they relate to, as this helps to catch accidental circular dependencies.
 
 ## Class Structure
@@ -192,13 +192,13 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
   
 19.  Explicit integer definitions, specifying size, SHOULD be used
 1.  Member functions MUST be scoped with `this->` when called
-1.  Floating point variables SHOULD be double
-1.  Lambdas SHOULD be used in preference to any form of  `bind`
+1.  Floating point variables SHOULD be `double`
+1.  Lambdas SHOULD be used in preference to any form of `bind`
 1.  Default lambda capture modes SHOULD be avoided
 1.  The `override` keyword SHOULD be used consistently within a source file
 1.  Type aliases MUST be used in preference to typedefs - use `using` to create a type alias not `typedef`
 1.  Rvalue references SHOULD only be used in the following cases
-    1.   For implementing move semantics
+    1.  For implementing move semantics
     1.  For forwarding references in template code
 1.  Emplace operations SHOULD be used to add items to containers wherever applicable i.e. prefer `emplace_back` over `push_back` for vectors and `emplace` over `insert` for maps
 1.  Containers SHOULD have their capacity reserved in advance if applicable
@@ -209,7 +209,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 	```
 	auto obj = doSomething(someVariable); // bad
 	```
-1. `auto` types should always be assigned with operator=
+1. `auto` types should always be assigned with `operator=`
 
 ## Language Extensions
 
@@ -228,12 +228,12 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 1.  Header files MUST be commented for Doxygen in standard format.
     The following MUST be included for all top-level classes:
     1.  Brief summary
-    1.  Detailed description – what the class does.
-    1.  Implementation decisions – what has been done and why.
+    1.  Detailed description - what the class does.
+    1.  Implementation decisions - what has been done and why.
     1.  In addition, the following MAY be used if required:
-    1.  Future enhancements – what we should do to this class in the future.
-    1.  Resource ownership – should be used where this class manages any resources (e.g. objects on the heap)
-    1.  Example – usage example etc
+    1.  Future enhancements - what we should do to this class in the future.
+    1.  Resource ownership - should be used where this class manages any resources (e.g. objects on the heap)
+    1.  Example - usage example etc
 1.  Exclamation mark style MUST be used for Doxygen
 1.  Implementation files SHOULD be commented in C++ style (not C, and not Doxygen)
 1.  All class members SHOULD be documented
