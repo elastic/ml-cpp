@@ -19,7 +19,7 @@ export CPP_CROSS_COMPILE=macosx
 
 ### Initial Preparation
 
-Start by configuring a native macOS build server as described in [macos.md](build-setup/macos.md).
+Start by configuring a native macOS build server as described in [macos.md](macos.md).
 
 The remainder of these instructions assume the macOS build server you have configured is for macOS 10.11 (El Capitan).  This is what builds for distribution are currently built on.
 
