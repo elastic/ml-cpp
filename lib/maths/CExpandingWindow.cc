@@ -11,7 +11,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CMathsFuncs.h>

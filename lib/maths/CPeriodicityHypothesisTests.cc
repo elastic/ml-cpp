@@ -331,6 +331,27 @@ void averageValue(const TFloatMeanAccumulatorVec& values,
     }
 }
 
+//! Get the maximum residual of \p trend.
+template<typename T>
+double trendAmplitude(const T& trend) {
+    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+
+    TMeanAccumulator level;
+    for (const auto& bucket : trend) {
+        level.add(mean(bucket), count(bucket));
+    }
+
+    TMaxAccumulator result;
+    result.add(0.0);
+    for (const auto& bucket : trend) {
+        if (count(bucket) > 0.0) {
+            result.add(std::fabs(mean(bucket) - CBasicStatistics::mean(level)));
+        }
+    }
+
+    return result[0];
+}
+
 //! Extract the residual variance from the mean of a collection
 //! of residual variances.
 double residualVariance(const TMeanAccumulator& mean) {

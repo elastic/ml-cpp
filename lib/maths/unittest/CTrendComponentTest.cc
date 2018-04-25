@@ -13,8 +13,6 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDecayRateController.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CTrendComponent.h>
 
 #include <test/CRandomNumbers.h>

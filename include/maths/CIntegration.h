@@ -175,8 +175,8 @@ public:
         double centre = (a + b) / 2.0;
         double range = (b - a) / 2.0;
         for (unsigned int i = 0; i < ORDER; ++i) {
-            U fx{};
-            V gx{};
+            U fx;
+            V gx;
             if (!f(centre + range * abscissas[i], fx) ||
                 !g(centre + range * abscissas[i], gx)) {
                 return false;

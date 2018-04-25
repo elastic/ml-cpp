@@ -37,7 +37,6 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TPriorPtr = maths::CMultivariateOneOfNPrior::TPriorPtr;
 using TPriorPtrVec = maths::CMultivariateOneOfNPrior::TPriorPtrVec;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TSizeVec = std::vector<std::size_t>;
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
 const maths_t::TWeightStyleVec VARIANCE_WEIGHT(1, maths_t::E_SampleCountVarianceScaleWeight);
@@ -401,6 +400,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
     //   3) E[(X - m)^2] w.r.t. the marginal likelihood is equal to the predictive
     //      distribution covariance matrix.
 
+    using TSizeVec = std::vector<std::size_t>;
+
     maths::CSampling::seed();
 
     std::size_t nt = 3;
@@ -644,6 +645,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
+    using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
     using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 

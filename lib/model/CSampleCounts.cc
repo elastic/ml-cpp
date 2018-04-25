@@ -9,7 +9,7 @@
 #include <core/CMemory.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CBasicStatisticsPersist.h>
+#include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/COrderings.h>
 #include <maths/Constants.h>

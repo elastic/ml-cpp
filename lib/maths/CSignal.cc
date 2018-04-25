@@ -81,7 +81,7 @@ void CSignal::hadamard(const TComplexVec& fx, TComplexVec& fy) {
 void CSignal::fft(TComplexVec& f) {
     std::size_t n = f.size();
     std::size_t p = CIntegerTools::nextPow2(n);
-    std::size_t m = std::size_t{1} << p;
+    std::size_t m = 1 << p;
 
     LOG_TRACE(<< "n = " << n << ", m = " << m);
 
@@ -95,7 +95,7 @@ void CSignal::fft(TComplexVec& f) {
 
         m = 2 * n - 1;
         p = CIntegerTools::nextPow2(m);
-        m = std::size_t{1} << p;
+        m = 1 << p;
 
         TComplexVec chirp;
         chirp.reserve(n);

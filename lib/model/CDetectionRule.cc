@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CPersistUtils.h>
-
 #include <model/CDetectionRule.h>
 
 #include <model/CAnomalyDetectorModel.h>
