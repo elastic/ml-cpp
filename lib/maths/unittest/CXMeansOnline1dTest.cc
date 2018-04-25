@@ -726,14 +726,15 @@ void CXMeansOnline1dTest::testLargeHistory() {
     TDoubleVec samples2;
     rng.generateNormalSamples(15.0, 1.0, 100, samples2);
 
-    TDoubleVec samples;
-    samples.assign(samples1.begin(), samples1.end());
+    TDoubleVec samples(samples1);
     samples.insert(samples.end(), samples2.begin(), samples2.end());
     rng.random_shuffle(samples.begin() + 5000, samples.end());
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        reference.add(samples[i]);
-        clusterer.add(samples[i]);
+    for (const auto& sample : samples) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            reference.add(sample);
+            clusterer.add(sample);
+        }
         reference.propagateForwardsByTime(1.0);
         clusterer.propagateForwardsByTime(1.0);
     }

@@ -539,6 +539,7 @@ void CMetricModelTest::testMultivariateSample() {
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
     SModelParams params(bucketLength);
+    params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MaximumUpdatesPerBucket = 0.0;
     CMetricModelFactory factory(params);
 
@@ -618,6 +619,7 @@ void CMetricModelTest::testMultivariateSample() {
                         COUNT_WEIGHT, expectedLatLongSamples,
                         TDoubleVecVecVec(expectedLatLongSamples.size(),
                                          TDoubleVecVec(1, TDoubleVec(2, 1.0))));
+                    expectedMeanPrior->propagateForwardsByTime(1.0);
                     numberSamples = 0u;
                     expectedLatLongSamples.clear();
                 }
