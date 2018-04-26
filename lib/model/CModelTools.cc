@@ -155,7 +155,7 @@ std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDoubl
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
-    for (std::size_t i = 0u; i < value.size(); ++i) {
+    for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
         value[i] = m_ValueEps[i] > 0.0
                        ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i])
                        : value[i];
