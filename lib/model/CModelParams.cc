@@ -51,7 +51,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_MinimumSignificantCorrelation(
           CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION),
       s_DetectionRules(EMPTY_RULES), s_ScheduledEvents(EMPTY_SCHEDULED_EVENTS),
-      s_BucketResultsDelay(0), s_MinimumToDeduplicate(10000),
+      s_BucketResultsDelay(0), s_MinimumToFuzzyDeduplicate(10000),
       s_CacheProbabilities(true), s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT) {
 }
 

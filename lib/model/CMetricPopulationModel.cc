@@ -343,42 +343,34 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                       << core::CContainerPrinter::print(data));
             this->applyFilters(true, this->personFilter(), this->attributeFilter(), data);
 
-            TSizeValuesAndWeightsUMap attributes;
-            TSizeFuzzyDeduplicateUMap fuzzy;
+            TSizeValuesAndWeightsUMap attributeValuesAndWeights;
+            TSizeFuzzyDeduplicateUMap duplicates;
 
-            // Set up fuzzy de-duplication.
-            if (data.size() >= this->params().s_MinimumToDeduplicate) {
+            if (data.size() >= this->params().s_MinimumToFuzzyDeduplicate) {
+                // Set up fuzzy de-duplication.
                 for (const auto& data_ : data) {
                     std::size_t cid = CDataGatherer::extractAttributeId(data_);
                     const CGathererTools::TSampleVec& samples =
                         CDataGatherer::extractData(data_).s_Samples;
                     for (const auto& sample : samples) {
-                        fuzzy[cid].add(TDouble2Vec(sample.value(dimension)));
+                        duplicates[cid].add(TDouble2Vec(sample.value(dimension)));
                     }
                 }
-                for (auto& fuzzy_ : fuzzy) {
-                    fuzzy_.second.computeEpsilons(bucketLength, this->params().s_MinimumToDeduplicate);
+                for (auto& attribute : duplicates) {
+                    attribute.second.computeEpsilons(
+                        bucketLength, this->params().s_MinimumToFuzzyDeduplicate);
                 }
             }
 
             for (const auto& data_ : data) {
                 std::size_t pid = CDataGatherer::extractPersonId(data_);
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
-                const TOptionalSample& bucket =
-                    CDataGatherer::extractData(data_).s_BucketValue;
-                const CGathererTools::TSampleVec& samples =
-                    CDataGatherer::extractData(data_).s_Samples;
-                bool isInteger = CDataGatherer::extractData(data_).s_IsInteger;
-                bool isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
-                core_t::TTime cutoff = attributeLastBucketTimes[cid] -
-                                       this->params().s_SamplingAgeCutoff;
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (!model) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
-
                 core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
                 if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
@@ -391,11 +383,19 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
+                const TOptionalSample& bucket =
+                    CDataGatherer::extractData(data_).s_BucketValue;
+                const CGathererTools::TSampleVec& samples =
+                    CDataGatherer::extractData(data_).s_Samples;
+                bool isInteger = CDataGatherer::extractData(data_).s_IsInteger;
+                bool isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
+                core_t::TTime cutoff = attributeLastBucketTimes[cid] -
+                                       this->params().s_SamplingAgeCutoff;
                 LOG_TRACE(<< "Adding " << CDataGatherer::extractData(data_)
                           << " for person = " << gatherer.personName(pid)
                           << " and attribute = " << gatherer.attributeName(cid));
 
-                SValuesAndWeights& attribute = attributes[cid];
+                SValuesAndWeights& attribute = attributeValuesAndWeights[cid];
 
                 attribute.s_IsInteger &= isInteger;
                 attribute.s_IsNonNegative &= isNonNegative;
@@ -423,9 +423,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
                     double vs = sample.varianceScale();
                     TDouble2Vec value(sample.value(dimension));
-                    std::size_t duplicate = data.size() >= this->params().s_MinimumToDeduplicate
-                                                ? fuzzy[cid].duplicate(sample.time(), value)
-                                                : attribute.s_Values.size();
+                    std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);
 
                     if (duplicate < attribute.s_Values.size()) {
                         maths_t::addCount(TDouble2Vec(dimension, countWeight / vs),
@@ -452,7 +450,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 }
             }
 
-            for (auto& attribute : attributes) {
+            for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
                 core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
                 for (const auto& value : attribute.second.s_Values) {
