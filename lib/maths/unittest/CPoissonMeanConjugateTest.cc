@@ -79,13 +79,12 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
         CPoissonMeanConjugate filter1(CPoissonMeanConjugate::nonInformativePrior());
         CPoissonMeanConjugate filter2(filter1);
 
-        maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
+        maths_t::TDoubleWeightsAry1Vec weights;
+        weights.resize(samples.size(), maths_t::countVarianceScaleWeight(2.0));
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            filter1.addSamples(weightStyle, TDouble1Vec(1, samples[j]),
-                               TDouble4Vec1Vec(1, TDouble4Vec(1, 2.0)));
+            filter1.addSamples({samples[j]}, {weights[j]});
         }
-        filter2.addSamples(weightStyle, samples,
-                           TDouble4Vec1Vec(samples.size(), TDouble4Vec(1, 2.0)));
+        filter2.addSamples(samples, weights);
 
         LOG_DEBUG(<< filter1.print());
         LOG_DEBUG(<< "vs");
@@ -105,8 +104,7 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
         for (std::size_t j = 0u; j < count; ++j) {
             filter1.addSamples(TDouble1Vec(1, x));
         }
-        filter2.addSamples(maths::CConstantWeights::COUNT, TDouble1Vec(1, x),
-                           TDouble4Vec1Vec(1, TDouble4Vec(1, static_cast<double>(count))));
+        filter2.addSamples({x}, {maths_t::countWeight(10.0)});
 
         LOG_DEBUG(<< filter1.print());
         LOG_DEBUG(<< "vs");
@@ -360,18 +358,16 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
         }
 
-        maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-        TDouble4Vec weight(1, 1.0);
+        maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
 
         for (std::size_t j = 0u; j < boost::size(varianceScales); ++j) {
             double vs = varianceScales[j];
-            weight[0] = vs;
+            maths_t::setCountVarianceScale(vs, weight);
             double expectedMode = boost::math::mode(poisson);
-            LOG_DEBUG(<< "marginalLikelihoodMode = "
-                      << filter.marginalLikelihoodMode(weightStyle, weight)
+            LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weight)
                       << ", expectedMode = " << expectedMode);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 1.0);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
+                                         filter.marginalLikelihoodMode(weight), 1.0);
         }
     }
 }
@@ -610,11 +606,9 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
             meanError.add(std::fabs(px - (lb + ub) / 2.0));
         }
 
-        maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-
         for (std::size_t k = 0u; k < boost::size(vs); ++k) {
-            double mode = filter.marginalLikelihoodMode(weightStyle,
-                                                        TDouble4Vec(1, vs[k]));
+            double mode = filter.marginalLikelihoodMode(
+                maths_t::countVarianceScaleWeight(vs[k]));
             double ss[] = {0.9 * mode, 1.1 * mode};
 
             LOG_DEBUG(<< "vs = " << vs[k] << ", mode = " << mode);
@@ -624,40 +618,52 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
 
             if (mode > 0.0) {
                 filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[0]),
-                    TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                    maths_t::E_TwoSided, {ss[0]},
+                    {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                 if (mode > 0.0) {
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_OneSidedBelow, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     filter.probabilityOfLessLikelySamples(
-                        maths_t::E_OneSidedAbove, weightStyle, TDouble1Vec(ss, ss + 2),
-                        TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                        maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
+                        maths_t::TDoubleWeightsAry1Vec(
+                            2, maths_t::countVarianceScaleWeight(vs[k])),
+                        lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
             if (mode > 0.0) {
                 filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[1]),
-                    TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                    maths_t::E_TwoSided, {ss[1]},
+                    {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                 filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2),
-                    TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                    maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
+                    maths_t::TDoubleWeightsAry1Vec(
+                        2, maths_t::countVarianceScaleWeight(vs[k])),
+                    lb, ub, tail);
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 filter.probabilityOfLessLikelySamples(
-                    maths_t::E_OneSidedBelow, weightStyle, TDouble1Vec(ss, ss + 2),
-                    TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                    maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
+                    maths_t::TDoubleWeightsAry1Vec(
+                        2, maths_t::countVarianceScaleWeight(vs[k])),
+                    lb, ub, tail);
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                 filter.probabilityOfLessLikelySamples(
-                    maths_t::E_OneSidedAbove, weightStyle, TDouble1Vec(ss, ss + 2),
-                    TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
+                    maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
+                    maths_t::TDoubleWeightsAry1Vec(
+                        2, maths_t::countVarianceScaleWeight(vs[k])),
+                    lb, ub, tail);
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
             }
         }
@@ -854,9 +860,7 @@ void CPoissonMeanConjugateTest::testPersist() {
 
     maths::CPoissonMeanConjugate origFilter(CPoissonMeanConjugate::nonInformativePrior());
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();

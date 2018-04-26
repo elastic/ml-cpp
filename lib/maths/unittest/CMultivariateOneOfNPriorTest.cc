@@ -34,15 +34,11 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
 using TPriorPtr = maths::CMultivariateOneOfNPrior::TPriorPtr;
 using TPriorPtrVec = maths::CMultivariateOneOfNPrior::TPriorPtrVec;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TSizeVec = std::vector<std::size_t>;
-
-const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-const maths_t::TWeightStyleVec VARIANCE_WEIGHT(1, maths_t::E_SampleCountVarianceScaleWeight);
-const TDouble10Vec4Vec UNIT_WEIGHT_2(1, TDouble10Vec(2, 1.0));
-const TDouble10Vec4Vec1Vec SINGLE_UNIT_WEIGHT_2(1, UNIT_WEIGHT_2);
 
 class CMinusLogLikelihood : public maths::CGradientDescent::CFunction {
 public:
@@ -51,9 +47,9 @@ public:
 
     bool operator()(const maths::CGradientDescent::TVector& x, double& result) const {
         if (m_Prior->jointLogMarginalLikelihood(
-                COUNT_WEIGHT,
-                TDouble10Vec1Vec(1, TDouble10Vec(x.toVector<TDouble10Vec>())),
-                SINGLE_UNIT_WEIGHT_2, result) == maths_t::E_FpNoErrors) {
+                {x.toVector<TDouble10Vec>()},
+                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
+                result) == maths_t::E_FpNoErrors) {
             result = -result;
             return true;
         }
@@ -79,20 +75,18 @@ template<std::size_t N>
 maths::CMultivariateOneOfNPrior
 makeOneOfN(maths_t::EDataType dataType, double decayRate = 0.0) {
     TPriorPtrVec priors;
-    priors.push_back(TPriorPtr(
-        maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate)
-            .clone()));
-    priors.push_back(TPriorPtr(makeMultimodal<N>(dataType, decayRate).clone()));
+    priors.emplace_back(maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate)
+                            .clone());
+    priors.emplace_back(makeMultimodal<N>(dataType, decayRate).clone());
     return maths::CMultivariateOneOfNPrior(N, priors, dataType, decayRate);
 }
 
 void gaussianSamples(test::CRandomNumbers& rng,
-                     std::size_t modes,
-                     const std::size_t* n,
+                     const TSizeVec& n,
                      const double (*means)[2],
                      const double (*covariances)[3],
                      TDouble10Vec1Vec& samples) {
-    for (std::size_t i = 0u; i < modes; ++i) {
+    for (std::size_t i = 0u; i < n.size(); ++i) {
         TVector2 mean(means[i], means[i] + 2);
         TMatrix2 covariance(covariances[i], covariances[i] + 3);
         TDoubleVecVec samples_;
@@ -167,19 +161,18 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
         maths::CMultivariateOneOfNPrior filter2(filter1);
 
         for (std::size_t j = 0u; j < seedSamples.size(); ++j) {
-            TDouble10Vec1Vec sample(1, seedSamples[j]);
-            TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
-            filter1.addSamples(COUNT_WEIGHT, sample, weight);
-            filter2.addSamples(COUNT_WEIGHT, sample, weight);
+            filter1.addSamples({seedSamples[j]},
+                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
+            filter2.addSamples({seedSamples[j]},
+                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            TDouble10Vec1Vec sample(1, samples[j]);
-            TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
-            filter1.addSamples(COUNT_WEIGHT, sample, weight);
+            filter1.addSamples({samples[j]},
+                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
-        TDouble10Vec4Vec1Vec weights(samples.size(),
-                                     TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
-        filter2.addSamples(COUNT_WEIGHT, samples, weights);
+        maths_t::TDouble10VecWeightsAry1Vec weights(
+            samples.size(), maths_t::CUnitWeights::unit<TDouble10Vec>(2));
+        filter2.addSamples(samples, weights);
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
@@ -195,19 +188,16 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
 
         for (std::size_t j = 0u; j < seedSamples.size(); ++j) {
             TDouble10Vec1Vec sample(1, seedSamples[j]);
-            TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
-            filter1.addSamples(COUNT_WEIGHT, sample, weight);
-            filter2.addSamples(COUNT_WEIGHT, sample, weight);
+            filter1.addSamples(sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
+            filter2.addSamples(sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
-        TDouble10Vec4Vec1Vec weights;
-        weights.resize(samples.size() / 2, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.5)));
-        weights.resize(samples.size(), TDouble10Vec4Vec(1, TDouble10Vec(2, 2.0)));
+        maths_t::TDouble10VecWeightsAry1Vec weights;
+        weights.resize(samples.size() / 2, maths_t::countVarianceScaleWeight(1.5, 2));
+        weights.resize(samples.size(), maths_t::countVarianceScaleWeight(2.0, 2));
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            TDouble10Vec1Vec sample(1, samples[j]);
-            TDouble10Vec4Vec1Vec weight(1, weights[j]);
-            filter1.addSamples(VARIANCE_WEIGHT, sample, weight);
+            filter1.addSamples({samples[j]}, {weights[j]});
         }
-        filter2.addSamples(VARIANCE_WEIGHT, samples, weights);
+        filter2.addSamples(samples, weights);
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
@@ -224,14 +214,14 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
 
     const double eps = 2e-3;
 
-    const std::size_t n[] = {400, 600};
+    const TSizeVec n{400, 600};
     const double means[][2] = {{10.0, 10.0}, {20.0, 20.0}};
     const double covariances[][3] = {{8.0, 1.0, 8.0}, {20.0, -4.0, 10.0}};
 
     test::CRandomNumbers rng;
 
     TDouble10Vec1Vec samples;
-    gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+    gaussianSamples(rng, n, means, covariances, samples);
     rng.random_shuffle(samples.begin(), samples.end());
     LOG_DEBUG(<< "# samples = " << samples.size());
 
@@ -239,8 +229,8 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
 
     maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData, decayRate));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]),
-                          TDouble10Vec4Vec1Vec(1, UNIT_WEIGHT_2));
+        filter.addSamples({samples[i]},
+                          maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
     }
 
     double numberSamples = filter.numberSamples();
@@ -295,12 +285,12 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
     test::CRandomNumbers rng;
 
     {
-        const std::size_t n[] = {100};
+        const TSizeVec n{100};
         const double mean[][2] = {{10.0, 20.0}};
         const double covariance[][3] = {{3.0, 1.0, 2.0}};
 
         TDouble10Vec1Vec samples;
-        gaussianSamples(rng, boost::size(n), n, mean, covariance, samples);
+        gaussianSamples(rng, n, mean, covariance, samples);
 
         using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-10);
@@ -310,8 +300,8 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
             maths::CMultivariateOneOfNPrior filter(
                 makeOneOfN<2>(maths_t::E_ContinuousData, decayRates[i]));
             for (std::size_t j = 0u; j < samples.size(); ++j) {
-                filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[j]),
-                                  SINGLE_UNIT_WEIGHT_2);
+                filter.addSamples({samples[j]},
+                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, sum(filter.weights()), 1e-6);
                 filter.propagateForwardsByTime(1.0);
                 CPPUNIT_ASSERT(equal(sum(filter.weights()), 1.0));
@@ -322,12 +312,12 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
     {
         // Test that non-zero decay rate behaves as expected.
 
-        const std::size_t n[] = {4000, 6000};
+        const TSizeVec n{4000, 6000};
         const double means[][2] = {{10.0, 10.0}, {20.0, 20.0}};
         const double covariances[][3] = {{8.0, 1.0, 8.0}, {20.0, -4.0, 10.0}};
 
         TDouble10Vec1Vec samples;
-        gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+        gaussianSamples(rng, n, means, covariances, samples);
         rng.random_shuffle(samples.begin(), samples.end());
 
         const double decayRates[] = {0.0008, 0.004, 0.02};
@@ -339,8 +329,8 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
                 makeOneOfN<2>(maths_t::E_ContinuousData, decayRates[i]));
 
             for (std::size_t j = 0u; j < samples.size(); ++j) {
-                filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[j]),
-                                  SINGLE_UNIT_WEIGHT_2);
+                filter.addSamples({samples[j]},
+                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 filter.propagateForwardsByTime(1.0);
             }
 
@@ -359,14 +349,14 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
 void CMultivariateOneOfNPriorTest::testModelUpdate() {
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
-    const std::size_t n[] = {400, 600};
+    const TSizeVec n{400, 600};
     const double means[][2] = {{10.0, 10.0}, {20.0, 20.0}};
     const double covariances[][3] = {{8.0, 1.0, 8.0}, {20.0, -4.0, 10.0}};
 
     test::CRandomNumbers rng;
 
     TDouble10Vec1Vec samples;
-    gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+    gaussianSamples(rng, n, means, covariances, samples);
     rng.random_shuffle(samples.begin(), samples.end());
 
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
@@ -378,12 +368,11 @@ void CMultivariateOneOfNPriorTest::testModelUpdate() {
             makeMultimodal<2>(dataTypes[i]);
         maths::CMultivariateOneOfNPrior oneOfN(makeOneOfN<2>(dataTypes[i]));
 
-        normal.addSamples(COUNT_WEIGHT, samples,
-                          TDouble10Vec4Vec1Vec(samples.size(), UNIT_WEIGHT_2));
-        multimodal.addSamples(COUNT_WEIGHT, samples,
-                              TDouble10Vec4Vec1Vec(samples.size(), UNIT_WEIGHT_2));
-        oneOfN.addSamples(COUNT_WEIGHT, samples,
-                          TDouble10Vec4Vec1Vec(samples.size(), UNIT_WEIGHT_2));
+        maths_t::TDouble10VecWeightsAry1Vec weights(
+            samples.size(), maths_t::CUnitWeights::unit<TDouble10Vec>(2));
+        normal.addSamples(samples, weights);
+        multimodal.addSamples(samples, weights);
+        oneOfN.addSamples(samples, weights);
 
         CPPUNIT_ASSERT_EQUAL(normal.checksum(), oneOfN.models()[0]->checksum());
         CPPUNIT_ASSERT_EQUAL(multimodal.checksum(), oneOfN.models()[1]->checksum());
@@ -436,8 +425,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
             TMeanAccumulator meanCovarianceError;
 
             for (std::size_t i = 0u; i < samples.size(); ++i) {
-                filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]),
-                                  SINGLE_UNIT_WEIGHT_2);
+                filter.addSamples({samples[i]},
+                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
                 if (!filter.isNonInformative()) {
                     TDouble10Vec m = filter.marginalLikelihoodMean();
@@ -545,8 +534,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 
             maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData));
             for (std::size_t i = 0u; i < samples.size(); ++i) {
-                filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]),
-                                  SINGLE_UNIT_WEIGHT_2);
+                filter.addSamples({samples[i]},
+                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
 
             TDouble10Vec m = filter.marginalLikelihoodMean();
@@ -681,7 +670,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
 
         TMean2Accumulator expectedMean;
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[j]), SINGLE_UNIT_WEIGHT_2);
+            filter.addSamples({samples[j]},
+                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             expectedMean.add(TVector2(samples[j]));
 
             if (!filter.isNonInformative()) {
@@ -727,7 +717,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 
         for (std::size_t i = 0u; i < boost::size(means); ++i) {
             for (std::size_t j = 0u; j < boost::size(covariances); ++j) {
-                std::size_t n[] = {100};
+                const TSizeVec n{100};
                 const double mean[][2] = {{means[i][0], means[i][1]}};
                 const double covariance[][3] = {
                     {covariances[i][0], covariances[i][1], covariances[i][2]}};
@@ -736,12 +726,12 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                           << ", variance = " << covariance[0][0] << " ***");
 
                 TDouble10Vec1Vec samples;
-                gaussianSamples(rng, 1, n, mean, covariance, samples);
+                gaussianSamples(rng, n, mean, covariance, samples);
 
                 maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData));
                 for (std::size_t k = 0u; k < samples.size(); ++k) {
-                    filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[k]),
-                                      SINGLE_UNIT_WEIGHT_2);
+                    filter.addSamples({samples[k]},
+                                      maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 }
 
                 CMinusLogLikelihood likelihood(filter);
@@ -754,7 +744,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                        maths::CVector<double>(mean[0], mean[0] + 2), likelihood,
                        gradientOfLikelihood, expectedMode, likelihoods);
 
-                TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
+                TDouble10Vec mode = filter.marginalLikelihoodMode(
+                    maths_t::CUnitWeights::unit<TDouble10Vec>(2));
 
                 LOG_DEBUG(<< "marginalLikelihoodMode = " << core::CContainerPrinter::print(mode)
                           << ", expectedMode = " << expectedMode);
@@ -770,7 +761,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
     {
         LOG_DEBUG(<< "****** Multimodal ******");
 
-        const std::size_t n[] = {100, 100};
+        const TSizeVec n{100, 100};
         const double means[][2] = {
             {10.0, 10.0},
             {16.0, 18.0},
@@ -781,11 +772,12 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
         };
 
         TDouble10Vec1Vec samples;
-        gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+        gaussianSamples(rng, n, means, covariances, samples);
 
         maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData));
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]), SINGLE_UNIT_WEIGHT_2);
+            filter.addSamples({samples[i]},
+                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
 
         CMinusLogLikelihood likelihood(filter);
@@ -798,7 +790,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                maths::CVector<double>(means[0], means[0] + 2), likelihood,
                gradientOfLikelihood, expectedMode, likelihoods);
 
-        TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
+        TDouble10Vec mode = filter.marginalLikelihoodMode(
+            maths_t::CUnitWeights::unit<TDouble10Vec>(2));
 
         LOG_DEBUG(<< "marginalLikelihoodMode = " << core::CContainerPrinter::print(mode)
                   << ", expectedMode = " << expectedMode);
@@ -816,7 +809,7 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
 
     test::CRandomNumbers rng;
 
-    const std::size_t n[] = {50, 50};
+    const TSizeVec n{50, 50};
     const double means[][2] = {
         {10.0, 10.0},
         {25.0, 25.0},
@@ -827,13 +820,14 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
     };
 
     TDouble10Vec1Vec samples;
-    gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+    gaussianSamples(rng, n, means, covariances, samples);
     rng.random_shuffle(samples.begin(), samples.end());
 
     maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData));
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]), SINGLE_UNIT_WEIGHT_2);
+        filter.addSamples({samples[i]},
+                          maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
         if (!filter.isNonInformative()) {
             TDoubleVec weights = filter.weights();
@@ -876,7 +870,7 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 
     test::CRandomNumbers rng;
 
-    const std::size_t n[] = {100, 100};
+    const TSizeVec n{100, 100};
     const double means[][2] = {
         {10.0, 10.0},
         {16.0, 18.0},
@@ -887,7 +881,7 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
     };
 
     TDouble10Vec1Vec samples;
-    gaussianSamples(rng, boost::size(n), n, means, covariances, samples);
+    gaussianSamples(rng, n, means, covariances, samples);
     rng.random_shuffle(samples.begin(), samples.end());
 
     maths::CMultivariateOneOfNPrior filter(makeOneOfN<2>(maths_t::E_ContinuousData));
@@ -896,12 +890,12 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         TDouble10Vec1Vec sample(1, samples[i]);
-        filter.addSamples(COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2);
+        filter.addSamples(sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
         double lowerBound, upperBound;
         maths::CMultivariatePrior::TTail10Vec tail;
         CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(
-            maths_t::E_TwoSided, COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2,
+            maths_t::E_TwoSided, sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
             lowerBound, upperBound, tail));
 
         CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
@@ -915,7 +909,8 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
             double modelLowerBound, modelUpperBound;
             double weight = weights[j];
             CPPUNIT_ASSERT(models[j]->probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2,
+                maths_t::E_TwoSided, sample,
+                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
                 modelLowerBound, modelUpperBound, tail));
             CPPUNIT_ASSERT_EQUAL(modelLowerBound, modelUpperBound);
             double modelProbability = (modelLowerBound + modelUpperBound) / 2.0;
@@ -937,20 +932,21 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 void CMultivariateOneOfNPriorTest::testPersist() {
     // Check that persist/restore is idempotent.
 
-    const std::size_t n[] = {100};
+    const TSizeVec n{100};
     const double mean[][2] = {{10.0, 20.0}};
     const double covariance[][3] = {{3.0, 1.0, 2.0}};
 
     test::CRandomNumbers rng;
 
     TDouble10Vec1Vec samples;
-    gaussianSamples(rng, boost::size(n), n, mean, covariance, samples);
+    gaussianSamples(rng, n, mean, covariance, samples);
 
     maths_t::EDataType dataType = maths_t::E_ContinuousData;
 
     maths::CMultivariateOneOfNPrior origFilter(makeOneOfN<2>(dataType));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]), SINGLE_UNIT_WEIGHT_2);
+        origFilter.addSamples({samples[i]},
+                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
     }
     std::size_t dimension = origFilter.dimension();
     double decayRate = origFilter.decayRate();

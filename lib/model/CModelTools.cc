@@ -333,8 +333,7 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
         TDouble1Vec& modes{m_Caches[{feature, id}].s_Modes};
         if (modes.empty()) {
             TDouble2Vec1Vec modes_(
-                model.residualModes(maths::CConstantWeights::COUNT_VARIANCE,
-                                    maths::CConstantWeights::unit<TDouble2Vec>(1)));
+                model.residualModes(maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
             for (const auto& mode : modes_) {
                 modes.push_back(mode[0]);
             }

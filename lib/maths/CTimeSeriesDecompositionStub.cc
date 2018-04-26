@@ -31,8 +31,7 @@ bool CTimeSeriesDecompositionStub::initialized() const {
 
 bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
                                             double /*value*/,
-                                            const maths_t::TWeightStyleVec& /*weightStyles*/,
-                                            const maths_t::TDouble4Vec& /*weights*/) {
+                                            const maths_t::TDoubleWeightsAry& /*weights*/) {
     return false;
 }
 

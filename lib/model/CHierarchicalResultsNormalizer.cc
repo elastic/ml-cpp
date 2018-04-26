@@ -268,15 +268,13 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream& inputStream) {
 
             if (normalizerVec != nullptr) {
                 if (!traverser.next()) {
-                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end "
-                                 "of object reached when "
+                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end of object reached when "
                               << CAnomalyScore::MLKEY_ATTRIBUTE << " was expected");
                     return E_Corrupt;
                 }
 
                 if (!traverser.next()) {
-                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end "
-                                 "of object reached when "
+                    LOG_ERROR(<< "Cannot restore hierarchical normalizer - end of object reached when "
                               << CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE
                               << " was expected");
                     return E_Corrupt;

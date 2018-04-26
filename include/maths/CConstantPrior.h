@@ -65,17 +65,14 @@ public:
     virtual bool needsOffset() const;
 
     //! No-op.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyle,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TDouble1Vec& samples,
+                                const TDoubleWeightsAry1Vec& weights);
 
     //! Returns zero.
     virtual double offset() const;
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec& weightStyle,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
@@ -87,27 +84,22 @@ public:
     virtual double marginalLikelihoodMean() const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! All confidence intervals are the point [constant, constant].
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                               const TDoubleWeightsAry1Vec& weights,
                                double& result) const;
 
     //! Get \p numberSamples times the constant.
@@ -115,25 +107,22 @@ public:
 
     //! A large number if any sample is less than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                  const TDouble1Vec& samples,
-                                  const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdf(const TDouble1Vec& samples,
+                                  const TDoubleWeightsAry1Vec& weights,
                                   double& lowerBound,
                                   double& upperBound) const;
 
     //! A large number if any sample is larger than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                            const TDouble1Vec& samples,
-                                            const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                            const TDoubleWeightsAry1Vec& weights,
                                             double& lowerBound,
                                             double& upperBound) const;
 
     //! Returns one if all samples equal the constant and one otherwise.
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec& weightStyles,
                                                 const TDouble1Vec& samples,
-                                                const TDouble4Vec1Vec& weights,
+                                                const TDoubleWeightsAry1Vec& weights,
                                                 double& lowerBound,
                                                 double& upperBound,
                                                 maths_t::ETail& tail) const;

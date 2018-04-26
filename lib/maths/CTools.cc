@@ -20,6 +20,7 @@
 #include <maths/CPrior.h>
 #include <maths/CSolvers.h>
 #include <maths/CToolsDetail.h>
+#include <maths/Constants.h>
 
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/binomial.hpp>

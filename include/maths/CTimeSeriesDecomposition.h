@@ -98,9 +98,6 @@ public:
     //!
     //! \param[in] time The time of the function point.
     //! \param[in] value The function value at \p time.
-    //! \param[in] weightStyles The styles of \p weights. Both the count
-    //! and the Winsorisation weight styles have an effect. See also
-    //! maths_t::ESampleWeightStyle for more details.
     //! \param[in] weights The weights of \p value. The smaller
     //! the count weight the less influence \p value has on the trend
     //! and it's local variance.
@@ -108,8 +105,7 @@ public:
     //! and false otherwise.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec& weights = TWeights::UNIT);
+                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT);
 
     //! Propagate the decomposition forwards to \p time.
     void propagateForwardsTo(core_t::TTime time);

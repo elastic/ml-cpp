@@ -1066,8 +1066,7 @@ void CToolsTest::testSpread() {
         double raw[] = {150.0,   170.0,   4500.0,  4650.0,  4700.0,  4800.0,
                         73000.0, 73150.0, 73500.0, 73600.0, 73800.0, 74000.0};
         double separation = 126.0;
-        std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, "
-                               "73000, 73150, 73487, 73613, 73800, 74000]";
+        std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
         TDoubleVec points(boost::begin(raw), boost::end(raw));
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
