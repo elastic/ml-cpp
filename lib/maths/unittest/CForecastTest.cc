@@ -150,7 +150,7 @@ void CForecastTest::testComplexNoLongTermTrend() {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 34.0, 0.13);
+    this->test(trend, bucketLength, 60, 24.0, 35.0, 0.13);
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
