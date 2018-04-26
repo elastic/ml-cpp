@@ -2,7 +2,7 @@
 
 These instructions are for setting up a Windows build machine from scratch.
 
-For subsequent machines, the setup can be simplified by copying components from the first machine - see `windows_simple.md`.
+For subsequent machines, the setup can be simplified by copying components from the first machine - see [windows_simple.md](windows_simple.md).
 
 The build system assumes Windows itself is installed on the `C:` drive. If this is not the case on your machine, the Makefiles will not work.
 

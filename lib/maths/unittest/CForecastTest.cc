@@ -94,7 +94,7 @@ void CForecastTest::testDailyNoLongTermTrend() {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    this->test(trend, bucketLength, 60, 64.0, 4.0, 0.13);
+    this->test(trend, bucketLength, 60, 64.0, 5.0, 0.14);
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
@@ -167,7 +167,7 @@ void CForecastTest::testComplexConstantLongTermTrend() {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 17.0, 0.04);
+    this->test(trend, bucketLength, 60, 24.0, 13.0, 0.01);
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
@@ -197,7 +197,7 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 4.0, 23.0, 0.05);
+    this->test(trend, bucketLength, 60, 4.0, 24.0, 0.051);
 }
 
 void CForecastTest::testNonNegative() {
@@ -367,7 +367,7 @@ void CForecastTest::testFinancialIndex() {
     //file << "my = " << core::CContainerPrinter::print(my) << ";\n";
     //file << "uy = " << core::CContainerPrinter::print(uy) << ";\n";
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < 53.0);
+    CPPUNIT_ASSERT(percentageOutOfBounds < 52.0);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 

@@ -30,6 +30,7 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
+using TTimeVec = std::vector<core_t::TTime>;
 
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double DECAY_RATE{0.0005};
@@ -62,7 +63,55 @@ maths::CMultimodalPrior multimodal() {
 }
 
 void CModelToolsTest::testFuzzyDeduplicate() {
+    // Test de-duplication and fuzzy de-duplication.
+    //
+    // We shouldn't have repeated values and no value should be further
+    // from its fuzzy duplicate than an expected tolerance.
+    //
+    // Finally, we test we get good reduction in the number of values
+    // when fuzzily de-duplicating over a range of data distributions.
+
     test::CRandomNumbers rng;
+
+    auto fuzzyUniqueValues = [&](const TDoubleVec& values, double q80, TDoubleVec& uniques) {
+        std::size_t desiredSamples{10000};
+        double tolerance{1.5 * q80 / static_cast<double>(desiredSamples)};
+        LOG_DEBUG(<< "tolerance = " << tolerance);
+
+        model::CModelTools::CFuzzyDeduplicate duplicates;
+        for (auto value : values) {
+            duplicates.add({value});
+        }
+        duplicates.computeEpsilons(600 /*bucketLength*/, desiredSamples);
+
+        uniques.clear();
+        for (auto value : values) {
+            std::size_t duplicate{duplicates.duplicate(300, {value})};
+            if (duplicate < uniques.size()) {
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, tolerance);
+            } else {
+                uniques.push_back(value);
+            }
+        }
+    };
+
+    LOG_DEBUG("Duplicates");
+    {
+        model::CModelTools::CFuzzyDeduplicate duplicates;
+        TTimeVec times{300, 300, 300, 900, 300, 300, 300};
+        TDoubleVec values{1.0, 1.0, 4.0, 1.0, 3.0, 1.2, 25.0};
+        TDoubleVec uniques;
+        for (std::size_t i = 0; i < times.size(); ++i) {
+            std::size_t duplicate{duplicates.duplicate(times[i], {values[i]})};
+            if (duplicate == uniques.size()) {
+                uniques.push_back(values[i]);
+            } else {
+                CPPUNIT_ASSERT_EQUAL(values[i], uniques[duplicate]);
+            }
+        }
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
+                             core::CContainerPrinter::print(uniques));
+    }
 
     TDoubleVec values;
     TDoubleVec uniques;
@@ -72,28 +121,9 @@ void CModelToolsTest::testFuzzyDeduplicate() {
     LOG_DEBUG(<< "Normal");
     for (auto variance : {1.0, 10.0, 100.0, 1000.0}) {
         rng.generateNormalSamples(0.0, variance, 200000, values);
-
-        model::CModelTools::CFuzzyDeduplicate fuzzy;
-        for (auto value : values) {
-            fuzzy.add(TDouble2Vec{value});
-        }
-        fuzzy.computeEpsilons(600, 10000);
-
         boost::math::normal normal{variance, std::sqrt(variance)};
-        double eps{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1)) /
-                   10000.0};
-        LOG_DEBUG(<< "eps = " << eps);
-
-        uniques.clear();
-        for (auto value : values) {
-            std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
-            if (duplicate < uniques.size()) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
-                uniques.push_back(value);
-            }
-        }
-
+        double q80{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1))};
+        fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
         CPPUNIT_ASSERT(uniques.size() < 25000);
     }
@@ -101,26 +131,8 @@ void CModelToolsTest::testFuzzyDeduplicate() {
     LOG_DEBUG(<< "Uniform");
     for (auto range : {1.0, 10.0, 100.0, 1000.0}) {
         rng.generateUniformSamples(0.0, range, 200000, values);
-
-        model::CModelTools::CFuzzyDeduplicate fuzzy;
-        for (auto value : values) {
-            fuzzy.add(TDouble2Vec{value});
-        }
-        fuzzy.computeEpsilons(600, 10000);
-
-        double eps{0.8 * range / 10000.0};
-        LOG_DEBUG(<< "eps = " << eps);
-
-        uniques.clear();
-        for (auto value : values) {
-            std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
-            if (duplicate < uniques.size()) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
-                uniques.push_back(value);
-            }
-        }
-
+        double q80{0.8 * range};
+        fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
         CPPUNIT_ASSERT(uniques.size() < 15000);
     }
@@ -129,26 +141,8 @@ void CModelToolsTest::testFuzzyDeduplicate() {
     {
         rng.generateUniformSamples(0.0, 100.0, 200000, values);
         std::sort(values.begin(), values.end());
-
-        model::CModelTools::CFuzzyDeduplicate fuzzy;
-        for (auto value : values) {
-            fuzzy.add(TDouble2Vec{value});
-        }
-        fuzzy.computeEpsilons(600, 10000);
-
-        double eps{80.0 / 10000.0};
-        LOG_DEBUG(<< "eps = " << eps);
-
-        uniques.clear();
-        for (auto value : values) {
-            std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
-            if (duplicate < uniques.size()) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
-                uniques.push_back(value);
-            }
-        }
-
+        double q80{80.0};
+        fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
         CPPUNIT_ASSERT(uniques.size() < 15000);
     }
@@ -156,36 +150,19 @@ void CModelToolsTest::testFuzzyDeduplicate() {
     LOG_DEBUG(<< "Log-Normal");
     for (auto variance : {1.0, 2.0, 4.0, 8.0}) {
         rng.generateLogNormalSamples(variance, variance, 200000, values);
-
-        model::CModelTools::CFuzzyDeduplicate fuzzy;
-        for (auto value : values) {
-            fuzzy.add(TDouble2Vec{value});
-        }
-        fuzzy.computeEpsilons(600, 10000);
-
         boost::math::lognormal lognormal{variance, std::sqrt(variance)};
-        double eps{(boost::math::quantile(lognormal, 0.9) -
-                    boost::math::quantile(lognormal, 0.1)) /
-                   10000.0};
-        LOG_DEBUG(<< "eps = " << eps);
-
-        uniques.clear();
-        for (auto value : values) {
-            std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
-            if (duplicate < uniques.size()) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
-                uniques.push_back(value);
-            }
-        }
-
+        double q80{boost::math::quantile(lognormal, 0.9) -
+                   boost::math::quantile(lognormal, 0.1)};
+        fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
         CPPUNIT_ASSERT(uniques.size() < 30000);
     }
 }
 
 void CModelToolsTest::testProbabilityCache() {
-    using TBool2Vec = core::CSmallVector<bool, 2>;
+    // Test the error introduced by caching the probability and that we
+    // don't get any errors in the tailness we calculate for the value.
+
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
@@ -251,7 +228,7 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty(TBool2Vec{false})
+                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;
@@ -293,7 +270,7 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty(TBool2Vec{false})
+                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;
