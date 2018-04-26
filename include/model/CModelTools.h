@@ -87,8 +87,6 @@ public:
         core_t::TTime quantize(core_t::TTime time) const;
 
     private:
-        //! If false then quantization is disabled.
-        bool m_Quantize = true;
         //! The count of values added.
         std::size_t m_Count = 0;
         //! The time quantization interval.

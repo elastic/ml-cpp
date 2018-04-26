@@ -51,7 +51,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_MinimumSignificantCorrelation(
           CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION),
       s_DetectionRules(EMPTY_RULES), s_ScheduledEvents(EMPTY_SCHEDULED_EVENTS),
-      s_BucketResultsDelay(0), s_MinimumToDeduplicate(10000),
+      s_BucketResultsDelay(0), s_MinimumToFuzzyDeduplicate(10000),
       s_CacheProbabilities(true), s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT) {
 }
 
@@ -93,7 +93,7 @@ uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
     seed = maths::CChecksum::calculate(seed, s_MultivariateByFields);
     seed = maths::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
-    return maths::CChecksum::calculate(seed, s_MinimumToDeduplicate);
+    return maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
 }
 }
 }

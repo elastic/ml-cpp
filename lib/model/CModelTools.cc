@@ -124,8 +124,7 @@ void CModelTools::CFuzzyDeduplicate::add(TDouble2Vec value) {
 
 void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
                                                      std::size_t desiredNumberSamples) {
-    m_Quantize = m_Count > 0;
-    if (m_Quantize) {
+    if (m_Count > 0) {
         m_QuantizedValues.reserve(std::min(m_Count, desiredNumberSamples));
         m_TimeEps = std::max(bucketLength / 60, core_t::TTime(1));
         m_ValueEps.assign(m_RandomSample[0].size(), 0.0);
@@ -144,19 +143,15 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
                                 static_cast<double>(desiredNumberSamples);
             }
         }
-        m_Count = 0;
     }
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDouble2Vec value) {
-    return !m_Quantize
-               ? m_Count++
-               : m_QuantizedValues
-                     .emplace(boost::unordered::piecewise_construct,
-                              std::forward_as_tuple(this->quantize(time),
-                                                    this->quantize(value)),
-                              std::forward_as_tuple(m_QuantizedValues.size()))
-                     .first->second;
+    return m_QuantizedValues
+        .emplace(boost::unordered::piecewise_construct,
+                 std::forward_as_tuple(this->quantize(time), this->quantize(value)),
+                 std::forward_as_tuple(m_QuantizedValues.size()))
+        .first->second;
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
@@ -169,7 +164,7 @@ CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec va
 }
 
 core_t::TTime CModelTools::CFuzzyDeduplicate::quantize(core_t::TTime time) const {
-    return maths::CIntegerTools::floor(time, m_TimeEps);
+    return m_TimeEps > 0 ? maths::CIntegerTools::floor(time, m_TimeEps) : time;
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::

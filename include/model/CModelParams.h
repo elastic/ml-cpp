@@ -154,7 +154,7 @@ struct MODEL_EXPORT SModelParams {
 
     //! The minimum data size to trigger fuzzy de-duplication of samples to add
     //! to population models.
-    std::size_t s_MinimumToDeduplicate;
+    std::size_t s_MinimumToFuzzyDeduplicate;
 
     //! If true then cache the results of the probability calculation.
     bool s_CacheProbabilities;

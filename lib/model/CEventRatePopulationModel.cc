@@ -395,34 +395,31 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
             core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
 
-            TSizeValuesAndWeightsUMap attributes;
+            TSizeValuesAndWeightsUMap attributeValuesAndWeights;
+            TSizeFuzzyDeduplicateUMap duplicates;
 
-            // Set up fuzzy de-duplication.
-            TSizeFuzzyDeduplicateUMap fuzzy;
-            if (data.size() >= this->params().s_MinimumToDeduplicate) {
+            if (data.size() >= this->params().s_MinimumToFuzzyDeduplicate) {
+                // Set up fuzzy de-duplication.
                 for (const auto& data_ : data) {
                     std::size_t cid = CDataGatherer::extractAttributeId(data_);
                     uint64_t count = CDataGatherer::extractData(data_).s_Count;
-                    fuzzy[cid].add({static_cast<double>(count)});
+                    duplicates[cid].add({static_cast<double>(count)});
                 }
-                for (auto& fuzzy_ : fuzzy) {
-                    fuzzy_.second.computeEpsilons(bucketLength, this->params().s_MinimumToDeduplicate);
+                for (auto& attribute : duplicates) {
+                    attribute.second.computeEpsilons(
+                        bucketLength, this->params().s_MinimumToFuzzyDeduplicate);
                 }
             }
 
             for (const auto& data_ : data) {
                 std::size_t pid = CDataGatherer::extractPersonId(data_);
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
-                uint64_t count = CDataGatherer::extractData(data_).s_Count;
-                double value =
-                    model_t::offsetCountToZero(feature, static_cast<double>(count));
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (!model) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
-
                 if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
@@ -431,36 +428,36 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                         // multiple times (once per person)
                         attributeLastBucketTimesMap[cid] = sampleTime;
                     }
-
                     continue;
                 }
 
+                double count =
+                    static_cast<double>(CDataGatherer::extractData(data_).s_Count);
+                double value = model_t::offsetCountToZero(feature, count);
+                double countWeight = this->sampleRateWeight(pid, cid) *
+                                     this->learnRate(feature);
                 LOG_TRACE(<< "Adding " << value
                           << " for person = " << gatherer.personName(pid)
                           << " and attribute = " << gatherer.attributeName(cid));
 
-                SValuesAndWeights& attribute = attributes[cid];
-                std::size_t duplicate = data.size() >= this->params().s_MinimumToDeduplicate
-                                            ? fuzzy[cid].duplicate(sampleTime, {value})
-                                            : attribute.s_Values.size();
+                SValuesAndWeights& attribute = attributeValuesAndWeights[cid];
+                std::size_t duplicate = duplicates[cid].duplicate(sampleTime, {value});
 
                 if (duplicate < attribute.s_Values.size()) {
-                    double weight{this->sampleRateWeight(pid, cid) * this->learnRate(feature)};
-                    maths_t::addCount(TDouble2Vec{weight}, attribute.s_Weights[duplicate]);
+                    maths_t::addCount(TDouble2Vec{countWeight},
+                                      attribute.s_Weights[duplicate]);
                 } else {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);
                     attribute.s_Weights.push_back(
                         maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                     auto& weight = attribute.s_Weights.back();
-                    maths_t::setCount(TDouble2Vec{this->sampleRateWeight(pid, cid) *
-                                                  this->learnRate(feature)},
-                                      weight);
+                    maths_t::setCount(TDouble2Vec{countWeight}, weight);
                     maths_t::setWinsorisationWeight(
                         model->winsorisationWeight(1.0, sampleTime, {value}), weight);
                 }
             }
 
-            for (auto& attribute : attributes) {
+            for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
