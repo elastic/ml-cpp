@@ -14,6 +14,7 @@
 #include <maths/CMultivariatePrior.h>
 #include <maths/CPrior.h>
 #include <maths/Constants.h>
+#include <maths/MathsTypes.h>
 
 #include <cmath>
 #include <cstddef>
@@ -200,55 +201,45 @@ template<std::size_t N>
 class CUnitKernel {
 public:
     CUnitKernel(const maths::CMultivariatePrior& prior)
-        : m_Prior(&prior), m_X(1) {}
+        : m_Prior(&prior), m_X(1),
+          m_SingleUnit(ml::maths_t::CUnitWeights::singleUnit<ml::maths_t::TDouble10Vec>(N)) {}
 
     bool operator()(const maths::CVectorNx1<double, N>& x, double& result) const {
         m_X[0].assign(x.begin(), x.end());
-        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, result);
+        m_Prior->jointLogMarginalLikelihood(m_X, m_SingleUnit, result);
         result = std::exp(result);
         return true;
     }
 
 private:
-    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
-
-private:
     const maths::CMultivariatePrior* m_Prior;
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
+    ml::maths_t::TDouble10VecWeightsAry1Vec m_SingleUnit;
 };
-
-template<std::size_t N>
-ml::maths_t::TDouble10VecWeightsAry1Vec CUnitKernel<N>::SINGLE_UNIT{
-    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
 class CMeanKernel {
 public:
     CMeanKernel(const maths::CMultivariatePrior& prior)
-        : m_Prior(&prior), m_X(1) {}
+        : m_Prior(&prior), m_X(1),
+          m_SingleUnit(ml::maths_t::CUnitWeights::singleUnit<ml::maths_t::TDouble10Vec>(N)) {}
 
     bool operator()(const maths::CVectorNx1<double, N>& x,
                     maths::CVectorNx1<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, likelihood);
+        m_Prior->jointLogMarginalLikelihood(m_X, m_SingleUnit, likelihood);
         likelihood = std::exp(likelihood);
         result = x * likelihood;
         return true;
     }
 
 private:
-    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
-
-private:
     const maths::CMultivariatePrior* m_Prior;
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
+    ml::maths_t::TDouble10VecWeightsAry1Vec m_SingleUnit;
 };
-
-template<std::size_t N>
-ml::maths_t::TDouble10VecWeightsAry1Vec CMeanKernel<N>::SINGLE_UNIT{
-    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>
@@ -256,30 +247,25 @@ class CCovarianceKernel {
 public:
     CCovarianceKernel(const maths::CMultivariatePrior& prior,
                       const maths::CVectorNx1<double, N>& mean)
-        : m_Prior(&prior), m_Mean(mean), m_X(1) {}
+        : m_Prior(&prior), m_Mean(mean), m_X(1),
+          m_SingleUnit(ml::maths_t::CUnitWeights::singleUnit<ml::maths_t::TDouble10Vec>(N)) {}
 
     bool operator()(const maths::CVectorNx1<double, N>& x,
                     maths::CSymmetricMatrixNxN<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(m_X, SINGLE_UNIT, likelihood);
+        m_Prior->jointLogMarginalLikelihood(m_X, m_SingleUnit, likelihood);
         likelihood = std::exp(likelihood);
         result = (x - m_Mean).outer() * likelihood;
         return true;
     }
 
 private:
-    static ml::maths_t::TDouble10VecWeightsAry1Vec SINGLE_UNIT;
-
-private:
     const maths::CMultivariatePrior* m_Prior;
     maths::CVectorNx1<double, N> m_Mean;
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
+    ml::maths_t::TDouble10VecWeightsAry1Vec m_SingleUnit;
 };
-
-template<std::size_t N>
-ml::maths_t::TDouble10VecWeightsAry1Vec CCovarianceKernel<N>::SINGLE_UNIT{
-    ml::maths_t::CUnitWeights::unit<ml::maths_t::TDouble10Vec>(N)};
 
 //! A constant function.
 double constant(core_t::TTime time);
