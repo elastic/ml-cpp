@@ -567,9 +567,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
 
     switch (m_Machine.state()) {
     case PT_TEST:
-        for (auto test : {E_Short, E_Long}) {
-            if (this->shouldTest(test, time)) {
-                const auto& window = m_Windows[test];
+        for (auto i : {E_Short, E_Long}) {
+            if (this->shouldTest(i, time)) {
+                const auto& window = m_Windows[i];
                 TFloatMeanAccumulatorVec values(window->valuesMinusPrediction(predictor));
                 core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
                 core_t::TTime bucketLength{window->bucketLength()};
@@ -688,30 +688,22 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
 
 bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
                                                                   core_t::TTime time) const {
-
-    // We need to test more frequently than when we compress, because
-    // this only happens after we've seen 336 buckets, this would thus
-    // significantly delay when we first detect a daily periodic for
-    // longer bucket lengths otherwise.
-
-    using TScheduledTest = std::function<bool(const TExpandingWindowPtr&)>;
-
-    auto scheduledTest =
-        test == E_Long && m_Windows[E_Short] != nullptr
-            ? TScheduledTest(
-                  [](const TExpandingWindowPtr& /*window*/) { return false; })
-            : TScheduledTest([this, time](const TExpandingWindowPtr& window_) {
-                  core_t::TTime length{time - window_->startTime()};
-                  for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-                      if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
-                          return true;
-                      }
-                  }
-                  return false;
-              });
-
-    const auto& window = m_Windows[test];
-    return window && (window->needToCompress(time) || scheduledTest(window));
+    // We need to test more frequently than we compress because it
+    // only happens each 336 buckets and would significantly delay
+    // when we first detect short periodic components for longer
+    // bucket lengths otherwise.
+    auto scheduledTest = [&]() {
+        if (test != E_Long || m_Windows[E_Short] == nullptr) {
+            core_t::TTime length{time - m_Windows[test]->startTime()};
+            for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
+                if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
 CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
