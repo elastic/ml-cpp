@@ -9,8 +9,6 @@
 
 === Breaking Changes
 
-=== Breaking Java Changes
-
 === Deprecations
 
 === New Features 
