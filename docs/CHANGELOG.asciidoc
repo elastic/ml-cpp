@@ -5,37 +5,13 @@
 
 = Elasticsearch Release Notes
 
-== Elasticsearch 7.0.0
+== Elasticsearch version 6.3.0
 
 === Breaking Changes
 
 === Deprecations
 
 === New Features 
-
-=== Enhancements
-
-=== Bug Fixes
-
-=== Regressions
-
-=== Known Issues
-
-== Elasticsearch version 6.4.0
-
-=== New Features
-
-=== Enhancements
-
-=== Bug Fixes
-
-=== Regressions
-
-=== Known Issues
-
-== Elasticsearch version 6.3.0
-
-=== New Features
 
 === Enhancements
 
