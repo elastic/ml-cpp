@@ -461,27 +461,6 @@ CMetricModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TT
                                                m_CurrentBucketStats.s_FeatureData);
 }
 
-void CMetricModel::createNewModels(std::size_t n, std::size_t m) {
-    this->CIndividualModel::createNewModels(n, m);
-}
-
-void CMetricModel::updateRecycledModels() {
-    this->CIndividualModel::updateRecycledModels();
-}
-
-void CMetricModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) {
-    CDataGatherer& gatherer = this->dataGatherer();
-
-    // Stop collecting for these people and add them to the free list.
-    gatherer.recyclePeople(people);
-    if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(),
-                             m_CurrentBucketStats.s_FeatureData);
-    }
-
-    this->CIndividualModel::clearPrunedResources(people, attributes);
-}
-
 core_t::TTime CMetricModel::currentBucketStartTime() const {
     return m_CurrentBucketStats.s_StartTime;
 }
@@ -509,6 +488,19 @@ CMetricModel::TSizeUInt64PrVec& CMetricModel::currentBucketPersonCounts() {
 
 void CMetricModel::currentBucketTotalCount(uint64_t totalCount) {
     m_CurrentBucketStats.s_TotalCount = totalCount;
+}
+
+void CMetricModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) {
+    CDataGatherer& gatherer = this->dataGatherer();
+
+    // Stop collecting for these people and add them to the free list.
+    gatherer.recyclePeople(people);
+    if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(),
+                             m_CurrentBucketStats.s_FeatureData);
+    }
+
+    this->CIndividualModel::clearPrunedResources(people, attributes);
 }
 
 bool CMetricModel::correlates(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
