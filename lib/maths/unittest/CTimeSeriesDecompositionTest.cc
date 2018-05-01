@@ -333,8 +333,8 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.23 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.18 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.22 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 

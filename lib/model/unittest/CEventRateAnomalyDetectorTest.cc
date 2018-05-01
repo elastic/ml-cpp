@@ -173,11 +173,16 @@ void importData(ml::core_t::TTime firstTime,
 }
 
 void CEventRateAnomalyDetectorTest::testAnomalies() {
-    static const size_t EXPECTED_ANOMALOUS_HOURS(12);
+
+    // We have 10 instances of correlated 503s and unusual SQL statements
+    // and one significant drop in status 200s, which are the principal
+    // anomalies to find in this data set.
+    static const double HIGH_ANOMALY_SCORE(0.004);
+    static const size_t EXPECTED_ANOMALOUS_HOURS(11);
+
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(1800);
-    static const double HIGH_ANOMALY_SCORE(0.003);
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -198,7 +203,6 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     importData(FIRST_TIME, LAST_TIME, BUCKET_SIZE, writer, files, detector);
 
     LOG_DEBUG(<< "visitor.calls() = " << writer.calls());
-    // CPPUNIT_ASSERT_EQUAL(writer.calls(), writer.numDistinctTimes());
 
     const TTimeDoubleMap& anomalyScores = writer.anomalyScores();
     TTimeVec peaks;
