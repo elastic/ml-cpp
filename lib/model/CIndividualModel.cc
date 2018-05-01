@@ -474,13 +474,15 @@ void CIndividualModel::createNewModels(std::size_t n, std::size_t m) {
 
 void CIndividualModel::updateRecycledModels() {
     for (auto pid : this->dataGatherer().recycledPersonIds()) {
-        m_FirstBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
-        m_LastBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
-        for (auto& feature : m_FeatureModels) {
-            feature.s_Models[pid].reset(feature.s_NewModel->clone(pid));
-            for (const auto& correlates : m_FeatureCorrelatesModels) {
-                if (feature.s_Feature == correlates.s_Feature) {
-                    feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+        if (pid < m_FirstBucketTimes.size()) {
+            m_FirstBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
+            m_LastBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
+            for (auto& feature : m_FeatureModels) {
+                feature.s_Models[pid].reset(feature.s_NewModel->clone(pid));
+                for (const auto& correlates : m_FeatureCorrelatesModels) {
+                    if (feature.s_Feature == correlates.s_Feature) {
+                        feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+                    }
                 }
             }
         }

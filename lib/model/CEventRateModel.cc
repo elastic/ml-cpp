@@ -536,14 +536,6 @@ CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
-void CEventRateModel::createNewModels(std::size_t n, std::size_t m) {
-    this->CIndividualModel::createNewModels(n, m);
-}
-
-void CEventRateModel::updateRecycledModels() {
-    this->CIndividualModel::updateRecycledModels();
-}
-
 void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) {
     CDataGatherer& gatherer = this->dataGatherer();
 

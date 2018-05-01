@@ -388,8 +388,10 @@ void CCountingModel::updateCurrentBucketsStats(core_t::TTime time) {
 }
 
 void CCountingModel::updateRecycledModels() {
-    for (auto person : this->dataGatherer().recycledPersonIds()) {
-        m_MeanCounts[person] = TMeanAccumulator();
+    for (auto pid : this->dataGatherer().recycledPersonIds()) {
+        if (pid < m_MeanCounts.size()) {
+            m_MeanCounts[pid] = TMeanAccumulator();
+        }
     }
     this->CAnomalyDetectorModel::updateRecycledModels();
 }
