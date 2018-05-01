@@ -234,7 +234,7 @@ public:
         void apply(std::size_t symbol, const SMessage& message);
 
         //! Check if we should run the periodicity test on \p window.
-        bool shouldTest(const TExpandingWindowPtr& window, core_t::TTime time) const;
+        bool shouldTest(ETest test, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning owned by the caller.)
         CExpandingWindow* newWindow(ETest test) const;
