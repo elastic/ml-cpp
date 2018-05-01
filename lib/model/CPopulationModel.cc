@@ -460,8 +460,7 @@ void CPopulationModel::updateRecycledModels() {
                 m_PersonAttributeBucketCounts[cid] = *m_NewPersonBucketCounts;
             }
         } else {
-            LOG_ERROR("Recycled attribute identifier '"
-                      << cid << "' out-of-range [0,"
+            LOG_ERROR(<< "Recycled attribute identifier '" << cid << "' out-of-range [0,"
                       << m_AttributeFirstBucketTimes.size() << ")");
         }
     }

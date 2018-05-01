@@ -451,8 +451,8 @@ void CAnomalyDetectorModel::updateRecycledModels() {
         if (pid < m_PersonBucketCounts.size()) {
             m_PersonBucketCounts[pid] = 0.0;
         } else {
-            LOG_ERROR("Recycled person identifier '"
-                      << pid << "' out-of-range [," << m_PersonBucketCounts.size() << ")");
+            LOG_ERROR(<< "Recycled person identifier '" << pid << "' out-of-range [,"
+                      << m_PersonBucketCounts.size() << ")");
         }
     }
     people.clear();
