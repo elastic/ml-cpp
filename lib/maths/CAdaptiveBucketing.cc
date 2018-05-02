@@ -345,6 +345,8 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                                TDoubleVec& knots,
                                TDoubleVec& values,
                                TDoubleVec& variances) const {
+    using TSizeVec = std::vector<std::size_t>;
+
     knots.clear();
     values.clear();
     variances.clear();
@@ -366,6 +368,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             double a{m_Endpoints[i]};
             double b{m_Endpoints[i + 1]};
             double c{m_Centres[i]};
+            double c0{c};
             knots.push_back(m_Endpoints[0]);
             values.push_back(this->predict(i, time, c));
             variances.push_back(this->variance(i));
@@ -400,13 +403,65 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                 break;
 
             case CSplineTypes::E_Periodic:
-                values[0] = (values[0] + values.back()) / 2.0;
-                variances[0] = (variances[0] + variances.back()) / 2.0;
-                knots.push_back(m_Endpoints[n]);
-                values.push_back(values[0]);
-                variances.push_back(variances[0]);
+                // We search for the value in the last and next period which
+                // are adjacent. Note that values need not be the same at the
+                // start and end of the period because the gradient can vary,
+                // but we expect them to be continuous.
+                for (std::size_t j = n - 1; j > 0; --j) {
+                    if (this->count(j) > 0.0) {
+                        double alpha{m_Endpoints[n] - m_Centres[j]};
+                        double beta{c0};
+                        double Z{alpha + beta};
+                        double lastPeriodValue{
+                            this->predict(j, time, m_Centres[j] - m_Endpoints[n])};
+                        double lastPeriodVariance{this->variance(j)};
+                        knots[0] = m_Endpoints[0];
+                        values[0] = (alpha * values[0] + beta * lastPeriodValue) / Z;
+                        variances[0] = (alpha * variances[0] + beta * lastPeriodVariance) / Z;
+                        break;
+                    }
+                }
+                for (std::size_t j = 0u; j < n; ++j) {
+                    if (this->count(j) > 0.0) {
+                        double alpha{m_Centres[j]};
+                        double beta{m_Endpoints[n] - knots.back()};
+                        double Z{alpha + beta};
+                        double nextPeriodValue{
+                            this->predict(j, time, m_Endpoints[n] + m_Centres[j])};
+                        double nextPeriodVariance{this->variance(j)};
+                        values.push_back((alpha * values.back() + beta * nextPeriodValue) / Z);
+                        variances.push_back(
+                            (alpha * variances.back() + beta * nextPeriodVariance) / Z);
+                        knots.push_back(m_Endpoints[n]);
+                        break;
+                    }
+                }
                 break;
             }
+        }
+    }
+
+    if (knots.size() > 2) {
+        // If the distance between knot points becomes too small the
+        // spline can become poorly conditioned. We can safely discard
+        // knot points which are very close to one another.
+        TSizeVec indices(knots.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        indices.erase(std::remove_if(indices.begin() + 1, indices.end() - 1,
+                                     [&knots](std::size_t i) {
+                                         return knots[i] - knots[i - 1] < 1.0 ||
+                                                knots[i + 1] - knots[i] < 1.0;
+                                     }),
+                      indices.end() - 1);
+        if (indices.size() < knots.size()) {
+            for (std::size_t i = 0u; i < indices.size(); ++i) {
+                knots[i] = knots[indices[i]];
+                values[i] = values[indices[i]];
+                variances[i] = variances[indices[i]];
+            }
+            knots.resize(indices.size());
+            values.resize(indices.size());
+            variances.resize(indices.size());
         }
     }
 
