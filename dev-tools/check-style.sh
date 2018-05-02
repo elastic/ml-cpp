@@ -30,33 +30,51 @@ if [ "${REQUIRED_CLANG_FORMAT_VERSION}" != "${FOUND_CLANG_FORMAT_VERSION}" ] ; t
     exit 3
 fi
 
-FILES=()
+WRONG_FORMAT_FILES=()
+WRONG_COPYRIGHT_HEADER_FILES=()
+
+check_file() {
+    local FQFILE="$1"
+    local FILE="$2"
+    if ! cmp -s ${FQFILE} <(clang-format ${FQFILE}); then
+        WRONG_FORMAT_FILES+=("${FILE}")
+    fi
+    if ! cmp -s ${CPP_SRC_HOME}/copyright_code_header.txt <(head -5 ${FQFILE}); then
+        WRONG_COPYRIGHT_HEADER_FILES+=("${FILE}")
+    fi
+}
 
 if [ "x$1" = "x--all" ] ; then
     # Batch mode - check everything and only display errors
     INFILES=`find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -print`
-    for FILE in ${INFILES}; do
-        if ! cmp -s ${FILE} <(clang-format ${FILE}); then
-            FILES+=("${FILE}")
-        fi
+    for FQFILE in ${INFILES}; do
+        check_file "$FQFILE" "${FQFILE##$CPP_SRC_HOME/}"
     done
 else
     # Local mode - check changed files only and report which files are checked
     INFILES=`git diff --name-only --diff-filter=ACMRT | grep -v 3rd_party | grep -E "\.(cc|h)$"`
     for FILE in ${INFILES}; do
-        FQFILE=${CPP_SRC_HOME}/${FILE}
         echo "Checking: ${FILE}"
-        if ! cmp -s ${FQFILE} <(clang-format ${FQFILE}); then
-            FILES+=("${FILE}")
-        fi
+        check_file "${CPP_SRC_HOME}/${FILE}" "$FILE"
     done
 fi
 
-if [ -n "${FILES}" ] ; then
+RC=0
+
+if [ -n "${WRONG_FORMAT_FILES}" ] ; then
     echo "A format error has been detected within the following files:"
-    printf "%s\n" "${FILES[@]}"
-    exit 4
+    printf "%s\n" "${WRONG_FORMAT_FILES[@]}"
+    RC=4
+else
+    echo "No format errors detected"
 fi
 
-echo "No format errors detected"
+if [ -n "${WRONG_COPYRIGHT_HEADER_FILES}" ] ; then
+    echo "The following files do not contain the correct copyright header:"
+    printf "%s\n" "${WRONG_COPYRIGHT_HEADER_FILES[@]}"
+    RC=5
+else
+    echo "No copyright header errors detected"
+fi
 
+exit $RC
