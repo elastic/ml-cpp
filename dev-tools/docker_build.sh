@@ -14,8 +14,7 @@
 #
 # Finally, the Docker container used for the build is deleted.
 
-usage()
-{
+usage() {
     echo "Usage: $0 linux|linux-musl|macosx ..."
     exit 1
 }
