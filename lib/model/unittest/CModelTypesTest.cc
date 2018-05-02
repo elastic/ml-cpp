@@ -1276,8 +1276,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided,
-                             model_t::probabilityCalculation(feature));
+        CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(
             core_t::TTime(10050),
             model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
