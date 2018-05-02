@@ -1537,7 +1537,6 @@ const std::string& outputFunctionName(EFeature feature) {
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationLowMeanByPersonAndAttribute:
     case E_PopulationHighMeanByPersonAndAttribute:
-    case E_PopulationMeanLatLongByPersonAndAttribute:
     case E_PopulationMeanVelocityByPersonAndAttribute:
         return model::CAnomalyDetector::MEAN_NAME;
     case E_PopulationMedianByPersonAndAttribute:
@@ -1559,6 +1558,8 @@ const std::string& outputFunctionName(EFeature feature) {
     case E_PopulationHighSumByBucketPersonAndAttribute:
     case E_PopulationSumVelocityByPersonAndAttribute:
         return model::CAnomalyDetector::SUM_NAME;
+    case E_PopulationMeanLatLongByPersonAndAttribute:
+        return model::CAnomalyDetector::LAT_LONG_NAME;
 
     // Peers event rate features
     case E_PeersCountByBucketPersonAndAttribute:

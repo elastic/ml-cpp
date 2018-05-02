@@ -20,3 +20,5 @@
 === Regressions
 
 === Known Issues
+
+Function description for population lat_long results should be lat_long instead of mean ({pull}81[#81])
