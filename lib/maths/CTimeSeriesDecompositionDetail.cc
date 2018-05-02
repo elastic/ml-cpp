@@ -44,6 +44,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -1125,7 +1126,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
             double df1{CBasicStatistics::count(m_MomentsMinusTrend) - m_Trend.parameters()};
             m_UsingTrendForPrediction =
                 v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0 && df0 > 0.0 && df1 > 0.0 &&
-                CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE;
+                CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= STATISTICALLY_SIGNIFICANT;
             *m_Watcher = m_UsingTrendForPrediction;
         }
     } break;
@@ -1420,32 +1421,65 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         std::sort(newSeasonalTimes.begin(), newSeasonalTimes.end(),
                   maths::COrderings::SLess());
 
+        core_t::TTime startTime{window.startTime()};
+        core_t::TTime endTime{window.endTime()};
+        core_t::TTime dt{window.bucketLength()};
+
         TFloatMeanAccumulatorVec values;
         for (const auto& seasonalTime : newSeasonalTimes) {
             values = window.valuesMinusPrediction(predictor);
+<<<<<<< ours
+            if (seasonalTime->windowed()) {
+                core_t::TTime time{startTime + dt / 2};
+                for (auto& value : values) {
+                    if (!seasonalTime->inWindow(time)) {
+                        value = TFloatMeanAccumulator{};
+                    }
+                    time += dt;
+                }
+            }
+            double bucketLength{static_cast<double>(m_BucketLength)};
+            core_t::TTime period{seasonalTime->period()};
+
+            CSeasonalComponent candidate{*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
+                                         bucketLength, CSplineTypes::E_Natural};
+            candidate.initialize(startTime, endTime, values);
+            candidate.interpolate(CIntegerTools::floor(endTime, period));
+            this->reweightOutliers(
+                startTime, dt,
+                [&candidate](core_t::TTime time) {
+                    return CBasicStatistics::mean(candidate.value(time, 0.0));
+                },
+                values);
+
+            components.emplace_back(*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
+                                    bucketLength, CSplineTypes::E_Natural);
+            components.back().initialize(startTime, endTime, values);
+            components.back().interpolate(CIntegerTools::floor(endTime, period));
+=======
+            core_t::TTime period{seasonalTime->period()};
             components.emplace_back(*seasonalTime, m_SeasonalComponentSize,
                                     m_DecayRate, static_cast<double>(m_BucketLength),
-                                    CSplineTypes::E_Natural);
+                                    period > seasonalTime->windowLength()
+                                        ? CSplineTypes::E_Natural
+                                        : CSplineTypes::E_Periodic);
             components.back().initialize(window.startTime(), window.endTime(), values);
-            components.back().interpolate(
-                CIntegerTools::floor(window.endTime(), seasonalTime->period()));
+            components.back().interpolate(CIntegerTools::floor(window.endTime(), period));
+>>>>>>> theirs
         }
 
-        CTrendComponent windowTrend{trend.defaultDecayRate()};
+        CTrendComponent candidate{trend.defaultDecayRate()};
         values = window.valuesMinusPrediction(predictor);
-        core_t::TTime time{window.startTime() + window.bucketLength() / 2};
-        for (const auto& value : values) {
-            // Because we now test before the window is fully compressed
-            // we can get a run of unset values at the end of the window,
-            // we should just ignore these.
-            if (CBasicStatistics::count(value) > 0.0) {
-                windowTrend.add(time, CBasicStatistics::mean(value),
-                                CBasicStatistics::count(value));
-                windowTrend.propagateForwardsByTime(window.bucketLength());
-            }
-            time += window.bucketLength();
-        }
-        trend.swap(windowTrend);
+        this->fit(startTime, dt, values, candidate);
+        this->reweightOutliers(startTime, dt,
+                               [&candidate](core_t::TTime time) {
+                                   return CBasicStatistics::mean(candidate.value(time, 0.0));
+                               },
+                               values);
+
+        CTrendComponent trend_{trend.defaultDecayRate()};
+        this->fit(startTime, dt, values, trend_);
+        trend.swap(trend_);
 
         errors.resize(components.size());
         COrderings::simultaneousSort(
@@ -1471,6 +1505,54 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(
     LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
     return true;
 }
+
+void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
+    core_t::TTime startTime,
+    core_t::TTime dt,
+    TPredictor predictor,
+    TFloatMeanAccumulatorVec& values) const {
+    using TMinAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<std::pair<double, std::size_t>>;
+
+    double numberValues{std::accumulate(
+        values.begin(), values.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
+            return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
+        })};
+    double numberOutliers{PERIODIC_COMPONENT_OUTLIER_FRACTION * numberValues};
+
+    TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
+    core_t::TTime time = startTime + dt / 2;
+    for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            outliers.add({-std::fabs(CBasicStatistics::mean(values[i]) - predictor(time)), i});
+        }
+    }
+    outliers.sort();
+    for (std::size_t i = 0; i < outliers.count(); ++i) {
+        double weight{PERIODIC_COMPONENT_OUTLIER_WEIGHT +
+                      (1.0 - PERIODIC_COMPONENT_OUTLIER_WEIGHT) *
+                          CTools::logisticFunction(
+                              static_cast<double>(i) / numberOutliers, 0.1, 1.0)};
+        CBasicStatistics::count(values[outliers[i].second]) *= weight;
+    }
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::fit(core_t::TTime startTime,
+                                                      core_t::TTime dt,
+                                                      const TFloatMeanAccumulatorVec& values,
+                                                      CTrendComponent& trend) const {
+    core_t::TTime time{startTime + dt / 2};
+    for (const auto& value : values) {
+        // Because we test before the window is fully compressed we can
+        // get a run of unset values at the end of the window, we should
+        // just ignore these.
+        if (CBasicStatistics::count(value) > 0.0) {
+            trend.add(time, CBasicStatistics::mean(value), CBasicStatistics::count(value));
+            trend.propagateForwardsByTime(dt);
+        }
+        time += dt;
+    }
+};
 
 void CTimeSeriesDecompositionDetail::CComponents::clearComponentErrors() {
     if (m_Seasonal) {

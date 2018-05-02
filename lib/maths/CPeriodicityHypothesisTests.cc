@@ -44,6 +44,7 @@ namespace maths {
 namespace {
 
 using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 using TTimeVec = std::vector<core_t::TTime>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePr2Vec = core::CSmallVector<TSizeSizePr, 2>;
@@ -55,12 +56,26 @@ using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 using TTimeTimePr2Vec = core::CSmallVector<TTimeTimePr, 2>;
 using TTimeTimePrMeanVarAccumulatorPr = std::pair<TTimeTimePr, TMeanVarAccumulator>;
 
+//! The confidence interval used for test statistic values.
+const double CONFIDENCE_INTERVAL{80.0};
+//! The log of the p-value to "pass" the test.
+const double LOG_STATISTICALLY_SIGNIFICANCE{CTools::fastLog(STATISTICALLY_SIGNIFICANT)};
+//! The soft minimum number of repeats which we'll use to test
+//! for periodicity using the variance test.
+const double MINIMUM_REPEATS_TO_TEST_VARIANCE{3.0};
+//! The minimum number of repeats which we'll use to test for
+//! periodicity using the amplitude test.
+const std::size_t MINIMUM_REPEATS_TO_TEST_AMPLITUDE{4};
+//! A high priority for components we want to take precendence.
+double HIGH_PRIORITY{2.0};
+
 //! \brief Accumulates the minimum amplitude.
 class CMinAmplitude {
 public:
     CMinAmplitude(std::size_t n, double level)
-        : m_Level(level), m_Count(0), m_Min(std::max(n, MINIMUM_COUNT_TO_TEST)),
-          m_Max(std::max(n, MINIMUM_COUNT_TO_TEST)) {}
+        : m_Level(level), m_Count(0),
+          m_Min(std::max(n, MINIMUM_REPEATS_TO_TEST_AMPLITUDE)),
+          m_Max(std::max(n, MINIMUM_REPEATS_TO_TEST_AMPLITUDE)) {}
 
     void add(double x, double n) {
         if (n > 0.0) {
@@ -71,7 +86,7 @@ public:
     }
 
     double amplitude() const {
-        if (this->count() >= MINIMUM_COUNT_TO_TEST) {
+        if (this->count() >= MINIMUM_REPEATS_TO_TEST_AMPLITUDE) {
             return std::max(std::max(-m_Min.biggest(), 0.0),
                             std::max(m_Max.biggest(), 0.0));
         }
@@ -79,15 +94,13 @@ public:
     }
 
     double significance(const boost::math::normal& normal) const {
-        if (this->count() < MINIMUM_COUNT_TO_TEST) {
+        if (this->count() < MINIMUM_REPEATS_TO_TEST_AMPLITUDE) {
             return 1.0;
         }
-
         double F{2.0 * CTools::safeCdf(normal, -this->amplitude())};
         if (F == 0.0) {
             return 0.0;
         }
-
         double n{static_cast<double>(this->count())};
         boost::math::binomial binomial(static_cast<double>(m_Count), F);
         return CTools::safeCdfComplement(binomial, n - 1.0);
@@ -102,10 +115,6 @@ private:
     std::size_t count() const { return m_Min.count(); }
 
 private:
-    //! The minimum number of repeats for which we'll test.
-    static const std::size_t MINIMUM_COUNT_TO_TEST;
-
-private:
     //! The mean of the trend.
     double m_Level;
     //! The total count of values added.
@@ -116,18 +125,16 @@ private:
     TMaxAccumulator m_Max;
 };
 
-const std::size_t CMinAmplitude::MINIMUM_COUNT_TO_TEST{4};
-
 using TMinAmplitudeVec = std::vector<CMinAmplitude>;
 
 //! \brief Holds the relevant summary for choosing between alternative
 //! (non-nested) hypotheses.
 struct SHypothesisSummary {
-    SHypothesisSummary(double v, double DF, const CPeriodicityHypothesisTestsResult& H)
-        : s_V(v), s_DF(DF), s_H(H) {}
-
     double s_V;
+    double s_R;
     double s_DF;
+    double s_Vt;
+    double s_Rt;
     CPeriodicityHypothesisTestsResult s_H;
 };
 
@@ -159,25 +166,21 @@ const std::string DIURNAL_COMPONENT_NAMES[] = {
     "weekend daily",  "weekend weekly", "weekday daily",
     "weekday weekly", "daily",          "weekly"};
 
-//! The confidence interval used for test statistic values.
-const double CONFIDENCE_INTERVAL{80.0};
-//! A high priority for components we want to take precendence.
-double HIGH_PRIORITY{2.0};
-
 //! Fit and remove a linear trend from \p values.
 void removeLinearTrend(TFloatMeanAccumulatorVec& values) {
     using TRegression = CRegression::CLeastSquaresOnline<1, double>;
-
     TRegression trend;
-    double time{0.0};
     double dt{10.0 / static_cast<double>(values.size())};
+    double time{dt / 2.0};
     for (const auto& value : values) {
         trend.add(time, CBasicStatistics::mean(value), CBasicStatistics::count(value));
         time += dt;
     }
     time = dt / 2.0;
     for (auto& value : values) {
-        CBasicStatistics::moment<0>(value) -= trend.predict(time);
+        if (CBasicStatistics::count(value) > 0.0) {
+            CBasicStatistics::moment<0>(value) -= trend.predict(time);
+        }
         time += dt;
     }
 }
@@ -285,13 +288,105 @@ void project(const TFloatMeanAccumulatorVec& values,
         calculateIndexWindows(windows_, bucketLength, windows);
         result.reserve(length(windows));
         std::size_t n{values.size()};
-        for (std::size_t i = 0u; i < windows.size(); ++i) {
-            std::size_t a{windows[i].first};
-            std::size_t b{windows[i].second};
+        for (const auto& window : windows) {
+            std::size_t a{window.first};
+            std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
                 const TFloatMeanAccumulator& value{values[j % n]};
                 result.push_back(value);
             }
+        }
+    }
+}
+
+//! Calculate the number of non-empty buckets at each bucket offset in
+//! the period for the \p values in \p windows.
+TSizeVec calculateRepeats(const TSizeSizePr2Vec& windows,
+                          std::size_t period,
+                          TFloatMeanAccumulatorVec& values) {
+    TSizeVec result(std::min(period, length(windows[0])), 0);
+    std::size_t n{values.size()};
+    for (const auto& window : windows) {
+        std::size_t a{window.first};
+        std::size_t b{window.second};
+        for (std::size_t i = a; i < b; ++i) {
+            if (CBasicStatistics::count(values[i % n]) > 0.0) {
+                ++result[(i - a) % period];
+            }
+        }
+    }
+    return result;
+}
+
+//! Calculate the number of non-empty buckets at each bucket offset in
+//! the period for the \p values in \p windows.
+TSizeVec calculateRepeats(const TTimeTimePr2Vec& windows_,
+                          core_t::TTime period,
+                          core_t::TTime bucketLength,
+                          TFloatMeanAccumulatorVec& values) {
+    TSizeSizePr2Vec windows;
+    calculateIndexWindows(windows_, bucketLength, windows);
+    return calculateRepeats(windows, period / bucketLength, values);
+}
+
+//! Reweight outliers from \p values.
+//!
+//! These are defined as some fraction of the values which are most
+//! different from the periodic trend on the time windows \p windows_.
+void reweightOutliers(const TMeanVarAccumulatorVec& trend,
+                    const TTimeTimePr2Vec& windows_,
+                    core_t::TTime bucketLength,
+                    TFloatMeanAccumulatorVec& values) {
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TMaxAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
+
+    if (!values.empty()) {
+        TSizeSizePr2Vec windows;
+        calculateIndexWindows(windows_, bucketLength, windows);
+        std::size_t period{trend.size()};
+        std::size_t n{values.size()};
+
+        TSizeVec repeats{calculateRepeats(windows, period, values)};
+        double excess{std::accumulate(
+            repeats.begin(), repeats.end(), 0.0, [](double excess_, std::size_t repeat) {
+                return excess_ + static_cast<double>(repeat > 1 ? repeat - 1 : 0);
+            })};
+        std::size_t numberOutliers{
+            static_cast<std::size_t>(PERIODIC_COMPONENT_OUTLIER_FRACTION * excess)};
+        LOG_TRACE(<< "Number outliers = " << numberOutliers);
+
+        if (numberOutliers > 0) {
+            TMaxAccumulator outliers{numberOutliers};
+            TMeanAccumulator meanDifference;
+            for (const auto& window : windows) {
+                std::size_t a{window.first};
+                std::size_t b{window.second};
+                for (std::size_t j = a; j < b; ++j) {
+                    const TFloatMeanAccumulator& value{values[j % n]};
+                    std::size_t offset{(j - a) % period};
+                    double difference{std::fabs(CBasicStatistics::mean(value) -
+                                                CBasicStatistics::mean(trend[offset]))};
+                    if (CBasicStatistics::count(value) > 0.0) {
+                        outliers.add({difference, j});
+                        meanDifference.add(difference);
+                    }
+                }
+            }
+            TMeanAccumulator meanDifferenceOfOutliers;
+            for (const auto& outlier : outliers) {
+                meanDifferenceOfOutliers.add(outlier.first);
+            }
+            meanDifference -= meanDifferenceOfOutliers;
+            LOG_TRACE(<< "mean difference = " << CBasicStatistics::mean(meanDifference));
+            LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
+
+            for (const auto& outlier : outliers) {
+                if (outlier.first > 3.0 * CBasicStatistics::mean(meanDifference)) {
+                    CBasicStatistics::count(values[outlier.second % n]) *= PERIODIC_COMPONENT_OUTLIER_WEIGHT;
+                }
+            }
+            LOG_TRACE(<< "Values - outliers = " << core::CContainerPrinter::print(values));
         }
     }
 }
@@ -307,9 +402,9 @@ void periodicTrend(const U& values,
         calculateIndexWindows(windows_, bucketLength, windows);
         std::size_t period{trend.size()};
         std::size_t n{values.size()};
-        for (std::size_t i = 0u; i < windows.size(); ++i) {
-            std::size_t a{windows[i].first};
-            std::size_t b{windows[i].second};
+        for (const auto& window : windows) {
+            std::size_t a{window.first};
+            std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
                 const TFloatMeanAccumulator& value{values[j % n]};
                 trend[(j - a) % period].add(CBasicStatistics::mean(value),
@@ -317,6 +412,18 @@ void periodicTrend(const U& values,
             }
         }
     }
+}
+
+//! Compute the periodic trend on \p values minus outliers.
+template<typename U, typename V>
+void periodicTrendMinusOutliers(U& values,
+                                const TSizeSizePr2Vec& windows,
+                                core_t::TTime bucketLength,
+                                V& trend) {
+    periodicTrend(values, windows, bucketLength, trend);
+    reweightOutliers(trend, windows, bucketLength, values);
+    trend.assign(trend.size(), TMeanVarAccumulator{});
+    periodicTrend(values, windows, bucketLength, trend);
 }
 
 //! Compute the average of the values at \p times.
@@ -881,9 +988,14 @@ void CPeriodicityHypothesisTests::hypothesesForPeriod(const TTimeTimePr2Vec& win
 
 CPeriodicityHypothesisTestsResult
 CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const {
-    // Note if there isn't a clear cut best hypothesis for variance
-    // reduction we choose the simplest hypothesis, i.e. with maximum
-    // degrees-of-freedom.
+    // We are comparing different accepted hypotheses here. In particular,
+    // diurnal and the best non-diurnal components with and without fitting
+    // a linear ramp to the values. We use a smooth decision function to
+    // select between them preferring:
+    //   1) The hypothesis which explains the most variance,
+    //   2) The simplest hypothesis (fewest parameters),
+    //   3) The hypothesis which most exceeds the minimum autocorrelation
+    //      to accept.
 
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
@@ -898,24 +1010,41 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
         STestStats stats;
         CPeriodicityHypothesisTestsResult resultForHypothesis{hypothesis.test(stats)};
         if (stats.s_B > stats.s_DF0) {
-            summaries.emplace_back(stats.s_V0, stats.s_B - stats.s_DF0,
-                                   std::move(resultForHypothesis));
+            if (!resultForHypothesis.periodic()) {
+                stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[E_HighThreshold],
+                                    SIGNIFICANT_AMPLITUDE[E_HighThreshold],
+                                    SIGNIFICANT_AUTOCORRELATION[E_HighThreshold]);
+                stats.s_R0 = stats.s_Rt;
+            }
+            LOG_TRACE(<< resultForHypothesis.print());
+            summaries.push_back(SHypothesisSummary{
+                stats.s_V0, stats.s_R0, stats.s_B - stats.s_DF0, stats.s_Vt,
+                stats.s_Rt, std::move(resultForHypothesis)});
         }
     }
 
-    TMinAccumulator vCutoff;
-    for (const auto& summary : summaries) {
-        vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
-                                         50.0 + CONFIDENCE_INTERVAL / 2.0));
-    }
-    if (vCutoff.count() > 0) {
-        LOG_TRACE(<< "variance cutoff = " << vCutoff[0]);
+    if (!summaries.empty()) {
+        TMinAccumulator vmin;
+        TMinAccumulator DFmin;
+        for (const auto& summary : summaries) {
+            vmin.add(varianceAtPercentile(summary.s_V, summary.s_DF,
+                                          50.0 + CONFIDENCE_INTERVAL / 2.0) /
+                     summary.s_Vt);
+            DFmin.add(summary.s_DF);
+        }
 
-        TMinAccumulator df;
+        TMinAccumulator pmin;
         for (const auto& summary : summaries) {
             double v{varianceAtPercentile(summary.s_V, summary.s_DF,
-                                          50.0 - CONFIDENCE_INTERVAL / 2.0)};
-            if (v <= vCutoff[0] && df.add(-summary.s_DF)) {
+                                          50.0 - CONFIDENCE_INTERVAL / 2.0) /
+                     summary.s_Vt / vmin[0]};
+            double R{summary.s_R / summary.s_Rt};
+            double DF{summary.s_DF / DFmin[0]};
+            double p{CTools::logisticFunction(v, 0.2, 1.0, -1.0) *
+                     CTools::logisticFunction(R, 0.2, 1.0, +1.0) *
+                     CTools::logisticFunction(DF, 0.2, 1.0, +1.0)};
+            LOG_TRACE(<< "p = " << p);
+            if (pmin.add(-p)) {
                 result = summary.s_H;
             }
         }
@@ -1116,7 +1245,7 @@ bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period,
 }
 
 bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTest(
-    const TFloatMeanAccumulatorCRng& buckets,
+    const TFloatMeanAccumulatorVec& buckets,
     std::size_t period) const {
     double repeats{0.0};
     for (std::size_t i = 0u; i < period; ++i) {
@@ -1168,14 +1297,15 @@ void CPeriodicityHypothesisTests::nullHypothesis(const TTimeTimePr2Vec& window,
                                                  STestStats& stats) const {
     if (this->testStatisticsFor(buckets, stats)) {
         TMeanVarAccumulatorVec trend(1);
-        periodicTrend(buckets, window, m_BucketLength, trend);
+        TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
+        periodicTrendMinusOutliers(values, window, m_BucketLength, trend);
         double mean{CBasicStatistics::mean(trend[0])};
         double v0{CBasicStatistics::variance(trend[0])};
         LOG_TRACE(<< "mean = " << mean);
         LOG_TRACE(<< "variance = " << v0);
         stats.s_DF0 = 1.0;
         stats.s_V0 = v0;
-        stats.s_T0.assign(1, TDoubleVec{mean});
+        stats.s_T0.assign(1, {mean});
         stats.s_Partition = window;
     }
 }
@@ -1188,22 +1318,21 @@ void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods,
         stats.s_DF0 = 0.0;
         stats.s_T0 = TDoubleVec2Vec(stats.s_Partition.size());
         for (std::size_t i = 0u; i < stats.s_Partition.size(); ++i) {
-            core_t::TTime period_{std::min(periods[i], length(stats.s_Partition[i])) / m_BucketLength};
+            core_t::TTime period{std::min(periods[i], length(stats.s_Partition[i])) / m_BucketLength};
             TTimeTimePr2Vec windows(calculateWindows(
                 stats.s_StartOfPartition, length(buckets, m_BucketLength),
                 length(stats.s_Partition), stats.s_Partition[i]));
+
             TMeanVarAccumulatorVec trend(periods[i] / m_BucketLength);
-            periodicTrend(buckets, windows, m_BucketLength, trend);
+            TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
+            periodicTrendMinusOutliers(values, windows, m_BucketLength, trend);
+
             stats.s_V0 += residualVariance<double>(trend, 1.0 / stats.s_M);
-            stats.s_DF0 += static_cast<double>(std::count_if(
-                trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
-                    return CBasicStatistics::count(value) > 0.0;
-                }));
-            stats.s_T0[i].reserve(period_);
-            std::for_each(trend.begin(), trend.end(),
-                          [&stats, i](const TMeanVarAccumulator& value) {
-                              stats.s_T0[i].push_back(CBasicStatistics::mean(value));
-                          });
+            stats.s_T0[i].reserve(period);
+            std::for_each(trend.begin(), trend.end(), [&stats, i](const TMeanVarAccumulator& value) {
+                stats.s_T0[i].push_back(CBasicStatistics::mean(value));
+                stats.s_DF0 += (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
+            });
         }
         stats.s_V0 /= static_cast<double>(periods.size());
     }
@@ -1259,97 +1388,165 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
     if (!this->testStatisticsFor(buckets, stats) || stats.nullHypothesisGoodEnough()) {
         return false;
     }
-
-    period_ = std::min(period_, length(windows[0]));
-    std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
-
-    // We need to observe a minimum number of repeated values to test with
-    // an acceptable false positive rate.
-    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period)) {
-        return false;
-    }
     if (stats.s_HasPeriod) {
+        stats.s_R0 = stats.s_Rt;
         return true;
     }
 
+    period_ = std::min(period_, length(windows[0]));
+    std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
     TTimeTimePr2Vec window{{0, length(windows)}};
-    double M{stats.s_M};
-    double B{stats.s_B};
-    double scale{1.0 / M};
+    double scale{1.0 / stats.s_M};
+    LOG_TRACE(<< "  scale = " << scale);
+
+    TFloatMeanAccumulatorVec varianceTestValues(buckets.begin(), buckets.end());
+    TFloatMeanAccumulatorVec amplitudeTestValues(buckets.begin(), buckets.end());
+    this->conditionOnHypothesis(window, stats, varianceTestValues);
+    this->conditionOnHypothesis(window, stats, amplitudeTestValues);
+    {
+        TMeanVarAccumulatorVec trend(period);
+        periodicTrend(varianceTestValues, window, m_BucketLength, trend);
+        reweightOutliers(trend, windows, m_BucketLength, varianceTestValues);
+    }
+
+    // We need to observe a minimum number of repeated values to test with
+    // an acceptable false positive rate.
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(varianceTestValues, period)) {
+        return false;
+    }
+
+    double B{static_cast<double>(
+        std::count_if(varianceTestValues.begin(), varianceTestValues.end(),
+                      [](const TFloatMeanAccumulator& value) {
+                          return CBasicStatistics::count(value) > 0.0;
+                      }))};
+
+    // We need fewer degrees of freedom in the null hypothesis trend model
+    // we're fitting than non-empty buckets.
     double df0{B - stats.s_DF0};
     if (df0 <= 0.0) {
         return false;
     }
+
     double v0{varianceAtPercentile(stats.s_V0, df0, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
     double vt{stats.s_Vt * v0};
     double at{stats.s_At * std::sqrt(v0 / scale)};
-    LOG_TRACE(<< "  M = " << M);
 
-    TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
-    this->conditionOnHypothesis(window, stats, values);
-
-    // The variance test.
+    // -----------------
+    // The Variance Test
+    // -----------------
 
     TMeanVarAccumulatorVec trend(period);
-    periodicTrend(values, window, m_BucketLength, trend);
+    periodicTrend(varianceTestValues, window, m_BucketLength, trend);
     double b{static_cast<double>(std::count_if(
         trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
             return CBasicStatistics::count(value) > 0.0;
         }))};
     LOG_TRACE(<< "  populated = " << b);
 
+    // We need fewer degrees of freedom in the trend model we're fitting
+    // than non-empty buckets.
     double df1{B - b};
-    if (df1 > 0.0) {
-        double v1{varianceAtPercentile(residualVariance<double>(trend, scale),
-                                       df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
-        LOG_TRACE(<< "  variance          = " << v1);
-        LOG_TRACE(<< "  varianceThreshold = " << vt);
-        LOG_TRACE(<< "  significance      = "
-                  << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
+    if (df1 <= 0.0) {
+        return false;
+    }
 
-        double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
-        if (v1 < vt && B > 1.0 &&
-            CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE) {
-            double R{CSignal::autocorrelation(period, values)};
-            R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
-            LOG_TRACE(<< "  autocorrelation          = " << R);
-            LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
-            if (R > Rt) {
-                return true;
-            }
-        }
+    double v1{varianceAtPercentile(residualVariance<double>(trend, scale),
+                                   df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
+    LOG_TRACE(<< "  variance          = " << v1);
+    LOG_TRACE(<< "  varianceThreshold = " << vt);
+    LOG_TRACE(<< "  significance      = "
+              << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-        // The amplitude test.
+    double R{CSignal::autocorrelation(period, varianceTestValues)};
+    R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
+    double Rt{stats.s_Rt};
+    LOG_TRACE(<< "  autocorrelation          = " << R);
+    LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
 
-        double F1{1.0};
-        if (v1 > 0.0) {
-            try {
-                std::size_t n{static_cast<std::size_t>(
-                    std::ceil(Rt * static_cast<double>(length(window) / period_)))};
-                TMeanAccumulator level;
-                for (const auto& value : values) {
-                    if (CBasicStatistics::count(value) > 0.0) {
-                        level.add(CBasicStatistics::mean(value));
-                    }
+    TSizeVec repeats{calculateRepeats(windows, period_, m_BucketLength, varianceTestValues)};
+    double meanRepeats{CBasicStatistics::mean(
+        std::accumulate(repeats.begin(), repeats.end(), TMeanAccumulator{},
+                        [](TMeanAccumulator mean, std::size_t repeat) {
+                            mean.add(static_cast<double>(repeat));
+                            return mean;
+                        }))};
+    LOG_TRACE(<< "  mean repeats = " << meanRepeats);
+
+    // We're trading off:
+    //   1) The significance of the variance reduction,
+    //   2) The cyclic autocorrelation of the periodic component,
+    //   3) The amount of variance reduction and
+    //   4) The number of repeats we've observed.
+    //
+    // Specifically, the period will just be accepted if the p-value is equal
+    // to the threshold to be statistically significant, the autocorrelation
+    // is equal to the threshold, the variance reduction is equal to the
+    // threshold and we've observed three periods on average.
+
+    double logSignificance{
+        CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0))};
+    double pVariance{
+        CTools::logisticFunction(logSignificance / LOG_STATISTICALLY_SIGNIFICANCE, 0.1, 1.0) *
+        CTools::logisticFunction(R / Rt, 0.15, 1.0) *
+        (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
+                 : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
+        CTools::logisticFunction(meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE, 0.25, 1.0)};
+    LOG_TRACE(<< "  p(variance) = " << pVariance);
+
+    if (pVariance >= 0.0625) {
+        stats.s_R0 = R;
+        return true;
+    }
+
+    // ------------------
+    // The Amplitude Test
+    // ------------------
+
+    trend.assign(period, TMeanVarAccumulator{});
+    periodicTrend(amplitudeTestValues, window, m_BucketLength, trend);
+    v1 = varianceAtPercentile(residualVariance<double>(trend, scale), df1,
+                              50.0 + CONFIDENCE_INTERVAL / 2.0);
+
+    double F1{1.0};
+    if (v1 > 0.0) {
+        try {
+            std::size_t n{static_cast<std::size_t>(
+                std::ceil(Rt * static_cast<double>(length(window) / period_)))};
+            LOG_TRACE(<< " n = " << n);
+            TMeanAccumulator level;
+            for (const auto& value : amplitudeTestValues) {
+                if (CBasicStatistics::count(value) > 0.0) {
+                    level.add(CBasicStatistics::mean(value));
                 }
-                TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
-                periodicTrend(values, window, m_BucketLength, amplitudes);
-                boost::math::normal normal(0.0, std::sqrt(v1));
-                std::for_each(amplitudes.begin(), amplitudes.end(),
-                              [&F1, &normal, at](CMinAmplitude& x) {
-                                  if (x.amplitude() >= at) {
-                                      F1 = std::min(F1, x.significance(normal));
-                                  }
-                              });
-            } catch (const std::exception& e) {
-                LOG_ERROR(<< "Unable to compute significance of amplitude: " << e.what());
             }
+            TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
+            periodicTrend(amplitudeTestValues, window, m_BucketLength, amplitudes);
+            boost::math::normal normal(0.0, std::sqrt(v1));
+            std::for_each(amplitudes.begin(), amplitudes.end(),
+                          [&F1, &normal, at](CMinAmplitude& x) {
+                              if (x.amplitude() >= at) {
+                                  F1 = std::min(F1, x.significance(normal));
+                              }
+                          });
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Unable to compute significance of amplitude: " << e.what());
         }
-        LOG_TRACE(<< "  F(amplitude)       = " << F1);
+    }
+    LOG_TRACE(<< "  F(amplitude) = " << F1);
 
-        if (1.0 - std::pow(1.0 - F1, b) <= MAXIMUM_SIGNIFICANCE) {
-            return true;
-        }
+    // Trade off the test significance and the mean number of repeats
+    // we've observed.
+    logSignificance = CTools::fastLog(1.0 - std::pow(1.0 - F1, b));
+    double pAmplitude{
+        CTools::logisticFunction(logSignificance / LOG_STATISTICALLY_SIGNIFICANCE, 0.2, 1.0) *
+        CTools::logisticFunction(meanRepeats / static_cast<double>(2 * MINIMUM_REPEATS_TO_TEST_AMPLITUDE),
+                                 0.5, 1.0)};
+    LOG_TRACE(<< "  p(amplitude) = " << pAmplitude);
+
+    if (pAmplitude >= 0.25) {
+        stats.s_R0 = R;
+        return true;
     }
     return false;
 }
@@ -1359,6 +1556,13 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
                                                 core_t::TTime period_,
                                                 double correction,
                                                 STestStats& stats) const {
+    // We check to see if partitioning the data as well as fitting a periodic
+    // component with period "period_" explains a non-negligible absolute and
+    // statistically significant amount of variance and the cyclic correlation
+    // at the repeat of at least one of the partition's periodic components
+    // is high enough. In order to do this we search over all permitted offsets
+    // for the start of the split.
+
     using TDoubleTimePr = std::pair<double, core_t::TTime>;
     using TDoubleTimePrVec = std::vector<TDoubleTimePr>;
     using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleTimePr, 1>;
@@ -1370,39 +1574,53 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     if (!this->testStatisticsFor(buckets, stats) || stats.nullHypothesisGoodEnough()) {
         return false;
     }
+    if (stats.s_HasPartition) {
+        stats.s_R0 = stats.s_Rt;
+        return true;
+    }
 
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
+    core_t::TTime windowLength{length(buckets, m_BucketLength)};
+    core_t::TTime repeat{length(partition)};
+    double scale{1.0 / stats.s_M};
+    LOG_TRACE(<< "scale = " << scale);
+
+    TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
+    this->conditionOnHypothesis({{0, windowLength}}, stats, values);
+    {
+        TTimeTimePr2Vec window{{0, windowLength}};
+        TMeanVarAccumulatorVec trend(period);
+        periodicTrend(values, window, m_BucketLength, trend);
+        reweightOutliers(trend, window, m_BucketLength, values);
+    }
 
     // We need to observe a minimum number of repeated values to test with
     // an acceptable false positive rate.
-    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period)) {
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(values, period)) {
         return false;
-    }
-    if (stats.s_HasPartition) {
-        return true;
     }
 
     // Find the partition of the data such that the residual variance
     // w.r.t. the period is minimized and check if there is significant
     // evidence that it reduces the residual variance and repeats.
 
-    core_t::TTime windowLength{length(buckets, m_BucketLength)};
-    core_t::TTime repeat{length(partition)};
-    core_t::TTime startOfPartition{stats.s_StartOfPartition};
-    double B{stats.s_B};
-    double scale{1.0 / stats.s_M};
+    double B{static_cast<double>(std::count_if(
+        values.begin(), values.end(), [](const TFloatMeanAccumulator& value) {
+            return CBasicStatistics::count(value) > 0.0;
+        }))};
     double df0{B - stats.s_DF0};
+
+    // We need fewer degrees of freedom in the null hypothesis trend model
+    // we're fitting than non-empty buckets.
     if (df0 <= 0.0) {
         return false;
     }
+
     double v0{varianceAtPercentile(stats.s_V0, df0, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
     double vt{stats.s_Vt * v0};
     LOG_TRACE(<< "period = " << period);
-    LOG_TRACE(<< "scale = " << scale);
 
-    TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
-    this->conditionOnHypothesis({{0, windowLength}}, stats, values);
-
+    core_t::TTime startOfPartition{stats.s_StartOfPartition};
     TTimeTimePr2Vec windows[]{
         calculateWindows(startOfPartition, windowLength, repeat, partition[0]),
         calculateWindows(startOfPartition, windowLength, repeat, partition[1])};
@@ -1411,12 +1629,12 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     TTimeVec deltas[2];
     deltas[0].reserve((length(partition[0]) * windowLength) / (period_ * repeat));
     deltas[1].reserve((length(partition[1]) * windowLength) / (period_ * repeat));
-    for (std::size_t i = 0u; i < 2; ++i) {
-        for (const auto& window : windows[i]) {
+    for (std::size_t j = 0u; j < 2; ++j) {
+        for (const auto& window : windows[j]) {
             core_t::TTime a_{window.first};
             core_t::TTime b_{window.second};
             for (core_t::TTime t = a_ + period_; t <= b_; t += period_) {
-                deltas[i].push_back(t - m_BucketLength);
+                deltas[j].push_back(t - m_BucketLength);
             }
         }
     }
@@ -1428,28 +1646,30 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     periodicTrend(values, windows[0], m_BucketLength, trends[0]);
     periodicTrend(values, windows[1], m_BucketLength, trends[1]);
 
-    TMeanAccumulator variances[]{residualVariance<TMeanAccumulator>(trends[0], scale),
-                                 residualVariance<TMeanAccumulator>(trends[1], scale)};
+    TMeanAccumulator variances[]{
+        residualVariance<TMeanAccumulator>(trends[0], scale),
+        residualVariance<TMeanAccumulator>(trends[1], scale)};
     LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
 
     TMinAccumulator minimum;
-    minimum.add({(residualVariance(variances[0]) + residualVariance(variances[1])) / 2.0, 0});
+    minimum.add(
+        {(residualVariance(variances[0]) + residualVariance(variances[1])) / 2.0, 0});
 
     TDoubleTimePrVec candidates;
     candidates.reserve(period);
     for (core_t::TTime time = m_BucketLength; time < repeat; time += m_BucketLength) {
-        for (std::size_t i = 0u; i < 2; ++i) {
-            for (auto& delta : deltas[i]) {
+        for (std::size_t j = 0u; j < 2; ++j) {
+            for (auto& delta : deltas[j]) {
                 delta = (delta + m_BucketLength) % windowLength;
             }
-            TMeanVarAccumulator oldBucket{trends[i].front()};
+            TMeanVarAccumulator oldBucket{trends[j].front()};
             TMeanVarAccumulator newBucket;
-            averageValue(values, deltas[i], m_BucketLength, newBucket);
+            averageValue(values, deltas[j], m_BucketLength, newBucket);
 
-            trends[i].pop_front();
-            trends[i].push_back(newBucket);
-            variances[i] -= residualVariance(oldBucket, scale);
-            variances[i] += residualVariance(newBucket, scale);
+            trends[j].pop_front();
+            trends[j].push_back(newBucket);
+            variances[j] -= residualVariance(oldBucket, scale);
+            variances[j] += residualVariance(newBucket, scale);
         }
         double variance{
             (residualVariance(variances[0]) + residualVariance(variances[1])) / 2.0};
@@ -1466,8 +1686,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     for (const auto& candidate : candidates) {
         if (candidate.first <= 1.05 * minimum[0].first) {
             core_t::TTime candidateStartOfPartition{candidate.second};
-            candidateWindows = calculateWindows(candidateStartOfPartition,
-                                                windowLength, repeat, partition[0]);
+            candidateWindows = calculateWindows(
+                candidateStartOfPartition, windowLength, repeat, partition[0]);
             TMeanAccumulator cost;
             for (const auto& window : candidateWindows) {
                 core_t::TTime a_{window.first / m_BucketLength};
@@ -1478,9 +1698,9 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
             }
             if (best.add({CBasicStatistics::mean(cost), candidateStartOfPartition})) {
                 b = 0.0;
-                for (std::size_t i = 0u; i < 2; ++i) {
-                    candidateWindows = calculateWindows(candidateStartOfPartition, windowLength,
-                                                        repeat, partition[i]);
+                for (const auto& subset : partition) {
+                    candidateWindows = calculateWindows(
+                        candidateStartOfPartition, windowLength, repeat, subset);
 
                     TMeanVarAccumulatorVec trend(period);
                     periodicTrend(values, candidateWindows, m_BucketLength, trend);
@@ -1495,46 +1715,84 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     }
 
     double df1{B - b};
-    if (df1 > 0.0) {
-        double variance{correction * minimum[0].first};
-        double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
-        LOG_TRACE(<< "  variance          = " << v1);
-        LOG_TRACE(<< "  varianceThreshold = " << vt);
-        LOG_TRACE(<< "  significance      = "
-                  << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-        if (v1 <= vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE) {
-            double R{-1.0};
-            double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
+    // We need fewer degrees of freedom in the trend model we're fitting
+    // than non-empty buckets.
+    if (df1 <= 0.0) {
+        return false;
+    }
 
-            startOfPartition = best[0].second;
-            windows[0] = calculateWindows(startOfPartition, windowLength,
-                                          repeat, partition[0]);
-            windows[1] = calculateWindows(startOfPartition, windowLength,
-                                          repeat, partition[1]);
-            for (const auto& windows_ : windows) {
-                TFloatMeanAccumulatorVec partitionValues;
-                project(values, windows_, m_BucketLength, partitionValues);
-                std::size_t windowLength_(length(windows_[0]) / m_BucketLength);
-                double BW{std::accumulate(
-                    partitionValues.begin(), partitionValues.end(), 0.0,
-                    [](double n, const TFloatMeanAccumulator& value) {
-                        return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
-                    })};
-                if (BW > 1.0) {
-                    double RW{CSignal::autocorrelation(windowLength_ + period, partitionValues)};
-                    R = std::max(R, autocorrelationAtPercentile(
-                                        RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
-                    LOG_TRACE(<< "  autocorrelation          = " << R);
-                    LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
-                }
-            }
+    double variance{correction * minimum[0].first};
+    double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
+    LOG_TRACE(<< "  variance          = " << v1);
+    LOG_TRACE(<< "  varianceThreshold = " << vt);
+    LOG_TRACE(<< "  significance      = "
+              << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-            if (R > Rt) {
-                stats.s_StartOfPartition = startOfPartition;
-                return true;
-            }
+    startOfPartition = best[0].second;
+    windows[0] = calculateWindows(startOfPartition, windowLength, repeat,
+                                  partition[0]);
+    windows[1] = calculateWindows(startOfPartition, windowLength, repeat,
+                                  partition[1]);
+    LOG_TRACE(<< "  start of partition = " << startOfPartition);
+
+    // In the following we're trading off:
+    //   1) The cyclic autocorrelation of each periodic component in the
+    //      partition,
+    //   2) The number of repeats we've observed of each periodic component
+    //      in the partition,
+    //   3) The significance of the variance reduction, and
+    //   4) The amount of variance reduction.
+
+    double p{0.0};
+    double R{-1.0};
+    double Rt{stats.s_Rt};
+
+    TFloatMeanAccumulatorVec partitionValues;
+    for (const auto& window : windows) {
+        project(values, window, m_BucketLength, partitionValues);
+
+        double RW{-1.0};
+        double BW{std::accumulate(
+            partitionValues.begin(), partitionValues.end(), 0.0,
+            [](double n, const TFloatMeanAccumulator& value) {
+                return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
+            })};
+        if (BW > 1.0) {
+            RW = CSignal::autocorrelation(
+                length(window[0]) / m_BucketLength + period, partitionValues);
+            RW = autocorrelationAtPercentile(RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0);
+            LOG_TRACE(<< "  autocorrelation          = " << RW);
+            LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
         }
+
+        TSizeVec repeats{calculateRepeats(window, period_, m_BucketLength, values)};
+        double meanRepeats{CBasicStatistics::mean(
+            std::accumulate(repeats.begin(), repeats.end(), TMeanAccumulator{},
+                            [](TMeanAccumulator mean, std::size_t repeat_) {
+                                mean.add(static_cast<double>(repeat_));
+                                return mean;
+                            }))};
+        LOG_TRACE(<< "  mean repeats = " << meanRepeats);
+
+        p = std::max(p, CTools::logisticFunction(RW / Rt, 0.15, 1.0) *
+                            CTools::logisticFunction(meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE,
+                                                     0.25, 1.0));
+        R = std::max(R, RW);
+    }
+
+    double logSignificance{
+        CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0))};
+    p *= CTools::logisticFunction(logSignificance / LOG_STATISTICALLY_SIGNIFICANCE,
+                                  0.1, 1.0) *
+         (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
+                  : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0));
+    LOG_TRACE(<< "  p(partition) = " << p);
+
+    if (p >= 0.0625) {
+        stats.s_StartOfPartition = startOfPartition;
+        stats.s_R0 = R;
+        return true;
     }
     return false;
 }
@@ -1543,8 +1801,12 @@ const double CPeriodicityHypothesisTests::ACCURATE_TEST_POPULATED_FRACTION{0.9};
 const double CPeriodicityHypothesisTests::MINIMUM_COEFFICIENT_OF_VARIATION{1e-4};
 
 CPeriodicityHypothesisTests::STestStats::STestStats()
-    : s_HasPeriod(false), s_HasPartition(false), s_Vt(0.0), s_At(0.0), s_Rt(0.0),
-      s_Range(0.0), s_B(0.0), s_M(0.0), s_V0(0.0), s_DF0(0.0), s_StartOfPartition(0) {
+    : s_HasPeriod(false), s_HasPartition(false),
+      s_Vt(SIGNIFICANT_VARIANCE_REDUCTION[E_HighThreshold]),
+      s_At(SIGNIFICANT_AMPLITUDE[E_HighThreshold]),
+      s_Rt(SIGNIFICANT_AUTOCORRELATION[E_HighThreshold]), s_Range(0.0),
+      s_B(0.0), s_M(0.0), s_V0(0.0), s_R0(0.0), s_DF0(0.0),
+      s_StartOfPartition(0) {
 }
 
 void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at, double Rt) {

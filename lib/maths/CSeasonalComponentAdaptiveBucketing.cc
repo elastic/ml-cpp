@@ -580,7 +580,7 @@ double CSeasonalComponentAdaptiveBucketing::predict(std::size_t bucket,
 
     // We mean revert our predictions if trying to predict much further
     // ahead than the observed interval for the data.
-    double alpha{CTools::smoothHeaviside(extrapolateInterval / interval, 1.0 / 12.0, -1.0)};
+    double alpha{CTools::logisticFunction(extrapolateInterval / interval, 0.1, 1.0, -1.0)};
     double beta{1.0 - alpha};
     return alpha * regression.predict(t) + beta * regression.mean();
 }

@@ -15,6 +15,7 @@ public:
     void testDiurnal();
     void testNonDiurnal();
     void testWithSparseData();
+    void testWithOutliers();
     void testTestForPeriods();
 
     static CppUnit::Test* suite();

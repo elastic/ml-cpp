@@ -26,6 +26,7 @@ public:
     void testLongTermTrendAndPeriodicity();
     void testNonDiurnal();
     void testYearly();
+    void testWithOutliers();
     void testCalendar();
     void testConditionOfTrend();
     void testSwap();
