@@ -42,7 +42,7 @@ public:
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
 
 public:
-    class CPersist final {
+    class MODEL_EXPORT CPersist final {
     public:
         explicit CPersist(const std::string& temporaryPath);
 
@@ -71,7 +71,7 @@ public:
         size_t m_ModelCount;
     };
 
-    class CRestore final {
+    class MODEL_EXPORT CRestore final {
     public:
         explicit CRestore(const SModelParams& modelParams,
                           double minimumSeasonalVarianceScale,
