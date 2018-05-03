@@ -1439,9 +1439,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             }
             double bucketLength{static_cast<double>(m_BucketLength)};
             core_t::TTime period{seasonalTime->period()};
+            auto boundaryCondition = period > seasonalTime->windowLength()
+                                         ? CSplineTypes::E_Natural
+                                         : CSplineTypes::E_Periodic;
 
-            CSeasonalComponent candidate{*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
-                                         bucketLength, CSplineTypes::E_Natural};
+            CSeasonalComponent candidate{*seasonalTime, m_SeasonalComponentSize,
+                                         m_DecayRate, bucketLength, boundaryCondition};
             candidate.initialize(startTime, endTime, values);
             candidate.interpolate(CIntegerTools::floor(endTime, period));
             this->reweightOutliers(
@@ -1451,8 +1454,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 },
                 values);
 
-            components.emplace_back(*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
-                                    bucketLength, CSplineTypes::E_Natural);
+            components.emplace_back(*seasonalTime, m_SeasonalComponentSize,
+                                    m_DecayRate, bucketLength, boundaryCondition);
             components.back().initialize(startTime, endTime, values);
             components.back().interpolate(CIntegerTools::floor(endTime, period));
         }
