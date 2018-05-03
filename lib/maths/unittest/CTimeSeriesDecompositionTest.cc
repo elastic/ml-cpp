@@ -782,7 +782,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     CPPUNIT_ASSERT(totalSumResidual < 0.07 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.09 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.08 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
@@ -1907,7 +1907,8 @@ void CTimeSeriesDecompositionTest::testYearly() {
     //file << "plot(t, fe);\n";
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.011);
+
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
 void CTimeSeriesDecompositionTest::testWithOutliers() {
@@ -1949,6 +1950,7 @@ void CTimeSeriesDecompositionTest::testWithOutliers() {
             outlier != outliers.end() && *outlier == bucket
                 ? (spikeOrTroughSelector[outlier - outliers.begin()] > 0.5 ? 0.0 : 50.0)
                 : trend(time);
+
         if (decomposition.addPoint(time, value)) {
             TMeanAccumulator error;
             for (core_t::TTime endTime = time + DAY; time < endTime; time += TEN_MINS) {
@@ -1959,17 +1961,18 @@ void CTimeSeriesDecompositionTest::testWithOutliers() {
                 //values.push_back(trend(time));
                 //f.push_back(prediction);
             }
+
+            //file << "t = " << core::CContainerPrinter::print(times) << ";\n";
+            //file << "f = " << core::CContainerPrinter::print(values) << ";\n";
+            //file << "fe = " << core::CContainerPrinter::print(f) << ";\n";
+            //file << "plot(t, f, 'r');\n";
+            //file << "plot(t, fe);\n";
+
             LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.05);
             break;
         }
     }
-
-    //file << "t = " << core::CContainerPrinter::print(times) << ";\n";
-    //file << "f = " << core::CContainerPrinter::print(values) << ";\n";
-    //file << "fe = " << core::CContainerPrinter::print(f) << ";\n";
-    //file << "plot(t, f, 'r');\n";
-    //file << "plot(t, fe);\n";
 }
 
 void CTimeSeriesDecompositionTest::testCalendar() {

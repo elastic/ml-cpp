@@ -1428,7 +1428,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         TFloatMeanAccumulatorVec values;
         for (const auto& seasonalTime : newSeasonalTimes) {
             values = window.valuesMinusPrediction(predictor);
-<<<<<<< ours
             if (seasonalTime->windowed()) {
                 core_t::TTime time{startTime + dt / 2};
                 for (auto& value : values) {
@@ -1456,16 +1455,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                                     bucketLength, CSplineTypes::E_Natural);
             components.back().initialize(startTime, endTime, values);
             components.back().interpolate(CIntegerTools::floor(endTime, period));
-=======
-            core_t::TTime period{seasonalTime->period()};
-            components.emplace_back(*seasonalTime, m_SeasonalComponentSize,
-                                    m_DecayRate, static_cast<double>(m_BucketLength),
-                                    period > seasonalTime->windowLength()
-                                        ? CSplineTypes::E_Natural
-                                        : CSplineTypes::E_Periodic);
-            components.back().initialize(window.startTime(), window.endTime(), values);
-            components.back().interpolate(CIntegerTools::floor(window.endTime(), period));
->>>>>>> theirs
         }
 
         CTrendComponent candidate{trend.defaultDecayRate()};
