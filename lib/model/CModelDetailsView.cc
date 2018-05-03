@@ -159,10 +159,10 @@ bool CModelDetailsView::contains(const TStrSet& terms, const std::string& key) {
 }
 
 bool CModelDetailsView::hasByField() const {
-    return !(this->base().isPopulation()
+    return (this->base().isPopulation()
                 ? this->base().dataGatherer().attributeFieldName()
                 : this->base().dataGatherer().personFieldName())
-        .empty();
+               .empty() == false;
 }
 
 std::size_t CModelDetailsView::maxByFieldId() const {
