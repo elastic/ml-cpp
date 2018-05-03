@@ -240,6 +240,7 @@ void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, b
     if (time < 0.0) {
         LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
+        time *= m_Time->fractionInWindow();
         double factor{std::exp(-this->CAdaptiveBucketing::decayRate() * time)};
         this->CAdaptiveBucketing::age(factor);
         for (auto& bucket : m_Buckets) {

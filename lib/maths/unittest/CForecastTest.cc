@@ -83,14 +83,14 @@ void CForecastTest::testDailyNoLongTermTrend() {
 
     test::CRandomNumbers rng;
 
-    auto trend = [&y, bucketLength](core_t::TTime time, double noise) {
-        core_t::TTime i{(time % 86400) / bucketLength};
+    TTrend trend = [&y, bucketLength](core_t::TTime time, double noise) {
+        core_t::TTime i{(time % core::constants::DAY) / bucketLength};
         double alpha{static_cast<double>(i % 6) / 6.0};
         double beta{1.0 - alpha};
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    this->test(trend, bucketLength, 60, 64.0, 5.0, 0.14);
+    this->test(trend, bucketLength, 63, 64.0, 5.0, 0.14);
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
@@ -99,18 +99,18 @@ void CForecastTest::testDailyConstantLongTermTrend() {
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
                  30.0, 15.0,  10.0,  8.0,   5.0,   3.0,   2.0,  0.0};
 
-    auto trend = [&y, bucketLength](core_t::TTime time, double noise) {
-        core_t::TTime i{(time % 86400) / bucketLength};
+    TTrend trend = [&y, bucketLength](core_t::TTime time, double noise) {
+        core_t::TTime i{(time % core::constants::DAY) / bucketLength};
         return 0.25 * static_cast<double>(time) / static_cast<double>(bucketLength) +
                y[i] + noise;
     };
 
-    this->test(trend, bucketLength, 60, 64.0, 16.0, 0.02);
+    this->test(trend, bucketLength, 63, 64.0, 14.0, 0.02);
 }
 
 void CForecastTest::testDailyVaryingLongTermTrend() {
     core_t::TTime bucketLength{3600};
-    double day{86400.0};
+    double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
                      20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
                      40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
@@ -124,13 +124,13 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
     maths::CSpline<> trend_(maths::CSplineTypes::E_Cubic);
     trend_.interpolate(times, values, maths::CSplineTypes::E_Natural);
 
-    auto trend = [&trend_](core_t::TTime time, double noise) {
+    TTrend trend = [&trend_](core_t::TTime time, double noise) {
         double time_{static_cast<double>(time)};
         return trend_.value(time_) +
                8.0 * std::sin(boost::math::double_constants::two_pi * time_ / 43200.0) + noise;
     };
 
-    this->test(trend, bucketLength, 100, 9.0, 13.0, 0.04);
+    this->test(trend, bucketLength, 98, 9.0, 14.0, 0.042);
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
@@ -140,13 +140,13 @@ void CForecastTest::testComplexNoLongTermTrend() {
                  60.0, 40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
     TDoubleVec scale{1.0, 1.1, 1.05, 0.95, 0.9, 0.3, 0.2};
 
-    auto trend = [&y, &scale, bucketLength](core_t::TTime time, double noise) {
-        core_t::TTime d{(time % 604800) / 86400};
-        core_t::TTime h{(time % 86400) / bucketLength};
+    TTrend trend = [&y, &scale, bucketLength](core_t::TTime time, double noise) {
+        core_t::TTime d{(time % core::constants::WEEK) / core::constants::DAY};
+        core_t::TTime h{(time % core::constants::DAY) / bucketLength};
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 28.0, 0.13);
+    this->test(trend, bucketLength, 63, 24.0, 8.0, 0.13);
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
@@ -156,19 +156,19 @@ void CForecastTest::testComplexConstantLongTermTrend() {
                  60.0, 40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
     TDoubleVec scale{1.0, 1.1, 1.05, 0.95, 0.9, 0.3, 0.2};
 
-    auto trend = [&y, &scale, bucketLength](core_t::TTime time, double noise) {
-        core_t::TTime d{(time % 604800) / 86400};
-        core_t::TTime h{(time % 86400) / bucketLength};
+    TTrend trend = [&y, &scale, bucketLength](core_t::TTime time, double noise) {
+        core_t::TTime d{(time % core::constants::WEEK) / core::constants::DAY};
+        core_t::TTime h{(time % core::constants::DAY) / bucketLength};
         return 0.25 * static_cast<double>(time) / static_cast<double>(bucketLength) +
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 14.0, 0.01);
+    this->test(trend, bucketLength, 63, 24.0, 8.0, 0.01);
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
     core_t::TTime bucketLength{3600};
-    double day{86400.0};
+    double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
                      20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
                      40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
@@ -186,14 +186,14 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
     maths::CSpline<> trend_(maths::CSplineTypes::E_Cubic);
     trend_.interpolate(times, values, maths::CSplineTypes::E_Natural);
 
-    auto trend = [&trend_, &y, &scale, bucketLength](core_t::TTime time, double noise) {
-        core_t::TTime d{(time % 604800) / 86400};
-        core_t::TTime h{(time % 86400) / bucketLength};
+    TTrend trend = [&trend_, &y, &scale, bucketLength](core_t::TTime time, double noise) {
+        core_t::TTime d{(time % core::constants::WEEK) / core::constants::DAY};
+        core_t::TTime h{(time % core::constants::DAY) / bucketLength};
         double time_{static_cast<double>(time)};
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 4.0, 28.0, 0.053);
+    this->test(trend, bucketLength, 63, 4.0, 42.0, 0.06);
 }
 
 void CForecastTest::testNonNegative() {
@@ -400,7 +400,6 @@ void CForecastTest::test(TTrend trend,
                          double noiseVariance,
                          double maximumPercentageOutOfBounds,
                          double maximumError) {
-
     //std::ofstream file;
     //file.open("results.m");
     //TDoubleVec actual;
@@ -423,7 +422,8 @@ void CForecastTest::test(TTrend trend,
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t d = 0u; d < daysToLearn; ++d) {
         TDoubleVec noise;
-        rng.generateNormalSamples(0.0, noiseVariance, 86400 / bucketLength, noise);
+        rng.generateNormalSamples(0.0, noiseVariance,
+                                  core::constants::DAY / bucketLength, noise);
 
         for (std::size_t i = 0u; i < noise.size(); ++i, time += bucketLength) {
             maths::CModelAddSamplesParams params;
@@ -450,7 +450,8 @@ void CForecastTest::test(TTrend trend,
 
     for (std::size_t i = 0u; i < prediction.size(); /**/) {
         TDoubleVec noise;
-        rng.generateNormalSamples(0.0, noiseVariance, 86400 / bucketLength, noise);
+        rng.generateNormalSamples(0.0, noiseVariance,
+                                  core::constants::DAY / bucketLength, noise);
         TDoubleVec day;
         for (std::size_t j = 0u; i < prediction.size() && j < noise.size();
              ++i, ++j, time += bucketLength) {
