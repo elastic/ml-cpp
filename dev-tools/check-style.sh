@@ -6,7 +6,7 @@
 #
 
 # Ensure $CPP_SRC_HOME is set
-CPP_SRC_HOME=${CPP_SRC_HOME:-`git rev-parse --show-toplevel`}
+CPP_SRC_HOME="${CPP_SRC_HOME:-`git rev-parse --show-toplevel`}"
 
 # Ensure clang-format is available
 which clang-format > /dev/null 2>&1
@@ -33,22 +33,26 @@ fi
 WRONG_FORMAT_FILES=()
 WRONG_COPYRIGHT_HEADER_FILES=()
 
+COPYRIGHT_HEADER_FILE="${CPP_SRC_HOME}/copyright_code_header.txt"
+LINES_IN_COPYRIGHT_HEADER=`wc -l "$COPYRIGHT_HEADER_FILE" | awk '{ print $1 }'`
+
 check_file() {
     local FQFILE="$1"
     local FILE="$2"
-    if ! cmp -s ${FQFILE} <(clang-format ${FQFILE}); then
-        WRONG_FORMAT_FILES+=("${FILE}")
+    if ! cmp -s "$FQFILE" <(clang-format "$FQFILE"); then
+        WRONG_FORMAT_FILES+=("$FILE")
     fi
-    if ! cmp -s ${CPP_SRC_HOME}/copyright_code_header.txt <(head -5 ${FQFILE}); then
-        WRONG_COPYRIGHT_HEADER_FILES+=("${FILE}")
+    if ! cmp -s "$COPYRIGHT_HEADER_FILE" <(head -$LINES_IN_COPYRIGHT_HEADER "$FQFILE"); then
+        WRONG_COPYRIGHT_HEADER_FILES+=("$FILE")
     fi
 }
 
 if [ "x$1" = "x--all" ] ; then
     # Batch mode - check everything and only display errors
-    INFILES=`find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -print`
-    for FQFILE in ${INFILES}; do
-        check_file "$FQFILE" "${FQFILE##$CPP_SRC_HOME/}"
+    INFILES=`cd "$CPP_SRC_HOME" && find . \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -print`
+    for DOTFILE in ${INFILES}; do
+        FILE="${DOTFILE#./}"
+        check_file "${CPP_SRC_HOME}/${FILE}" "$FILE"
     done
 else
     # Local mode - check changed files only and report which files are checked
