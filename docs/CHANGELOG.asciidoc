@@ -15,8 +15,6 @@
 
 === Enhancements
 
-Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
-
 === Bug Fixes
 
 === Regressions
@@ -28,6 +26,8 @@ Improve and use periodic boundary condition for seasonal component modeling ({pu
 === New Features
 
 === Enhancements
+
+Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
 
 === Bug Fixes
 
