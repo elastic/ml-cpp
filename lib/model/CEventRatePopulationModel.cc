@@ -908,10 +908,12 @@ void CEventRatePopulationModel::updateRecycledModels() {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds()) {
         for (auto& feature : m_FeatureModels) {
-            feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
-            for (const auto& correlates : m_FeatureCorrelatesModels) {
-                if (feature.s_Feature == correlates.s_Feature) {
-                    feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+            if (cid < feature.s_Models.size()) {
+                feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
+                for (const auto& correlates : m_FeatureCorrelatesModels) {
+                    if (feature.s_Feature == correlates.s_Feature) {
+                        feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+                    }
                 }
             }
         }
@@ -939,7 +941,9 @@ void CEventRatePopulationModel::clearPrunedResources(const TSizeVec& /*people*/,
                                                      const TSizeVec& attributes) {
     for (auto cid : attributes) {
         for (auto& feature : m_FeatureModels) {
-            feature.s_Models[cid].reset(this->tinyModel());
+            if (cid < feature.s_Models.size()) {
+                feature.s_Models[cid].reset(this->tinyModel());
+            }
         }
     }
 }

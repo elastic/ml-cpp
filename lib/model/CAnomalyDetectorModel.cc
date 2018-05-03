@@ -448,7 +448,12 @@ void CAnomalyDetectorModel::createNewModels(std::size_t n, std::size_t /*m*/) {
 void CAnomalyDetectorModel::updateRecycledModels() {
     TSizeVec& people{m_DataGatherer->recycledPersonIds()};
     for (auto pid : people) {
-        m_PersonBucketCounts[pid] = 0.0;
+        if (pid < m_PersonBucketCounts.size()) {
+            m_PersonBucketCounts[pid] = 0.0;
+        } else {
+            LOG_ERROR(<< "Recycled person identifier '" << pid << "' out-of-range [,"
+                      << m_PersonBucketCounts.size() << ")");
+        }
     }
     people.clear();
 }

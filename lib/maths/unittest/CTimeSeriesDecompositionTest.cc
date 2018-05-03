@@ -128,8 +128,8 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.04 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.04 * maxValue);
+                CPPUNIT_ASSERT(sumResidual < 0.042 * sumValue);
+                CPPUNIT_ASSERT(maxResidual < 0.040 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.02 * sumValue);
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -152,7 +152,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
     CPPUNIT_ASSERT(totalSumResidual < 0.019 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.020 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.021 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -333,8 +333,8 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.23 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.18 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.22 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
@@ -447,7 +447,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
     CPPUNIT_ASSERT(totalSumResidual < 0.06 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.28 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.22 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;
@@ -527,7 +527,7 @@ void CTimeSeriesDecompositionTest::testWeekend() {
 
             if (time >= 3 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.07 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.15 * maxValue);
+                CPPUNIT_ASSERT(maxResidual < 0.17 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.03 * sumValue);
 
                 totalSumResidual += sumResidual;
@@ -550,8 +550,8 @@ void CTimeSeriesDecompositionTest::testWeekend() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.027 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.12 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.026 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.13 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.012 * totalSumValue);
 }
 
@@ -651,7 +651,7 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     CPPUNIT_ASSERT(totalSumResidual < 0.015 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.042 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.024 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 
     // Check that only the daily component has been initialized.
@@ -776,7 +776,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     CPPUNIT_ASSERT(totalSumResidual < 0.07 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.09 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.08 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
@@ -830,7 +830,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale() {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError))
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.29);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.23);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(percentileError) < 0.05);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(meanScale), 0.04);
     }
@@ -1009,7 +1009,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.19 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.20 * totalSumValue);
     CPPUNIT_ASSERT(totalMaxResidual < 0.33 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.14 * totalSumValue);
 
@@ -1642,11 +1642,12 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
 void CTimeSeriesDecompositionTest::testNonDiurnal() {
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "Hourly") {
+    LOG_DEBUG(<< "Hourly");
+    {
         const core_t::TTime length = 21 * DAY;
 
         double periodic[]{10.0, 1.0, 0.5, 0.5, 1.0, 5.0,
-                          2.0,  1.0, 0.5, 0.5, 1.0, 3.0};
+                          2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
 
         TTimeVec times;
         TDoubleVec trends[2]{TDoubleVec(), TDoubleVec(8 * DAY / FIVE_MINS)};
@@ -1660,7 +1661,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
         rng.generateNormalSamples(0.0, 1.0, trends[1].size(), noise);
 
         core_t::TTime startTesting[]{3 * HOUR, 16 * DAY};
-        TDoubleVec thresholds[]{TDoubleVec{0.07, 0.06}, TDoubleVec{0.18, 0.13}};
+        TDoubleVec thresholds[]{TDoubleVec{0.09, 0.07}, TDoubleVec{0.19, 0.16}};
 
         for (std::size_t t = 0u; t < 2; ++t) {
             //std::ofstream file;
@@ -1708,8 +1709,8 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
                         totalSumValue += sumValue;
                         totalMaxValue += maxValue;
 
-                        CPPUNIT_ASSERT(sumResidual / sumValue < 0.33);
-                        CPPUNIT_ASSERT(maxResidual / maxValue < 0.28);
+                        CPPUNIT_ASSERT(sumResidual / sumValue < 0.35);
+                        CPPUNIT_ASSERT(maxResidual / maxValue < 0.33);
                     }
                     lastHour += HOUR;
                 }
@@ -1814,7 +1815,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
         //file << "plot(t, fe);\n";
 
         CPPUNIT_ASSERT(totalSumResidual / totalSumValue < 0.1);
-        CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.18);
+        CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.17);
     }
 }
 
@@ -1828,7 +1829,7 @@ void CTimeSeriesDecompositionTest::testYearly() {
                                                maths::CDecayRateController::E_PredictionErrorIncrease,
                                            1);
     TDoubleVec noise;
-    core_t::TTime time = 0;
+    core_t::TTime time = 2 * HOUR;
     for (/**/; time < 4 * YEAR; time += 4 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
@@ -1879,7 +1880,7 @@ void CTimeSeriesDecompositionTest::testYearly() {
     //file << "plot(t, fe);\n";
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
 void CTimeSeriesDecompositionTest::testCalendar() {

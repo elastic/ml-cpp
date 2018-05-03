@@ -311,7 +311,8 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
     }
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         if (weights[i] > MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION * Z) {
-            prediction_.add(m_TrendModels[i].s_Regression.predict(scaledTime, MAX_CONDITION), weights[i]);
+            prediction_.add(m_TrendModels[i].s_Regression.predict(scaledTime, MAX_CONDITION),
+                            weights[i]);
         }
     }
 

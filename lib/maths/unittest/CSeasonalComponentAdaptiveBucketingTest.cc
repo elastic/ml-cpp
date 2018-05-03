@@ -43,7 +43,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
 
     const std::string expectedEndpoints("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
     const std::string expectedKnots("[0, 4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 100]");
-    const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
+    const std::string expectedValues("[41, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 41]");
 
     CPPUNIT_ASSERT(bucketing.initialize(10));
     const TFloatVec& endpoints = bucketing.endpoints();

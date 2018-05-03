@@ -568,8 +568,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
 
     switch (m_Machine.state()) {
     case PT_TEST:
-        for (const auto& window : m_Windows) {
-            if (this->shouldTest(window, time)) {
+        for (auto i : {E_Short, E_Long}) {
+            if (this->shouldTest(i, time)) {
+                const auto& window = m_Windows[i];
                 TFloatMeanAccumulatorVec values(window->valuesMinusPrediction(predictor));
                 core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
                 core_t::TTime bucketLength{window->bucketLength()};
@@ -686,25 +687,24 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandingWindowPtr& window,
+bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
                                                                   core_t::TTime time) const {
-
-    // We need to test more frequently than when we compress, because
-    // this only happens after we've seen 336 buckets, this would thus
-    // significantly delay when we first detect a daily periodic for
-    // longer bucket lengths otherwise.
-
-    auto shouldTest = [this, time](const TExpandingWindowPtr& window_) {
-        core_t::TTime length{time - window_->startTime()};
-        for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-            if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
-                return true;
+    // We need to test more frequently than we compress because it
+    // only happens each 336 buckets and would significantly delay
+    // when we first detect short periodic components for longer
+    // bucket lengths otherwise.
+    auto scheduledTest = [&]() {
+        if (test != E_Long || m_Windows[E_Short] == nullptr) {
+            core_t::TTime length{time - m_Windows[test]->startTime()};
+            for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
+                if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
+                    return true;
+                }
             }
         }
         return false;
     };
-
-    return window && (window->needToCompress(time) || shouldTest(window));
+    return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
 CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
@@ -1467,12 +1467,14 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         TFloatMeanAccumulatorVec values;
         for (const auto& seasonalTime : newSeasonalTimes) {
             values = window.valuesMinusPrediction(predictor);
+            core_t::TTime period{seasonalTime->period()};
             components.emplace_back(*seasonalTime, m_SeasonalComponentSize,
                                     m_DecayRate, static_cast<double>(m_BucketLength),
-                                    CSplineTypes::E_Natural);
+                                    period > seasonalTime->windowLength()
+                                        ? CSplineTypes::E_Natural
+                                        : CSplineTypes::E_Periodic);
             components.back().initialize(window.startTime(), window.endTime(), values);
-            components.back().interpolate(
-                CIntegerTools::floor(window.endTime(), seasonalTime->period()));
+            components.back().interpolate(CIntegerTools::floor(window.endTime(), period));
         }
 
         CTrendComponent windowTrend{trend.defaultDecayRate()};
