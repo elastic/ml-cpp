@@ -77,17 +77,6 @@ void hashActive(EEntity entity,
     }
 }
 
-//! Update \p hashes with the hash of the active entities in \p values.
-template<typename T>
-void hashActive(EEntity entity,
-                const CDataGatherer& gatherer,
-                const std::vector<std::pair<model_t::EFeature, std::vector<T>>>& values,
-                TStrCRefUInt64Map& hashes) {
-    for (const auto& value : values) {
-        hashActive(entity, gatherer, value.second, hashes);
-    }
-}
-
 const std::size_t COUNT_MIN_SKETCH_ROWS = 3u;
 const std::size_t COUNT_MIN_SKETCH_COLUMNS = 500u;
 const std::size_t BJKST_HASHES = 3u;
@@ -456,16 +445,23 @@ void CPopulationModel::createNewModels(std::size_t n, std::size_t m) {
 void CPopulationModel::updateRecycledModels() {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto pid : gatherer.recycledPersonIds()) {
-        m_PersonLastBucketTimes[pid] = 0;
+        if (pid < m_PersonLastBucketTimes.size()) {
+            m_PersonLastBucketTimes[pid] = 0;
+        }
     }
 
     TSizeVec& attributes = gatherer.recycledAttributeIds();
     for (auto cid : attributes) {
-        m_AttributeFirstBucketTimes[cid] = CAnomalyDetectorModel::TIME_UNSET;
-        m_AttributeLastBucketTimes[cid] = CAnomalyDetectorModel::TIME_UNSET;
-        m_DistinctPersonCounts[cid] = m_NewDistinctPersonCounts;
-        if (m_NewPersonBucketCounts) {
-            m_PersonAttributeBucketCounts[cid] = *m_NewPersonBucketCounts;
+        if (cid < m_AttributeFirstBucketTimes.size()) {
+            m_AttributeFirstBucketTimes[cid] = CAnomalyDetectorModel::TIME_UNSET;
+            m_AttributeLastBucketTimes[cid] = CAnomalyDetectorModel::TIME_UNSET;
+            m_DistinctPersonCounts[cid] = m_NewDistinctPersonCounts;
+            if (m_NewPersonBucketCounts) {
+                m_PersonAttributeBucketCounts[cid] = *m_NewPersonBucketCounts;
+            }
+        } else {
+            LOG_ERROR(<< "Recycled attribute identifier '" << cid << "' out-of-range [0,"
+                      << m_AttributeFirstBucketTimes.size() << ")");
         }
     }
     attributes.clear();

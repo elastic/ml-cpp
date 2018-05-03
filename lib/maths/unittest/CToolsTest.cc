@@ -339,10 +339,6 @@ private:
 }
 
 void CToolsTest::testProbabilityOfLessLikelySample() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testProbabilityOfLessLikelySample  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // The probability of a lower likelihood sample x from a single
     // mode distribution is:
     //   F(a) + 1 - F(b)
@@ -849,10 +845,6 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
 }
 
 void CToolsTest::testIntervalExpectation() {
-    LOG_DEBUG(<< "+---------------------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testIntervalExpectation  |");
-    LOG_DEBUG(<< "+---------------------------------------+");
-
     // We check the expectations agree with numerical integration
     // and also some corner cases. Specifically, that we handle
     // +/- infinity correctly and the also the case that a and b
@@ -940,10 +932,6 @@ void CToolsTest::testIntervalExpectation() {
 }
 
 void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testMixtureProbabilityOfLessLikelySample  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
@@ -1048,10 +1036,6 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
 }
 
 void CToolsTest::testDeviation() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testDeviation  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     // Test p = inverseDeviation(deviation(p))
 
     double p = 0.04;
@@ -1063,10 +1047,6 @@ void CToolsTest::testDeviation() {
 }
 
 void CToolsTest::testSpread() {
-    LOG_DEBUG(<< "+--------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testSpread  |");
-    LOG_DEBUG(<< "+--------------------------+");
-
     double period = 86400.0;
     {
         double raw[] = {15.0,    120.0,   4500.0,  9000.0, 25700.0,
@@ -1086,8 +1066,7 @@ void CToolsTest::testSpread() {
         double raw[] = {150.0,   170.0,   4500.0,  4650.0,  4700.0,  4800.0,
                         73000.0, 73150.0, 73500.0, 73600.0, 73800.0, 74000.0};
         double separation = 126.0;
-        std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, "
-                               "73000, 73150, 73487, 73613, 73800, 74000]";
+        std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
         TDoubleVec points(boost::begin(raw), boost::end(raw));
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
@@ -1123,10 +1102,6 @@ void CToolsTest::testSpread() {
 }
 
 void CToolsTest::testFastLog() {
-    LOG_DEBUG(<< "+---------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testFastLog  |");
-    LOG_DEBUG(<< "+---------------------------+");
-
     test::CRandomNumbers rng;
 
     // Small
@@ -1169,10 +1144,6 @@ void CToolsTest::testFastLog() {
 }
 
 void CToolsTest::testMiscellaneous() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CToolsTest::testMiscellaneous  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     double x_[] = {0.0, 3.2, 2.1, -1.8, 4.5};
 
     maths::CVectorNx1<double, 5> x(x_, x_ + 5);

@@ -20,10 +20,6 @@
 using namespace ml;
 
 void CPRNGTest::testSplitMix64() {
-    LOG_DEBUG(<< "+-----------------------------+");
-    LOG_DEBUG(<< "|  CPRNGTest::testSplitMix64  |");
-    LOG_DEBUG(<< "+-----------------------------+");
-
     maths::CPRNG::CSplitMix64 rng1;
 
     boost::uniform_01<> u01;
@@ -129,10 +125,6 @@ void CPRNGTest::testSplitMix64() {
 }
 
 void CPRNGTest::testXorOShiro128Plus() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CPRNGTest::testXorOShiro128Plus  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     maths::CPRNG::CXorOShiro128Plus rng1;
 
     boost::uniform_01<> u01;
@@ -255,10 +247,6 @@ void CPRNGTest::testXorOShiro128Plus() {
 }
 
 void CPRNGTest::testXorShift1024Mult() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CPRNGTest::testXorShift1024Mult  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     maths::CPRNG::CXorShift1024Mult rng1;
 
     boost::uniform_01<> u01;

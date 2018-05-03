@@ -85,40 +85,6 @@ const double MAXIMUM_ACCURATE_VARIANCE_SCALE{2.0};
 //! can be in significant error).
 const double DEFAULT_SEASONAL_CONFIDENCE_INTERVAL{50.0};
 
-//! \brief A collection of weight styles and weights.
-class MATHS_EXPORT CConstantWeights {
-public:
-    using TDouble2Vec = core::CSmallVector<double, 2>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-    using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
-
-public:
-    //! A single count weight style.
-    static const maths_t::TWeightStyleVec COUNT;
-    //! A single count variance weight style.
-    static const maths_t::TWeightStyleVec COUNT_VARIANCE;
-    //! A single seasonal variance weight style.
-    static const maths_t::TWeightStyleVec SEASONAL_VARIANCE;
-    //! A unit weight.
-    static const TDouble4Vec UNIT;
-    //! A single unit weight.
-    static const TDouble4Vec1Vec SINGLE_UNIT;
-    //! Get a unit weight for data with \p dimension.
-    template<typename VECTOR>
-    static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {
-        return TDouble2Vec4Vec{VECTOR(dimension, 1.0)};
-    }
-    //! Get a single unit weight for data with \p dimension.
-    template<typename VECTOR>
-    static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>
-    singleUnit(std::size_t dimension) {
-        return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{
-            core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
-    }
-};
-
 //! The minimum fractional count of points in a cluster.
 const double MINIMUM_CLUSTER_SPLIT_FRACTION{0.0};
 

@@ -285,12 +285,6 @@ private:
     //! Set the current bucket total count.
     virtual void currentBucketTotalCount(uint64_t totalCount);
 
-    //! Create the time series models for "n" newly observed people.
-    virtual void createNewModels(std::size_t n, std::size_t m);
-
-    //! Reinitialize the time series models for recycled people.
-    virtual void updateRecycledModels();
-
     //! Clear out large state objects for people that are pruned.
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
 

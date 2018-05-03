@@ -32,6 +32,7 @@
 #include <maths/CSetTools.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
+#include <maths/Constants.h>
 
 #include <boost/bind.hpp>
 #include <boost/config.hpp>
@@ -360,20 +361,18 @@ CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::T
 
 //////// SAddValue ////////
 
-CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
-    core_t::TTime time,
-    core_t::TTime lastTime,
-    double value,
-    const maths_t::TWeightStyleVec& weightStyles,
-    const maths_t::TDouble4Vec& weights,
-    double trend,
-    double seasonal,
-    double calendar,
-    const TPredictor& predictor,
-    const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
-    : SMessage{time, lastTime}, s_Value{value}, s_WeightStyles{weightStyles},
-      s_Weights{weights}, s_Trend{trend}, s_Seasonal{seasonal}, s_Calendar{calendar},
-      s_Predictor{predictor}, s_PeriodicityTestConfig{periodicityTestConfig} {
+CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
+                                                     core_t::TTime lastTime,
+                                                     double value,
+                                                     const maths_t::TDoubleWeightsAry& weights,
+                                                     double trend,
+                                                     double seasonal,
+                                                     double calendar,
+                                                     const TPredictor& predictor,
+                                                     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
+    : SMessage{time, lastTime}, s_Value{value}, s_Weights{weights}, s_Trend{trend},
+      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
+      s_PeriodicityTestConfig{periodicityTestConfig} {
 }
 
 //////// SDetectedSeasonal ////////
@@ -528,9 +527,8 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::swap(CPeriodicityTest& ot
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     double value{message.s_Value};
-    const maths_t::TWeightStyleVec& weightStyles{message.s_WeightStyles};
-    const maths_t::TDouble4Vec& weights{message.s_Weights};
-    double weight{maths_t::countForUpdate(weightStyles, weights)};
+    const maths_t::TDoubleWeightsAry& weights{message.s_Weights};
+    double weight{maths_t::countForUpdate(weights)};
 
     this->test(message);
 
@@ -569,8 +567,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
 
     switch (m_Machine.state()) {
     case PT_TEST:
-        for (const auto& window : m_Windows) {
-            if (this->shouldTest(window, time)) {
+        for (auto i : {E_Short, E_Long}) {
+            if (this->shouldTest(i, time)) {
+                const auto& window = m_Windows[i];
                 TFloatMeanAccumulatorVec values(window->valuesMinusPrediction(predictor));
                 core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
                 core_t::TTime bucketLength{window->bucketLength()};
@@ -647,16 +646,28 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
             for (auto i : {E_Short, E_Long}) {
                 m_Windows[i].reset(this->newWindow(i));
                 if (m_Windows[i]) {
-                    m_Windows[i]->initialize(time_);
+                    // Since all permitted bucket lengths are divisors
+                    // of longer ones, this finds the unique rightmost
+                    // time which is an integer multiple of all windows'
+                    // bucket lengths. It is important to align start
+                    // times so that we try the short test first when
+                    // testing for shorter periods.
+                    time_ = CIntegerTools::floor(time_, m_Windows[i]->bucketLength());
+                }
+            }
+            for (auto& window : m_Windows) {
+                if (window) {
+                    window->initialize(time_);
                 }
             }
         };
 
         switch (state) {
         case PT_TEST:
-            if (std::all_of(
-                    m_Windows.begin(), m_Windows.end(),
-                    [](const TExpandingWindowPtr& window) { return !window; })) {
+            if (std::all_of(m_Windows.begin(), m_Windows.end(),
+                            [](const TExpandingWindowPtr& window) {
+                                return window == nullptr;
+                            })) {
                 initialize(time);
             }
             break;
@@ -675,26 +686,28 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandingWindowPtr& window,
+bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
                                                                   core_t::TTime time) const {
-    // We need to test more frequently than when we compress, because
-    // this only happens after we've seen 336 buckets, this would thus
-    // significantly delay when we first detect a daily periodic for
-    // longer bucket lengths otherwise.
-
-    auto shouldTest = [this, time](const TExpandingWindowPtr& window_) {
-        core_t::TTime length{time - window_->startTime()};
-        for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-            if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
-                return true;
+    // We need to test more frequently than we compress because it
+    // only happens each 336 buckets and would significantly delay
+    // when we first detect short periodic components for longer
+    // bucket lengths otherwise.
+    auto scheduledTest = [&]() {
+        if (test != E_Long || m_Windows[E_Short] == nullptr) {
+            core_t::TTime length{time - m_Windows[test]->startTime()};
+            for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
+                if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
+                    return true;
+                }
             }
         }
         return false;
     };
-    return window && (window->needToCompress(time) || shouldTest(window));
+    return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
 CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
+
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
     auto newWindow = [this](const TTimeVec& bucketLengths) {
@@ -781,14 +794,13 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
     core_t::TTime time{message.s_Time};
     double error{message.s_Value - message.s_Trend - message.s_Seasonal -
                  message.s_Calendar};
-    const maths_t::TWeightStyleVec& weightStyles{message.s_WeightStyles};
-    const maths_t::TDouble4Vec& weights{message.s_Weights};
+    const maths_t::TDoubleWeightsAry& weights{message.s_Weights};
 
     this->test(message);
 
     switch (m_Machine.state()) {
     case CC_TEST:
-        m_Test->add(time, error, maths_t::countForUpdate(weightStyles, weights));
+        m_Test->add(time, error, maths_t::countForUpdate(weights));
         break;
     case CC_NOT_TESTING:
         break;
@@ -1010,6 +1022,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(core::C
 
 void CTimeSeriesDecompositionDetail::CComponents::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
+
     inserter.insertValue(VERSION_6_3_TAG, "");
     inserter.insertLevel(
         COMPONENTS_MACHINE_6_3_TAG,
@@ -1057,8 +1070,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         double trend{message.s_Trend};
         double seasonal{message.s_Seasonal};
         double calendar{message.s_Calendar};
-        const maths_t::TWeightStyleVec& weightStyles{message.s_WeightStyles};
-        const maths_t::TDouble4Vec& weights{message.s_Weights};
+        const maths_t::TDoubleWeightsAry& weights{message.s_Weights};
 
         TSeasonalComponentPtrVec seasonalComponents;
         TCalendarComponentPtrVec calendarComponents;
@@ -1074,7 +1086,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
             m_Calendar->componentsAndErrors(time, calendarComponents, calendarErrors);
         }
 
-        double weight{maths_t::countForUpdate(weightStyles, weights)};
+        double weight{maths_t::countForUpdate(weights)};
         std::size_t m{seasonalComponents.size()};
         std::size_t n{calendarComponents.size()};
 
@@ -1411,12 +1423,14 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         TFloatMeanAccumulatorVec values;
         for (const auto& seasonalTime : newSeasonalTimes) {
             values = window.valuesMinusPrediction(predictor);
+            core_t::TTime period{seasonalTime->period()};
             components.emplace_back(*seasonalTime, m_SeasonalComponentSize,
                                     m_DecayRate, static_cast<double>(m_BucketLength),
-                                    CSplineTypes::E_Natural);
+                                    period > seasonalTime->windowLength()
+                                        ? CSplineTypes::E_Natural
+                                        : CSplineTypes::E_Periodic);
             components.back().initialize(window.startTime(), window.endTime(), values);
-            components.back().interpolate(
-                CIntegerTools::floor(window.endTime(), seasonalTime->period()));
+            components.back().interpolate(CIntegerTools::floor(window.endTime(), period));
         }
 
         CTrendComponent windowTrend{trend.defaultDecayRate()};
@@ -1833,10 +1847,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
                     shifted.reserve(s_Components.size());
                     for (auto& component : s_Components) {
                         const CSeasonalTime& time_ = component.time();
-                        if (std::find_if(shifted.begin(), shifted.end(), [&time_](const TTimeTimePr& window) {
-                                return !(time_.windowEnd() <= window.first ||
-                                         time_.windowStart() >= window.second);
-                            }) == shifted.end()) {
+                        auto containsWindow = [&time_](const TTimeTimePr& window) {
+                            return !(time_.windowEnd() <= window.first ||
+                                     time_.windowStart() >= window.second);
+                        };
+                        if (std::find_if(shifted.begin(), shifted.end(),
+                                         containsWindow) == shifted.end()) {
                             component.shiftLevel(shift.second);
                         }
                     }

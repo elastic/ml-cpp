@@ -35,6 +35,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -55,6 +56,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -75,6 +77,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -95,6 +98,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -115,6 +119,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -136,6 +141,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -157,6 +163,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -177,6 +184,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -198,6 +206,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -219,6 +228,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -240,6 +250,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -261,6 +272,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -282,6 +294,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -304,6 +317,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -326,6 +340,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -347,6 +362,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -369,6 +385,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -391,6 +408,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -411,6 +429,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -434,6 +453,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -455,6 +475,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -476,6 +497,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(true, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -498,6 +520,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -520,6 +543,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -540,6 +564,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -562,6 +587,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -584,6 +610,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -606,6 +633,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -628,6 +656,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -649,6 +678,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -671,6 +701,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -693,6 +724,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -716,6 +748,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -736,6 +769,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -757,6 +791,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -778,6 +813,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -798,6 +834,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -820,6 +857,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -842,6 +880,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -864,6 +903,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -886,6 +926,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -909,6 +950,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -932,6 +974,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -955,6 +998,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -978,6 +1022,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -999,6 +1044,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(3.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1022,6 +1068,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1043,6 +1090,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1064,6 +1112,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(true, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1086,6 +1135,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1108,6 +1158,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1129,6 +1180,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1151,6 +1203,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1173,6 +1226,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1195,6 +1249,7 @@ void CModelTypesTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
         CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
         CPPUNIT_ASSERT_EQUAL(true, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isLatLong(feature));
         CPPUNIT_ASSERT_EQUAL(1.0, model_t::varianceScale(feature, 4.0, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
         CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
@@ -1205,6 +1260,28 @@ void CModelTypesTest::testAll() {
             model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("sum"), model_t::outputFunctionName(feature));
         CPPUNIT_ASSERT_EQUAL(std::string("'high bucket sum by person and attribute'"),
+                             model_t::print(feature));
+
+        feature = model_t::E_PopulationMeanLatLongByPersonAndAttribute;
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2), model_t::dimension(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isCategorical(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isDiurnal(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isConstant(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isMeanFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isMedianFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isMinFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isMaxFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(false, model_t::isSumFeature(feature));
+        CPPUNIT_ASSERT_EQUAL(true, model_t::isLatLong(feature));
+        CPPUNIT_ASSERT_EQUAL(2.0, model_t::varianceScale(feature, 4.0, 2.0));
+        CPPUNIT_ASSERT_EQUAL(2.0, model_t::offsetCountToZero(feature, 2.0));
+        CPPUNIT_ASSERT_EQUAL(2.0, model_t::inverseOffsetCountToZero(feature, 2.0));
+        CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, model_t::probabilityCalculation(feature));
+        CPPUNIT_ASSERT_EQUAL(
+            core_t::TTime(10050),
+            model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
+        CPPUNIT_ASSERT_EQUAL(std::string("lat_long"), model_t::outputFunctionName(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'mean lat/long by person and attribute'"),
                              model_t::print(feature));
     }
 }

@@ -196,10 +196,10 @@ protected:
     void createUpdateNewModels(core_t::TTime time, CResourceMonitor& resourceMonitor);
 
     //! Create the time series models for "n" newly observed people.
-    virtual void createNewModels(std::size_t n, std::size_t m) = 0;
+    virtual void createNewModels(std::size_t n, std::size_t m);
 
     //! Reinitialize the time series models for recycled people.
-    virtual void updateRecycledModels() = 0;
+    virtual void updateRecycledModels();
 
     //! Update the correlation models.
     void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
@@ -253,7 +253,7 @@ protected:
     maths::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Sample the correlate models.
-    void sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles);
+    void sampleCorrelateModels();
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,

@@ -52,7 +52,7 @@ using TSizeDoublePr = std::pair<size_t, double>;
 using TSizeDoublePr3Vec = core::CSmallVector<TSizeDoublePr, 3>;
 using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
 using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
-using TDouble10Vec4Vec1Vec = CMultivariatePrior::TDouble10Vec4Vec1Vec;
+using TDouble10VecWeightsAry1Vec = CMultivariatePrior::TDouble10VecWeightsAry1Vec;
 using TMode = SMultimodalPriorMode<std::shared_ptr<CMultivariatePrior>>;
 using TModeVec = std::vector<TMode>;
 
@@ -60,9 +60,8 @@ using TModeVec = std::vector<TMode>;
 MATHS_EXPORT
 maths_t::EFloatingPointErrorStatus
 jointLogMarginalLikelihood(const TModeVec& modes,
-                           const maths_t::TWeightStyleVec& weightStyles,
                            const TDouble10Vec1Vec& sample,
-                           const TDouble10Vec4Vec1Vec& weights,
+                           const TDouble10VecWeightsAry1Vec& weights,
                            TSizeDoublePr3Vec& modeLogLikelihoods,
                            double& result);
 
@@ -137,7 +136,6 @@ public:
     using TClusterer = CClusterer<TFloatPoint>;
     using TClustererPtr = std::shared_ptr<TClusterer>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
-    using TWeights = CConstantWeights;
 
     // Lift all overloads of into scope.
     //{
@@ -274,34 +272,26 @@ public:
     //! For priors with non-negative support this adjusts the offset used
     //! to extend the support to handle negative samples.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights) {
+    virtual void adjustOffset(const TDouble10Vec1Vec& samples,
+                              const TDouble10VecWeightsAry1Vec& weights) {
         // This has to adjust offsets for its modes because it must be
         // possible to call jointLogMarginalLikelihood before the samples
         // have been added to the prior in order for model selection to
         // work.
         for (const auto& mode : m_Modes) {
-            mode.s_Prior->adjustOffset(weightStyles, samples, weights);
+            mode.s_Prior->adjustOffset(samples, weights);
         }
     }
 
     //! Update the prior with a collection of independent samples from the
     //! process.
     //!
-    //! \param[in] weightStyles_ Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles_,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights) {
+    virtual void addSamples(const TDouble10Vec1Vec& samples,
+                            const TDouble10VecWeightsAry1Vec& weights) {
         if (samples.empty()) {
             return;
         }
@@ -315,27 +305,13 @@ public:
 
         // Declared outside the loop to minimize the number of times it
         // is initialized.
-        TWeightStyleVec weightStyles(weightStyles_);
         TDouble10Vec1Vec sample(1);
-        TDouble10Vec4Vec1Vec weight(1);
+        TDouble10VecWeightsAry1Vec weight{TWeights::unit<TDouble10Vec>(N)};
         TSizeDoublePr2Vec clusters;
 
-        std::size_t indices[maths_t::NUMBER_WEIGHT_STYLES];
-        std::size_t missing = weightStyles.size() + 1;
-        std::fill_n(indices, maths_t::NUMBER_WEIGHT_STYLES, missing);
-        for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
-            indices[weightStyles[i]] = i;
-        }
-        std::size_t seasonal = indices[maths_t::E_SampleSeasonalVarianceScaleWeight];
-        std::size_t count = indices[maths_t::E_SampleCountWeight];
-        std::size_t winsorisation = indices[maths_t::E_SampleWinsorisationWeight];
-        if (count == missing) {
-            count = weightStyles.size();
-            weightStyles.push_back(maths_t::E_SampleCountWeight);
-        }
-
         try {
-            bool hasSeasonalScale = !this->isNonInformative() && seasonal != missing;
+            bool hasSeasonalScale = !this->isNonInformative() &&
+                                    maths_t::hasSeasonalVarianceScale(weights);
 
             TPoint mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
 
@@ -347,19 +323,16 @@ public:
                 }
 
                 if (hasSeasonalScale) {
-                    TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(
-                        N, weightStyles_, weights[i])));
+                    TPoint seasonalScale =
+                        sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
                     x = mean + (x - mean) / seasonalScale;
                 }
 
                 sample[0] = x.template toVector<TDouble10Vec>();
                 weight[0] = weights[i];
-                weight[0].resize(weightStyles.size(), TDouble10Vec(N, 1.0));
-                if (seasonal != missing) {
-                    weight[0][seasonal].assign(N, 1.0);
-                }
+                maths_t::setSeasonalVarianceScale(1.0, N, weight[0]);
 
-                double smallestCountWeight = this->smallest(weight[0][count]);
+                double smallestCountWeight = this->smallest(maths_t::count(weight[0]));
                 clusters.clear();
                 m_Clusterer->add(x, clusters, smallestCountWeight);
 
@@ -377,16 +350,17 @@ public:
                         m_Modes.emplace_back(cluster.first, m_SeedPrior);
                         k = m_Modes.end() - 1;
                     }
-                    weight[0][count].assign(N, cluster.second);
-                    if (winsorisation != missing) {
-                        TDouble10Vec& ww = weight[0][winsorisation];
+                    maths_t::setCount(cluster.second, N, weight[0]);
+                    if (maths_t::isWinsorised(weight)) {
+                        TDouble10Vec ww = maths_t::winsorisationWeight(weight[0]);
                         double f = (k->weight() + cluster.second) / Z;
                         for (auto& w : ww) {
                             w = std::max(1.0 - (1.0 - w) / f, w * f);
                         }
+                        maths_t::setWinsorisationWeight(ww, weight[0]);
                     }
-                    k->s_Prior->addSamples(weightStyles, sample, weight);
-                    n += this->smallest(maths_t::countForUpdate(N, weightStyles, weight[0]));
+                    k->s_Prior->addSamples(sample, weight);
+                    n += this->smallest(maths_t::countForUpdate(weight[0]));
                 }
                 this->addSamples(n);
             }
@@ -401,7 +375,6 @@ public:
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
         }
-
         if (this->isNonInformative()) {
             // Nothing to be done.
             return;
@@ -440,6 +413,7 @@ public:
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
     univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+
         std::size_t n = m_Modes.size();
 
         CMultimodalPrior::TPriorPtrVec modes;
@@ -489,6 +463,7 @@ public:
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
+
         if (N == 2) {
             return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
         }
@@ -529,6 +504,7 @@ public:
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const {
+
         if (m_Modes.size() == 0) {
             return {TPoint::smallest().template toVector<TDouble10Vec>(),
                     TPoint::largest().template toVector<TDouble10Vec>()};
@@ -559,13 +535,13 @@ public:
         if (m_Modes.size() == 1) {
             return m_Modes[0].s_Prior->marginalLikelihoodMean();
         }
-
         return this->mean().template toVector<TDouble10Vec>();
     }
 
     //! Get the nearest mean of the multimodal prior marginal likelihood,
     //! otherwise the marginal likelihood mean.
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value_) const {
+
         if (m_Modes.empty()) {
             return TDouble10Vec(N, 0.0);
         }
@@ -590,13 +566,13 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weight) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weight) const {
+
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
         }
         if (m_Modes.size() == 1) {
-            return m_Modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weight);
+            return m_Modes[0].s_Prior->marginalLikelihoodMode(weight);
         }
 
         using TMaxAccumulator =
@@ -605,15 +581,9 @@ public:
         // We'll approximate this as the mode with the maximum likelihood.
         TPoint result(0.0);
 
-        TPoint seasonalScale(1.0);
-        TDouble10Vec4Vec1Vec weight_(1, TDouble10Vec4Vec(1));
-        try {
-            seasonalScale =
-                sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weight)));
-            weight_[0][0] = maths_t::countVarianceScale(N, weightStyles, weight);
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to get variance scale " << e.what());
-        }
+        TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(weight)));
+        TDouble10VecWeightsAry1Vec weight_{TWeights::unit<TDouble10Vec>(N)};
+        maths_t::setCountVarianceScale(maths_t::countVarianceScale(weight), weight_[0]);
 
         // Declared outside the loop to minimize number of times it is created.
         TDouble10Vec1Vec mode(1);
@@ -622,10 +592,9 @@ public:
         for (const auto& mode_ : m_Modes) {
             double w = mode_.weight();
             const TPriorPtr& prior = mode_.s_Prior;
-            mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight_[0]);
+            mode[0] = prior->marginalLikelihoodMode(weight_[0]);
             double likelihood;
-            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
-                                                  mode, weight_, likelihood) &
+            if (prior->jointLogMarginalLikelihood(mode, weight_, likelihood) &
                 maths_t::E_FpAllErrors) {
                 continue;
             }
@@ -640,12 +609,11 @@ public:
     }
 
     //! Get the local maxima of the marginal likelihood functions.
-    TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                             const TDouble10Vec4Vec& weights) const {
+    TDouble10Vec1Vec marginalLikelihoodModes(const TDouble10VecWeightsAry& weights) const {
         TDouble10Vec1Vec result;
         result.reserve(m_Modes.size());
         for (const auto& mode : m_Modes) {
-            result.push_back(mode.s_Prior->marginalLikelihoodMode(weightStyles, weights));
+            result.push_back(mode.s_Prior->marginalLikelihoodMode(weights));
         }
         return result;
     }
@@ -675,17 +643,14 @@ public:
     //! Calculate the log marginal likelihood function, integrating over the
     //! prior density function.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                               const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
+
         result = 0.0;
 
         if (samples.empty()) {
@@ -695,7 +660,6 @@ public:
         if (!this->check(samples, weights)) {
             return maths_t::E_FpFailed;
         }
-
         if (this->isNonInformative()) {
             // The non-informative likelihood is improper and effectively
             // zero everywhere. We use minus max double because
@@ -712,8 +676,8 @@ public:
         if (m_Modes.size() == 1) {
             // Apply a small penalty to kill off this model if the data are
             // single mode.
-            maths_t::EFloatingPointErrorStatus status = m_Modes[0].s_Prior->jointLogMarginalLikelihood(
-                weightStyles, samples, weights, result);
+            maths_t::EFloatingPointErrorStatus status =
+                m_Modes[0].s_Prior->jointLogMarginalLikelihood(samples, weights, result);
             result -= 10.0 * this->decayRate();
             return status;
         }
@@ -727,32 +691,29 @@ public:
         detail::TSizeDoublePr3Vec modeLogLikelihoods;
         modeLogLikelihoods.reserve(m_Modes.size());
 
-        bool hasSeasonalScale = maths_t::hasSeasonalVarianceScale(weightStyles, weights);
+        TPoint mean = maths_t::hasSeasonalVarianceScale(weights) ? this->mean()
+                                                                 : TPoint(0.0);
 
-        TPoint mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
-        TDouble10Vec4Vec1Vec weights_(1, TDouble10Vec4Vec(1, TDouble10Vec(N, 1.0)));
+        TDouble10VecWeightsAry1Vec weight{TWeights::unit<TDouble10Vec>(N)};
         try {
             for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double n = this->smallest(
-                    maths_t::countForUpdate(N, weightStyles, weights[i]));
-                TPoint seasonalScale = sqrt(TPoint(
-                    maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
+                double n = this->smallest(maths_t::countForUpdate(weights[i]));
+                TPoint seasonalScale =
+                    sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
                 double logSeasonalScale = 0.0;
                 for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j) {
                     logSeasonalScale += std::log(seasonalScale(j));
                 }
 
                 TPoint x(samples[i]);
-                if (hasSeasonalScale) {
-                    x = mean + (x - mean) / seasonalScale;
-                }
+                x = mean + (x - mean) / seasonalScale;
                 sample[0] = x.template toVector<TDouble10Vec>();
-                weights_[0][0] = maths_t::countVarianceScale(N, weightStyles, weights[i]);
+                maths_t::setCountVarianceScale(
+                    maths_t::countVarianceScale(weights[i]), weight[0]);
 
                 double sampleLogLikelihood;
                 maths_t::EFloatingPointErrorStatus status = detail::jointLogMarginalLikelihood(
-                    m_Modes, TWeights::COUNT_VARIANCE, sample, weights_,
-                    modeLogLikelihoods, sampleLogLikelihood);
+                    m_Modes, sample, weight, modeLogLikelihoods, sampleLogLikelihood);
                 if (status & maths_t::E_FpOverflowed) {
                     result = boost::numeric::bounds<double>::lowest();
                     return status;
@@ -921,6 +882,7 @@ private:
         void operator()(std::size_t sourceIndex,
                         std::size_t leftSplitIndex,
                         std::size_t rightSplitIndex) const {
+
             LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
             TModeVec& modes = m_Prior->m_Modes;
@@ -952,24 +914,22 @@ private:
                 }
                 LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
-                double nl = pLeft * numberSamples;
-                double ns = std::min(nl, static_cast<double>(N + 2));
-                double s = static_cast<double>(samples.size());
-                LOG_TRACE(<< "# left = " << nl);
+                double wl = pLeft * numberSamples;
+                double ws = std::min(wl, static_cast<double>(N + 2));
+                double n = static_cast<double>(samples.size());
+                LOG_TRACE(<< "# left = " << wl);
 
                 TDouble10Vec1Vec samples_;
                 samples_.reserve(samples.size());
                 for (const auto& sample : samples) {
                     samples_.push_back(sample.template toVector<TDouble10Vec>());
                 }
-                TDouble10Vec seedWeight(N, ns / s);
-                TDouble10Vec4Vec1Vec weights(samples_.size(), TDouble10Vec4Vec(1, seedWeight));
-                modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
-                double weight = (nl - ns) / s;
-                if (weight > 0.0) {
-                    weights.assign(weights.size(),
-                                   TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
-                    modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
+                TDouble10VecWeightsAry1Vec weights(samples_.size(),
+                                                   maths_t::countWeight(ws / n, N));
+                modes.back().s_Prior->addSamples(samples_, weights);
+                if (wl > ws) {
+                    weights.assign(weights.size(), maths_t::countWeight((wl - ws) / n, N));
+                    modes.back().s_Prior->addSamples(samples_, weights);
                     LOG_TRACE(<< modes.back().s_Prior->print());
                 }
             }
@@ -984,24 +944,22 @@ private:
                 }
                 LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
-                double nr = pRight * numberSamples;
-                double ns = std::min(nr, static_cast<double>(N + 2));
-                double s = static_cast<double>(samples.size());
-                LOG_TRACE(<< "# right = " << nr);
+                double wr = pRight * numberSamples;
+                double ws = std::min(wr, static_cast<double>(N + 2));
+                double n = static_cast<double>(samples.size());
+                LOG_TRACE(<< "# right = " << wr);
 
                 TDouble10Vec1Vec samples_;
                 samples_.reserve(samples.size());
                 for (const auto& sample : samples) {
                     samples_.push_back(sample.template toVector<TDouble10Vec>());
                 }
-                TDouble10Vec seedWeight(N, ns / s);
-                TDouble10Vec4Vec1Vec weights(samples_.size(), TDouble10Vec4Vec(1, seedWeight));
-                modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
-                double weight = (nr - ns) / s;
-                if (weight > 0.0) {
-                    weights.assign(weights.size(),
-                                   TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
-                    modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
+                TDouble10VecWeightsAry1Vec weights(samples_.size(),
+                                                   maths_t::countWeight(ws / n, N));
+                modes.back().s_Prior->addSamples(samples_, weights);
+                if (wr > ws) {
+                    weights.assign(weights.size(), maths_t::countWeight((wr - ws) / n, N));
+                    modes.back().s_Prior->addSamples(samples_, weights);
                     LOG_TRACE(<< modes.back().s_Prior->print());
                 }
             }
@@ -1097,6 +1055,7 @@ private:
 
     //! Get the convariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix() const {
+
         // By linearity we have that:
         //   Integral{ (x - m)' * (x - m) * Sum_i{ w(i) * f(x | i) } }
         //     = Sum_i{ w(i) * (Integral{ x' * x * f(x | i) } - m' * m) }

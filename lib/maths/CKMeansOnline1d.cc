@@ -30,11 +30,10 @@ namespace maths {
 
 namespace {
 
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
 
 namespace detail {
 
@@ -58,7 +57,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample,
                                 const CNormalMeanPrecConjugate& normal) {
     double likelihood;
     maths_t::EFloatingPointErrorStatus status = normal.jointLogMarginalLikelihood(
-        CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
+        sample, maths_t::CUnitWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed) {
         LOG_ERROR(<< "Unable to compute probability for: " << sample[0]);
         return core::constants::LOG_MIN_DOUBLE - 1.0;
@@ -159,6 +158,7 @@ bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
 }
 
 void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, double count) const {
+
     result.clear();
 
     if (m_Clusters.empty()) {
@@ -201,6 +201,7 @@ void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
 }
 
 void CKMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, double count) {
+
     clusters.clear();
 
     if (m_Clusters.empty()) {
@@ -210,11 +211,10 @@ void CKMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
     this->cluster(point, clusters, count);
 
     TDouble1Vec sample{point};
-    TDouble4Vec1Vec weight{TDouble4Vec(1)};
 
-    for (std::size_t i = 0u; i < clusters.size(); ++i) {
-        weight[0][0] = clusters[i].second;
-        m_Clusters[clusters[i].first].addSamples(CConstantWeights::COUNT, sample, weight);
+    for (const auto& cluster : clusters) {
+        m_Clusters[cluster.first].addSamples(
+            sample, {maths_t::countWeight(cluster.second)});
     }
 }
 

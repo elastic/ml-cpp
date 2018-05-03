@@ -50,18 +50,11 @@ namespace {
 
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TBool2Vec = core::CSmallVector<bool, 2>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
 
 // We use short field names to reduce the state size
 const std::string INDIVIDUAL_STATE_TAG("a");
 const std::string PROBABILITY_PRIOR_TAG("b");
-
-const maths_t::TWeightStyleVec SAMPLE_WEIGHT_STYLES{
-    maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight};
-const maths_t::TWeightStyleVec
-    PROBABILITY_WEIGHT_STYLES(1, maths_t::E_SampleSeasonalVarianceScaleWeight);
 }
 
 CEventRateModel::CEventRateModel(const SModelParams& params,
@@ -247,7 +240,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
 
         // Declared outside the loop to minimize the number of times they are created.
         maths::CModel::TTimeDouble2VecSizeTrVec values;
-        maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights(1);
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights;
 
         for (auto& featureData : m_CurrentBucketStats.s_FeatureData) {
             model_t::EFeature feature = featureData.first;
@@ -260,10 +253,8 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 for (const auto& data_ : data) {
                     if (data_.second.s_Count > 0) {
                         LOG_TRACE(<< "person = " << this->personName(data_.first));
-                        m_ProbabilityPrior.addSamples(
-                            maths::CConstantWeights::COUNT,
-                            TDouble1Vec{static_cast<double>(data_.first)},
-                            maths::CConstantWeights::SINGLE_UNIT);
+                        m_ProbabilityPrior.addSamples({static_cast<double>(data_.first)},
+                                                      maths_t::CUnitWeights::SINGLE_UNIT);
                     }
                 }
                 if (!data.empty()) {
@@ -304,6 +295,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 double interval =
                     (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) *
                     emptyBucketWeight;
+                double ceff = emptyBucketWeight * this->learnRate(feature);
 
                 LOG_TRACE(<< "Bucket = " << this->printCurrentBucket()
                           << ", feature = " << model_t::print(feature) << ", count = "
@@ -314,17 +306,17 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 model->params().probabilityBucketEmpty(
                     this->probabilityBucketEmpty(feature, pid));
 
-                TDouble2Vec value(1, count);
+                TDouble2Vec value{count};
                 values.assign(1, core::make_triple(sampleTime, value, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
-                weights[0].resize(2, TDouble2Vec(1));
-                weights[0][0].assign(dimension, emptyBucketWeight * this->learnRate(feature));
-                weights[0][1] = model->winsorisationWeight(derate, sampleTime, value);
+                weights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                maths_t::setCount(TDouble2Vec(dimension, ceff), weights[0]);
+                maths_t::setWinsorisationWeight(
+                    model->winsorisationWeight(derate, sampleTime, value), weights[0]);
 
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(interval)
-                    .weightStyles(SAMPLE_WEIGHT_STYLES)
                     .trendWeights(weights)
                     .priorWeights(weights);
 
@@ -334,7 +326,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
             }
         }
 
-        this->sampleCorrelateModels(SAMPLE_WEIGHT_STYLES);
+        this->sampleCorrelateModels();
         m_Probabilities = TCategoryProbabilityCache(m_ProbabilityPrior);
     }
 }
@@ -536,14 +528,6 @@ CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
-void CEventRateModel::createNewModels(std::size_t n, std::size_t m) {
-    this->CIndividualModel::createNewModels(n, m);
-}
-
-void CEventRateModel::updateRecycledModels() {
-    this->CIndividualModel::updateRecycledModels();
-}
-
 void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) {
     CDataGatherer& gatherer = this->dataGatherer();
 
@@ -590,8 +574,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
-    TDouble2Vec4Vec weight{
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)};
+    maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -599,7 +583,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Time.assign(1, TTime2Vec{time});
     params.s_Value.assign(1, TDouble2Vec{value});
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
-        double mode{params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weight)[0]};
+        double mode{params.s_Model->mode(time, weight)[0]};
         TDouble2Vec correction{this->interimValueCorrector().corrections(
             time, this->currentBucketTotalCount(), mode, value)};
         params.s_Value[0] += correction;
@@ -608,9 +592,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     }
     params.s_Count = 1.0;
     params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES)
-        .addBucketEmpty(TBool2Vec(1, !count || *count == 0))
+        .addCalculation(model_t::probabilityCalculation(feature)) // new line
+        .addBucketEmpty({!count || *count == 0})
         .addWeights(weight);
 }
 
@@ -637,9 +620,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES);
+    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature));
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]
@@ -661,18 +642,17 @@ void CEventRateModel::fill(model_t::EFeature feature,
         params.s_Variables[i] = variables;
         const maths::CModel* models[]{
             model, this->model(feature, correlates[i][variables[1]])};
-        TDouble2Vec4Vec weight(1, TDouble2Vec(2));
-        weight[0][variables[0]] = models[0]->seasonalWeight(
+        maths_t::TDouble2Vec scale(2);
+        scale[variables[0]] = models[0]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
-        weight[0][variables[1]] = models[1]->seasonalWeight(
+        scale[variables[1]] = models[1]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
         TOptionalUInt64 count[2];
         count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
         count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
         params.s_ComputeProbabilityParams
-            .addBucketEmpty(TBool2Vec{!count[0] || *count[0] == 0,
-                                      !count[1] || *count[1] == 0})
-            .addWeights(weight);
+            .addBucketEmpty({!count[0] || *count[0] == 0, !count[1] || *count[1] == 0}) // new line
+            .addWeights(maths_t::seasonalVarianceScaleWeight(scale));
 
         const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);
@@ -710,7 +690,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         TDouble2Vec1Vec modes = params.s_Model->correlateModes(
-            time, PROBABILITY_WEIGHT_STYLES, params.s_ComputeProbabilityParams.weights());
+            time, params.s_ComputeProbabilityParams.weights());
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             TDouble2Vec& value_ = params.s_Values[i];
             if (!value_.empty()) {

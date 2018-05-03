@@ -33,8 +33,6 @@ CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
 }
 
 void CDynamicStringIdRegistryTest::testAddName() {
-    LOG_DEBUG(<< "*** testAddName ***");
-
     CResourceMonitor resourceMonitor;
     CDynamicStringIdRegistry registry("person", stat_t::E_NumberNewPeople,
                                       stat_t::E_NumberNewPeopleNotAllowed,
@@ -88,8 +86,6 @@ void CDynamicStringIdRegistryTest::testAddName() {
 }
 
 void CDynamicStringIdRegistryTest::testPersist() {
-    LOG_DEBUG(<< "*** testPersist ***");
-
     CResourceMonitor resourceMonitor;
     CDynamicStringIdRegistry registry("person", stat_t::E_NumberNewPeople,
                                       stat_t::E_NumberNewPeopleNotAllowed,

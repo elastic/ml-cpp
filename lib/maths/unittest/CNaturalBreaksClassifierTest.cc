@@ -149,10 +149,6 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
 }
 
 void CNaturalBreaksClassifierTest::testCategories() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CNaturalBreaksClassifierTest::testCategories  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     // Check that we correctly find the optimum solution.
     {
         test::CRandomNumbers rng;
@@ -490,10 +486,6 @@ void CNaturalBreaksClassifierTest::testCategories() {
 }
 
 void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CNaturalBreaksClassifierTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     // Check pruning of dead categories.
 
     test::CRandomNumbers rng;
@@ -533,10 +525,6 @@ void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
 }
 
 void CNaturalBreaksClassifierTest::testSample() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CNaturalBreaksClassifierTest::testSample  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     // We test that for a small number of samples we get back exactly
     // the points we have added and for a large number of samples we
     // sample the modes of the mixture correctly.
@@ -619,10 +607,6 @@ void CNaturalBreaksClassifierTest::testSample() {
 }
 
 void CNaturalBreaksClassifierTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CNaturalBreaksClassifierTest::testSample  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec samples1;

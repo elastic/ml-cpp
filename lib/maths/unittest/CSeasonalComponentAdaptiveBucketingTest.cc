@@ -36,10 +36,6 @@ using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     maths::CDiurnalTime time(0, 1, 101, 100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time);
 
@@ -47,7 +43,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
 
     const std::string expectedEndpoints("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
     const std::string expectedKnots("[0, 4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 100]");
-    const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
+    const std::string expectedValues("[41, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 41]");
 
     CPPUNIT_ASSERT(bucketing.initialize(10));
     const TFloatVec& endpoints = bucketing.endpoints();
@@ -66,10 +62,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testSwap  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------+");
-
     maths::CDiurnalTime time1(0, 0, 100, 100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing1(time1, 0.05);
 
@@ -106,10 +98,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testRefine  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     {
@@ -302,10 +290,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
-
     // Check no error is introduced by the aging process to
     // the bucket values and that the rate at which the total
     // count is reduced uniformly.
@@ -338,10 +322,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
-
     const double bucketLength = 3600.0;
     const double function[] = {0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
                                15.0, 1.0, 0.0,  0.0,  0.0,  0.0};
@@ -406,10 +386,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------+");
-
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.
 
@@ -454,10 +430,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testKnots  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // Check prediction errors in values and variances.
 
     test::CRandomNumbers rng;
@@ -554,10 +526,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots  |");
-    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
-
     // Check prediction errors in values.
 
     test::CRandomNumbers rng;
@@ -617,10 +585,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
-    LOG_DEBUG(<< "+-----------------------------------------------------------+");
-
     // Test that applying a shift translates the predicted values
     // but doesn't alter the slope or predicted variances.
 
@@ -666,10 +630,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testSlope  |");
-    LOG_DEBUG(<< "+------------------------------------------------------+");
-
     // Test that the slope increases by the shift.
 
     maths::CDiurnalTime time(0, 0, 86400, 86400);
@@ -704,10 +664,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testPersist  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Check that serialization is idempotent.
 
     double decayRate = 0.1;
@@ -762,10 +718,6 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testUpgrade  |");
-    LOG_DEBUG(<< "+--------------------------------------------------------+");
-
     // Check we can validly upgrade existing state.
 
     double decayRate = 0.1;

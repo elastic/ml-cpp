@@ -39,8 +39,7 @@ using TDoubleVec = std::vector<double>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
-using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
 using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::size_t>;
 using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
 using TErrorBarVec = std::vector<maths::SErrorBar>;
@@ -77,10 +76,6 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
 }
 
 void CForecastTest::testDailyNoLongTermTrend() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyNoLongTermTrend  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     core_t::TTime bucketLength{600};
     TDoubleVec y{0.0,   2.0,   2.0,   4.0,   8.0,  10.0,  15.0,  20.0,
                  120.0, 120.0, 110.0, 100.0, 90.0, 100.0, 130.0, 80.0,
@@ -95,14 +90,10 @@ void CForecastTest::testDailyNoLongTermTrend() {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    this->test(trend, bucketLength, 60, 64.0, 4.0, 0.13);
+    this->test(trend, bucketLength, 60, 64.0, 5.0, 0.14);
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyConstantLongTermTrend  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  2.0,   2.0,   4.0,   8.0,   10.0,  15.0, 20.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -114,14 +105,10 @@ void CForecastTest::testDailyConstantLongTermTrend() {
                y[i] + noise;
     };
 
-    this->test(trend, bucketLength, 60, 64.0, 15.0, 0.02);
+    this->test(trend, bucketLength, 60, 64.0, 16.0, 0.02);
 }
 
 void CForecastTest::testDailyVaryingLongTermTrend() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testDailyVaryingLongTermTrend  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     double day{86400.0};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -147,10 +134,6 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexNoLongTermTrend  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -163,14 +146,10 @@ void CForecastTest::testComplexNoLongTermTrend() {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 34.0, 0.13);
+    this->test(trend, bucketLength, 60, 24.0, 28.0, 0.13);
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexConstantLongTermTrend  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -184,14 +163,10 @@ void CForecastTest::testComplexConstantLongTermTrend() {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 24.0, 17.0, 0.04);
+    this->test(trend, bucketLength, 60, 24.0, 14.0, 0.01);
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testComplexVaryingLongTermTrend  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     core_t::TTime bucketLength{3600};
     double day{86400.0};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -218,14 +193,10 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 60, 4.0, 23.0, 0.05);
+    this->test(trend, bucketLength, 60, 4.0, 28.0, 0.053);
 }
 
 void CForecastTest::testNonNegative() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testNonNegative  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     core_t::TTime bucketLength{1800};
 
     test::CRandomNumbers rng;
@@ -248,7 +219,8 @@ void CForecastTest::testNonNegative() {
     //TDoubleVec uy;
 
     core_t::TTime time{0};
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    std::vector<maths_t::TDouble2VecWeightsAry> weights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t d = 0u; d < 20; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
@@ -257,7 +229,6 @@ void CForecastTest::testNonNegative() {
             params.integer(false)
                 .nonNegative(true)
                 .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
             double y{std::max(*value, 0.0)};
@@ -312,10 +283,6 @@ void CForecastTest::testNonNegative() {
 }
 
 void CForecastTest::testFinancialIndex() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CForecastTest::testFinancialIndex  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     core_t::TTime bucketLength{1800};
 
     TTimeDoublePrVec timeseries;
@@ -349,14 +316,10 @@ void CForecastTest::testFinancialIndex() {
 
     std::size_t n{5 * timeseries.size() / 6};
 
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t i = 0u; i < n; ++i) {
         maths::CModelAddSamplesParams params;
-        params.integer(false)
-            .propagationInterval(1.0)
-            .weightStyles(maths::CConstantWeights::COUNT)
-            .trendWeights(weights)
-            .priorWeights(weights);
+        params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
         model.addSamples(
             params, {core::make_triple(timeseries[i].first,
                                        TDouble2Vec{timeseries[i].second}, TAG)});
@@ -400,7 +363,7 @@ void CForecastTest::testFinancialIndex() {
     //file << "my = " << core::CContainerPrinter::print(my) << ";\n";
     //file << "uy = " << core::CContainerPrinter::print(uy) << ";\n";
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < 53.0);
+    CPPUNIT_ASSERT(percentageOutOfBounds < 52.0);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
@@ -457,18 +420,14 @@ void CForecastTest::test(TTrend trend,
         &controllers);
 
     core_t::TTime time{0};
-    TDouble2Vec4VecVec weights{{{1.0}}};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t d = 0u; d < daysToLearn; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance, 86400 / bucketLength, noise);
 
         for (std::size_t i = 0u; i < noise.size(); ++i, time += bucketLength) {
             maths::CModelAddSamplesParams params;
-            params.integer(false)
-                .propagationInterval(1.0)
-                .weightStyles(maths::CConstantWeights::COUNT)
-                .trendWeights(weights)
-                .priorWeights(weights);
+            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
             double yi{trend(time, noise[i])};
             model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
             //actual.push_back(yi);

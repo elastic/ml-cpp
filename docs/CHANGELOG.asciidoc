@@ -1,0 +1,52 @@
+// Use these for links to issue and pulls. Note issues and pulls redirect one to
+// each other on Github, so don't worry too much on using the right prefix.
+// :issue: https://github.com/elastic/elasticsearch/issues/
+// :pull: https://github.com/elastic/elasticsearch/pull/
+
+= Elasticsearch Release Notes
+
+== Elasticsearch 7.0.0
+
+=== Breaking Changes
+
+=== Deprecations
+
+=== New Features 
+
+=== Enhancements
+
+=== Bug Fixes
+
+=== Regressions
+
+=== Known Issues
+
+== Elasticsearch version 6.4.0
+
+=== New Features
+
+=== Enhancements
+
+Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
+
+=== Bug Fixes
+
+=== Regressions
+
+=== Known Issues
+
+== Elasticsearch version 6.3.0
+
+=== New Features
+
+=== Enhancements
+
+=== Bug Fixes
+
+Function description for population lat_long results should be lat_long instead of mean ({pull}81[#81])
+
+By-fields should respect model_plot_config.terms ({pull}86[#86])
+
+=== Regressions
+
+=== Known Issues

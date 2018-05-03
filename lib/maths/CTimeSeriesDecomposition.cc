@@ -199,8 +199,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const maths_t::TWeightStyleVec& weightStyles,
-                                        const maths_t::TDouble4Vec& weights) {
+                                        const maths_t::TDoubleWeightsAry& weights) {
     CComponents::CScopeNotifyOnStateChange result{m_Components};
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
@@ -211,7 +210,6 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{time,
                       lastTime,
                       value,
-                      weightStyles,
                       weights,
                       CBasicStatistics::mean(this->baseline(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->baseline(time, 0.0, E_Seasonal)),

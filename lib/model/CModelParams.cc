@@ -51,7 +51,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_MinimumSignificantCorrelation(
           CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION),
       s_DetectionRules(EMPTY_RULES), s_ScheduledEvents(EMPTY_SCHEDULED_EVENTS),
-      s_BucketResultsDelay(0), s_MinimumToDeduplicate(10000),
+      s_BucketResultsDelay(0), s_MinimumToFuzzyDeduplicate(10000),
       s_CacheProbabilities(true), s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT) {
 }
 
@@ -61,8 +61,7 @@ void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketL
         s_SampleCountFactor = CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
         if (s_LatencyBuckets > 50) {
             LOG_WARN(<< "There are a large number of buckets in the latency window. "
-                        "Please ensure sufficient resources are available for this "
-                        "job.");
+                        "Please ensure sufficient resources are available for this job.");
         }
     }
 }
@@ -94,7 +93,7 @@ uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
     seed = maths::CChecksum::calculate(seed, s_MultivariateByFields);
     seed = maths::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
-    return maths::CChecksum::calculate(seed, s_MinimumToDeduplicate);
+    return maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
 }
 }
 }

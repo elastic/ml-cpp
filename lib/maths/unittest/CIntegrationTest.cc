@@ -245,10 +245,6 @@ private:
 }
 
 void CIntegrationTest::testAllSingleVariate() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testAllSingleVariate  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     // Test that "low" order polynomials are integrated exactly
     // (as they should be for a higher order quadrature).
 
@@ -745,10 +741,6 @@ void CIntegrationTest::testAllSingleVariate() {
 }
 
 void CIntegrationTest::testAdaptive() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testAdaptive  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
@@ -839,10 +831,6 @@ void CIntegrationTest::testAdaptive() {
 }
 
 void CIntegrationTest::testSparseGrid() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testSparseGrid  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Compare against known grid characteristics. These are available
     // at http://www.sparse-grids.de/#Nodes.
 
@@ -1093,10 +1081,6 @@ void CIntegrationTest::testSparseGrid() {
 }
 
 void CIntegrationTest::testMultivariateSmooth() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CIntegerToolsTest::testMultivariateSmooth  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Test that "low" order polynomials are integrated exactly.
     // A sparse grid of order l will integrate a polynomial exactly
     // if its order is no more than 2l - 1. A polynomial order is

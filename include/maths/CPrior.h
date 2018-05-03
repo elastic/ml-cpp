@@ -12,7 +12,6 @@
 #include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
 
-#include <maths/Constants.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -42,11 +41,10 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TWeightStyleVec = maths_t::TWeightStyleVec;
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDouble4Vec = core::CSmallVector<double, 4>;
-    using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-    using TWeights = CConstantWeights;
+    using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
+    using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
+    using TWeights = maths_t::CUnitWeights;
 
     //! \brief Data for plotting a series
     struct MATHS_EXPORT SPlot {
@@ -93,16 +91,14 @@ public:
 
     public:
         CLogMarginalLikelihood(const CPrior& prior,
-                               const TWeightStyleVec& weightStyles = CConstantWeights::COUNT,
-                               const TDouble4Vec1Vec& weights = CConstantWeights::SINGLE_UNIT);
+                               const TDoubleWeightsAry1Vec& weights = TWeights::SINGLE_UNIT);
 
         double operator()(double x) const;
         bool operator()(double x, double& result) const;
 
     private:
         const CPrior* m_Prior;
-        const TWeightStyleVec* m_WeightStyles;
-        const TDouble4Vec1Vec* m_Weights;
+        const TDoubleWeightsAry1Vec* m_Weights;
         //! Avoids creating the vector argument to jointLogMarginalLikelihood
         //! more than once.
         mutable TDouble1Vec m_X;
@@ -178,15 +174,11 @@ public:
     //! For priors with non-negative support this adjusts the offset used
     //! to extend the support to handle negative samples.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights) = 0;
+    virtual double adjustOffset(const TDouble1Vec& samples,
+                                const TDoubleWeightsAry1Vec& weights) = 0;
 
     //! Get the current sample offset.
     virtual double offset() const = 0;
@@ -194,14 +186,10 @@ public:
     //! Update the prior with a collection of independent samples from the
     //! variable.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights) = 0;
+    virtual void addSamples(const TDouble1Vec& samples,
+                            const TDoubleWeightsAry1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -218,13 +206,11 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
     virtual TDouble1Vec
-    marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                            const TDouble4Vec& weights = TWeights::UNIT) const;
+    marginalLikelihoodModes(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -236,32 +222,25 @@ public:
     //! the percentage of interest \p percentage.
     //!
     //! \param[in] percentage The percentage of interest.
-    //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
     virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+        const TDoubleWeightsAry& weights = TWeights::UNIT) const = 0;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const = 0;
 
     //! Calculate the log marginal likelihood function integrating over the
     //! prior density function.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weight(s)
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
+    jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                               const TDoubleWeightsAry1Vec& weights,
                                double& result) const = 0;
 
     //! Sample the marginal likelihood function.
@@ -287,9 +266,6 @@ public:
     //! Calculate minus the log of the joint c.d.f. of the marginal likelihood
     //! for a collection of independent samples from the variable.
     //!
-    //! \param[in] weightStyles Controls the interpretation of the weights
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] lowerBound Filled in with a lower bound for
@@ -305,9 +281,8 @@ public:
     //! \warning The variance scales must be in the range \f$(0,\infty)\f$,
     //! i.e. a value of zero is not well defined and a value of infinity
     //! is not well handled. (Very large values are handled though.)
-    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                  const TDouble1Vec& samples,
-                                  const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdf(const TDouble1Vec& samples,
+                                  const TDoubleWeightsAry1Vec& weights,
                                   double& lowerBound,
                                   double& upperBound) const = 0;
 
@@ -317,9 +292,8 @@ public:
     //! can return is the minimum double rather than epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                            const TDouble1Vec& samples,
-                                            const TDouble4Vec1Vec& weights,
+    virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                            const TDoubleWeightsAry1Vec& weights,
                                             double& lowerBound,
                                             double& upperBound) const = 0;
 
@@ -329,9 +303,6 @@ public:
     //!
     //! \param[in] calculation The style of the probability calculation
     //! (see model_t::EProbabilityCalculation for details).
-    //! \param[in] weightStyles Controls the interpretation of the weights
-    //! that are associated with each sample. See maths_t::ESampleWeightStyle
-    //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] lowerBound Filled in with a lower bound for the probability
@@ -350,9 +321,8 @@ public:
     //! i.e. a value of zero is not well defined and a value of infinity
     //! is not well handled. (Very large values are handled though.)
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec& weightStyles,
                                                 const TDouble1Vec& samples,
-                                                const TDouble4Vec1Vec& weights,
+                                                const TDoubleWeightsAry1Vec& weights,
                                                 double& lowerBound,
                                                 double& upperBound,
                                                 maths_t::ETail& tail) const = 0;
@@ -440,8 +410,7 @@ public:
     bool expectation(const F& f,
                      const std::size_t numberIntervals,
                      T& result,
-                     const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                     const TDouble4Vec& weights = TWeights::UNIT) const;
+                     const TDoubleWeightsAry& weights = TWeights::UNIT) const;
 
     //! Get the number of samples received to date.
     double numberSamples() const;
@@ -465,7 +434,7 @@ public:
     //! Get a set of sample for the prior to use in adjust offset.
     void adjustOffsetResamples(double minimumSample,
                                TDouble1Vec& resamples,
-                               TDouble4Vec1Vec& resamplesWeights) const;
+                               TDoubleWeightsAry1Vec& resamplesWeights) const;
 
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
@@ -476,28 +445,24 @@ protected:
         virtual ~COffsetParameters() = default;
 
         //! Add a collection of samples.
-        void samples(const maths_t::TWeightStyleVec& weightStyles,
-                     const TDouble1Vec& samples,
-                     const TDouble4Vec1Vec& weights);
+        void samples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
         //! Capture a collection of re-samples from the prior.
         virtual void resample(double minimumSample);
 
     protected:
         CPrior& prior() const;
-        const maths_t::TWeightStyleVec& weightStyles() const;
         const TDouble1Vec& samples() const;
-        const TDouble4Vec1Vec& weights() const;
+        const TDoubleWeightsAry1Vec& weights() const;
         const TDouble1Vec& resamples() const;
-        const TDouble4Vec1Vec& resamplesWeights() const;
+        const TDoubleWeightsAry1Vec& resamplesWeights() const;
 
     private:
         CPrior* m_Prior;
-        const maths_t::TWeightStyleVec* m_WeightStyles;
         const TDouble1Vec* m_Samples;
-        const TDouble4Vec1Vec* m_Weights;
+        const TDoubleWeightsAry1Vec* m_Weights;
         TDouble1Vec m_Resamples;
-        TDouble4Vec1Vec m_ResamplesWeights;
+        TDoubleWeightsAry1Vec m_ResamplesWeights;
     };
 
     //! \brief Computes the likelihood of a collection of samples and
@@ -539,9 +504,8 @@ protected:
     //! specified reward.
     //!
     //! \return The penalty to apply to the model in selection.
-    double adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights,
+    double adjustOffsetWithCost(const TDouble1Vec& samples,
+                                const TDoubleWeightsAry1Vec& weights,
                                 COffsetCost& cost,
                                 CApplyOffset& apply);
 

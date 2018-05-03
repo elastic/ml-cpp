@@ -41,7 +41,7 @@ using TDouble10Vec = CMultivariateOneOfNPrior::TDouble10Vec;
 using TDouble10VecDouble10VecPr = CMultivariateOneOfNPrior::TDouble10VecDouble10VecPr;
 using TDouble10Vec1Vec = CMultivariateOneOfNPrior::TDouble10Vec1Vec;
 using TDouble10Vec10Vec = CMultivariateOneOfNPrior::TDouble10Vec10Vec;
-using TDouble10Vec4Vec1Vec = CMultivariateOneOfNPrior::TDouble10Vec4Vec1Vec;
+using TDouble10VecWeightsAry1Vec = CMultivariateOneOfNPrior::TDouble10VecWeightsAry1Vec;
 using TPriorPtr = CMultivariateOneOfNPrior::TPriorPtr;
 using TWeightPriorPtrPr = CMultivariateOneOfNPrior::TWeightPriorPtrPr;
 using TWeightPriorPtrPrVec = CMultivariateOneOfNPrior::TWeightPriorPtrPrVec;
@@ -287,17 +287,15 @@ void CMultivariateOneOfNPrior::setToNonInformative(double offset, double decayRa
     this->numberSamples(0.0);
 }
 
-void CMultivariateOneOfNPrior::adjustOffset(const TWeightStyleVec& weightStyles,
-                                            const TDouble10Vec1Vec& samples,
-                                            const TDouble10Vec4Vec1Vec& weights) {
+void CMultivariateOneOfNPrior::adjustOffset(const TDouble10Vec1Vec& samples,
+                                            const TDouble10VecWeightsAry1Vec& weights) {
     for (auto& model : m_Models) {
-        model.second->adjustOffset(weightStyles, samples, weights);
+        model.second->adjustOffset(samples, weights);
     }
 }
 
-void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
-                                          const TDouble10Vec1Vec& samples,
-                                          const TDouble10Vec4Vec1Vec& weights) {
+void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
+                                          const TDouble10VecWeightsAry1Vec& weights) {
     if (samples.empty()) {
         return;
     }
@@ -305,10 +303,10 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
         return;
     }
 
-    this->adjustOffset(weightStyles, samples, weights);
+    this->adjustOffset(samples, weights);
 
     double penalty = CTools::fastLog(this->numberSamples());
-    this->CMultivariatePrior::addSamples(weightStyles, samples, weights);
+    this->CMultivariatePrior::addSamples(samples, weights);
     penalty = (penalty - CTools::fastLog(this->numberSamples())) / 2.0;
 
     // See COneOfNPrior::addSamples for a discussion.
@@ -330,8 +328,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
         // Update the weights with the marginal likelihoods.
         double logLikelihood = 0.0;
         maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(weightStyles, samples,
-                                                           weights, logLikelihood)
+            use ? model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood)
                 : maths_t::E_FpOverflowed;
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR(<< "Failed to compute log-likelihood");
@@ -346,7 +343,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
             }
 
             // Update the component prior distribution.
-            model.second->addSamples(weightStyles, samples, weights);
+            model.second->addSamples(samples, weights);
 
             used.push_back(use);
             uses.push_back(model.second->participatesInModelSelection());
@@ -354,13 +351,8 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
     }
 
     TDouble10Vec n(m_Dimension, 0.0);
-    try {
-        for (const auto& weight : weights) {
-            add(maths_t::count(m_Dimension, weightStyles, weight), n);
-        }
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to add samples: " << e.what());
-        return;
+    for (const auto& weight : weights) {
+        add(maths_t::count(weight), n);
     }
 
     if (!isNonInformative && maxLogLikelihood.count() > 0) {
@@ -446,9 +438,8 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return std::make_pair(TUnivariatePriorPtr(new COneOfNPrior(
-                              models, this->dataType(), this->decayRate())),
-                          maxWeight.count() > 0 ? maxWeight[0] : 0.0);
+    return {TUnivariatePriorPtr(new COneOfNPrior(models, this->dataType(), this->decayRate())),
+            maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
 CMultivariateOneOfNPrior::TPriorPtrDoublePr
@@ -480,12 +471,13 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return std::make_pair(TPriorPtr(new CMultivariateOneOfNPrior(
-                              2, models, this->dataType(), this->decayRate())),
-                          maxWeight.count() > 0 ? maxWeight[0] : 0.0);
+    return {TPriorPtr(new CMultivariateOneOfNPrior(2, models, this->dataType(),
+                                                   this->decayRate())),
+            maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
 TDouble10VecDouble10VecPr CMultivariateOneOfNPrior::marginalLikelihoodSupport() const {
+
     // We define this is as the intersection of the component model
     // supports.
 
@@ -504,6 +496,7 @@ TDouble10VecDouble10VecPr CMultivariateOneOfNPrior::marginalLikelihoodSupport() 
 }
 
 TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean() const {
+
     // This is E_{P(i)}[ E[X | P(i)] ] and the conditional expectation
     // is just the individual model expectation. Note we exclude models
     // with low weight because typically the means are similar between
@@ -523,6 +516,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean() const {
 
 TDouble10Vec
 CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDouble10Vec& value) const {
+
     // See marginalLikelihoodMean for discussion.
 
     TDouble10Vec result(m_Dimension, 0.0);
@@ -537,6 +531,7 @@ CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDouble10Vec& valu
 }
 
 TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance() const {
+
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative()) {
         for (std::size_t i = 0u; i < m_Dimension; ++i) {
@@ -562,6 +557,7 @@ TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance() const
 }
 
 TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances() const {
+
     if (this->isNonInformative()) {
         return TDouble10Vec(m_Dimension, INF);
     }
@@ -578,24 +574,23 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances() const {
 }
 
 TDouble10Vec
-CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                 const TDouble10Vec4Vec& weights) const {
+CMultivariateOneOfNPrior::marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const {
+
     // We approximate this as the weighted average of the component
     // model modes.
 
     // Declared outside the loop to minimize the number of times
     // it is created.
     TDouble10Vec1Vec sample(1);
-    TDouble10Vec4Vec1Vec sampleWeights(1, weights);
+    TDouble10VecWeightsAry1Vec sampleWeights(1, weights);
 
     TDouble10Vec result(m_Dimension, 0.0);
     double w = 0.0;
     for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
-            sample[0] = model.second->marginalLikelihoodMode(weightStyles, weights);
+            sample[0] = model.second->marginalLikelihoodMode(weights);
             double logLikelihood;
-            model.second->jointLogMarginalLikelihood(weightStyles, sample,
-                                                     sampleWeights, logLikelihood);
+            model.second->jointLogMarginalLikelihood(sample, sampleWeights, logLikelihood);
             updateMean(sample[0], model.first * std::exp(logLikelihood), result, w);
         }
     }
@@ -605,9 +600,8 @@ CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec& weightSt
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                     const TDouble10Vec1Vec& samples,
-                                                     const TDouble10Vec4Vec1Vec& weights,
+CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
+                                                     const TDouble10VecWeightsAry1Vec& weights,
                                                      double& result) const {
     result = 0.0;
 
@@ -630,8 +624,8 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weig
     for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             double logLikelihood;
-            maths_t::EFloatingPointErrorStatus status = model.second->jointLogMarginalLikelihood(
-                weightStyles, samples, weights, logLikelihood);
+            maths_t::EFloatingPointErrorStatus status =
+                model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood);
             if (status & maths_t::E_FpFailed) {
                 return status;
             }
@@ -710,7 +704,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
     for (std::size_t i = 0u; i < m_Models.size(); ++i) {
         modelSamples.clear();
         m_Models[i].second->sampleMarginalLikelihood(sampling[i], modelSamples);
-        for (auto sample : modelSamples) {
+        for (const auto& sample : modelSamples) {
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }

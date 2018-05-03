@@ -23,10 +23,6 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 
 void CLinearAlgebraTest::testSymmetricMatrixNxN() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testSymmetricMatrixNxN  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     // Construction.
     {
         maths::CSymmetricMatrixNxN<double, 3> matrix;
@@ -153,10 +149,6 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
 }
 
 void CLinearAlgebraTest::testVectorNx1() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testVectorNx1  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Construction.
     {
         maths::CVectorNx1<double, 3> vector;
@@ -256,10 +248,6 @@ void CLinearAlgebraTest::testVectorNx1() {
 }
 
 void CLinearAlgebraTest::testSymmetricMatrix() {
-    LOG_DEBUG(<< "+-------------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testSymmetricMatrix  |");
-    LOG_DEBUG(<< "+-------------------------------------------+");
-
     // Construction.
     {
         maths::CSymmetricMatrix<double> matrix(3);
@@ -414,10 +402,6 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
 }
 
 void CLinearAlgebraTest::testVector() {
-    LOG_DEBUG(<< "+----------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testVector  |");
-    LOG_DEBUG(<< "+----------------------------------+");
-
     // Construction.
     {
         maths::CVector<double> vector(3);
@@ -530,10 +514,6 @@ void CLinearAlgebraTest::testVector() {
 }
 
 void CLinearAlgebraTest::testNorms() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testNorms  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     double v[][5] = {{1.0, 2.1, 3.2, 1.7, 0.1},
                      {0.0, -2.1, 1.2, 1.9, 4.1},
                      {-1.0, 7.1, 5.2, 1.7, -0.1},
@@ -559,10 +539,6 @@ void CLinearAlgebraTest::testNorms() {
 }
 
 void CLinearAlgebraTest::testUtils() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testUtils  |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     // Test component min, max, sqrt and fabs.
     {
         LOG_DEBUG(<< "Vector min, max, fabs, sqrt");
@@ -712,10 +688,6 @@ void CLinearAlgebraTest::testUtils() {
 }
 
 void CLinearAlgebraTest::testGaussianLogLikelihood() {
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testGaussianLogLikelihood  |");
-    LOG_DEBUG(<< "+-------------------------------------------------+");
-
     // Test the log likelihood (expected from octave).
     {
         const double covariance_[][4] = {{10.70779, 0.14869, 1.44263, 2.26889},
@@ -847,10 +819,6 @@ void CLinearAlgebraTest::testGaussianLogLikelihood() {
 }
 
 void CLinearAlgebraTest::testSampleGaussian() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testSampleGaussian  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     // Test singular matrix.
     {
         double m[] = {1.0, 2.0, 3.0, 4.0};
@@ -959,10 +927,6 @@ void CLinearAlgebraTest::testSampleGaussian() {
 }
 
 void CLinearAlgebraTest::testLogDeterminant() {
-    LOG_DEBUG(<< "+------------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testLogDeterminant  |");
-    LOG_DEBUG(<< "+------------------------------------------+");
-
     // Test the determinant (expected from octave).
     {
         const double matrices[][3][3] = {
@@ -1028,10 +992,6 @@ std::string print(const MATRIX& m) {
 }
 
 void CLinearAlgebraTest::testProjected() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testProjected  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     using TSizeVec = std::vector<std::size_t>;
 
     const double m[][5] = {{1.2, 2.4, 1.9, 3.8, 8.3},
@@ -1081,10 +1041,6 @@ void CLinearAlgebraTest::testProjected() {
 }
 
 void CLinearAlgebraTest::testPersist() {
-    LOG_DEBUG(<< "+-----------------------------------+");
-    LOG_DEBUG(<< "|  CLinearAlgebraTest::testPersist  |");
-    LOG_DEBUG(<< "+-----------------------------------+");
-
     // Check conversion to and from delimited is idempotent.
 
     {

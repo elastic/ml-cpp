@@ -53,10 +53,6 @@ void debug(const TClusterVec& clusters) {
 }
 
 void CXMeansOnline1dTest::testCluster() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testCluster  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight, 0.1);
@@ -181,10 +177,6 @@ void CXMeansOnline1dTest::testCluster() {
 }
 
 void CXMeansOnline1dTest::testMixtureOfGaussians() {
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testMixtureOfGaussians  |");
-    LOG_DEBUG(<< "+-----------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     // Test 1:
@@ -406,10 +398,6 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
 }
 
 void CXMeansOnline1dTest::testMixtureOfUniforms() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testMixtureOfUniforms  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     // * Cluster 1 = U([12, 15]), 100 points
@@ -480,10 +468,6 @@ void CXMeansOnline1dTest::testMixtureOfUniforms() {
 }
 
 void CXMeansOnline1dTest::testMixtureOfLogNormals() {
-    LOG_DEBUG(<< "+------------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testMixtureOfLogNormals  |");
-    LOG_DEBUG(<< "+------------------------------------------------+");
-
     test::CRandomNumbers rng;
 
     // * Cluster 1 = LogNormal(3, 0.01), 100 points
@@ -576,10 +560,6 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
 }
 
 void CXMeansOnline1dTest::testOutliers() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testOutliers  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec mode1;
@@ -664,10 +644,6 @@ void CXMeansOnline1dTest::testOutliers() {
 }
 
 void CXMeansOnline1dTest::testManyClusters() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testManyClusters  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 
@@ -704,10 +680,6 @@ void CXMeansOnline1dTest::testManyClusters() {
 }
 
 void CXMeansOnline1dTest::testLowVariation() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testLowVariation  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight);
@@ -723,10 +695,6 @@ void CXMeansOnline1dTest::testLowVariation() {
 }
 
 void CXMeansOnline1dTest::testAdaption() {
-    LOG_DEBUG(<< "+-------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testAdaption  |");
-    LOG_DEBUG(<< "+-------------------------------------+");
-
     // Test a case where the cluster pattern changes over time.
     // Specifically, the data set starts with one cluster then
     // a new cluster appears and subsequently disappears.
@@ -735,10 +703,6 @@ void CXMeansOnline1dTest::testAdaption() {
 }
 
 void CXMeansOnline1dTest::testLargeHistory() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testLargeHistory  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     // If we get a lot of history, because we detect that the system
     // is stable and reduce the decay rate then we should also reduce
     // the fraction of points required to create a cluster.
@@ -762,14 +726,15 @@ void CXMeansOnline1dTest::testLargeHistory() {
     TDoubleVec samples2;
     rng.generateNormalSamples(15.0, 1.0, 100, samples2);
 
-    TDoubleVec samples;
-    samples.assign(samples1.begin(), samples1.end());
+    TDoubleVec samples(samples1);
     samples.insert(samples.end(), samples2.begin(), samples2.end());
     rng.random_shuffle(samples.begin() + 5000, samples.end());
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        reference.add(samples[i]);
-        clusterer.add(samples[i]);
+    for (const auto& sample : samples) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            reference.add(sample);
+            clusterer.add(sample);
+        }
         reference.propagateForwardsByTime(1.0);
         clusterer.propagateForwardsByTime(1.0);
     }
@@ -779,10 +744,6 @@ void CXMeansOnline1dTest::testLargeHistory() {
 }
 
 void CXMeansOnline1dTest::testPersist() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testPersist  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     test::CRandomNumbers rng;
 
     TDoubleVec mode1;
@@ -840,10 +801,6 @@ void CXMeansOnline1dTest::testPersist() {
 }
 
 void CXMeansOnline1dTest::testPruneEmptyCluster() {
-    LOG_DEBUG(<< "+----------------------------------------------+");
-    LOG_DEBUG(<< "|  CXMeansOnline1dTest::testPruneEmptyCluster  |");
-    LOG_DEBUG(<< "+----------------------------------------------+");
-
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight);

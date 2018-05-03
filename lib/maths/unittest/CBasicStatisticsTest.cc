@@ -81,10 +81,6 @@ CppUnit::Test* CBasicStatisticsTest::suite() {
 }
 
 void CBasicStatisticsTest::testMean() {
-    LOG_DEBUG(<< "+---------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testMean |");
-    LOG_DEBUG(<< "+---------------------------------+");
-
     double sample[] = {0.9, 10.0, 5.6, 1.23, -12.3, 445.2, 0.0, 1.2};
 
     ml::maths::CBasicStatistics::TDoubleVec sampleVec(
@@ -97,10 +93,6 @@ void CBasicStatisticsTest::testMean() {
 }
 
 void CBasicStatisticsTest::testCentralMoments() {
-    LOG_DEBUG(<< "+--------------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testCentralMoments  |");
-    LOG_DEBUG(<< "+--------------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
 
     LOG_DEBUG(<< "Test mean double");
@@ -710,10 +702,6 @@ void CBasicStatisticsTest::testCentralMoments() {
 }
 
 void CBasicStatisticsTest::testVectorCentralMoments() {
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testVectorCentralMoments  |");
-    LOG_DEBUG(<< "+--------------------------------------------------+");
-
     using TDouble2Vec = ml::core::CSmallVector<double, 2>;
     using TDoubleVec = std::vector<double>;
 
@@ -828,10 +816,6 @@ void CBasicStatisticsTest::testVectorCentralMoments() {
 }
 
 void CBasicStatisticsTest::testCovariances() {
-    LOG_DEBUG(<< "+-----------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testCovariances  |");
-    LOG_DEBUG(<< "+-----------------------------------------+");
-
     LOG_DEBUG(<< "N(3,I)");
     {
         const double raw[][3] = {
@@ -974,10 +958,6 @@ void CBasicStatisticsTest::testCovariances() {
 }
 
 void CBasicStatisticsTest::testCovariancesLedoitWolf() {
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testCovariancesLedoitWolf  |");
-    LOG_DEBUG(<< "+---------------------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TVector2 = ml::maths::CVectorNx1<double, 2>;
@@ -1053,10 +1033,6 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf() {
 }
 
 void CBasicStatisticsTest::testMedian() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testMedian  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     {
         ml::maths::CBasicStatistics::TDoubleVec sampleVec;
 
@@ -1117,10 +1093,6 @@ void CBasicStatisticsTest::testMedian() {
 }
 
 void CBasicStatisticsTest::testOrderStatistics() {
-    LOG_DEBUG(<< "+---------------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testOrderStatistics  |");
-    LOG_DEBUG(<< "+---------------------------------------------+");
-
     // Test that the order statistics accumulators work for finding min and max
     // elements of a collection.
 
@@ -1310,10 +1282,6 @@ void CBasicStatisticsTest::testOrderStatistics() {
 }
 
 void CBasicStatisticsTest::testMinMax() {
-    LOG_DEBUG(<< "+------------------------------------+");
-    LOG_DEBUG(<< "|  CBasicStatisticsTest::testMinMax  |");
-    LOG_DEBUG(<< "+------------------------------------+");
-
     using TDoubleVec = std::vector<double>;
 
     TDoubleVec positive{1.0, 2.7, 4.0, 0.3, 11.7};

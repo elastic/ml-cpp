@@ -351,9 +351,8 @@ bool CMultinomialConjugate::needsOffset() const {
     return false;
 }
 
-double CMultinomialConjugate::adjustOffset(const TWeightStyleVec& /*weightStyles*/,
-                                           const TDouble1Vec& /*samples*/,
-                                           const TDouble4Vec1Vec& /*weights*/) {
+double CMultinomialConjugate::adjustOffset(const TDouble1Vec& /*samples*/,
+                                           const TDoubleWeightsAry1Vec& /*weights*/) {
     return 1.0;
 }
 
@@ -361,13 +360,11 @@ double CMultinomialConjugate::offset() const {
     return 0.0;
 }
 
-void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles,
-                                       const TDouble1Vec& samples,
-                                       const TDouble4Vec1Vec& weights) {
+void CMultinomialConjugate::addSamples(const TDouble1Vec& samples,
+                                       const TDoubleWeightsAry1Vec& weights) {
     if (samples.empty()) {
         return;
     }
-
     if (samples.size() != weights.size()) {
         LOG_ERROR(<< "Mismatch in samples '"
                   << core::CContainerPrinter::print(samples) << "' and weights '"
@@ -375,7 +372,7 @@ void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles,
         return;
     }
 
-    this->CPrior::addSamples(weightStyles, samples, weights);
+    this->CPrior::addSamples(samples, weights);
 
     // If x = {x(i)} denotes the sample vector, then x are multinomially
     // distributed with probabilities {p(i)}. Let n(i) denote the counts
@@ -407,7 +404,7 @@ void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles,
             LOG_ERROR(<< "Discarding " << x);
             continue;
         }
-        double n = maths_t::countForUpdate(weightStyles, weights[i]);
+        double n = maths_t::countForUpdate(weights[i]);
         if (!CMathsFuncs::isFinite(n)) {
             LOG_ERROR(<< "Bad count weight " << n);
             continue;
@@ -487,16 +484,18 @@ void CMultinomialConjugate::propagateForwardsByTime(double time) {
 }
 
 CMultinomialConjugate::TDoubleDoublePr CMultinomialConjugate::marginalLikelihoodSupport() const {
+
     // Strictly speaking for a particular likelihood this is the
     // set of discrete values or categories, but we are interested
     // in the support for the possible discrete values which can
     // be any real numbers.
 
-    return std::make_pair(boost::numeric::bounds<double>::lowest(),
-                          boost::numeric::bounds<double>::highest());
+    return {boost::numeric::bounds<double>::lowest(),
+            boost::numeric::bounds<double>::highest()};
 }
 
 double CMultinomialConjugate::marginalLikelihoodMean() const {
+
     if (this->isNonInformative()) {
         return 0.0;
     }
@@ -515,19 +514,17 @@ double CMultinomialConjugate::marginalLikelihoodMean() const {
     return CBasicStatistics::mean(result);
 }
 
-double CMultinomialConjugate::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                                     const TDouble4Vec& /*weights*/) const {
+double CMultinomialConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& /*weights*/) const {
+
     if (this->isNonInformative()) {
         return 0.0;
     }
 
     // This is just the category with the maximum concentration.
 
-    double modeConcentration = m_Concentrations[0];
     std::size_t mode = 0u;
     for (std::size_t i = 1u; i < m_Concentrations.size(); ++i) {
-        if (m_Concentrations[i] > modeConcentration) {
-            modeConcentration = m_Concentrations[i];
+        if (m_Concentrations[i] > m_Concentrations[mode]) {
             mode = i;
         }
     }
@@ -535,8 +532,8 @@ double CMultinomialConjugate::marginalLikelihoodMode(const TWeightStyleVec& /*we
     return m_Categories[mode];
 }
 
-double CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
-                                                         const TDouble4Vec& /*weights*/) const {
+double CMultinomialConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& /*weights*/) const {
+
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     if (this->isNonInformative()) {
@@ -559,8 +556,8 @@ double CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec& 
 
 CMultinomialConjugate::TDoubleDoublePr
 CMultinomialConjugate::marginalLikelihoodConfidenceInterval(double percentage,
-                                                            const TWeightStyleVec& /*weightStyles*/,
-                                                            const TDouble4Vec& /*weights*/) const {
+                                                            const TDoubleWeightsAry& /*weights*/) const {
+
     if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
@@ -597,13 +594,12 @@ CMultinomialConjugate::marginalLikelihoodConfidenceInterval(double percentage,
     LOG_TRACE(<< "quantiles = " << core::CContainerPrinter::print(quantiles));
     LOG_TRACE(<< "            " << core::CContainerPrinter::print(m_Categories));
 
-    return std::make_pair(x1, x2);
+    return {x1, x2};
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultinomialConjugate::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                  const TDouble1Vec& samples,
-                                                  const TDouble4Vec1Vec& weights,
+CMultinomialConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                                                  const TDoubleWeightsAry1Vec& weights,
                                                   double& result) const {
     result = 0.0;
 
@@ -611,14 +607,12 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TWeightStyleVec& weightS
         LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
-
     if (samples.size() != weights.size()) {
         LOG_ERROR(<< "Mismatch in samples '"
                   << core::CContainerPrinter::print(samples) << "' and weights '"
                   << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
-
     if (this->isNonInformative()) {
         // The non-informative likelihood is improper and effectively
         // zero everywhere. We use minus max double because
@@ -657,7 +651,7 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TWeightStyleVec& weightS
     double numberSamples = 0.0;
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        double n = maths_t::countForUpdate(weightStyles, weights[i]);
+        double n = maths_t::countForUpdate(weights[i]);
         numberSamples += n;
         categoryCounts[samples[i]] += n;
     }
@@ -707,6 +701,7 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TWeightStyleVec& weightS
 
 void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
                                                      TDouble1Vec& samples) const {
+
     samples.clear();
 
     if (numberSamples == 0 || this->isNonInformative()) {
@@ -750,9 +745,8 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
     LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 }
 
-bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles,
-                                             const TDouble1Vec& samples,
-                                             const TDouble4Vec1Vec& weights,
+bool CMultinomialConjugate::minusLogJointCdf(const TDouble1Vec& samples,
+                                             const TDoubleWeightsAry1Vec& weights,
                                              double& lowerBound,
                                              double& upperBound) const {
     lowerBound = upperBound = 0.0;
@@ -794,7 +788,7 @@ bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double x = samples[i];
-        double n = maths_t::count(weightStyles, weights[i]);
+        double n = maths_t::count(weights[i]);
 
         double sampleLowerBound;
         double sampleUpperBound;
@@ -813,11 +807,11 @@ bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles
     return true;
 }
 
-bool CMultinomialConjugate::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
-                                                       const TDouble1Vec& samples,
-                                                       const TDouble4Vec1Vec& weights,
+bool CMultinomialConjugate::minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                                       const TDoubleWeightsAry1Vec& weights,
                                                        double& lowerBound,
                                                        double& upperBound) const {
+
     // See minusLogJointCdf for the rationale behind this approximation.
 
     detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
@@ -826,7 +820,7 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TWeightStyleVec& we
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double x = samples[i];
-        double n = maths_t::count(weightStyles, weights[i]);
+        double n = maths_t::count(weights[i]);
 
         double sampleLowerBound;
         double sampleUpperBound;
@@ -846,9 +840,8 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TWeightStyleVec& we
 }
 
 bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                           const TWeightStyleVec& weightStyles,
                                                            const TDouble1Vec& samples,
-                                                           const TDouble4Vec1Vec& weights,
+                                                           const TDoubleWeightsAry1Vec& weights,
                                                            double& lowerBound,
                                                            double& upperBound,
                                                            maths_t::ETail& tail) const {
@@ -889,7 +882,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double x = samples[i];
-            double n = maths_t::count(weightStyles, weights[i]);
+            double n = maths_t::count(weights[i]);
             double sampleLowerBound, sampleUpperBound;
             cdf(x, sampleLowerBound, sampleUpperBound);
             jointLowerBound.add(sampleLowerBound, n);
@@ -1121,7 +1114,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         // Count the occurrences of each category in the sample set.
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double x = samples[i];
-            double n = maths_t::count(weightStyles, weights[i]);
+            double n = maths_t::count(weights[i]);
             categoryCounts[x] += n;
         }
 
@@ -1170,7 +1163,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double x = samples[i];
-            double n = maths_t::count(weightStyles, weights[i]);
+            double n = maths_t::count(weights[i]);
             double sampleLowerBound, sampleUpperBound;
             cdfComplement(x, sampleLowerBound, sampleUpperBound);
             jointLowerBound.add(sampleLowerBound, n);
@@ -1503,7 +1496,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
 CMultinomialConjugate::TDoubleDoublePrVec
 CMultinomialConjugate::confidenceIntervalProbabilities(double percentage) const {
     if (this->isNonInformative()) {
-        return TDoubleDoublePrVec(m_Concentrations.size(), std::make_pair(0.0, 1.0));
+        return TDoubleDoublePrVec(m_Concentrations.size(), {0.0, 1.0});
     }
 
     // The marginal distribution over each probability is beta.

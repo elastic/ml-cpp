@@ -173,12 +173,8 @@ protected:
             }
         }
 
-            //! Initialize the priority queue of vertices to visit.
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-        __attribute__((__noinline__))
-#endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-        void
-        initializeQueue() {
+        //! Initialize the priority queue of vertices to visit.
+        void initializeQueue() {
             s_Queue.clear();
             s_Queue.reserve(s_ToVisit.size());
             for (std::size_t i = 0u; i < s_ToVisit.size(); ++i) {

@@ -14,8 +14,7 @@
 #
 # Finally, the Docker container used for the build/test is deleted.
 
-usage()
-{
+usage() {
     echo "Usage: $0 linux ..."
     exit 1
 }
@@ -68,11 +67,11 @@ do
     DOCKERFILE="$TOOLS_DIR/docker/${PLATFORM}_tester/Dockerfile"
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
-    docker build -t $TEMP_TAG --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
+    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name cppunit_results.xml | xargs tar cf - build/distributions' | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name cppunit_results.xml | xargs tar cf - build/distributions' | tar xvf -
     docker rmi --force $TEMP_TAG
 
 done
