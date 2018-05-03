@@ -302,7 +302,7 @@ void CSeasonalComponentTest::testConstantPeriodic() {
         totalError2 /= 30.0;
         LOG_DEBUG(<< "totalError1 = " << totalError1);
         LOG_DEBUG(<< "totalError2 = " << totalError2);
-        CPPUNIT_ASSERT(totalError1 < 0.5);
+        CPPUNIT_ASSERT(totalError1 < 0.42);
         CPPUNIT_ASSERT(totalError2 < 0.01);
     }
 
@@ -515,15 +515,15 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic() {
                           << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
                     mean(seasonal.value(time, 0.0)),
-                    mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
+                    mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.2);
             }
 
             error1 /= static_cast<double>(function.size());
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG(<< "error1 = " << error1);
             LOG_DEBUG(<< "error2 = " << error2);
-            CPPUNIT_ASSERT(error1 < 42.0);
-            CPPUNIT_ASSERT(error2 < 20.0);
+            CPPUNIT_ASSERT(error1 < 27.0);
+            CPPUNIT_ASSERT(error2 < 19.0);
             totalError1 += error1;
             totalError2 += error2;
             numberErrors += 1.0;
