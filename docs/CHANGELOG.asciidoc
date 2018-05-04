@@ -22,6 +22,8 @@ model state on disk ({pull}89[#89])
 
 === Bug Fixes
 
+Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
+
 === Regressions
 
 === Known Issues
