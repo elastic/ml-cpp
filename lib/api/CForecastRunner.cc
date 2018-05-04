@@ -165,8 +165,8 @@ void CForecastRunner::forecastWorker() {
                         if (modelRestore->nextModel(model, feature, byFieldValue)) {
                             series.s_ToForecast.emplace_back(
                                 feature, std::move(model), byFieldValue);
-                        } else // restorer exhausted, no need for further restoring
-                        {
+                        } else {
+                            // restorer exhausted, no need for further restoring
                             modelRestore.reset();
                             break;
                         }

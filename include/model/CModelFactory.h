@@ -351,7 +351,7 @@ public:
     //! component.
     std::size_t componentSize() const;
 
-    // Get the minimum seasonal variance scale, specific to the model
+    //! Get the minimum seasonal variance scale, specific to the model
     virtual double minimumSeasonalVarianceScale() const = 0;
 
 protected:

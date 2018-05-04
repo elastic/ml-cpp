@@ -71,15 +71,15 @@ public:
     //! max memory allowed to use for forecast models
     static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
 
-    // Note: This value measures the size in memory, not the size of the persistence,
-    // which is likely higher and would be hard to calculate upfront
+    //! Note: This value measures the size in memory, not the size of the persistence,
+    //! which is likely higher and would be hard to calculate upfront
     //! max memory allowed to use for forecast models persisting to disk
     static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
-    // Note: This value is lower than on X-pack side to prevent side-effects,
-    // if you change this value also change the limit on X-pack side.
-    // The purpose of this value is to guard the rest of the system regarding
-    // an out of disk space
+    //! Note: This value is lower than on X-pack side to prevent side-effects,
+    //! if you change this value also change the limit on X-pack side.
+    //! The purpose of this value is to guard the rest of the system regarding
+    //! an out of disk space
     //! minimum disk space required for disk persistence
     static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
 
