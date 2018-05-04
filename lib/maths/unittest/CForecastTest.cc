@@ -193,7 +193,7 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 4.0, 4.0, 0.04);
+    this->test(trend, bucketLength, 63, 4.0, 44.0, 0.06);
 }
 
 void CForecastTest::testNonNegative() {

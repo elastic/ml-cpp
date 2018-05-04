@@ -331,7 +331,8 @@ TSizeVec calculateRepeats(const TTimeTimePr2Vec& windows_,
 //!
 //! These are defined as some fraction of the values which are most
 //! different from the periodic trend on the time windows \p windows_.
-void reweightOutliers(const TMeanVarAccumulatorVec& trend,
+template<typename T>
+void reweightOutliers(const std::vector<T>& trend,
                       const TTimeTimePr2Vec& windows_,
                       core_t::TTime bucketLength,
                       TFloatMeanAccumulatorVec& values) {
@@ -361,10 +362,10 @@ void reweightOutliers(const TMeanVarAccumulatorVec& trend,
                 std::size_t b{window.second};
                 for (std::size_t j = a; j < b; ++j) {
                     const TFloatMeanAccumulator& value{values[j % n]};
-                    std::size_t offset{(j - a) % period};
-                    double difference{std::fabs(CBasicStatistics::mean(value) -
-                                                CBasicStatistics::mean(trend[offset]))};
                     if (CBasicStatistics::count(value) > 0.0) {
+                        std::size_t offset{(j - a) % period};
+                        double difference{std::fabs(CBasicStatistics::mean(value) -
+                                                    CBasicStatistics::mean(trend[offset]))};
                         outliers.add({difference, j});
                         meanDifference.add(difference);
                     }
@@ -390,11 +391,11 @@ void reweightOutliers(const TMeanVarAccumulatorVec& trend,
 }
 
 //! Compute the periodic trend from \p values falling in \p windows.
-template<typename U, typename V>
-void periodicTrend(const U& values,
+template<typename T, typename CONTAINER>
+void periodicTrend(const std::vector<T>& values,
                    const TSizeSizePr2Vec& windows_,
                    core_t::TTime bucketLength,
-                   V& trend) {
+                   CONTAINER& trend) {
     if (!trend.empty()) {
         TSizeSizePr2Vec windows;
         calculateIndexWindows(windows_, bucketLength, windows);
@@ -413,11 +414,11 @@ void periodicTrend(const U& values,
 }
 
 //! Compute the periodic trend on \p values minus outliers.
-template<typename U, typename V>
-void periodicTrendMinusOutliers(U& values,
+template<typename T, typename CONTAINER>
+void periodicTrendMinusOutliers(std::vector<T>& values,
                                 const TSizeSizePr2Vec& windows,
                                 core_t::TTime bucketLength,
-                                V& trend) {
+                                CONTAINER& trend) {
     periodicTrend(values, windows, bucketLength, trend);
     reweightOutliers(trend, windows, bucketLength, values);
     trend.assign(trend.size(), TMeanVarAccumulator{});
@@ -469,8 +470,8 @@ struct SResidualVarianceImpl<TMeanAccumulator> {
 };
 
 //! Compute the residual variance of the trend \p trend.
-template<typename R, typename T>
-R residualVariance(const T& trend, double scale) {
+template<typename R, typename CONTAINER>
+R residualVariance(const CONTAINER& trend, double scale) {
     TMeanAccumulator result;
     for (const auto& bucket : trend) {
         result.add(CBasicStatistics::maximumLikelihoodVariance(bucket),
@@ -1337,8 +1338,7 @@ void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods,
     }
 }
 
-void CPeriodicityHypothesisTests::conditionOnHypothesis(const TTimeTimePr2Vec& windows,
-                                                        const STestStats& stats,
+void CPeriodicityHypothesisTests::conditionOnHypothesis(const STestStats& stats,
                                                         TFloatMeanAccumulatorVec& buckets) const {
     std::size_t n{buckets.size()};
     core_t::TTime windowLength{static_cast<core_t::TTime>(n) * m_BucketLength};
@@ -1360,14 +1360,6 @@ void CPeriodicityHypothesisTests::conditionOnHypothesis(const TTimeTimePr2Vec& w
                     stats.s_T0[i][(j - a) % period];
             }
         }
-    }
-
-    if (length(windows) < windowLength) {
-        LOG_TRACE(<< "Projecting onto " << core::CContainerPrinter::print(windows));
-        TFloatMeanAccumulatorVec projection;
-        project(buckets, windows, m_BucketLength, projection);
-        buckets = std::move(projection);
-        LOG_TRACE(<< "# values = " << buckets.size());
     }
 }
 
@@ -1401,11 +1393,22 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
         return false;
     }
 
-    double B{static_cast<double>(
-        std::count_if(buckets.begin(), buckets.end(),
-                      [](const TFloatMeanAccumulator& value) {
-                          return CBasicStatistics::count(value) > 0.0;
-                      }))};
+    core_t::TTime windowLength{length(windows)};
+    TTimeTimePr2Vec window{{0, windowLength}};
+    TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
+    this->conditionOnHypothesis(stats, values);
+
+    if (windowLength < length(buckets, m_BucketLength)) {
+        LOG_TRACE(<< "Projecting onto " << core::CContainerPrinter::print(windows));
+        TFloatMeanAccumulatorVec projection;
+        project(values, windows, m_BucketLength, projection);
+        values = std::move(projection);
+    }
+
+    double B{static_cast<double>(std::count_if(
+        values.begin(), values.end(), [](const TFloatMeanAccumulator& value) {
+            return CBasicStatistics::count(value) > 0.0;
+        }))};
     double df0{B - stats.s_DF0};
 
     // We need fewer degrees of freedom in the null hypothesis trend model
@@ -1414,9 +1417,6 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
         return false;
     }
 
-    TTimeTimePr2Vec window{{0, length(windows)}};
-    TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
-    this->conditionOnHypothesis(window, stats, values);
     TMeanVarAccumulatorVec trend(period);
     periodicTrend(values, window, m_BucketLength, trend);
 
@@ -1438,7 +1438,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
 
     double v{residualVariance<double>(trend, scale)};
     v = varianceAtPercentile(v, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0);
-    reweightOutliers(trend, windows, m_BucketLength, values);
+    reweightOutliers(trend, window, m_BucketLength, values);
     trend.assign(period, TMeanVarAccumulator{});
     periodicTrend(values, window, m_BucketLength, trend);
 
@@ -1459,7 +1459,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
     LOG_TRACE(<< "  autocorrelation          = " << R);
     LOG_TRACE(<< "  autocorrelationThreshold = " << Rt);
 
-    TSizeVec repeats{calculateRepeats(windows, period_, m_BucketLength, values)};
+    TSizeVec repeats{calculateRepeats(window, period_, m_BucketLength, values)};
     double meanRepeats{CBasicStatistics::mean(
         std::accumulate(repeats.begin(), repeats.end(), TMeanAccumulator{},
                         [](TMeanAccumulator mean, std::size_t repeat) {
@@ -1501,7 +1501,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
     if (v > 0.0) {
         try {
             std::size_t n{static_cast<std::size_t>(
-                std::ceil(Rt * static_cast<double>(length(window) / period_)))};
+                std::ceil(Rt * static_cast<double>(windowLength / period_)))};
             double at{stats.s_At * std::sqrt(v0 / scale)};
             LOG_TRACE(<< " n = " << n << ", at = " << at << ", v = " << v);
             TMeanAccumulator level;
@@ -1555,7 +1555,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
 
     using TDoubleTimePr = std::pair<double, core_t::TTime>;
     using TDoubleTimePrVec = std::vector<TDoubleTimePr>;
-    using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleTimePr, 1>;
+    using TMinAccumulator = CBasicStatistics::SMin<TDoubleTimePr>::TAccumulator;
     using TMeanVarAccumulatorBuffer = boost::circular_buffer<TMeanVarAccumulator>;
 
     LOG_TRACE(<< "Testing partition " << core::CContainerPrinter::print(partition)
@@ -1585,10 +1585,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     // w.r.t. the period is minimized and check if there is significant
     // evidence that it reduces the residual variance and repeats.
 
-    double B{static_cast<double>(std::count_if(
-        buckets.begin(), buckets.end(), [](const TFloatMeanAccumulator& value) {
-            return CBasicStatistics::count(value) > 0.0;
-        }))};
+    double B{stats.s_B};
     double df0{B - stats.s_DF0};
 
     // We need fewer degrees of freedom in the null hypothesis trend model
@@ -1598,10 +1595,10 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     }
 
     TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
-    this->conditionOnHypothesis({{0, windowLength}}, stats, values);
+    this->conditionOnHypothesis(stats, values);
     {
         TTimeTimePr2Vec window{{0, windowLength}};
-        TMeanVarAccumulatorVec trend(period);
+        TMeanAccumulatorVec trend(period);
         periodicTrend(values, window, m_BucketLength, trend);
         reweightOutliers(trend, window, m_BucketLength, values);
     }
@@ -1670,29 +1667,25 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     double b{0.0};
     TMinAccumulator best;
 
-    TTimeTimePr2Vec candidateWindows;
     for (const auto& candidate : candidates) {
         if (candidate.first <= 1.05 * minimum[0].first) {
-            core_t::TTime candidateStartOfPartition{candidate.second};
-            candidateWindows = calculateWindows(candidateStartOfPartition,
-                                                windowLength, repeat, partition[0]);
+            startOfPartition = candidate.second;
             TMeanAccumulator cost;
-            for (const auto& window : candidateWindows) {
+            for (const auto& window : calculateWindows(startOfPartition, windowLength,
+                                                       repeat, partition[0])) {
                 core_t::TTime a_{window.first / m_BucketLength};
                 core_t::TTime b_{window.second / m_BucketLength - 1};
                 double va{CBasicStatistics::mean(values[a_ % values.size()])};
                 double vb{CBasicStatistics::mean(values[b_ % values.size()])};
                 cost.add(std::fabs(va) + std::fabs(vb) + std::fabs(vb - va));
             }
-            if (best.add({CBasicStatistics::mean(cost), candidateStartOfPartition})) {
+            if (best.add({CBasicStatistics::mean(cost), startOfPartition})) {
                 b = 0.0;
-                for (const auto& subset : partition) {
-                    candidateWindows = calculateWindows(
-                        candidateStartOfPartition, windowLength, repeat, subset);
-
+                for (std::size_t i = 0u; i < partition.size(); ++i) {
+                    windows[i] = calculateWindows(startOfPartition, windowLength,
+                                                  repeat, partition[i]);
                     TMeanVarAccumulatorVec trend(period);
-                    periodicTrend(values, candidateWindows, m_BucketLength, trend);
-
+                    periodicTrend(values, windows[i], m_BucketLength, trend);
                     b += static_cast<double>(std::count_if(
                         trend.begin(), trend.end(), [](const TMeanVarAccumulator& value) {
                             return CBasicStatistics::count(value) > 0.0;
@@ -1710,17 +1703,22 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return false;
     }
 
-    double variance{correction * minimum[0].first};
-    double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
+    startOfPartition = best[0].second;
+    double v1{varianceAtPercentile(correction * minimum[0].first, df1,
+                                   50.0 + CONFIDENCE_INTERVAL / 2.0)};
+    LOG_TRACE(<< "  start of partition = " << startOfPartition);
     LOG_TRACE(<< "  variance          = " << v1);
     LOG_TRACE(<< "  varianceThreshold = " << vt);
     LOG_TRACE(<< "  significance      = "
               << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-    startOfPartition = best[0].second;
-    windows[0] = calculateWindows(startOfPartition, windowLength, repeat, partition[0]);
-    windows[1] = calculateWindows(startOfPartition, windowLength, repeat, partition[1]);
-    LOG_TRACE(<< "  start of partition = " << startOfPartition);
+    values.assign(buckets.begin(), buckets.end());
+    TMeanAccumulatorVec trend;
+    for (const auto& window : windows) {
+        trend.assign(period, TMeanAccumulator{});
+        periodicTrend(values, window, m_BucketLength, trend);
+        reweightOutliers(trend, window, m_BucketLength, values);
+    }
 
     // In the following we're trading off:
     //   1) The cyclic autocorrelation of each periodic component in the

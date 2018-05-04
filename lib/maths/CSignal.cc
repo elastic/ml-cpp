@@ -141,8 +141,7 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
     TMeanVarAccumulator moments;
     for (const auto& value : values) {
         if (CBasicStatistics::count(value) > 0.0) {
-            moments.add(CBasicStatistics::mean(value),
-                        CBasicStatistics::count(value));
+            moments.add(CBasicStatistics::mean(value), CBasicStatistics::count(value));
         }
     }
 
@@ -156,7 +155,7 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
         if (ni > 0.0 && nj > 0.0) {
             double weight = std::sqrt(ni * nj);
             autocorrelation.add((CBasicStatistics::mean(values[i]) - mean) *
-                                (CBasicStatistics::mean(values[j]) - mean),
+                                    (CBasicStatistics::mean(values[j]) - mean),
                                 weight);
         }
     }

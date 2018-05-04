@@ -234,8 +234,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                LOG_DEBUG(<< result.print());
-                CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' }" ||
+                LOG_DEBUG(<< "result = " << result.print());
+                CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
                                result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
@@ -308,7 +308,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' }" ||
+                LOG_DEBUG(<< "result = " << result.print());
+                CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
                                result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
@@ -490,8 +491,7 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
             if (t >= 2) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
-                CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"),
-                                     result.print());
+                CPPUNIT_ASSERT_EQUAL(std::string("{ 'daily' 'weekly' }"), result.print());
             }
         }
     }
@@ -640,8 +640,9 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
             maths::CPeriodicityHypothesisTestsResult result{
                 maths::testForPeriods(config, startTime, bucketLength, values)};
             LOG_DEBUG(<< "result = " << result.print());
-            CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"),
-                                 result.print());
+            CPPUNIT_ASSERT(
+                result.print() == std::string("{ 'weekend daily' 'weekday daily' }") ||
+                result.print() == std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
         }
     }
 }
