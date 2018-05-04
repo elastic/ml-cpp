@@ -31,6 +31,8 @@ Improve and use periodic boundary condition for seasonal component modeling ({pu
 
 === Bug Fixes
 
+Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
+
 === Regressions
 
 === Known Issues

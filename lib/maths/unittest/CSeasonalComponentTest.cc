@@ -43,7 +43,6 @@ public:
 public:
     CTestSeasonalComponent(
         core_t::TTime startTime,
-        core_t::TTime window,
         core_t::TTime period,
         std::size_t space,
         double decayRate = 0.0,
@@ -51,7 +50,7 @@ public:
         maths::CSplineTypes::EBoundaryCondition boundaryCondition = maths::CSplineTypes::E_Periodic,
         maths::CSplineTypes::EType valueInterpolationType = maths::CSplineTypes::E_Cubic,
         maths::CSplineTypes::EType varianceInterpolationType = maths::CSplineTypes::E_Linear)
-        : maths::CSeasonalComponent(maths::CDiurnalTime(0, 0, window, period),
+        : maths::CSeasonalComponent(maths::CDiurnalTime(0, 0, core::constants::WEEK, period),
                                     space,
                                     decayRate,
                                     minimumBucketLength,
@@ -104,9 +103,9 @@ void generateSeasonalValues(test::CRandomNumbers& rng,
         std::size_t a = b - 1;
         double m = (function[b].second - function[a].second) /
                    static_cast<double>(function[b].first - function[a].first);
-        samples.push_back(TTimeDoublePr(
+        samples.emplace_back(
             times[i], function[a].second +
-                          m * static_cast<double>(offset - function[a].first)));
+                          m * static_cast<double>(offset - function[a].first));
     }
 }
 
@@ -120,7 +119,7 @@ void CSeasonalComponentTest::testNoPeriodicity() {
 
     TTimeDoublePrVec function;
     for (std::size_t i = 0; i < 25; ++i) {
-        function.push_back(TTimeDoublePr((i * core::constants::DAY) / 24, 0.0));
+        function.emplace_back((i * core::constants::DAY) / 24, 0.0);
     }
 
     test::CRandomNumbers rng;
@@ -137,8 +136,7 @@ void CSeasonalComponentTest::testNoPeriodicity() {
     rng.generateGammaSamples(10.0, 1.2, n, residuals);
     double residualMean = maths::CBasicStatistics::mean(residuals);
 
-    CTestSeasonalComponent seasonal(startTime, core::constants::DAY,
-                                    core::constants::DAY, 24);
+    CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24);
     seasonal.initialize();
 
     //std::ofstream file;
@@ -221,7 +219,7 @@ void CSeasonalComponentTest::testConstantPeriodic() {
             core_t::TTime t = (i * core::constants::DAY) / 48;
             double ft = 100.0 + 40.0 * std::sin(boost::math::double_constants::two_pi *
                                                 static_cast<double>(i) / 48.0);
-            function.push_back(TTimeDoublePr(t, ft));
+            function.emplace_back(t, ft);
         }
 
         std::size_t n = 5000u;
@@ -234,8 +232,7 @@ void CSeasonalComponentTest::testConstantPeriodic() {
         rng.generateGammaSamples(10.0, 1.2, n, residuals);
         double residualMean = maths::CBasicStatistics::mean(residuals);
 
-        CTestSeasonalComponent seasonal(startTime, core::constants::DAY,
-                                        core::constants::DAY, 24, 0.01);
+        CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24, 0.01);
         seasonal.initialize();
 
         //std::ofstream file;
@@ -349,8 +346,7 @@ void CSeasonalComponentTest::testConstantPeriodic() {
         rng.generateGammaSamples(10.0, 1.2, n, residuals);
         double residualMean = maths::CBasicStatistics::mean(residuals);
 
-        CTestSeasonalComponent seasonal(startTime, core::constants::DAY,
-                                        core::constants::DAY, 24, 0.01);
+        CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24, 0.01);
         seasonal.initialize();
 
         //std::ofstream file;
@@ -460,8 +456,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic() {
 
     test::CRandomNumbers rng;
 
-    CTestSeasonalComponent seasonal(startTime, core::constants::DAY,
-                                    core::constants::DAY, 24, 0.048);
+    CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24, 0.048);
     seasonal.initialize();
 
     core_t::TTime time = startTime;
@@ -551,7 +546,7 @@ void CSeasonalComponentTest::testVeryLowVariation() {
 
     TTimeDoublePrVec function;
     for (std::size_t i = 0u; i < 25; ++i) {
-        function.push_back(TTimeDoublePr((i * core::constants::DAY) / 24, 50.0));
+        function.emplace_back((i * core::constants::DAY) / 24, 50.0);
     }
 
     test::CRandomNumbers rng;
@@ -568,8 +563,7 @@ void CSeasonalComponentTest::testVeryLowVariation() {
 
     double deviation = std::sqrt(1e-3);
 
-    CTestSeasonalComponent seasonal(startTime, core::constants::DAY,
-                                    core::constants::DAY, 24);
+    CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24);
     seasonal.initialize(startTime);
 
     //std::ofstream file;
@@ -653,11 +647,11 @@ void CSeasonalComponentTest::testVariance() {
         TDoubleVec sample;
         rng.generateNormalSamples(0.0, vt, 10, sample);
         for (std::size_t j = 0u; j < sample.size(); ++j) {
-            function.push_back(TTimeDoublePr(t, sample[j]));
+            function.emplace_back(t, sample[j]);
         }
     }
 
-    CTestSeasonalComponent seasonal(0, core::constants::DAY, core::constants::DAY, 24);
+    CTestSeasonalComponent seasonal(0, core::constants::DAY, 24);
     seasonal.initialize(0);
 
     for (std::size_t i = 0u; i < function.size(); ++i) {
@@ -698,7 +692,7 @@ void CSeasonalComponentTest::testPersist() {
         core_t::TTime t = (i * core::constants::DAY) / 48;
         double ft = 100.0 + 40.0 * std::sin(boost::math::double_constants::two_pi *
                                             static_cast<double>(i) / 48.0);
-        function.push_back(TTimeDoublePr(t, ft));
+        function.emplace_back(t, ft);
     }
 
     std::size_t n = 3300u;
@@ -710,8 +704,7 @@ void CSeasonalComponentTest::testPersist() {
     TDoubleVec residuals;
     rng.generateGammaSamples(10.0, 1.2, n, residuals);
 
-    CTestSeasonalComponent origSeasonal(startTime, core::constants::DAY,
-                                        core::constants::DAY, 24, decayRate);
+    CTestSeasonalComponent origSeasonal(startTime, core::constants::DAY, 24, decayRate);
     origSeasonal.initialize(startTime);
 
     for (std::size_t i = 0u; i < n; ++i) {
