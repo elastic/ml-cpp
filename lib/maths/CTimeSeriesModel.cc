@@ -326,13 +326,9 @@ private:
         std::size_t tag() const { return m_Tag; }
 
         //! Add a result to the anomaly.
-        void update(const TDouble2Vec& errors) {
-            double norm{0.0};
-            for (const auto& error : errors) {
-                norm += std::pow(error, 2.0);
-                m_Sign += error;
-            }
-            m_MeanErrorNorm.add(std::sqrt(norm));
+        void update(double norm, double sign) {
+            m_MeanErrorNorm.add(norm);
+            m_Sign += sign;
         }
 
         //! Get the weight to apply to this anomaly on update.
@@ -460,20 +456,18 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
             [tag](const CAnomaly& anomaly_) { return anomaly_.tag() == tag; });
 
         if (probability < LARGEST_ANOMALOUS_PROBABILITY) {
-            m_MeanError.add(std::sqrt(
-                std::accumulate(errors.begin(), errors.end(), 0.0,
-                                [](double n, double x) { return n + x * x; })));
-
+            double norm{std::sqrt(
+                    std::accumulate(errors.begin(), errors.end(), 0.0,
+                                    [](double n, double x) { return n + x * x; }))};
+            m_MeanError.add(norm);
             double scale{CBasicStatistics::mean(m_MeanError)};
-            for (auto& error : errors) {
-                error = scale == 0.0 ? 1.0 : error / scale;
-            }
-
+            norm = (scale == 0.0 ? 1.0 : norm / scale);
+            double sign{std::accumulate(errors.begin(), errors.end(), 0.0) / scale};
             if (anomaly == m_Anomalies.end()) {
                 m_Anomalies.emplace_back(tag, this->scale(time));
                 anomaly = m_Anomalies.end() - 1;
             }
-            anomaly->update(errors);
+            anomaly->update(norm, sign);
         } else if (anomaly != m_Anomalies.end()) {
             this->sample(time, *anomaly, 1.0 - anomaly->weight(this->scale(time)));
             m_Anomalies.erase(anomaly);
