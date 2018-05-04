@@ -1104,9 +1104,8 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         for (std::size_t i = 1u; i <= m; ++i) {
             CSeasonalComponent* component{seasonalComponents[i - 1]};
             CComponentErrors* error_{seasonalErrors[i - 1]};
-            double wi{weight / component->time().fractionInWindow()};
-            component->add(time, values[i], wi);
-            error_->add(error, predictions[i - 1], wi);
+            component->add(time, values[i], weight);
+            error_->add(error, predictions[i - 1], weight);
         }
         for (std::size_t i = m + 1; i <= m + n; ++i) {
             CCalendarComponent* component{calendarComponents[i - m - 1]};
