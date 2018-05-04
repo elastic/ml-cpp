@@ -201,18 +201,6 @@ void stepwisePropagateForwards(core_t::TTime step,
     }
 }
 
-//! Apply the common shift to the slope of \p trend.
-void shiftSlope(const TTimeTimePrDoubleFMap& slopes, double decayRate, CTrendComponent& trend) {
-    CBasicStatistics::CMinMax<double> minmax;
-    for (const auto& slope : slopes) {
-        minmax.add(slope.second);
-    }
-    double shift{minmax.signMargin()};
-    if (shift != 0.0) {
-        trend.shiftSlope(decayRate, shift);
-    }
-}
-
 // Periodicity Test State Machine
 
 // States
@@ -1123,10 +1111,20 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
             double v1{CBasicStatistics::variance(m_MomentsMinusTrend)};
             double df0{CBasicStatistics::count(m_Moments) - 1.0};
             double df1{CBasicStatistics::count(m_MomentsMinusTrend) - m_Trend.parameters()};
-            m_UsingTrendForPrediction =
-                v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0 && df0 > 0.0 && df1 > 0.0 &&
-                CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= STATISTICALLY_SIGNIFICANT;
-            *m_Watcher = m_UsingTrendForPrediction;
+            if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
+                double relativeLogSignificance{
+                    CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
+                    LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
+                double vt{*std::max_element(
+                              boost::begin(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION),
+                              boost::end(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION)) *
+                          v0};
+                double p{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
+                         (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
+                                  : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};
+                m_UsingTrendForPrediction = (p >= 0.25);
+                *m_Watcher = m_UsingTrendForPrediction;
+            }
         }
     } break;
     case SC_DISABLED:
@@ -1504,27 +1502,39 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
     TFloatMeanAccumulatorVec& values) const {
     using TMinAccumulator =
         CBasicStatistics::COrderStatisticsHeap<std::pair<double, std::size_t>>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     double numberValues{std::accumulate(
         values.begin(), values.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
             return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
         })};
-    double numberOutliers{PERIODIC_COMPONENT_OUTLIER_FRACTION * numberValues};
+    double numberOutliers{SEASONAL_OUTLIER_FRACTION * numberValues};
 
     TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
+    TMeanAccumulator meanDifference;
     core_t::TTime time = startTime + dt / 2;
     for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
         if (CBasicStatistics::count(values[i]) > 0.0) {
-            outliers.add({-std::fabs(CBasicStatistics::mean(values[i]) - predictor(time)), i});
+            double difference{std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
+            outliers.add({-difference, i});
+            meanDifference.add(difference);
         }
     }
     outliers.sort();
+    TMeanAccumulator meanDifferenceOfOutliers;
+    for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
+        meanDifferenceOfOutliers.add(-outliers[i].first);
+    }
+    meanDifference -= meanDifferenceOfOutliers;
     for (std::size_t i = 0; i < outliers.count(); ++i) {
-        double weight{PERIODIC_COMPONENT_OUTLIER_WEIGHT +
-                      (1.0 - PERIODIC_COMPONENT_OUTLIER_WEIGHT) *
-                          CTools::logisticFunction(
-                              static_cast<double>(i) / numberOutliers, 0.1, 1.0)};
-        CBasicStatistics::count(values[outliers[i].second]) *= weight;
+        if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                     CBasicStatistics::mean(meanDifference)) {
+            double weight{SEASONAL_OUTLIER_WEIGHT +
+                          (1.0 - SEASONAL_OUTLIER_WEIGHT) *
+                              CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
+                                                       0.1, 1.0)};
+            CBasicStatistics::count(values[outliers[i].second]) *= weight;
+        }
     }
 }
 
@@ -1608,6 +1618,8 @@ void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime time) {
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
     this->shiftOrigin(time);
 
     if (m_Seasonal && m_Seasonal->prune(time, m_BucketLength)) {
@@ -1620,20 +1632,37 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
     if (m_Seasonal) {
         TSeasonalComponentVec& seasonal{m_Seasonal->s_Components};
 
-        TTimeTimePrDoubleFMap slope;
-        slope.reserve(seasonal.size());
+        double slope{0.0};
+        TTimeTimePrDoubleFMap windowSlopes;
+        windowSlopes.reserve(seasonal.size());
 
         for (auto& component : seasonal) {
             if (component.slopeAccurate(time)) {
-                const CSeasonalTime& time_{component.time()};
                 double si{component.slope()};
-                component.shiftSlope(-si);
-                slope[time_.window()] += si;
+                if (component.time().windowed()) {
+                    windowSlopes[component.time().window()] += si;
+                } else {
+                    slope += si;
+                    component.shiftSlope(-si);
+                }
+            }
+        }
+        TMinMaxAccumulator windowedSlope;
+        for (const auto& windowSlope : windowSlopes) {
+            windowedSlope.add(windowSlope.second);
+        }
+        slope += windowedSlope.signMargin();
+        LOG_TRACE(<< "slope = " << slope);
+
+        for (auto& component : seasonal) {
+            if (component.slopeAccurate(time) && component.time().windowed()) {
+                component.shiftSlope(-windowedSlope.signMargin());
             }
         }
 
-        LOG_TRACE(<< "slope = " << core::CContainerPrinter::print(slope));
-        shiftSlope(slope, m_DecayRate, m_Trend);
+        if (slope != 0.0) {
+            m_Trend.shiftSlope(m_DecayRate, slope);
+        }
     }
 }
 
@@ -1656,7 +1685,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::cha
 
 bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::fromDelimited(const std::string& str) {
     TFloatMeanAccumulator* state[] = {&m_MeanErrorWithComponent, &m_MeanErrorWithoutComponent};
-
     std::string suffix = str;
     for (std::size_t i = 0u, n = 0; i < 2; ++i, suffix = suffix.substr(n + 1)) {
         n = suffix.find(CBasicStatistics::EXTERNAL_DELIMITER);
@@ -1665,7 +1693,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::fromDelimite
             return false;
         }
     }
-
     return true;
 }
 

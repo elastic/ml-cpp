@@ -12,6 +12,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
+#include <cmath>
+
 namespace ml {
 namespace maths {
 
@@ -50,30 +52,39 @@ const double LOG_NORMAL_OFFSET_MARGIN{1.0};
 //! reduce the prediction error variance and still be worthwhile
 //! modeling. We have different thresholds because we have inductive
 //! bias for particular types of components.
-const double SIGNIFICANT_VARIANCE_REDUCTION[]{0.6, 0.4};
+const double COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION[]{0.6, 0.4};
 
 //! The minimum repeated amplitude of a seasonal component, as a
 //! multiple of error standard deviation, to be worthwhile modeling.
 //! We have different thresholds because we have inductive bias for
 //! particular types of components.
-const double SIGNIFICANT_AMPLITUDE[]{1.0, 2.0};
+const double SEASONAL_SIGNIFICANT_AMPLITUDE[]{1.0, 2.0};
 
 //! The minimum autocorrelation of a seasonal component to be
 //! worthwhile modeling. We have different thresholds because we
 //! have inductive bias for particular types of components.
-const double SIGNIFICANT_AUTOCORRELATION[]{0.5, 0.6};
+const double SEASONAL_SIGNIFICANT_AUTOCORRELATION[]{0.5, 0.6};
 
-//! The fraction of values which are treated as ouliers when testing
-//! for and initialising new periodic components.
-const double PERIODIC_COMPONENT_OUTLIER_FRACTION{0.1};
+//! The fraction of values which are treated as outliers when testing
+//! for and initializing a seasonal component.
+const double SEASONAL_OUTLIER_FRACTION{0.1};
 
-//! The weight to assign to outliers when initializing a periodic
-//! component.
-const double PERIODIC_COMPONENT_OUTLIER_WEIGHT{0.1};
+//! The minimum multiplier of the mean inlier fraction difference
+//! (from a periodic pattern) to constitute an outlier when testing
+//! for and initializing a seasonal component.
+const double SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD{3.0};
+
+//! The weight to assign outliers when testing for and initializing
+//! a seasonal component.
+const double SEASONAL_OUTLIER_WEIGHT{0.1};
 
 //! The significance of a test statistic to choose to model
 //! a trend decomposition component.
-const double STATISTICALLY_SIGNIFICANT{0.001};
+const double COMPONENT_STATISTICALLY_SIGNIFICANT{0.001};
+
+//! The log of COMPONENT_STATISTICALLY_SIGNIFICANT.
+const double LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE{
+    std::log(COMPONENT_STATISTICALLY_SIGNIFICANT)};
 
 //! The minimum variance scale for which the likelihood function
 //! can be accurately adjusted. For smaller scales errors are

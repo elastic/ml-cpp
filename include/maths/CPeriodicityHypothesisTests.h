@@ -343,7 +343,7 @@ private:
 
     //! Check if there are enough non-empty buckets which are repeated
     //! at at least one \p period in \p buckets.
-    bool seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorVec& buckets,
+    bool seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorCRng& buckets,
                                                           std::size_t period) const;
 
     //! Compute various ancillary statistics for testing.
