@@ -29,7 +29,8 @@
 
 Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
 
-Allow forecasts to overflow model state to disk, allowing forecasts of big jobs ({pull}89[#89])
+Forecasting of Machine Learning job time series is now supported for large jobs by temporary storing
+model state on disk ({pull}89[#89])
 
 === Bug Fixes
 
