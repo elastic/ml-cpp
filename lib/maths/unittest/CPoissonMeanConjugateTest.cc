@@ -694,8 +694,8 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
 
     unsigned int test = 0;
 
-    std::ofstream file;
-    file.open("results.m");
+    //std::ofstream file;
+    //file.open("results.m");
 
     double totalFalsePositiveRate = 0.0;
     std::size_t totalPositives[] = {0u, 0u, 0u};
@@ -714,10 +714,10 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
 
             ++test;
 
-            std::ostringstream x;
-            std::ostringstream scores;
-            x << "x" << test << " = [";
-            scores << "score" << test << " = [";
+            //std::ostringstream x;
+            //std::ostringstream scores;
+            //x << "x" << test << " = [";
+            //scores << "score" << test << " = [";
 
             TUIntVec candidateAnomalies;
             for (unsigned int time = 0; time < samples.size(); ++time) {
@@ -738,15 +738,15 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
 
                 filter.propagateForwardsByTime(1.0);
 
-                x << time << " ";
-                scores << score << " ";
+                //x << time << " ";
+                //scores << score << " ";
             }
 
-            x << "];\n";
-            scores << "];\n";
-            file << x.str() << scores.str() << "plot(x" << test << ", score"
-                 << test << ");\n"
-                 << "input(\"Hit any key for next test\");\n\n";
+            //x << "];\n";
+            //scores << "];\n";
+            //file << x.str() << scores.str() << "plot(x" << test << ", score"
+            //     << test << ");\n"
+            //     << "input(\"Hit any key for next test\");\n\n";
 
             TUIntVec falsePositives;
             std::set_difference(candidateAnomalies.begin(), candidateAnomalies.end(),

@@ -11,6 +11,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/Constants.h>
 
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/CSeasonalTime.h>
@@ -36,14 +37,14 @@ using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
-    maths::CDiurnalTime time(0, 1, 101, 100);
+    maths::CGeneralPeriodTime time(100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time);
 
     CPPUNIT_ASSERT(!bucketing.initialize(0));
 
     const std::string expectedEndpoints("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
-    const std::string expectedKnots("[0, 4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 100]");
-    const std::string expectedValues("[41, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 41]");
+    const std::string expectedKnots("[0, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 100]");
+    const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
 
     CPPUNIT_ASSERT(bucketing.initialize(10));
     const TFloatVec& endpoints = bucketing.endpoints();
@@ -62,7 +63,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
-    maths::CDiurnalTime time1(0, 0, 100, 100);
+    maths::CGeneralPeriodTime time1(100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing1(time1, 0.05);
 
     test::CRandomNumbers rng;
@@ -82,7 +83,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
         bucketing1.propagateForwardsByTime(1.0);
     }
 
-    maths::CDiurnalTime time2(10, 10, 120, 110);
+    maths::CGeneralPeriodTime time2(120);
     maths::CSeasonalComponentAdaptiveBucketing bucketing2(time2, 0.1);
 
     uint64_t checksum1 = bucketing1.checksum();
@@ -109,7 +110,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
         double function[] = {10, 10,  10, 10, 100, 90, 80,
                              90, 100, 20, 10, 10,  10, 10};
 
-        maths::CDiurnalTime time(0, 0, 86400, 86400);
+        maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
         maths::CSeasonalComponentAdaptiveBucketing bucketing1(time);
         maths::CSeasonalComponentAdaptiveBucketing bucketing2(time);
 
@@ -188,7 +189,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
         // Test that the variance in each bucket is approximately equal.
         // The test function is y = (x - 50)^2 / 50.
 
-        maths::CDiurnalTime time(0, 0, 100, 100);
+        maths::CGeneralPeriodTime time(100);
         maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.05);
 
         bucketing.initialize(10);
@@ -294,7 +295,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
     // the bucket values and that the rate at which the total
     // count is reduced uniformly.
 
-    maths::CDiurnalTime time(0, 0, 100, 100);
+    maths::CGeneralPeriodTime time(100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.2);
 
     bucketing.initialize(10);
@@ -331,7 +332,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
 
     core_t::TTime period = static_cast<core_t::TTime>(n) *
                            static_cast<core_t::TTime>(bucketLength);
-    maths::CDiurnalTime time(0, 0, period, period);
+    maths::CGeneralPeriodTime time(period);
     maths::CSeasonalComponentAdaptiveBucketing bucketing1(time, 0.0, 0.0);
     maths::CSeasonalComponentAdaptiveBucketing bucketing2(time, 0.0, 3000.0);
     bucketing1.initialize(n);
@@ -389,7 +390,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.
 
-    maths::CDiurnalTime time(0, 0, 10, 10);
+    maths::CGeneralPeriodTime time(10);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1);
 
     bucketing.add(0, 1.0, 1.0);
@@ -436,7 +437,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
 
     LOG_DEBUG(<< "*** Values ***");
     {
-        maths::CDiurnalTime time(0, 0, 86400, 86400);
+        maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
         maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 864.0);
 
         bucketing.initialize(20);
@@ -479,7 +480,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
     }
     LOG_DEBUG(<< "*** Variances ***");
     {
-        maths::CDiurnalTime time(0, 0, 86400, 86400);
+        maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
         maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 864.0);
 
         bucketing.initialize(20);
@@ -530,7 +531,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
 
     test::CRandomNumbers rng;
 
-    maths::CDiurnalTime time(0, 0, 86400, 86400);
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 864.0);
     maths::CSeasonalComponentAdaptiveBucketing::TFloatMeanAccumulatorVec empty;
 
@@ -588,7 +589,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
     // Test that applying a shift translates the predicted values
     // but doesn't alter the slope or predicted variances.
 
-    maths::CDiurnalTime time(0, 0, 86400, 86400);
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 600.0);
     maths::CSeasonalComponentAdaptiveBucketing::TFloatMeanAccumulatorVec empty;
 
@@ -632,7 +633,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
 void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
     // Test that the slope increases by the shift.
 
-    maths::CDiurnalTime time(0, 0, 86400, 86400);
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 600.0);
     maths::CSeasonalComponentAdaptiveBucketing::TFloatMeanAccumulatorVec empty;
 
@@ -669,7 +670,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
     double decayRate = 0.1;
     double minimumBucketLength = 1.0;
 
-    maths::CDiurnalTime time(0, 0, 86400, 86400);
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing origBucketing(time, decayRate, minimumBucketLength);
 
     origBucketing.initialize(10);
@@ -723,7 +724,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
     double decayRate = 0.1;
     double minimumBucketLength = 1.0;
 
-    maths::CDiurnalTime time(0, 0, 86400, 86400);
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing expectedBucketing(time, decayRate, minimumBucketLength);
 
     expectedBucketing.initialize(10);

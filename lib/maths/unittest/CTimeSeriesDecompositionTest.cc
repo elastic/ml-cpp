@@ -128,8 +128,8 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.042 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.040 * maxValue);
+                CPPUNIT_ASSERT(sumResidual < 0.039 * sumValue);
+                CPPUNIT_ASSERT(maxResidual < 0.041 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.02 * sumValue);
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -151,7 +151,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     //file << "plot(t(1:length(fe)), fe, 'r');\n";
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.019 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.020 * totalSumValue);
     CPPUNIT_ASSERT(totalMaxResidual < 0.021 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
@@ -776,7 +776,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     CPPUNIT_ASSERT(totalSumResidual < 0.07 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.08 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.09 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
@@ -1152,8 +1152,8 @@ void CTimeSeriesDecompositionTest::testVeryLargeValuesProblemCase() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.32 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.70 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.31 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.72 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.21 * totalSumValue);
 
     //file << "hold on;\n";
@@ -1267,7 +1267,7 @@ void CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase() {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.38 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.40 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.07 * totalSumValue);
 
     //file << "hold on;\n";
