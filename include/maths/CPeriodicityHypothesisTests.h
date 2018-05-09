@@ -225,6 +225,8 @@ private:
         CPeriodicityHypothesisTestsResult s_H0;
         //! The variance estimate of H0.
         double s_V0;
+        //! The autocorrelation estimate of H0.
+        double s_R0;
         //! The degrees of freedom in the variance estimate of H0.
         double s_DF0;
         //! The trend for the null hypothesis.
@@ -361,9 +363,7 @@ private:
     //! Condition \p buckets assuming the null hypothesis is true.
     //!
     //! This removes any trend associated with the null hypothesis.
-    void conditionOnHypothesis(const TTimeTimePr2Vec& windows,
-                               const STestStats& stats,
-                               TFloatMeanAccumulatorVec& buckets) const;
+    void conditionOnHypothesis(const STestStats& stats, TFloatMeanAccumulatorVec& buckets) const;
 
     //! Test to see if there is significant evidence for a component
     //! with period \p period.

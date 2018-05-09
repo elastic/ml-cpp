@@ -631,6 +631,20 @@ public:
                                   maths_t::TCalendarComponentVec& components,
                                   TComponentErrorsVec& errors) const;
 
+        //! Reweight the outlier values in \p values.
+        //!
+        //! These are the values with largest error w.r.t. \p predictor.
+        void reweightOutliers(core_t::TTime startTime,
+                              core_t::TTime dt,
+                              TPredictor predictor,
+                              TFloatMeanAccumulatorVec& values) const;
+
+        //! Fit the trend component \p component to \p values.
+        void fit(core_t::TTime startTime,
+                 core_t::TTime dt,
+                 const TFloatMeanAccumulatorVec& values,
+                 CTrendComponent& trend) const;
+
         //! Clear all component error statistics.
         void clearComponentErrors();
 
