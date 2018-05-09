@@ -594,10 +594,10 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
         //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
         double logx = std::log(x);
-        double squareScale = pow2(logNormal.scale());
-        double discriminant = std::sqrt(
-            pow2(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
-                                    (logx - logNormal.location()));
+        double squareScale = CTools::pow2(logNormal.scale());
+        double discriminant = std::sqrt(CTools::pow2(squareScale) +
+                                        (logx - logNormal.location() + 2.0 * squareScale) *
+                                            (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
         double y = m * std::exp(x > m ? -discriminant : discriminant);
@@ -1831,7 +1831,7 @@ double CTools::differentialEntropy(const lognormal& logNormal) {
     double location = logNormal.location();
     double scale = logNormal.scale();
     return 0.5 * std::log(boost::math::double_constants::two_pi *
-                          boost::math::double_constants::e * pow2(scale)) +
+                          boost::math::double_constants::e * CTools::pow2(scale)) +
            location;
 }
 

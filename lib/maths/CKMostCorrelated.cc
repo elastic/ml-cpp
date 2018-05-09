@@ -17,6 +17,7 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CSampling.h>
+#include <maths/CTools.h>
 
 #include <boost/array.hpp>
 #include <boost/geometry.hpp>
@@ -86,11 +87,8 @@ public:
         : m_Threshold(threshold), m_X(x) {}
 
     bool operator()(const TPointSizePr& y) const {
-        return pow2(bg::distance(m_X, y.first)) < m_Threshold;
+        return CTools::pow2(bg::distance(m_X, y.first)) < m_Threshold;
     }
-
-private:
-    static double pow2(double x) { return x * x; }
 
 private:
     double m_Threshold;

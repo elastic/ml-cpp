@@ -69,11 +69,6 @@ struct SClusterCentreLess {
     }
 };
 
-//! Get \p x time \p x.
-double pow2(double x) {
-    return x * x;
-}
-
 //! Get the minimum of \p x, \p y and \p z.
 double min(double x, double y, double z) {
     return std::min(std::min(x, y), z);
@@ -272,14 +267,15 @@ void BICGain(maths_t::EDataType dataType,
     }
 
     // Log-normal (method of moments)
-    double s = std::log(1.0 + v / pow2(m + logNormalOffset));
+    double s = std::log(1.0 + v / CTools::pow2(m + logNormalOffset));
     double l = std::log(m + logNormalOffset) - s / 2.0;
     // Gamma (method of moments)
-    double a = pow2(m + gammaOffset) / v;
+    double a = CTools::pow2(m + gammaOffset) / v;
     double b = (m + gammaOffset) / v;
 
     double smin = std::max(logNormalOffset, gammaOffset);
-    double vmin = std::min(MIN_RELATIVE_VARIANCE * std::max(v, pow2(smin)), MIN_ABSOLUTE_VARIANCE);
+    double vmin = std::min(MIN_RELATIVE_VARIANCE * std::max(v, CTools::pow2(smin)),
+                           MIN_ABSOLUTE_VARIANCE);
 
     // Mixture of normals
     double wl = CBasicStatistics::count(mvl) / n;
@@ -291,23 +287,27 @@ void BICGain(maths_t::EDataType dataType,
 
     try {
         // Mixture of log-normals (method of moments)
-        double sl = std::log(1.0 + vl / pow2(ml + logNormalOffset));
+        double sl = std::log(1.0 + vl / CTools::pow2(ml + logNormalOffset));
         double ll = std::log(ml + logNormalOffset) - sl / 2.0;
-        double sr = std::log(1.0 + vr / pow2(mr + logNormalOffset));
+        double sr = std::log(1.0 + vr / CTools::pow2(mr + logNormalOffset));
         double lr = std::log(mr + logNormalOffset) - sr / 2.0;
         // Mixture of gammas (method of moments)
-        double al = pow2(ml + gammaOffset) / vl;
+        double al = CTools::pow2(ml + gammaOffset) / vl;
         double bl = (ml + gammaOffset) / vl;
-        double ar = pow2(mr + gammaOffset) / vr;
+        double ar = CTools::pow2(mr + gammaOffset) / vr;
         double br = (mr + gammaOffset) / vr;
 
         double log2piv = std::log(boost::math::double_constants::two_pi * v);
         double log2pis = std::log(boost::math::double_constants::two_pi * s);
         double loggn = boost::math::lgamma(a) - a * std::log(b);
-        double log2pivl = std::log(boost::math::double_constants::two_pi * vl / pow2(wl));
-        double log2pivr = std::log(boost::math::double_constants::two_pi * vr / pow2(wr));
-        double log2pisl = std::log(boost::math::double_constants::two_pi * sl / pow2(wl));
-        double log2pisr = std::log(boost::math::double_constants::two_pi * sr / pow2(wr));
+        double log2pivl =
+            std::log(boost::math::double_constants::two_pi * vl / CTools::pow2(wl));
+        double log2pivr =
+            std::log(boost::math::double_constants::two_pi * vr / CTools::pow2(wr));
+        double log2pisl =
+            std::log(boost::math::double_constants::two_pi * sl / CTools::pow2(wl));
+        double log2pisr =
+            std::log(boost::math::double_constants::two_pi * sr / CTools::pow2(wr));
         double loggnl = boost::math::lgamma(al) - al * std::log(bl) - std::log(wl);
         double loggnr = boost::math::lgamma(ar) - ar * std::log(br) - std::log(wr);
 
@@ -318,20 +318,20 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0) {
                 double li = std::log(mi + logNormalOffset);
-                ll1n += ni * ((vi + pow2(mi - m)) / v + log2piv);
-                ll1l += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
+                ll1n += ni * ((vi + CTools::pow2(mi - m)) / v + log2piv);
+                ll1l += ni * (CTools::pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
-                ll2nl += ni * ((vi + pow2(mi - ml)) / vl + log2pivl);
-                ll2ll += ni * (pow2(li - ll) / sl + 2.0 * li + log2pisl);
+                ll2nl += ni * ((vi + CTools::pow2(mi - ml)) / vl + log2pivl);
+                ll2ll += ni * (CTools::pow2(li - ll) / sl + 2.0 * li + log2pisl);
                 ll2gl += ni * 2.0 * (bl * (mi + gammaOffset) - (al - 1.0) * li + loggnl);
             } else {
-                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double si = std::log(1.0 + vi / CTools::pow2(mi + logNormalOffset));
                 double li = std::log(mi + logNormalOffset) - si / 2.0;
-                ll1n += ni * ((vi + pow2(mi - m)) / v + log2piv);
-                ll1l += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
+                ll1n += ni * ((vi + CTools::pow2(mi - m)) / v + log2piv);
+                ll1l += ni * ((si + CTools::pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
-                ll2nl += ni * ((vi + pow2(mi - ml)) / vl + log2pivl);
-                ll2ll += ni * ((si + pow2(li - ll)) / sl + 2.0 * li + log2pisl);
+                ll2nl += ni * ((vi + CTools::pow2(mi - ml)) / vl + log2pivl);
+                ll2ll += ni * ((si + CTools::pow2(li - ll)) / sl + 2.0 * li + log2pisl);
                 ll2gl += ni * 2.0 * (bl * (mi + gammaOffset) - (al - 1.0) * li + loggnl);
             }
         }
@@ -343,20 +343,20 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0) {
                 double li = std::log(mi + logNormalOffset);
-                ll1n += ni * ((vi + pow2(mi - m)) / v + log2piv);
-                ll1l += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
+                ll1n += ni * ((vi + CTools::pow2(mi - m)) / v + log2piv);
+                ll1l += ni * (CTools::pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
-                ll2nr += ni * ((vi + pow2(mi - mr)) / vr + log2pivr);
-                ll2lr += ni * (pow2(li - lr) / sr + 2.0 * li + log2pisr);
+                ll2nr += ni * ((vi + CTools::pow2(mi - mr)) / vr + log2pivr);
+                ll2lr += ni * (CTools::pow2(li - lr) / sr + 2.0 * li + log2pisr);
                 ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
             } else {
-                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double si = std::log(1.0 + vi / CTools::pow2(mi + logNormalOffset));
                 double li = std::log(mi + logNormalOffset) - si / 2.0;
-                ll1n += ni * ((vi + pow2(mi - m)) / v + log2piv);
-                ll1l += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
+                ll1n += ni * ((vi + CTools::pow2(mi - m)) / v + log2piv);
+                ll1l += ni * ((si + CTools::pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
-                ll2nr += ni * ((vi + pow2(mi - mr)) / vr + log2pivr);
-                ll2lr += ni * ((si + pow2(li - lr)) / sr + 2.0 * li + log2pisr);
+                ll2nr += ni * ((vi + CTools::pow2(mi - mr)) / vr + log2pivr);
+                ll2lr += ni * ((si + CTools::pow2(li - lr)) / sr + 2.0 * li + log2pisr);
                 ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
             }
         }

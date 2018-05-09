@@ -32,6 +32,7 @@
 #include <maths/CSetTools.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
+#include <maths/CTools.h>
 #include <maths/Constants.h>
 
 #include <boost/bind.hpp>
@@ -72,11 +73,6 @@ using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
 const core_t::TTime DAY = core::constants::DAY;
 const core_t::TTime WEEK = core::constants::WEEK;
 const core_t::TTime MONTH = 4 * WEEK;
-
-//! Get the square of \p x.
-double pow2(double x) {
-    return x * x;
-}
 
 //! Compute the mean of \p mean of \p components.
 template<typename MEAN_FUNCTION>
@@ -1748,8 +1744,9 @@ std::string CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::toDel
 void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::add(double error,
                                                                         double prediction,
                                                                         double weight) {
-    double errorWithComponent{winsorise(pow2(error), m_MeanErrorWithComponent)};
-    double errorWithoutComponent{winsorise(pow2(error - prediction), m_MeanErrorWithoutComponent)};
+    double errorWithComponent{winsorise(CTools::pow2(error), m_MeanErrorWithComponent)};
+    double errorWithoutComponent{winsorise(CTools::pow2(error - prediction),
+                                           m_MeanErrorWithoutComponent)};
     m_MeanErrorWithComponent.add(errorWithComponent, weight);
     m_MeanErrorWithoutComponent.add(errorWithoutComponent, weight);
 }
