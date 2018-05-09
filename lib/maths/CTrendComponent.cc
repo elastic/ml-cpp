@@ -445,7 +445,7 @@ double CTrendComponent::weightOfPrediction(core_t::TTime time) const {
         return 1.0;
     }
 
-    return CTools::smoothHeaviside(extrapolateInterval / interval, 1.0 / 12.0, -1.0);
+    return CTools::logisticFunction(extrapolateInterval / interval, 0.1, 1.0, -1.0);
 }
 
 CTrendComponent::SModel::SModel(double weight) {
