@@ -578,6 +578,13 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     }
 }
 
+void CTimeSeriesDecompositionDetail::CPeriodicityTest::clear(ETest test, core_t::TTime time) {
+    if (m_Windows[test] != nullptr) {
+        m_Windows[test].reset(this->newWindow(test));
+        m_Windows[test]->initialize(time);
+    }
+}
+
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t::TTime start,
                                                                          core_t::TTime end) {
     stepwisePropagateForwards(DAY, start, end, m_Windows[E_Short]);
@@ -1127,7 +1134,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
                                   : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};
                 m_UsingTrendForPrediction = (p >= 0.25);
                 if (m_UsingTrendForPrediction) {
-                    LOG_DEBUG("Detected trend at " << time);
+                    LOG_DEBUG(<< "Detected trend at " << time);
                 }
                 *m_Watcher = m_UsingTrendForPrediction;
             }

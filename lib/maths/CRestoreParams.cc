@@ -34,7 +34,7 @@ STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(
     core_t::TTime minimumBucketLength,
     const SDistributionRestoreParams& changeModelParams)
     : s_DecayRate{decayRate}, s_MinimumBucketLength{minimumBucketLength},
-      s_ComponentSize{DECOMPOSITION_COMPONENT_SIZE}, s_ChangeModelParams{changeModelParams} {
+      s_ComponentSize{COMPONENT_SIZE}, s_ChangeModelParams{changeModelParams} {
 }
 
 SModelRestoreParams::SModelRestoreParams(const CModelParams& params,

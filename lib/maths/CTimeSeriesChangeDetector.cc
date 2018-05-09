@@ -56,6 +56,7 @@ const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
 const std::size_t COUNT_TO_INITIALIZE{5u};
 const double MINIMUM_SCALE{0.1};
 const double MAXIMUM_SCALE{10.0};
+const double WINSORISATION_DERATE{1.0};
 }
 
 SChangeDescription::SChangeDescription(EDescription description, double value, const TPriorPtr& residualModel)
@@ -464,7 +465,8 @@ void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double sample{trendModel.detrend(time, value, 0.0) - shift};
-            double weight{tailWinsorisationWeight(residualModel, 1.0, seasonalScale, sample)};
+            double weight{winsorisation::tailWeight(
+                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWinsorisationWeight(weight, weights[i]);
             m_SampleCount += maths_t::count(weights[i]);
@@ -577,7 +579,8 @@ void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
             double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double prediction{CBasicStatistics::mean(trendModel.value(time, 0.0))};
             double sample{value - scale * prediction};
-            double weight{tailWinsorisationWeight(residualModel, 1.0, seasonalScale, sample)};
+            double weight{winsorisation::tailWeight(
+                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWinsorisationWeight(weight, weights[i]);
             m_SampleCount += maths_t::count(weights[i]);
@@ -659,7 +662,8 @@ void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double sample{this->trendModel().detrend(time + m_Shift, value, 0.0)};
-            double weight{tailWinsorisationWeight(residualModel, 1.0, seasonalScale, sample)};
+            double weight{winsorisation::tailWeight(
+                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWinsorisationWeight(weight, weights[i]);
         }

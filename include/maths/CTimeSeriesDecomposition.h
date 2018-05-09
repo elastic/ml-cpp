@@ -60,7 +60,7 @@ public:
     //! use estimate a seasonal component.
     explicit CTimeSeriesDecomposition(double decayRate = 0.0,
                                       core_t::TTime bucketLength = 0,
-                                      std::size_t seasonalComponentSize = DECOMPOSITION_COMPONENT_SIZE);
+                                      std::size_t seasonalComponentSize = COMPONENT_SIZE);
 
     //! Construct from part of a state document.
     CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams& params,

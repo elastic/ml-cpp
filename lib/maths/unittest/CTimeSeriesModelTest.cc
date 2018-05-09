@@ -1059,7 +1059,8 @@ void CTimeSeriesModelTest::testProbability() {
 
         core_t::TTime time{0};
         {
-            const TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+            const TDouble2VecWeightsAryVec weight{
+                maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
             for (auto sample : samples) {
                 double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                   static_cast<double>(time) / 86400.0)};
@@ -1276,8 +1277,9 @@ void CTimeSeriesModelTest::testProbability() {
             double probability;
             bool conditional;
             TSize1Vec mostAnomalousCorrelate;
-            model.probability(computeProbabilityParams(weights[0]), {{time}}, {{sample}},
-                              probability, tail, conditional, mostAnomalousCorrelate);
+            model.probability(computeProbabilityParams(weights[0]), {{time}},
+                              {{sample}}, probability, tail, conditional,
+                              mostAnomalousCorrelate);
             smallest.add({probability, bucket - 1});
             time += bucketLength;
         }
@@ -1802,8 +1804,9 @@ void CTimeSeriesModelTest::testAnomalyModel() {
             double probability;
             bool conditional;
             TSize1Vec mostAnomalousCorrelate;
-            model.probability(computeProbabilityParams(weights[0]), {{time}}, {{sample}},
-                              probability, tail, conditional, mostAnomalousCorrelate);
+            model.probability(computeProbabilityParams(weights[0]), {{time}},
+                              {{sample}}, probability, tail, conditional,
+                              mostAnomalousCorrelate);
             mostAnomalous.add({std::log(probability), bucket});
             //scores.push_back(maths::CTools::deviation(probability));
             time += bucketLength;
@@ -1875,8 +1878,9 @@ void CTimeSeriesModelTest::testAnomalyModel() {
             double probability;
             bool conditional;
             TSize1Vec mostAnomalousCorrelate;
-            model.probability(computeProbabilityParams(weights[0]), {{time}}, {(sample)},
-                              probability, tail, conditional, mostAnomalousCorrelate);
+            model.probability(computeProbabilityParams(weights[0]), {{time}},
+                              {(sample)}, probability, tail, conditional,
+                              mostAnomalousCorrelate);
             mostAnomalous.add({std::log(probability), bucket});
             //scores.push_back(maths::CTools::deviation(probability));
             time += bucketLength;
@@ -1926,7 +1930,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
     TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(model.winsorisationWeight(0.0, time, {value}), weight[0]);
+        maths_t::setWinsorisationWeight(
+            model.winsorisationWeight(0.0, time, {value}), weight[0]);
         model.addSamples(addSampleParams(1.0, weight),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
@@ -2114,7 +2119,8 @@ void CTimeSeriesModelTest::testLinearScaling() {
     TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(model.winsorisationWeight(0.0, time, {value}), weight[0]);
+        maths_t::setWinsorisationWeight(
+            model.winsorisationWeight(0.0, time, {value}), weight[0]);
         model.addSamples(addSampleParams(1.0, weight),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
@@ -2167,7 +2173,8 @@ void CTimeSeriesModelTest::testLinearScaling() {
         sample = 0.3 * (12.0 + 10.0 * smoothDaily(time) + sample);
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
-        auto x = model.confidenceInterval(time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+        auto x = model.confidenceInterval(
+            time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         CPPUNIT_ASSERT(::fabs(sample - x[1][0]) < 1.2 * std::sqrt(noiseVariance));
         CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
@@ -2187,9 +2194,10 @@ void CTimeSeriesModelTest::testLinearScaling() {
         sample = 2.0 * (12.0 + 10.0 * smoothDaily(time)) + sample;
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
-        auto x = model.confidenceInterval(time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(::fabs(sample - x[1][0]) < 3.1 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        auto x = model.confidenceInterval(
+            time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.1 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2203,7 +2211,8 @@ void CTimeSeriesModelTest::testDaylightSaving() {
     TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(model.winsorisationWeight(0.0, time, {value}), weight[0]);
+        maths_t::setWinsorisationWeight(
+            model.winsorisationWeight(0.0, time, {value}), weight[0]);
         model.addSamples(addSampleParams(1.0, weight),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
@@ -2258,9 +2267,10 @@ void CTimeSeriesModelTest::testDaylightSaving() {
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
         CPPUNIT_ASSERT_EQUAL(hour, model.trendModel().timeShift());
-        auto x = model.confidenceInterval(time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.6 * std::sqrt(noiseVariance));
+        auto x = model.confidenceInterval(
+            time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.7 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2279,9 +2289,10 @@ void CTimeSeriesModelTest::testDaylightSaving() {
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
-        auto x = model.confidenceInterval(time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
+        auto x = model.confidenceInterval(
+            time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 

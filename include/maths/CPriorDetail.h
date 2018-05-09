@@ -30,7 +30,7 @@ bool CPrior::expectation(const F& f,
     double x{interval.first};
     double dx{(interval.second - interval.first) / n};
 
-    double normalizationFactor{0.0};
+    double Z{0.0};
     TDoubleWeightsAry1Vec weights{weight};
     CPrior::CLogMarginalLikelihood logLikelihood(*this, weights);
     CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&> likelihood(logLikelihood);
@@ -44,9 +44,9 @@ bool CPrior::expectation(const F& f,
             return false;
         }
         result += productIntegral;
-        normalizationFactor += likelihoodIntegral;
+        Z += likelihoodIntegral;
     }
-    result /= normalizationFactor;
+    result /= Z;
     return true;
 }
 

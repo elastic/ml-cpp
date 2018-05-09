@@ -68,36 +68,7 @@ const double MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT{24.0};
 const std::size_t SLIDING_WINDOW_SIZE{12u};
 const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
-const double WINSORISED_FRACTION{1e-2};
-const double MINIMUM_WINSORISATION_WEIGHT_FRACTION{1e-10};
-const double MINIMUM_TAIL_WINSORISATION_WEIGHT{1e-2};
-const double MINIMUM_CHANGE_WINSORISATION_WEIGHT{1e-1};
-const double LOG_WINSORISED_FRACTION{std::log(WINSORISED_FRACTION)};
-const double LOG_MINIMUM_WEIGHT_FRACTION{std::log(MINIMUM_WINSORISATION_WEIGHT_FRACTION)};
-const double LOG_MINIMUM_TAIL_WINSORISATION_WEIGHT{std::log(MINIMUM_TAIL_WINSORISATION_WEIGHT)};
-const double MINUS_LOG_TOLERANCE{
-    -std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
-
-//! Derate the minimum Winsorisation weight.
-double deratedMinimumWinsorisationWeight(double derate) {
-    derate = CTools::truncate(derate, 0.0, 1.0);
-    return MINIMUM_TAIL_WINSORISATION_WEIGHT +
-           (0.5 - MINIMUM_TAIL_WINSORISATION_WEIGHT) * derate;
-}
-
-//! Get the one tail p-value from a specified Winsorisation weight.
-double pValueFromTailWinsorisationWeight(double weight) {
-    if (weight >= 1.0) {
-        return 1.0;
-    }
-
-    double logw{std::log(std::max(weight, MINIMUM_TAIL_WINSORISATION_WEIGHT))};
-    return std::exp(
-        0.5 * (LOG_WINSORISED_FRACTION -
-               std::sqrt(CTools::pow2(LOG_WINSORISED_FRACTION) +
-                         4.0 * logw / LOG_MINIMUM_TAIL_WINSORISATION_WEIGHT * LOG_MINIMUM_WEIGHT_FRACTION *
-                             (LOG_MINIMUM_WEIGHT_FRACTION - LOG_WINSORISED_FRACTION))));
-}
+const double CHANGE_P_VALUE{1e-5};
 
 //! Optionally randomly sample from \p indices.
 TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus& rng,
@@ -118,18 +89,6 @@ TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus& rng,
         return indices[i];
     }
     return TOptionalSize{};
-}
-
-//! Computes a Winsorisation weight based on the chance that the
-//! time series is currently undergoing a change.
-double changeWinsorisationWeight(const TChangeDetectorPtr& detector) {
-    if (detector != nullptr) {
-        std::size_t dummy;
-        return std::max(CTools::logisticFunction(detector->decisionFunction(dummy),
-                                                 0.1, 1.0, -1.0),
-                        MINIMUM_CHANGE_WINSORISATION_WEIGHT);
-    }
-    return 1.0;
 }
 
 //! Convert \p value to comma separated string.
@@ -196,55 +155,97 @@ const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate fe
 }
 }
 
-double tailWinsorisationWeight(const CPrior& prior, double derate, double scale, double value) {
-    double deratedMinimumWeight{deratedMinimumWinsorisationWeight(derate)};
+namespace winsorisation {
+namespace {
+const double MAXIMUM_P_VALUE{1e-3};
+const double MINIMUM_P_VALUE{1e-10};
+const double MINIMUM_WEIGHT{1e-2};
+const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
+const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
+const double LOG_MINIMUM_WEIGHT{std::log(MINIMUM_WEIGHT)};
+const double MINUS_LOG_TOLERANCE{
+    -std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
 
+//! Derate the minimum Winsorisation weight.
+double deratedMinimumWeight(double derate) {
+    derate = CTools::truncate(derate, 0.0, 1.0);
+    return MINIMUM_WEIGHT + (0.5 - MINIMUM_WEIGHT) * derate;
+}
+
+//! Get the one tail p-value from a specified Winsorisation weight.
+double pValueFromWeight(double weight) {
+    if (weight >= 1.0) {
+        return 1.0;
+    }
+
+    double logw{std::log(std::max(weight, MINIMUM_WEIGHT))};
+    return std::exp(0.5 * (LOG_MAXIMUM_P_VALUE -
+                           std::sqrt(CTools::pow2(LOG_MAXIMUM_P_VALUE) +
+                                     4.0 * logw / LOG_MINIMUM_WEIGHT * LOG_MINIMUM_P_VALUE *
+                                         (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE))));
+}
+
+//! Computes a Winsorisation weight based on the chance that the
+//! time series is currently undergoing a change.
+double changeWeight(const TChangeDetectorPtr& detector) {
+    if (detector != nullptr) {
+        std::size_t dummy;
+        return std::max(CTools::logisticFunction(detector->decisionFunction(dummy),
+                                                 0.1, 1.0, -1.0),
+                        MINIMUM_WEIGHT);
+    }
+    return 1.0;
+}
+}
+
+double tailWeight(const CPrior& prior, double derate, double scale, double value) {
+    double minimumWeight{deratedMinimumWeight(derate)};
+
+    double f{};
     double lowerBound;
     double upperBound;
     if (!prior.minusLogJointCdf({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
                                 lowerBound, upperBound)) {
         return 1.0;
+    } else if (upperBound >= MINUS_LOG_TOLERANCE) {
+        f = std::exp(-(lowerBound + upperBound) / 2.0);
+        f = std::min(f, 1.0 - f);
+   } else if (!prior.minusLogJointCdfComplement(
+                   {value}, {maths_t::seasonalVarianceScaleWeight(scale)}, lowerBound, upperBound)) {
+        return 1.0;
+    } else {
+        f = std::exp(-(lowerBound + upperBound) / 2.0);
     }
-    if (upperBound < MINUS_LOG_TOLERANCE &&
-        !prior.minusLogJointCdfComplement(
-            {value}, {maths_t::seasonalVarianceScaleWeight(scale)}, lowerBound, upperBound)) {
+
+    if (f >= MAXIMUM_P_VALUE) {
         return 1.0;
     }
-
-    double f{std::exp(-(lowerBound + upperBound) / 2.0)};
-    f = std::min(f, 1.0 - f);
-    if (f >= WINSORISED_FRACTION) {
-        return 1.0;
-    }
-    if (f <= MINIMUM_WINSORISATION_WEIGHT_FRACTION) {
-        return deratedMinimumWeight;
+    if (f <= MINIMUM_P_VALUE) {
+        return minimumWeight;
     }
 
-    // We interpolate between 1.0 and the minimum weight on the
-    // interval [WINSORISED_FRACTION, MINIMUM_WEIGHT_FRACTION]
-    // by fitting (f / WF)^(-c log(f)) where WF is the Winsorised
-    // fraction and c is determined by solving:
-    //   MW = (MWF / WF)^(-c log(MWF))
+    // We logarithmically interpolate between 1.0 and the minimum weight
+    // on the interval [MAXIMUM_P_VALUE, MINIMUM_P_VALUE].
 
-    double deratedExponent{-std::log(deratedMinimumWeight) / LOG_MINIMUM_WEIGHT_FRACTION /
-                           (LOG_MINIMUM_WEIGHT_FRACTION - LOG_WINSORISED_FRACTION)};
+    double maximumExponent{-std::log(minimumWeight) / LOG_MINIMUM_P_VALUE /
+                           (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE)};
     double logf{std::log(f)};
-    double result{std::exp(-deratedExponent * logf * (logf - LOG_WINSORISED_FRACTION))};
+    double result{std::exp(-maximumExponent * logf * (logf - LOG_MAXIMUM_P_VALUE))};
 
     if (CMathsFuncs::isNan(result)) {
         return 1.0;
     }
 
-    LOG_TRACE("sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
+    LOG_TRACE(<< "sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
 
     return result;
 }
 
-double tailWinsorisationWeight(const CMultivariatePrior& prior,
-                               std::size_t dimension,
-                               double derate,
-                               double scale,
-                               const core::CSmallVector<double, 10>& value) {
+double tailWeight(const CMultivariatePrior& prior,
+                  std::size_t dimension,
+                  double derate,
+                  double scale,
+                  const core::CSmallVector<double, 10>& value) {
     std::size_t dimensions = prior.dimension();
     TSizeDoublePr10Vec condition(dimensions - 1);
     for (std::size_t i = 0u, j = 0u; i < dimensions; ++i) {
@@ -254,7 +255,8 @@ double tailWinsorisationWeight(const CMultivariatePrior& prior,
     }
     std::shared_ptr<CPrior> conditional(
         prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
-    return tailWinsorisationWeight(*conditional, derate, scale, value[dimension]);
+    return tailWeight(*conditional, derate, scale, value[dimension]);
+}
 }
 
 //! \brief A model of anomalous sections of a time series.
@@ -457,8 +459,8 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
 
         if (probability < LARGEST_ANOMALOUS_PROBABILITY) {
             double norm{std::sqrt(
-                    std::accumulate(errors.begin(), errors.end(), 0.0,
-                                    [](double n, double x) { return n + x * x; }))};
+                std::accumulate(errors.begin(), errors.end(), 0.0,
+                                [](double n, double x) { return n + x * x; }))};
             m_MeanError.add(norm);
             double scale{CBasicStatistics::mean(m_MeanError)};
             norm = (scale == 0.0 ? 1.0 : norm / scale);
@@ -781,8 +783,7 @@ void CUnivariateTimeSeriesModel::skipTime(core_t::TTime gap) {
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
-CUnivariateTimeSeriesModel::mode(core_t::TTime time,
-                                 const TDouble2VecWeightsAry& weights) const {
+CUnivariateTimeSeriesModel::mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const {
     return {m_ResidualModel->marginalLikelihoodMode(unpack(weights)) +
             CBasicStatistics::mean(m_TrendModel->value(time))};
 }
@@ -1030,7 +1031,8 @@ bool CUnivariateTimeSeriesModel::probability(const CModelProbabilityParams& para
         // Declared outside the loop to minimize the number of times they are created.
         TSize10Vec variable(1);
         TDouble10Vec1Vec sample{TDouble10Vec(2)};
-        maths_t::TDouble10VecWeightsAry1Vec weights{maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
+        maths_t::TDouble10VecWeightsAry1Vec weights{
+            maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
         TDouble2Vec probabilityBucketEmpty(2);
         TDouble10Vec2Vec pli, pui;
         TTail10Vec ti;
@@ -1121,8 +1123,8 @@ CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
                                                 const TDouble2Vec& value) const {
     double scale{this->seasonalWeight(0.0, time)[0]};
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
-    return {tailWinsorisationWeight(*m_ResidualModel, derate, scale, sample) *
-            changeWinsorisationWeight(m_ChangeDetector)};
+    return {winsorisation::tailWeight(*m_ResidualModel, derate, scale, sample) *
+            winsorisation::changeWeight(m_ChangeDetector)};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
@@ -1294,8 +1296,8 @@ void CUnivariateTimeSeriesModel::reinitializeResidualModel(double learnRate,
     residualModel.setToNonInformative(0.0, residualModel.decayRate());
     if (!slidingWindow.empty()) {
         double slidingWindowLength{static_cast<double>(slidingWindow.size())};
-        maths_t::TDoubleWeightsAry1Vec weight{
-            maths_t::countWeight(std::max(learnRate, std::min(5.0 / slidingWindowLength, 1.0)))};
+        maths_t::TDoubleWeightsAry1Vec weight{maths_t::countWeight(
+            std::max(learnRate, std::min(5.0 / slidingWindowLength, 1.0)))};
         for (const auto& value : slidingWindow) {
             TDouble1Vec sample{trend->detrend(value.first, value.second, 0.0)};
             residualModel.addSamples(sample, weight);
@@ -1352,7 +1354,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
         core_t::TTime maximumTimeToTest{this->params().maximumTimeToTestForChange()};
         double weight{maths_t::winsorisationWeight(weights)};
         if (minimumTimeToDetect < maximumTimeToTest &&
-            pValueFromTailWinsorisationWeight(weight) <= 1e-5) {
+            winsorisation::pValueFromWeight(weight) <= CHANGE_P_VALUE) {
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval)) {
                 m_ChangeDetector = std::make_shared<CUnivariateTimeSeriesChangeDetector>(
@@ -1366,7 +1368,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
     }
 
     if (m_ChangeDetector != nullptr) {
-        m_ChangeDetector->addSamples({std::make_pair(time, values[median].second[0])}, {weights});
+        m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
 
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
@@ -2161,8 +2163,7 @@ CMultivariateTimeSeriesModel::correlateModes(core_t::TTime /*time*/,
 
 CMultivariateTimeSeriesModel::TDouble2Vec1Vec
 CMultivariateTimeSeriesModel::residualModes(const TDouble2VecWeightsAry& weights) const {
-    TDouble10Vec1Vec modes(
-        m_ResidualModel->marginalLikelihoodModes(unpack(weights)));
+    TDouble10Vec1Vec modes(m_ResidualModel->marginalLikelihoodModes(unpack(weights)));
     TDouble2Vec1Vec result;
     result.reserve(modes.size());
     for (const auto& mode : modes) {
@@ -2380,7 +2381,7 @@ CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
     }
 
     for (std::size_t d = 0u; d < dimension; ++d) {
-        result[d] = tailWinsorisationWeight(*m_ResidualModel, d, derate, scale[d], sample);
+        result[d] = winsorisation::tailWeight(*m_ResidualModel, d, derate, scale[d], sample);
     }
 
     return result;
