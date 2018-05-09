@@ -90,7 +90,7 @@ void CForecastTest::testDailyNoLongTermTrend() {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    this->test(trend, bucketLength, 63, 64.0, 5.0, 0.14);
+    this->test(trend, bucketLength, 63, 64.0, 5.0, 0.13);
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
@@ -130,7 +130,7 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
                8.0 * std::sin(boost::math::double_constants::two_pi * time_ / 43200.0) + noise;
     };
 
-    this->test(trend, bucketLength, 98, 9.0, 14.0, 0.042);
+    this->test(trend, bucketLength, 98, 9.0, 24.0, 0.042);
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
@@ -146,7 +146,7 @@ void CForecastTest::testComplexNoLongTermTrend() {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 24.0, 8.0, 0.13);
+    this->test(trend, bucketLength, 63, 24.0, 9.0, 0.13);
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
@@ -163,7 +163,7 @@ void CForecastTest::testComplexConstantLongTermTrend() {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 24.0, 8.0, 0.01);
+    this->test(trend, bucketLength, 63, 24.0, 11.0, 0.01);
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
@@ -193,7 +193,7 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 4.0, 42.0, 0.06);
+    this->test(trend, bucketLength, 63, 4.0, 44.0, 0.06);
 }
 
 void CForecastTest::testNonNegative() {

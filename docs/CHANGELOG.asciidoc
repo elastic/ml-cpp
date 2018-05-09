@@ -16,6 +16,7 @@
 === Enhancements
 
 Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
+Improve robustness w.r.t. outliers of detection and initialisation of seasonal components ({pull}90[#90])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
