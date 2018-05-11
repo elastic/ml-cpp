@@ -210,8 +210,9 @@ double tailWeight(const CPrior& prior, double derate, double scale, double value
     } else if (upperBound >= MINUS_LOG_TOLERANCE) {
         f = std::exp(-(lowerBound + upperBound) / 2.0);
         f = std::min(f, 1.0 - f);
-   } else if (!prior.minusLogJointCdfComplement(
-                   {value}, {maths_t::seasonalVarianceScaleWeight(scale)}, lowerBound, upperBound)) {
+    } else if (!prior.minusLogJointCdfComplement(
+                   {value}, {maths_t::seasonalVarianceScaleWeight(scale)},
+                   lowerBound, upperBound)) {
         return 1.0;
     } else {
         f = std::exp(-(lowerBound + upperBound) / 2.0);
