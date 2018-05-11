@@ -109,6 +109,8 @@ LIB_ML_API=libMlApi.lib
 LIB_ML_MATHS=libMlMaths.lib
 LIB_ML_CONFIG=libMlConfig.lib
 LIB_ML_MODEL=libMlModel.lib
+LIB_ML_SECCOMP=libMlSeccomp.lib
+ML_SECCOMP_LDFLAGS=-LIBPATH$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=libMlTest.lib
 
 LIB_PATH+=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib $(VCLDFLAGS) $(WINSDKLDFLAGS)

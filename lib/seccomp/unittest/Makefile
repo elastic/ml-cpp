@@ -3,24 +3,17 @@
 # or more contributor license agreements. Licensed under the Elastic License;
 # you may not use this file except in compliance with the Elastic License.
 #
-
 include $(CPP_SRC_HOME)/mk/defines.mk
 
-.PHONY: test
-.PHONY: build
-.PHONY: install
+TARGET=ml_test$(EXE_EXT)
 
-COMPONENTS= \
-            core \
-            ver \
-            maths \
-            model \
-            test \
-            api \
-            config \
-            seccomp \
+LIBS:=$(LIB_ML_SECCOMP)
 
+all: build
 
+SRCS=\
+	Main.cc \
+	CSystemCallFilterTest.cc \
 
-include $(CPP_SRC_HOME)/mk/toplevel.mk
+include $(CPP_SRC_HOME)/mk/stdcppunit.mk
 
