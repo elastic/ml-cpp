@@ -289,9 +289,9 @@ void CMetricModelTest::testSample() {
             TTimeDoublePr(61, 1.3),   TTimeDoublePr(62, 1.6),
             TTimeDoublePr(65, 1.7),   TTimeDoublePr(66, 1.33),
             TTimeDoublePr(68, 1.5),   TTimeDoublePr(84, 1.58),
-            TTimeDoublePr(87, 1.99),  TTimeDoublePr(157, 1.6),
+            TTimeDoublePr(87, 1.69),  TTimeDoublePr(157, 1.6),
             TTimeDoublePr(164, 1.66), TTimeDoublePr(199, 1.28),
-            TTimeDoublePr(202, 1.0),  TTimeDoublePr(204, 1.5)};
+            TTimeDoublePr(202, 1.2),  TTimeDoublePr(204, 1.5)};
 
         unsigned int sampleCounts[] = {2, 1};
         unsigned int expectedSampleCounts[] = {2, 1};
@@ -540,9 +540,9 @@ void CMetricModelTest::testMultivariateSample() {
 
     double data_[][3] = {{49, 1.5, 1.1},  {60, 1.3, 1.2},    {61, 1.3, 2.1},
                          {62, 1.6, 1.5},  {65, 1.7, 1.4},    {66, 1.33, 1.6},
-                         {68, 1.5, 1.37}, {84, 1.58, 1.42},  {87, 1.99, 2.2},
+                         {68, 1.5, 1.37}, {84, 1.58, 1.42},  {87, 1.6, 1.6},
                          {157, 1.6, 1.6}, {164, 1.66, 1.55}, {199, 1.28, 1.4},
-                         {202, 1.0, 0.7}, {204, 1.5, 1.8}};
+                         {202, 1.3, 1.1}, {204, 1.5, 1.8}};
     TTimeDouble2AryPrVec data;
     for (std::size_t i = 0u; i < boost::size(data_); ++i) {
         boost::array<double, 2> value = {{data_[i][1], data_[i][2]}};
@@ -633,13 +633,12 @@ void CMetricModelTest::testMultivariateSample() {
                 const auto& prior =
                     dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
                         model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
-                        ->prior();
+                        ->residualModel();
 
                 LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(count));
-                LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong));
-                LOG_DEBUG(<< "expected baseline = "
-                          << maths::CBasicStatistics::mean(expectedBaselineLatLong));
-                LOG_DEBUG(<< "actual baseline = "
+                LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong)
+                          << "expected baseline = "
+                          << maths::CBasicStatistics::mean(expectedBaselineLatLong) << "actual baseline = "
                           << core::CContainerPrinter::print(baselineLatLong));
 
                 CPPUNIT_ASSERT(count);
@@ -656,6 +655,7 @@ void CMetricModelTest::testMultivariateSample() {
                         TVector2(baselineLatLong) -
                         maths::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
+
                 CPPUNIT_ASSERT_EQUAL(latLong, featureLatLong);
                 CPPUNIT_ASSERT_EQUAL(expectedPrior->checksum(), prior.checksum());
 
@@ -1622,11 +1622,11 @@ void CMetricModelTest::testSkipSampling() {
     CPPUNIT_ASSERT_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
-            ->prior()
+            ->residualModel()
             .checksum(),
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
-            ->prior()
+            ->residualModel()
             .checksum());
 }
 
@@ -1717,11 +1717,11 @@ void CMetricModelTest::testExplicitNulls() {
     CPPUNIT_ASSERT_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
-            ->prior()
+            ->residualModel()
             .checksum(),
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
-            ->prior()
+            ->residualModel()
             .checksum());
 }
 
@@ -2247,13 +2247,14 @@ void CMetricModelTest::testDecayRateControl() {
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.06);
+            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
     LOG_DEBUG(<< "*** Test step change ***");
     {
-        // Test a step change in a stable signal is detected and we get a
-        // significant reduction in the prediction error.
+        // This change point is amongst those we explicitly detect so
+        // check we get similar detection performance with and without
+        // decay rate control.
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;
@@ -2301,11 +2302,11 @@ void CMetricModelTest::testDecayRateControl() {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanPredictionError) <
-                       0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            maths::CBasicStatistics::mean(meanReferencePredictionError),
+            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
     LOG_DEBUG(<< "*** Test unmodelled cyclic component ***");
@@ -2313,7 +2314,8 @@ void CMetricModelTest::testDecayRateControl() {
         // This modulates the event rate using a sine with period 10 weeks
         // effectively there are significant "manoeuvres" in the event rate
         // every 5 weeks at the function turning points. We check we get a
-        // significant reduction in the prediction error.
+        // significant reduction in the prediction error with decay rate
+        // control.
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;

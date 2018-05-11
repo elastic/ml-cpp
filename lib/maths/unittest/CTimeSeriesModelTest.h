@@ -24,6 +24,9 @@ public:
     void testAddSamplesWithCorrelations();
     void testProbabilityWithCorrelations();
     void testAnomalyModel();
+    void testStepChangeDiscontinuities();
+    void testLinearScaling();
+    void testDaylightSaving();
 
     static CppUnit::Test* suite();
 };

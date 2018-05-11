@@ -102,6 +102,12 @@ void CCalendarComponentAdaptiveBucketing::clear() {
     clearAndShrink(m_Values);
 }
 
+void CCalendarComponentAdaptiveBucketing::linearScale(double scale) {
+    for (auto& value : m_Values) {
+        CBasicStatistics::moment<0>(value) *= scale;
+    }
+}
+
 void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, double weight) {
     std::size_t bucket{0};
     if (this->initialized() && this->bucket(time, bucket)) {

@@ -122,7 +122,7 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
     // scaled so that it sums to the bucket anomaly score.
     double score = node.probability() > m_ModelConfig.maximumAnomalousProbability()
                        ? 0.0
-                       : maths::CTools::deviation(node.probability());
+                       : maths::CTools::anomalyScore(node.probability());
 
     switch (m_Job) {
     case E_Update:

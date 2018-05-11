@@ -82,11 +82,6 @@ inline TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<>& bet
     return {boost::math::mode(beta), true};
 }
 
-//! Compute \f$x^2\f$.
-inline double square(double x) {
-    return x * x;
-}
-
 //! \brief p.d.f function adapter.
 //!
 //! DESCRIPTION:\n
@@ -599,10 +594,10 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
         //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
         double logx = std::log(x);
-        double squareScale = square(logNormal.scale());
-        double discriminant = std::sqrt(
-            square(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
-                                      (logx - logNormal.location()));
+        double squareScale = CTools::pow2(logNormal.scale());
+        double discriminant = std::sqrt(CTools::pow2(squareScale) +
+                                        (logx - logNormal.location() + 2.0 * squareScale) *
+                                            (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
         double y = m * std::exp(x > m ? -discriminant : discriminant);
@@ -1709,16 +1704,16 @@ double CTools::safeCdfComplement(const chi_squared& chi2, double x) {
 //////// deviation Implementation ////////
 
 namespace {
-const double SMALL_PROBABILITY_DEVIATION = 1.0;
-const double MINUSCULE_PROBABILITY_DEVIATION = 50.0;
-const double MAX_DEVIATION = 100.0;
+const double SMALL_PROBABILITY_ANOMALY_SCORE = 1.0;
+const double MINUSCULE_PROBABILITY_ANOMALY_SCORE = 50.0;
+const double MAX_ANOMALY_SCORE = 100.0;
 const double INV_LARGEST_SIGNIFICANT_PROBABILITY = 1.0 / LARGEST_SIGNIFICANT_PROBABILITY;
 const double INV_SMALL_PROBABILITY = 1.0 / SMALL_PROBABILITY;
 const double MINUS_LOG_SMALL_PROBABILITY = -std::log(SMALL_PROBABILITY);
 const double MINUS_LOG_MINUSCULE_PROBABILITY = -std::log(MINUSCULE_PROBABILITY);
 }
 
-double CTools::deviation(double p) {
+double CTools::anomalyScore(double p) {
     const double MINUS_LOG_SMALLEST_PROBABILITY = -std::log(smallestProbability());
 
     double result = 0.0;
@@ -1728,62 +1723,63 @@ double CTools::deviation(double p) {
         if (adjP >= SMALL_PROBABILITY) {
             // We use a linear scaling based on the inverse probability
             // into the range (0.0, 1.0].
-            result = SMALL_PROBABILITY_DEVIATION *
+            result = SMALL_PROBABILITY_ANOMALY_SCORE *
                      (1.0 / adjP - INV_LARGEST_SIGNIFICANT_PROBABILITY) /
                      (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY);
         } else if (adjP >= MINUSCULE_PROBABILITY) {
             // We use a linear scaling based on the log probability into
             // the range (1.0, 50.0].
-            result = SMALL_PROBABILITY_DEVIATION +
-                     (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION) *
+            result = SMALL_PROBABILITY_ANOMALY_SCORE +
+                     (MINUSCULE_PROBABILITY_ANOMALY_SCORE - SMALL_PROBABILITY_ANOMALY_SCORE) *
                          (-std::log(adjP) - MINUS_LOG_SMALL_PROBABILITY) /
                          (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY);
         } else {
             // We use a linear scaling based on the log probability into
             // the range (50.0, 100.0].
-            result = MINUSCULE_PROBABILITY_DEVIATION +
-                     (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION) *
+            result = MINUSCULE_PROBABILITY_ANOMALY_SCORE +
+                     (MAX_ANOMALY_SCORE - MINUSCULE_PROBABILITY_ANOMALY_SCORE) *
                          (-std::log(adjP) - MINUS_LOG_MINUSCULE_PROBABILITY) /
                          (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY);
         }
     }
 
-    if (!(result >= 0.0 && result <= MAX_DEVIATION)) {
+    if (!(result >= 0.0 && result <= MAX_ANOMALY_SCORE)) {
         LOG_ERROR(<< "Deviation " << result << " out of range, p =" << p);
     }
 
     return result;
 }
 
-double CTools::inverseDeviation(double deviation) {
+double CTools::inverseAnomalyScore(double deviation) {
     const double MINUS_LOG_SMALLEST_PROBABILITY = -std::log(smallestProbability());
 
     double result = 0.0;
 
-    double adjDeviation = truncate(deviation, 0.0, MAX_DEVIATION);
+    double adjDeviation = truncate(deviation, 0.0, MAX_ANOMALY_SCORE);
     if (adjDeviation == 0.0) {
         result = (1.0 + LARGEST_SIGNIFICANT_PROBABILITY) / 2.0;
-    } else if (adjDeviation <= SMALL_PROBABILITY_DEVIATION) {
+    } else if (adjDeviation <= SMALL_PROBABILITY_ANOMALY_SCORE) {
         // We invert the linear scaling of the inverse probability
         // into the range (0.0, 1.0].
         result = 1.0 / (INV_LARGEST_SIGNIFICANT_PROBABILITY +
                         (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY) *
-                            deviation / SMALL_PROBABILITY_DEVIATION);
-    } else if (adjDeviation <= MINUSCULE_PROBABILITY_DEVIATION) {
+                            deviation / SMALL_PROBABILITY_ANOMALY_SCORE);
+    } else if (adjDeviation <= MINUSCULE_PROBABILITY_ANOMALY_SCORE) {
         // We invert the linear scaling of the log probability
         // into the range (1.0, 50.0].
         result = std::exp(
             -(MINUS_LOG_SMALL_PROBABILITY +
               (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY) *
-                  (deviation - SMALL_PROBABILITY_DEVIATION) /
-                  (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION)));
+                  (deviation - SMALL_PROBABILITY_ANOMALY_SCORE) /
+                  (MINUSCULE_PROBABILITY_ANOMALY_SCORE - SMALL_PROBABILITY_ANOMALY_SCORE)));
     } else {
         // We invert the linear scaling of the log probability
         // into the range (50.0, 100.0].
-        result = std::exp(-(MINUS_LOG_MINUSCULE_PROBABILITY +
-                            (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY) *
-                                (deviation - MINUSCULE_PROBABILITY_DEVIATION) /
-                                (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION)));
+        result = std::exp(
+            -(MINUS_LOG_MINUSCULE_PROBABILITY +
+              (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY) *
+                  (deviation - MINUSCULE_PROBABILITY_ANOMALY_SCORE) /
+                  (MAX_ANOMALY_SCORE - MINUSCULE_PROBABILITY_ANOMALY_SCORE)));
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
@@ -1835,7 +1831,7 @@ double CTools::differentialEntropy(const lognormal& logNormal) {
     double location = logNormal.location();
     double scale = logNormal.scale();
     return 0.5 * std::log(boost::math::double_constants::two_pi *
-                          boost::math::double_constants::e * square(scale)) +
+                          boost::math::double_constants::e * CTools::pow2(scale)) +
            location;
 }
 
@@ -1890,6 +1886,15 @@ double CTools::CGroup::rightEndpoint(double separation) const {
 
 const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
 
+//////// Miscellaneous Implementations ////////
+
+namespace {
+const double EPS{0.1};
+const double COEFFS[]{-1.0,        +1.0 / 2.0,   -1.0 / 6.0,
+                      +1.0 / 24.0, -1.0 / 120.0, +1.0 / 720.0};
+const std::size_t N{boost::size(COEFFS)};
+}
+
 double CTools::shiftLeft(double x, double eps) {
     if (x == NEG_INF) {
         return x;
@@ -1902,6 +1907,103 @@ double CTools::shiftRight(double x, double eps) {
         return x;
     }
     return (x < 0.0 ? 1.0 - eps : 1.0 + eps) * x;
+}
+
+double CTools::powOneMinusX(double x, double p) {
+    // For large p,
+    //   (1 - x) ^ p ~= exp(-p * x).
+    //
+    // and this doesn't suffer from cancellation errors in the limit
+    // p -> inf and x -> 0. For p * x << 1 we get much better precision
+    // using the Taylor expansion:
+    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
+    //
+    // and canceling the leading terms.
+
+    if (x == 1.0) {
+        return 0.0;
+    }
+    if (p == 1.0) {
+        return 1.0 - x;
+    }
+
+    double y = p * x;
+    if (std::fabs(y) < EPS) {
+        double remainder = 0.0;
+        double ti = 1.0;
+        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+            ti *= p * x;
+            remainder += COEFFS[i] * ti;
+        }
+        return 1.0 + remainder;
+    } else if (p > 1000.0) {
+        return std::exp(-y);
+    }
+
+    if (x > 1.0) {
+        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
+        return sign * std::exp(p * std::log(x - 1.0));
+    }
+
+    return std::exp(p * std::log(1.0 - x));
+}
+
+double CTools::oneMinusPowOneMinusX(double x, double p) {
+    // For large p,
+    //   (1 - x) ^ p ~= exp(-p * x).
+    //
+    // and this doesn't suffer from cancellation errors in the limit
+    // p -> inf and x -> 0. For p * x << 1 we get much better precision
+    // using the Taylor expansion:
+    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
+    //
+    // Note that this doesn't make use of powOneMinusX because we can
+    // avoid the cancellation errors by using:
+    //   1 - (1 - x) ^ p = p * x - p * (p - 1) * x^2 / 2 + ...
+    //
+    // when p * x is small.
+
+    if (x == 1.0) {
+        return 1.0;
+    }
+    if (p == 1.0) {
+        return x;
+    }
+
+    double y = p * x;
+    if (std::fabs(y) < EPS) {
+        double result = 0.0;
+        double ti = 1.0;
+        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+            ti *= p * x;
+            result -= COEFFS[i] * ti;
+        }
+        return result;
+    } else if (p > 1000.0) {
+        return 1.0 - std::exp(-y);
+    }
+
+    if (x > 1.0) {
+        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
+        return 1.0 - sign * std::exp(p * std::log(x - 1.0));
+    }
+
+    return 1.0 - std::exp(p * std::log(1.0 - x));
+}
+
+double CTools::logOneMinusX(double x) {
+    double result = 0.0;
+
+    if (std::fabs(x) < EPS) {
+        double xi = -x;
+        for (std::size_t i = 0u; i < 6; ++i, xi *= -x) {
+            result += xi / static_cast<double>(i + 1);
+        }
+    } else {
+        result = std::log(1.0 - x);
+    }
+
+    return result;
 }
 }
 }

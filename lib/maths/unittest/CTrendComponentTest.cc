@@ -15,6 +15,7 @@
 #include <maths/CDecayRateController.h>
 #include <maths/CRegression.h>
 #include <maths/CRegressionDetail.h>
+#include <maths/CRestoreParams.h>
 #include <maths/CTrendComponent.h>
 
 #include <test/CRandomNumbers.h>
@@ -304,7 +305,11 @@ void CTrendComponentTest::testForecast() {
         component.shiftOrigin(time);
 
         TDouble3VecVec forecast;
-        component.forecast(time, time + 1000 * bucketLength, 3600, 95.0, forecast);
+        component.forecast(time, time + 1000 * bucketLength, 3600, 95.0,
+                           [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                           [&forecast](core_t::TTime, const TDouble3Vec& value) {
+                               forecast.push_back(value);
+                           });
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanErrorAt95;
@@ -398,10 +403,11 @@ void CTrendComponentTest::testPersist() {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
+    maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
     maths::CTrendComponent restoredComponent{0.1};
-    traverser.traverseSubLevel(boost::bind(
-        &maths::CTrendComponent::acceptRestoreTraverser, &restoredComponent, _1));
+    traverser.traverseSubLevel(boost::bind(&maths::CTrendComponent::acceptRestoreTraverser,
+                                           &restoredComponent, boost::cref(params), _1));
 
     CPPUNIT_ASSERT_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 

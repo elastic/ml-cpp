@@ -529,13 +529,9 @@ CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_,
                                                                    core::CStateRestoreTraverser& traverser) {
     maths_t::EDataType dataType{s_NewModel->dataType()};
-    maths::SModelRestoreParams params{
-        s_NewModel->params(),
-        maths::STimeSeriesDecompositionRestoreParams{
-            CAnomalyDetectorModelConfig::trendDecayRate(params_.s_DecayRate,
-                                                        params_.s_BucketLength),
-            params_.s_BucketLength, params_.s_ComponentSize},
-        params_.distributionRestoreParams(dataType)};
+    maths::SModelRestoreParams params{s_NewModel->params(),
+                                      params_.decompositionRestoreParams(dataType),
+                                      params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
             TMathsModelPtr prior;

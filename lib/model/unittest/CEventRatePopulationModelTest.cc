@@ -1137,8 +1137,7 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     modelWithGap->sample(100, 200, m_ResourceMonitor);
     addArrival(SMessage(200, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
     modelWithGap->skipSampling(1000);
-    LOG_DEBUG(<< "Calling sample over skipped interval should do nothing "
-                 "except print some ERRORs");
+    LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
     modelWithGap->sample(200, 1000, m_ResourceMonitor);
 
     // Check prune does not remove people because last seen times are updated by adding gap duration
@@ -1155,20 +1154,20 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     CPPUNIT_ASSERT_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
-            ->prior()
+            ->residualModel()
             .checksum(),
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
-            ->prior()
+            ->residualModel()
             .checksum());
     CPPUNIT_ASSERT_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
-            ->prior()
+            ->residualModel()
             .checksum(),
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
-            ->prior()
+            ->residualModel()
             .checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 and a2 to be pruned
@@ -1451,7 +1450,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
             model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
     CPPUNIT_ASSERT(timeSeriesModel);
 
-    core_t::TTime time = timeSeriesModel->trend().lastValueTime();
+    core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute,
                                              200, bucketLength),
                          time);
@@ -1459,23 +1458,23 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     // The last times of the underlying time series models should all be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 }
 
 CppUnit::Test* CEventRatePopulationModelTest::suite() {

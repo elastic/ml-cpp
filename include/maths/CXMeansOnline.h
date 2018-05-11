@@ -276,8 +276,8 @@ public:
             TCovariances covariances[2];
             TSphericalClusterVec clusters;
             this->sphericalClusters(clusters);
-            for (std::size_t i = 0u; i < 2; ++i) {
-                for (std::size_t j = 0u; j < split[i].size(); ++j) {
+            for (std::size_t i = 0; i < 2; ++i) {
+                for (std::size_t j = 0; j < split[i].size(); ++j) {
                     covariances[i].add(clusters[split[i][j]]);
                 }
             }
@@ -441,10 +441,10 @@ public:
                     LOG_TRACE(<< "Checking full split");
 
                     TSizeVec assignment(remainder.size());
-                    for (std::size_t i = 0u; i < remainder.size(); ++i) {
+                    for (std::size_t i = 0; i < remainder.size(); ++i) {
                         assignment[i] = nearest(remainder[i], covariances);
                     }
-                    for (std::size_t i = 0u; i < assignment.size(); ++i) {
+                    for (std::size_t i = 0; i < assignment.size(); ++i) {
                         std::size_t j = assignment[i];
                         TCovariances ci;
                         ci.add(remainder[i]);
@@ -468,8 +468,8 @@ public:
                             boost::counting_iterator<std::size_t>(clusters.size()));
                         COrderings::simultaneousSort(
                             clusters, indexes, typename CSphericalCluster<TPoint>::SLess());
-                        for (std::size_t i = 0u; i < candidate.size(); ++i) {
-                            for (std::size_t j = 0u; j < candidate[i].size(); ++j) {
+                        for (std::size_t i = 0; i < candidate.size(); ++i) {
+                            for (std::size_t j = 0; j < candidate[i].size(); ++j) {
                                 std::size_t k =
                                     std::lower_bound(
                                         clusters.begin(), clusters.end(),
@@ -498,8 +498,8 @@ public:
             m_Structure.clusters(result);
             switch (m_DataType) {
             case maths_t::E_IntegerData: {
-                for (std::size_t i = 0u; i < result.size(); ++i) {
-                    result[i].annotation().s_Variance += 1.0 / 12.0;
+                for (auto& cluster : result) {
+                    cluster.annotation().s_Variance += 1.0 / 12.0;
                 }
                 break;
             }
@@ -671,9 +671,9 @@ public:
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        for (const auto& cluster : m_Clusters) {
             inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter,
-                                                          &m_Clusters[i], _1));
+                                                          &cluster, _1));
         }
         inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
         inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength,
@@ -706,16 +706,16 @@ public:
     //! Set the type of data being clustered.
     virtual void dataType(maths_t::EDataType dataType) {
         m_DataType = dataType;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            m_Clusters[i].dataType(dataType);
+        for (auto& cluster : m_Clusters) {
+            cluster.dataType(dataType);
         }
     }
 
     //! Set the rate at which information is aged out.
     virtual void decayRate(double decayRate) {
         m_DecayRate = decayRate;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            m_Clusters[i].decayRate(decayRate);
+        for (auto& cluster : m_Clusters) {
+            cluster.decayRate(decayRate);
         }
     }
 
@@ -775,30 +775,30 @@ public:
 
         result.reserve(m_Clusters.size());
         double renormalizer = boost::numeric::bounds<double>::lowest();
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            double likelihood = m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, point);
-            result.push_back(std::make_pair(m_Clusters[i].index(), likelihood));
+        for (const auto& cluster : m_Clusters) {
+            double likelihood = cluster.logLikelihoodFromCluster(m_WeightCalc, point);
+            result.emplace_back(cluster.index(), likelihood);
             renormalizer = std::max(renormalizer, likelihood);
         }
-        double normalizer = 0.0;
-        for (std::size_t i = 0u; i < result.size(); ++i) {
-            result[i].second = std::exp(result[i].second - renormalizer);
-            normalizer += result[i].second;
+        double Z = 0.0;
+        for (auto& p : result) {
+            p.second = std::exp(p.second - renormalizer);
+            Z += p.second;
         }
         double pmax = 0.0;
-        for (std::size_t i = 0u; i < result.size(); ++i) {
-            result[i].second /= normalizer;
-            pmax = std::max(pmax, result[i].second);
+        for (auto& p : result) {
+            p.second /= Z;
+            pmax = std::max(pmax, p.second);
         }
         result.erase(std::remove_if(result.begin(), result.end(),
                                     CProbabilityLessThan(HARD_ASSIGNMENT_THRESHOLD * pmax)),
                      result.end());
-        normalizer = 0.0;
-        for (std::size_t i = 0u; i < result.size(); ++i) {
-            normalizer += result[i].second;
+        Z = 0.0;
+        for (const auto& p : result) {
+            Z += p.second;
         }
-        for (std::size_t i = 0u; i < result.size(); ++i) {
-            result[i].second *= count / normalizer;
+        for (auto& p : result) {
+            p.second *= count / Z;
         }
     }
 
@@ -808,7 +808,7 @@ public:
         if (m_Clusters.size() == 1) {
             LOG_TRACE(<< "Adding " << x << " to " << m_Clusters[0].centre());
             m_Clusters[0].add(x, count);
-            clusters.push_back(std::make_pair(m_Clusters[0].index(), count));
+            clusters.emplace_back(m_Clusters[0].index(), count);
             if (this->maybeSplit(m_Clusters.begin())) {
                 this->cluster(x, clusters, count);
             }
@@ -818,9 +818,8 @@ public:
                 CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2, std::greater<TDoubleSizePr>>;
 
             TMaxAccumulator closest;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-                closest.add(std::make_pair(
-                    m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i));
+            for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
+                closest.add({m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i});
             }
             closest.sort();
             LOG_TRACE(<< "closest = " << closest.print());
@@ -842,7 +841,7 @@ public:
             if (p1 < HARD_ASSIGNMENT_THRESHOLD * p0) {
                 LOG_TRACE(<< "Adding " << x << " to " << cluster0->centre());
                 cluster0->add(x, count);
-                clusters.push_back(std::make_pair(cluster0->index(), count));
+                clusters.emplace_back(cluster0->index(), count);
                 if (this->maybeSplit(cluster0) || this->maybeMerge(cluster0)) {
                     this->cluster(x, clusters, count);
                 }
@@ -856,8 +855,8 @@ public:
 
                 cluster0->add(x, count0);
                 cluster1->add(x, count1);
-                clusters.push_back(std::make_pair(cluster0->index(), count0));
-                clusters.push_back(std::make_pair(cluster1->index(), count1));
+                clusters.emplace_back(cluster0->index(), count0);
+                clusters.emplace_back(cluster1->index(), count1);
                 if (this->maybeSplit(cluster0) || this->maybeSplit(cluster1) ||
                     this->maybeMerge(cluster0) || this->maybeMerge(cluster1)) {
                     this->cluster(x, clusters, count);
@@ -876,8 +875,8 @@ public:
             m_Clusters.push_back(CCluster(*this));
         }
         TSizeDoublePr2Vec dummy;
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            this->add(x[i].first, dummy, x[i].second);
+        for (const auto& x_ : x) {
+            this->add(x_.first, dummy, x_.second);
         }
     }
 
@@ -895,8 +894,8 @@ public:
             return;
         }
         m_HistoryLength = (m_HistoryLength + time) * std::exp(-m_DecayRate * time);
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            m_Clusters[i].propagateForwardsByTime(time);
+        for (auto& cluster : m_Clusters) {
+            cluster.propagateForwardsByTime(time);
         }
     }
 
@@ -923,8 +922,7 @@ public:
     virtual double probability(std::size_t index) const {
         double weight = 0.0;
         double Z = 0.0;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            const CCluster& cluster = m_Clusters[i];
+        for (const auto& cluster : m_Clusters) {
             if (cluster.index() == index) {
                 weight = cluster.weight(maths_t::E_ClustersFractionWeight);
             }
@@ -963,11 +961,10 @@ public:
 
     //! The total count of points.
     double count() const {
-        double result = 0.0;
-        for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
-            result += m_Clusters[i].count();
-        }
-        return result;
+        return std::accumulate(m_Clusters.begin(), m_Clusters.end(), 0.0,
+                               [](double count, const CCluster& cluster) {
+                                   return count + cluster.count();
+                               });
     }
 
     //! Print a representation of the clusters that can be plotted in octave.
@@ -1021,9 +1018,9 @@ protected:
 
     //! Get the cluster with the index \p index.
     const CCluster* cluster(std::size_t index) const {
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            if (m_Clusters[i].index() == index) {
-                return &m_Clusters[i];
+        for (const auto& cluster : m_Clusters) {
+            if (cluster.index() == index) {
+                return &cluster;
             }
         }
         return nullptr;
@@ -1033,13 +1030,9 @@ protected:
     double minimumSplitCount() const {
         double result = m_MinimumClusterCount;
         if (m_MinimumClusterFraction > 0.0) {
-            double count = 0.0;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-                count += m_Clusters[i].count();
-            }
-            double scale = std::max(
-                m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
-            count *= m_MinimumClusterFraction / scale;
+            double count = this->count();
+            double scale = m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate));
+            count *= m_MinimumClusterFraction / std::max(scale, 1.0);
             result = std::max(result, count);
         }
         LOG_TRACE(<< "minimumSplitCount = " << result);
@@ -1107,9 +1100,9 @@ protected:
         // Get the clusters to prune.
         for (;;) {
             TMinAccumulator prune;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+            for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
                 if (m_Clusters[i].count() < minimumCount) {
-                    prune.add(std::make_pair(m_Clusters[i].count(), i));
+                    prune.add({m_Clusters[i].count(), i});
                 }
             }
             if (prune.count() == 0) {
@@ -1148,13 +1141,13 @@ protected:
 
         CCluster* result = nullptr;
         TMinAccumulator min;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            if (cluster.index() == m_Clusters[i].index()) {
+        for (auto& candidate : m_Clusters) {
+            if (cluster.index() == candidate.index()) {
                 continue;
             }
 
-            if (min.add(CCluster::BICGain(cluster, m_Clusters[i]))) {
-                result = &m_Clusters[i];
+            if (min.add(CCluster::BICGain(cluster, candidate))) {
+                result = &candidate;
             }
         }
         if (!result) {

@@ -17,13 +17,6 @@
 namespace ml {
 namespace maths {
 
-namespace {
-
-inline double square(double x) {
-    return x * x;
-}
-}
-
 CLogTDistribution::CLogTDistribution(double degreesFreedom, double location, double scale)
     : m_DegreesFreedom(degreesFreedom), m_Location(location), m_Scale(scale) {
 }
@@ -74,16 +67,17 @@ double mode(const CLogTDistribution& distribution) {
     //   x = exp(m - (n+1) / 2 + ((n+1)^2 / 4 - n * s^2) ^ (1/2))
 
     double degreesFreedom = distribution.degreesFreedom();
-    double squareScale = square(distribution.scale());
+    double squareScale = CTools::pow2(distribution.scale());
 
-    if (square(degreesFreedom + 1.0) < 4.0 * degreesFreedom * squareScale) {
+    if (CTools::pow2(degreesFreedom + 1.0) < 4.0 * degreesFreedom * squareScale) {
         return 0.0;
     }
 
     double location = distribution.location();
 
     return std::exp(location - (degreesFreedom + 1.0) / 2.0 +
-                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+                    std::sqrt(CTools::pow2(degreesFreedom + 1.0) / 4.0 -
+                              degreesFreedom * squareScale));
 }
 
 CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution) {
@@ -96,16 +90,17 @@ CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distrib
     // See the documentation in the mode function for more details.
 
     double degreesFreedom = distribution.degreesFreedom();
-    double squareScale = square(distribution.scale());
+    double squareScale = CTools::pow2(distribution.scale());
 
-    if (square(degreesFreedom + 1.0) < 4.0 * degreesFreedom * squareScale) {
+    if (CTools::pow2(degreesFreedom + 1.0) < 4.0 * degreesFreedom * squareScale) {
         return CLogTDistribution::TOptionalDouble();
     }
 
     double location = distribution.location();
 
     return std::exp(location - (degreesFreedom + 1.0) / 2.0 -
-                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+                    std::sqrt(CTools::pow2(degreesFreedom + 1.0) / 4.0 -
+                              degreesFreedom * squareScale));
 }
 
 double pdf(const CLogTDistribution& distribution, double x) {

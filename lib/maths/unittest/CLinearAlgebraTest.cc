@@ -1041,7 +1041,8 @@ void CLinearAlgebraTest::testProjected() {
 }
 
 void CLinearAlgebraTest::testPersist() {
-    // Check conversion to and from delimited is idempotent.
+    // Check conversion to and from delimited is idempotent and parsing
+    // bad input produces an error.
 
     {
         double matrix_[][4] = {{1.0, 2.1, 1.5, 0.1},

@@ -323,6 +323,42 @@ void CRegressionTest::testShiftGradient() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
+void CRegressionTest::testLinearScale() {
+    // Test that linearly scaling a regression linearly
+    // scales all the parameters.
+
+    maths::CRegression::CLeastSquaresOnline<3, double> regression;
+    for (double x = 0.0; x < 100.0; x += 1.0) {
+        regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
+    }
+
+    TDoubleArray4 params1;
+    regression.parameters(params1);
+
+    regression.linearScale(0.1);
+
+    TDoubleArray4 params2;
+    regression.parameters(params2);
+
+    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+
+    for (std::size_t i = 0u; i < 4; ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1 * params1[i], params2[i], 1e-6);
+    }
+
+    regression.linearScale(100.0);
+
+    regression.parameters(params2);
+
+    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+
+    for (std::size_t i = 0u; i < 4; ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 * params1[i], params2[i], 1e-6);
+    }
+}
+
 void CRegressionTest::testAge() {
     // Test that the regression is mean reverting.
 
@@ -1041,6 +1077,8 @@ CppUnit::Test* CRegressionTest::suite() {
         "CRegressionTest::testShiftOrdinate", &CRegressionTest::testShiftOrdinate));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
         "CRegressionTest::testShiftGradient", &CRegressionTest::testShiftGradient));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
+        "CRegressionTest::testLinearScale", &CRegressionTest::testLinearScale));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
         "CRegressionTest::testAge", &CRegressionTest::testAge));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(

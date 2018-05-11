@@ -23,7 +23,10 @@ namespace maths {
 class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
 public:
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionStub* clone() const;
+    virtual CTimeSeriesDecompositionStub* clone(bool isForForecast = false) const;
+
+    //! No-op.
+    virtual void dataType(maths_t::EDataType dataType);
 
     //! No-op.
     virtual void decayRate(double decayRate);
@@ -39,28 +42,32 @@ public:
                           double value,
                           const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT);
 
+    //! No-op returning false.
+    virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);
+
     //! No-op.
     virtual void propagateForwardsTo(core_t::TTime time);
 
     //! Returns 0.
-    virtual double mean(core_t::TTime time) const;
+    virtual double meanValue(core_t::TTime time) const;
 
     //! Returns (0.0, 0.0).
-    virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                              double confidence = 0.0,
-                                              int components = E_All,
-                                              bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                           double confidence = 0.0,
+                                           int components = E_All,
+                                           bool smooth = true) const;
 
-    //! Clears \p result.
+    //! No-op.
     virtual void forecast(core_t::TTime startTime,
                           core_t::TTime endTime,
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
-                          TDouble3VecVec& result);
+                          const TWriteForecastResult& writer);
 
     //! Returns \p value.
-    virtual double detrend(core_t::TTime time, double value, double confidence) const;
+    virtual double
+    detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
 
     //! Returns 0.0.
     virtual double meanVariance() const;
@@ -84,7 +91,10 @@ public:
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
 
-    //! Get the seasonal components.
+    //! Returns zero.
+    virtual core_t::TTime timeShift() const;
+
+    //! Returns an empty vector.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
 
     //! Returns 0.

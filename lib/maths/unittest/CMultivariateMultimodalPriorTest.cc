@@ -658,7 +658,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         filter.addSamples({samples[i]},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-        expectedMean.add(samples[i]);
+        expectedMean.add(TVector2(samples[i]));
 
         if (i % 10 == 0) {
             LOG_DEBUG(<< "sample mean = " << maths::CBasicStatistics::mean(expectedMean));

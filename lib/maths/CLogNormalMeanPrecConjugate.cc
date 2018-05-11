@@ -51,11 +51,6 @@ using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-//! Compute x * x.
-inline double pow2(double x) {
-    return x * x;
-}
-
 const double MINIMUM_LOGNORMAL_SHAPE = 100.0;
 
 namespace detail {
@@ -309,7 +304,7 @@ public:
             boost::math::normal normal(m_M, std::sqrt(1.0 / x(0) / m_P));
             double fx = boost::math::pdf(normal, x(1)) * boost::math::pdf(gamma, x(0));
             double m = std::exp(x(1) + 0.5 / x(0));
-            result(0) = (m * m * (std::exp(1.0 / x(0)) - 1.0) + pow2(m - m_Mean)) * fx;
+            result(0) = (m * m * (std::exp(1.0 / x(0)) - 1.0) + CTools::pow2(m - m_Mean)) * fx;
             result(1) = fx;
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate mean kernel: " << e.what()
@@ -473,7 +468,7 @@ public:
         double impliedShape = m_Shape + 0.5 * m_NumberSamples;
         double impliedRate = m_Rate + 0.5 * (logSamplesSquareDeviation +
                                              m_Precision * weightedNumberSamples *
-                                                 pow2(logSamplesMean - m_Mean) /
+                                                 CTools::pow2(logSamplesMean - m_Mean) /
                                                  (m_Precision + weightedNumberSamples));
 
         result = m_Constant - impliedShape * std::log(impliedRate) - logSamplesSum;
@@ -585,7 +580,7 @@ public:
             }
             double n = maths_t::countForUpdate(m_Weights[i]);
             residual = std::log(residual + x) - m_Mean;
-            result += n * pow2(residual);
+            result += n * CTools::pow2(residual);
         }
         return true;
     }
@@ -841,7 +836,7 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
     m_GammaShape += 0.5 * numberSamples;
     m_GammaRate += 0.5 * (logSamplesSquareDeviation +
                           m_GaussianPrecision * scaledNumberSamples *
-                              pow2(logSamplesMean - m_GaussianMean) /
+                              CTools::pow2(logSamplesMean - m_GaussianMean) /
                               (m_GaussianPrecision + scaledNumberSamples));
 
     m_GaussianMean = (m_GaussianPrecision * m_GaussianMean + scaledNumberSamples * logSamplesMean) /
@@ -873,7 +868,8 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
         //
         // From which we derive the results below.
 
-        double minimumRate = (2.0 * m_GammaShape - 1.0) * pow2(MINIMUM_COEFFICIENT_OF_VARIATION);
+        double minimumRate = (2.0 * m_GammaShape - 1.0) *
+                             CTools::pow2(MINIMUM_COEFFICIENT_OF_VARIATION);
 
         if (m_GammaRate < minimumRate) {
             double extraVariation = (minimumRate - m_GammaRate) /
