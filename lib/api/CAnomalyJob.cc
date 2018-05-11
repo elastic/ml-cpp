@@ -75,7 +75,7 @@ const std::string LAST_RESULTS_TIME_TAG("j");
 
 //! The minimum version required to read the state corresponding to a model snapshot.
 //! This should be updated every time there is a breaking change to the model state.
-const std::string MODEL_SNAPSHOT_MIN_VERSION("6.3.0");
+const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
 }
 
 // Statics
