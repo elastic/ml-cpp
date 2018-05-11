@@ -215,6 +215,20 @@ public:
             }
         }
 
+        //! Linearly scale the regression model.
+        //!
+        //! i.e. apply a transform such that each regression parameter maps
+        //! to \p scale times its current value.
+        //!
+        //! \param[in] scale The scale to apply to the regression parameters.
+        void linearScale(double scale) {
+            if (CBasicStatistics::count(m_S) > 0.0) {
+                for (std::size_t i = 0u; i < N; ++i) {
+                    CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) *= scale;
+                }
+            }
+        }
+
         //! Multiply the statistics' count by \p scale.
         CLeastSquaresOnline scaled(double scale) const {
             CLeastSquaresOnline result(*this);
@@ -251,12 +265,11 @@ public:
             TArray params;
             if (this->parameters(params, maxCondition)) {
                 std::ptrdiff_t n = static_cast<std::ptrdiff_t>(params.size());
-                double xi = x;
                 for (std::ptrdiff_t i = n - 1; i >= 0; --i) {
                     result[i] = params[i];
                     for (std::ptrdiff_t j = i + 1; j < n; ++j) {
                         params[j] *= static_cast<double>(i + 1) /
-                                     static_cast<double>(j - i) * xi;
+                                     static_cast<double>(j - i) * x;
                         result[i] += params[j];
                     }
                 }

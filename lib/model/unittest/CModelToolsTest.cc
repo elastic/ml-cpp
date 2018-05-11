@@ -8,6 +8,7 @@
 
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
+#include <core/Constants.h>
 
 #include <maths/CMultimodalPrior.h>
 #include <maths/CNormalMeanPrecConjugate.h>
@@ -40,8 +41,12 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{MINIMUM_SEASONAL_SCALE};
-    return maths::CModelParams{bucketLength, learnRates[bucketLength],
-                               DECAY_RATE, minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength,
+                               learnRates[bucketLength],
+                               DECAY_RATE,
+                               minimumSeasonalVarianceScale,
+                               6 * core::constants::HOUR,
+                               24 * core::constants::HOUR};
 }
 
 maths::CNormalMeanPrecConjugate normal() {
@@ -158,7 +163,6 @@ void CModelToolsTest::testProbabilityCache() {
     // Test the error introduced by caching the probability and that we
     // don't get any errors in the tailness we calculate for the value.
 
-    using TBool2Vec = core::CSmallVector<bool, 2>;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
@@ -224,7 +228,7 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty(TBool2Vec{false})
+                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;
@@ -266,7 +270,7 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty(TBool2Vec{false})
+                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             double expectedProbability;
             TTail2Vec expectedTail;

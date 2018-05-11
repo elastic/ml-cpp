@@ -86,6 +86,10 @@ const double COMPONENT_STATISTICALLY_SIGNIFICANT{0.001};
 const double LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE{
     std::log(COMPONENT_STATISTICALLY_SIGNIFICANT)};
 
+//! The default number of regression models used in periodic and
+//! calendar cyclic components of the trend decomposition.
+const std::size_t COMPONENT_SIZE{36u};
+
 //! The minimum variance scale for which the likelihood function
 //! can be accurately adjusted. For smaller scales errors are
 //! introduced for some priors.

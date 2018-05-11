@@ -53,11 +53,6 @@ struct SCooccurrence {
 
 using TMostSignificant = CBasicStatistics::COrderStatisticsHeap<SCooccurrence>;
 
-//! Compute \p x * \p x.
-double pow2(double x) {
-    return x * x;
-}
-
 //! Generate a random projection in the positive orthant.
 //!
 //! \param[in] dimension The dimension.
@@ -168,7 +163,7 @@ void seed(const TPackedBitVectorVec& indicators,
     TDoubleVec theta(n, 0.0);
     for (std::size_t i = 0u; i < n; ++i) {
         for (std::size_t j = 0u; j < projected.size(); ++j) {
-            theta[i] += pow2(projected[j][i]);
+            theta[i] += CTools::pow2(projected[j][i]);
         }
         theta[i] = std::acos(std::sqrt(theta[i]));
     }

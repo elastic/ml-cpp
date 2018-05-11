@@ -67,6 +67,9 @@ public:
     //! allocated memory.
     void clear();
 
+    //! Linearly scale the bucket values by \p scale.
+    void linearScale(double scale);
+
     //! Add the function value at \p time.
     //!
     //! \param[in] time The time of \p value.

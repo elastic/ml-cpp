@@ -6,13 +6,17 @@
 
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CInterimBucketCorrector.h>
+
+#include <cmath>
 
 namespace ml {
 namespace model {
@@ -21,13 +25,13 @@ const std::size_t COMPONENT_SIZE(24);
 const std::string COUNT_TREND_TAG("a");
 const std::string COUNT_MEAN_TAG("b");
 
-double meanDecayRate(core_t::TTime bucketLength) {
+double decayRate(core_t::TTime bucketLength) {
     return CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE *
            CAnomalyDetectorModelConfig::bucketNormalizationFactor(bucketLength);
 }
 
 double trendDecayRate(core_t::TTime bucketLength) {
-    return CAnomalyDetectorModelConfig::trendDecayRate(meanDecayRate(bucketLength), bucketLength);
+    return CAnomalyDetectorModelConfig::trendDecayRate(decayRate(bucketLength), bucketLength);
 }
 }
 
@@ -50,26 +54,21 @@ void CInterimBucketCorrector::update(core_t::TTime time, std::size_t bucketCount
 
     m_CountTrend.addPoint(bucketMidPoint, static_cast<double>(bucketCount));
 
-    double alpha = std::exp(-meanDecayRate(m_BucketLength));
+    double alpha = std::exp(-decayRate(m_BucketLength));
     m_CountMean.age(alpha);
     m_CountMean.add(bucketCount);
 }
 
 double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time,
                                                            std::size_t currentCount) const {
-    double baselineCount = 0.0;
     core_t::TTime bucketMidPoint = this->calcBucketMidPoint(time);
-    if (m_CountTrend.initialized()) {
-        baselineCount = maths::CBasicStatistics::mean(m_CountTrend.baseline(bucketMidPoint));
-    } else {
-        baselineCount = maths::CBasicStatistics::mean(m_CountMean);
-    }
-
-    if (baselineCount == 0.0) {
-        return 1.0;
-    }
-    return maths::CTools::truncate(static_cast<double>(currentCount) / baselineCount,
-                                   0.0, 1.0);
+    double bucketCount = m_CountTrend.initialized()
+                             ? maths::CBasicStatistics::mean(m_CountTrend.value(bucketMidPoint))
+                             : maths::CBasicStatistics::mean(m_CountMean);
+    return bucketCount > 0.0
+               ? maths::CTools::truncate(
+                     static_cast<double>(currentCount) / bucketCount, 0.0, 1.0)
+               : 1.0;
 }
 
 double CInterimBucketCorrector::corrections(core_t::TTime time,
@@ -115,15 +114,15 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
     do {
         const std::string& name = traverser.name();
         if (name == COUNT_TREND_TAG) {
-            maths::CTimeSeriesDecomposition restored(
-                trendDecayRate(m_BucketLength), m_BucketLength, COMPONENT_SIZE, traverser);
+            maths::SDistributionRestoreParams changeModelParams{
+                maths_t::E_ContinuousData, decayRate(m_BucketLength)};
+            maths::STimeSeriesDecompositionRestoreParams params{
+                trendDecayRate(m_BucketLength), m_BucketLength, COMPONENT_SIZE, changeModelParams};
+            maths::CTimeSeriesDecomposition restored(params, traverser);
             m_CountTrend.swap(restored);
-        } else if (name == COUNT_MEAN_TAG) {
-            if (m_CountMean.fromDelimited(traverser.value()) == false) {
-                LOG_ERROR(<< "Invalid count mean in " << traverser.value());
-                return false;
-            }
+            continue;
         }
+        RESTORE(COUNT_MEAN_TAG, m_CountMean.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
 }

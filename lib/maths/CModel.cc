@@ -8,6 +8,9 @@
 #include <maths/CModelDetail.h>
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
+
+#include <maths/CTools.h>
 
 #include <boost/range.hpp>
 
@@ -53,23 +56,26 @@ double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculatio
     return 0.0;
 }
 
-const double EFFECTIVE_COUNT[] = {1.0,  0.8,  0.7,  0.65, 0.6,
-                                  0.57, 0.54, 0.52, 0.51};
-const double LEARN_RATE = 1.0;
-const double DECAY_RATE = 0.0;
+const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
+                               0.57, 0.54, 0.52, 0.51};
 
 //! Get the parameters for the stub model.
 CModelParams stubParameters() {
-    return CModelParams(0, LEARN_RATE, DECAY_RATE, 0.0);
+    return CModelParams{
+        0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY};
 }
 }
 
 CModelParams::CModelParams(core_t::TTime bucketLength,
-                           const double& learnRate,
-                           const double& decayRate,
-                           double minimumSeasonalVarianceScale)
+                           double learnRate,
+                           double decayRate,
+                           double minimumSeasonalVarianceScale,
+                           core_t::TTime minimumTimeToDetectChange,
+                           core_t::TTime maximumTimeToTestForChange)
     : m_BucketLength(bucketLength), m_LearnRate(learnRate), m_DecayRate(decayRate),
       m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
+      m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 12 * bucketLength)),
+      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 48 * bucketLength)),
       m_ProbabilityBucketEmpty(0.0) {
 }
 
@@ -91,6 +97,18 @@ double CModelParams::averagingDecayRate() const {
 
 double CModelParams::minimumSeasonalVarianceScale() const {
     return m_MinimumSeasonalVarianceScale;
+}
+
+bool CModelParams::testForChange(core_t::TTime changeInterval) const {
+    return changeInterval >= std::max(3 * m_BucketLength, 10 * core::constants::MINUTE);
+}
+
+core_t::TTime CModelParams::minimumTimeToDetectChange(void) const {
+    return m_MinimumTimeToDetectChange;
+}
+
+core_t::TTime CModelParams::maximumTimeToTestForChange(void) const {
+    return m_MaximumTimeToTestForChange;
 }
 
 void CModelParams::probabilityBucketEmpty(double probability) {
@@ -249,6 +267,18 @@ bool CModelProbabilityParams::updateAnomalyModel() const {
     return m_UpdateAnomalyModel;
 }
 
+CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs) {
+    switch (lhs) {
+    case E_Success:
+        return rhs;
+    case E_Reset:
+        return rhs == E_Failure ? E_Failure : E_Reset;
+    case E_Failure:
+        return E_Failure;
+    }
+    return E_Failure;
+}
+
 CModel::CModel(const CModelParams& params) : m_Params(params) {
 }
 
@@ -269,11 +299,10 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
                                      bool bucketEmpty,
                                      double probabilityBucketEmpty,
                                      double probability) {
-    double pCorrected = (1.0 - probabilityBucketEmpty) * probability;
+    double pCorrected{(1.0 - probabilityBucketEmpty) * probability};
 
     if (!bucketEmpty) {
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation, value,
-                                                         probabilityBucketEmpty);
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty)};
         return std::min(pOneSided + pCorrected, 1.0);
     }
 
@@ -286,24 +315,23 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
                                      const TDouble2Vec& probabilityEmptyBucket,
                                      double probability) {
     if (!bucketEmpty[0] && !bucketEmpty[1]) {
-        double pState = (1.0 - probabilityEmptyBucket[0]) *
-                        (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided = oneSidedEmptyBucketCorrection(
-            calculation, TDouble2Vec{value}, 1.0 - pState);
+        double pState{(1.0 - probabilityEmptyBucket[0]) *
+                      (1.0 - probabilityEmptyBucket[1])};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value}, 1.0 - pState)};
         return std::min(pOneSided + pState * probability, 1.0);
     }
 
     if (!bucketEmpty[0]) {
-        double pState = (1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1];
-        double pOneSided = oneSidedEmptyBucketCorrection(
-            calculation, TDouble2Vec{value}, probabilityEmptyBucket[0]);
+        double pState{(1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1]};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value},
+                                                       probabilityEmptyBucket[0])};
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
     }
 
     if (!bucketEmpty[1]) {
-        double pState = probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided = oneSidedEmptyBucketCorrection(
-            calculation, TDouble2Vec{value}, probabilityEmptyBucket[1]);
+        double pState{probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1])};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value},
+                                                       probabilityEmptyBucket[1])};
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
     }
 
@@ -338,23 +366,23 @@ void CModelStub::modelCorrelations(CTimeSeriesCorrelations& /*model*/) {
 }
 
 CModelStub::TSize2Vec1Vec CModelStub::correlates() const {
-    return TSize2Vec1Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec CModelStub::mode(core_t::TTime /*time*/,
                                          const TDouble2VecWeightsAry& /*weights*/) const {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec1Vec
 CModelStub::correlateModes(core_t::TTime /*time*/,
                            const TDouble2VecWeightsAry1Vec& /*weights*/) const {
-    return TDouble2Vec1Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec1Vec
 CModelStub::residualModes(const TDouble2VecWeightsAry& /*weights*/) const {
-    return TDouble2Vec1Vec();
+    return {};
 }
 
 void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
@@ -376,14 +404,14 @@ void CModelStub::detrend(const TTime2Vec1Vec& /*time*/,
 CModelStub::TDouble2Vec CModelStub::predict(core_t::TTime /*time*/,
                                             const TSizeDoublePr1Vec& /*correlated*/,
                                             TDouble2Vec /*hint*/) const {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec3Vec
 CModelStub::confidenceInterval(core_t::TTime /*time*/,
                                double /*confidenceInterval*/,
                                const TDouble2VecWeightsAry& /*weights*/) const {
-    return TDouble2Vec3Vec();
+    return {};
 }
 
 bool CModelStub::forecast(core_t::TTime /*startTime*/,
@@ -413,12 +441,12 @@ bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
 CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
                                                         core_t::TTime /*time*/,
                                                         const TDouble2Vec& /*value*/) const {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
                                                    core_t::TTime /*time*/) const {
-    return TDouble2Vec();
+    return {};
 }
 
 std::uint64_t CModelStub::checksum(std::uint64_t seed) const {

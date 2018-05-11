@@ -35,11 +35,11 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_MinimumModeCount(CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT),
       s_CutoffToModelEmptyBuckets(CAnomalyDetectorModelConfig::DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS),
       s_ComponentSize(CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE),
+      s_MinimumTimeToDetectChange(CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE),
+      s_MaximumTimeToTestForChange(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE),
       s_ExcludeFrequent(model_t::E_XF_None), s_ExcludePersonFrequency(0.1),
       s_ExcludeAttributeFrequency(0.1),
       s_MaximumUpdatesPerBucket(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET),
-      s_TotalProbabilityCalcSamplingSize(
-          CAnomalyDetectorModelConfig::DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE),
       s_InfluenceCutoff(CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF),
       s_LatencyBuckets(CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS),
       s_SampleCountFactor(CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY),
@@ -70,20 +70,33 @@ double SModelParams::minimumCategoryCount() const {
     return s_LearnRate * CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION;
 }
 
+maths::STimeSeriesDecompositionRestoreParams
+SModelParams::decompositionRestoreParams(maths_t::EDataType dataType) const {
+    double decayRate{CAnomalyDetectorModelConfig::trendDecayRate(s_DecayRate, s_BucketLength)};
+    return {decayRate, s_BucketLength, s_ComponentSize,
+            this->distributionRestoreParams(dataType)};
+}
+
 maths::SDistributionRestoreParams
 SModelParams::distributionRestoreParams(maths_t::EDataType dataType) const {
-    return maths::SDistributionRestoreParams(dataType, s_DecayRate,
-                                             s_MinimumModeFraction, s_MinimumModeCount,
-                                             this->minimumCategoryCount());
+    return {dataType, s_DecayRate, s_MinimumModeFraction, s_MinimumModeCount,
+            this->minimumCategoryCount()};
 }
 
 uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_LearnRate);
     seed = maths::CChecksum::calculate(seed, s_DecayRate);
     seed = maths::CChecksum::calculate(seed, s_InitialDecayRateMultiplier);
+    seed = maths::CChecksum::calculate(seed, s_MinimumModeFraction);
+    seed = maths::CChecksum::calculate(seed, s_MinimumModeCount);
+    seed = maths::CChecksum::calculate(seed, s_CutoffToModelEmptyBuckets);
+    seed = maths::CChecksum::calculate(seed, s_ComponentSize);
+    seed = maths::CChecksum::calculate(seed, s_MinimumTimeToDetectChange);
+    seed = maths::CChecksum::calculate(seed, s_MaximumTimeToTestForChange);
     seed = maths::CChecksum::calculate(seed, s_ExcludeFrequent);
+    seed = maths::CChecksum::calculate(seed, s_ExcludePersonFrequency);
+    seed = maths::CChecksum::calculate(seed, s_ExcludeAttributeFrequency);
     seed = maths::CChecksum::calculate(seed, s_MaximumUpdatesPerBucket);
-    seed = maths::CChecksum::calculate(seed, s_TotalProbabilityCalcSamplingSize);
     seed = maths::CChecksum::calculate(seed, s_InfluenceCutoff);
     seed = maths::CChecksum::calculate(seed, s_LatencyBuckets);
     seed = maths::CChecksum::calculate(seed, s_SampleCountFactor);
@@ -93,7 +106,10 @@ uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
     seed = maths::CChecksum::calculate(seed, s_MultivariateByFields);
     seed = maths::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
-    return maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
+    //seed = maths::CChecksum::calculate(seed, s_DetectionRules);
+    //seed = maths::CChecksum::calculate(seed, s_ScheduledEvents);
+    seed = maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
+    return maths::CChecksum::calculate(seed, s_SamplingAgeCutoff);
 }
 }
 }

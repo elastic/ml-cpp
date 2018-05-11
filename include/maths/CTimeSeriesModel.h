@@ -25,29 +25,49 @@ class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
+class CUnivariateTimeSeriesChangeDetector;
+struct SChangeDescription;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
+
+namespace winsorisation {
+//! Computes a Winsorisation weight for \p value based on its
+//! one tail p-value.
+MATHS_EXPORT
+double tailWeight(const CPrior& prior, double derate, double scale, double value);
+
+//! Computes a Winsorisation weight for \p value based on its
+//! marginal for \p dimension one tail p-value.
+MATHS_EXPORT
+double tailWeight(const CMultivariatePrior& prior,
+                  std::size_t dimension,
+                  double derate,
+                  double scale,
+                  const core::CSmallVector<double, 10>& value);
+}
 
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
+    using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
 public:
     //! \param[in] params The model parameters.
     //! \param[in] id The *unique* identifier for this time series.
-    //! \param[in] trend The time series trend decomposition.
-    //! \param[in] prior The time series residuals' prior.
+    //! \param[in] trendModel The time series trend decomposition.
+    //! \param[in] residualModel The prior for the time series residual model.
     //! \param[in] controllers Optional decay rate controllers for the trend
-    //! and prior.
+    //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
     CUnivariateTimeSeriesModel(const CModelParams& params,
                                std::size_t id,
-                               const CTimeSeriesDecompositionInterface& trend,
-                               const CPrior& prior,
+                               const CTimeSeriesDecompositionInterface& trendModel,
+                               const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
                                bool modelAnomalies = true);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
@@ -60,7 +80,8 @@ public:
     //! Create a copy of this model passing ownership to the caller.
     virtual CUnivariateTimeSeriesModel* clone(std::size_t id) const;
 
-    //! Create a copy of the state we need to persist passing ownership to the caller.
+    //! Create a copy of the state we need to persist passing ownership
+    //! to the caller.
     virtual CUnivariateTimeSeriesModel* cloneForPersistence() const;
 
     //! Create a copy of the state we need to run forecasting.
@@ -88,8 +109,8 @@ public:
     //! Get the most likely value for the time series at \p time.
     virtual TDouble2Vec mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const;
 
-    //! Get the most likely value for each correlate time series at
-    //! \p time, if there are any.
+    //! Get the most likely value for each correlate time series
+    //! at \p time, if there are any.
     virtual TDouble2Vec1Vec
     correlateModes(core_t::TTime time, const TDouble2VecWeightsAry1Vec& weights) const;
 
@@ -158,35 +179,59 @@ public:
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const;
 
+    //! \name Helpers
+    //@{
+    //! Unpack the weights in \p weights.
+    static TDoubleWeightsAry unpack(const TDouble2VecWeightsAry& weights);
+
+    //! Reinitialize \p residualModel using the detrended values
+    //! from \p slidingWindow.
+    static void reinitializeResidualModel(double learnRate,
+                                          const TDecompositionPtr& trend,
+                                          const TTimeDoublePrCBuf& slidingWindow,
+                                          CPrior& residualModel);
+    //@}
+
     //! \name Test Functions
     //@{
     //! Get the sliding window of recent values.
     const TTimeDoublePrCBuf& slidingWindow() const;
 
     //! Get the trend.
-    const CTimeSeriesDecompositionInterface& trend() const;
+    const CTimeSeriesDecompositionInterface& trendModel() const;
 
-    //! Get the prior.
-    const CPrior& prior() const;
+    //! Get the residual model.
+    const CPrior& residualModel(void) const;
     //@}
 
 private:
+    using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
-    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TAnomalyModelPtr = std::shared_ptr<CTimeSeriesAnomalyModel>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
+    using TChangeDetectorPtr = std::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
-    CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other, std::size_t id);
+    CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
+                               std::size_t id,
+                               bool isForForecast = false);
+
+    //! Test for and apply any change we find.
+    EUpdateResult testAndApplyChange(const CModelAddSamplesParams& params,
+                                     const TSizeVec& order,
+                                     const TTimeDouble2VecSizeTrVec& samples);
+
+    //! Apply \p change to this model.
+    EUpdateResult applyChange(const SChangeDescription& change);
 
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
@@ -194,6 +239,10 @@ private:
 
     //! Compute the prediction errors for \p sample.
     void appendPredictionErrors(double interval, double sample, TDouble1VecVec (&result)[2]);
+
+    //! Reinitialize state after detecting a new component of the trend
+    //! decomposition.
+    void reinitializeStateGivenNewComponent(void);
 
     //! Get the models for the correlations and the models of the correlated
     //! time series.
@@ -215,19 +264,29 @@ private:
     //! A random number generator for sampling the sliding window.
     CPRNG::CXorOShiro128Plus m_Rng;
 
-    //! These control the trend and prior decay rates (see CDecayRateController
-    //! for more details).
+    //! These control the trend and residual model decay rates (see
+    //! CDecayRateController for more details).
     TDecayRateController2AryPtr m_Controllers;
 
     //! The time series trend decomposition.
-    TDecompositionPtr m_Trend;
+    TDecompositionPtr m_TrendModel;
 
-    //! The prior for the time series' residual model.
-    TPriorPtr m_Prior;
+    //! The time series' residual model.
+    TPriorPtr m_ResidualModel;
 
-    //! A model for time periods when the basic model can't predict the value
-    //! of the time series.
+    //! A model for time periods when the basic model can't predict the
+    //! value of the time series.
     TAnomalyModelPtr m_AnomalyModel;
+
+    //! The last "normal" time and median value.
+    TTimeDoublePr m_CandidateChangePoint;
+
+    //! If the time series appears to be undergoing change, the contiguous
+    //! interval of unpredictable values.
+    core_t::TTime m_CurrentChangeInterval;
+
+    //! Used to test for changes in the time series.
+    TChangeDetectorPtr m_ChangeDetector;
 
     //! A sliding window of the recent samples (used to reinitialize the
     //! residual model when a new trend component is detected).
@@ -307,9 +366,9 @@ public:
         TSize1Vec s_Tags;
         //! The sample weights.
         TDoubleWeightsAry1Vec s_Weights;
-        //! The interval by which to age the prior.
+        //! The interval by which to age the correlation model.
         double s_Interval;
-        //! The prior decay rate multiplier.
+        //! The decay rate multiplier.
         double s_Multiplier;
     };
 
@@ -322,7 +381,8 @@ public:
     //! Create a copy of this model passing ownership to the caller.
     CTimeSeriesCorrelations* clone() const;
 
-    //! Create a copy of the state we need to persist passing ownership to the caller.
+    //! Create a copy of the state we need to persist passing ownership
+    //! to the caller.
     CTimeSeriesCorrelations* cloneForPersistence() const;
 
     //! Process all samples added from individual time series models.
@@ -339,7 +399,7 @@ public:
     void refresh(const CTimeSeriesCorrelateModelAllocator& allocator);
 
     //! Get the correlation joint distribution models.
-    const TSizeSizePrMultivariatePriorPtrDoublePrUMap& correlatePriors() const;
+    const TSizeSizePrMultivariatePriorPtrDoublePrUMap& correlationModels() const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -366,20 +426,22 @@ private:
     CTimeSeriesCorrelations(const CTimeSeriesCorrelations& other,
                             bool isForPersistence = false);
 
-    //! Restore the correlate priors reading state from \p traverser.
-    bool restoreCorrelatePriors(const SDistributionRestoreParams& params,
-                                core::CStateRestoreTraverser& traverser);
+    //! Restore the correlation distribution models reading state from
+    //! \p traverser.
+    bool restoreCorrelationModels(const SDistributionRestoreParams& params,
+                                  core::CStateRestoreTraverser& traverser);
 
-    //! Persist the correlate priors passing information to \p inserter.
-    void persistCorrelatePriors(core::CStatePersistInserter& inserter) const;
+    //! Persist the correlation distribution models passing information
+    //! to \p inserter.
+    void persistCorrelationModels(core::CStatePersistInserter& inserter) const;
 
-    //! Restore the correlate priors reading state from \p traverser.
+    //! Restore the \p model reading state from \p traverser.
     static bool restore(const SDistributionRestoreParams& params,
-                        TSizeSizePrMultivariatePriorPtrDoublePrPr& prior,
+                        TSizeSizePrMultivariatePriorPtrDoublePrPr& model,
                         core::CStateRestoreTraverser& traverser);
 
-    //! Persist the correlate priors passing information to \p inserter.
-    static void persist(const TSizeSizePrMultivariatePriorPtrDoublePrPr& prior,
+    //! Persist the \p model passing information to \p inserter.
+    static void persist(const TSizeSizePrMultivariatePriorPtrDoublePrPr& model,
                         core::CStatePersistInserter& inserter);
 
     //! Add the time series identified by \p id.
@@ -390,10 +452,8 @@ private:
 
     //! Add a sample for the time series identified by \p id.
     void addSamples(std::size_t id,
-                    maths_t::EDataType type,
+                    const CModelAddSamplesParams& params,
                     const TTimeDouble2VecSizeTrVec& samples,
-                    const TDoubleWeightsAry1Vec& weights,
-                    double interval,
                     double multiplier);
 
     //! Get the ids of the time series correlated with \p id.
@@ -439,23 +499,25 @@ private:
 //! \brief A CModel implementation for modeling a multivariate time series.
 class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
+    using TDouble10Vec = core::CSmallVector<double, 10>;
     using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
     using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
+    using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
 public:
     //! \param[in] params The model parameters.
-    //! \param[in] trend The time series trend decomposition.
-    //! \param[in] prior The time series residuals' prior.
+    //! \param[in] trendModel The time series trend decomposition.
+    //! \param[in] residualModel The prior for the time series residual model.
     //! \param[in] controllers Optional decay rate controllers for the trend
-    //! and prior.
+    //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
     CMultivariateTimeSeriesModel(const CModelParams& params,
-                                 const CTimeSeriesDecompositionInterface& trend,
-                                 const CMultivariatePrior& prior,
+                                 const CTimeSeriesDecompositionInterface& trendModel,
+                                 const CMultivariatePrior& residualModel,
                                  const TDecayRateController2Ary* controllers = nullptr,
                                  bool modelAnomalies = true);
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
@@ -468,7 +530,8 @@ public:
     //! Create a copy of this model passing ownership to the caller.
     virtual CMultivariateTimeSeriesModel* clone(std::size_t id) const;
 
-    //! Create a copy of the state we need to persist passing ownership to the caller.
+    //! Create a copy of the state we need to persist passing ownership
+    //! to the caller.
     virtual CMultivariateTimeSeriesModel* cloneForPersistence() const;
 
     //! Create a copy of the state we need to run forecasting.
@@ -563,16 +626,29 @@ public:
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const;
 
+    //! \name Helpers
+    //@{
+    //! Unpack the weights in \p weights.
+    static TDouble10VecWeightsAry unpack(const TDouble2VecWeightsAry& weights);
+
+    //! Reinitialize \p residualModel using the detrended values
+    //! from \p slidingWindow.
+    static void reinitializeResidualModel(double learnRate,
+                                          const TDecompositionPtr10Vec& trend,
+                                          const TTimeDouble2VecPrCBuf& slidingWindow,
+                                          CMultivariatePrior& residualModel);
+    //@}
+
     //! \name Test Functions
     //@{
     //! Get the sliding window of recent values.
     const TTimeDouble2VecPrCBuf& slidingWindow() const;
 
     //! Get the trend.
-    const TDecompositionPtr10Vec& trend() const;
+    const TDecompositionPtr10Vec& trendModel() const;
 
-    //! Get the prior.
-    const CMultivariatePrior& prior() const;
+    //! Get the residual model.
+    const CMultivariatePrior& residualModel() const;
     //@}
 
 private:
@@ -595,6 +671,10 @@ private:
                                 const TDouble2Vec& sample,
                                 TDouble1VecVec (&result)[2]);
 
+    //! Reinitialize state after detecting a new component of the trend
+    //! decomposition.
+    void reinitializeStateGivenNewComponent(void);
+
     //! Get the model dimension.
     std::size_t dimension() const;
 
@@ -605,18 +685,18 @@ private:
     //! A random number generator for sampling the sliding window.
     CPRNG::CXorOShiro128Plus m_Rng;
 
-    //! These control the trend and prior decay rates (see CDecayRateController
-    //! for more details).
+    //! These control the trend and residual model decay rates (see
+    //! CDecayRateController for more details).
     TDecayRateController2AryPtr m_Controllers;
 
     //! The time series trend decomposition.
-    TDecompositionPtr10Vec m_Trend;
+    TDecompositionPtr10Vec m_TrendModel;
 
-    //! The prior for the time series' residual model.
-    TMultivariatePriorPtr m_Prior;
+    //! The time series residual model.
+    TMultivariatePriorPtr m_ResidualModel;
 
-    //! A model for time periods when the basic model can't predict the value
-    //! of the time series.
+    //! A model for time periods when the basic model can't predict the
+    //! value of the time series.
     TAnomalyModelPtr m_AnomalyModel;
 
     //! A sliding window of the recent samples (used to reinitialize the

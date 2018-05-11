@@ -16,6 +16,7 @@ public:
     void testShiftAbscissa();
     void testShiftOrdinate();
     void testShiftGradient();
+    void testLinearScale();
     void testAge();
     void testPrediction();
     void testCombination();

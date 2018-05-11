@@ -274,12 +274,12 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     TStrCRefStrCRefPrUInt64Map hashes2;
 
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        for (const auto& prior : feature.s_Models->correlatePriors()) {
-            std::size_t pids[]{prior.first.first, prior.first.second};
+        for (const auto& model : feature.s_Models->correlationModels()) {
+            std::size_t pids[]{model.first.first, model.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
                 uint64_t& hash = hashes2[{boost::cref(this->personName(pids[0])),
                                           boost::cref(this->personName(pids[1]))}];
-                hash = maths::CChecksum::calculate(hash, prior.second);
+                hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
     }
@@ -510,7 +510,9 @@ void CIndividualModel::clearPrunedResources(const TSizeVec& people,
                                             const TSizeVec& /*attributes*/) {
     for (auto pid : people) {
         for (auto& feature : m_FeatureModels) {
-            feature.s_Models[pid].reset(this->tinyModel());
+            if (pid < feature.s_Models.size()) {
+                feature.s_Models[pid].reset(this->tinyModel());
+            }
         }
     }
 }
@@ -610,7 +612,7 @@ std::string CIndividualModel::printCurrentBucket() const {
 std::size_t CIndividualModel::numberCorrelations() const {
     std::size_t result = 0u;
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        result += feature.s_Models->correlatePriors().size();
+        result += feature.s_Models->correlationModels().size();
     }
     return result;
 }

@@ -43,8 +43,7 @@ operator()(const STimeSeriesDecompositionRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         if (name == TIME_SERIES_DECOMPOSITION_TAG) {
-            result.reset(new CTimeSeriesDecomposition(params.s_DecayRate, params.s_MinimumBucketLength,
-                                                      params.s_ComponentSize, traverser));
+            result.reset(new CTimeSeriesDecomposition(params, traverser));
             ++numResults;
         } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
             result.reset(new CTimeSeriesDecompositionStub());

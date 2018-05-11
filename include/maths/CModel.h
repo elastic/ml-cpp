@@ -44,9 +44,11 @@ using TForecastPushDatapointFunc = std::function<void(SErrorBar)>;
 class MATHS_EXPORT CModelParams {
 public:
     CModelParams(core_t::TTime bucketLength,
-                 const double& learnRate,
-                 const double& decayRate,
-                 double minimumSeasonalVarianceScale);
+                 double learnRate,
+                 double decayRate,
+                 double minimumSeasonalVarianceScale,
+                 core_t::TTime minimumTimeToDetectChange,
+                 core_t::TTime maximumTimeToTestForChange);
 
     //! Get the bucket length.
     core_t::TTime bucketLength() const;
@@ -63,6 +65,15 @@ public:
     //! Get the minimum seasonal variance scale.
     double minimumSeasonalVarianceScale() const;
 
+    //! Check if we should start testing for a change point in the model.
+    bool testForChange(core_t::TTime changeInterval) const;
+
+    //! Get the minimum time to detect a change point in the model.
+    core_t::TTime minimumTimeToDetectChange(void) const;
+
+    //! Get the maximum time to test for a change point in the model.
+    core_t::TTime maximumTimeToTestForChange(void) const;
+
     //! Set the probability that the bucket will be empty for the model.
     void probabilityBucketEmpty(double probability);
 
@@ -78,6 +89,10 @@ private:
     double m_DecayRate;
     //! The minimum seasonal variance scale.
     double m_MinimumSeasonalVarianceScale;
+    //! The minimum time permitted to detect a change in the model.
+    core_t::TTime m_MinimumTimeToDetectChange;
+    //! The maximum time permitted to test for a change in the model.
+    core_t::TTime m_MaximumTimeToTestForChange;
     //! The probability that a bucket will be empty for the model.
     double m_ProbabilityBucketEmpty;
 };
@@ -90,8 +105,6 @@ public:
 
 public:
     CModelAddSamplesParams();
-    CModelAddSamplesParams(const CModelAddSamplesParams&) = delete;
-    const CModelAddSamplesParams& operator=(const CModelAddSamplesParams&) = delete;
 
     //! Set whether or not the data are integer valued.
     CModelAddSamplesParams& integer(bool integer);
@@ -145,8 +158,6 @@ public:
 
 public:
     CModelProbabilityParams();
-    CModelProbabilityParams(const CModelAddSamplesParams&) = delete;
-    const CModelProbabilityParams& operator=(const CModelAddSamplesParams&) = delete;
 
     //! Set the tag for the entity for which to compute the probability.
     CModelProbabilityParams& tag(std::size_t tag);
@@ -253,6 +264,9 @@ public:
         E_Success, //!< Update succeeded.
         E_Reset    //!< Model reset.
     };
+
+    //! Combine the results \p lhs and \p rhs.
+    static EUpdateResult combine(EUpdateResult lhs, EUpdateResult rhs);
 
 public:
     CModel(const CModelParams& params);

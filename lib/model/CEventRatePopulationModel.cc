@@ -756,14 +756,14 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     }
 
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        for (const auto& prior : feature.s_Models->correlatePriors()) {
-            std::size_t cids[]{prior.first.first, prior.first.second};
+        for (const auto& model : feature.s_Models->correlationModels()) {
+            std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) &&
                 gatherer.isAttributeActive(cids[1])) {
                 uint64_t& hash =
                     hashes[{boost::cref(gatherer.attributeName(cids[0])),
                             boost::cref(gatherer.attributeName(cids[1]))}];
-                hash = maths::CChecksum::calculate(hash, prior.second);
+                hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
     }
@@ -908,10 +908,12 @@ void CEventRatePopulationModel::updateRecycledModels() {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds()) {
         for (auto& feature : m_FeatureModels) {
-            feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
-            for (const auto& correlates : m_FeatureCorrelatesModels) {
-                if (feature.s_Feature == correlates.s_Feature) {
-                    feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+            if (cid < feature.s_Models.size()) {
+                feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
+                for (const auto& correlates : m_FeatureCorrelatesModels) {
+                    if (feature.s_Feature == correlates.s_Feature) {
+                        feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
+                    }
                 }
             }
         }
@@ -939,7 +941,9 @@ void CEventRatePopulationModel::clearPrunedResources(const TSizeVec& /*people*/,
                                                      const TSizeVec& attributes) {
     for (auto cid : attributes) {
         for (auto& feature : m_FeatureModels) {
-            feature.s_Models[cid].reset(this->tinyModel());
+            if (cid < feature.s_Models.size()) {
+                feature.s_Models[cid].reset(this->tinyModel());
+            }
         }
     }
 }

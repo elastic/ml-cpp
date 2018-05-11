@@ -227,7 +227,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
 
     core::CRegex::TStrVec tokens;
     if (tokenRegex.tokenise(line, tokens) == false) {
-        LOG_ERROR(<< "Regex error '" << tokenRegex.str() << "' " << line);
+        LOG_ERROR(<< "Regex error '" << tokenRegex.str() << "' '" << line << "'");
         return false;
     }
 

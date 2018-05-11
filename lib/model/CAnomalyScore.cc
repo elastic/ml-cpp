@@ -56,12 +56,12 @@ std::size_t addProbabilities(const TDoubleVec& probabilities, AGGREGATOR& aggreg
 
 //! The function to convert probabilities to *raw* scores.
 double probabilityToScore(double probability) {
-    return maths::CTools::deviation(probability);
+    return maths::CTools::anomalyScore(probability);
 }
 
 //! The function to convert *raw* scores to probabilities.
 double scoreToProbability(double score) {
-    return maths::CTools::inverseDeviation(score);
+    return maths::CTools::inverseAnomalyScore(score);
 }
 
 // We use short field names to reduce the state size

@@ -177,8 +177,12 @@ public:
     //! diurnal and any other large amplitude seasonal components.
     class MATHS_EXPORT CPeriodicityTest : public CHandler {
     public:
+        //! Test types (categorised as short and long period tests).
+        enum ETest { E_Short, E_Long };
+
+    public:
         CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-        CPeriodicityTest(const CPeriodicityTest& other);
+        CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -198,6 +202,9 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
+        //! Clear the test identified by \p test.
+        void clear(ETest test, core_t::TTime time);
+
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -215,9 +222,6 @@ public:
         using TTimeAry = boost::array<core_t::TTime, 2>;
         using TExpandingWindowPtr = std::shared_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
-
-        //! Test types (categorised as short and long period tests).
-        enum ETest { E_Short, E_Long };
 
     private:
         //! The bucket lengths to use to test for short period components.
@@ -259,7 +263,7 @@ public:
     class MATHS_EXPORT CCalendarTest : public CHandler {
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
-        CCalendarTest(const CCalendarTest& other);
+        CCalendarTest(const CCalendarTest& other, bool isForForecast = false);
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -347,7 +351,8 @@ public:
         };
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -364,8 +369,23 @@ public:
         //! Create a new calendar component.
         virtual void handle(const SDetectedCalendar& message);
 
+        //! Start using the trend for prediction.
+        void useTrendForPrediction(void);
+
+        //! Apply \p shift to the level at \p time and \p value.
+        void shiftLevel(core_t::TTime time, double value, double shift);
+
+        //! Apply a linear scale of \p scale.
+        void linearScale(core_t::TTime time, double scale);
+
         //! Maybe re-interpolate the components.
-        void interpolate(const SMessage& message, bool refine = true);
+        void interpolate(const SMessage& message);
+
+        //! Maybe re-interpolate the components.
+        void interpolateForForecast(core_t::TTime time);
+
+        //! Set the data type.
+        void dataType(maths_t::EDataType dataType);
 
         //! Set the decay rate.
         void decayRate(double decayRate);
@@ -526,6 +546,9 @@ public:
             //! Shift the components' time origin to \p time.
             void shiftOrigin(core_t::TTime time);
 
+            //! Linearly scale the components' by \p scale.
+            void linearScale(core_t::TTime time, double scale);
+
             //! Get a checksum for this object.
             uint64_t checksum(uint64_t seed = 0) const;
 
@@ -583,6 +606,9 @@ public:
 
             //! Remove low value components.
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
+
+            //! Linearly scale the components' by \p scale.
+            void linearScale(core_t::TTime time, double scale);
 
             //! Get a checksum for this object.
             uint64_t checksum(uint64_t seed = 0) const;
