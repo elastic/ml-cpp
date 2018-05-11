@@ -29,6 +29,7 @@
 
 Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
 Improve robustness w.r.t. outliers of detection and initialisation of seasonal components ({pull}90[#90])
+Explicit change point detection and modelling ({pull}92[#92])
 
 === Bug Fixes
 
