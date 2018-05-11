@@ -168,10 +168,6 @@ protected:
     //! Get the mean variance of the function residuals.
     double meanVariance() const;
 
-    //! Get the maximum ratio between a residual variance and the mean
-    //! residual variance.
-    double heteroscedasticity() const;
-
     //! Get the maximum size to use for the bucketing.
     std::size_t maxSize() const;
 

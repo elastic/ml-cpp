@@ -149,8 +149,8 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     //file << "plot(t(1:length(fe)), fe, 'r');\n";
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.019 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.020 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.020 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.024 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -308,9 +308,9 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.27 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.56 * maxValue);
-                CPPUNIT_ASSERT(percentileError < 0.16 * sumValue);
+                CPPUNIT_ASSERT(sumResidual < 0.25 * sumValue);
+                CPPUNIT_ASSERT(maxResidual < 0.55 * maxValue);
+                CPPUNIT_ASSERT(percentileError < 0.14 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -333,7 +333,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.18 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
     CPPUNIT_ASSERT(totalMaxResidual < 0.28 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.09 * totalSumValue);
 }
@@ -413,8 +413,8 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.16 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.35 * maxValue);
+                CPPUNIT_ASSERT(sumResidual < 0.15 * sumValue);
+                CPPUNIT_ASSERT(maxResidual < 0.31 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.05 * sumValue);
 
                 totalSumResidual += sumResidual;
@@ -428,8 +428,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
                         double slope = component.valueSpline().absSlope();
                         meanSlope += slope;
                         LOG_DEBUG(<< "weekly |slope| = " << slope);
-
-                        CPPUNIT_ASSERT(slope < 0.0018);
+                        CPPUNIT_ASSERT(slope < 0.0013);
                         refinements += 1.0;
                     }
                 }
@@ -781,8 +780,8 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    CPPUNIT_ASSERT(totalSumResidual < 0.062 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.077 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.065 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.085 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
@@ -1292,6 +1291,9 @@ void CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
+    // Test the accuracy of the modeling when there are periodically missing
+    // values.
+
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Daily Periodic");
@@ -1402,6 +1404,8 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
 }
 
 void CTimeSeriesDecompositionTest::testLongTermTrend() {
+    // Test a simple linear ramp and non-periodic saw tooth series.
+
     const core_t::TTime length = 120 * DAY;
 
     TTimeVec times;
@@ -1570,7 +1574,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend() {
 }
 
 void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
-    // Test long term mean reverting component plus daily periodic component.
+    // Test a long term mean reverting component plus daily periodic component.
 
     TTimeVec times;
     TDoubleVec trend;
@@ -1660,6 +1664,8 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
 }
 
 void CTimeSeriesDecompositionTest::testNonDiurnal() {
+    // Test the accuracy of the modeling of some non-daily or weekly
+    // seasonal components.
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Hourly");
@@ -1670,7 +1676,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
                           2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
 
         TTimeVec times;
-        TDoubleVec trends[2]{TDoubleVec(), TDoubleVec(8 * DAY / FIVE_MINS)};
+        TDoubleVec trends[2]{{}, {8 * DAY / FIVE_MINS}};
         for (core_t::TTime time = 0; time < length; time += FIVE_MINS) {
             times.push_back(time);
             trends[0].push_back(periodic[(time / FIVE_MINS) % 12]);
@@ -1823,7 +1829,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
                     totalMaxValue += maxValue;
 
                     CPPUNIT_ASSERT(sumResidual / sumValue < 0.17);
-                    CPPUNIT_ASSERT(maxResidual / maxValue < 0.21);
+                    CPPUNIT_ASSERT(maxResidual / maxValue < 0.22);
                 }
                 lastTwoDay += 2 * DAY;
             }
@@ -1841,11 +1847,13 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
         //file << "plot(t, fe);\n";
 
         CPPUNIT_ASSERT(totalSumResidual / totalSumValue < 0.1);
-        CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.18);
+        CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.2);
     }
 }
 
 void CTimeSeriesDecompositionTest::testYearly() {
+    // Test a yearly seasonal component.
+
     using TDouble1Vec = core::CSmallVector<double, 1>;
 
     test::CRandomNumbers rng;
@@ -2074,6 +2082,70 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend() {
     }
 }
 
+void CTimeSeriesDecompositionTest::testComponentLifecycle() {
+    // Test we adapt to changing seasonality adding and removing components
+    // as necessary.
+
+    test::CRandomNumbers rng;
+
+    auto trend = [](core_t::TTime time) {
+        return 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi * time / DAY) +
+               3.0 * (time > 4 * WEEK
+                          ? std::sin(boost::math::double_constants::two_pi * time / HOUR)
+                          : 0.0) -
+               3.0 * (time > 9 * WEEK
+                          ? std::sin(boost::math::double_constants::two_pi * time / HOUR)
+                          : 0.0) +
+               8.0 * (time > 16 * WEEK
+                          ? std::sin(boost::math::double_constants::two_pi * time / 4 / DAY)
+                          : 0.0) -
+               8.0 * (time > 21 * WEEK
+                          ? std::sin(boost::math::double_constants::two_pi * time / 4 / DAY)
+                          : 0.0);
+    };
+
+    maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
+
+    //std::ofstream file;
+    //file.open("results.m");
+    //TDoubleVec f;
+    //TDoubleVec times;
+    //TDoubleVec values;
+
+    TMeanAccumulator errors[4];
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < 35 * WEEK; time += FIVE_MINS) {
+        rng.generateNormalSamples(0.0, 1.0, 1, noise);
+        decomposition.addPoint(time, trend(time) + noise[0]);
+        double prediction =
+            maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0));
+        if (time > 24 * WEEK) {
+            errors[3].add(std::fabs(prediction - trend(time)) / trend(time));
+        } else if (time > 18 * WEEK && time < 21 * WEEK) {
+            errors[2].add(std::fabs(prediction - trend(time)) / trend(time));
+        } else if (time > 11 * WEEK && time < 14 * WEEK) {
+            errors[1].add(std::fabs(prediction - trend(time)) / trend(time));
+        } else if (time > 6 * WEEK && time < 9 * WEEK) {
+            errors[0].add(std::fabs(prediction - trend(time)) / trend(time));
+        }
+
+        //times.push_back(time);
+        //values.push_back(trend(time) + noise[0]);
+        //f.push_back(maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0)));
+    }
+
+    //file << "t = " << core::CContainerPrinter::print(times) << ";\n";
+    //file << "f = " << core::CContainerPrinter::print(values) << ";\n";
+    //file << "fe = " << core::CContainerPrinter::print(f) << ";\n";
+    //file << "plot(t, f, 'r');\n";
+    //file << "plot(t, fe);\n";
+
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(errors[0]) < 0.01);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(errors[1]) < 0.015);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(errors[2]) < 0.01);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(errors[3]) < 0.1);
+}
+
 void CTimeSeriesDecompositionTest::testSwap() {
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
@@ -2081,7 +2153,7 @@ void CTimeSeriesDecompositionTest::testSwap() {
     TTimeVec times;
     TDoubleVec trend1;
     TDoubleVec trend2;
-    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
+    for (core_t::TTime time = 0; time <= 10 * WEEK; time += HALF_HOUR) {
         double daily = 15.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
                                               static_cast<double>(time) /
                                               static_cast<double>(DAY));
@@ -2120,7 +2192,7 @@ void CTimeSeriesDecompositionTest::testPersist() {
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
+    for (core_t::TTime time = 0; time <= 10 * WEEK; time += HALF_HOUR) {
         double daily = 15.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
                                               static_cast<double>(time) /
                                               static_cast<double>(DAY));
@@ -2377,6 +2449,9 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testConditionOfTrend",
         &CTimeSeriesDecompositionTest::testConditionOfTrend));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
+        "CTimeSeriesDecompositionTest::testComponentLifecycle",
+        &CTimeSeriesDecompositionTest::testComponentLifecycle));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testSwap", &CTimeSeriesDecompositionTest::testSwap));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(

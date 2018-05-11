@@ -436,19 +436,23 @@ public:
 
             //! Update the errors.
             //!
+            //! \param[in] referenceError The reference error with no components.
             //! \param[in] error The prediction error.
             //! \param[in] prediction The prediction from the component.
+            //! \param[in] varianceIncrease The increase in predicted variance
+            //! due to the component.
             //! \param[in] weight The weight of \p error.
-            void add(double error, double prediction, double weight);
+            void add(double referenceError,
+                     double error,
+                     double prediction,
+                     double varianceIncrease,
+                     double weight);
 
             //! Clear the error statistics.
             void clear();
 
-            //! Check if we should discard \p seasonal.
-            bool remove(core_t::TTime bucketLength, CSeasonalComponent& seasonal) const;
-
-            //! Check if we should discard \p calendar.
-            bool remove(core_t::TTime bucketLength, CCalendarComponent& calendar) const;
+            //! Check if we should discard the component.
+            bool remove(double minimumCountToRemove) const;
 
             //! Age the errors by \p factor.
             void age(double factor);
@@ -457,15 +461,25 @@ public:
             uint64_t checksum(uint64_t seed) const;
 
         private:
-            //! Truncate large, i.e. more than 6 sigma, errors.
-            static double winsorise(double squareError, const TFloatMeanAccumulator& variance);
+            using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+            using TVector = CVectorNx1<core::CFloatStorage, 3>;
+            using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
         private:
-            //! The mean prediction error in the window.
-            TFloatMeanAccumulator m_MeanErrorWithComponent;
+            //! Truncate large, i.e. more than 6 sigma, errors.
+            TVector winsorise(const TVector& squareError) const;
 
-            //! The mean prediction error in the window without the component.
-            TFloatMeanAccumulator m_MeanErrorWithoutComponent;
+        private:
+            //! The vector mean errors:
+            //! <pre>
+            //! | excluding all components from the prediction |
+            //! |  including the component in the prediction   |
+            //! | excluding the component from the prediction  |
+            //! </pre>
+            TVectorMeanAccumulator m_MeanErrors;
+
+            //! The maximum increase in variance due to the component.
+            TMaxAccumulator m_MaxVarianceIncrease;
         };
 
         using TComponentErrorsVec = std::vector<CComponentErrors>;

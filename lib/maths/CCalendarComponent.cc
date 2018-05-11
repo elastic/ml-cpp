@@ -117,7 +117,6 @@ void CCalendarComponent::interpolate(core_t::TTime time, bool refine) {
     if (refine) {
         m_Bucketing.refine(time);
     }
-
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
@@ -160,10 +159,6 @@ TDoubleDoublePr CCalendarComponent::variance(core_t::TTime time, double confiden
 
 double CCalendarComponent::meanVariance() const {
     return this->CDecompositionComponent::meanVariance();
-}
-
-double CCalendarComponent::heteroscedasticity() const {
-    return this->CDecompositionComponent::heteroscedasticity();
 }
 
 uint64_t CCalendarComponent::checksum(uint64_t seed) const {

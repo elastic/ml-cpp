@@ -157,10 +157,6 @@ public:
     //! Get the mean variance of the component residuals.
     double meanVariance() const;
 
-    //! Get the maximum ratio between a residual variance and the mean
-    //! residual variance.
-    double heteroscedasticity() const;
-
     //! Get the covariance matrix of the regression parameters' at \p time.
     //!
     //! \param[in] time The time of interest.
