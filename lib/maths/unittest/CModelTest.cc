@@ -7,6 +7,7 @@
 #include "CModelTest.h"
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 
 #include <maths/CModel.h>
 #include <maths/Constants.h>
@@ -24,8 +25,8 @@ void CModelTest::testAll() {
         double learnRate{0.5};
         double decayRate{0.001};
         double minimumSeasonalVarianceScale{0.3};
-        maths::CModelParams params(bucketLength, learnRate, decayRate,
-                                   minimumSeasonalVarianceScale);
+        maths::CModelParams params(bucketLength, learnRate, decayRate, minimumSeasonalVarianceScale,
+                                   6 * core::constants::HOUR, core::constants::DAY);
         CPPUNIT_ASSERT_EQUAL(bucketLength, params.bucketLength());
         CPPUNIT_ASSERT_EQUAL(learnRate, params.learnRate());
         CPPUNIT_ASSERT_EQUAL(decayRate, params.decayRate());
@@ -34,6 +35,8 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(0.0, params.probabilityBucketEmpty());
         params.probabilityBucketEmpty(0.2);
         CPPUNIT_ASSERT_EQUAL(0.2, params.probabilityBucketEmpty());
+        CPPUNIT_ASSERT_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
+        CPPUNIT_ASSERT_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
     {
         maths_t::TDouble2VecWeightsAry weight1(maths_t::CUnitWeights::unit<TDouble2Vec>(2));

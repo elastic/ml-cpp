@@ -14,8 +14,11 @@ namespace {
 const maths_t::TSeasonalComponentVec NO_COMPONENTS;
 }
 
-CTimeSeriesDecompositionStub* CTimeSeriesDecompositionStub::clone() const {
+CTimeSeriesDecompositionStub* CTimeSeriesDecompositionStub::clone(bool /*isForForecast*/) const {
     return new CTimeSeriesDecompositionStub(*this);
+}
+
+void CTimeSeriesDecompositionStub::dataType(maths_t::EDataType /*dataType*/) {
 }
 
 void CTimeSeriesDecompositionStub::decayRate(double /*decayRate*/) {
@@ -35,17 +38,23 @@ bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
     return false;
 }
 
+bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
+                                               double /*value*/,
+                                               const SChangeDescription& /*change*/) {
+    return false;
+}
+
 void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/) {
 }
 
-double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const {
+double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
-                                                                double /*confidence*/,
-                                                                int /*components*/,
-                                                                bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
+                                                             double /*confidence*/,
+                                                             int /*components*/,
+                                                             bool /*smooth*/) const {
     return {0.0, 0.0};
 }
 
@@ -54,13 +63,13 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
                                             core_t::TTime /*step*/,
                                             double /*confidence*/,
                                             double /*minimumScale*/,
-                                            TDouble3VecVec& result) {
-    result.clear();
+                                            const TWriteForecastResult& /*writer*/) {
 }
 
 double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
                                              double value,
-                                             double /*confidence*/) const {
+                                             double /*confidence*/,
+                                             int /*components*/) const {
     return value;
 }
 
@@ -92,6 +101,10 @@ std::size_t CTimeSeriesDecompositionStub::memoryUsage() const {
 
 std::size_t CTimeSeriesDecompositionStub::staticSize() const {
     return sizeof(*this);
+}
+
+core_t::TTime CTimeSeriesDecompositionStub::timeShift() const {
+    return 0;
 }
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {

@@ -74,7 +74,6 @@ public:
     using TValue = rapidjson::Value;
     using TDocumentWeakPtr = std::weak_ptr<TDocument>;
     using TValuePtr = std::shared_ptr<TValue>;
-
     using TPoolAllocatorPtr = std::shared_ptr<CRapidJsonPoolAllocator>;
     using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;

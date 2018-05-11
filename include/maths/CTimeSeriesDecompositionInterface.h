@@ -27,6 +27,7 @@ namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CSeasonalComponent;
+struct SChangeDescription;
 
 //! \brief The interface for decomposing times series into periodic,
 //! calendar periodic and trend components.
@@ -35,6 +36,7 @@ public:
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
+    using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
 
     //! The components of the decomposition.
     enum EComponents {
@@ -53,7 +55,10 @@ public:
     virtual ~CTimeSeriesDecompositionInterface() = default;
 
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionInterface* clone() const = 0;
+    virtual CTimeSeriesDecompositionInterface* clone(bool isForForecast = false) const = 0;
+
+    //! Set the data type.
+    virtual void dataType(maths_t::EDataType dataType) = 0;
 
     //! Set the decay rate.
     virtual void decayRate(double decayRate) = 0;
@@ -77,22 +82,32 @@ public:
                           double value,
                           const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT) = 0;
 
+    //! Apply \p change at \p time.
+    //!
+    //! \param[in] time The time of the change point.
+    //! \param[in] value The value immediately before the change
+    //! point.
+    //! \param[in] change A description of the change to apply.
+    //! \return True if a new component was detected.
+    virtual bool
+    applyChange(core_t::TTime time, double value, const SChangeDescription& change) = 0;
+
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;
 
-    //! Get the mean value of the baseline in the vicinity of \p time.
-    virtual double mean(core_t::TTime time) const = 0;
+    //! Get the mean value of the time series in the vicinity of \p time.
+    virtual double meanValue(core_t::TTime time) const = 0;
 
-    //! Get the value of the time series baseline at \p time.
+    //! Get the value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
-    virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                              double confidence = 0.0,
-                                              int components = E_All,
-                                              bool smooth = true) const = 0;
+    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                           double confidence = 0.0,
+                                           int components = E_All,
+                                           bool smooth = true) const = 0;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!
@@ -101,20 +116,22 @@ public:
     //! \param[in] step The time increment.
     //! \param[in] confidence The forecast confidence interval.
     //! \param[in] minimumScale The minimum permitted seasonal scale.
-    //! \param[in] result Filled in with the forecast lower bound, prediction
-    //! and upper bound.
+    //! \param[in] writer Forecast results are passed to this callback.
     virtual void forecast(core_t::TTime startTime,
                           core_t::TTime endTime,
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
-                          TDouble3VecVec& result) = 0;
+                          const TWriteForecastResult& writer) = 0;
 
     //! Detrend \p value from the time series being modeled by removing
     //! any periodic component at \p time.
     //!
     //! \note That detrending preserves the time series mean.
-    virtual double detrend(core_t::TTime time, double value, double confidence) const = 0;
+    virtual double detrend(core_t::TTime time,
+                           double value,
+                           double confidence,
+                           int components = E_All) const = 0;
 
     //! Get the mean variance of the baseline.
     virtual double meanVariance() const = 0;
@@ -143,10 +160,14 @@ public:
     //! Get the static size of this object.
     virtual std::size_t staticSize() const = 0;
 
+    //! Get the time shift which is being applied.
+    virtual core_t::TTime timeShift(void) const = 0;
+
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const = 0;
 
-    //! This is the latest time of any point added to this object or the time skipped to.
+    //! This is the latest time of any point added to this object or
+    //! the time skipped to.
     virtual core_t::TTime lastValueTime() const = 0;
 };
 }

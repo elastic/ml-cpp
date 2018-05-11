@@ -23,15 +23,10 @@
 
 namespace ml {
 namespace maths {
-
 namespace {
-using TDoubleVec = std::vector<double>;
-using TDoubleDoublePr = std::pair<double, double>;
 
-//! Compute \f$x^2\f$.
-inline double square(double x) {
-    return x * x;
-}
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleVec = std::vector<double>;
 
 //! Compute the deviation corresponding to a probability of less likely
 //! samples \p p.
@@ -50,131 +45,12 @@ inline double square(double x) {
 bool deviation(double p, double& result) {
     try {
         boost::math::normal_distribution<> normal(0.0, 1.0);
-        result = square(boost::math::quantile(normal, p / 2.0));
+        result = CTools::pow2(boost::math::quantile(normal, p / 2.0));
         return true;
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Unable to compute quantile: " << e.what() << ", probability = " << p);
     }
     return false;
-}
-
-const double EPS = 0.1;
-
-//! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
-//!
-//! \note It is assumed that p is integer.
-double powOneMinusX(double x, double p) {
-    // For large p,
-    //   (1 - x) ^ p ~= exp(-p * x).
-    //
-    // and this doesn't suffer from cancellation errors in the limit
-    // p -> inf and x -> 0. For p * x << 1 we get much better precision
-    // using the Taylor expansion:
-    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
-    //
-    // and canceling the leading terms.
-
-    if (x == 1.0) {
-        return 0.0;
-    }
-    if (p == 1.0) {
-        return 1.0 - x;
-    }
-
-    double y = p * x;
-    if (std::fabs(y) < EPS) {
-        static const double COEFFS[] = {-1.0,         +1.0 / 2.0,
-                                        -1.0 / 6.0,   +1.0 / 24.0,
-                                        -1.0 / 120.0, +1.0 / 720.0};
-        static const std::size_t N = boost::size(COEFFS);
-
-        double remainder = 0.0;
-        double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
-            ti *= p * x;
-            remainder += COEFFS[i] * ti;
-        }
-        return 1.0 + remainder;
-    } else if (p > 1000.0) {
-        return std::exp(-y);
-    }
-
-    if (x > 1.0) {
-        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
-        return sign * std::exp(p * std::log(x - 1.0));
-    }
-
-    return std::exp(p * std::log(1.0 - x));
-}
-
-//! A custom, numerically robust, implementation of \f$1 - (1 - x) ^ p\f$.
-//!
-//! \note It is assumed that p is integer.
-double oneMinusPowOneMinusX(double x, double p) {
-    // For large p,
-    //   (1 - x) ^ p ~= exp(-p * x).
-    //
-    // and this doesn't suffer from cancellation errors in the limit
-    // p -> inf and x -> 0. For p * x << 1 we get much better precision
-    // using the Taylor expansion:
-    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
-    //
-    // Note that this doesn't make use of powOneMinusX because we can
-    // avoid the cancellation errors by using:
-    //   1 - (1 - x) ^ p = p * x - p * (p - 1) * x^2 / 2 + ...
-    //
-    // when p * x is small.
-
-    if (x == 1.0) {
-        return 1.0;
-    }
-    if (p == 1.0) {
-        return x;
-    }
-
-    double y = p * x;
-    if (std::fabs(y) < EPS) {
-        static const double COEFFS[] = {+1.0,         -1.0 / 2.0,
-                                        +1.0 / 6.0,   -1.0 / 24.0,
-                                        +1.0 / 120.0, -1.0 / 720.0};
-        static const std::size_t N = boost::size(COEFFS);
-
-        double result = 0.0;
-
-        double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
-            ti *= p * x;
-            result += COEFFS[i] * ti;
-        }
-
-        return result;
-    } else if (p > 1000.0) {
-        return 1.0 - std::exp(-y);
-    }
-
-    if (x > 1.0) {
-        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
-        return 1.0 - sign * std::exp(p * std::log(x - 1.0));
-    }
-
-    return 1.0 - std::exp(p * std::log(1.0 - x));
-}
-
-//! A custom implementation of \f$\log(1 - x)\f$ which handles the
-//! cancellation error for small x.
-double logOneMinusX(double x) {
-    double result = 0.0;
-
-    if (std::fabs(x) < EPS) {
-        double xi = -x;
-        for (std::size_t i = 0u; i < 6; ++i, xi *= -x) {
-            result += xi / static_cast<double>(i + 1);
-        }
-    } else {
-        result = std::log(1.0 - x);
-    }
-
-    return result;
 }
 
 //! \brief Calculates the probability of the m most extreme samples.
@@ -222,7 +98,7 @@ public:
         //! Evaluate the i'th integral at \p x.
         double evaluate(double x) const {
             if (m_I == m_M) {
-                return static_cast<double>(m_N - m_M) * logOneMinusX(x);
+                return static_cast<double>(m_N - m_M) * CTools::logOneMinusX(x);
             }
             double result;
             CLogIntegrand f(*m_Limits, *m_Corrections, m_N, m_M, m_I + 1u);
@@ -631,7 +507,8 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
             b1 = -1.0 - 0.5 * logm + m * (1.0 + logx - logm);
         } else if (E * x / m != 1.0) {
             double r = 1.0 - E * x / m;
-            b1 = -1.0 - 0.5 * logm + std::log(oneMinusPowOneMinusX(r, m + 1.0) / r);
+            b1 = -1.0 - 0.5 * logm +
+                 std::log(CTools::oneMinusPowOneMinusX(r, m + 1.0) / r);
         } else {
             // Use L'Hopital's rule to show that:
             //   lim   { (1 - r^(m+1)) / (1 - r) } = m + 1
@@ -650,7 +527,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
             } else if (E * x / p != 1.0) {
                 double r = 1.0 - E * x / p;
                 t = m + (m + 1.0) * logx - (m + 1.5) * logp +
-                    std::log(oneMinusPowOneMinusX(r, p - m) / r);
+                    std::log(CTools::oneMinusPowOneMinusX(r, p - m) / r);
             } else {
                 // Use L'Hopital's rule to show that:
                 //   lim   { (1 - r^(p - m)) / (1 - r) } = p - m
@@ -772,7 +649,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
             b1 = (p + 1.0) * std::log(p / x) - std::log(p / x - 1.0);
         } else if (p != x) {
             double r = 1.0 - p / x;
-            b1 = std::log(oneMinusPowOneMinusX(r, p + 1.0) / r);
+            b1 = std::log(CTools::oneMinusPowOneMinusX(r, p + 1.0) / r);
         } else {
             // Use L'Hopital's rule to show that:
             //   lim   { (1 - r^(p+1)) / (1 - r) } = p + 1
@@ -836,7 +713,7 @@ bool CProbabilityOfExtremeSample::calculate(double& result) const {
     result = 1.0;
     if (m_NumberSamples > 0) {
         result = CTools::truncate(
-            oneMinusPowOneMinusX(m_MinValue[0], m_NumberSamples), 0.0, 1.0);
+            CTools::oneMinusPowOneMinusX(m_MinValue[0], m_NumberSamples), 0.0, 1.0);
     }
     return true;
 }
@@ -945,7 +822,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         for (std::size_t i = 0u; i < coeffs.size(); ++i) {
             double index = static_cast<double>(coeffs.size() - i);
             coeffs[i] /= index;
-            sum += coeffs[i] * powOneMinusX(p / 2.0, index);
+            sum += coeffs[i] * CTools::powOneMinusX(p / 2.0, index);
         }
         LOG_TRACE(<< "sum = " << sum);
 
@@ -955,8 +832,8 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         // that the following calculation can't use the re-normalized
         // "c" directly because it might be infinite. Instead, we make
         // use the fact that c * (1 - p)^(N - M + m) won't overflow.
-        double q = CTools::truncate(powOneMinusX(p, static_cast<double>(N - M + m)),
-                                    0.0, 1.0);
+        double q = CTools::truncate(
+            CTools::powOneMinusX(p, static_cast<double>(N - M + m)), 0.0, 1.0);
         coeffs.push_back(-sum - q * std::exp(logc - logLargestCoeff));
         LOG_TRACE(<< "c(0) = " << coeffs.back());
 
@@ -994,7 +871,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     double pM = m_MinValues[0];
     LOG_TRACE(<< "p(" << M << ") = " << pM);
 
-    double pMin = oneMinusPowOneMinusX(pM, static_cast<double>(N));
+    double pMin = CTools::oneMinusPowOneMinusX(pM, static_cast<double>(N));
     LOG_TRACE(<< "1 - (1 - p(" << M << "))^" << N << " = " << pMin);
 
     if (M > 1) {
@@ -1011,7 +888,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         for (std::size_t i = 0u; i < coeffs.size(); ++i) {
             double index = static_cast<double>(coeffs.size() - i);
             double c = coeffs[i] / index;
-            double p = oneMinusPowOneMinusX(pM / 2.0, index);
+            double p = CTools::oneMinusPowOneMinusX(pM / 2.0, index);
             LOG_TRACE(<< "term(" << index << ") = " << (c * p) << " (c("
                       << index << ") = " << c << ", 1 - (1 - p(M)/2)^" << index
                       << " = " << p << ")");
