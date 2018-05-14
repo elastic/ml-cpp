@@ -51,9 +51,9 @@ const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Ins
 
 CForecastRunner::SForecast::SForecast()
     : s_ForecastId(), s_ForecastSeries(), s_CreateTime(0), s_StartTime(0),
-      s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0), s_NumberOfModels(0),
-      s_NumberOfForecastableModels(0), s_MemoryUsage(0), s_Messages(),
-      s_TemporaryFolder() {
+      s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0),
+      s_NumberOfModels(0), s_NumberOfForecastableModels(0), s_MemoryUsage(0),
+      s_Messages(), s_TemporaryFolder() {
 }
 
 CForecastRunner::SForecast::SForecast(SForecast&& other)

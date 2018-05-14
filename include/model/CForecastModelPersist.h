@@ -52,7 +52,7 @@ public:
                       const std::string& byFieldValue);
 
         //! close the outputStream
-        const std::string& finalizePersistAndGetFile();
+        std::string finalizePersistAndGetFile();
 
     private:
         static void persistOneModel(core::CStatePersistInserter& inserter,
