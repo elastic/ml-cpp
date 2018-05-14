@@ -370,7 +370,10 @@ public:
         virtual void handle(const SDetectedCalendar& message);
 
         //! Start using the trend for prediction.
-        void useTrendForPrediction(void);
+        void useTrendForPrediction();
+
+        //! Test to see if using the trend improves prediction accuracy.
+        bool shouldUseTrendForPrediction();
 
         //! Apply \p shift to the level at \p time and \p value.
         void shiftLevel(core_t::TTime time, double value, double shift);
@@ -440,6 +443,63 @@ public:
         using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 
+        //! \brief Manages the setting of the error gain when updating
+        //! the components with a value.
+        //!
+        //! DESCRIPTION:\n
+        //! The gain is the scale applied to the error in the prediction
+        //! when updating the components with a new value. If we think it
+        //! is safe, we use a large gain since this improves prediction
+        //! accuracy. However, this can also lead to instability if, for
+        //! example, the seasonal components present in the time series
+        //! suddenly change. When instability occurs it manifests as the
+        //! amplitude of all the components growing.
+        //!
+        //! This object therefore monitors the sum of the absolute component
+        //! amplitudes and decreases the gain when it detects that this is
+        //! significantly increasing.
+        class MATHS_EXPORT CGainController {
+        public:
+            //! Initialize by reading state from \p traverser.
+            bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+            //! Persist state by passing information to \p inserter.
+            void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+            //! Clear all state.
+            void clear();
+
+            //! Get the gain to use when updating the components with a new value.
+            double gain() const;
+
+            //! Add seed predictions \p predictions.
+            void seed(const TDoubleVec& predictions);
+
+            //! Add the predictions \p predictions at \p time.
+            void add(core_t::TTime time, const TDoubleVec& predictions);
+
+            //! Age by \p factor.
+            void age(double factor);
+
+            //! Shift the mean prediction error regression model time origin
+            //! to \p time.
+            void shiftOrigin(core_t::TTime time);
+
+            //! Get a checksum for this object.
+            uint64_t checksum(uint64_t seed) const;
+
+        private:
+            using TRegression = CRegression::CLeastSquaresOnline<1>;
+
+        private:
+            //! The origin for the mean prediction error regression model.
+            core_t::TTime m_RegressionOrigin = 0;
+            //! The sum of the absolute component predictions w.r.t. their means.
+            TFloatMeanAccumulator m_MeanSumAmplitudes;
+            //! A regression model for the absolute component predictions.
+            TRegression m_MeanSumAmplitudesTrend;
+        };
+
         //! \brief Tracks prediction errors with and without components.
         //!
         //! DESCRIPTION:\n
@@ -472,7 +532,7 @@ public:
             void clear();
 
             //! Check if we should discard the component.
-            bool remove(double minimumCountToRemove) const;
+            bool remove(core_t::TTime bucketLength, core_t::TTime period) const;
 
             //! Age the errors by \p factor.
             void age(double factor);
@@ -482,7 +542,7 @@ public:
 
         private:
             using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
-            using TVector = CVectorNx1<core::CFloatStorage, 3>;
+            using TVector = CVectorNx1<CFloatStorage, 3>;
             using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
         private:
@@ -523,7 +583,7 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
-            //! Reset the components' prediction errors.
+            //! Clear the components' prediction errors.
             void clearPredictionErrors();
 
             //! Get the combined size of the seasonal components.
@@ -539,6 +599,9 @@ public:
                                            TSeasonalComponentPtrVec& components,
                                            TComponentErrorsPtrVec& errors,
                                            TDoubleVec& deltas);
+
+            //! Append the predictions at \p time.
+            void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -612,7 +675,7 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
-            //! Reset the components' prediction errors.
+            //! Clear the components' prediction errors.
             void clearPredictionErrors();
 
             //! Get the combined size of the seasonal components.
@@ -628,6 +691,9 @@ public:
             void componentsAndErrors(core_t::TTime time,
                                      TCalendarComponentPtrVec& components,
                                      TComponentErrorsPtrVec& errors);
+
+            //! Append the predictions at \p time.
+            void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -728,6 +794,11 @@ public:
         //! The raw data bucketing interval.
         core_t::TTime m_BucketLength;
 
+        //! Sets the gain used when updating with a new value.
+        //!
+        //! \see CGainController for more details.
+        CGainController m_GainController;
+
         //! The number of buckets to use to estimate a periodic component.
         std::size_t m_SeasonalComponentSize;
 
@@ -746,17 +817,17 @@ public:
         //! The mean error variance scale for the components.
         TFloatMeanAccumulator m_MeanVarianceScale;
 
-        //! The moments of the values added.
-        TMeanVarAccumulator m_Moments;
+        //! The moments of the error in the predictions excluding the trend.
+        TMeanVarAccumulator m_PredictionErrorWithoutTrend;
 
-        //! The moments of the values added after subtracting a trend.
-        TMeanVarAccumulator m_MomentsMinusTrend;
+        //! The moments of the error in the predictions including the trend.
+        TMeanVarAccumulator m_PredictionErrorWithTrend;
 
         //! Set to true if the trend model should be used for prediction.
-        bool m_UsingTrendForPrediction;
+        bool m_UsingTrendForPrediction = false;
 
         //! Set to true if non-null when the seasonal components change.
-        bool* m_Watcher;
+        bool* m_Watcher = nullptr;
     };
 };
 

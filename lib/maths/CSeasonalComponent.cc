@@ -190,8 +190,6 @@ double CSeasonalComponent::meanValue() const {
 double CSeasonalComponent::delta(core_t::TTime time,
                                  core_t::TTime shortPeriod,
                                  double shortDifference) const {
-    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
-
     // This is used to adjust how periodic patterns in the trend are
     // represented in the case that we have two periodic components
     // one of which is a divisor of the other. We are interested in
@@ -208,22 +206,34 @@ double CSeasonalComponent::delta(core_t::TTime time,
     // periodic features in long component. We can achieve this by
     // reducing the value in the short seasonal component.
 
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
     const CSeasonalTime& time_{this->time()};
     core_t::TTime longPeriod{time_.period()};
 
     if (longPeriod > shortPeriod && longPeriod % shortPeriod == 0) {
         TMinMaxAccumulator bias;
-        TMinMaxAccumulator cancellation;
-        cancellation.add(-shortDifference);
+        double amplitude{0.0};
+        double margin{std::fabs(shortDifference)};
+        double cancelling{0.0};
         double mean{this->CDecompositionComponent::meanValue()};
         for (core_t::TTime t = time; t < time + longPeriod; t += shortPeriod) {
             if (time_.inWindow(t)) {
-                double longDifference{CBasicStatistics::mean(this->value(t, 0.0)) - mean};
-                bias.add(longDifference);
-                cancellation.add(longDifference);
+                double difference{CBasicStatistics::mean(this->value(t, 0.0)) - mean};
+                bias.add(difference);
+                amplitude = std::max(amplitude, std::fabs(difference));
+                if (shortDifference * difference < 0.0) {
+                    margin = std::min(margin, std::fabs(difference));
+                    cancelling += 1.0;
+                } else {
+                    cancelling -= 1.0;
+                }
             }
         }
-        return bias.signMargin() != 0.0 ? bias.signMargin() : cancellation.signMargin();
+        return bias.signMargin() != 0.0 ? bias.signMargin()
+                                        : (cancelling > 0.0 && margin > 0.2 * amplitude
+                                               ? std::copysign(margin, -shortDifference)
+                                               : 0.0);
     }
 
     return 0.0;
