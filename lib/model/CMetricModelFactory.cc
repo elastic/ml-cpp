@@ -56,7 +56,8 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
 
     return new CMetricModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features),
         this->defaultCorrelates(features), influenceCalculators);
 }
@@ -258,6 +259,10 @@ void CMetricModelFactory::bucketLength(core_t::TTime bucketLength) {
 
 void CMetricModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
+}
+
+double CMetricModelFactory::minimumSeasonalVarianceScale() const {
+    return 0.4;
 }
 
 CMetricModelFactory::TStrCRefVec CMetricModelFactory::partitioningFields() const {

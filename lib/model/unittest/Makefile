@@ -8,6 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
+USE_BOOST_FILESYSTEM_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -30,6 +31,7 @@ SRCS=\
 	CEventRateModelTest.cc \
 	CEventRatePopulationDataGathererTest.cc \
 	CEventRatePopulationModelTest.cc \
+	CForecastModelPersistTest.cc \
 	CFunctionTypesTest.cc \
 	CGathererToolsTest.cc \
 	CHierarchicalResultsTest.cc \
