@@ -14,6 +14,7 @@
 
 #include <maths/CModel.h>
 
+#include <model/CModelParams.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -38,7 +39,7 @@ namespace model {
 //! to change (e.g. the json writing should not happen in this class).
 class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
 public:
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TStrUMap = boost::unordered_set<std::string>;
 
     //! Wrapper for 1 timeseries model, its feature and by Field
@@ -59,18 +60,21 @@ public:
 
     //! Everything that defines 1 series of forecasts
     struct MODEL_EXPORT SForecastResultSeries {
-        SForecastResultSeries();
+        SForecastResultSeries(const SModelParams& modelParams);
 
         SForecastResultSeries(SForecastResultSeries&& other);
 
         SForecastResultSeries(const SForecastResultSeries& that) = delete;
         SForecastResultSeries& operator=(const SForecastResultSeries&) = delete;
 
+        SModelParams s_ModelParams;
         int s_DetectorIndex;
         std::vector<SForecastModelWrapper> s_ToForecast;
+        std::string s_ToForecastPersisted;
         std::string s_PartitionFieldName;
         std::string s_PartitionFieldValue;
         std::string s_ByFieldName;
+        double s_MinimumSeasonalVarianceScale;
     };
 
     //! \brief Data describing prerequisites prior predictions
