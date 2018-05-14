@@ -506,7 +506,8 @@ public:
         using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
         //! \brief The seasonal components of the decomposition.
-        struct MATHS_EXPORT SSeasonal {
+        class MATHS_EXPORT CSeasonal {
+        public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
@@ -522,8 +523,16 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
+            //! Reset the components' prediction errors.
+            void clearPredictionErrors();
+
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
+
+            //! Get the components.
+            const maths_t::TSeasonalComponentVec& components() const;
+            //! Get the components.
+            maths_t::TSeasonalComponentVec& components();
 
             //! Get the state to update.
             void componentsErrorsAndDeltas(core_t::TTime time,
@@ -539,6 +548,23 @@ public:
 
             //! Check if any of the components has been initialized.
             bool initialized() const;
+
+            //! Add and initialize a new component.
+            void add(const CSeasonalTime& seasonalTime,
+                     std::size_t size,
+                     double decayRate,
+                     double bucketLength,
+                     CSplineTypes::EBoundaryCondition boundaryCondition,
+                     core_t::TTime startTime,
+                     core_t::TTime endTime,
+                     const TFloatMeanAccumulatorVec& values);
+
+            //! Refresh state after adding new components.
+            void refreshForNewComponents();
+
+            //! Remove all components excluded by adding the component corresponding
+            //! to \p time.
+            void removeExcludedComponents(const CSeasonalTime& time);
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -558,17 +584,19 @@ public:
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
 
-            //! The seasonal components.
-            maths_t::TSeasonalComponentVec s_Components;
+        private:
+            //! The components.
+            maths_t::TSeasonalComponentVec m_Components;
 
-            //! The prediction errors relating to the component.
-            TComponentErrorsVec s_PredictionErrors;
+            //! The components' prediction errors.
+            TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TSeasonalPtr = std::shared_ptr<SSeasonal>;
+        using TSeasonalPtr = std::shared_ptr<CSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
-        struct MATHS_EXPORT SCalendar {
+        class MATHS_EXPORT CCalendar {
+        public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
@@ -584,8 +612,14 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
+            //! Reset the components' prediction errors.
+            void clearPredictionErrors();
+
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
+
+            //! Get the components.
+            const maths_t::TCalendarComponentVec& components() const;
 
             //! Check if there is already a component for \p feature.
             bool haveComponent(CCalendarFeature feature) const;
@@ -604,6 +638,9 @@ public:
             //! Check if any of the components has been initialized.
             bool initialized() const;
 
+            //! Add and initialize a new component.
+            void add(const CCalendarFeature& feature, std::size_t size, double decayRate, double bucketLength);
+
             //! Remove low value components.
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
 
@@ -619,14 +656,15 @@ public:
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
 
+        private:
             //! The calendar components.
-            maths_t::TCalendarComponentVec s_Components;
+            maths_t::TCalendarComponentVec m_Components;
 
-            //! The prediction errors after removing the component.
-            TComponentErrorsVec s_PredictionErrors;
+            //! The components' prediction errors.
+            TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TCalendarPtr = std::shared_ptr<SCalendar>;
+        using TCalendarPtr = std::shared_ptr<CCalendar>;
 
     private:
         //! Get the total size of the components.
@@ -638,16 +676,10 @@ public:
         //! Add new seasonal components to \p components.
         bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
                                    const CExpandingWindow& window,
-                                   const TPredictor& predictor,
-                                   CTrendComponent& trend,
-                                   maths_t::TSeasonalComponentVec& components,
-                                   TComponentErrorsVec& errors) const;
+                                   const TPredictor& predictor);
 
         //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature& feature,
-                                  core_t::TTime time,
-                                  maths_t::TCalendarComponentVec& components,
-                                  TComponentErrorsVec& errors) const;
+        bool addCalendarComponent(const CCalendarFeature& feature, core_t::TTime time);
 
         //! Reweight the outlier values in \p values.
         //!
