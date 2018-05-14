@@ -83,14 +83,14 @@ public:
     private:
         static bool restoreOneModel(core::CStateRestoreTraverser& traverser,
                                     SModelParams modelParams,
-                                    double inimumSeasonalVarianceScale,
+                                    double minimumSeasonalVarianceScale,
                                     TMathsModelPtr& model,
                                     model_t::EFeature& feature,
                                     std::string& byFieldValue);
 
     private:
         //! model parameters required in order to restore the model
-        SModelParams m_ModelParams;
+        const SModelParams m_ModelParams;
 
         //! minimum seasonal variance scale specific to the model
         double m_MinimumSeasonalVarianceScale;
