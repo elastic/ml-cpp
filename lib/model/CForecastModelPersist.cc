@@ -60,9 +60,10 @@ void CForecastModelPersist::CPersist::persistOneModel(core::CStatePersistInserte
                                                       boost::cref(*model), _1));
 }
 
-const std::string& CForecastModelPersist::CPersist::finalizePersistAndGetFile() {
+std::string CForecastModelPersist::CPersist::finalizePersistAndGetFile() {
     m_OutStream << "]";
     m_OutStream.close();
+
     return m_FileName.string();
 }
 
