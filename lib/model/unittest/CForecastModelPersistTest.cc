@@ -7,6 +7,7 @@
 #include "CForecastModelPersistTest.h"
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CNormalMeanPrecConjugate.h>
@@ -28,26 +29,34 @@ void CForecastModelPersistTest::testPersistAndRestore() {
     SModelParams params{bucketLength};
     params.s_DecayRate = 0.001;
     params.s_LearnRate = 1.0;
+    params.s_MinimumTimeToDetectChange = 6 * core::constants::HOUR;
+    params.s_MaximumTimeToTestForChange = core::constants::DAY;
     maths::CTimeSeriesDecomposition trend(params.s_DecayRate, bucketLength);
+
     maths::CNormalMeanPrecConjugate prior{maths::CNormalMeanPrecConjugate::nonInformativePrior(
         maths_t::E_ContinuousData, params.s_DecayRate)};
-    maths::CModelParams timeSeriesModelParams{bucketLength, params.s_LearnRate,
+    maths::CModelParams timeSeriesModelParams{bucketLength,
+                                              params.s_LearnRate,
                                               params.s_DecayRate,
-                                              minimumSeasonalVarianceScale};
+                                              minimumSeasonalVarianceScale,
+                                              params.s_MinimumTimeToDetectChange,
+                                              params.s_MaximumTimeToTestForChange};
     maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 1, trend, prior};
 
     CForecastModelPersist::CPersist persister(ml::test::CTestTmpDir::tmpDir());
     persister.addModel(&timeSeriesModel, model_t::EFeature::E_IndividualCountByBucketAndPerson,
                        "some_by_field");
-
+    trend.dataType(maths_t::E_MixedData);
     maths::CNormalMeanPrecConjugate otherPrior{maths::CNormalMeanPrecConjugate::nonInformativePrior(
         maths_t::E_MixedData, params.s_DecayRate)};
+
     maths::CUnivariateTimeSeriesModel otherTimeSeriesModel{timeSeriesModelParams,
                                                            2, trend, otherPrior};
 
     persister.addModel(&otherTimeSeriesModel, model_t::EFeature::E_IndividualLowMeanByPerson,
                        "some_other_by_field");
 
+    trend.dataType(maths_t::E_DiscreteData);
     maths::CNormalMeanPrecConjugate otherPriorEmptyByField{
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_DiscreteData,
                                                              params.s_DecayRate)};
@@ -83,7 +92,10 @@ void CForecastModelPersistTest::testPersistAndRestore() {
         CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
         CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale,
                              restoredModel->params().minimumSeasonalVarianceScale());
-
+        CPPUNIT_ASSERT_EQUAL(params.s_MinimumTimeToDetectChange,
+                             restoredModel->params().minimumTimeToDetectChange());
+        CPPUNIT_ASSERT_EQUAL(params.s_MaximumTimeToTestForChange,
+                             restoredModel->params().maximumTimeToTestForChange());
         CPPUNIT_ASSERT_EQUAL(timeSeriesModelForForecast->checksum(42),
                              restoredModel->checksum(42));
 
@@ -103,6 +115,10 @@ void CForecastModelPersistTest::testPersistAndRestore() {
         CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
         CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale,
                              restoredModel->params().minimumSeasonalVarianceScale());
+        CPPUNIT_ASSERT_EQUAL(params.s_MinimumTimeToDetectChange,
+                             restoredModel->params().minimumTimeToDetectChange());
+        CPPUNIT_ASSERT_EQUAL(params.s_MaximumTimeToTestForChange,
+                             restoredModel->params().maximumTimeToTestForChange());
         CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelForForecast->checksum(42),
                              restoredModel->checksum(42));
 
