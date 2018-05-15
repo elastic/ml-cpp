@@ -6,6 +6,8 @@
 #ifndef INCLUDED_CSystemCallFilterTest_h
 #define INCLUDED_CSystemCallFilterTest_h
 
+#include <core/CNamedPipeFactory.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 class CSystemCallFilterTest : public CppUnit::TestFixture {
@@ -15,7 +17,11 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    void testSystem();
+    void openPipeAndRead(const std::string& filename);
+    void openPipeAndWrite(const std::string& filename);
+
+    ml::core::CNamedPipeFactory::TIStreamP assertOpenPipeRead(const std::string& filename);
+    ml::core::CNamedPipeFactory::TOStreamP assertOpenPipeWrite(const std::string& filename);
 };
 
 #endif // INCLUDED_CSystemCallFilterTest_h
