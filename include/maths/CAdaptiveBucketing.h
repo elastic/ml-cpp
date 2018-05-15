@@ -233,10 +233,10 @@ private:
 
     //! An IIR low pass filter for the total desired end point displacement
     //! in refine.
-    TFloatMeanAccumulator m_LpForce;
+    TFloatMeanAccumulator m_MeanDesiredDisplacement;
 
     //! The total desired end point displacement in refine.
-    TFloatMeanAccumulator m_Force;
+    TFloatMeanAccumulator m_MeanAbsDesiredDisplacement;
 };
 }
 }

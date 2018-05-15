@@ -29,6 +29,7 @@ public:
     void testWithOutliers();
     void testCalendar();
     void testConditionOfTrend();
+    void testComponentLifecycle();
     void testSwap();
     void testPersist();
     void testUpgrade();

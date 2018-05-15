@@ -187,23 +187,6 @@ double CDecompositionComponent::meanVariance() const {
     return m_MeanVariance;
 }
 
-double CDecompositionComponent::heteroscedasticity() const {
-    if (m_MeanVariance == 0.0) {
-        return 0.0;
-    }
-
-    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
-
-    TMaxAccumulator result;
-
-    TSplineCRef spline = this->varianceSpline();
-    for (const auto& value : spline.values()) {
-        result.add(value / m_MeanVariance);
-    }
-
-    return result.count() > 0 ? result[0] : 0.0;
-}
-
 std::size_t CDecompositionComponent::maxSize() const {
     return std::max(m_MaxSize, MIN_MAX_SIZE);
 }
