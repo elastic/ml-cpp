@@ -370,7 +370,10 @@ public:
         virtual void handle(const SDetectedCalendar& message);
 
         //! Start using the trend for prediction.
-        void useTrendForPrediction(void);
+        void useTrendForPrediction();
+
+        //! Test to see if using the trend improves prediction accuracy.
+        bool shouldUseTrendForPrediction();
 
         //! Apply \p shift to the level at \p time and \p value.
         void shiftLevel(core_t::TTime time, double value, double shift);
@@ -440,6 +443,63 @@ public:
         using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 
+        //! \brief Manages the setting of the error gain when updating
+        //! the components with a value.
+        //!
+        //! DESCRIPTION:\n
+        //! The gain is the scale applied to the error in the prediction
+        //! when updating the components with a new value. If we think it
+        //! is safe, we use a large gain since this improves prediction
+        //! accuracy. However, this can also lead to instability if, for
+        //! example, the seasonal components present in the time series
+        //! suddenly change. When instability occurs it manifests as the
+        //! amplitude of all the components growing.
+        //!
+        //! This object therefore monitors the sum of the absolute component
+        //! amplitudes and decreases the gain when it detects that this is
+        //! significantly increasing.
+        class MATHS_EXPORT CGainController {
+        public:
+            //! Initialize by reading state from \p traverser.
+            bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+            //! Persist state by passing information to \p inserter.
+            void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+            //! Clear all state.
+            void clear();
+
+            //! Get the gain to use when updating the components with a new value.
+            double gain() const;
+
+            //! Add seed predictions \p predictions.
+            void seed(const TDoubleVec& predictions);
+
+            //! Add the predictions \p predictions at \p time.
+            void add(core_t::TTime time, const TDoubleVec& predictions);
+
+            //! Age by \p factor.
+            void age(double factor);
+
+            //! Shift the mean prediction error regression model time origin
+            //! to \p time.
+            void shiftOrigin(core_t::TTime time);
+
+            //! Get a checksum for this object.
+            uint64_t checksum(uint64_t seed) const;
+
+        private:
+            using TRegression = CRegression::CLeastSquaresOnline<1>;
+
+        private:
+            //! The origin for the mean prediction error regression model.
+            core_t::TTime m_RegressionOrigin = 0;
+            //! The sum of the absolute component predictions w.r.t. their means.
+            TFloatMeanAccumulator m_MeanSumAmplitudes;
+            //! A regression model for the absolute component predictions.
+            TRegression m_MeanSumAmplitudesTrend;
+        };
+
         //! \brief Tracks prediction errors with and without components.
         //!
         //! DESCRIPTION:\n
@@ -456,19 +516,23 @@ public:
 
             //! Update the errors.
             //!
+            //! \param[in] referenceError The reference error with no components.
             //! \param[in] error The prediction error.
             //! \param[in] prediction The prediction from the component.
+            //! \param[in] varianceIncrease The increase in predicted variance
+            //! due to the component.
             //! \param[in] weight The weight of \p error.
-            void add(double error, double prediction, double weight);
+            void add(double referenceError,
+                     double error,
+                     double prediction,
+                     double varianceIncrease,
+                     double weight);
 
             //! Clear the error statistics.
             void clear();
 
-            //! Check if we should discard \p seasonal.
-            bool remove(core_t::TTime bucketLength, CSeasonalComponent& seasonal) const;
-
-            //! Check if we should discard \p calendar.
-            bool remove(core_t::TTime bucketLength, CCalendarComponent& calendar) const;
+            //! Check if we should discard the component.
+            bool remove(core_t::TTime bucketLength, core_t::TTime period) const;
 
             //! Age the errors by \p factor.
             void age(double factor);
@@ -477,22 +541,33 @@ public:
             uint64_t checksum(uint64_t seed) const;
 
         private:
-            //! Truncate large, i.e. more than 6 sigma, errors.
-            static double winsorise(double squareError, const TFloatMeanAccumulator& variance);
+            using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+            using TVector = CVectorNx1<CFloatStorage, 3>;
+            using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
         private:
-            //! The mean prediction error in the window.
-            TFloatMeanAccumulator m_MeanErrorWithComponent;
+            //! Truncate large, i.e. more than 6 sigma, errors.
+            TVector winsorise(const TVector& squareError) const;
 
-            //! The mean prediction error in the window without the component.
-            TFloatMeanAccumulator m_MeanErrorWithoutComponent;
+        private:
+            //! The vector mean errors:
+            //! <pre>
+            //! | excluding all components from the prediction |
+            //! |  including the component in the prediction   |
+            //! | excluding the component from the prediction  |
+            //! </pre>
+            TVectorMeanAccumulator m_MeanErrors;
+
+            //! The maximum increase in variance due to the component.
+            TMaxAccumulator m_MaxVarianceIncrease;
         };
 
         using TComponentErrorsVec = std::vector<CComponentErrors>;
         using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
         //! \brief The seasonal components of the decomposition.
-        struct MATHS_EXPORT SSeasonal {
+        class MATHS_EXPORT CSeasonal {
+        public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
@@ -508,14 +583,25 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
+            //! Clear the components' prediction errors.
+            void clearPredictionErrors();
+
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
+
+            //! Get the components.
+            const maths_t::TSeasonalComponentVec& components() const;
+            //! Get the components.
+            maths_t::TSeasonalComponentVec& components();
 
             //! Get the state to update.
             void componentsErrorsAndDeltas(core_t::TTime time,
                                            TSeasonalComponentPtrVec& components,
                                            TComponentErrorsPtrVec& errors,
                                            TDoubleVec& deltas);
+
+            //! Append the predictions at \p time.
+            void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -525,6 +611,23 @@ public:
 
             //! Check if any of the components has been initialized.
             bool initialized() const;
+
+            //! Add and initialize a new component.
+            void add(const CSeasonalTime& seasonalTime,
+                     std::size_t size,
+                     double decayRate,
+                     double bucketLength,
+                     CSplineTypes::EBoundaryCondition boundaryCondition,
+                     core_t::TTime startTime,
+                     core_t::TTime endTime,
+                     const TFloatMeanAccumulatorVec& values);
+
+            //! Refresh state after adding new components.
+            void refreshForNewComponents();
+
+            //! Remove all components excluded by adding the component corresponding
+            //! to \p time.
+            void removeExcludedComponents(const CSeasonalTime& time);
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -544,17 +647,19 @@ public:
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
 
-            //! The seasonal components.
-            maths_t::TSeasonalComponentVec s_Components;
+        private:
+            //! The components.
+            maths_t::TSeasonalComponentVec m_Components;
 
-            //! The prediction errors relating to the component.
-            TComponentErrorsVec s_PredictionErrors;
+            //! The components' prediction errors.
+            TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TSeasonalPtr = std::shared_ptr<SSeasonal>;
+        using TSeasonalPtr = std::shared_ptr<CSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
-        struct MATHS_EXPORT SCalendar {
+        class MATHS_EXPORT CCalendar {
+        public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
@@ -570,8 +675,14 @@ public:
             //! - \p start elapsed time.
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
+            //! Clear the components' prediction errors.
+            void clearPredictionErrors();
+
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
+
+            //! Get the components.
+            const maths_t::TCalendarComponentVec& components() const;
 
             //! Check if there is already a component for \p feature.
             bool haveComponent(CCalendarFeature feature) const;
@@ -581,6 +692,9 @@ public:
                                      TCalendarComponentPtrVec& components,
                                      TComponentErrorsPtrVec& errors);
 
+            //! Append the predictions at \p time.
+            void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
+
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
 
@@ -589,6 +703,9 @@ public:
 
             //! Check if any of the components has been initialized.
             bool initialized() const;
+
+            //! Add and initialize a new component.
+            void add(const CCalendarFeature& feature, std::size_t size, double decayRate, double bucketLength);
 
             //! Remove low value components.
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -605,14 +722,15 @@ public:
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
 
+        private:
             //! The calendar components.
-            maths_t::TCalendarComponentVec s_Components;
+            maths_t::TCalendarComponentVec m_Components;
 
-            //! The prediction errors after removing the component.
-            TComponentErrorsVec s_PredictionErrors;
+            //! The components' prediction errors.
+            TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TCalendarPtr = std::shared_ptr<SCalendar>;
+        using TCalendarPtr = std::shared_ptr<CCalendar>;
 
     private:
         //! Get the total size of the components.
@@ -624,16 +742,10 @@ public:
         //! Add new seasonal components to \p components.
         bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
                                    const CExpandingWindow& window,
-                                   const TPredictor& predictor,
-                                   CTrendComponent& trend,
-                                   maths_t::TSeasonalComponentVec& components,
-                                   TComponentErrorsVec& errors) const;
+                                   const TPredictor& predictor);
 
         //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature& feature,
-                                  core_t::TTime time,
-                                  maths_t::TCalendarComponentVec& components,
-                                  TComponentErrorsVec& errors) const;
+        bool addCalendarComponent(const CCalendarFeature& feature, core_t::TTime time);
 
         //! Reweight the outlier values in \p values.
         //!
@@ -682,6 +794,11 @@ public:
         //! The raw data bucketing interval.
         core_t::TTime m_BucketLength;
 
+        //! Sets the gain used when updating with a new value.
+        //!
+        //! \see CGainController for more details.
+        CGainController m_GainController;
+
         //! The number of buckets to use to estimate a periodic component.
         std::size_t m_SeasonalComponentSize;
 
@@ -700,17 +817,17 @@ public:
         //! The mean error variance scale for the components.
         TFloatMeanAccumulator m_MeanVarianceScale;
 
-        //! The moments of the values added.
-        TMeanVarAccumulator m_Moments;
+        //! The moments of the error in the predictions excluding the trend.
+        TMeanVarAccumulator m_PredictionErrorWithoutTrend;
 
-        //! The moments of the values added after subtracting a trend.
-        TMeanVarAccumulator m_MomentsMinusTrend;
+        //! The moments of the error in the predictions including the trend.
+        TMeanVarAccumulator m_PredictionErrorWithTrend;
 
         //! Set to true if the trend model should be used for prediction.
-        bool m_UsingTrendForPrediction;
+        bool m_UsingTrendForPrediction = false;
 
         //! Set to true if non-null when the seasonal components change.
-        bool* m_Watcher;
+        bool* m_Watcher = nullptr;
     };
 };
 

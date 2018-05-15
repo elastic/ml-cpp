@@ -131,10 +131,6 @@ public:
     //! Get the mean variance of the component residuals.
     double meanVariance() const;
 
-    //! Get the maximum ratio between a residual variance and the mean
-    //! residual variance.
-    double heteroscedasticity() const;
-
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed = 0) const;
 

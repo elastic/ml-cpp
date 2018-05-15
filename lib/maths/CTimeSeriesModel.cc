@@ -1370,11 +1370,11 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
 
     if (m_ChangeDetector != nullptr) {
         m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
-
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
         } else if (auto change = m_ChangeDetector->change()) {
-            LOG_DEBUG("Detected " << change->print() << " at " << values[median].first);
+            LOG_DEBUG(<< "Detected " << change->print() << " at "
+                      << values[median].first);
             m_ChangeDetector.reset();
             return this->applyChange(*change);
         }
@@ -1385,22 +1385,26 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
 
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
+    core_t::TTime timeOfChangePoint{m_CandidateChangePoint.first};
+    double valueAtChangePoint{m_CandidateChangePoint.second};
+
     for (auto& value : m_SlidingWindow) {
-        switch (change.s_Description) {
-        case SChangeDescription::E_LevelShift:
-            value.second += change.s_Value[0];
-            break;
-        case SChangeDescription::E_LinearScale:
-            value.second *= change.s_Value[0];
-            break;
-        case SChangeDescription::E_TimeShift:
-            value.first += static_cast<core_t::TTime>(change.s_Value[0]);
-            break;
+        if (value.first < timeOfChangePoint) {
+            switch (change.s_Description) {
+            case SChangeDescription::E_LevelShift:
+                value.second += change.s_Value[0];
+                break;
+            case SChangeDescription::E_LinearScale:
+                value.second *= change.s_Value[0];
+                break;
+            case SChangeDescription::E_TimeShift:
+                value.first += static_cast<core_t::TTime>(change.s_Value[0]);
+                break;
+            }
         }
     }
 
-    if (m_TrendModel->applyChange(m_CandidateChangePoint.first,
-                                  m_CandidateChangePoint.second, change)) {
+    if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         this->reinitializeStateGivenNewComponent();
     } else {
         change.s_ResidualModel->decayRate(m_ResidualModel->decayRate());

@@ -2835,7 +2835,7 @@ void CEventRateModelTest::testDecayRateControl() {
         LOG_DEBUG(<< "reference = "
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanPredictionError) <
-                       0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                       0.76 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 

@@ -43,8 +43,8 @@ void clearAndShrink(std::vector<T>& vector) {
 const std::string DECAY_RATE_TAG{"a"};
 const std::string ENDPOINT_TAG{"b"};
 const std::string CENTRES_TAG{"c"};
-const std::string LP_FORCE_TAG{"d"};
-const std::string FORCE_TAG{"e"};
+const std::string MEAN_DESIRED_DISPLACEMENT_TAG{"d"};
+const std::string MEAN_ABS_DESIRED_DISPLACEMENT_TAG{"e"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
@@ -61,8 +61,10 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
-        RESTORE(LP_FORCE_TAG, m_LpForce.fromDelimited(traverser.value()))
-        RESTORE(FORCE_TAG, m_Force.fromDelimited(traverser.value()))
+        RESTORE(MEAN_DESIRED_DISPLACEMENT_TAG,
+                m_MeanDesiredDisplacement.fromDelimited(traverser.value()))
+        RESTORE(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
+                m_MeanAbsDesiredDisplacement.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
 }
@@ -71,8 +73,10 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
-    inserter.insertValue(LP_FORCE_TAG, m_LpForce.toDelimited());
-    inserter.insertValue(FORCE_TAG, m_Force.toDelimited());
+    inserter.insertValue(MEAN_DESIRED_DISPLACEMENT_TAG,
+                         m_MeanDesiredDisplacement.toDelimited());
+    inserter.insertValue(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
+                         m_MeanAbsDesiredDisplacement.toDelimited());
 }
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength)
@@ -92,8 +96,8 @@ void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
     m_Endpoints.swap(other.m_Endpoints);
     m_Centres.swap(other.m_Centres);
-    std::swap(m_LpForce, other.m_LpForce);
-    std::swap(m_Force, other.m_Force);
+    std::swap(m_MeanDesiredDisplacement, other.m_MeanDesiredDisplacement);
+    std::swap(m_MeanAbsDesiredDisplacement, other.m_MeanAbsDesiredDisplacement);
 }
 
 bool CAdaptiveBucketing::initialized() const {
@@ -180,9 +184,8 @@ double CAdaptiveBucketing::decayRate() const {
 }
 
 void CAdaptiveBucketing::age(double factor) {
-    factor = factor * factor;
-    m_LpForce.age(factor);
-    m_Force.age(factor);
+    m_MeanDesiredDisplacement.age(factor);
+    m_MeanAbsDesiredDisplacement.age(factor);
 }
 
 double CAdaptiveBucketing::minimumBucketLength() const {
@@ -282,22 +285,23 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         }
         m_Endpoints[n] = b;
     } else {
-        // Noise in the bucket mean values creates a "high"
-        // frequency mean zero driving force on the buckets'
-        // end points desired positions. Once they have stabilized
-        // on their desired location for the trend, we are able
-        // to detect this by comparing an IIR low pass filtered
-        // force and the total force. The lower the ratio the
-        // smaller the force we actually apply. Note we want to
-        // damp the noise out because the process of adjusting
-        // the buckets values loses a small amount of information,
-        // see the comments at the start of refresh for more
-        // details.
-        double alpha{ALPHA * (CBasicStatistics::mean(m_Force) == 0.0
-                                  ? 1.0
-                                  : std::fabs(CBasicStatistics::mean(m_LpForce)) /
-                                        CBasicStatistics::mean(m_Force))};
-        double force{0.0};
+        // Noise in the bucket mean values creates a "high" frequency
+        // mean zero driving force on the buckets' end points desired
+        // positions. Once they have stabilized on their desired location
+        // for the trend, we are able to detect this by comparing the
+        // time averaged desired displacement and the absolute desired
+        // displacement. The lower the ratio the smaller more smoothing
+        // we apply. Note we want to damp the noise out because the
+        // process of adjusting the buckets end points loses a small
+        // amount of information, see the comments at the start of
+        // refresh for more details.
+        double alpha{
+            ALPHA * (CBasicStatistics::mean(m_MeanAbsDesiredDisplacement) == 0.0
+                         ? 1.0
+                         : std::fabs(CBasicStatistics::mean(m_MeanDesiredDisplacement)) /
+                               CBasicStatistics::mean(m_MeanAbsDesiredDisplacement))};
+        LOG_TRACE(<< "alpha = " << alpha);
+        double displacement{0.0};
 
         // Linearly interpolate between the current end points
         // and points separated by equal total averaging error.
@@ -315,7 +319,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
             for (double e_ = step - (error - e); error >= step; e_ += step, error -= step) {
                 double x{h * e_ / averagingErrors[i]};
                 m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
-                force += (ai + x) - endpoints[j];
+                displacement += (ai + x) - endpoints[j];
                 LOG_TRACE(<< "interval averaging error = " << e
                           << ", a(i) = " << ai << ", x = " << x << ", endpoint "
                           << endpoints[j] << " -> " << ai + x);
@@ -333,8 +337,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         m_Endpoints[n] = b;
         LOG_TRACE(<< "refinedEndpoints = " << core::CContainerPrinter::print(m_Endpoints));
 
-        m_LpForce.add(force);
-        m_Force.add(std::fabs(force));
+        m_MeanDesiredDisplacement.add(displacement);
+        m_MeanAbsDesiredDisplacement.add(std::fabs(displacement));
     }
 
     this->refresh(endpoints);
