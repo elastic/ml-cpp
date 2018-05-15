@@ -368,7 +368,9 @@ void CForecastTest::testFinancialIndex() {
             params, {core::make_triple(timeseries[i].first,
                                        TDouble2Vec{timeseries[i].second}, TAG)});
         debug.addValue(timeseries[i].first, timeseries[i].second);
-        debug.addPrediction(timeseries[i].first, maths::CBasicStatistics::mean(model.predict(timeseries[i].first)));
+        debug.addPrediction(
+            timeseries[i].first,
+            maths::CBasicStatistics::mean(model.predict(timeseries[i].first)));
     }
 
     LOG_DEBUG(<< "*** forecast ***");

@@ -61,8 +61,10 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
-        RESTORE(MEAN_DESIRED_DISPLACEMENT_TAG, m_MeanDesiredDisplacement.fromDelimited(traverser.value()))
-        RESTORE(MEAN_ABS_DESIRED_DISPLACEMENT_TAG, m_MeanAbsDesiredDisplacement.fromDelimited(traverser.value()))
+        RESTORE(MEAN_DESIRED_DISPLACEMENT_TAG,
+                m_MeanDesiredDisplacement.fromDelimited(traverser.value()))
+        RESTORE(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
+                m_MeanAbsDesiredDisplacement.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
 }
@@ -71,8 +73,10 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
-    inserter.insertValue(MEAN_DESIRED_DISPLACEMENT_TAG, m_MeanDesiredDisplacement.toDelimited());
-    inserter.insertValue(MEAN_ABS_DESIRED_DISPLACEMENT_TAG, m_MeanAbsDesiredDisplacement.toDelimited());
+    inserter.insertValue(MEAN_DESIRED_DISPLACEMENT_TAG,
+                         m_MeanDesiredDisplacement.toDelimited());
+    inserter.insertValue(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
+                         m_MeanAbsDesiredDisplacement.toDelimited());
 }
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength)
@@ -291,10 +295,11 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // process of adjusting the buckets end points loses a small
         // amount of information, see the comments at the start of
         // refresh for more details.
-        double alpha{ALPHA * (CBasicStatistics::mean(m_MeanAbsDesiredDisplacement) == 0.0
-                                  ? 1.0
-                                  : std::fabs(CBasicStatistics::mean(m_MeanDesiredDisplacement)) /
-                                                 CBasicStatistics::mean(m_MeanAbsDesiredDisplacement))};
+        double alpha{
+            ALPHA * (CBasicStatistics::mean(m_MeanAbsDesiredDisplacement) == 0.0
+                         ? 1.0
+                         : std::fabs(CBasicStatistics::mean(m_MeanDesiredDisplacement)) /
+                               CBasicStatistics::mean(m_MeanAbsDesiredDisplacement))};
         LOG_TRACE(<< "alpha = " << alpha);
         double displacement{0.0};
 

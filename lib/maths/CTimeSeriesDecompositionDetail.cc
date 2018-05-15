@@ -1808,9 +1808,8 @@ double CTimeSeriesDecompositionDetail::CComponents::CGainController::gain() cons
 
 void CTimeSeriesDecompositionDetail::CComponents::CGainController::seed(const TDoubleVec& predictions) {
     m_MeanSumAmplitudes.add(std::accumulate(
-        predictions.begin(), predictions.end(), 0.0, [](double sum, double prediction) {
-            return sum + std::fabs(prediction);
-        }));
+        predictions.begin(), predictions.end(), 0.0,
+        [](double sum, double prediction) { return sum + std::fabs(prediction); }));
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CGainController::add(core_t::TTime time,
@@ -1821,8 +1820,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CGainController::add(core_t::T
                 return sum + std::fabs(prediction);
             }));
         m_MeanSumAmplitudesTrend.add(scaleTime(time, m_RegressionOrigin),
-                                      CBasicStatistics::mean(m_MeanSumAmplitudes),
-                                      CBasicStatistics::count(m_MeanSumAmplitudes));
+                                     CBasicStatistics::mean(m_MeanSumAmplitudes),
+                                     CBasicStatistics::count(m_MeanSumAmplitudes));
     }
 }
 
