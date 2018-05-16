@@ -13,36 +13,19 @@
 
 namespace ml {
 namespace maths {
+namespace {
 
-double CBasicStatistics::mean(const TDoubleDoublePr& samples) {
-    return 0.5 * (samples.first + samples.second);
-}
+//! Compute the median reordering \p samples in the process.
+double medianInPlace(std::vector<double>& data) {
+    std::size_t size{data.size()};
 
-double CBasicStatistics::mean(const TDoubleVec& sample) {
-    return std::accumulate(sample.begin(), sample.end(), 0.0) /
-           static_cast<double>(sample.size());
-}
-
-double CBasicStatistics::median(const TDoubleVec& dataIn) {
-    if (dataIn.empty()) {
-        return 0.0;
-    }
-
-    std::size_t size{dataIn.size()};
-    if (size == 1) {
-        return dataIn[0];
-    }
-
-    TDoubleVec data{dataIn};
-
-    // If data size is even (1,2,3,4) then take mean of 2,3 = 2.5
-    // If data size is odd (1,2,3,4,5) then take middle value = 3
-    double median{0.0};
+    // If sample size is even (1,2,3,4) then take mean of 2,3 = 2.5
+    // If sample size is odd (1,2,3,4,5) then take middle value = 3
+    bool useMean{size % 2 == 0};
 
     // For an odd number of elements, this will get the median element into
     // place.  For an even number of elements, it will get the second element
     // of the middle pair into place.
-    bool useMean{size % 2 == 0};
     size_t index{size / 2};
     std::nth_element(data.begin(), data.begin() + index, data.end());
 
@@ -52,12 +35,43 @@ double CBasicStatistics::median(const TDoubleVec& dataIn) {
         // before the nth one in the vector.
         auto left = std::max_element(data.begin(), data.begin() + index);
 
-        median = (*left + data[index]) / 2.0;
-    } else {
-        median = data[index];
+        return (*left + data[index]) / 2.0;
     }
 
-    return median;
+    return data[index];
+}
+}
+
+double CBasicStatistics::mean(const TDoubleDoublePr& data) {
+    return 0.5 * (data.first + data.second);
+}
+
+double CBasicStatistics::mean(const TDoubleVec& data) {
+    return std::accumulate(data.begin(), data.end(), 0.0) /
+           static_cast<double>(data.size());
+}
+
+double CBasicStatistics::median(const TDoubleVec& data_) {
+    if (data_.empty()) {
+        return 0.0;
+    }
+    if (data_.size() == 1) {
+        return data_[0];
+    }
+    TDoubleVec data{data_};
+    return medianInPlace(data);
+}
+
+double CBasicStatistics::mad(const TDoubleVec& data_) {
+    if (data_.size() < 2) {
+        return 0.0;
+    }
+    TDoubleVec data{data_};
+    double median{medianInPlace(data)};
+    for (auto& datum : data) {
+        datum = std::fabs(datum - median);
+    }
+    return medianInPlace(data);
 }
 
 const char CBasicStatistics::INTERNAL_DELIMITER(':');
