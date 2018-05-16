@@ -766,7 +766,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest
       m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
                                                  ? std::make_shared<CCalendarCyclicTest>(
                                                        *other.m_Test)
-                                                 : 0} {
+                                                 : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
