@@ -74,8 +74,8 @@ CModelParams::CModelParams(core_t::TTime bucketLength,
                            core_t::TTime maximumTimeToTestForChange)
     : m_BucketLength(bucketLength), m_LearnRate(learnRate), m_DecayRate(decayRate),
       m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
-      m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 12 * bucketLength)),
-      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 48 * bucketLength)),
+      m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 6 * bucketLength)),
+      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 12 * bucketLength)),
       m_ProbabilityBucketEmpty(0.0) {
 }
 
@@ -100,7 +100,7 @@ double CModelParams::minimumSeasonalVarianceScale() const {
 }
 
 bool CModelParams::testForChange(core_t::TTime changeInterval) const {
-    return changeInterval >= std::max(3 * m_BucketLength, 10 * core::constants::MINUTE);
+    return changeInterval >= std::max(3 * m_BucketLength, core::constants::HOUR);
 }
 
 core_t::TTime CModelParams::minimumTimeToDetectChange(void) const {
