@@ -14,6 +14,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventRateModel.h>
 #include <model/CEventRateModelFactory.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CMetricModel.h>
 #include <model/CMetricModelFactory.h>
 #include <model/CResourceMonitor.h>
@@ -21,6 +22,8 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+
+#include <memory>
 
 using namespace ml;
 using namespace model;
@@ -70,7 +73,8 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
-    CEventRateModelFactory factory(params);
+    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+    CEventRateModelFactory factory(params, interimBucketCorrector);
 
     std::size_t bucketCounts[] = {5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
 
@@ -78,11 +82,9 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
-    CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
+    CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
     CEventRateModel& model = static_cast<CEventRateModel&>(*modelPtr.get());
@@ -117,7 +119,8 @@ void CModelMemoryTest::testOnlineMetricModel() {
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
-    CMetricModelFactory factory(params);
+    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+    CMetricModelFactory factory(params, interimBucketCorrector);
 
     std::size_t bucketCounts[] = {5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
 
@@ -131,11 +134,9 @@ void CModelMemoryTest::testOnlineMetricModel() {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
-    CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
+    CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
     CMetricModel& model = static_cast<CMetricModel&>(*modelPtr.get());

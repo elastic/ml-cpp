@@ -7,9 +7,20 @@
 #ifndef INCLUDED_CMetricModelTest_h
 #define INCLUDED_CMetricModelTest_h
 
+#include <model/CModelFactory.h>
 #include <model/CResourceMonitor.h>
 
 #include <cppunit/extensions/HelperMacros.h>
+
+#include <memory>
+
+namespace ml {
+namespace model {
+class CMetricModelFactory;
+class CInterimBucketCorrector;
+struct SModelParams;
+}
+}
 
 class CMetricModelTest : public CppUnit::TestFixture {
 public:
@@ -38,9 +49,31 @@ public:
     void testDecayRateControl();
     void testIgnoreSamplingGivenDetectionRules();
 
+    void setUp();
     static CppUnit::Test* suite();
 
 private:
+    using TInterimBucketCorrectorPtr = std::shared_ptr<ml::model::CInterimBucketCorrector>;
+    using TMetricModelFactoryPtr = boost::shared_ptr<ml::model::CMetricModelFactory>;
+
+private:
+    void makeModel(const ml::model::SModelParams& params,
+                   const ml::model_t::TFeatureVec& features,
+                   ml::core_t::TTime startTime,
+                   unsigned int* sampleCount = nullptr);
+
+    void makeModel(const ml::model::SModelParams& params,
+                   const ml::model_t::TFeatureVec& features,
+                   ml::core_t::TTime startTime,
+                   ml::model::CModelFactory::TDataGathererPtr& gatherer,
+                   ml::model::CModelFactory::TModelPtr& model,
+                   unsigned int* sampleCount = nullptr);
+
+private:
+    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
+    TMetricModelFactoryPtr m_Factory;
+    ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
+    ml::model::CModelFactory::TModelPtr m_Model;
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 

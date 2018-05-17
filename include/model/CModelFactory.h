@@ -124,7 +124,7 @@ public:
                                     const std::string& partitionFieldValue,
                                     unsigned int sampleOverrideCount = 0u);
 
-        //! This constructor to simplify unit tests.
+        //! This constructor is to simplify unit testing.
         SGathererInitializationData(const core_t::TTime startTime);
 
         core_t::TTime s_StartTime;
