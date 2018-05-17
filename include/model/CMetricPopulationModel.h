@@ -64,6 +64,7 @@ public:
     using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
     using TFeatureSizeSizePrFeatureDataPrVecMap =
         std::map<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+    using TInterimBucketCorrectorCPtr = std::shared_ptr<const CInterimBucketCorrector>;
     using TProbabilityCache = CModelTools::CProbabilityCache;
 
     //! The statistics we maintain about a bucketing interval.
@@ -75,8 +76,6 @@ public:
         //! The non-zero counts of messages by people in the bucketing
         //! interval.
         TSizeUInt64PrVec s_PersonCounts;
-        //! The total count in the current bucket.
-        uint64_t s_TotalCount;
         //! The metric features we are modeling.
         TFeatureSizeSizePrFeatureDataPrVecMap s_FeatureData;
         //! A cache of the corrections applied to interim results.
@@ -104,6 +103,8 @@ public:
     //! each feature.
     //! \param[in] influenceCalculators The influence calculators to use
     //! for each feature.
+    //! \param[in] interimBucketCorrector Calculates corrections for interim
+    //! buckets.
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
     CMetricPopulationModel(const SModelParams& params,
@@ -111,7 +112,8 @@ public:
                            const TFeatureMathsModelPtrPrVec& newFeatureModels,
                            const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
                            const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
-                           const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
+                           const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                           const TInterimBucketCorrectorCPtr& interimBucketCorrector);
 
     //! Constructor used for restoring persisted models.
     //!
@@ -123,6 +125,7 @@ public:
                            const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
                            const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                            const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                           const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                            core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -292,12 +295,6 @@ private:
     //! Set the start time of the current bucket.
     virtual void currentBucketStartTime(core_t::TTime time);
 
-    //! Get the total count of the current bucket.
-    uint64_t currentBucketTotalCount() const;
-
-    //! Set the current bucket total count.
-    virtual void currentBucketTotalCount(uint64_t totalCount);
-
     //! Get the current bucket person counts.
     virtual const TSizeUInt64PrVec& personCounts() const;
 
@@ -317,6 +314,9 @@ private:
 
     //! Clear out large state objects for people/attributes that are pruned
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
+
+    //! Get the object which calculates corrections for interim buckets.
+    virtual const CInterimBucketCorrector& interimValueCorrector() const;
 
     //! Skip sampling the interval \p endTime - \p startTime.
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
@@ -358,6 +358,9 @@ private:
 
     //! The population attribute models for each feature.
     TFeatureModelsVec m_FeatureModels;
+
+    //! Calculates corrections for interim buckets.
+    TInterimBucketCorrectorCPtr m_InterimBucketCorrector;
 
     //! A cache of the probability calculation results.
     mutable TProbabilityCache m_Probabilities;

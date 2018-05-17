@@ -36,8 +36,9 @@ namespace model {
 
 const std::string CModelFactory::EMPTY_STRING("");
 
-CModelFactory::CModelFactory(const SModelParams& params)
-    : m_ModelParams(params) {
+CModelFactory::CModelFactory(const SModelParams& params,
+                             const TInterimBucketCorrectorWPtr& interimBucketCorrector)
+    : m_ModelParams(params), m_InterimBucketCorrector(interimBucketCorrector) {
 }
 
 const CModelFactory::TFeatureMathsModelPtrPrVec&
@@ -218,6 +219,10 @@ void CModelFactory::scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents) 
     m_ModelParams.s_ScheduledEvents = scheduledEvents;
 }
 
+void CModelFactory::interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector) {
+    m_InterimBucketCorrector = interimBucketCorrector;
+}
+
 void CModelFactory::learnRate(double learnRate) {
     m_ModelParams.s_LearnRate = learnRate;
 }
@@ -278,6 +283,10 @@ void CModelFactory::swap(CModelFactory& other) {
     std::swap(m_ModelParams, other.m_ModelParams);
     m_MathsModelCache.swap(other.m_MathsModelCache);
     m_InfluenceCalculatorCache.swap(other.m_InfluenceCalculatorCache);
+}
+
+CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector() const {
+    return TInterimBucketCorrectorPtr{m_InterimBucketCorrector};
 }
 
 CModelFactory::TMultivariatePriorPtr

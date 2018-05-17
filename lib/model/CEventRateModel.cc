@@ -63,7 +63,8 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                                  const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
                                  const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                                  const maths::CMultinomialConjugate& probabilityPrior,
-                                 const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
+                                 const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                                 const TInterimBucketCorrectorCPtr& interimBucketCorrector)
     : CIndividualModel(params,
                        dataGatherer,
                        newFeatureModels,
@@ -71,7 +72,8 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                        featureCorrelatesModels,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
-      m_ProbabilityPrior(probabilityPrior) {
+      m_ProbabilityPrior(probabilityPrior),
+      m_InterimBucketCorrector(interimBucketCorrector) {
 }
 
 CEventRateModel::CEventRateModel(const SModelParams& params,
@@ -80,6 +82,7 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                                  const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
                                  const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                                  const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                                 const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                                  core::CStateRestoreTraverser& traverser)
     : CIndividualModel(params,
                        dataGatherer,
@@ -87,7 +90,8 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                        newFeatureCorrelateModelPriors,
                        featureCorrelatesModels,
                        influenceCalculators),
-      m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {
+      m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
+      m_InterimBucketCorrector(interimBucketCorrector) {
     traverser.traverseSubLevel(
         boost::bind(&CEventRateModel::acceptRestoreTraverser, this, _1));
 }
@@ -469,10 +473,14 @@ void CEventRateModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
     core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
     core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
+    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+                                    m_InterimBucketCorrector, mem);
 }
 
 std::size_t CEventRateModel::memoryUsage() const {
-    return this->CIndividualModel::memoryUsage();
+    return this->CIndividualModel::memoryUsage() +
+           core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    ;
 }
 
 std::size_t CEventRateModel::staticSize() const {
@@ -486,6 +494,7 @@ std::size_t CEventRateModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
     mem += core::CMemory::dynamicSize(m_Probabilities);
     mem += core::CMemory::dynamicSize(m_ProbabilityPrior);
+    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 
@@ -515,14 +524,6 @@ CEventRateModel::TSizeUInt64PrVec& CEventRateModel::currentBucketPersonCounts() 
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-void CEventRateModel::currentBucketTotalCount(uint64_t totalCount) {
-    m_CurrentBucketStats.s_TotalCount = totalCount;
-}
-
-uint64_t CEventRateModel::currentBucketTotalCount() const {
-    return m_CurrentBucketStats.s_TotalCount;
-}
-
 CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
 CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
@@ -547,6 +548,10 @@ void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVe
     m_Probabilities = TCategoryProbabilityCache(m_ProbabilityPrior);
 
     this->CIndividualModel::clearPrunedResources(people, attributes);
+}
+
+const CInterimBucketCorrector& CEventRateModel::interimValueCorrector() const {
+    return *m_InterimBucketCorrector;
 }
 
 bool CEventRateModel::correlates(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
@@ -584,8 +589,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Value.assign(1, TDouble2Vec{value});
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         double mode{params.s_Model->mode(time, weight)[0]};
-        TDouble2Vec correction{this->interimValueCorrector().corrections(
-            time, this->currentBucketTotalCount(), mode, value)};
+        TDouble2Vec correction{this->interimValueCorrector().corrections(mode, value)};
         params.s_Value[0] += correction;
         this->currentBucketInterimCorrections().emplace(
             core::make_triple(feature, pid, pid), correction);
@@ -694,8 +698,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             TDouble2Vec& value_ = params.s_Values[i];
             if (!value_.empty()) {
-                TDouble2Vec correction(this->interimValueCorrector().corrections(
-                    time, this->currentBucketTotalCount(), modes[i], value_));
+                TDouble2Vec correction(
+                    this->interimValueCorrector().corrections(modes[i], value_));
                 value_ += correction;
                 this->currentBucketInterimCorrections().emplace(
                     core::make_triple(feature, pid, params.s_Correlated[i]),
@@ -708,7 +712,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 ////////// CEventRateModel::SBucketStats Implementation //////////
 
 CEventRateModel::SBucketStats::SBucketStats(core_t::TTime startTime)
-    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {
+    : s_StartTime(startTime), s_InterimCorrections(1) {
 }
 }
 }

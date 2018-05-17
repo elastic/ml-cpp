@@ -22,7 +22,7 @@ namespace model {
 //! This concrete factory implements the methods to make new models
 //! and data gatherers, and create default priors suitable for the
 //! CMetricModel class.
-class MODEL_EXPORT CMetricModelFactory : public CModelFactory {
+class MODEL_EXPORT CMetricModelFactory final : public CModelFactory {
 public:
     //! Lift all overloads into scope.
     using CModelFactory::defaultMultivariatePrior;
@@ -33,9 +33,10 @@ public:
     //! intended for unit testing and are not necessarily good defaults.
     //! The CModelConfig class is responsible for providing sensible
     //! default values for the factory for use within our products.
-    explicit CMetricModelFactory(const SModelParams& params,
-                                 model_t::ESummaryMode summaryMode = model_t::E_None,
-                                 const std::string& summaryCountFieldName = "");
+    CMetricModelFactory(const SModelParams& params,
+                        const TInterimBucketCorrectorWPtr& interimBucketCorrector,
+                        model_t::ESummaryMode summaryMode = model_t::E_None,
+                        const std::string& summaryCountFieldName = "");
 
     //! Create a copy of the factory owned by the calling code.
     virtual CMetricModelFactory* clone() const;
@@ -143,7 +144,7 @@ private:
 
 private:
     //! The identifier of the search for which this generates models.
-    int m_Identifier;
+    int m_Identifier = 0;
 
     //! Indicates whether the data being gathered are already summarized
     //! by an external aggregation process.
@@ -170,7 +171,7 @@ private:
     TStrVec m_InfluenceFieldNames;
 
     //! If true the models will process missing person fields.
-    bool m_UseNull;
+    bool m_UseNull = false;
 
     //! The count features which will be modeled.
     TFeatureVec m_Features;
@@ -179,7 +180,7 @@ private:
     core_t::TTime m_BucketLength;
 
     //! The bucket results delay.
-    std::size_t m_BucketResultsDelay;
+    std::size_t m_BucketResultsDelay = 0;
 
     //! A cached search key.
     mutable TOptionalSearchKey m_SearchKeyCache;

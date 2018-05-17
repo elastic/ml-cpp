@@ -29,11 +29,11 @@ namespace ml {
 namespace model {
 
 CEventRateModelFactory::CEventRateModelFactory(const SModelParams& params,
+                                               const TInterimBucketCorrectorWPtr& interimBucketCorrector,
                                                model_t::ESummaryMode summaryMode,
                                                const std::string& summaryCountFieldName)
-    : CModelFactory(params), m_Identifier(), m_SummaryMode(summaryMode),
-      m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false),
-      m_BucketResultsDelay(0) {
+    : CModelFactory(params, interimBucketCorrector), m_SummaryMode(summaryMode),
+      m_SummaryCountFieldName(summaryCountFieldName) {
 }
 
 CEventRateModelFactory* CEventRateModelFactory::clone() const {
@@ -59,8 +59,9 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
                                    this->minimumSeasonalVarianceScale(), true),
-        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
-        this->defaultCategoricalPrior(), influenceCalculators);
+        this->defaultCorrelatePriors(features),
+        this->defaultCorrelates(features), this->defaultCategoricalPrior(),
+        influenceCalculators, this->interimBucketCorrector());
 }
 
 CAnomalyDetectorModel*
@@ -82,8 +83,8 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
     return new CEventRateModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features), influenceCalculators, traverser);
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
 CDataGatherer*

@@ -13,6 +13,8 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <memory>
+
 class CCountingModelTest;
 
 namespace ml {
@@ -31,11 +33,18 @@ namespace model {
 //! interpreting the maths library logging easier.
 class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel {
 public:
+    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
+
+public:
     //! \name Life-cycle.
     //@{
     //! \param[in] params The global configuration parameters.
     //! \param[in] dataGatherer The object that gathers time series data.
-    CCountingModel(const SModelParams& params, const TDataGathererPtr& dataGatherer);
+    //! \param[in] interimBucketCorrector Calculates corrections for interim
+    //! buckets.
+    CCountingModel(const SModelParams& params,
+                   const TDataGathererPtr& dataGatherer,
+                   const TInterimBucketCorrectorPtr& interimBucketCorrector);
 
     //! Constructor used for restoring persisted models.
     //!
@@ -43,6 +52,7 @@ public:
     //! and so must be sampled for before this model can be used.
     CCountingModel(const SModelParams& params,
                    const TDataGathererPtr& dataGatherer,
+                   const TInterimBucketCorrectorPtr& interimBucketCorrector,
                    core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
@@ -213,12 +223,6 @@ public:
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
-public:
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
-    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-
 protected:
     //! Get the start time of the current bucket.
     virtual core_t::TTime currentBucketStartTime() const;
@@ -255,14 +259,14 @@ private:
     //! Initialize the time series models for newly observed people.
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
 
+    //! Get the object which calculates corrections for interim buckets.
+    virtual const CInterimBucketCorrector& interimValueCorrector() const;
+
     //! Check if bucket statistics are available for the specified time.
     bool bucketStatsAvailable(core_t::TTime time) const;
 
     //! Print the current bucketing interval.
     std::string printCurrentBucket() const;
-
-    //! Set the current bucket total count.
-    virtual void currentBucketTotalCount(uint64_t totalCount);
 
     //! Perform derived class specific operations to accomplish skipping sampling
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
@@ -271,6 +275,10 @@ private:
     virtual CMemoryUsageEstimator* memoryUsageEstimator() const;
 
 private:
+    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
 
 private:
@@ -283,12 +291,15 @@ private:
     //! The baseline bucket counts.
     TMeanAccumulatorVec m_MeanCounts;
 
-    //! Map of matched scheduled event descriptions by bucket time
+    //! Map of matched scheduled event descriptions by bucket time.
     TTimeStr1VecUMap m_ScheduledEventDescriptions;
+
+    //! Calculates corrections for interim buckets.
+    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 
     friend class ::CCountingModelTest;
 };
 }
 }
 
-#endif // INCLUDED_ml_model_CModel_h
+#endif // INCLUDED_ml_model_CCountingModel_h

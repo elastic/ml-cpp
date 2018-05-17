@@ -21,11 +21,12 @@ namespace ml {
 namespace model {
 
 CCountingModelFactory::CCountingModelFactory(const SModelParams& params,
+                                             const TInterimBucketCorrectorWPtr& interimBucketCorrector,
                                              model_t::ESummaryMode summaryMode,
                                              const std::string& summaryCountFieldName)
-    : CModelFactory(params), m_Identifier(), m_SummaryMode(summaryMode),
-      m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false),
-      m_BucketResultsDelay(0) {
+    : CModelFactory(params, interimBucketCorrector), m_Identifier(),
+      m_SummaryMode(summaryMode), m_SummaryCountFieldName(summaryCountFieldName),
+      m_UseNull(false), m_BucketResultsDelay(0) {
 }
 
 CCountingModelFactory* CCountingModelFactory::clone() const {
@@ -39,7 +40,8 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData) const
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
-    return new CCountingModel(this->modelParams(), dataGatherer);
+    return new CCountingModel(this->modelParams(), dataGatherer,
+                              this->interimBucketCorrector());
 }
 
 CAnomalyDetectorModel*
@@ -50,7 +52,8 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData,
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
-    return new CCountingModel(this->modelParams(), dataGatherer, traverser);
+    return new CCountingModel(this->modelParams(), dataGatherer,
+                              this->interimBucketCorrector(), traverser);
 }
 
 CDataGatherer*

@@ -301,7 +301,6 @@ const std::string MOMENTS_6_3_TAG{"i"};
 const std::string MOMENTS_MINUS_TREND_6_3_TAG{"j"};
 const std::string USING_TREND_FOR_PREDICTION_6_3_TAG{"k"};
 const std::string GAIN_CONTROLLER_6_3_TAG{"l"};
-
 // Version < 6.3
 const std::string COMPONENTS_MACHINE_OLD_TAG{"a"};
 const std::string TREND_OLD_TAG{"b"};

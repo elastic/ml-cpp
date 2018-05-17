@@ -15,6 +15,8 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <cstdint>
+
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -48,32 +50,28 @@ public:
     //! Constructs an interim bucket corrector for buckets of length \p bucketLength
     CInterimBucketCorrector(core_t::TTime bucketLength);
 
-    //! Copy constructor
-    CInterimBucketCorrector(const CInterimBucketCorrector& other);
+    //! Updates the current count in the bucket.
+    void currentBucketCount(core_t::TTime time, std::uint64_t count);
 
-    //! Updates the model of the bucket count with a new measurement
-    void update(core_t::TTime time, std::size_t bucketCount);
+    //! Updates the bucket count model with a new bucket count.
+    void finalBucketCount(core_t::TTime time, std::uint64_t bucketCount);
+
+    //! Get an estimate of the current bucket completeness.
+    double completeness() const;
 
     //! Calculates corrections for the \p value based on the given \p mode
     //! and the estimated bucket completeness.
     //!
-    //! \param[in] time The time of interest.
-    //! \param[in] currentCount The total count in the bucket of interest.
     //! \param[in] mode The mode that corresponds to the given \p value.
     //! \param[in] value The value to be corrected.
-    double corrections(core_t::TTime time, std::size_t currentCount, double mode, double value) const;
+    double corrections(double mode, double value) const;
 
     //! Calculates corrections for the \p values based on the given \p modes
     //! and the estimated bucket completeness.
     //!
-    //! \param[in] time The time of interest.
-    //! \param[in] currentCount The total count in the bucket of interest.
     //! \param[in] modes The modes that map to the given \p values.
     //! \param[in] values The values to be corrected.
-    TDouble10Vec corrections(core_t::TTime time,
-                             std::size_t currentCount,
-                             const TDouble10Vec& modes,
-                             const TDouble10Vec& values) const;
+    TDouble10Vec corrections(const TDouble10Vec& modes, const TDouble10Vec& values) const;
 
     //! Get the memory used by the corrector
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -81,7 +79,10 @@ public:
     //! Get the memory used by the corrector
     std::size_t memoryUsage() const;
 
+    //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
@@ -91,17 +92,20 @@ private:
     //! Calculates an estimate of completeness for a bucket that contains
     //! \p time and whose current count is \p currentCount. The returned
     //! value is within [0.0, 1.0].
-    double estimateBucketCompleteness(core_t::TTime time, std::size_t currentCount) const;
+    double estimateBucketCompleteness(core_t::TTime time, std::uint64_t count) const;
 
 private:
     //! The bucket length
     core_t::TTime m_BucketLength;
 
-    //! The decomposition of the overall bucket count
-    maths::CTimeSeriesDecomposition m_CountTrend;
+    //! An estimate of the current bucket completeness.
+    double m_Completeness;
 
-    //! The mean statistic for the overall bucket count
-    TMeanAccumulator m_CountMean;
+    //! A model of the final bucket count trend.
+    maths::CTimeSeriesDecomposition m_FinalCountTrend;
+
+    //! The mean final bucket count.
+    TMeanAccumulator m_FinalCountMean;
 };
 }
 }
