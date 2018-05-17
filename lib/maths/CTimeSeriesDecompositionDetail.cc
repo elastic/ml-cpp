@@ -1596,30 +1596,34 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         })};
     double numberOutliers{SEASONAL_OUTLIER_FRACTION * numberValues};
 
-    TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
-    TMeanAccumulator meanDifference;
-    core_t::TTime time = startTime + dt / 2;
-    for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
-        if (CBasicStatistics::count(values[i]) > 0.0) {
-            double difference{std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
-            outliers.add({-difference, i});
-            meanDifference.add(difference);
+    if (numberOutliers > 1.0) {
+
+        TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
+        TMeanAccumulator meanDifference;
+        core_t::TTime time = startTime + dt / 2;
+        for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
+            if (CBasicStatistics::count(values[i]) > 0.0) {
+                double difference{
+                    std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
+                outliers.add({-difference, i});
+                meanDifference.add(difference);
+            }
         }
-    }
-    outliers.sort();
-    TMeanAccumulator meanDifferenceOfOutliers;
-    for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
-        meanDifferenceOfOutliers.add(-outliers[i].first);
-    }
-    meanDifference -= meanDifferenceOfOutliers;
-    for (std::size_t i = 0; i < outliers.count(); ++i) {
-        if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                     CBasicStatistics::mean(meanDifference)) {
-            double weight{SEASONAL_OUTLIER_WEIGHT +
-                          (1.0 - SEASONAL_OUTLIER_WEIGHT) *
-                              CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
-                                                       0.1, 1.0)};
-            CBasicStatistics::count(values[outliers[i].second]) *= weight;
+        outliers.sort();
+        TMeanAccumulator meanDifferenceOfOutliers;
+        for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
+            meanDifferenceOfOutliers.add(-outliers[i].first);
+        }
+        meanDifference -= meanDifferenceOfOutliers;
+        for (std::size_t i = 0; i < outliers.count(); ++i) {
+            if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                         CBasicStatistics::mean(meanDifference)) {
+                double weight{SEASONAL_OUTLIER_WEIGHT +
+                              (1.0 - SEASONAL_OUTLIER_WEIGHT) *
+                                  CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
+                                                           0.1, 1.0)};
+                CBasicStatistics::count(values[outliers[i].second]) *= weight;
+            }
         }
     }
 }
