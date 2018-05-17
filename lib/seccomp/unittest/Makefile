@@ -7,6 +7,9 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 TARGET=ml_test$(EXE_EXT)
 
+USE_BOOST=1
+USE_BOOST_REGEX_LIBS=1
+
 LIBS:=$(LIB_ML_SECCOMP)
 
 all: build

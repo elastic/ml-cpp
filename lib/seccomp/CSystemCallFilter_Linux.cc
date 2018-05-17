@@ -9,7 +9,7 @@
 
 #include <linux/audit.h>
 #include <linux/filter.h>
-#include <linux/seccomp.h>
+//#include <linux/seccomp.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 
@@ -19,13 +19,25 @@ namespace seccomp {
 
 unsigned int upper_nr_limit = 0x3FFFFFFF;
 
+unsigned int SECCOMP_DATA_NR_OFFSET = 0x00;
+unsigned int SECCOMP_DATA_ARCH_OFFSET = 0x04;
+
+
+unsigned long SECCOMP_MODE_FILTER = 2;
+int PR_SET_NO_NEW_PRIVS = 38;
+
+
+#define SECCOMP_RET_ERRNO       0x00050000U /* returns an errno */
+#define SECCOMP_RET_ALLOW       0x7fff0000U /* allow */
+#define SECCOMP_RET_DATA        0x0000ffffU
+
 struct sock_filter filter[] = {
        /* Load architecture from 'seccomp_data' buffer into accumulator */
-       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, (offsetof(struct seccomp_data, arch))),
+       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
        /* Jump to disallow if architecture is not X86_64 */
        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 0, 5),
        /* Load the system call number into accumulator */
-       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, (offsetof(struct seccomp_data, nr))),
+       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
        /* [3] Check ABI - only needed for x86-64 in blacklist use
                 cases.  Use BPF_JGT instead of checking against the bit
                               mask to avoid having to reload the syscall number. */

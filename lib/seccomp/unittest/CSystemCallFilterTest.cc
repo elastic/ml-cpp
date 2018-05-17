@@ -9,6 +9,10 @@
 #include <core/COsFileFuncs.h>
 #include <core/CSleep.h>
 #include <core/CThread.h>
+#ifdef Linux
+#include <core/CRegex.h>
+#include <core/CUname.h>
+#endif
 
 #include <seccomp/CSystemCallFilter.h>
 
@@ -32,7 +36,6 @@ class CNamedPipeWriter : public ml::core::CThread {
 public:
     CNamedPipeWriter(const std::string& fileName, size_t size)
         : m_FileName(fileName), m_Size(size) {}
-
 protected:
     virtual void run() {
         // Wait for the file to exist
@@ -116,6 +119,19 @@ CppUnit::Test* CSystemCallFilterTest::suite() {
 }
 
 void CSystemCallFilterTest::testSystemCallFilter() {
+#ifdef Linux
+    std::string release{ml::core::CUname::release()};
+    ml::core::CRegex semVersion;
+    semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*");
+    ml::core::CRegex::TStrVec tokens;
+    CPPUNIT_ASSERT(semVersion.tokenise(release, tokens));
+    // Seccomp is available in kernals since 3.5
+    if (std::stoi(tokens[0]) < 3 || std::stoi(tokens[1]) < 5) {
+        LOG_INFO(<< "Cannot test seccomp on linux kernals before 3.5");
+        return;
+    }
+#endif // Linux
+
     // Ensure actions are not prohibited before the
     // system call filters are applied
     CPPUNIT_ASSERT(systemCall());
