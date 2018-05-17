@@ -1332,14 +1332,14 @@ public:
         explicit COrderStatisticsHeap(std::size_t n, const LESS& less = LESS{})
             : TImpl{std::vector<T>(std::max(n, std::size_t(1)), T{}), less} {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid size of 0 for statistics accumulator");
+                LOG_ERROR(<< "Invalid size of 0 for order statistics accumulator");
             }
         }
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid resize of 0 for statistics accumulator");
+                LOG_ERROR(<< "Invalid resize to 0 for order statistics accumulator");
                 n = 1;
             }
             this->clear();
