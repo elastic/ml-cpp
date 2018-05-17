@@ -127,22 +127,8 @@ void CSystemCallFilterTest::testSystemCallFilter() {
                                           CPPUNIT_ASSERT(systemCall()));
 
     // Operations that must function after seccomp is initialised
-    openPipeAndRead(std::string("/private/tmp/") + TEST_READ_PIPE_NAME);
-    openPipeAndWrite(std::string("/private/tmp/") + TEST_WRITE_PIPE_NAME);
-
-    // // Write is only possible in /private/tmp, check a pipe cannot
-    // // be opened in another dir.
-    // const char* homedir;
-    // if ((homedir = getenv("HOME")) == nullptr) {
-    //     homedir = getpwuid(getuid())->pw_dir;
-    // }
-    // CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE(
-    //     "Named pipes cannot be created outside of the designated directory",
-    //     assertOpenPipeRead(std::string(homedir) + "/systemcallfilter_unittest_artifact"));
-
-    // CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE(
-    //     "Named pipes cannot be created outside of the designated directory",
-    //     assertOpenPipeWrite(std::string(homedir) + "/systemcallfilter_unittest_artifact"));
+    openPipeAndRead(ml::test::CTestTmpDir::tmpDir() + "/" + TEST_READ_PIPE_NAME);
+    openPipeAndWrite(ml::test::CTestTmpDir::tmpDir() + "/" + TEST_WRITE_PIPE_NAME);
 }
 
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
@@ -150,7 +136,9 @@ void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
     CNamedPipeWriter threadWriter(filename, TEST_SIZE);
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP strm = assertOpenPipeRead(filename);
+    ml::core::CNamedPipeFactory::TIStreamP strm =
+        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
+    CPPUNIT_ASSERT(strm);
 
     static const std::streamsize BUF_SIZE = 512;
     std::string readData;
@@ -172,19 +160,13 @@ void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
     strm.reset();
 }
 
-ml::core::CNamedPipeFactory::TIStreamP
-CSystemCallFilterTest::assertOpenPipeRead(const std::string& filename) {
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
-    CPPUNIT_ASSERT(strm);
-    return strm;
-}
-
 void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
     CNamedPipeReader threadReader(filename);
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm = assertOpenPipeWrite(filename);
+    ml::core::CNamedPipeFactory::TOStreamP strm =
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
+    CPPUNIT_ASSERT(strm);
 
     size_t charsLeft(TEST_SIZE);
     size_t blockSize(7);
@@ -203,12 +185,4 @@ void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, threadReader.data().length());
     CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
-}
-
-ml::core::CNamedPipeFactory::TOStreamP
-CSystemCallFilterTest::assertOpenPipeWrite(const std::string& filename) {
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
-    CPPUNIT_ASSERT(strm);
-    return strm;
 }

@@ -19,9 +19,6 @@ public:
 private:
     void openPipeAndRead(const std::string& filename);
     void openPipeAndWrite(const std::string& filename);
-
-    ml::core::CNamedPipeFactory::TIStreamP assertOpenPipeRead(const std::string& filename);
-    ml::core::CNamedPipeFactory::TOStreamP assertOpenPipeWrite(const std::string& filename);
 };
 
 #endif // INCLUDED_CSystemCallFilterTest_h
