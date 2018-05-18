@@ -57,6 +57,9 @@ public:
     void finalBucketCount(core_t::TTime time, std::uint64_t bucketCount);
 
     //! Get an estimate of the current bucket completeness.
+    //!
+    //! \note This is a value between 0 and 1 with 0 representing an empty
+    //! bucket and 1 a bucket which is complete.
     double completeness() const;
 
     //! Calculates corrections for the \p value based on the given \p mode

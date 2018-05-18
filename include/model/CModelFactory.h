@@ -136,6 +136,9 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
+    //! \warning The user must ensure that \p interimBucketCorrector
+    //! outlives this object. If model factories are obtained from
+    //! CModelConfig this is ensured for you.
     CModelFactory(const SModelParams& params,
                   const TInterimBucketCorrectorWPtr& interimBucketCorrector);
     virtual ~CModelFactory() = default;
@@ -298,6 +301,10 @@ public:
     void scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents);
 
     //! Set the interim bucket corrector.
+    //!
+    //! \warning The caller must ensure that \p interimBucketCorrector
+    //! outlives this object. If model factories are obtained from
+    //! CModelConfig this is ensured for you.
     void interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector);
 
     //! \name Customization by mlmodel.conf
@@ -429,8 +436,11 @@ private:
 
     //! A reference to the singleton interim bucket correction calculator.
     //!
-    //! \note That this is stored by weak pointer since we don't want this
-    //! to update the reference count or our memory accounting will be wrong.
+    //! \note It is the responsibility of the user of the factory class
+    //! to ensure that the interim bucket corrector is not deleted whilst
+    //! still in use. We store it here by weak pointer since we don't want
+    //! this to update the reference count so we properly account for its
+    //! memory usage in the objects this creates.
     TInterimBucketCorrectorWPtr m_InterimBucketCorrector;
 
     //! A cache of models for collections of features.
