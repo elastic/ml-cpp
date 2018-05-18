@@ -19,18 +19,22 @@
 #include <test/CTestTmpDir.h>
 
 #include <cstdlib>
-#include <pwd.h>
 #include <string>
-#include <unistd.h>
 
 namespace {
 
 const uint32_t SLEEP_TIME_MS = 100;
-const size_t TEST_SIZE = 100;
+const size_t TEST_SIZE = 10000;
 const size_t MAX_ATTEMPTS = 20;
 const char TEST_CHAR = 'a';
+#ifdef Windows
+const char* TEST_READ_PIPE_NAME = "\\\\.\\pipe\\testreadpipe";
+const char* TEST_WRITE_PIPE_NAME = "\\\\.\\pipe\\testwritepipe";
+#else
 const char* TEST_READ_PIPE_NAME = "testreadpipe";
 const char* TEST_WRITE_PIPE_NAME = "testwritepipe";
+#endif
+
 
 class CNamedPipeWriter : public ml::core::CThread {
 public:
@@ -142,9 +146,17 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
                                           CPPUNIT_ASSERT(systemCall()));
 
+#ifdef Windows
+    const std::string readPipeName{TEST_READ_PIPE_NAME};
+    const std::string writePipeName{TEST_WRITE_PIPE_NAME};
+#else
+    const std::string readPipeName{ml::test::CTestTmpDir::tmpDir() + "/" + TEST_READ_PIPE_NAME};
+    const std::string writePipeName{ml::test::CTestTmpDir::tmpDir() + "/" + TEST_WRITE_PIPE_NAME};
+#endif
+
     // Operations that must function after seccomp is initialised
-    openPipeAndRead(ml::test::CTestTmpDir::tmpDir() + "/" + TEST_READ_PIPE_NAME);
-    openPipeAndWrite(ml::test::CTestTmpDir::tmpDir() + "/" + TEST_WRITE_PIPE_NAME);
+    openPipeAndRead(readPipeName);
+    openPipeAndWrite(writePipeName);
 }
 
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
