@@ -9,7 +9,6 @@
 
 #include <linux/audit.h>
 #include <linux/filter.h>
-//#include <linux/seccomp.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 
@@ -17,19 +16,27 @@
 namespace ml {
 namespace seccomp {
 
-unsigned int upper_nr_limit = 0x3FFFFFFF;
+// The old x32 ABI always has bit 30 set in the sys call numbers.
+// The x64 architecture should fail these calls
+unsigned int UPPER_NR_LIMIT = 0x3FFFFFFF;
 
-unsigned int SECCOMP_DATA_NR_OFFSET = 0x00;
+// Offset to the nr field in struct seccomp_data
+unsigned int SECCOMP_DATA_NR_OFFSET   = 0x00;
+// Offset to the arch field in struct seccomp_data
 unsigned int SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
+// Copied from seccomp.h
+// seccomp.h cannot be included as it was added in Linux kernal 3.17
+// and this must build on older versions.
+#define SECCOMP_MODE_FILTER 2
+#define SECCOMP_RET_ERRNO   0x00050000U
+#define SECCOMP_RET_ALLOW   0x7fff0000U
+#define SECCOMP_RET_DATA    0x0000ffffU
 
-unsigned long SECCOMP_MODE_FILTER = 2;
-int PR_SET_NO_NEW_PRIVS = 38;
-
-
-#define SECCOMP_RET_ERRNO       0x00050000U /* returns an errno */
-#define SECCOMP_RET_ALLOW       0x7fff0000U /* allow */
-#define SECCOMP_RET_DATA        0x0000ffffU
+// Added in Linux 3.5
+#ifndef PR_SET_NO_NEW_PRIVS
+#define PR_SET_NO_NEW_PRIVS 38
+#endif
 
 struct sock_filter filter[] = {
        /* Load architecture from 'seccomp_data' buffer into accumulator */
@@ -38,13 +45,11 @@ struct sock_filter filter[] = {
        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 0, 5),
        /* Load the system call number into accumulator */
        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
-       /* [3] Check ABI - only needed for x86-64 in blacklist use
-                cases.  Use BPF_JGT instead of checking against the bit
-                              mask to avoid having to reload the syscall number. */
-       BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, upper_nr_limit, 4, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYS_fork, 3, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYS_vfork, 2, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYS_execve, 1, 0),
+       /* Only applies to X86_64 arch. Fail calls for the x32 ABI  */
+       BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 4, 0),
+       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fork, 3, 0),
+       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_vfork, 2, 0),
+       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_execve, 1, 0),
        /* Allow call */
        BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
        /* Disallow call with error code EACCES */
@@ -75,9 +80,9 @@ CSystemCallFilter::CSystemCallFilter() {
         LOG_DEBUG(<< "Seccomp BPF filters available");
 
         // Ensure more permissive privileges cannot be set in future.
-        // This must be set before installing the filter
-        prctl(PR_SET_NO_NEW_PRIVS, 1);
-
+        // This must be set before installing the filter.
+        // PR_SET_NO_NEW_PRIVS was aded in kernal 3.5
+        prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 
         struct sock_fprog prog = {
            .len = static_cast<unsigned short>(sizeof(filter) / sizeof(filter[0])),
@@ -85,13 +90,15 @@ CSystemCallFilter::CSystemCallFilter() {
         };
 
         // Install the filter.
-        // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, ...) was introduced
-        // in kernal 3.5.
-        // The alternative seccomp(SECCOMP_SET_MODE_FILTER, SECCOMP_FILTER_FLAG_TSYNC, ...)
-        // was introduced in 3.17 and similar functionality we choose the older more
-        // compatible function
+        // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter) was introduced
+        // in kernal 3.5. This is functionally equivalent to
+        // seccomp(SECCOMP_SET_MODE_FILTER, 0, filter which was added in
+        // kernal 3.17. We choose the older more compatible function.
+        // Note this precludes the use of calling seccomp() with the
+        // SECCOMP_FILTER_FLAG_TSYNC which is acceptable if the filter
+        // is installed by the main thread before any other threads are
+        // spawned.
         if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-        // if (seccomp(SECCOMP_SET_MODE_FILTER, SECCOMP_FILTER_FLAG_TSYNC, &prog)) {
             LOG_ERROR("Unable to install Seccomp BPF");
         } else {
             LOG_DEBUG("Seccomp BPF installed");
