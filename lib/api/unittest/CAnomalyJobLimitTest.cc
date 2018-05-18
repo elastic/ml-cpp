@@ -9,14 +9,18 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CIntegerTools.h>
+
+#include <model/CAnomalyDetectorModelConfig.h>
+#include <model/CLimits.h>
+
 #include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 
-#include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CLimits.h>
+#include <test/CRandomNumbers.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
@@ -84,6 +88,9 @@ CppUnit::Test* CAnomalyJobLimitTest::suite() {
         "CAnomalyJobLimitTest::testLimit", &CAnomalyJobLimitTest::testLimit));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
         "CAnomalyJobLimitTest::testAccuracy", &CAnomalyJobLimitTest::testAccuracy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
+        "CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit",
+        &CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit));
     return suiteOfTests;
 }
 
@@ -289,4 +296,184 @@ void CAnomalyJobLimitTest::testLimit() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), partitions.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), people.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), attributes.size());
+}
+
+void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
+    using TOptionalDouble = boost::optional<double>;
+    using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TGenerator = std::function<TOptionalDouble(core_t::TTime)>;
+    using TGeneratorVec = std::vector<TGenerator>;
+
+    test::CRandomNumbers rng;
+
+    // Generators for a variety of data characteristics.
+
+    TGenerator periodic = [&rng](core_t::TTime time) {
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 3.0, 1, noise);
+        return TOptionalDouble{20.0 * std::sin(2.0 * boost::math::double_constants::pi *
+                                               static_cast<double>(time) /
+                                               static_cast<double>(core::constants::DAY)) +
+                               noise[0]};
+    };
+    TGenerator tradingDays = [&periodic](core_t::TTime time) {
+        double amplitude[]{1.0, 1.0, 0.7, 0.8, 1.0, 0.1, 0.1};
+        return TOptionalDouble{amplitude[(time % core::constants::WEEK) / core::constants::DAY] *
+                               *periodic(time)};
+    };
+    TGenerator level = [&rng](core_t::TTime) {
+        TDoubleVec noise;
+        rng.generateNormalSamples(10.0, 5.0, 1, noise);
+        return TOptionalDouble{noise[0]};
+    };
+    TGenerator ramp = [&rng](core_t::TTime time) {
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 1.0, 1, noise);
+        return TOptionalDouble{static_cast<double>(time) /
+                                   static_cast<double>(core::constants::DAY) +
+                               noise[0]};
+    };
+    TGenerator sparse = [&rng, &level](core_t::TTime time) {
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
+        return uniform01[0] < 0.1 ? level(time) : boost::none;
+    };
+
+    // We assert on the number of by, partition and over fields we can
+    // create for a small(ish) memory limit to catch large changes in
+    // the memory used per partition of the data.
+
+    core_t::TTime bucketLength{600};
+    TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};
+    std::stringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+    api::CAnomalyJob::TStrStrUMap dataRows;
+    TSizeVec generator;
+
+    LOG_DEBUG(<< "**** Test by ****");
+    {
+        model::CLimits limits;
+        limits.resourceMonitor().memoryLimit(10);
+        api::CFieldConfig fieldConfig;
+        api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
+        fieldConfig.initFromClause(clauses);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        core_t::TTime startTime{1495110323};
+        core_t::TTime endTime{1495230323};
+        core_t::TTime time{startTime};
+        double reportProgress{0.0};
+        for (/**/; time < endTime; time += bucketLength) {
+            double progress{static_cast<double>(time - startTime) /
+                            static_cast<double>(endTime - startTime)};
+            if (progress >= reportProgress) {
+                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                reportProgress += 0.1;
+            }
+            for (std::size_t i = 0; i < 700; ++i) {
+                rng.generateUniformSamples(0, generators.size(), 1, generator);
+                TOptionalDouble value{generators[generator[0]](time)};
+                if (value) {
+                    dataRows["time"] = core::CStringUtils::typeToString(time);
+                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                }
+            }
+        }
+        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
+        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+        LOG_DEBUG(<< "# by = " << used.s_ByFields);
+        LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
+        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+        CPPUNIT_ASSERT(used.s_ByFields > 440 && used.s_ByFields < 600);
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
+    }
+
+    LOG_DEBUG(<< "**** Test partition ****");
+    {
+        model::CLimits limits;
+        limits.resourceMonitor().memoryLimit(10);
+        api::CFieldConfig fieldConfig;
+        api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
+        fieldConfig.initFromClause(clauses);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        core_t::TTime startTime{1495110323};
+        core_t::TTime endTime{1495230323};
+        core_t::TTime time{startTime};
+        double reportProgress{0.0};
+        for (/**/; time < endTime; time += bucketLength) {
+            double progress{static_cast<double>(time - startTime) /
+                            static_cast<double>(endTime - startTime)};
+            if (progress >= reportProgress) {
+                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                reportProgress += 0.1;
+            }
+            for (std::size_t i = 0; i < 500; ++i) {
+                rng.generateUniformSamples(0, generators.size(), 1, generator);
+                TOptionalDouble value{generators[generator[0]](time)};
+                if (value) {
+                    dataRows["time"] = core::CStringUtils::typeToString(time);
+                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                }
+            }
+        }
+        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
+        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+        LOG_DEBUG(<< "# by = " << used.s_ByFields);
+        LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
+        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+        CPPUNIT_ASSERT(used.s_PartitionFields > 280 && used.s_PartitionFields < 360);
+        CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) > 0.95 * static_cast<double>(used.s_PartitionFields));
+    }
+
+    LOG_DEBUG(<< "**** Test over ****");
+    {
+        model::CLimits limits;
+        limits.resourceMonitor().memoryLimit(5);
+        api::CFieldConfig fieldConfig;
+        api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
+        fieldConfig.initFromClause(clauses);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        core_t::TTime startTime{1495110323};
+        core_t::TTime endTime{1495230323};
+        core_t::TTime time{startTime};
+        double reportProgress{0.0};
+        for (/**/; time < endTime; time += bucketLength) {
+            double progress{static_cast<double>(time - startTime) /
+                            static_cast<double>(endTime - startTime)};
+            if (progress >= reportProgress) {
+                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                reportProgress += 0.1;
+            }
+            for (std::size_t i = 0; i < 12000; ++i) {
+                TOptionalDouble value{sparse(time)};
+                if (value) {
+                    dataRows["time"] = core::CStringUtils::typeToString(time);
+                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                }
+            }
+        }
+        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
+        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+        LOG_DEBUG(<< "# over = " << used.s_OverFields);
+        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+        CPPUNIT_ASSERT(used.s_OverFields > 10000 && used.s_OverFields < 12000);
+    }
 }
