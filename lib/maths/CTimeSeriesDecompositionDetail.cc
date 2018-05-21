@@ -599,10 +599,22 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     }
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::clear(ETest test, core_t::TTime time) {
-    if (m_Windows[test] != nullptr) {
-        m_Windows[test].reset(this->newWindow(test));
-        m_Windows[test]->initialize(time);
+void CTimeSeriesDecompositionDetail::CPeriodicityTest::maybeClear(core_t::TTime time,
+                                                                  double shift) {
+    for (auto& test : {E_Short, E_Long}) {
+        if (m_Windows[test] != nullptr) {
+            TDoubleVec values;
+            values.reserve(m_Windows[test]->size());
+            for (const auto& value : m_Windows[test]->values()) {
+                if (CBasicStatistics::count(value) > 0.0) {
+                    values.push_back(CBasicStatistics::mean(value));
+                }
+            }
+            if (shift > 1.4826 * CBasicStatistics::mad(values)) {
+                m_Windows[test].reset(this->newWindow(test));
+                m_Windows[test]->initialize(time);
+            }
+        }
     }
 }
 

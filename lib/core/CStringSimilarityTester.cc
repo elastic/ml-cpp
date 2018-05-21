@@ -12,7 +12,8 @@ namespace core {
 
 const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::min());
 
-CStringSimilarityTester::CStringSimilarityTester() : m_Compressor(true) {
+CStringSimilarityTester::CStringSimilarityTester()
+    : m_Compressor(CCompressUtils::E_Deflate, true) {
 }
 
 bool CStringSimilarityTester::similarity(const std::string& first,
@@ -22,9 +23,9 @@ bool CStringSimilarityTester::similarity(const std::string& first,
     size_t secondCompLength(0);
 
     if (m_Compressor.addString(first) == false ||
-        m_Compressor.compressedLength(true, firstCompLength) == false ||
+        m_Compressor.length(true, firstCompLength) == false ||
         m_Compressor.addString(second) == false ||
-        m_Compressor.compressedLength(true, secondCompLength) == false) {
+        m_Compressor.length(true, secondCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR(<< "Compression problem");
         return false;
@@ -49,9 +50,9 @@ bool CStringSimilarityTester::similarity(const std::string& first,
     size_t secondPlusFirstCompLength(0);
 
     if (m_Compressor.addString(first) == false || m_Compressor.addString(second) == false ||
-        m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false ||
+        m_Compressor.length(true, firstPlusSecondCompLength) == false ||
         m_Compressor.addString(second) == false || m_Compressor.addString(first) == false ||
-        m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
+        m_Compressor.length(true, secondPlusFirstCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR(<< "Compression problem");
         return false;
@@ -71,7 +72,7 @@ bool CStringSimilarityTester::similarity(const std::string& first,
 }
 
 bool CStringSimilarityTester::compressedLengthOf(const std::string& str, size_t& length) const {
-    return m_Compressor.addString(str) && m_Compressor.compressedLength(true, length);
+    return m_Compressor.addString(str) && m_Compressor.length(true, length);
 }
 
 int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,

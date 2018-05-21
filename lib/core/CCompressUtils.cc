@@ -12,69 +12,87 @@
 namespace ml {
 namespace core {
 
-CCompressUtils::CCompressUtils(bool lengthOnly, int level)
-    : m_State(E_Unused), m_LengthOnly(lengthOnly) {
+CCompressUtils::CCompressUtils(EOperation operation, bool lengthOnly, int level)
+    : m_State{E_Unused}, m_Operation{operation}, m_LengthOnly{lengthOnly} {
     ::memset(&m_ZlibStrm, 0, sizeof(z_stream));
 
     m_ZlibStrm.zalloc = Z_NULL;
     m_ZlibStrm.zfree = Z_NULL;
 
-    int ret(::deflateInit(&m_ZlibStrm, level));
+    int ret{Z_OK};
+    switch (m_Operation) {
+    case E_Deflate:
+        ret = ::deflateInit(&m_ZlibStrm, level);
+        break;
+    case E_Inflate:
+        ret = ::inflateInit(&m_ZlibStrm);
+    }
     if (ret != Z_OK) {
         LOG_ABORT(<< "Error initialising Z stream: " << ::zError(ret));
     }
 }
 
 CCompressUtils::~CCompressUtils() {
-    int ret(::deflateEnd(&m_ZlibStrm));
+    int ret{Z_OK};
+    switch (m_Operation) {
+    case E_Deflate:
+        ret = ::deflateEnd(&m_ZlibStrm);
+        break;
+    case E_Inflate:
+        ret = ::inflateEnd(&m_ZlibStrm);
+        break;
+    }
     if (ret != Z_OK) {
         LOG_ERROR(<< "Error ending Z stream: " << ::zError(ret));
     }
 }
 
-bool CCompressUtils::addString(const std::string& str) {
+bool CCompressUtils::addString(const std::string& input) {
     if (m_State == E_Finished) {
-        // If the previous compression has finished and we're adding a new
-        // string then we need to reset the stream so that a new compression
-        // starts from scratch
+        // If the last round of data processing has finished
+        // and we're adding a new vector then we need to reset
+        // the stream so that a new round starts from scratch.
         this->reset();
     }
-
-    return this->doCompress(false, str);
+    return this->processInput(false, input);
 }
 
-bool CCompressUtils::compressedData(bool finish, TByteVec& result) {
+bool CCompressUtils::data(bool finish, TByteVec& result) {
     if (m_LengthOnly) {
-        LOG_ERROR(<< "Cannot get compressed data from length-only compressor");
+        LOG_ERROR(<< "Cannot get data if asked for length-only");
         return false;
     }
 
     if (m_State == E_Unused) {
-        LOG_ERROR(<< "Cannot get compressed data - no strings added");
+        LOG_ERROR(<< "Cannot get data - nothing added");
         return false;
     }
 
-    if (finish && m_State == E_Compressing) {
-        if (this->doCompress(finish, std::string()) == false) {
-            LOG_ERROR(<< "Cannot finish compression");
+    if (finish && m_State == E_Active) {
+        if (this->processInput(finish, std::string()) == false) {
+            LOG_ERROR(<< "Failed to finish processing");
             return false;
         }
     }
 
-    result = m_FullResult;
+    if (finish) {
+        result = std::move(m_FullResult);
+    } else {
+        result = m_FullResult;
+    }
 
     return true;
 }
 
-bool CCompressUtils::compressedLength(bool finish, size_t& length) {
+bool CCompressUtils::length(bool finish, size_t& length) {
     if (m_State == E_Unused) {
-        LOG_ERROR(<< "Cannot get compressed data - no strings added");
+        LOG_ERROR(<< "Cannot get length - nothing added");
         return false;
     }
 
-    if (finish && m_State == E_Compressing) {
-        if (this->doCompress(finish, std::string()) == false) {
-            LOG_ERROR(<< "Cannot finish compression");
+    if (finish && m_State == E_Active) {
+        if (this->processInput(finish, std::string()) == false) {
+            LOG_ERROR(<< "Cannot finish processing");
             return false;
         }
     }
@@ -97,37 +115,28 @@ void CCompressUtils::reset() {
     m_State = E_Unused;
 }
 
-bool CCompressUtils::doCompress(bool finish, const std::string& str) {
-    if (str.empty() && m_State == E_Compressing && !finish) {
-        return true;
+bool CCompressUtils::processChunk(int flush) {
+    m_ZlibStrm.next_out = m_Chunk;
+    m_ZlibStrm.avail_out = CHUNK_SIZE;
+
+    int ret{Z_OK};
+    switch (m_Operation) {
+    case E_Deflate:
+        ret = ::deflate(&m_ZlibStrm, flush);
+        break;
+    case E_Inflate:
+        ret = ::inflate(&m_ZlibStrm, flush);
+        break;
+    }
+    if (ret == Z_STREAM_ERROR) {
+        LOG_ERROR(<< "Error processing: " << ::zError(ret));
+        return false;
     }
 
-    m_State = E_Compressing;
-
-    m_ZlibStrm.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(str.data()));
-    m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
-
-    static const size_t CHUNK_SIZE = 4096;
-    Bytef out[CHUNK_SIZE];
-
-    int flush(finish ? Z_FINISH : Z_NO_FLUSH);
-    do {
-        m_ZlibStrm.next_out = out;
-        m_ZlibStrm.avail_out = CHUNK_SIZE;
-        int ret(::deflate(&m_ZlibStrm, flush));
-        if (ret == Z_STREAM_ERROR) {
-            LOG_ERROR(<< "Error deflating: " << ::zError(ret));
-            return false;
-        }
-
-        size_t have(CHUNK_SIZE - m_ZlibStrm.avail_out);
-        if (!m_LengthOnly) {
-            m_FullResult.insert(m_FullResult.end(), &out[0], &out[have]);
-        }
-    } while (m_ZlibStrm.avail_out == 0);
-
-    m_State = finish ? E_Finished : E_Compressing;
-
+    size_t have(CHUNK_SIZE - m_ZlibStrm.avail_out);
+    if (!m_LengthOnly) {
+        m_FullResult.insert(m_FullResult.end(), &m_Chunk[0], &m_Chunk[have]);
+    }
     return true;
 }
 }

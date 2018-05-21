@@ -1758,7 +1758,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
     using TStrCRefVec = std::vector<TStrCRef>;
 
     featureData.s_InfluenceValues.clear();
-    core::CCompressUtils compressor(true);
+    core::CCompressUtils compressor(core::CCompressUtils::E_Deflate, true);
 
     try {
         TStrCRefVec strings;
@@ -1773,7 +1773,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         });
 
         std::size_t length = 0u;
-        if (compressor.compressedLength(true, length) == false) {
+        if (compressor.length(true, length) == false) {
             LOG_ERROR(<< "Failed to get compressed length");
             compressor.reset();
         }
@@ -1796,7 +1796,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
                                   compressor.addString(string);
                               });
                 length = 0u;
-                if (compressor.compressedLength(true, length) == false) {
+                if (compressor.length(true, length) == false) {
                     LOG_ERROR(<< "Failed to get compressed length");
                     compressor.reset();
                 }
