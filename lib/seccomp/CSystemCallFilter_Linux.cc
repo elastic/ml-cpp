@@ -26,7 +26,7 @@ unsigned int SECCOMP_DATA_NR_OFFSET   = 0x00;
 unsigned int SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
 // Copied from seccomp.h
-// seccomp.h cannot be included as it was added in Linux kernal 3.17
+// seccomp.h cannot be included as it was added in Linux kernel 3.17
 // and this must build on older versions.
 #define SECCOMP_MODE_FILTER 2
 #define SECCOMP_RET_ERRNO   0x00050000U
@@ -58,7 +58,7 @@ struct sock_filter filter[] = {
 
 bool canUseSeccompBpf() {
     // This call is expected to fail due to the nullptr argument
-    // but the failure mode informs us if the kernal was configured
+    // but the failure mode informs us if the kernel was configured
     // with CONFIG_SECCOMP_FILTER
     // http://man7.org/linux/man-pages/man2/prctl.2.html
     int result = prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, nullptr);
@@ -68,7 +68,7 @@ bool canUseSeccompBpf() {
         return false;
     }
 
-    // If the kernal is not configured with CONFIG_SECCOMP_FILTER
+    // If the kernel is not configured with CONFIG_SECCOMP_FILTER
     // or CONFIG_SECCOMP the error is EINVAL. EFAULT indicates the
     // seccomp filters are enabled but the 3rd argument (nullptr)
     // was invalid.
@@ -81,7 +81,7 @@ CSystemCallFilter::CSystemCallFilter() {
 
         // Ensure more permissive privileges cannot be set in future.
         // This must be set before installing the filter.
-        // PR_SET_NO_NEW_PRIVS was aded in kernal 3.5
+        // PR_SET_NO_NEW_PRIVS was aded in kernel 3.5
         prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 
         struct sock_fprog prog = {
@@ -91,9 +91,9 @@ CSystemCallFilter::CSystemCallFilter() {
 
         // Install the filter.
         // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter) was introduced
-        // in kernal 3.5. This is functionally equivalent to
-        // seccomp(SECCOMP_SET_MODE_FILTER, 0, filter which was added in
-        // kernal 3.17. We choose the older more compatible function.
+        // in kernel 3.5. This is functionally equivalent to
+        // seccomp(SECCOMP_SET_MODE_FILTER, 0, filter) which was added in
+        // kernel 3.17. We choose the older more compatible function.
         // Note this precludes the use of calling seccomp() with the
         // SECCOMP_FILTER_FLAG_TSYNC which is acceptable if the filter
         // is installed by the main thread before any other threads are

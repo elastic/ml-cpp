@@ -22,12 +22,15 @@ CSystemCallFilter::CSystemCallFilter() {
 
     JOBOBJECT_BASIC_LIMIT_INFORMATION limits;
 
+    // Get the current job information
     if (QueryInformationJobObject(job, JobObjectBasicLimitInformation,
                                   &limits, sizeof(limits), nullptr) == 0) {
         LOG_ERROR(<< "Error querying Job Object information: " << ml::core::CWindowsError().errorString());
         return;
     }
 
+    // Limit the number of active processes to 1 and
+    // flag that the limit is set
     limits.ActiveProcessLimit = uint32_t{1};
     limits.LimitFlags = limits.LimitFlags | JOB_OBJECT_LIMIT_ACTIVE_PROCESS;
     if (SetInformationJobObject(job, JobObjectBasicLimitInformation,
@@ -36,6 +39,7 @@ CSystemCallFilter::CSystemCallFilter() {
         return;
     }
 
+    // Assign current process to the job
     if (AssignProcessToJobObject(job, GetCurrentProcess()) == 0) {
         LOG_ERROR(<< "Error assigning process to Job Object: " << ml::core::CWindowsError().errorString());
         return;

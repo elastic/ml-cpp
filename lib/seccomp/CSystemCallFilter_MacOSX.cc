@@ -16,7 +16,7 @@ namespace ml {
 namespace seccomp {
 
 // The Sandbox rules deny all actions apart from creating fifos,
-// opening files and reading and writing.
+// opening files, reading and writing.
 // (allow file-write*) is required for mkfifo and that permission
 // can not be set using the more granular controls.
 static const std::string SANDBOX_RULES("\

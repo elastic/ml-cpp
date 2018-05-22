@@ -129,9 +129,9 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*");
     ml::core::CRegex::TStrVec tokens;
     CPPUNIT_ASSERT(semVersion.tokenise(release, tokens));
-    // Seccomp is available in kernals since 3.5
+    // Seccomp is available in kernels since 3.5
     if (std::stoi(tokens[0]) < 3 || std::stoi(tokens[1]) < 5) {
-        LOG_INFO(<< "Cannot test seccomp on linux kernals before 3.5");
+        LOG_INFO(<< "Cannot test seccomp on linux kernels before 3.5");
         return;
     }
 #endif // Linux
