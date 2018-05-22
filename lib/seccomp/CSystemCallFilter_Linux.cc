@@ -25,7 +25,7 @@ namespace {
 const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
-const std::uint32_t SECCOMP_DATA_NR_OFFSET   = 0x00;
+const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
 // Offset to the arch field in struct seccomp_data
 const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
@@ -34,9 +34,9 @@ const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 // and this must build on older versions.
 // TODO: remove on the minumum build kernel version supports seccomp
 #define SECCOMP_MODE_FILTER 2
-#define SECCOMP_RET_ERRNO   0x00050000U
-#define SECCOMP_RET_ALLOW   0x7fff0000U
-#define SECCOMP_RET_DATA    0x0000ffffU
+#define SECCOMP_RET_ERRNO 0x00050000U
+#define SECCOMP_RET_ALLOW 0x7fff0000U
+#define SECCOMP_RET_DATA 0x0000ffffU
 
 // Added in Linux 3.5
 #ifndef PR_SET_NO_NEW_PRIVS
@@ -44,22 +44,21 @@ const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 #endif
 
 const struct sock_filter FILTER[] = {
-       /* Load architecture from 'seccomp_data' buffer into accumulator */
-       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
-       /* Jump to disallow if architecture is not X86_64 */
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 0, 5),
-       /* Load the system call number into accumulator */
-       BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
-       /* Only applies to X86_64 arch. Fail calls for the x32 ABI  */
-       BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 4, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fork, 3, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_vfork, 2, 0),
-       BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_execve, 1, 0),
-       /* Allow call */
-       BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
-       /* Disallow call with error code EACCES */
-       BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA))
-   };
+    /* Load architecture from 'seccomp_data' buffer into accumulator */
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
+    /* Jump to disallow if architecture is not X86_64 */
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 0, 5),
+    /* Load the system call number into accumulator */
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
+    /* Only applies to X86_64 arch. Fail calls for the x32 ABI  */
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 4, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fork, 3, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_vfork, 2, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_execve, 1, 0),
+    /* Allow call */
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
+    /* Disallow call with error code EACCES */
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA))};
 
 bool canUseSeccompBpf() {
     // This call is expected to fail due to the nullptr argument
@@ -89,14 +88,13 @@ CSystemCallFilter::CSystemCallFilter() {
         // This must be set before installing the filter.
         // PR_SET_NO_NEW_PRIVS was aded in kernel 3.5
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-          LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::strerror(errno));
-          return;
+            LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::strerror(errno));
+            return;
         }
 
         struct sock_fprog prog = {
-           .len = static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])),
-           .filter = const_cast<sock_filter*>(FILTER)
-        };
+            .len = static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])),
+            .filter = const_cast<sock_filter*>(FILTER)};
 
         // Install the filter.
         // prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter) was introduced
@@ -119,4 +117,3 @@ CSystemCallFilter::CSystemCallFilter() {
 }
 }
 }
-

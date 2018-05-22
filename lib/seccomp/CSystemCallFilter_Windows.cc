@@ -9,17 +9,14 @@
 #include <core/CWindowsError.h>
 #include <core/WindowsSafe.h>
 
-
 namespace ml {
 namespace seccomp {
 
 namespace {
 
 struct CheckedHandle {
-    CheckedHandle(HANDLE handle): s_Handle(handle) {}
-    ~CheckedHandle() {
-        CloseHandle(s_Handle);
-    }
+    CheckedHandle(HANDLE handle) : s_Handle(handle) {}
+    ~CheckedHandle() { CloseHandle(s_Handle); }
 
     HANDLE s_Handle;
 };
@@ -39,8 +36,8 @@ CSystemCallFilter::CSystemCallFilter() {
     JOBOBJECT_BASIC_LIMIT_INFORMATION limits;
 
     // Get the current job information
-    if (QueryInformationJobObject(job, JobObjectBasicLimitInformation,
-                                  &limits, sizeof(limits), nullptr) == 0) {
+    if (QueryInformationJobObject(job, JobObjectBasicLimitInformation, &limits,
+                                  sizeof(limits), nullptr) == 0) {
         LOG_ERROR(<< "Error querying Job Object information: " << ml::core::CWindowsError());
         return;
     }
@@ -49,8 +46,8 @@ CSystemCallFilter::CSystemCallFilter() {
     // flag that the limit is set
     limits.ActiveProcessLimit = uint32_t{1};
     limits.LimitFlags = limits.LimitFlags | JOB_OBJECT_LIMIT_ACTIVE_PROCESS;
-    if (SetInformationJobObject(job, JobObjectBasicLimitInformation,
-                                &limits, sizeof(limits)) == 0) {
+    if (SetInformationJobObject(job, JobObjectBasicLimitInformation, &limits,
+                                sizeof(limits)) == 0) {
         LOG_ERROR(<< "Error setting Job information: " << ml::core::CWindowsError());
         return;
     }

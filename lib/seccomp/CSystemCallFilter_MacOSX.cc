@@ -30,7 +30,7 @@ static const std::string SANDBOX_RULES("\
     (allow file-write-data)");
 
 // mkstemps will replace the Xs with random characters
-static const char FILE_NAME_TEMPLATE [] = {"ml.XXXXXX.sb"};
+static const char FILE_NAME_TEMPLATE[] = {"ml.XXXXXX.sb"};
 
 std::string getTempDir() {
     // Prefer to use the temporary directory set by the Elasticsearch JVM
@@ -50,7 +50,8 @@ std::string writeTempRulesFile() {
 
     std::unique_ptr<char[]> templateBuff(new char[tempDir.size() + sizeof(FILE_NAME_TEMPLATE)]);
     ::strlcpy(templateBuff.get(), tempDir.c_str(), tempDir.size() + 1);
-    ::strlcat(templateBuff.get(), FILE_NAME_TEMPLATE, tempDir.size() + sizeof(FILE_NAME_TEMPLATE));
+    ::strlcat(templateBuff.get(), FILE_NAME_TEMPLATE,
+              tempDir.size() + sizeof(FILE_NAME_TEMPLATE));
 
     // Create and open a temporary file with a random name
     // templateBuff is updated with the new filename.

@@ -35,11 +35,11 @@ const char* TEST_READ_PIPE_NAME = "testreadpipe";
 const char* TEST_WRITE_PIPE_NAME = "testwritepipe";
 #endif
 
-
 class CNamedPipeWriter : public ml::core::CThread {
 public:
     CNamedPipeWriter(const std::string& fileName, size_t size)
         : m_FileName(fileName), m_Size(size) {}
+
 protected:
     virtual void run() {
         // Wait for the file to exist
