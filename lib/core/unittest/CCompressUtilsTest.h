@@ -14,6 +14,8 @@ public:
     void testOneAdd();
     void testManyAdds();
     void testLengthOnly();
+    void testInflate();
+    void testTriviallyCopyableTypeVector();
 
     static CppUnit::Test* suite();
 };

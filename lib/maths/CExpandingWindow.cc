@@ -144,8 +144,8 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
                 if (m_BucketLengthIndex == 0) {
                     m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
                 } else {
-                    std::size_t compression{m_BucketLengths[m_BucketLengthIndex] /
-                                            m_BucketLengths[m_BucketLengthIndex - 1]};
+                    std::size_t compression(m_BucketLengths[m_BucketLengthIndex] /
+                                            m_BucketLengths[m_BucketLengthIndex - 1]);
                     for (std::size_t i = 0u; i < m_BucketValues.size();
                          i += compression, ++end) {
                         std::swap(*end, m_BucketValues[i]);

@@ -59,6 +59,9 @@ public:
     template<typename T>
     bool addVector(const std::vector<T>& input) {
         static_assert(std::is_trivially_copyable<T>::value, "Type must be trivially copyable");
+        if (input.empty()) {
+            return true;
+        }
         if (m_State == E_Finished) {
             // If the last round of data processing has finished
             // and we're adding a new vector then we need to reset
