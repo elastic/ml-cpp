@@ -36,8 +36,9 @@ namespace model {
 
 const std::string CModelFactory::EMPTY_STRING("");
 
-CModelFactory::CModelFactory(const SModelParams& params)
-    : m_ModelParams(params) {
+CModelFactory::CModelFactory(const SModelParams& params,
+                             const TInterimBucketCorrectorWPtr& interimBucketCorrector)
+    : m_ModelParams(params), m_InterimBucketCorrector(interimBucketCorrector) {
 }
 
 const CModelFactory::TFeatureMathsModelPtrPrVec&
@@ -218,6 +219,10 @@ void CModelFactory::scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents) 
     m_ModelParams.s_ScheduledEvents = scheduledEvents;
 }
 
+void CModelFactory::interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector) {
+    m_InterimBucketCorrector = interimBucketCorrector;
+}
+
 void CModelFactory::learnRate(double learnRate) {
     m_ModelParams.s_LearnRate = learnRate;
 }
@@ -278,6 +283,18 @@ void CModelFactory::swap(CModelFactory& other) {
     std::swap(m_ModelParams, other.m_ModelParams);
     m_MathsModelCache.swap(other.m_MathsModelCache);
     m_InfluenceCalculatorCache.swap(other.m_InfluenceCalculatorCache);
+}
+
+CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector() const {
+    TInterimBucketCorrectorPtr result{m_InterimBucketCorrector.lock()};
+    if (result == nullptr) {
+        // This can never happen if the factory is obtained from the model
+        // config object, which ensures the interim bucket corrector is
+        // always available. The model objects expect this to be available
+        // so failing gracefully here is the best we can do.
+        LOG_ABORT(<< "Unable to get interim bucket corrector");
+    }
+    return result;
 }
 
 CModelFactory::TMultivariatePriorPtr

@@ -12,6 +12,7 @@ class CAnomalyJobLimitTest : public CppUnit::TestFixture {
 public:
     void testLimit();
     void testAccuracy();
+    void testModelledEntityCountForFixedMemoryLimit();
 
     static CppUnit::Test* suite();
 };

@@ -656,8 +656,8 @@ protected:
     //! Clear out large state objects for people/attributes that are pruned
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
-    //! Get the objects which calculates corrections for interim buckets.
-    const CInterimBucketCorrector& interimValueCorrector() const;
+    //! Get the object which calculates corrections for interim buckets.
+    virtual const CInterimBucketCorrector& interimValueCorrector() const = 0;
 
     //! Check if any of the sample-filtering detection rules apply to this series.
     bool shouldIgnoreSample(model_t::EFeature feature,
@@ -675,25 +675,14 @@ protected:
     //! Get the non-estimated value of the the memory used by this model.
     virtual std::size_t computeMemoryUsage() const = 0;
 
-    //! Restore interim bucket corrector.
-    bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    //! Persist the interim bucket corrector.
-    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag,
-                                                     core::CStatePersistInserter& inserter) const;
-
     //! Create a stub version of maths::CModel for use when pruning people
     //! or attributes to free memory resource.
     static maths::CModel* tinyModel();
 
 private:
     using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
-    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
 
 private:
-    //! Set the current bucket total count.
-    virtual void currentBucketTotalCount(uint64_t totalCount) = 0;
-
     //! Skip sampling the interval \p endTime - \p startTime.
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
 
@@ -718,9 +707,6 @@ private:
     //! The influence calculators to use for each feature which is being
     //! modeled.
     TFeatureInfluenceCalculatorCPtrPrVecVec m_InfluenceCalculators;
-
-    //! A corrector that calculates adjustments for values of interim buckets.
-    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 };
 }
 }

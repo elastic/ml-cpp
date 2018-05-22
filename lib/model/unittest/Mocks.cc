@@ -15,7 +15,7 @@ CMockModel::CMockModel(const SModelParams& params,
                        const TDataGathererPtr& dataGatherer,
                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
-      m_IsPopulation(false) {
+      m_IsPopulation(false), m_InterimBucketCorrector(params.s_BucketLength) {
 }
 
 void CMockModel::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {
@@ -159,7 +159,8 @@ void CMockModel::updateRecycledModels() {
 void CMockModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& /*attributes*/) {
 }
 
-void CMockModel::currentBucketTotalCount(uint64_t /*totalCount*/) {
+const CInterimBucketCorrector& CMockModel::interimValueCorrector() const {
+    return m_InterimBucketCorrector;
 }
 
 void CMockModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {

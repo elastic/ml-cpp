@@ -14,6 +14,7 @@
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 
 namespace ml {
@@ -22,26 +23,29 @@ namespace {
 const std::string WINDOW_BUCKET_COUNT_TAG("a");
 const std::string PERSON_BUCKET_COUNT_TAG("b");
 const std::string MEAN_COUNT_TAG("c");
-
-const CCountingModel::TStr1Vec EMPTY_STRING_LIST;
-
 // Extra data tag deprecated at model version 34
 // TODO remove on next version bump
-// const std::string EXTRA_DATA_TAG("d");
+//const std::string EXTRA_DATA_TAG("d");
+//const std::string INTERIM_BUCKET_CORRECTOR_TAG("e");
 
-const std::string INTERIM_BUCKET_CORRECTOR_TAG("e");
-}
-
-CCountingModel::CCountingModel(const SModelParams& params, const TDataGathererPtr& dataGatherer)
-    : CAnomalyDetectorModel(params, dataGatherer, TFeatureInfluenceCalculatorCPtrPrVecVec()),
-      m_StartTime(CAnomalyDetectorModel::TIME_UNSET) {
+const CCountingModel::TStr1Vec EMPTY_STRING_LIST;
 }
 
 CCountingModel::CCountingModel(const SModelParams& params,
                                const TDataGathererPtr& dataGatherer,
+                               const TInterimBucketCorrectorPtr& interimBucketCorrector)
+    : CAnomalyDetectorModel(params, dataGatherer, {}),
+      m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
+      m_InterimBucketCorrector(interimBucketCorrector) {
+}
+
+CCountingModel::CCountingModel(const SModelParams& params,
+                               const TDataGathererPtr& dataGatherer,
+                               const TInterimBucketCorrectorPtr& interimBucketCorrector,
                                core::CStateRestoreTraverser& traverser)
-    : CAnomalyDetectorModel(params, dataGatherer, TFeatureInfluenceCalculatorCPtrPrVecVec()),
-      m_StartTime(CAnomalyDetectorModel::TIME_UNSET) {
+    : CAnomalyDetectorModel(params, dataGatherer, {}),
+      m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
+      m_InterimBucketCorrector(interimBucketCorrector) {
     traverser.traverseSubLevel(
         boost::bind(&CCountingModel::acceptRestoreTraverser, this, _1));
 }
@@ -60,7 +64,6 @@ void CCountingModel::acceptPersistInserter(core::CStatePersistInserter& inserter
     core::CPersistUtils::persist(PERSON_BUCKET_COUNT_TAG,
                                  this->personBucketCounts(), inserter);
     core::CPersistUtils::persist(MEAN_COUNT_TAG, m_MeanCounts, inserter);
-    this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
 }
 
 bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -82,10 +85,6 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
         } else if (name == MEAN_COUNT_TAG) {
             if (core::CPersistUtils::restore(name, m_MeanCounts, traverser) == false) {
                 LOG_ERROR(<< "Invalid mean counts");
-                return false;
-            }
-        } else if (name == INTERIM_BUCKET_CORRECTOR_TAG) {
-            if (this->interimBucketCorrectorAcceptRestoreTraverser(traverser) == false) {
                 return false;
             }
         }
@@ -119,7 +118,7 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR(<< "No statistics at " << time
                   << ", current bucket = " << this->printCurrentBucket());
-        return TOptionalUInt64();
+        return {};
     }
 
     auto result = std::lower_bound(m_Counts.begin(), m_Counts.end(), pid,
@@ -127,7 +126,7 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
 
     return result != m_Counts.end() && result->first == pid
                ? result->second
-               : static_cast<uint64_t>(0);
+               : static_cast<std::uint64_t>(0);
 }
 
 CCountingModel::TOptionalDouble CCountingModel::baselineBucketCount(std::size_t pid) const {
@@ -139,7 +138,7 @@ CCountingModel::TDouble1Vec CCountingModel::currentBucketValue(model_t::EFeature
                                                                std::size_t /*cid*/,
                                                                core_t::TTime time) const {
     TOptionalUInt64 count = this->currentBucketCount(pid, time);
-    return count ? TDouble1Vec(1, static_cast<double>(*count)) : TDouble1Vec();
+    return count ? TDouble1Vec{static_cast<double>(*count)} : TDouble1Vec{};
 }
 
 CCountingModel::TDouble1Vec
@@ -150,7 +149,7 @@ CCountingModel::baselineBucketMean(model_t::EFeature /*feature*/,
                                    const TSizeDoublePr1Vec& /*correlated*/,
                                    core_t::TTime /*time*/) const {
     TOptionalDouble count = this->baselineBucketCount(pid);
-    return count ? TDouble1Vec(1, *count) : TDouble1Vec();
+    return count ? TDouble1Vec{*count} : TDouble1Vec{};
 }
 
 void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const {
@@ -180,7 +179,7 @@ void CCountingModel::sampleOutOfPhase(core_t::TTime startTime,
 
 void CCountingModel::sampleBucketStatistics(core_t::TTime startTime,
                                             core_t::TTime endTime,
-                                            CResourceMonitor& resourceMonitor) {
+                                            CResourceMonitor& /*resourceMonitor*/) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     m_ScheduledEventDescriptions.clear();
@@ -191,9 +190,14 @@ void CCountingModel::sampleBucketStatistics(core_t::TTime startTime,
 
     core_t::TTime bucketLength = gatherer.bucketLength();
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        this->CAnomalyDetectorModel::sampleBucketStatistics(time, time + bucketLength,
-                                                            resourceMonitor);
         gatherer.timeNow(time);
+        const auto& counts = gatherer.bucketCounts(time);
+        std::uint64_t totalCount{0u};
+        for (const auto& count : counts) {
+            totalCount += CDataGatherer::extractData(count);
+        }
+        m_InterimBucketCorrector->currentBucketCount(time, totalCount);
+
         this->updateCurrentBucketsStats(time);
 
         // Check for scheduled events
@@ -221,9 +225,12 @@ void CCountingModel::sample(core_t::TTime startTime,
         gatherer.sampleNow(time);
         this->CAnomalyDetectorModel::sample(time, time + bucketLength, resourceMonitor);
         this->updateCurrentBucketsStats(time);
+        std::uint64_t totalCount{0};
         for (const auto& count : m_Counts) {
             m_MeanCounts[count.first].add(static_cast<double>(count.second));
+            totalCount += count.second;
         }
+        m_InterimBucketCorrector->finalBucketCount(time, totalCount);
 
         // Check for scheduled events
         core_t::TTime sampleTime = model_t::sampleTime(
@@ -265,12 +272,7 @@ CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const {
     return matchedEvents;
 }
 
-void CCountingModel::currentBucketTotalCount(uint64_t /*totalCount*/) {
-    // Do nothing
-}
-
 void CCountingModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {
-    // Do nothing
 }
 
 void CCountingModel::prune(std::size_t /*maximumAge*/) {
@@ -313,11 +315,16 @@ void CCountingModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_Counts", m_Counts, mem);
     core::CMemoryDebug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
+    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+                                    m_InterimBucketCorrector, mem);
 }
 
 std::size_t CCountingModel::memoryUsage() const {
-    return this->CAnomalyDetectorModel::memoryUsage() +
-           core::CMemory::dynamicSize(m_Counts) + core::CMemory::dynamicSize(m_MeanCounts);
+    std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
+    mem += core::CMemory::dynamicSize(m_Counts);
+    mem += core::CMemory::dynamicSize(m_MeanCounts);
+    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    return mem;
 }
 
 std::size_t CCountingModel::computeMemoryUsage() const {
@@ -400,7 +407,10 @@ void CCountingModel::updateRecycledModels() {
 
 void CCountingModel::clearPrunedResources(const TSizeVec& /*people*/,
                                           const TSizeVec& /*attributes*/) {
-    // Nothing to prune
+}
+
+const CInterimBucketCorrector& CCountingModel::interimValueCorrector() const {
+    return *m_InterimBucketCorrector;
 }
 
 bool CCountingModel::bucketStatsAvailable(core_t::TTime time) const {

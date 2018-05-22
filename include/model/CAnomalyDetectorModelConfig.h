@@ -29,6 +29,7 @@
 namespace ml {
 namespace model {
 class CDetectionRule;
+class CInterimBucketCorrector;
 class CSearchKey;
 class CModelAutoConfigurer;
 class CModelFactory;
@@ -68,6 +69,7 @@ public:
     using TFeatureVec = model_t::TFeatureVec;
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
+    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
     using TModelFactoryPtr = std::shared_ptr<CModelFactory>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TFactoryTypeFactoryPtrMap = std::map<EFactoryType, TModelFactoryPtr>;
@@ -276,6 +278,8 @@ public:
     //! Set the number of buckets to delay finalizing out-of-phase buckets.
     void bucketResultsDelay(std::size_t delay);
 
+    //! Set the single interim bucket correction calculator.
+    void interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector);
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.
     void multivariateByFields(bool enabled);
@@ -369,6 +373,9 @@ public:
     //! Get the multiple bucket lengths.
     const TTimeVec& multipleBucketLengths() const;
 
+    //! Get the single interim bucket correction calculator.
+    const CInterimBucketCorrector& interimBucketCorrector() const;
+
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool multivariateByFields() const;
 
@@ -452,6 +459,9 @@ private:
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool m_MultivariateByFields;
+
+    //! The single interim bucket correction calculator.
+    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 
     //! The new model factories for each data type.
     TFactoryTypeFactoryPtrMap m_Factories;
