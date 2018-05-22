@@ -434,7 +434,8 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
         CPPUNIT_ASSERT(used.s_PartitionFields > 280 && used.s_PartitionFields < 360);
-        CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) > 0.95 * static_cast<double>(used.s_PartitionFields));
+        CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
+                       0.95 * static_cast<double>(used.s_PartitionFields));
     }
 
     LOG_DEBUG(<< "**** Test over ****");
