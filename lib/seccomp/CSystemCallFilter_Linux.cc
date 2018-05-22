@@ -22,12 +22,12 @@ namespace seccomp {
 namespace {
 // The old x32 ABI always has bit 30 set in the sys call numbers.
 // The x64 architecture should fail these calls
-const std::unit32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
+const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
-const std::unit32_t SECCOMP_DATA_NR_OFFSET   = 0x00;
+const std::uint32_t SECCOMP_DATA_NR_OFFSET   = 0x00;
 // Offset to the arch field in struct seccomp_data
-const std::unit32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
+const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
 // Copied from seccomp.h
 // seccomp.h cannot be included as it was added in Linux kernel 3.17
@@ -89,13 +89,13 @@ CSystemCallFilter::CSystemCallFilter() {
         // This must be set before installing the filter.
         // PR_SET_NO_NEW_PRIVS was aded in kernel 3.5
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-          LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::sterror(errno));
+          LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::strerror(errno));
           return;
         }
 
         struct sock_fprog prog = {
            .len = static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])),
-           .filter = FILTER,
+           .filter = const_cast<sock_filter*>(FILTER)
         };
 
         // Install the filter.
@@ -108,7 +108,7 @@ CSystemCallFilter::CSystemCallFilter() {
         // is installed by the main thread before any other threads are
         // spawned.
         if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-            LOG_ERROR(<< "Unable to install Seccomp BPF: " << std::sterror(errno));
+            LOG_ERROR(<< "Unable to install Seccomp BPF: " << std::strerror(errno));
         } else {
             LOG_DEBUG(<< "Seccomp BPF installed");
         }

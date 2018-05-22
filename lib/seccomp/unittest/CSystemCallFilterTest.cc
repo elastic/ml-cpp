@@ -112,7 +112,7 @@ bool systemCall() {
 }
 
 #ifdef Linux
-bool versionIsBefore3_5(int major, int minor) {
+bool versionIsBefore3_5(std::int64_t major, std::int64_t minor) {
     if (major < 3) {
         return true;
     }

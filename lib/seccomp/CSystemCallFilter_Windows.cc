@@ -18,7 +18,7 @@ namespace {
 struct CheckedHandle {
     CheckedHandle(HANDLE handle): s_Handle(handle) {}
     ~CheckedHandle() {
-        CLoseHandle(s_Handle);
+        CloseHandle(s_Handle);
     }
 
     HANDLE s_Handle;

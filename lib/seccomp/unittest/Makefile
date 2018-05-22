@@ -7,6 +7,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 TARGET=ml_test$(EXE_EXT)
 
+USE_BOOST=1
 LIBS:=$(LIB_ML_SECCOMP)
 LDFLAGS:=$(ML_SECCOMP_LDFLAGS)
 
