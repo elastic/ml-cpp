@@ -155,7 +155,7 @@ bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
 
 void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
                                               core_t::TTime endTime,
-                                              CResourceMonitor& resourceMonitor) {
+                                              CResourceMonitor& /*resourceMonitor*/) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {

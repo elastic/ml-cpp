@@ -286,7 +286,15 @@ void CModelFactory::swap(CModelFactory& other) {
 }
 
 CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector() const {
-    return TInterimBucketCorrectorPtr{m_InterimBucketCorrector};
+    TInterimBucketCorrectorPtr result{m_InterimBucketCorrector.lock()};
+    if (result == nullptr) {
+        // This can never happen if the factory is obtained from the model
+        // config object, which ensures the interim bucket corrector is
+        // always available. The model objects expect this to be available
+        // so failing gracefully here is the best we can do.
+        LOG_ABORT(<< "Unable to get interim bucket corrector");
+    }
+    return result;
 }
 
 CModelFactory::TMultivariatePriorPtr
