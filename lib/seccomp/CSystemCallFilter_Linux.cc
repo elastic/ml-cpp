@@ -12,22 +12,27 @@
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 
+#include <cerrno>
+#include <cstdint>
+#include <cstring>
 
 namespace ml {
 namespace seccomp {
 
+namespace {
 // The old x32 ABI always has bit 30 set in the sys call numbers.
 // The x64 architecture should fail these calls
-unsigned int UPPER_NR_LIMIT = 0x3FFFFFFF;
+const std::unit32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
-unsigned int SECCOMP_DATA_NR_OFFSET   = 0x00;
+const std::unit32_t SECCOMP_DATA_NR_OFFSET   = 0x00;
 // Offset to the arch field in struct seccomp_data
-unsigned int SECCOMP_DATA_ARCH_OFFSET = 0x04;
+const std::unit32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
 // Copied from seccomp.h
 // seccomp.h cannot be included as it was added in Linux kernel 3.17
 // and this must build on older versions.
+// TODO: remove on the minumum build kernel version supports seccomp
 #define SECCOMP_MODE_FILTER 2
 #define SECCOMP_RET_ERRNO   0x00050000U
 #define SECCOMP_RET_ALLOW   0x7fff0000U
@@ -38,7 +43,7 @@ unsigned int SECCOMP_DATA_ARCH_OFFSET = 0x04;
 #define PR_SET_NO_NEW_PRIVS 38
 #endif
 
-struct sock_filter filter[] = {
+const struct sock_filter FILTER[] = {
        /* Load architecture from 'seccomp_data' buffer into accumulator */
        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
        /* Jump to disallow if architecture is not X86_64 */
@@ -64,7 +69,7 @@ bool canUseSeccompBpf() {
     int result = prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, nullptr);
     int configError = errno;
     if (result != -1) {
-        LOG_ERROR(<< "prctl set seccomp should have failed");
+        LOG_ERROR(<< "prctl set seccomp with null argument should have failed");
         return false;
     }
 
@@ -74,6 +79,7 @@ bool canUseSeccompBpf() {
     // was invalid.
     return configError == EFAULT;
 }
+}
 
 CSystemCallFilter::CSystemCallFilter() {
     if (canUseSeccompBpf()) {
@@ -82,11 +88,14 @@ CSystemCallFilter::CSystemCallFilter() {
         // Ensure more permissive privileges cannot be set in future.
         // This must be set before installing the filter.
         // PR_SET_NO_NEW_PRIVS was aded in kernel 3.5
-        prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+        if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+          LOG_ERROR(<< "prctl PR_SET_NO_NEW_PRIVS failed: " << std::sterror(errno));
+          return;
+        }
 
         struct sock_fprog prog = {
-           .len = static_cast<unsigned short>(sizeof(filter) / sizeof(filter[0])),
-           .filter = filter,
+           .len = static_cast<unsigned short>(sizeof(FILTER) / sizeof(FILTER[0])),
+           .filter = FILTER,
         };
 
         // Install the filter.
@@ -99,9 +108,9 @@ CSystemCallFilter::CSystemCallFilter() {
         // is installed by the main thread before any other threads are
         // spawned.
         if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-            LOG_ERROR("Unable to install Seccomp BPF");
+            LOG_ERROR(<< "Unable to install Seccomp BPF: " << std::sterror(errno));
         } else {
-            LOG_DEBUG("Seccomp BPF installed");
+            LOG_DEBUG(<< "Seccomp BPF installed");
         }
 
     } else {

@@ -106,10 +106,22 @@ private:
     std::string m_FileName;
     std::string m_Data;
 };
-}
 
 bool systemCall() {
     return std::system("hostname") == 0;
+}
+
+#ifdef Linux
+bool versionIsBefore3_5(int major, int minor) {
+    if (major < 3) {
+        return true;
+    }
+    if (major == 3 && minor < 5) {
+        return true;
+    }
+    return false;
+}
+#endif
 }
 
 CppUnit::Test* CSystemCallFilterTest::suite() {
@@ -126,11 +138,14 @@ void CSystemCallFilterTest::testSystemCallFilter() {
 #ifdef Linux
     std::string release{ml::core::CUname::release()};
     ml::core::CRegex semVersion;
-    semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*");
+    CPPUNIT_ASSERT(semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*"));
     ml::core::CRegex::TStrVec tokens;
     CPPUNIT_ASSERT(semVersion.tokenise(release, tokens));
     // Seccomp is available in kernels since 3.5
-    if (std::stoi(tokens[0]) < 3 || std::stoi(tokens[1]) < 5) {
+
+    std::int64_t major = std::stoi(tokens[0]);
+    std::int64_t minor = std::stoi(tokens[1]);
+    if (versionIsBefore3_5(major, minor)) {
         LOG_INFO(<< "Cannot test seccomp on linux kernels before 3.5");
         return;
     }
@@ -140,7 +155,7 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     // system call filters are applied
     CPPUNIT_ASSERT(systemCall());
 
-    // // Install the filter
+    // Install the filter
     ml::seccomp::CSystemCallFilter filter;
 
     CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
