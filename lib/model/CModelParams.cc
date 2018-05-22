@@ -106,7 +106,6 @@ uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
     seed = maths::CChecksum::calculate(seed, s_MultivariateByFields);
     seed = maths::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
-    seed = maths::CChecksum::calculate(seed, s_MinimumToDeduplicate);
     //seed = maths::CChecksum::calculate(seed, s_DetectionRules);
     //seed = maths::CChecksum::calculate(seed, s_ScheduledEvents);
     seed = maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);

@@ -186,7 +186,7 @@ bool CNaiveBayes::initialized() const {
 
 void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
     for (const auto& count : counts) {
-        m_ClassConditionalDensities[count.second] = SClass{count.first, {}};
+        m_ClassConditionalDensities[count.second] = SClass{count.first, TFeatureDensityPtrVec{}};
     }
 }
 
@@ -346,6 +346,10 @@ bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
         return false;
     }
     return true;
+}
+
+CNaiveBayes::SClass::SClass(double count, const TFeatureDensityPtrVec& conditionalDensities) :
+    s_Count{count}, s_ConditionalDensities(conditionalDensities) {
 }
 
 bool CNaiveBayes::SClass::acceptRestoreTraverser(const SDistributionRestoreParams& params,

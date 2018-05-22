@@ -227,6 +227,9 @@ private:
 
     //! \brief The data associated with a class.
     struct SClass {
+        SClass() = default;
+        SClass(double count, const TFeatureDensityPtrVec& conditionalDensities);
+
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                     core::CStateRestoreTraverser& traverser);
