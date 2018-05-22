@@ -15,6 +15,7 @@ class CCountingModelTest : public CppUnit::TestFixture {
 public:
     void testSkipSampling();
     void testCheckScheduledEvents();
+    void testInterimBucketCorrector();
     static CppUnit::Test* suite();
 
 private:

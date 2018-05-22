@@ -28,12 +28,13 @@
 namespace ml {
 namespace model {
 
-CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(const SModelParams& params,
-                                                                   model_t::ESummaryMode summaryMode,
-                                                                   const std::string& summaryCountFieldName)
-    : CModelFactory(params), m_Identifier(), m_SummaryMode(summaryMode),
-      m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false),
-      m_BucketResultsDelay(0) {
+CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(
+    const SModelParams& params,
+    const TInterimBucketCorrectorWPtr& interimBucketCorrector,
+    model_t::ESummaryMode summaryMode,
+    const std::string& summaryCountFieldName)
+    : CModelFactory(params, interimBucketCorrector), m_SummaryMode(summaryMode),
+      m_SummaryCountFieldName(summaryCountFieldName) {
 }
 
 CEventRatePopulationModelFactory* CEventRatePopulationModelFactory::clone() const {
@@ -59,8 +60,8 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
                                    this->minimumSeasonalVarianceScale(), false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features), influenceCalculators);
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        influenceCalculators, this->interimBucketCorrector());
 }
 
 CAnomalyDetectorModel*
@@ -82,8 +83,8 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
     return new CEventRatePopulationModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features), influenceCalculators, traverser);
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
 CDataGatherer*

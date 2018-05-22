@@ -91,12 +91,10 @@ const std::string ATTRIBUTE_FIRST_BUCKET_TIME_TAG("d");
 const std::string ATTRIBUTE_LAST_BUCKET_TIME_TAG("e");
 const std::string PERSON_ATTRIBUTE_BUCKET_COUNT_TAG("f");
 const std::string DISTINCT_PERSON_COUNT_TAG("g");
-
 // Extra data tag deprecated at model version 34
 // TODO remove on next version bump
-// const std::string EXTRA_DATA_TAG("h");
-
-const std::string INTERIM_BUCKET_CORRECTOR_TAG("i");
+//const std::string EXTRA_DATA_TAG("h");
+//const std::string INTERIM_BUCKET_CORRECTOR_TAG("i");
 }
 
 CPopulationModel::CPopulationModel(const SModelParams& params,
@@ -303,7 +301,6 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
                              boost::bind(&maths::CBjkstUniqueValues::acceptPersistInserter,
                                          &m_DistinctPersonCounts[cid], _1));
     }
-    this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
 }
 
 bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -332,8 +329,6 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
             m_DistinctPersonCounts.back().swap(sketch);
             continue;
         }
-        RESTORE(INTERIM_BUCKET_CORRECTOR_TAG,
-                this->interimBucketCorrectorAcceptRestoreTraverser(traverser))
     } while (traverser.next());
 
     return true;

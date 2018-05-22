@@ -72,6 +72,7 @@ const std::string HIERARCHICAL_RESULTS_TAG("f");
 const std::string LATEST_RECORD_TIME_TAG("h");
 const std::string MODEL_PLOT_TAG("i");
 const std::string LAST_RESULTS_TIME_TAG("j");
+const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 }
 
 // Statics
@@ -869,7 +870,18 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
 
     while (traverser.next()) {
         const std::string& name = traverser.name();
-        if (name == TOP_LEVEL_DETECTOR_TAG) {
+        if (name == INTERIM_BUCKET_CORRECTOR_TAG) {
+            // Note that this has to be persisted and restored before any detectors.
+            auto interimBucketCorrector = std::make_shared<model::CInterimBucketCorrector>(
+                m_ModelConfig.bucketLength());
+            if (traverser.traverseSubLevel(
+                    boost::bind(&model::CInterimBucketCorrector::acceptRestoreTraverser,
+                                interimBucketCorrector.get(), _1)) == false) {
+                LOG_ERROR(<< "Cannot restore interim bucket corrector");
+                return false;
+            }
+            m_ModelConfig.interimBucketCorrector(interimBucketCorrector);
+        } else if (name == TOP_LEVEL_DETECTOR_TAG) {
             if (traverser.traverseSubLevel(boost::bind(
                     &CAnomalyJob::restoreSingleDetector, this, _1)) == false) {
                 LOG_ERROR(<< "Cannot restore anomaly detector");
@@ -986,8 +998,7 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
                              key, partitionFieldValue, m_Limits.resourceMonitor());
     if (!detector) {
         LOG_ERROR(<< "Detector with key '" << key.debug() << '/' << partitionFieldValue
-                  << "' "
-                     "was not recreated on restore - "
+                  << "' was not recreated on restore - "
                      "memory limit is too low to continue this job");
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_MemoryLimitReached;
@@ -1038,7 +1049,8 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
         m_ModelPlotQueue, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
-        m_Aggregator, normaliserState, m_LatestRecordTime, m_LastResultsTime, persister);
+        m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
+        m_LatestRecordTime, m_LastResultsTime, persister);
 }
 
 bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersister) {
@@ -1052,7 +1064,8 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
         m_ResultsQueue, m_ModelPlotQueue, m_LastFinalisedBucketEndTime,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
-        m_Aggregator, m_LatestRecordTime, m_LastResultsTime);
+        m_ModelConfig.interimBucketCorrector(), m_Aggregator,
+        m_LatestRecordTime, m_LastResultsTime);
 
     // The normaliser is non-copyable, so we have to make do with JSONifying it now;
     // it should be relatively fast though
@@ -1097,11 +1110,11 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         return false;
     }
 
-    return this->persistState("Periodic background persist at ", args->s_ResultsQueue,
-                              args->s_ModelPlotQueue, args->s_Time, args->s_Detectors,
-                              args->s_ModelSizeStats, args->s_Aggregator,
-                              args->s_NormalizerState, args->s_LatestRecordTime,
-                              args->s_LastResultsTime, persister);
+    return this->persistState(
+        "Periodic background persist at ", args->s_ResultsQueue,
+        args->s_ModelPlotQueue, args->s_Time, args->s_Detectors, args->s_ModelSizeStats,
+        args->s_InterimBucketCorrector, args->s_Aggregator, args->s_NormalizerState,
+        args->s_LatestRecordTime, args->s_LastResultsTime, persister);
 }
 
 bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
@@ -1110,6 +1123,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
                                core_t::TTime lastFinalisedBucketEnd,
                                const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                const model::CResourceMonitor::SResults& modelSizeStats,
+                               const model::CInterimBucketCorrector& interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                const std::string& normalizerState,
                                core_t::TTime latestRecordTime,
@@ -1142,6 +1156,10 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
                 if (modelPlotQueue.size() > 1) {
                     core::CPersistUtils::persist(MODEL_PLOT_TAG, modelPlotQueue, inserter);
                 }
+
+                inserter.insertLevel(INTERIM_BUCKET_CORRECTOR_TAG,
+                                     boost::bind(&model::CInterimBucketCorrector::acceptPersistInserter,
+                                                 &interimBucketCorrector, _1));
 
                 for (const auto& detector_ : detectors) {
                     const model::CAnomalyDetector* detector(detector_.second.get());
@@ -1485,11 +1503,13 @@ CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
     const TModelPlotDataVecQueue& modelPlotQueue,
     core_t::TTime time,
     const model::CResourceMonitor::SResults& modelSizeStats,
+    const model::CInterimBucketCorrector& interimBucketCorrector,
     const model::CHierarchicalResultsAggregator& aggregator,
     core_t::TTime latestRecordTime,
     core_t::TTime lastResultsTime)
     : s_ResultsQueue(resultsQueue), s_ModelPlotQueue(modelPlotQueue),
-      s_Time(time), s_ModelSizeStats(modelSizeStats), s_Aggregator(aggregator),
+      s_Time(time), s_ModelSizeStats(modelSizeStats),
+      s_InterimBucketCorrector(interimBucketCorrector), s_Aggregator(aggregator),
       s_LatestRecordTime(latestRecordTime), s_LastResultsTime(lastResultsTime) {
 }
 }
