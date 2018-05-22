@@ -14,8 +14,11 @@
 #include <model/CCountingModelFactory.h>
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CResourceMonitor.h>
 #include <model/ModelTypes.h>
+
+#include <test/CRandomNumbers.h>
 
 #include <string>
 #include <vector>
@@ -77,8 +80,9 @@ void CCountingModelTest::testSkipSampling() {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    CCountingModelFactory factory(params);
-    model_t::TFeatureVec features(1u, model_t::E_IndividualCountByBucketAndPerson);
+    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+    CCountingModelFactory factory(params, interimBucketCorrector);
+    model_t::TFeatureVec features{model_t::E_IndividualCountByBucketAndPerson};
     factory.features(features);
 
     // Model where gap is not skipped
@@ -140,16 +144,16 @@ void CCountingModelTest::testCheckScheduledEvents() {
     core_t::TTime bucketLength(100);
 
     SModelParams params(bucketLength);
-
     SModelParams::TStrDetectionRulePrVec events;
     events.push_back(makeScheduledEvent("first event", 200, 300));
     events.push_back(makeScheduledEvent("long event", 400, 1000));
     events.push_back(makeScheduledEvent("masked event", 600, 800));
     events.push_back(makeScheduledEvent("overlapping event", 900, 1100));
     params.s_ScheduledEvents = boost::cref(events);
+    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
 
-    CCountingModelFactory factory(params);
-    model_t::TFeatureVec features(1u, model_t::E_IndividualCountByBucketAndPerson);
+    CCountingModelFactory factory(params, interimBucketCorrector);
+    model_t::TFeatureVec features{model_t::E_IndividualCountByBucketAndPerson};
     factory.features(features);
 
     {
@@ -234,6 +238,61 @@ void CCountingModelTest::testCheckScheduledEvents() {
     }
 }
 
+void CCountingModelTest::testInterimBucketCorrector() {
+    // Check that we correctly update estimate bucket completeness.
+
+    using TSizeVec = std::vector<std::size_t>;
+    using TDoubleVec = std::vector<double>;
+
+    core_t::TTime time(0);
+    core_t::TTime bucketLength(600);
+
+    SModelParams params(bucketLength);
+    params.s_DecayRate = 0.001;
+    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+    CCountingModelFactory factory(params, interimBucketCorrector);
+    model_t::TFeatureVec features{model_t::E_IndividualCountByBucketAndPerson};
+    factory.features(features);
+
+    CModelFactory::SGathererInitializationData gathererInitData(time);
+    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
+    CModelFactory::SModelInitializationData modelInitData(gatherer);
+    CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
+    CCountingModel* model{dynamic_cast<CCountingModel*>(modelHolder.get())};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec uniform01;
+    TSizeVec offsets;
+
+    for (std::size_t i = 0; i < 10; ++i, time += bucketLength) {
+        rng.generateUniformSamples(0, bucketLength, 10, offsets);
+        std::sort(offsets.begin(), offsets.end());
+        for (auto offset : offsets) {
+            rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
+            addArrival(*gatherer, m_ResourceMonitor,
+                       time + static_cast<core_t::TTime>(offset),
+                       uniform01[0] < 0.5 ? "p1" : "p2");
+        }
+        model->sample(time, time + bucketLength, m_ResourceMonitor);
+    }
+
+    rng.generateUniformSamples(0, bucketLength, 10, offsets);
+    std::sort(offsets.begin(), offsets.end());
+
+    for (std::size_t i = 0; i < offsets.size(); ++i) {
+        rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
+        addArrival(*gatherer, m_ResourceMonitor,
+                   time + static_cast<core_t::TTime>(offsets[i]),
+                   uniform01[0] < 0.5 ? "p1" : "p2");
+        model->sampleBucketStatistics(time, time + bucketLength, m_ResourceMonitor);
+        CPPUNIT_ASSERT_EQUAL(static_cast<double>(i + 1) / 10.0,
+                             interimBucketCorrector->completeness());
+    }
+}
+
 CppUnit::Test* CCountingModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
@@ -242,5 +301,8 @@ CppUnit::Test* CCountingModelTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
         "CCountingModelTest::testCheckScheduledEvents",
         &CCountingModelTest::testCheckScheduledEvents));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
+        "CCountingModelTest::testInterimBucketCorrector",
+        &CCountingModelTest::testInterimBucketCorrector));
     return suiteOfTests;
 }

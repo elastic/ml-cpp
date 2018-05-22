@@ -31,6 +31,7 @@ Improve and use periodic boundary condition for seasonal component modeling ({pu
 Improve robustness w.r.t. outliers of detection and initialisation of seasonal components ({pull}90[#90])
 Improve behavior when there are abrupt changes in the seasonal components present in a time series ({pull}91[#91])
 Explicit change point detection and modelling ({pull}92[#92])
+Improve partition analysis memory usage ({pull}97[#97])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
