@@ -60,7 +60,7 @@ const double WINSORISATION_DERATE{1.0};
 }
 
 SChangeDescription::SChangeDescription(EDescription description, double value, const TPriorPtr& residualModel)
-    : s_Description{description}, s_Value{value}, s_ResidualModel{residualModel} {
+    : s_Description{description}, s_Value(1, value), s_ResidualModel{residualModel} {
 }
 
 std::string SChangeDescription::print() const {
@@ -86,14 +86,16 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     core_t::TTime maximumTimeToDetect,
     double minimumDeltaBicToDetect)
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
-      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_CurrentEvidenceOfChange{0.0},
-      m_ChangeModels{
-          std::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
-          std::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel),
-          std::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, -core::constants::HOUR),
-          std::make_shared<CUnivariateTimeShiftModel>(trendModel,
-                                                      residualModel,
-                                                      +core::constants::HOUR)} {
+      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_CurrentEvidenceOfChange{0.0} {
+    m_ChangeModels.push_back(
+        std::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel));
+    m_ChangeModels.push_back(
+        std::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel));
+    m_ChangeModels.push_back(std::make_shared<CUnivariateTimeShiftModel>(
+        trendModel, residualModel, -core::constants::HOUR));
+    m_ChangeModels.push_back(std::make_shared<CUnivariateTimeShiftModel>(
+        trendModel, residualModel, +core::constants::HOUR));
+
     if (trendModel->seasonalComponents().size() > 0) {
         m_ChangeModels.push_back(std::make_shared<CUnivariateLinearScaleModel>(
             trendModel, residualModel));

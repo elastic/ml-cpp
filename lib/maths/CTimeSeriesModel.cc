@@ -1283,7 +1283,7 @@ maths_t::EDataType CUnivariateTimeSeriesModel::dataType() const {
 
 CUnivariateTimeSeriesModel::TDoubleWeightsAry
 CUnivariateTimeSeriesModel::unpack(const TDouble2VecWeightsAry& weights) {
-    TDoubleWeightsAry result{maths_t::CUnitWeights::UNIT};
+    TDoubleWeightsAry result(maths_t::CUnitWeights::UNIT);
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         result[i] = weights[i][0];
     }
@@ -1347,7 +1347,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
                                                const TSizeVec& order,
                                                const TTimeDouble2VecSizeTrVec& values) {
     std::size_t median{order[order.size() / 2]};
-    TDoubleWeightsAry weights{unpack(params.priorWeights()[median])};
+    TDoubleWeightsAry weights(unpack(params.priorWeights()[median]));
     core_t::TTime time{values[median].first};
 
     if (m_ChangeDetector == nullptr) {
@@ -1440,7 +1440,7 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
-        TDoubleWeightsAry weight{unpack(weights[i])};
+        TDoubleWeightsAry weight(unpack(weights[i]));
         if (m_TrendModel->addPoint(time, value, weight)) {
             result = E_Reset;
         }
@@ -2250,7 +2250,7 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
 
     TDouble2Vec3Vec result(3, TDouble2Vec(dimension));
 
-    maths_t::TDoubleWeightsAry weights{maths_t::CUnitWeights::UNIT};
+    maths_t::TDoubleWeightsAry weights(maths_t::CUnitWeights::UNIT);
     for (std::size_t d = 0u; d < dimension;
          --marginalize[std::min(d, dimension - 2)], ++d) {
         double trend{m_TrendModel[d]->initialized()

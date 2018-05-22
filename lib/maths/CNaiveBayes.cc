@@ -121,12 +121,13 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          double decayRate,
                          TOptionalDouble minMaxLogLikelihoodToUseFeature)
     : m_MinMaxLogLikelihoodToUseFeature{minMaxLogLikelihoodToUseFeature},
-      m_DecayRate{decayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
+      m_DecayRate{decayRate}, m_Exemplar{exemplar.clone()},
+      m_ClassConditionalDensities(2) {
 }
 
 CNaiveBayes::CNaiveBayes(const SDistributionRestoreParams& params,
                          core::CStateRestoreTraverser& traverser)
-    : m_DecayRate{params.s_DecayRate}, m_ClassConditionalDensities{2} {
+    : m_DecayRate{params.s_DecayRate}, m_ClassConditionalDensities(2) {
     traverser.traverseSubLevel(boost::bind(&CNaiveBayes::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
 }
@@ -186,7 +187,8 @@ bool CNaiveBayes::initialized() const {
 
 void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
     for (const auto& count : counts) {
-        m_ClassConditionalDensities[count.second] = SClass{count.first, TFeatureDensityPtrVec{}};
+        m_ClassConditionalDensities[count.second] =
+            SClass{count.first, TFeatureDensityPtrVec{}};
     }
 }
 
@@ -348,8 +350,8 @@ bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
     return true;
 }
 
-CNaiveBayes::SClass::SClass(double count, const TFeatureDensityPtrVec& conditionalDensities) :
-    s_Count{count}, s_ConditionalDensities(conditionalDensities) {
+CNaiveBayes::SClass::SClass(double count, const TFeatureDensityPtrVec& conditionalDensities)
+    : s_Count{count}, s_ConditionalDensities(conditionalDensities) {
 }
 
 bool CNaiveBayes::SClass::acceptRestoreTraverser(const SDistributionRestoreParams& params,
