@@ -14,15 +14,15 @@ namespace seccomp {
 
 namespace {
 
-struct CheckedHandle {
-    CheckedHandle(HANDLE handle) : s_Handle(handle) {}
-    ~CheckedHandle() { CloseHandle(s_Handle); }
+struct SCheckedHandle {
+    SCheckedHandle(HANDLE handle) : s_Handle(handle) {}
+    ~SCheckedHandle() { CloseHandle(s_Handle); }
 
     HANDLE s_Handle;
 };
 }
 
-CSystemCallFilter::CSystemCallFilter() {
+void CSystemCallFilter::installSystemCallFilter() {
     HANDLE job = CreateJobObject(nullptr, nullptr);
     if (job == nullptr) {
         LOG_ERROR(<< "Failed to create Job Object: " << ml::core::CWindowsError());
@@ -31,7 +31,7 @@ CSystemCallFilter::CSystemCallFilter() {
 
     // The job is not destroyed until the handle is closed
     // and all processes have exited.
-    CheckedHandle jobHandle(job);
+    SCheckedHandle jobHandle(job);
 
     JOBOBJECT_BASIC_LIMIT_INFORMATION limits;
 

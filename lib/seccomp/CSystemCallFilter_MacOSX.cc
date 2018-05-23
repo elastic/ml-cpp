@@ -11,6 +11,7 @@
 #include <sandbox.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <cstring>
 
 namespace ml {
@@ -21,7 +22,7 @@ namespace {
 // opening files, reading and writing.
 // (allow file-write*) is required for mkfifo and that permission
 // can not be set using the more granular controls.
-static const std::string SANDBOX_RULES("\
+const std::string SANDBOX_RULES("\
     (version 1) \
     (deny default) \
     (allow file-read*) \
@@ -30,7 +31,9 @@ static const std::string SANDBOX_RULES("\
     (allow file-write-data)");
 
 // mkstemps will replace the Xs with random characters
-static const char FILE_NAME_TEMPLATE[] = {"ml.XXXXXX.sb"};
+const char* FILE_NAME_TEMPLATE = "ml.XXXXXX.sb";
+// The length of the suffix '.sb'
+const int FILE_NAME_TEMPLATE_SUFFIX_LEN = 3;
 
 std::string getTempDir() {
     // Prefer to use the temporary directory set by the Elasticsearch JVM
@@ -46,27 +49,29 @@ std::string getTempDir() {
 }
 
 std::string writeTempRulesFile() {
-    std::string tempDir = getTempDir();
-
-    std::unique_ptr<char[]> templateBuff(new char[tempDir.size() + sizeof(FILE_NAME_TEMPLATE)]);
-    ::strlcpy(templateBuff.get(), tempDir.c_str(), tempDir.size() + 1);
-    ::strlcat(templateBuff.get(), FILE_NAME_TEMPLATE,
-              tempDir.size() + sizeof(FILE_NAME_TEMPLATE));
+    std::string profileFilename = getTempDir() + FILE_NAME_TEMPLATE;
 
     // Create and open a temporary file with a random name
-    // templateBuff is updated with the new filename.
-    // 3 is the size of the suffix ".sb"
-    int fd = mkstemps(templateBuff.get(), 3);
+    // profileFilename is updated with the new filename.
+    int fd = mkstemps(&profileFilename[0], FILE_NAME_TEMPLATE_SUFFIX_LEN);
+    if (fd == -1) {
+        LOG_ERROR(<< "Opening a temporary file with mkstemps failed: " << std::strerror(errno));
+        return std::string();
+    }
     write(fd, SANDBOX_RULES.c_str(), SANDBOX_RULES.size());
     close(fd);
 
-    std::string profileFilename{templateBuff.get()};
     return profileFilename;
 }
 }
 
-CSystemCallFilter::CSystemCallFilter() {
+void CSystemCallFilter::installSystemCallFilter() {
     std::string profileFilename = writeTempRulesFile();
+    if (profileFilename.empty()) {
+        LOG_WARN(<< "Cannot write sandbox rules. macOS sandbox will not be initialized");
+        return;
+    }
+
     char* errorbuf = nullptr;
     if (sandbox_init(profileFilename.c_str(), SANDBOX_NAMED, &errorbuf) != 0) {
         std::string msg("Error initializing macOS sandbox");

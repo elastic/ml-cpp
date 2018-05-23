@@ -80,7 +80,7 @@ bool canUseSeccompBpf() {
 }
 }
 
-CSystemCallFilter::CSystemCallFilter() {
+void CSystemCallFilter::installSystemCallFilter() {
     if (canUseSeccompBpf()) {
         LOG_DEBUG(<< "Seccomp BPF filters available");
 

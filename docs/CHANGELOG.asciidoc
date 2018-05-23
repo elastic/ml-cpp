@@ -38,7 +38,7 @@ model state on disk ({pull}89[#89])
 
 Secure the ML processes by preventing system calls such as fork and exec. The Linux implemenation uses
 Seccomp BPF to intercept system calls and is available in kernels since 3.5. On Windows Job Objects prevent
-new processes being created and macOs uses the sandbox functionality ({pull}98[#98])
+new processes being created and macOS uses the sandbox functionality ({pull}98[#98])
 
 === Bug Fixes
 

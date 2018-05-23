@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_seccomp_CSystemCallFilter_h
 #define INCLUDED_ml_seccomp_CSystemCallFilter_h
 
+#include <core/CNonInstantiatable.h>
+
 namespace ml {
 namespace seccomp {
 
@@ -31,9 +33,9 @@ namespace seccomp {
 //! Windows:
 //! Job Objects prevent the process spawning another.
 //!
-class CSystemCallFilter {
+class CSystemCallFilter : private core::CNonInstantiatable {
 public:
-    CSystemCallFilter();
+    static void installSystemCallFilter();
 };
 }
 }

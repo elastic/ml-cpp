@@ -156,7 +156,7 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     CPPUNIT_ASSERT(systemCall());
 
     // Install the filter
-    ml::seccomp::CSystemCallFilter filter;
+    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
                                           CPPUNIT_ASSERT(systemCall()));

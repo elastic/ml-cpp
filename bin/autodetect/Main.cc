@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
 
     ml::core::CProcessPriority::reducePriority();
 
-    ml::seccomp::CSystemCallFilter systemCallFilter;
+    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
