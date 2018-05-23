@@ -25,6 +25,7 @@ namespace {
 const std::string BUCKET_LENGTH_INDEX_TAG("a");
 const std::string BUCKET_VALUES_TAG("b");
 const std::string START_TIME_TAG("c");
+const std::string MEAN_OFFSET_TAG("d");
 }
 
 CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
@@ -45,6 +46,7 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
         RESTORE(BUCKET_VALUES_TAG,
                 core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser));
+        RESTORE(MEAN_OFFSET_TAG, m_MeanOffset.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
 }
@@ -53,6 +55,7 @@ void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& insert
     inserter.insertValue(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex);
     inserter.insertValue(START_TIME_TAG, m_StartTime);
     core::CPersistUtils::persist(BUCKET_VALUES_TAG, m_BucketValues, inserter);
+    inserter.insertValue(MEAN_OFFSET_TAG, m_MeanOffset.toDelimited());
 }
 
 core_t::TTime CExpandingWindow::startTime() const {
@@ -148,7 +151,8 @@ bool CExpandingWindow::needToCompress(core_t::TTime time) const {
 uint64_t CExpandingWindow::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_BucketLengthIndex);
     seed = CChecksum::calculate(seed, m_StartTime);
-    return CChecksum::calculate(seed, m_BucketValues);
+    seed = CChecksum::calculate(seed, m_BucketValues);
+    return CChecksum::calculate(seed, m_MeanOffset);
 }
 
 void CExpandingWindow::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {

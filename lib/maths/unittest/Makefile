@@ -32,6 +32,7 @@ SRCS=\
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
 	CEqualWithToleranceTest.cc \
+	CExpandingWindowTest.cc \
 	CForecastTest.cc \
 	CGammaRateConjugateTest.cc \
 	CGramSchmidtTest.cc \

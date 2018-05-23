@@ -21,6 +21,7 @@
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
 #include "CEqualWithToleranceTest.h"
+#include "CExpandingWindowTest.h"
 #include "CForecastTest.h"
 #include "CGammaRateConjugateTest.h"
 #include "CGramSchmidtTest.h"
@@ -84,6 +85,7 @@
 int main(int argc, const char** argv) {
     ml::test::CTestRunner runner(argc, argv);
 
+    runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CAgglomerativeClustererTest::suite());
     runner.addTest(CAssignmentTest::suite());
     runner.addTest(CBasicStatisticsTest::suite());
