@@ -31,7 +31,7 @@ const std::string SANDBOX_RULES("\
     (allow file-write-data)");
 
 // mkstemps will replace the Xs with random characters
-const char* FILE_NAME_TEMPLATE = "ml.XXXXXX.sb";
+const std::string FILE_NAME_TEMPLATE("ml.XXXXXX.sb");
 // The length of the suffix '.sb'
 const int FILE_NAME_TEMPLATE_SUFFIX_LEN = 3;
 

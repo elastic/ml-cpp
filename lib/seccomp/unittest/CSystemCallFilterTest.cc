@@ -28,11 +28,11 @@ const size_t TEST_SIZE = 10000;
 const size_t MAX_ATTEMPTS = 20;
 const char TEST_CHAR = 'a';
 #ifdef Windows
-const char* TEST_READ_PIPE_NAME = "\\\\.\\pipe\\testreadpipe";
-const char* TEST_WRITE_PIPE_NAME = "\\\\.\\pipe\\testwritepipe";
+const char* const TEST_READ_PIPE_NAME = "\\\\.\\pipe\\testreadpipe";
+const char* const TEST_WRITE_PIPE_NAME = "\\\\.\\pipe\\testwritepipe";
 #else
-const char* TEST_READ_PIPE_NAME = "testreadpipe";
-const char* TEST_WRITE_PIPE_NAME = "testwritepipe";
+const char* const TEST_READ_PIPE_NAME = "testreadpipe";
+const char* const TEST_WRITE_PIPE_NAME = "testwritepipe";
 #endif
 
 class CNamedPipeWriter : public ml::core::CThread {
