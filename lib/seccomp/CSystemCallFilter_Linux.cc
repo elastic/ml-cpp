@@ -51,14 +51,42 @@ const struct sock_filter FILTER[] = {
     /* Load the system call number into accumulator */
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
     /* Only applies to X86_64 arch. Fail calls for the x32 ABI  */
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 4, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fork, 3, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_vfork, 2, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_execve, 1, 0),
-    /* Allow call */
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 3, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 30, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 29, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 28, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 27, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 26, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_futex, 25, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 24, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 23, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 22, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_nanosleep, 21, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 20, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_set_robust_list, 19, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 18, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 17, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 16, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 15, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 14, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 13, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 12, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_socket, 11, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getuid, 10, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit_group, 9, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 8, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 7, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_brk, 6, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 5, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit, 4, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 3, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 2, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 1, 0),
     /* Disallow call with error code EACCES */
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA))};
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (EACCES & SECCOMP_RET_DATA)),
+    /* Allow call */
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW)
+};
 
 bool canUseSeccompBpf() {
     // This call is expected to fail due to the nullptr argument
