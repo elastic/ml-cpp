@@ -51,7 +51,7 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
         RESTORE(BUCKET_VALUES_TAG,
                 core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser));
-        RESTORE(MEAN_OFFSET_TAG, m_MeanOffset.fromDelimited(traverser.value()));
+        RESTORE(MEAN_OFFSET_TAG, m_MeanOffset.fromDelimited(traverser.value()))
     } while (traverser.next());
     this->deflate(true);
     return true;
