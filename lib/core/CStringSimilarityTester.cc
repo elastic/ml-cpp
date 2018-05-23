@@ -12,8 +12,7 @@ namespace core {
 
 const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::min());
 
-CStringSimilarityTester::CStringSimilarityTester()
-    : m_Compressor(CCompressUtils::E_Deflate, true) {
+CStringSimilarityTester::CStringSimilarityTester() : m_Compressor(true) {
 }
 
 bool CStringSimilarityTester::similarity(const std::string& first,

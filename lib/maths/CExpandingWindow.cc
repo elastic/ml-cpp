@@ -208,10 +208,9 @@ void CExpandingWindow::deflate(bool commit) const {
 void CExpandingWindow::doDeflate(bool commit) {
     if (commit) {
         bool lengthOnly{false};
-        bool finish{true};
-        core::CCompressUtils compressor(core::CCompressUtils::E_Deflate, lengthOnly);
+        core::CDeflator compressor(lengthOnly);
         compressor.addVector(m_BucketValues);
-        compressor.data(finish, m_DeflatedBucketValues);
+        compressor.finishAndTakeData(m_DeflatedBucketValues);
     }
     m_BucketValues.clear();
     m_BucketValues.shrink_to_fit();
@@ -225,11 +224,10 @@ void CExpandingWindow::inflate(bool commit) const {
 
 void CExpandingWindow::doInflate(bool commit) {
     bool lengthOnly{false};
-    bool finish{true};
-    core::CCompressUtils compressor(core::CCompressUtils::E_Inflate, lengthOnly);
-    compressor.addVector(m_DeflatedBucketValues);
+    core::CInflator decompressor(lengthOnly);
+    decompressor.addVector(m_DeflatedBucketValues);
     TByteVec inflated;
-    compressor.data(finish, inflated);
+    decompressor.finishAndTakeData(inflated);
     m_BucketValues.resize(inflated.size() / sizeof(TFloatMeanAccumulator));
     std::copy(inflated.begin(), inflated.end(),
               reinterpret_cast<TByte*>(m_BucketValues.data()));

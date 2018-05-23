@@ -35,14 +35,13 @@ namespace core {
 //! a multi-threaded application it would be best to create
 //! one object for each thread.
 //!
-class CORE_EXPORT CCompressUtils : private CNonCopyable {
+class CORE_EXPORT CCompressUtil : private CNonCopyable {
 public:
     using TByteVec = std::vector<Bytef>;
-    enum EOperation { E_Deflate, E_Inflate };
 
 public:
-    CCompressUtils(EOperation operation, bool lengthOnly, int level = Z_DEFAULT_COMPRESSION);
-    ~CCompressUtils();
+    CCompressUtil(bool lengthOnly);
+    virtual ~CCompressUtil() = default;
 
     //! Add a string.
     //!
@@ -74,7 +73,7 @@ public:
     //! Get transformed representation.
     //!
     //! \warning This will fail if the lengthOnly constructor argument
-    //!  was set to true.
+    //! was set to true.
     //!
     //! \note The output representation is a byte array NOT a string,
     //! and hence not printable.
@@ -82,10 +81,16 @@ public:
     //! If finish==false then retrieve partial state.
     bool data(bool finish, TByteVec& result);
 
+    //! Get transformed representation.
+    //!
+    //! \note This is equivalent to calling data with finish==true, but
+    //! also takes the cached state (avoiding the copy).
+    bool finishAndTakeData(TByteVec& result);
+
     //! Get transformed data length.
     //!
     //! If finish==false then retrieve partial length.
-    bool length(bool finish, size_t& length);
+    bool length(bool finish, std::size_t& length);
 
     //! Reset the underlying stream.  This will happen automatically
     //! when adding a new string after having finished the previous
@@ -93,11 +98,15 @@ public:
     //! error, it may be desirable to explicitly reset the state.
     void reset();
 
+protected:
+    //! Get the underlying stream.
+    z_stream& stream();
+
 private:
     enum EState { E_Unused, E_Active, E_Finished };
 
 private:
-    static const size_t CHUNK_SIZE{4096};
+    static const std::size_t CHUNK_SIZE{4096};
 
 private:
     //! Get an unsigned character pointer to the address of the start
@@ -139,7 +148,7 @@ private:
         m_ZlibStrm.next_in = bytes(input);
         m_ZlibStrm.avail_in = size(input);
 
-        int flush(finish ? Z_FINISH : Z_NO_FLUSH);
+        int flush{finish ? Z_FINISH : Z_NO_FLUSH};
         do {
             if (this->processChunk(flush) == false) {
                 return false;
@@ -151,12 +160,18 @@ private:
         return true;
     }
 
+    //! Preparation before returning any data.
+    bool prepareToReturnData(bool finish);
+
+    //! Process a chunk with the stream.
+    virtual int streamProcessChunk(int flush) = 0;
+
+    //! Reset the underlying stream.
+    virtual int resetStream() = 0;
+
 private:
     //! The current state of deflation or inflation.
     EState m_State;
-
-    //! The mode of operation i.e. deflation or inflation.
-    EOperation m_Operation;
 
     //! Is this object only fit for getting output lengths?
     bool m_LengthOnly;
@@ -170,6 +185,32 @@ private:
 
     //! The zlib data structure.
     z_stream m_ZlibStrm;
+};
+
+//! \brief Implementation of CompressUtil for deflating data.
+class CORE_EXPORT CDeflator final : public CCompressUtil {
+public:
+    CDeflator(bool lengthOnly, int level = Z_DEFAULT_COMPRESSION);
+    ~CDeflator();
+
+private:
+    //! Process a chunk of state (optionally flushing).
+    virtual int streamProcessChunk(int flush);
+    //! Reset the underlying stream.
+    virtual int resetStream();
+};
+
+//! \brief Implementation of CompressUtil for inflating data.
+class CORE_EXPORT CInflator final : public CCompressUtil {
+public:
+    CInflator(bool lengthOnly);
+    ~CInflator();
+
+private:
+    //! Process a chunk of state (optionally flushing).
+    virtual int streamProcessChunk(int flush);
+    //! Reset the underlying stream.
+    virtual int resetStream();
 };
 }
 }

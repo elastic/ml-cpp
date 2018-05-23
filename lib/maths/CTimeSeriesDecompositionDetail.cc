@@ -719,7 +719,8 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
-CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
+CExpandingWindow*
+CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
@@ -730,7 +731,8 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
                              bucketLengths.begin()};
             std::size_t b{bucketLengths.size()};
             TTimeCRng bucketLengths_(bucketLengths, a, b);
-            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate, deflate);
+            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336,
+                                        m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };

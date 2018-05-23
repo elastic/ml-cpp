@@ -1758,7 +1758,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
     using TStrCRefVec = std::vector<TStrCRef>;
 
     featureData.s_InfluenceValues.clear();
-    core::CCompressUtils compressor(core::CCompressUtils::E_Deflate, true);
+    core::CDeflator compressor(true);
 
     try {
         TStrCRefVec strings;
