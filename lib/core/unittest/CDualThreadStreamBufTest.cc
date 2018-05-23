@@ -191,7 +191,7 @@ void CDualThreadStreamBufTest::testPutback() {
 
     buf.signalEndOfFile();
 
-    static const char* PUTBACK_CHARS("put this back");
+    static const char* const PUTBACK_CHARS("put this back");
     std::istream strm(&buf);
     char c('\0');
     CPPUNIT_ASSERT(strm.get(c).good());

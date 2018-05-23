@@ -8,7 +8,7 @@
 namespace {
 // 4000 is a value that Microsoft uses in some of their code, so it's
 // hopefully a reasonably sensible setting
-static const DWORD SPIN_COUNT(4000);
+const DWORD SPIN_COUNT(4000);
 }
 
 namespace ml {

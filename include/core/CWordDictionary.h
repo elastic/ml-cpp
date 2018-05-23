@@ -149,7 +149,7 @@ private:
 
 private:
     //! Name of the file to load that contains the dictionary words.
-    static const char* DICTIONARY_FILE;
+    static const char* const DICTIONARY_FILE;
 
     //! The constructor loads a file, and hence may take a while.  This
     //! mutex prevents the singleton object being constructed simultaneously

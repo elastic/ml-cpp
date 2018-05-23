@@ -393,7 +393,7 @@ void sampleQuantiles(const DISTRIBUTION& distribution, std::size_t n, TDoubleVec
     result.push_back(expectation(distribution, a, b));
 }
 
-static const std::string RNG_TAG("a");
+const std::string RNG_TAG("a");
 }
 
 bool CSampling::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

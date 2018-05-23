@@ -22,9 +22,9 @@
 
 namespace {
 #ifdef Windows
-const char* TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
-const char* TEST_PIPE_NAME = "testfiles/testpipe";
+const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
