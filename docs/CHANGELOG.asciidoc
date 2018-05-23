@@ -32,6 +32,7 @@ Improve robustness w.r.t. outliers of detection and initialisation of seasonal c
 Improve behavior when there are abrupt changes in the seasonal components present in a time series ({pull}91[#91])
 Explicit change point detection and modelling ({pull}92[#92])
 Improve partition analysis memory usage ({pull}97[#97])
+Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
