@@ -51,7 +51,7 @@ const int COsFileFuncs::WRITABLE(2);
 // For Windows, consider "executable" the same as "readable" for the time being
 const int COsFileFuncs::EXECUTABLE(4);
 
-const char* COsFileFuncs::NULL_FILENAME("nul");
+const char* const COsFileFuncs::NULL_FILENAME("nul");
 
 int COsFileFuncs::open(const char* path, int oflag) {
     return COsFileFuncs::open(path, oflag, 0);

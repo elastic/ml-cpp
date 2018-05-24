@@ -25,19 +25,19 @@ const uint32_t PAUSE_TIME_MS = 10;
 const size_t MAX_ATTEMPTS = 100;
 const size_t TEST_SIZE = 10000;
 const char TEST_CHAR = 'a';
-const char* GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
-const char* GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
+const char* const GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
+const char* const GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
 #ifdef Windows
-const char* GOOD_INPUT_PIPE_NAME = "\\\\.\\pipe\\good_input_pipe";
-const char* GOOD_OUTPUT_PIPE_NAME = "\\\\.\\pipe\\good_output_pipe";
+const char* const GOOD_INPUT_PIPE_NAME = "\\\\.\\pipe\\good_input_pipe";
+const char* const GOOD_OUTPUT_PIPE_NAME = "\\\\.\\pipe\\good_output_pipe";
 #else
-const char* GOOD_INPUT_PIPE_NAME = "testfiles/good_input_pipe";
-const char* GOOD_OUTPUT_PIPE_NAME = "testfiles/good_output_pipe";
+const char* const GOOD_INPUT_PIPE_NAME = "testfiles/good_input_pipe";
+const char* const GOOD_OUTPUT_PIPE_NAME = "testfiles/good_output_pipe";
 #endif
-const char* BAD_INPUT_FILE_NAME = "can't_create_a_file_here/bad_input_file";
-const char* BAD_OUTPUT_FILE_NAME = "can't_create_a_file_here/bad_output_file";
-const char* BAD_INPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_input_pipe";
-const char* BAD_OUTPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_output_pipe";
+const char* const BAD_INPUT_FILE_NAME = "can't_create_a_file_here/bad_input_file";
+const char* const BAD_OUTPUT_FILE_NAME = "can't_create_a_file_here/bad_output_file";
+const char* const BAD_INPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_input_pipe";
+const char* const BAD_OUTPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_output_pipe";
 
 class CThreadDataWriter : public ml::core::CThread {
 public:

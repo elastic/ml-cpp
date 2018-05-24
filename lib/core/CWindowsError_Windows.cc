@@ -11,7 +11,7 @@
 #include <cmath>
 
 namespace {
-static const size_t BUFFER_SIZE(1024);
+const size_t BUFFER_SIZE(1024);
 
 // This is a workaround for a bug in the Visual Studio 2013 C runtime library.
 // See http://connect.microsoft.com/VisualStudio/feedback/details/811093 for
