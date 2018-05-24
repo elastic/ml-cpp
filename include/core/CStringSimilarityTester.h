@@ -6,7 +6,7 @@
 #ifndef INCLUDED_ml_core_CStringSimilarityTester_h
 #define INCLUDED_ml_core_CStringSimilarityTester_h
 
-#include <core/CCompressUtils.h>
+#include <core/CompressUtils.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>

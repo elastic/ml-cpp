@@ -6,7 +6,7 @@
 
 #include "CEventRatePopulationDataGathererTest.h"
 
-#include <core/CCompressUtils.h>
+#include <core/CompressUtils.h>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>

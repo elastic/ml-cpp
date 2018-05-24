@@ -6,7 +6,7 @@
 
 #include <config/CDataCountStatistics.h>
 
-#include <core/CCompressUtils.h>
+#include <core/CompressUtils.h>
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
