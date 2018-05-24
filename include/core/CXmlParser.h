@@ -59,7 +59,7 @@ public:
     static const std::string ATTRIBUTE_EQUALS;
     static const size_t DEFAULT_INDENT_SPACES;
     static const size_t MAX_INDENT_SPACES;
-    static const char* INDENT_SPACE_STR;
+    static const char* const INDENT_SPACE_STR;
 
 public:
     using TStrVec = std::vector<std::string>;

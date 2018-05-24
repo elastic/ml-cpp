@@ -588,9 +588,9 @@ const std::string DECAY_RATE_TAG("j");
 const std::string HISTORY_LENGTH_TAG("k");
 
 // CXMeansOnline1d::CCluster
-static const std::string INDEX_TAG("a");
-static const std::string STRUCTURE_TAG("b");
-static const std::string PRIOR_TAG("c");
+const std::string INDEX_TAG("a");
+const std::string STRUCTURE_TAG("b");
+const std::string PRIOR_TAG("c");
 
 const std::string EMPTY_STRING;
 }

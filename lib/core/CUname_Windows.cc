@@ -25,7 +25,7 @@ bool queryKernelVersion(uint16_t& major, uint16_t& minor, uint16_t& build) {
     // then distinguish client/server versions of Windows using
     // VerifyVersionInfo().
 
-    static const char* KERNEL32_DLL("kernel32.dll");
+    static const char* const KERNEL32_DLL("kernel32.dll");
 
     DWORD handle(0);
     DWORD size(GetFileVersionInfoSize(KERNEL32_DLL, &handle));

@@ -25,13 +25,13 @@ namespace {
 
 using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
-static const std::string NAME_TYPE("name");
-static const std::string DESCRIPTION_TYPE("description");
-static const std::string STAT_TYPE("value");
+const std::string NAME_TYPE("name");
+const std::string DESCRIPTION_TYPE("description");
+const std::string STAT_TYPE("value");
 
 //! Persistence tags
-static const std::string KEY_TAG("a");
-static const std::string VALUE_TAG("b");
+const std::string KEY_TAG("a");
+const std::string VALUE_TAG("b");
 
 //! Helper function to add a string/int pair to JSON writer
 void addStringInt(TGenericLineWriter& writer,
