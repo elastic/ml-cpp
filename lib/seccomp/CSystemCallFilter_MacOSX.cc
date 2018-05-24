@@ -55,7 +55,8 @@ std::string writeTempRulesFile() {
     // profileFilename is updated with the new filename.
     int fd = mkstemps(&profileFilename[0], FILE_NAME_TEMPLATE_SUFFIX_LEN);
     if (fd == -1) {
-        LOG_ERROR(<< "Opening a temporary file with mkstemps failed: " << std::strerror(errno));
+        LOG_ERROR(<< "Opening a temporary file with mkstemps failed: "
+                  << std::strerror(errno));
         return std::string();
     }
     write(fd, SANDBOX_RULES.c_str(), SANDBOX_RULES.size());
