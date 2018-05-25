@@ -205,7 +205,8 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
              CTools::logisticFunction(x[1], 0.1, 1.0) *
              (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
              CTools::logisticFunction(x[3], 0.2, 0.5)};
-    LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print() << ") = " << p / 0.03125
+    LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
+              << ") = " << MAXIMUM_DECISION_FUNCTION * p
               << " | x = " << core::CContainerPrinter::print(x));
 
     change = candidates[0].second - m_ChangeModels.begin();
