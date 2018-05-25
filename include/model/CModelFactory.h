@@ -46,6 +46,7 @@ class CAnomalyDetectorModel;
 class CDataGatherer;
 class CDetectionRule;
 class CInfluenceCalculator;
+class CInterimBucketCorrector;
 class CSearchKey;
 
 //! \brief A factory class interface for the CAnomalyDetectorModel hierarchy.
@@ -91,6 +92,8 @@ public:
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
     using TFeatureInfluenceCalculatorCPtrPrVecVec =
         std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
+    using TInterimBucketCorrectorWPtr = std::weak_ptr<CInterimBucketCorrector>;
+    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
     using TDetectionRuleVec = std::vector<CDetectionRule>;
     using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
@@ -105,7 +108,7 @@ public:
     //! need to change the signature of every factory function each
     //! time we need extra data to initialize a model.
     struct MODEL_EXPORT SModelInitializationData {
-        explicit SModelInitializationData(const TDataGathererPtr& dataGatherer);
+        SModelInitializationData(const TDataGathererPtr& dataGatherer);
 
         TDataGathererPtr s_DataGatherer;
     };
@@ -121,7 +124,7 @@ public:
                                     const std::string& partitionFieldValue,
                                     unsigned int sampleOverrideCount = 0u);
 
-        //! This constructor is meant to simplify unit tests
+        //! This constructor is to simplify unit testing.
         SGathererInitializationData(const core_t::TTime startTime);
 
         core_t::TTime s_StartTime;
@@ -133,7 +136,11 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CModelFactory(const SModelParams& params);
+    //! \warning The user must ensure that \p interimBucketCorrector
+    //! outlives this object. If model factories are obtained from
+    //! CModelConfig this is ensured for you.
+    CModelFactory(const SModelParams& params,
+                  const TInterimBucketCorrectorWPtr& interimBucketCorrector);
     virtual ~CModelFactory() = default;
 
     //! Create a copy of the factory owned by the calling code.
@@ -290,8 +297,15 @@ public:
     void detectionRules(TDetectionRuleVecCRef detectionRules);
     //@}
 
-    //! Set the scheduled events
+    //! Set the scheduled events.
     void scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents);
+
+    //! Set the interim bucket corrector.
+    //!
+    //! \warning The caller must ensure that \p interimBucketCorrector
+    //! outlives this object. If model factories are obtained from
+    //! CModelConfig this is ensured for you.
+    void interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector);
 
     //! \name Customization by mlmodel.conf
     //@{
@@ -359,6 +373,9 @@ protected:
     //! \note This only swaps the state held on this base class.
     void swap(CModelFactory& other);
 
+    //! Get the singleton interim bucket correction calculator.
+    TInterimBucketCorrectorPtr interimBucketCorrector() const;
+
     //! Get a multivariate normal prior with dimension \p dimension.
     //!
     //! \param[in] dimension The dimension.
@@ -416,6 +433,15 @@ private:
 private:
     //! The global model configuration parameters.
     SModelParams m_ModelParams;
+
+    //! A reference to the singleton interim bucket correction calculator.
+    //!
+    //! \note It is the responsibility of the user of the factory class
+    //! to ensure that the interim bucket corrector is not deleted whilst
+    //! still in use. We store it here by weak pointer since we don't want
+    //! this to update the reference count so we properly account for its
+    //! memory usage in the objects this creates.
+    TInterimBucketCorrectorWPtr m_InterimBucketCorrector;
 
     //! A cache of models for collections of features.
     mutable TFeatureVecMathsModelMap m_MathsModelCache;

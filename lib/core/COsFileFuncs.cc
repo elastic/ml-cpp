@@ -27,7 +27,7 @@ const int COsFileFuncs::READABLE(R_OK);
 const int COsFileFuncs::WRITABLE(W_OK);
 const int COsFileFuncs::EXECUTABLE(X_OK);
 
-const char* COsFileFuncs::NULL_FILENAME("/dev/null");
+const char* const COsFileFuncs::NULL_FILENAME("/dev/null");
 
 int COsFileFuncs::open(const char* path, int oflag) {
     return ::open(path, oflag);

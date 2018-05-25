@@ -22,9 +22,9 @@
 
 namespace {
 #ifdef Windows
-const char* TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
-const char* TEST_PIPE_NAME = "testfiles/testpipe";
+const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
@@ -150,11 +150,18 @@ void CLoggerTest::testNonAsciiJsonLogging() {
 
     std::ostringstream loggedData;
     std::thread reader([&loggedData] {
-        // wait a bit so that pipe has been created
-        ml::core::CSleep::sleep(200);
-        std::ifstream strm(TEST_PIPE_NAME);
-        std::copy(std::istreambuf_iterator<char>(strm), std::istreambuf_iterator<char>(),
-                  std::ostreambuf_iterator<char>(loggedData));
+        for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
+            // wait a bit so that pipe has been created
+            ml::core::CSleep::sleep(50);
+            std::ifstream strm(TEST_PIPE_NAME);
+            if (strm.is_open()) {
+                std::copy(std::istreambuf_iterator<char>(strm),
+                          std::istreambuf_iterator<char>(),
+                          std::ostreambuf_iterator<char>(loggedData));
+                return;
+            }
+        }
+        CPPUNIT_FAIL("Failed to connect to logging pipe within a reasonable time");
     });
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();

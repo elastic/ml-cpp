@@ -27,12 +27,12 @@ namespace ml {
 namespace model {
 
 CMetricModelFactory::CMetricModelFactory(const SModelParams& params,
+                                         const TInterimBucketCorrectorWPtr& interimBucketCorrector,
                                          model_t::ESummaryMode summaryMode,
                                          const std::string& summaryCountFieldName)
-    : CModelFactory(params), m_Identifier(), m_SummaryMode(summaryMode),
-      m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false),
-      m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH),
-      m_BucketResultsDelay(0) {
+    : CModelFactory(params, interimBucketCorrector), m_SummaryMode(summaryMode),
+      m_SummaryCountFieldName(summaryCountFieldName),
+      m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH) {
 }
 
 CMetricModelFactory* CMetricModelFactory::clone() const {
@@ -58,8 +58,8 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
                                    this->minimumSeasonalVarianceScale(), true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features), influenceCalculators);
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        influenceCalculators, this->interimBucketCorrector());
 }
 
 CAnomalyDetectorModel*
@@ -81,8 +81,8 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData,
     return new CMetricModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features), influenceCalculators, traverser);
+        this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
+        influenceCalculators, this->interimBucketCorrector(), traverser);
 }
 
 CDataGatherer*

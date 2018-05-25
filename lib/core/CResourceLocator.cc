@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 namespace {
-const char* CPP_SRC_HOME("CPP_SRC_HOME");
+const char* const CPP_SRC_HOME("CPP_SRC_HOME");
 }
 
 namespace ml {

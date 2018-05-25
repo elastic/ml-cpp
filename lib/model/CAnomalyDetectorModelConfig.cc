@@ -18,6 +18,7 @@
 #include <model/CDetectionRule.h>
 #include <model/CEventRateModelFactory.h>
 #include <model/CEventRatePopulationModelFactory.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CLimits.h>
 #include <model/CMetricModelFactory.h>
 #include <model/CMetricPopulationModelFactory.h>
@@ -117,24 +118,28 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
     params.s_MultipleBucketLengths = CAnomalyDetectorModelConfig::multipleBucketLengths(
         bucketLength, multipleBucketLengths);
 
+    TInterimBucketCorrectorPtr interimBucketCorrector =
+        std::make_shared<CInterimBucketCorrector>(bucketLength);
+
     TFactoryTypeFactoryPtrMap factories;
     params.s_MinimumModeFraction = DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
-    factories[E_EventRateFactory].reset(
-        new CEventRateModelFactory(params, summaryMode, summaryCountFieldName));
-    factories[E_MetricFactory].reset(
-        new CMetricModelFactory(params, summaryMode, summaryCountFieldName));
-    factories[E_EventRatePopulationFactory].reset(new CEventRatePopulationModelFactory(
-        params, summaryMode, summaryCountFieldName));
+    factories[E_EventRateFactory] = std::make_shared<CEventRateModelFactory>(
+        params, interimBucketCorrector, summaryMode, summaryCountFieldName);
+    factories[E_MetricFactory] = std::make_shared<CMetricModelFactory>(
+        params, interimBucketCorrector, summaryMode, summaryCountFieldName);
+    factories[E_EventRatePopulationFactory] = std::make_shared<CEventRatePopulationModelFactory>(
+        params, interimBucketCorrector, summaryMode, summaryCountFieldName);
     params.s_MinimumModeFraction = DEFAULT_POPULATION_MINIMUM_MODE_FRACTION;
-    factories[E_MetricPopulationFactory].reset(new CMetricPopulationModelFactory(
-        params, summaryMode, summaryCountFieldName));
+    factories[E_MetricPopulationFactory] = std::make_shared<CMetricPopulationModelFactory>(
+        params, interimBucketCorrector, summaryMode, summaryCountFieldName);
     params.s_MinimumModeFraction = 1.0;
-    factories[E_CountingFactory].reset(
-        new CCountingModelFactory(params, summaryMode, summaryCountFieldName));
+    factories[E_CountingFactory] = std::make_shared<CCountingModelFactory>(
+        params, interimBucketCorrector, summaryMode, summaryCountFieldName);
 
     CAnomalyDetectorModelConfig result;
     result.bucketLength(bucketLength);
     result.bucketResultsDelay(bucketResultsDelay);
+    result.interimBucketCorrector(interimBucketCorrector);
     result.multivariateByFields(multivariateByFields);
     result.factories(factories);
     return result;
@@ -208,6 +213,13 @@ CAnomalyDetectorModelConfig::multipleBucketLengths(core_t::TTime bucketLength,
     }
     std::sort(multiBuckets.begin(), multiBuckets.end());
     return multiBuckets;
+}
+
+void CAnomalyDetectorModelConfig::interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector) {
+    m_InterimBucketCorrector = interimBucketCorrector;
+    for (auto& factory : m_Factories) {
+        factory.second->interimBucketCorrector(m_InterimBucketCorrector);
+    }
 }
 
 void CAnomalyDetectorModelConfig::multivariateByFields(bool enabled) {
@@ -666,6 +678,10 @@ std::size_t CAnomalyDetectorModelConfig::latencyBuckets() const {
 
 std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay() const {
     return m_BucketResultsDelay;
+}
+
+const CInterimBucketCorrector& CAnomalyDetectorModelConfig::interimBucketCorrector() const {
+    return *m_InterimBucketCorrector;
 }
 
 bool CAnomalyDetectorModelConfig::multivariateByFields() const {

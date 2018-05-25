@@ -245,8 +245,8 @@ public:
         //! Check if we should run the periodicity test on \p window.
         bool shouldTest(ETest test, core_t::TTime time) const;
 
-        //! Get a new \p test. (Warning owned by the caller.)
-        CExpandingWindow* newWindow(ETest test) const;
+        //! Get a new \p test. (Warning: this is owned by the caller.)
+        CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
 
         //! Account for memory that is not yet allocated
         //! during the initial state

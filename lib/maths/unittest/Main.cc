@@ -21,6 +21,7 @@
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
 #include "CEqualWithToleranceTest.h"
+#include "CExpandingWindowTest.h"
 #include "CForecastTest.h"
 #include "CGammaRateConjugateTest.h"
 #include "CGramSchmidtTest.h"
@@ -99,6 +100,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());
     runner.addTest(CEntropySketchTest::suite());
+    runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CForecastTest::suite());
     runner.addTest(CGammaRateConjugateTest::suite());
     runner.addTest(CGramSchmidtTest::suite());

@@ -40,10 +40,10 @@ namespace core {
 class CORE_EXPORT CProcess : private CNonCopyable {
 public:
     //! These messages need to be 100% standard across all services
-    static const char* STARTING_MSG;
-    static const char* STARTED_MSG;
-    static const char* STOPPING_MSG;
-    static const char* STOPPED_MSG;
+    static const char* const STARTING_MSG;
+    static const char* const STARTED_MSG;
+    static const char* const STOPPING_MSG;
+    static const char* const STOPPED_MSG;
 
 public:
     //! Prototype of the mlMain() function

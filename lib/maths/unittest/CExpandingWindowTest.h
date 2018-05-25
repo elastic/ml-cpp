@@ -3,18 +3,19 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CAnomalyJobLimitTest_h
-#define INCLUDED_CAnomalyJobLimitTest_h
+
+#ifndef INCLUDED_CExpandingWindowTest_h
+#define INCLUDED_CExpandingWindowTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnomalyJobLimitTest : public CppUnit::TestFixture {
+class CExpandingWindowTest : public CppUnit::TestFixture {
 public:
-    void testLimit();
-    void testAccuracy();
-    void testModelledEntityCountForFixedMemoryLimit();
+    void testBasicUsage();
+    void testValuesMinusPrediction();
+    void testPersistence();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CAnomalyJobLimitTest_h
+#endif // INCLUDED_CExpandingWindowTest_h

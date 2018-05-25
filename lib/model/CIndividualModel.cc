@@ -63,12 +63,10 @@ const std::string FIRST_BUCKET_TIME_TAG("c");
 const std::string LAST_BUCKET_TIME_TAG("d");
 const std::string FEATURE_MODELS_TAG("e");
 const std::string FEATURE_CORRELATE_MODELS_TAG("f");
-
 // Extra data tag deprecated at model version 34
 // TODO remove on next version bump
-// const std::string EXTRA_DATA_TAG("g");
-
-const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
+//const std::string EXTRA_DATA_TAG("g");
+//const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
 const std::string MEMORY_ESTIMATOR_TAG("i");
 }
 
@@ -157,7 +155,7 @@ bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
 
 void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
                                               core_t::TTime endTime,
-                                              CResourceMonitor& resourceMonitor) {
+                                              CResourceMonitor& /*resourceMonitor*/) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {
@@ -166,9 +164,6 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
          time < endTime; time += bucketLength) {
-        this->CAnomalyDetectorModel::sampleBucketStatistics(time, time + bucketLength,
-                                                            resourceMonitor);
-
         // Currently, we only remember one bucket.
         this->currentBucketStartTime(time);
         TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
@@ -354,7 +349,6 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
                              boost::bind(&SFeatureCorrelateModels::acceptPersistInserter,
                                          &feature, _1));
     }
-    this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
 
@@ -381,8 +375,6 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                     traverser.traverseSubLevel(boost::bind(
                         &SFeatureCorrelateModels::acceptRestoreTraverser,
                         &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
-        RESTORE(INTERIM_BUCKET_CORRECTOR_TAG,
-                this->interimBucketCorrectorAcceptRestoreTraverser(traverser))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());

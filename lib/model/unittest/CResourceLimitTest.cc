@@ -20,6 +20,7 @@
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CLimits.h>
 #include <model/CMetricModel.h>
 #include <model/CMetricModelFactory.h>
@@ -249,7 +250,8 @@ public:
                           TFeatureMultivariatePriorPtrPrVec(),
                           TFeatureCorrelationsPtrPrVec(),
                           personProbabilityPrior,
-                          influenceCalculators),
+                          influenceCalculators,
+                          std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
     virtual void updateRecycledModels() {
@@ -290,7 +292,8 @@ public:
                        newFeatureModels,
                        TFeatureMultivariatePriorPtrPrVec(),
                        TFeatureCorrelationsPtrPrVec(),
-                       influenceCalculators),
+                       influenceCalculators,
+                       std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
     virtual void updateRecycledModels() {
@@ -376,16 +379,14 @@ void CResourceLimitTest::testLargeAllocations() {
 
         SModelParams params(BUCKET_LENGTH);
         params.s_DecayRate = 0.001;
-        CEventRateModelFactory factory(params);
+        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(BUCKET_LENGTH);
+        CEventRateModelFactory factory(params, interimBucketCorrector);
         factory.identifier(1);
         factory.fieldNames(EMPTY_STRING, EMPTY_STRING, "pers", EMPTY_STRING, TStrVec());
         CModelFactory::TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         factory.features(features);
-        CModelFactory::SGathererInitializationData gathererInitData(FIRST_TIME);
-
-        CModelFactory::TDataGathererPtr gatherer(
-            dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
+        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
 
         CResourceMonitor resourceMonitor;
         resourceMonitor.memoryLimit(std::size_t(70));
@@ -447,7 +448,8 @@ void CResourceLimitTest::testLargeAllocations() {
 
         SModelParams params(BUCKET_LENGTH);
         params.s_DecayRate = 0.001;
-        CMetricModelFactory factory(params);
+        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(BUCKET_LENGTH);
+        CMetricModelFactory factory(params, interimBucketCorrector);
         factory.identifier(1);
         factory.fieldNames(EMPTY_STRING, EMPTY_STRING, "peep", "val", TStrVec());
         factory.useNull(true);
@@ -456,10 +458,7 @@ void CResourceLimitTest::testLargeAllocations() {
         features.push_back(model_t::E_IndividualMinByPerson);
         features.push_back(model_t::E_IndividualMaxByPerson);
         factory.features(features);
-        factory.bucketLength(BUCKET_LENGTH);
-        CModelFactory::SGathererInitializationData gathererInitData(FIRST_TIME);
-
-        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
 
         CResourceMonitor resourceMonitor;
         resourceMonitor.memoryLimit(std::size_t(100));

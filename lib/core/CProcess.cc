@@ -13,10 +13,10 @@
 namespace ml {
 namespace core {
 
-const char* CProcess::STARTING_MSG("Process Starting.");
-const char* CProcess::STARTED_MSG("Process Started.");
-const char* CProcess::STOPPING_MSG("Process Shutting Down.");
-const char* CProcess::STOPPED_MSG("Process Exiting.");
+const char* const CProcess::STARTING_MSG("Process Starting.");
+const char* const CProcess::STARTED_MSG("Process Started.");
+const char* const CProcess::STOPPING_MSG("Process Shutting Down.");
+const char* const CProcess::STOPPED_MSG("Process Exiting.");
 
 CProcess::CProcess()
     : m_IsService(false), m_Initialised(false), m_Running(false),

@@ -27,6 +27,7 @@
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
+#include <model/CInterimBucketCorrector.h>
 #include <model/CLimits.h>
 #include <model/CModelDetailsView.h>
 #include <model/CResourceMonitor.h>
@@ -1474,6 +1475,8 @@ void CHierarchicalResultsTest::testWriter() {
     {
         using TStrCPtrVec = model::CDataGatherer::TStrCPtrVec;
         model::SModelParams params(modelConfig.bucketLength());
+        auto interimBucketCorrector =
+            std::make_shared<model::CInterimBucketCorrector>(modelConfig.bucketLength());
         model::CSearchKey key;
         model::CAnomalyDetectorModel::TDataGathererPtr dataGatherer(new model::CDataGatherer(
             model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING,
@@ -1492,7 +1495,7 @@ void CHierarchicalResultsTest::testWriter() {
         dataGatherer->addArrival(TStrCPtrVec(1, &p21), dummy, resourceMonitor);
         dummy.clear();
         dataGatherer->addArrival(TStrCPtrVec(1, &p23), dummy, resourceMonitor);
-        model::CCountingModel model(params, dataGatherer);
+        model::CCountingModel model(params, dataGatherer, interimBucketCorrector);
         model::CHierarchicalResults results;
         addResult(1, false, FUNC, function, EMPTY_STRING, EMPTY_STRING,
                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, 0.001, &model, results);

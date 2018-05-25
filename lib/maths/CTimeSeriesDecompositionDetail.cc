@@ -301,7 +301,6 @@ const std::string MOMENTS_6_3_TAG{"i"};
 const std::string MOMENTS_MINUS_TREND_6_3_TAG{"j"};
 const std::string USING_TREND_FOR_PREDICTION_6_3_TAG{"k"};
 const std::string GAIN_CONTROLLER_6_3_TAG{"l"};
-
 // Version < 6.3
 const std::string COMPONENTS_MACHINE_OLD_TAG{"a"};
 const std::string TREND_OLD_TAG{"b"};
@@ -649,7 +648,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
-            TExpandingWindowPtr window(this->newWindow(i));
+            TExpandingWindowPtr window(this->newWindow(i, false));
             result += core::CMemory::dynamicSize(window);
         }
     }
@@ -732,18 +731,20 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
-CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
+CExpandingWindow*
+CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    auto newWindow = [this](const TTimeVec& bucketLengths) {
+    auto newWindow = [this, deflate](const TTimeVec& bucketLengths) {
         if (m_BucketLength <= bucketLengths.back()) {
             std::ptrdiff_t a{std::lower_bound(bucketLengths.begin(),
                                               bucketLengths.end(), m_BucketLength) -
                              bucketLengths.begin()};
             std::size_t b{bucketLengths.size()};
             TTimeCRng bucketLengths_(bucketLengths, a, b);
-            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate);
+            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336,
+                                        m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };
@@ -779,7 +780,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest
       m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
                                                  ? std::make_shared<CCalendarCyclicTest>(
                                                        *other.m_Test)
-                                                 : 0} {
+                                                 : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1608,30 +1609,34 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         })};
     double numberOutliers{SEASONAL_OUTLIER_FRACTION * numberValues};
 
-    TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
-    TMeanAccumulator meanDifference;
-    core_t::TTime time = startTime + dt / 2;
-    for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
-        if (CBasicStatistics::count(values[i]) > 0.0) {
-            double difference{std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
-            outliers.add({-difference, i});
-            meanDifference.add(difference);
+    if (numberOutliers > 1.0) {
+
+        TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
+        TMeanAccumulator meanDifference;
+        core_t::TTime time = startTime + dt / 2;
+        for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
+            if (CBasicStatistics::count(values[i]) > 0.0) {
+                double difference{
+                    std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
+                outliers.add({-difference, i});
+                meanDifference.add(difference);
+            }
         }
-    }
-    outliers.sort();
-    TMeanAccumulator meanDifferenceOfOutliers;
-    for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
-        meanDifferenceOfOutliers.add(-outliers[i].first);
-    }
-    meanDifference -= meanDifferenceOfOutliers;
-    for (std::size_t i = 0; i < outliers.count(); ++i) {
-        if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                     CBasicStatistics::mean(meanDifference)) {
-            double weight{SEASONAL_OUTLIER_WEIGHT +
-                          (1.0 - SEASONAL_OUTLIER_WEIGHT) *
-                              CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
-                                                       0.1, 1.0)};
-            CBasicStatistics::count(values[outliers[i].second]) *= weight;
+        outliers.sort();
+        TMeanAccumulator meanDifferenceOfOutliers;
+        for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
+            meanDifferenceOfOutliers.add(-outliers[i].first);
+        }
+        meanDifference -= meanDifferenceOfOutliers;
+        for (std::size_t i = 0; i < outliers.count(); ++i) {
+            if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                         CBasicStatistics::mean(meanDifference)) {
+                double weight{SEASONAL_OUTLIER_WEIGHT +
+                              (1.0 - SEASONAL_OUTLIER_WEIGHT) *
+                                  CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
+                                                           0.1, 1.0)};
+                CBasicStatistics::count(values[outliers[i].second]) *= weight;
+            }
         }
     }
 }

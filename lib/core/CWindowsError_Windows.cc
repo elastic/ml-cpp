@@ -11,7 +11,7 @@
 #include <cmath>
 
 namespace {
-static const size_t BUFFER_SIZE(1024);
+const size_t BUFFER_SIZE(1024);
 }
 
 namespace ml {
