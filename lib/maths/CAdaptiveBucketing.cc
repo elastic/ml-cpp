@@ -290,11 +290,11 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // positions. Once they have stabilized on their desired location
         // for the trend, we are able to detect this by comparing the
         // time averaged desired displacement and the absolute desired
-        // displacement. The lower the ratio the smaller more smoothing
-        // we apply. Note we want to damp the noise out because the
-        // process of adjusting the buckets end points loses a small
-        // amount of information, see the comments at the start of
-        // refresh for more details.
+        // displacement. The lower the ratio the more smoothing we apply.
+        // Note we want to damp the noise out because the process of
+        // adjusting the buckets end points loses a small amount of
+        // information, see the comments at the start of refresh for
+        // more details.
         double alpha{
             ALPHA * (CBasicStatistics::mean(m_MeanAbsDesiredDisplacement) == 0.0
                          ? 1.0
