@@ -91,9 +91,9 @@ void CDecayRateControllerTest::testPersist() {
         inserter.toXml(origXml);
     }
     LOG_TRACE(<< "Controller XML = " << origXml);
-    LOG_TRACE(<< "Controller XML size = " << origXml.size());
+    LOG_DEBUG(<< "Controller XML size = " << origXml.size());
 
-    // Restore the XML into a new sketch.
+    // Restore the XML into a new controller.
     {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
