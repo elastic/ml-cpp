@@ -6,9 +6,9 @@
 #ifndef INCLUDED_ml_core_CStringSimilarityTester_h
 #define INCLUDED_ml_core_CStringSimilarityTester_h
 
-#include <core/CCompressUtils.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
+#include <core/CompressUtils.h>
 #include <core/ImportExport.h>
 
 #include <boost/scoped_array.hpp>
@@ -440,7 +440,7 @@ private:
     static const int MINUS_INFINITE_INT;
 
     //! Used by the compression-based similarity measures
-    mutable CCompressUtils m_Compressor;
+    mutable CDeflator m_Compressor;
 
     // For unit testing
     friend class ::CStringSimilarityTesterTest;

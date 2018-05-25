@@ -11,6 +11,8 @@
 
 class CExpandingWindowTest : public CppUnit::TestFixture {
 public:
+    void testBasicUsage();
+    void testValuesMinusPrediction();
     void testPersistence();
 
     static CppUnit::Test* suite();

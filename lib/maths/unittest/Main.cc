@@ -85,7 +85,6 @@
 int main(int argc, const char** argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CAgglomerativeClustererTest::suite());
     runner.addTest(CAssignmentTest::suite());
     runner.addTest(CBasicStatisticsTest::suite());
@@ -101,6 +100,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());
     runner.addTest(CEntropySketchTest::suite());
+    runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CForecastTest::suite());
     runner.addTest(CGammaRateConjugateTest::suite());
     runner.addTest(CGramSchmidtTest::suite());
