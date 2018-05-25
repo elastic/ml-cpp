@@ -74,6 +74,8 @@ public:
                                core::CStateRestoreTraverser& traverser);
     ~CUnivariateTimeSeriesModel();
 
+    const CUnivariateTimeSeriesModel& operator=(const CUnivariateTimeSeriesModel&) = delete;
+
     //! Get the model identifier.
     virtual std::size_t identifier() const;
 
@@ -211,14 +213,14 @@ private:
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
+    using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TPriorPtr = std::shared_ptr<CPrior>;
-    using TAnomalyModelPtr = std::shared_ptr<CTimeSeriesAnomalyModel>;
+    using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
-    using TChangeDetectorPtr = std::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
+    using TChangeDetectorPtr = std::unique_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
     CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
@@ -269,9 +271,13 @@ private:
     TDecayRateController2AryPtr m_Controllers;
 
     //! The time series trend decomposition.
+    //!
+    //! \note This can be temporarily be shared with the change detector.
     TDecompositionPtr m_TrendModel;
 
     //! The time series' residual model.
+    //!
+    //! \note This can be temporarily be shared with the change detector.
     TPriorPtr m_ResidualModel;
 
     //! A model for time periods when the basic model can't predict the
@@ -299,7 +305,7 @@ private:
 //! \brief Manages the creation correlate models.
 class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator {
 public:
-    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
 
 public:
     virtual ~CTimeSeriesCorrelateModelAllocator() = default;
@@ -346,7 +352,7 @@ public:
     using TSize2Vec = core::CSmallVector<std::size_t, 2>;
     using TSize2Vec1Vec = core::CSmallVector<TSize2Vec, 1>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
     using TMultivariatePriorPtrDoublePr = std::pair<TMultivariatePriorPtr, double>;
     using TSizeSizePrMultivariatePriorPtrDoublePrUMap =
         boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
@@ -421,6 +427,8 @@ private:
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
     using TSizeSizePrMultivariatePriorPtrDoublePrPr =
         std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+    using TConstSizeSizePrMultivariatePriorPtrDoublePrPr =
+        std::pair<const TSizeSizePr, TMultivariatePriorPtrDoublePr>;
 
 private:
     CTimeSeriesCorrelations(const CTimeSeriesCorrelations& other,
@@ -441,7 +449,7 @@ private:
                         core::CStateRestoreTraverser& traverser);
 
     //! Persist the \p model passing information to \p inserter.
-    static void persist(const TSizeSizePrMultivariatePriorPtrDoublePrPr& model,
+    static void persist(const TConstSizeSizePrMultivariatePriorPtrDoublePrPr& model,
                         core::CStatePersistInserter& inserter);
 
     //! Add the time series identified by \p id.
@@ -523,6 +531,9 @@ public:
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
     CMultivariateTimeSeriesModel(const SModelRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser);
+    ~CMultivariateTimeSeriesModel();
+
+    const CMultivariateTimeSeriesModel& operator=(const CMultivariateTimeSeriesModel&) = delete;
 
     //! Returns 0 since these models don't need a unique identifier.
     virtual std::size_t identifier() const;
@@ -657,9 +668,9 @@ private:
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
-    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
-    using TAnomalyModelPtr = std::shared_ptr<CTimeSeriesAnomalyModel>;
+    using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
+    using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
+    using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
 
 private:
     //! Update the trend with \p samples.

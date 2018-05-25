@@ -152,7 +152,7 @@ public:
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
     using TFeatureInfluenceCalculatorCPtrPrVecVec =
         std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
-    using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::unique_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
@@ -160,8 +160,8 @@ public:
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
     using TModelCPtr = std::shared_ptr<const CAnomalyDetectorModel>;
-    using TCorrelationsPtr = std::shared_ptr<maths::CTimeSeriesCorrelations>;
     using CModelDetailsViewPtr = std::auto_ptr<CModelDetailsView>;
+    using TCorrelationsPtr = std::unique_ptr<maths::CTimeSeriesCorrelations>;
 
 public:
     //! A value used to indicate a time variable is unset
@@ -522,8 +522,8 @@ protected:
     //! \brief The feature correlate models.
     struct MODEL_EXPORT SFeatureCorrelateModels {
         SFeatureCorrelateModels(model_t::EFeature feature,
-                                TMultivariatePriorPtr modelPrior,
-                                TCorrelationsPtr model);
+                                const TMultivariatePriorPtr& modelPrior,
+                                const TCorrelationsPtr& model);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,

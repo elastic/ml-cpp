@@ -84,13 +84,14 @@ CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return TMultivariatePriorPtr{
+        new maths::CMultivariateConstantPrior{model_t::dimension(feature)}};
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CMultivariateConstantPrior>(2);
+    return TMultivariatePriorPtr{new maths::CMultivariateConstantPrior(2)};
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

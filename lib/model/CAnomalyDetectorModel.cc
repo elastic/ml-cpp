@@ -519,10 +519,11 @@ std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
     return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
 }
 
-CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(model_t::EFeature feature,
-                                                                        TMultivariatePriorPtr modelPrior,
-                                                                        TCorrelationsPtr model)
-    : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(model->clone()) {
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
+    model_t::EFeature feature,
+    const TMultivariatePriorPtr& modelPrior,
+    const TCorrelationsPtr& model)
+    : s_Feature(feature), s_ModelPrior(modelPrior->clone()), s_Models(model->clone()) {
 }
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
@@ -593,7 +594,7 @@ CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior() const {
 
 void CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::prototypePrior(
     const TMultivariatePriorPtr& prior) {
-    m_PrototypePrior = prior;
+    m_PrototypePrior.reset(prior->clone());
 }
 }
 }

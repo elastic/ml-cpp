@@ -120,8 +120,6 @@ CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
         return std::make_shared<maths::CConstantPrior>();
     }
 
-    using TPriorPtrVec = std::vector<TPriorPtr>;
-
     // The data will be arbitrary metric values. Metrics with negative values
     // will be handled by adjusting offsets in the gamma and log-normal priors
     // on the fly. We start off with a small non-zero offset for the log-normal
@@ -144,14 +142,14 @@ CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
         maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
     // Create the component priors.
-    TPriorPtrVec priors;
+    maths::COneOfNPrior::TPriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 4u : 3u);
     priors.emplace_back(gammaPrior.clone());
     priors.emplace_back(logNormalPrior.clone());
     priors.emplace_back(normalPrior.clone());
     if (params.s_MinimumModeFraction <= 0.5) {
         // Create the multimode prior.
-        TPriorPtrVec modePriors;
+        maths::COneOfNPrior::TPriorPtrVec modePriors;
         modePriors.reserve(3u);
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
@@ -181,11 +179,11 @@ CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature featur
 
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr multivariateNormal =
-        this->multivariateNormalPrior(dimension, params);
-    priors.push_back(multivariateNormal);
+    TMultivariatePriorPtr normal{this->multivariateNormalPrior(dimension, params)};
+    priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
-        priors.push_back(this->multivariateMultimodalPrior(dimension, params, *multivariateNormal));
+        priors.push_back(this->multivariateMultimodalPrior(dimension, params,
+                                                           *priors.back()));
     }
 
     return this->multivariateOneOfNPrior(dimension, params, priors);
@@ -196,10 +194,10 @@ CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature
                                                      const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
-    priors.push_back(multivariateNormal);
+    TMultivariatePriorPtr normal{this->multivariateNormalPrior(2, params)};
+    priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
-        priors.push_back(this->multivariateMultimodalPrior(2, params, *multivariateNormal));
+        priors.push_back(this->multivariateMultimodalPrior(2, params, *priors.back()));
     }
     return this->multivariateOneOfNPrior(2, params, priors);
 }

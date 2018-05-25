@@ -30,16 +30,14 @@ namespace {
 // DO NOT change the existing tags if new sub-classes are added.
 const std::string TIME_SERIES_DECOMPOSITION_TAG("a");
 const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
-
 const std::string EMPTY_STRING;
-}
 
-bool CTimeSeriesDecompositionStateSerialiser::
-operator()(const STimeSeriesDecompositionRestoreParams& params,
-           TDecompositionPtr& result,
-           core::CStateRestoreTraverser& traverser) const {
-    std::size_t numResults = 0;
-
+//! Implements restore into the supplied pointer.
+template<typename PTR>
+bool restore(const STimeSeriesDecompositionRestoreParams& params,
+             PTR& result,
+             core::CStateRestoreTraverser& traverser) {
+    std::size_t numResults{0};
     do {
         const std::string& name = traverser.name();
         if (name == TIME_SERIES_DECOMPOSITION_TAG) {
@@ -61,6 +59,21 @@ operator()(const STimeSeriesDecompositionRestoreParams& params,
     }
 
     return true;
+}
+}
+
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params,
+           TDecompositionUPtr& result,
+           core::CStateRestoreTraverser& traverser) const {
+    return restore(params, result, traverser);
+}
+
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params,
+           TDecompositionSPtr& result,
+           core::CStateRestoreTraverser& traverser) const {
+    return restore(params, result, traverser);
 }
 
 void CTimeSeriesDecompositionStateSerialiser::

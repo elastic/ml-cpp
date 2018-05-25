@@ -12,8 +12,10 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CCalendarComponent.h>
+#include <maths/CExpandingWindow.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
+#include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/CTrendComponent.h>
 #include <maths/CTrendTests.h>
@@ -183,6 +185,7 @@ public:
     public:
         CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
         CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
+        const CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -220,7 +223,7 @@ public:
 
     private:
         using TTimeAry = boost::array<core_t::TTime, 2>;
-        using TExpandingWindowPtr = std::shared_ptr<CExpandingWindow>;
+        using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
     private:
@@ -264,6 +267,7 @@ public:
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
         CCalendarTest(const CCalendarTest& other, bool isForForecast = false);
+        const CCalendarTest& operator=(const CCalendarTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -297,7 +301,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TCalendarCyclicTestPtr = std::shared_ptr<CCalendarCyclicTest>;
+        using TCalendarCyclicTestPtr = std::unique_ptr<CCalendarCyclicTest>;
 
     private:
         //! Handle \p symbol.
@@ -655,7 +659,7 @@ public:
             TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TSeasonalPtr = std::shared_ptr<CSeasonal>;
+        using TSeasonalPtr = std::unique_ptr<CSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
         class MATHS_EXPORT CCalendar {
@@ -730,7 +734,7 @@ public:
             TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TCalendarPtr = std::shared_ptr<CCalendar>;
+        using TCalendarPtr = std::unique_ptr<CCalendar>;
 
     private:
         //! Get the total size of the components.

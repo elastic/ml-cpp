@@ -348,7 +348,7 @@ public:
     univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
 
         if (!this->check(marginalize, condition)) {
-            return TUnivariatePriorPtrDoublePr();
+            return {};
         }
 
         TSize10Vec i1;
@@ -358,7 +358,7 @@ public:
                       << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
                       << ", condition '"
                       << core::CContainerPrinter::print(condition) << "'");
-            return TUnivariatePriorPtrDoublePr();
+            return {};
         }
 
         maths_t::EDataType dataType = this->dataType();
@@ -433,16 +433,16 @@ public:
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
-            return TPriorPtrDoublePr(std::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
+            return {TPriorPtr(this->clone()), 0.0};
         }
         if (!this->check(marginalize, condition)) {
-            return TPriorPtrDoublePr();
+            return {};
         }
 
         TSize10Vec i1;
         this->remainingVariables(marginalize, condition, i1);
         if (i1.size() != 2) {
-            return TPriorPtrDoublePr();
+            return {};
         }
 
         maths_t::EDataType dataType = this->dataType();

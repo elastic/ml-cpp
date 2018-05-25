@@ -477,7 +477,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriod
     // Note that m_Windows is an array.
     for (std::size_t i = 0u; !isForForecast && i < other.m_Windows.size(); ++i) {
         if (other.m_Windows[i]) {
-            m_Windows[i] = std::make_shared<CExpandingWindow>(*other.m_Windows[i]);
+            m_Windows[i].reset(new CExpandingWindow{*other.m_Windows[i]});
         }
     }
 }
@@ -763,10 +763,10 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest& other,
                                                              bool isForForecast)
     : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
-      m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
-                                                 ? std::make_shared<CCalendarCyclicTest>(
-                                                       *other.m_Test)
-                                                 : nullptr} {
+      m_LastMonth{other.m_LastMonth}, m_Test{
+                                          !isForForecast && other.m_Test
+                                              ? new CCalendarCyclicTest{*other.m_Test}
+                                              : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -777,8 +777,7 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
                     &core::CStateMachine::acceptRestoreTraverser, &m_Machine, _1)))
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth);
         RESTORE_SETUP_TEARDOWN(
-            CALENDAR_TEST_6_3_TAG,
-            m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate),
+            CALENDAR_TEST_6_3_TAG, m_Test.reset(new CCalendarCyclicTest(m_DecayRate)),
             traverser.traverseSubLevel(boost::bind(
                 &CCalendarCyclicTest::acceptRestoreTraverser, m_Test.get(), _1)),
             /**/)
@@ -916,8 +915,8 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
 
         switch (state) {
         case CC_TEST:
-            if (!m_Test) {
-                m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate);
+            if (m_Test == nullptr) {
+                m_Test.reset(new CCalendarCyclicTest{m_DecayRate});
                 m_LastMonth = this->month(time) + 2;
             }
             break;

@@ -1045,14 +1045,16 @@ void CTimeSeriesModelTest::testProbability() {
 
     LOG_DEBUG(<< "Univariate");
     {
-        maths::CUnivariateTimeSeriesModel models[]{
-            maths::CUnivariateTimeSeriesModel{modelParams(bucketLength), 1,
-                                              maths::CTimeSeriesDecompositionStub{},
-                                              univariateNormal(), 0, false},
-            maths::CUnivariateTimeSeriesModel{
-                modelParams(bucketLength), 1,
-                maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
-                univariateNormal(), nullptr, false}};
+        maths::CUnivariateTimeSeriesModel model0{
+            modelParams(bucketLength), 1, maths::CTimeSeriesDecompositionStub{},
+            univariateNormal(),        0, false};
+        maths::CUnivariateTimeSeriesModel model1{
+            modelParams(bucketLength),
+            1,
+            maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
+            univariateNormal(),
+            nullptr,
+            false};
 
         TDoubleVec samples;
         rng.generateNormalSamples(10.0, 4.0, 1000, samples);
@@ -1064,9 +1066,9 @@ void CTimeSeriesModelTest::testProbability() {
             for (auto sample : samples) {
                 double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                   static_cast<double>(time) / 86400.0)};
-                models[0].addSamples(addSampleParams(weight),
-                                     {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-                models[1].addSamples(
+                model0.addSamples(addSampleParams(weight),
+                                  {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                model1.addSamples(
                     addSampleParams(weight),
                     {core::make_triple(time, TDouble2Vec{trend + sample}, TAG)});
                 time += bucketLength;
@@ -1102,12 +1104,12 @@ void CTimeSeriesModelTest::testProbability() {
                                 weight_[i] = weight[i][0];
                             }
                             double lb[2], ub[2];
-                            models[0].residualModel().probabilityOfLessLikelySamples(
+                            model0.residualModel().probabilityOfLessLikelySamples(
                                 calculation, sample, {weight_}, lb[0], ub[0],
                                 expectedTail[0]);
-                            models[1].residualModel().probabilityOfLessLikelySamples(
+                            model1.residualModel().probabilityOfLessLikelySamples(
                                 calculation,
-                                {models[1].trendModel().detrend(time, sample[0], confidence)},
+                                {model1.trendModel().detrend(time, sample[0], confidence)},
                                 {weight_}, lb[1], ub[1], expectedTail[1]);
                             expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
                             expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
@@ -1123,12 +1125,12 @@ void CTimeSeriesModelTest::testProbability() {
                                 .addWeights(weight);
                             bool conditional;
                             TSize1Vec mostAnomalousCorrelate;
-                            models[0].probability(params, time_, {sample},
-                                                  probability[0], tail[0], conditional,
-                                                  mostAnomalousCorrelate);
-                            models[1].probability(params, time_, {sample},
-                                                  probability[1], tail[1], conditional,
-                                                  mostAnomalousCorrelate);
+                            model0.probability(params, time_, {sample},
+                                               probability[0], tail[0], conditional,
+                                               mostAnomalousCorrelate);
+                            model1.probability(params, time_, {sample},
+                                               probability[1], tail[1], conditional,
+                                               mostAnomalousCorrelate);
                         }
 
                         CPPUNIT_ASSERT_EQUAL(expectedProbability[0], probability[0]);
@@ -1143,14 +1145,13 @@ void CTimeSeriesModelTest::testProbability() {
 
     LOG_DEBUG(<< "Multivariate");
     {
-        maths::CMultivariateTimeSeriesModel models[]{
-            maths::CMultivariateTimeSeriesModel{modelParams(bucketLength),
-                                                maths::CTimeSeriesDecompositionStub{},
-                                                multivariateNormal(), 0, false},
-            maths::CMultivariateTimeSeriesModel{
-                modelParams(bucketLength),
-                maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
-                multivariateNormal(), nullptr, false}};
+        maths::CMultivariateTimeSeriesModel model0{
+            modelParams(bucketLength), maths::CTimeSeriesDecompositionStub{},
+            multivariateNormal(), 0, false};
+        maths::CMultivariateTimeSeriesModel model1{
+            modelParams(bucketLength),
+            maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
+            multivariateNormal(), nullptr, false};
 
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(
@@ -1162,15 +1163,15 @@ void CTimeSeriesModelTest::testProbability() {
             TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
             for (auto& sample : samples) {
                 TDouble2Vec sample_(sample);
-                models[0].addSamples(addSampleParams(weight),
-                                     {core::make_triple(time, sample_, TAG)});
+                model0.addSamples(addSampleParams(weight),
+                                  {core::make_triple(time, sample_, TAG)});
                 double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                   static_cast<double>(time) / 86400.0)};
                 for (auto& component : sample_) {
                     component += trend;
                 }
-                models[1].addSamples(addSampleParams(weight),
-                                     {core::make_triple(time, sample_, TAG)});
+                model1.addSamples(addSampleParams(weight),
+                                  {core::make_triple(time, sample_, TAG)});
                 time += bucketLength;
             }
         }
@@ -1205,15 +1206,15 @@ void CTimeSeriesModelTest::testProbability() {
                                 weight_[i] = weight[i];
                             }
                             double lb[2], ub[2];
-                            models[0].residualModel().probabilityOfLessLikelySamples(
+                            model0.residualModel().probabilityOfLessLikelySamples(
                                 calculation, {TDouble10Vec(sample)}, {weight_},
                                 lb[0], ub[0], expectedTail[0]);
                             TDouble10Vec detrended;
                             for (std::size_t j = 0u; j < sample.size(); ++j) {
-                                detrended.push_back(models[1].trendModel()[j]->detrend(
+                                detrended.push_back(model1.trendModel()[j]->detrend(
                                     time, sample[j], confidence));
                             }
-                            models[1].residualModel().probabilityOfLessLikelySamples(
+                            model1.residualModel().probabilityOfLessLikelySamples(
                                 calculation, {detrended}, {weight_}, lb[1],
                                 ub[1], expectedTail[1]);
                             expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
@@ -1230,12 +1231,12 @@ void CTimeSeriesModelTest::testProbability() {
                                 .addWeights(weight);
                             bool conditional;
                             TSize1Vec mostAnomalousCorrelate;
-                            models[0].probability(params, time_, {sample},
-                                                  probability[0], tail[0], conditional,
-                                                  mostAnomalousCorrelate);
-                            models[1].probability(params, time_, {sample},
-                                                  probability[1], tail[1], conditional,
-                                                  mostAnomalousCorrelate);
+                            model0.probability(params, time_, {sample},
+                                               probability[0], tail[0], conditional,
+                                               mostAnomalousCorrelate);
+                            model1.probability(params, time_, {sample},
+                                               probability[1], tail[1], conditional,
+                                               mostAnomalousCorrelate);
                         }
 
                         CPPUNIT_ASSERT_EQUAL(expectedProbability[0], probability[0]);
@@ -1732,21 +1733,22 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
         maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
         maths::CTimeSeriesCorrelations correlations{MINIMUM_SIGNIFICANT_CORRELATION, DECAY_RATE};
         maths::CNormalMeanPrecConjugate prior{univariateNormal()};
-        maths::CUnivariateTimeSeriesModel models[]{
-            {modelParams(bucketLength), 0, trend, prior, nullptr},
-            {modelParams(bucketLength), 1, trend, prior, nullptr}};
-        models[0].modelCorrelations(correlations);
-        models[1].modelCorrelations(correlations);
+        maths::CUnivariateTimeSeriesModel model0{modelParams(bucketLength), 0,
+                                                 trend, prior, nullptr};
+        maths::CUnivariateTimeSeriesModel model1{modelParams(bucketLength), 1,
+                                                 trend, prior, nullptr};
+        model0.modelCorrelations(correlations);
+        model1.modelCorrelations(correlations);
         CTimeSeriesCorrelateModelAllocator allocator;
 
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
             correlations.refresh(allocator);
-            models[0].addSamples(addSampleParams(weights),
-                                 {core::make_triple(time, TDouble2Vec{sample[0]}, TAG)});
-            models[1].addSamples(addSampleParams(weights),
-                                 {core::make_triple(time, TDouble2Vec{sample[1]}, TAG)});
+            model0.addSamples(addSampleParams(weights),
+                              {core::make_triple(time, TDouble2Vec{sample[0]}, TAG)});
+            model1.addSamples(addSampleParams(weights),
+                              {core::make_triple(time, TDouble2Vec{sample[1]}, TAG)});
             correlations.processSamples();
             time += bucketLength;
         }

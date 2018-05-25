@@ -126,8 +126,6 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
         return this->timeOfDayPrior(params);
     }
 
-    using TPriorPtrVec = std::vector<TPriorPtr>;
-
     // The feature data will be counts for the number of events in a
     // specified interval. As such we expect counts to be greater than
     // or equal to zero. We use a small non-zero offset, for the log-
@@ -151,7 +149,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
         maths::CPoissonMeanConjugate::nonInformativePrior(0.0, params.s_DecayRate);
 
     // Create the component priors.
-    TPriorPtrVec priors;
+    maths::COneOfNPrior::TPriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 5u : 4u);
     priors.emplace_back(gammaPrior.clone());
     priors.emplace_back(logNormalPrior.clone());
@@ -159,7 +157,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
     priors.emplace_back(poissonPrior.clone());
     if (params.s_MinimumModeFraction <= 0.5) {
         // Create the multimode prior.
-        TPriorPtrVec modePriors;
+        maths::COneOfNPrior::TPriorPtrVec modePriors;
         modePriors.reserve(3u);
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
@@ -184,11 +182,11 @@ CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature fea
 
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr multivariateNormal =
-        this->multivariateNormalPrior(dimension, params);
-    priors.push_back(multivariateNormal);
+    TMultivariatePriorPtr normal{this->multivariateNormalPrior(dimension, params)};
+    priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
-        priors.push_back(this->multivariateMultimodalPrior(dimension, params, *multivariateNormal));
+        priors.push_back(this->multivariateMultimodalPrior(dimension, params,
+                                                           *priors.back()));
     }
 
     return this->multivariateOneOfNPrior(dimension, params, priors);
@@ -199,10 +197,10 @@ CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feat
                                                         const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
-    priors.push_back(multivariateNormal);
+    TMultivariatePriorPtr normal{this->multivariateNormalPrior(2, params)};
+    priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
-        priors.push_back(this->multivariateMultimodalPrior(2, params, *multivariateNormal));
+        priors.push_back(this->multivariateMultimodalPrior(2, params, *priors.back()));
     }
     return this->multivariateOneOfNPrior(2, params, priors);
 }

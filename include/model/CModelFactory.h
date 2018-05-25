@@ -74,12 +74,12 @@ public:
     using TStrCRefVec = std::vector<TStrCRef>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TPriorPtr = std::shared_ptr<maths::CPrior>;
-    using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::unique_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
     using TDecompositionCPtr = std::shared_ptr<const maths::CTimeSeriesDecompositionInterface>;
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
-    using TCorrelationsPtr = std::shared_ptr<maths::CTimeSeriesCorrelations>;
+    using TCorrelationsPtr = std::unique_ptr<maths::CTimeSeriesCorrelations>;
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
@@ -419,9 +419,12 @@ protected:
 
 private:
     using TFeatureVecMathsModelMap = std::map<TFeatureVec, TFeatureMathsModelPtrPrVec>;
+    using TFeatureMultivariatePriorPtrPrVecPtr =
+        std::shared_ptr<TFeatureMultivariatePriorPtrPrVec>;
     using TFeatureVecMultivariatePriorMap =
-        std::map<TFeatureVec, TFeatureMultivariatePriorPtrPrVec>;
-    using TFeatureVecCorrelationsMap = std::map<TFeatureVec, TFeatureCorrelationsPtrPrVec>;
+        std::map<TFeatureVec, TFeatureMultivariatePriorPtrPrVecPtr>;
+    using TFeatureCorrelationsPtrPrVecPtr = std::shared_ptr<TFeatureCorrelationsPtrPrVec>;
+    using TFeatureVecCorrelationsMap = std::map<TFeatureVec, TFeatureCorrelationsPtrPrVecPtr>;
     using TStrFeatureVecPr = std::pair<std::string, TFeatureVec>;
     using TStrFeatureVecPrInfluenceCalculatorCPtrMap =
         std::map<TStrFeatureVecPr, TFeatureInfluenceCalculatorCPtrPrVec, maths::COrderings::SLess>;

@@ -109,35 +109,36 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
 
 const CModelFactory::TFeatureMultivariatePriorPtrPrVec&
 CModelFactory::defaultCorrelatePriors(const TFeatureVec& features) const {
-    auto result = m_CorrelatePriorCache.insert(
-        {features, TFeatureMultivariatePriorPtrPrVec()});
+    auto result = m_CorrelatePriorCache.emplace(features, nullptr);
     if (result.second) {
-        result.first->second.reserve(features.size());
+        result.first->second = std::make_shared<TFeatureMultivariatePriorPtrPrVec>();
+        result.first->second->reserve(features.size());
         for (auto feature : features) {
             if (model_t::isCategorical(feature) || model_t::dimension(feature) > 1) {
                 continue;
             }
-            result.first->second.emplace_back(feature, this->defaultCorrelatePrior(feature));
+            result.first->second->emplace_back(feature, this->defaultCorrelatePrior(feature));
         }
     }
-    return result.first->second;
+    return *result.first->second;
 }
 
 const CModelFactory::TFeatureCorrelationsPtrPrVec&
 CModelFactory::defaultCorrelates(const TFeatureVec& features) const {
-    auto result = m_CorrelationsCache.insert({features, TFeatureCorrelationsPtrPrVec()});
+    auto result = m_CorrelationsCache.emplace(features, nullptr);
     if (result.second) {
-        result.first->second.reserve(features.size());
+        result.first->second = std::make_shared<TFeatureCorrelationsPtrPrVec>();
+        result.first->second->reserve(features.size());
         for (auto feature : features) {
             if (!model_t::isCategorical(feature) && model_t::dimension(feature) == 1) {
-                result.first->second.emplace_back(
+                result.first->second->emplace_back(
                     feature, TCorrelationsPtr(new maths::CTimeSeriesCorrelations(
                                  m_ModelParams.s_MinimumSignificantCorrelation,
                                  m_ModelParams.s_DecayRate)));
             }
         }
     }
-    return result.first->second;
+    return *result.first->second;
 }
 
 CModelFactory::TPriorPtr CModelFactory::defaultPrior(model_t::EFeature feature) const {
@@ -322,8 +323,6 @@ CModelFactory::multivariateOneOfNPrior(std::size_t dimension,
 }
 
 CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& params) const {
-    using TPriorPtrVec = std::vector<TPriorPtr>;
-
     maths_t::EDataType dataType = this->dataType();
     maths::CNormalMeanPrecConjugate normalPrior =
         maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
@@ -331,7 +330,7 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& param
     // Create a multimodal prior with purely normal distributions
     // - don't bother with long-tail distributions
 
-    TPriorPtrVec modePriors;
+    maths::COneOfNPrior::TPriorPtrVec modePriors;
     modePriors.reserve(1u);
     modePriors.emplace_back(normalPrior.clone());
     maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);

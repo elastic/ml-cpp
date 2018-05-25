@@ -35,6 +35,7 @@ const std::string CLASS_MODEL_TAG{"c"};
 const std::string MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG{"d"};
 const std::string COUNT_TAG{"e"};
 const std::string CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f"};
+const std::string EXEMPLAR_FROM_PRIOR_TAG{"g"};
 }
 
 CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior(const CPrior& prior)
@@ -131,17 +132,33 @@ CNaiveBayes::CNaiveBayes(const SDistributionRestoreParams& params,
                                            this, boost::cref(params), _1));
 }
 
+CNaiveBayes::CNaiveBayes(const CNaiveBayes& other)
+    : m_MinMaxLogLikelihoodToUseFeature{other.m_MinMaxLogLikelihoodToUseFeature},
+      m_DecayRate{other.m_DecayRate}, m_Exemplar{other.m_Exemplar->clone()} {
+    for (const auto& class_ : m_ClassConditionalDensities) {
+        m_ClassConditionalDensities.emplace(class_.first, class_.second);
+    }
+}
+
 bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                          core::CStateRestoreTraverser& traverser) {
     std::size_t label;
     do {
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(CLASS_LABEL_TAG, label)
-        RESTORE_SETUP_TEARDOWN(CLASS_MODEL_TAG, SClass class_,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &SClass::acceptRestoreTraverser,
-                                   boost::ref(class_), boost::cref(params), _1)),
-                               m_ClassConditionalDensities.emplace(label, class_))
+        RESTORE_SETUP_TEARDOWN(
+            EXEMPLAR_FROM_PRIOR_TAG, CNaiveBayesFeatureDensityFromPrior density,
+            traverser.traverseSubLevel(
+                boost::bind(&CNaiveBayesFeatureDensityFromPrior::acceptRestoreTraverser,
+                            boost::ref(density), boost::cref(params), _1)),
+            m_Exemplar.reset(density.clone()))
+        // Add other implementations' restore code here.
+        RESTORE_SETUP_TEARDOWN(
+            CLASS_MODEL_TAG, CClass class_,
+            traverser.traverseSubLevel(boost::bind(&CClass::acceptRestoreTraverser,
+                                                   boost::ref(class_),
+                                                   boost::cref(params), _1)),
+            m_ClassConditionalDensities.emplace(label, std::move(class_)))
         RESTORE_SETUP_TEARDOWN(MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG, double value,
                                core::CStringUtils::stringToType(traverser.value(), value),
                                m_MinMaxLogLikelihoodToUseFeature.reset(value))
@@ -152,6 +169,14 @@ bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& param
 void CNaiveBayes::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     using TSizeClassUMapCItr = TSizeClassUMap::const_iterator;
     using TSizeClassUMapCItrVec = std::vector<TSizeClassUMapCItr>;
+
+    if (dynamic_cast<const CNaiveBayesFeatureDensityFromPrior*>(m_Exemplar.get())) {
+        inserter.insertLevel(EXEMPLAR_FROM_PRIOR_TAG,
+                             boost::bind(&CNaiveBayesFeatureDensity::acceptPersistInserter,
+                                         m_Exemplar.get(), _1));
+    }
+    // Add other implementations' persist code here.
+
     TSizeClassUMapCItrVec classes;
     classes.reserve(m_ClassConditionalDensities.size());
     for (auto i = m_ClassConditionalDensities.begin();
@@ -163,14 +188,23 @@ void CNaiveBayes::acceptPersistInserter(core::CStatePersistInserter& inserter) c
     for (const auto& class_ : classes) {
         inserter.insertValue(CLASS_LABEL_TAG, class_->first);
         inserter.insertLevel(CLASS_MODEL_TAG,
-                             boost::bind(&SClass::acceptPersistInserter,
+                             boost::bind(&CClass::acceptPersistInserter,
                                          boost::ref(class_->second), _1));
     }
+
     if (m_MinMaxLogLikelihoodToUseFeature) {
         inserter.insertValue(MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG,
                              *m_MinMaxLogLikelihoodToUseFeature,
                              core::CIEEE754::E_SinglePrecision);
     }
+}
+
+const CNaiveBayes& CNaiveBayes::operator=(const CNaiveBayes& other) {
+    if (this != &other) {
+        CNaiveBayes copy{other};
+        this->swap(copy);
+    }
+    return *this;
 }
 
 void CNaiveBayes::swap(CNaiveBayes& other) {
@@ -186,7 +220,7 @@ bool CNaiveBayes::initialized() const {
 
 void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
     for (const auto& count : counts) {
-        m_ClassConditionalDensities[count.second] = SClass{count.first, {}};
+        m_ClassConditionalDensities.emplace(count.second, CClass{count.first});
     }
 }
 
@@ -197,23 +231,23 @@ void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& 
 
     auto& class_ = m_ClassConditionalDensities[label];
 
-    if (class_.s_ConditionalDensities.empty()) {
-        class_.s_ConditionalDensities.reserve(x.size());
+    if (class_.conditionalDensities().empty()) {
+        class_.conditionalDensities().reserve(x.size());
         std::generate_n(
-            std::back_inserter(class_.s_ConditionalDensities), x.size(),
+            std::back_inserter(class_.conditionalDensities()), x.size(),
             [this]() { return TFeatureDensityPtr{m_Exemplar->clone()}; });
     }
 
     bool updateCount{false};
     for (std::size_t i = 0u; i < x.size(); ++i) {
         if (x[i].size() > 0) {
-            class_.s_ConditionalDensities[i]->add(x[i]);
+            class_.conditionalDensities()[i]->add(x[i]);
             updateCount = true;
         }
     }
 
     if (updateCount) {
-        class_.s_Count += 1.0;
+        class_.count() += 1.0;
     } else {
         LOG_TRACE("Ignoring empty feature vector");
     }
@@ -221,7 +255,7 @@ void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& 
 
 void CNaiveBayes::dataType(maths_t::EDataType dataType) {
     for (auto& class_ : m_ClassConditionalDensities) {
-        for (auto& density : class_.second.s_ConditionalDensities) {
+        for (auto& density : class_.second.conditionalDensities()) {
             density->dataType(dataType);
         }
     }
@@ -230,8 +264,8 @@ void CNaiveBayes::dataType(maths_t::EDataType dataType) {
 void CNaiveBayes::propagateForwardsByTime(double time) {
     double factor{std::exp(-m_DecayRate * time)};
     for (auto& class_ : m_ClassConditionalDensities) {
-        class_.second.s_Count *= factor;
-        for (auto& density : class_.second.s_ConditionalDensities) {
+        class_.second.count() *= factor;
+        for (auto& density : class_.second.conditionalDensities()) {
             density->propagateForwardsByTime(time);
         }
     }
@@ -268,7 +302,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
     TDoubleSizePrVec p;
     p.reserve(m_ClassConditionalDensities.size());
     for (const auto& class_ : m_ClassConditionalDensities) {
-        p.emplace_back(CTools::fastLog(class_.second.s_Count), class_.first);
+        p.emplace_back(CTools::fastLog(class_.second.count()), class_.first);
     }
 
     TDoubleVec logLikelihoods;
@@ -277,7 +311,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
             TMaxAccumulator maxLogLikelihood;
             logLikelihoods.clear();
             for (const auto& class_ : m_ClassConditionalDensities) {
-                const auto& density = class_.second.s_ConditionalDensities[i];
+                const auto& density = class_.second.conditionalDensities()[i];
                 double logLikelihood{density->logValue(x[i])};
                 double logMaximumLikelihood{density->logMaximumValue()};
                 maxLogLikelihood.add(logLikelihood - logMaximumLikelihood);
@@ -321,6 +355,9 @@ std::size_t CNaiveBayes::memoryUsage() const {
 }
 
 uint64_t CNaiveBayes::checksum(uint64_t seed) const {
+    CChecksum::calculate(seed, m_MinMaxLogLikelihoodToUseFeature);
+    CChecksum::calculate(seed, m_DecayRate);
+    CChecksum::calculate(seed, m_Exemplar);
     return CChecksum::calculate(seed, m_ClassConditionalDensities);
 }
 
@@ -329,7 +366,7 @@ std::string CNaiveBayes::print() const {
     result << "\n";
     for (const auto& class_ : m_ClassConditionalDensities) {
         result << "CLASS(" << class_.first << ")\n";
-        for (const auto& density : class_.second.s_ConditionalDensities) {
+        for (const auto& density : class_.second.conditionalDensities()) {
             result << "---";
             result << density->print() << "\n";
         }
@@ -340,33 +377,43 @@ std::string CNaiveBayes::print() const {
 bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
     auto class_ = m_ClassConditionalDensities.begin();
     if (class_ != m_ClassConditionalDensities.end() &&
-        class_->second.s_ConditionalDensities.size() > 0 &&
-        class_->second.s_ConditionalDensities.size() != x.size()) {
+        class_->second.conditionalDensities().size() > 0 &&
+        class_->second.conditionalDensities().size() != x.size()) {
         LOG_ERROR("Unexpected feature vector: " << core::CContainerPrinter::print(x));
         return false;
     }
     return true;
 }
 
-bool CNaiveBayes::SClass::acceptRestoreTraverser(const SDistributionRestoreParams& params,
+CNaiveBayes::CClass::CClass(double count) : m_Count{count} {
+}
+
+CNaiveBayes::CClass::CClass(const CClass& other) : m_Count{other.m_Count} {
+    m_ConditionalDensities.reserve(other.m_ConditionalDensities.size());
+    for (const auto& density : other.m_ConditionalDensities) {
+        m_ConditionalDensities.emplace_back(density->clone());
+    }
+}
+
+bool CNaiveBayes::CClass::acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                                  core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE_BUILT_IN(COUNT_TAG, s_Count)
+        RESTORE_BUILT_IN(COUNT_TAG, m_Count)
         RESTORE_SETUP_TEARDOWN(CONDITIONAL_DENSITY_FROM_PRIOR_TAG,
-                               CNaiveBayesFeatureDensityFromPrior tmp,
+                               CNaiveBayesFeatureDensityFromPrior density,
                                traverser.traverseSubLevel(boost::bind(
                                    &CNaiveBayesFeatureDensityFromPrior::acceptRestoreTraverser,
-                                   boost::ref(tmp), boost::cref(params), _1)),
-                               s_ConditionalDensities.emplace_back(tmp.clone()))
+                                   boost::ref(density), boost::cref(params), _1)),
+                               m_ConditionalDensities.emplace_back(density.clone()))
         // Add other implementations' restore code here.
     } while (traverser.next());
     return true;
 }
 
-void CNaiveBayes::SClass::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(COUNT_TAG, s_Count, core::CIEEE754::E_SinglePrecision);
-    for (const auto& density : s_ConditionalDensities) {
+void CNaiveBayes::CClass::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(COUNT_TAG, m_Count, core::CIEEE754::E_SinglePrecision);
+    for (const auto& density : m_ConditionalDensities) {
         if (dynamic_cast<const CNaiveBayesFeatureDensityFromPrior*>(density.get())) {
             inserter.insertLevel(CONDITIONAL_DENSITY_FROM_PRIOR_TAG,
                                  boost::bind(&CNaiveBayesFeatureDensity::acceptPersistInserter,
@@ -377,17 +424,33 @@ void CNaiveBayes::SClass::acceptPersistInserter(core::CStatePersistInserter& ins
     }
 }
 
-void CNaiveBayes::SClass::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
-    core::CMemoryDebug::dynamicSize("s_ConditionalDensities", s_ConditionalDensities, mem);
+double CNaiveBayes::CClass::count() const {
+    return m_Count;
 }
 
-std::size_t CNaiveBayes::SClass::memoryUsage() const {
-    return core::CMemory::dynamicSize(s_ConditionalDensities);
+double& CNaiveBayes::CClass::count() {
+    return m_Count;
 }
 
-uint64_t CNaiveBayes::SClass::checksum(uint64_t seed) const {
-    seed = CChecksum::calculate(seed, s_Count);
-    return CChecksum::calculate(seed, s_ConditionalDensities);
+const CNaiveBayes::TFeatureDensityPtrVec& CNaiveBayes::CClass::conditionalDensities() const {
+    return m_ConditionalDensities;
+}
+
+CNaiveBayes::TFeatureDensityPtrVec& CNaiveBayes::CClass::conditionalDensities() {
+    return m_ConditionalDensities;
+}
+
+void CNaiveBayes::CClass::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    core::CMemoryDebug::dynamicSize("s_ConditionalDensities", m_ConditionalDensities, mem);
+}
+
+std::size_t CNaiveBayes::CClass::memoryUsage() const {
+    return core::CMemory::dynamicSize(m_ConditionalDensities);
+}
+
+uint64_t CNaiveBayes::CClass::checksum(uint64_t seed) const {
+    seed = CChecksum::calculate(seed, m_Count);
+    return CChecksum::calculate(seed, m_ConditionalDensities);
 }
 }
 }
