@@ -6,12 +6,12 @@
 
 #include "CEventRatePopulationDataGathererTest.h"
 
-#include <core/CompressUtils.h>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CompressUtils.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>

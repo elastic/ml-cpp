@@ -6,10 +6,10 @@
 
 #include <maths/CExpandingWindow.h>
 
-#include <core/CompressUtils.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CompressUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>

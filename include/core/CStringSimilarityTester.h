@@ -6,9 +6,9 @@
 #ifndef INCLUDED_ml_core_CStringSimilarityTester_h
 #define INCLUDED_ml_core_CStringSimilarityTester_h
 
-#include <core/CompressUtils.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
+#include <core/CompressUtils.h>
 #include <core/ImportExport.h>
 
 #include <boost/scoped_array.hpp>

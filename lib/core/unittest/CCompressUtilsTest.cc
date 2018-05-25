@@ -5,8 +5,8 @@
  */
 #include "CCompressUtilsTest.h"
 
-#include <core/CompressUtils.h>
 #include <core/CLogger.h>
+#include <core/CompressUtils.h>
 
 #include <string>
 

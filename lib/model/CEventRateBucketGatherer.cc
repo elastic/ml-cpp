@@ -6,11 +6,11 @@
 
 #include <model/CEventRateBucketGatherer.h>
 
-#include <core/CompressUtils.h>
 #include <core/CFunctional.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStatistics.h>
+#include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 

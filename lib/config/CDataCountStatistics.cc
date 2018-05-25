@@ -6,11 +6,11 @@
 
 #include <config/CDataCountStatistics.h>
 
-#include <core/CompressUtils.h>
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMaskIterator.h>
+#include <core/CompressUtils.h>
 
 #include <maths/CIntegerTools.h>
 #include <maths/COrderings.h>
