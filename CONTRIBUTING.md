@@ -82,11 +82,16 @@ The followings lists some guide lines when authoring pull requests. Note: Try to
     1. Further information if necessary, maybe you want to share a screenshot, list open Todo's, describe your thought process, etc.
     1. Optional: List of backport PR's, other related PR's
 1. Label the PR, not all might apply:
-    1. `:ml` mandatory label, to be consistent with other repositories
-    1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`
-    1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version
+    1. `:ml` mandatory label, to be consistent with other repositories.
+    1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`.
+    1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version.
     1. `non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
-    1. `affects-results` If the PR is expected to have an affect on our QA test suite, that is any change that affects scoring but can also be any change that affects memory consumption
+    1. `affects-results` If the PR is expected to have an affect on our QA test suite, that is any change that affects scoring but can also be any change that affects memory consumption.
+    1. `discuss` If your PR suggests a change which you first like to discuss regarding it's functional changes before going deep into actual implementation details (e.g. you change a default)
+    1. `WIP` let's potential reviewers know, that you haven't completed the PR yet and you are still working on further changes, lets reviewers know to maybe wait a bit until you finalized the PR.
+    1. `review` Try to find reviewers for your change, github has some suggestions, however if unsure or you know the reviewer is very busy, `review` marks the PR as free to grab for review. Still, PR's are open to anyone to comment.
+    
+    
 
 ### Backport
 
