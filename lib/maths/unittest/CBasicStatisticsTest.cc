@@ -27,6 +27,7 @@
 
 namespace {
 
+using TDoubleVec = std::vector<double>;
 using TMeanAccumulator = ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TMeanVarSkewAccumulator =
@@ -73,6 +74,8 @@ CppUnit::Test* CBasicStatisticsTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
         "CBasicStatisticsTest::testMedian", &CBasicStatisticsTest::testMedian));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
+        "CBasicStatisticsTest::testMad", &CBasicStatisticsTest::testMad));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
         "CBasicStatisticsTest::testOrderStatistics", &CBasicStatisticsTest::testOrderStatistics));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
         "CBasicStatisticsTest::testMinMax", &CBasicStatisticsTest::testMinMax));
@@ -93,8 +96,6 @@ void CBasicStatisticsTest::testMean() {
 }
 
 void CBasicStatisticsTest::testCentralMoments() {
-    using TDoubleVec = std::vector<double>;
-
     LOG_DEBUG(<< "Test mean double");
     {
         double samples[] = {0.9, 10.0, 5.6, 1.23, -12.3, 7.2, 0.0, 1.2};
@@ -703,7 +704,6 @@ void CBasicStatisticsTest::testCentralMoments() {
 
 void CBasicStatisticsTest::testVectorCentralMoments() {
     using TDouble2Vec = ml::core::CSmallVector<double, 2>;
-    using TDoubleVec = std::vector<double>;
 
     {
         TMeanAccumulator2Vec moments1(2);
@@ -958,7 +958,6 @@ void CBasicStatisticsTest::testCovariances() {
 }
 
 void CBasicStatisticsTest::testCovariancesLedoitWolf() {
-    using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TVector2 = ml::maths::CVectorNx1<double, 2>;
     using TVector2Vec = std::vector<TVector2>;
@@ -1089,6 +1088,41 @@ void CBasicStatisticsTest::testMedian() {
         double median = ml::maths::CBasicStatistics::median(sampleVec);
 
         CPPUNIT_ASSERT_EQUAL(5.5, median);
+    }
+}
+
+void CBasicStatisticsTest::testMad() {
+    using TSizeVec = std::vector<std::size_t>;
+
+    // Edge cases 0, 1, 2 elements and > half values equal.
+    TDoubleVec samples;
+    samples.assign({5.0});
+    CPPUNIT_ASSERT_EQUAL(0.0, ml::maths::CBasicStatistics::mad(samples));
+    samples.assign({5.0, 6.0});
+    CPPUNIT_ASSERT_EQUAL(0.5, ml::maths::CBasicStatistics::mad(samples));
+    samples.assign({6.0, 6.0, 6.0, 2.0, -100.0});
+    CPPUNIT_ASSERT_EQUAL(0.0, ml::maths::CBasicStatistics::mad(samples));
+    samples.assign({6.0, 6.0, 6.0, 6.0, -100.0, 1.0});
+    CPPUNIT_ASSERT_EQUAL(0.0, ml::maths::CBasicStatistics::mad(samples));
+
+    // Odd/even number of samples.
+    samples.assign({12.2, 11.8, 1.0, 30.2, 5.9, 209.0, -390.3, 37.0});
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(14.6, ml::maths::CBasicStatistics::mad(samples), 1e-15);
+    samples.assign({12.2, 11.8, 1.0, 30.2, 5.9, 209.0, -390.3, 37.0, 51.2});
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(18.0, ml::maths::CBasicStatistics::mad(samples), 1e-15);
+
+    // Random.
+    ml::test::CRandomNumbers rng;
+    TSizeVec size;
+    for (std::size_t test = 0; test < 100; ++test) {
+        rng.generateUniformSamples(1, 40, 1, size);
+        rng.generateUniformSamples(0.0, 100.0, size[0], samples);
+        double mad{ml::maths::CBasicStatistics::mad(samples)};
+        double median{ml::maths::CBasicStatistics::median(samples)};
+        for (auto& sample : samples) {
+            sample = std::fabs(sample - median);
+        }
+        CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::median(samples), mad);
     }
 }
 
@@ -1282,8 +1316,6 @@ void CBasicStatisticsTest::testOrderStatistics() {
 }
 
 void CBasicStatisticsTest::testMinMax() {
-    using TDoubleVec = std::vector<double>;
-
     TDoubleVec positive{1.0, 2.7, 4.0, 0.3, 11.7};
     TDoubleVec negative{-3.7, -0.8, -18.2, -0.8};
     TDoubleVec mixed{1.3, -8.0, 2.1};

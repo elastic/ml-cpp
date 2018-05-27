@@ -33,7 +33,8 @@ private:
                     ml::maths::SChangeDescription::EDescription description,
                     TChange applyChange,
                     double expectedChange,
-                    double expectedMeanBucketsToDetectChange);
+                    double maximumFalseNegatives,
+                    double maximumMeanBucketsToDetectChange);
 };
 
 #endif // INCLUDED_CTimeSeriesChangeDetectorTest_h

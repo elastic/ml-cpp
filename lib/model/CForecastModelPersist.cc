@@ -22,11 +22,11 @@ namespace ml {
 namespace model {
 
 namespace {
-static const std::string FORECAST_MODEL_PERSIST_TAG("forecast_persist");
-static const std::string FEATURE_TAG("feature");
-static const std::string DATA_TYPE_TAG("datatype");
-static const std::string MODEL_TAG("model");
-static const std::string BY_FIELD_VALUE_TAG("by_field_value");
+const std::string FORECAST_MODEL_PERSIST_TAG("forecast_persist");
+const std::string FEATURE_TAG("feature");
+const std::string DATA_TYPE_TAG("datatype");
+const std::string MODEL_TAG("model");
+const std::string BY_FIELD_VALUE_TAG("by_field_value");
 }
 
 CForecastModelPersist::CPersist::CPersist(const std::string& temporaryPath)

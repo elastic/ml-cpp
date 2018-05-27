@@ -70,14 +70,18 @@ using TComponent5Vec = CPeriodicityHypothesisTestsResult::TComponent5Vec;
 using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
 using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
 
-const core_t::TTime DAY = core::constants::DAY;
-const core_t::TTime WEEK = core::constants::WEEK;
-const core_t::TTime MONTH = 4 * WEEK;
+const core_t::TTime DAY{core::constants::DAY};
+const core_t::TTime WEEK{core::constants::WEEK};
+const core_t::TTime MONTH{4 * WEEK};
+
+//! Multiplier to correct for bias using MAD to estimate standard
+//! deviation (for normally distributed data).
+const double MAD_TO_SD_MULTIPLIER{1.4826};
 
 //! We scale the time used for the regression model to improve
 //! the condition of the design matrix.
 double scaleTime(core_t::TTime time, core_t::TTime origin) {
-    return static_cast<double>(time - origin) / static_cast<double>(core::constants::WEEK);
+    return static_cast<double>(time - origin) / static_cast<double>(WEEK);
 }
 
 //! Get the aging factor to apply for \p dt elapsed time.
@@ -598,10 +602,22 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     }
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::clear(ETest test, core_t::TTime time) {
-    if (m_Windows[test] != nullptr) {
-        m_Windows[test].reset(this->newWindow(test));
-        m_Windows[test]->initialize(time);
+void CTimeSeriesDecompositionDetail::CPeriodicityTest::maybeClear(core_t::TTime time,
+                                                                  double shift) {
+    for (auto test : {E_Short, E_Long}) {
+        if (m_Windows[test] != nullptr) {
+            TDoubleVec values;
+            values.reserve(m_Windows[test]->size());
+            for (const auto& value : m_Windows[test]->values()) {
+                if (CBasicStatistics::count(value) > 0.0) {
+                    values.push_back(CBasicStatistics::mean(value));
+                }
+            }
+            if (shift > MAD_TO_SD_MULTIPLIER * CBasicStatistics::mad(values)) {
+                m_Windows[test].reset(this->newWindow(test));
+                m_Windows[test]->initialize(time);
+            }
+        }
     }
 }
 
@@ -636,7 +652,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
-            TExpandingWindowPtr window(this->newWindow(i));
+            TExpandingWindowPtr window(this->newWindow(i, false));
             result += core::CMemory::dynamicSize(window);
         }
     }
@@ -719,18 +735,20 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
-CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
+CExpandingWindow*
+CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    auto newWindow = [this](const TTimeVec& bucketLengths) {
+    auto newWindow = [this, deflate](const TTimeVec& bucketLengths) {
         if (m_BucketLength <= bucketLengths.back()) {
             std::ptrdiff_t a{std::lower_bound(bucketLengths.begin(),
                                               bucketLengths.end(), m_BucketLength) -
                              bucketLengths.begin()};
             std::size_t b{bucketLengths.size()};
             TTimeCRng bucketLengths_(bucketLengths, a, b);
-            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate);
+            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336,
+                                        m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };

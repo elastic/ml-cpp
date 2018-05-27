@@ -205,8 +205,16 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
-        //! Clear the test identified by \p test.
-        void clear(ETest test, core_t::TTime time);
+        //! Clear the test if the shift is large compared to the median
+        //! absolute deviation in the window.
+        //!
+        //! There is no point in continuing to use the historical window
+        //! if the signal has changed significantly w.r.t. the possible
+        //! magnitude of any seasonal component. Çonversely, if we detect
+        //! a small change we don't want to throw a lot of history: since,
+        //! depending on the false positive rate, we may never accumulate
+        //! enough history to detect long seasonal components.
+        void maybeClear(core_t::TTime time, double shift);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
@@ -240,8 +248,8 @@ public:
         //! Check if we should run the periodicity test on \p window.
         bool shouldTest(ETest test, core_t::TTime time) const;
 
-        //! Get a new \p test. (Warning owned by the caller.)
-        CExpandingWindow* newWindow(ETest test) const;
+        //! Get a new \p test. (Warning: this is owned by the caller.)
+        CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
 
         //! Account for memory that is not yet allocated
         //! during the initial state

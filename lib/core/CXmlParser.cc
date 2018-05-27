@@ -30,7 +30,7 @@ const std::string CXmlParser::ATTRIBUTE_EQUALS("=");
 const size_t CXmlParser::DEFAULT_INDENT_SPACES(4);
 const size_t CXmlParser::MAX_INDENT_SPACES(10);
 // The number of spaces in this constant MUST match the maximum above
-const char* CXmlParser::INDENT_SPACE_STR("          ");
+const char* const CXmlParser::INDENT_SPACE_STR("          ");
 
 CXmlParser::CXmlParser()
     : m_Doc(nullptr), m_XPathContext(nullptr), m_NavigatedNode(nullptr) {

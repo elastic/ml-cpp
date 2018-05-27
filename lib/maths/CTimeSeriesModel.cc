@@ -68,7 +68,7 @@ const double MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT{24.0};
 const std::size_t SLIDING_WINDOW_SIZE{12u};
 const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
-const double CHANGE_P_VALUE{1e-5};
+const double CHANGE_P_VALUE{5e-4};
 
 //! Optionally randomly sample from \p indices.
 TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus& rng,
@@ -188,13 +188,8 @@ double pValueFromWeight(double weight) {
 //! Computes a Winsorisation weight based on the chance that the
 //! time series is currently undergoing a change.
 double changeWeight(const TChangeDetectorPtr& detector) {
-    if (detector != nullptr) {
-        std::size_t dummy;
-        return std::max(CTools::logisticFunction(detector->decisionFunction(dummy),
-                                                 0.1, 1.0, -1.0),
-                        MINIMUM_WEIGHT);
-    }
-    return 1.0;
+    return detector != nullptr ? std::max(detector->probabilityWillAccept(), MINIMUM_WEIGHT)
+                               : 1.0;
 }
 }
 
@@ -1352,6 +1347,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
             winsorisation::pValueFromWeight(weight) <= CHANGE_P_VALUE) {
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval)) {
+                LOG_TRACE(<< "Starting to test for change at " << time);
                 m_ChangeDetector.reset(new CUnivariateTimeSeriesChangeDetector(
                     m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest));
                 m_CurrentChangeInterval = 0;
@@ -1367,8 +1363,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
         } else if (auto change = m_ChangeDetector->change()) {
-            LOG_DEBUG(<< "Detected " << change->print() << " at "
-                      << values[median].first);
+            LOG_DEBUG(<< "Detected " << change->print() << " at " << time);
             m_ChangeDetector.reset();
             return this->applyChange(*change);
         }

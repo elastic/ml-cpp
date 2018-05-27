@@ -26,9 +26,9 @@ const size_t MAX_ATTEMPTS = 100;
 const size_t TEST_SIZE = 10000;
 const char TEST_CHAR = 'a';
 #ifdef Windows
-const char* TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
-const char* TEST_PIPE_NAME = "testfiles/testpipe";
+const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 
 class CThreadDataWriter : public ml::core::CThread {
@@ -279,7 +279,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     // the file system
     LOG_DEBUG(<< "symlink test not relevant to Windows");
 #else
-    static const char* TEST_SYMLINK_NAME = "test_symlink";
+    static const char* const TEST_SYMLINK_NAME = "test_symlink";
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail

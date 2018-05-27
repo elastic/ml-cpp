@@ -6,12 +6,12 @@
 
 #include "CEventRatePopulationDataGathererTest.h"
 
-#include <core/CCompressUtils.h>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CompressUtils.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
@@ -520,14 +520,14 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
             TSizeSizePr key(iter->first, 0);
             const TStrSet& uniqueValues = iter->second;
 
-            core::CCompressUtils compressor(false);
+            core::CDeflator compressor(false);
             CPPUNIT_ASSERT_EQUAL(
                 uniqueValues.size(),
                 static_cast<size_t>(std::count_if(
                     uniqueValues.begin(), uniqueValues.end(),
-                    boost::bind(&core::CCompressUtils::addString, &compressor, _1))));
+                    boost::bind(&core::CCompressUtil::addString, &compressor, _1))));
             size_t length(0);
-            CPPUNIT_ASSERT(compressor.compressedLength(true, length));
+            CPPUNIT_ASSERT(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
         }
         LOG_DEBUG(<< "Time " << time << " bucketCompressedLengthPerPerson "

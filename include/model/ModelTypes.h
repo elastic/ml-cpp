@@ -701,7 +701,7 @@ enum EMetricCategory {
 };
 
 //! Must correspond to the number of enumeration values of EMetricCategory
-static const size_t NUM_METRIC_CATEGORIES = 9;
+const size_t NUM_METRIC_CATEGORIES = 9;
 
 //! Get the metric feature data corresponding to \p feature
 //! if there is one.

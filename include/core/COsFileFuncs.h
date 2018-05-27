@@ -70,7 +70,7 @@ public:
     static const int EXECUTABLE;
 
     //! The name of the magic file that discards everything written to it
-    static const char* NULL_FILENAME;
+    static const char* const NULL_FILENAME;
 
 public:
     //! Signed size type (to be used instead of ssize_t)

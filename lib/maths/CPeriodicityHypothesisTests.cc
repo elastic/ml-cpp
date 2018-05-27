@@ -1434,7 +1434,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
     }
 
     double scale{1.0 / stats.s_M};
-    LOG_TRACE(<< "scale = " << scale);
+    LOG_TRACE(<< "  scale = " << scale);
 
     double v{residualVariance<double>(trend, scale)};
     v = varianceAtPercentile(v, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0);
@@ -1503,12 +1503,10 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
             std::size_t n{static_cast<std::size_t>(
                 std::ceil(Rt * static_cast<double>(windowLength / period_)))};
             double at{stats.s_At * std::sqrt(v0 / scale)};
-            LOG_TRACE(<< " n = " << n << ", at = " << at << ", v = " << v);
+            LOG_TRACE(<< "  n = " << n << ", at = " << at << ", v = " << v);
             TMeanAccumulator level;
             for (const auto& value : values) {
-                if (CBasicStatistics::count(value) > 0.0) {
-                    level.add(CBasicStatistics::mean(value));
-                }
+                level.add(CBasicStatistics::mean(value), CBasicStatistics::count(value));
             }
             TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
             periodicTrend(values, window, m_BucketLength, amplitudes);
