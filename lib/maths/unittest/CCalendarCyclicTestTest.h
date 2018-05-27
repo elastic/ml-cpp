@@ -11,7 +11,8 @@
 
 class CCalendarCyclicTestTest : public CppUnit::TestFixture {
 public:
-    void testAccuracy();
+    void testTruePositives();
+    void testFalsePositives();
     void testPersist();
 
     static CppUnit::Test* suite();

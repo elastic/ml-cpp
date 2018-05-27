@@ -13,8 +13,6 @@
 #include <maths/CQuantileSketch.h>
 #include <maths/ImportExport.h>
 
-#include <boost/circular_buffer.hpp>
-#include <boost/container/flat_map.hpp>
 #include <boost/optional.hpp>
 
 #include <cstdint>
@@ -73,9 +71,23 @@ public:
 
 private:
     using TTimeVec = std::vector<core_t::TTime>;
-    using TUInt32CBuf = boost::circular_buffer<std::uint32_t>;
-    using TTimeFloatPr = std::pair<core_t::TTime, CFloatStorage>;
-    using TTimeFloatFMap = boost::container::flat_map<core_t::TTime, CFloatStorage>;
+    using TByte = unsigned char;
+    using TByteVec = std::vector<TByte>;
+
+    //! \brief Records the daily error statistics.
+    struct MATHS_EXPORT SErrorStats {
+        //! Get a checksum for this object.
+        std::uint64_t checksum() const;
+        //! Convert to a delimited string.
+        std::string toDelimited() const;
+        //! Initialize from a delimited string.
+        bool fromDelimited(const std::string& str);
+
+        std::uint32_t s_Count = 0;
+        std::uint32_t s_LargeErrorCount = 0;
+        CFloatStorage s_LargeErrorSum = 0.0;
+    };
+    using TErrorStatsVec = std::vector<SErrorStats>;
 
 private:
     //! Winsorise \p error.
@@ -84,35 +96,32 @@ private:
     //! Get the significance of \p x large errors given \p n samples.
     double significance(double n, double x) const;
 
-private:
-    //! The error bucketing interval.
-    static const core_t::TTime BUCKET;
-    //! The window length in buckets.
-    static const core_t::TTime WINDOW;
-    //! The percentile of a large error.
-    static const double LARGE_ERROR_PERCENTILE;
-    //! The minimum number of repeats for a testable feature.
-    static const unsigned int MINIMUM_REPEATS;
-    //! The bits used to count added values.
-    static const std::uint32_t COUNT_BITS;
-    //! The offsets that are used for different timezones.
-    static const TTimeVec TIMEZONE_OFFSETS;
+    //! Convert to a compressed representation.
+    void deflate(const TErrorStatsVec& stats);
+
+    //! Extract from the compressed representation.
+    TErrorStatsVec inflate() const;
 
 private:
     //! The rate at which the error counts are aged.
     double m_DecayRate;
 
-    //! The time of the last error added.
-    core_t::TTime m_Bucket;
-
     //! Used to estimate large error thresholds.
     CQuantileSketch m_ErrorQuantiles;
 
-    //! The counts of errors and large errors in a sliding window.
-    TUInt32CBuf m_ErrorCounts;
+    //! The start time of the bucket to which the last error
+    //! was added.
+    core_t::TTime m_CurrentBucketTime;
 
-    //! The bucket large error sums.
-    TTimeFloatFMap m_ErrorSums;
+    //! The start time of the earliest bucket for which we have
+    //! error statistics.
+    core_t::TTime m_CurrentBucketIndex;
+
+    //! The bucket statistics currently being updated.
+    SErrorStats m_CurrentBucketErrorStats;
+
+    //! The compressed error statistics.
+    TByteVec m_CompressedBucketErrorStats;
 };
 }
 }

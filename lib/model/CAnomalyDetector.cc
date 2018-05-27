@@ -16,7 +16,6 @@
 #include <maths/CIntegerTools.h>
 #include <maths/COrderings.h>
 #include <maths/CSampling.h>
-#include <maths/CTrendTests.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyScore.h>
@@ -48,7 +47,7 @@ const std::string KEY_TAG("d");
 const std::string SIMPLE_COUNT_STATICS("f");
 
 // classes containing static members needing persistence
-const std::string RANDOMIZED_PERIODIC_TAG("a");
+//const std::string RANDOMIZED_PERIODIC_TAG("a"); // No longer used
 const std::string STATISTICS_TAG("b");
 const std::string SAMPLING_TAG("c");
 
@@ -252,13 +251,7 @@ bool CAnomalyDetector::legacyModelsAcceptRestoreTraverser(core::CStateRestoreTra
 bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == RANDOMIZED_PERIODIC_TAG) {
-            if (traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) ==
-                false) {
-                LOG_ERROR(<< "Failed to restore randomized periodic test state");
-                return false;
-            }
-        } else if (name == STATISTICS_TAG) {
+        if (name == STATISTICS_TAG) {
             if (traverser.traverseSubLevel(
                     &core::CStatistics::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR(<< "Failed to restore statistics");
@@ -332,8 +325,6 @@ void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 void CAnomalyDetector::staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(RANDOMIZED_PERIODIC_TAG,
-                         &maths::CRandomizedPeriodicityTest::staticsAcceptPersistInserter);
     inserter.insertLevel(STATISTICS_TAG, &core::CStatistics::staticsAcceptPersistInserter);
     inserter.insertLevel(SAMPLING_TAG, &maths::CSampling::staticsAcceptPersistInserter);
 }

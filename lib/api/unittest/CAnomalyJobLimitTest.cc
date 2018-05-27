@@ -373,7 +373,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
                 LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
                 reportProgress += 0.1;
             }
-            for (std::size_t i = 0; i < 1000; ++i) {
+            for (std::size_t i = 0; i < 1100; ++i) {
                 rng.generateUniformSamples(0, generators.size(), 1, generator);
                 TOptionalDouble value{generators[generator[0]](time)};
                 if (value) {
@@ -390,7 +390,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_ByFields > 820 && used.s_ByFields < 980);
+        CPPUNIT_ASSERT(used.s_ByFields > 940 && used.s_ByFields < 1100);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
     }
 
@@ -433,7 +433,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_PartitionFields > 390 && used.s_PartitionFields < 470);
+        CPPUNIT_ASSERT(used.s_PartitionFields > 430 && used.s_PartitionFields < 510);
         CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
                        0.95 * static_cast<double>(used.s_PartitionFields));
     }
