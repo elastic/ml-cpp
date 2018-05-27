@@ -430,8 +430,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double qu{0.0};
         double variance{a * CBasicStatistics::mean(variance_) +
                         b * CBasicStatistics::variance(m_ValueMoments)};
-        if (auto interval = confidenceInterval(0.0, variance, confidence)) {
-            boost::tie(ql, qu) = *interval;
+        if (variance > 0.0) {
+            if (auto interval = confidenceInterval(0.0, variance, confidence)) {
+                boost::tie(ql, qu) = *interval;
+            }
         }
 
         writer(time, {level_[0] + seasonal_[0] + prediction + ql,
