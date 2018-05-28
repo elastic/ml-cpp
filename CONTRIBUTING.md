@@ -93,9 +93,9 @@ The followings lists some guide lines when authoring pull requests. Note: Try to
 
 ### Backport
 
-Any development usually starts with an implementation on `master`, therefore any PR starts with a PR against `master`. Depending on the type we then decide about backport branches, features usually get backported to the active release branch, e.g. `6.x`, bugfixes might get backported to concrete release branches e.g. `6.1`. If unsure, the versions to backport to, can be discussed on the PR.
+Any development usually starts with an implementation on `master`, therefore any PR starts with a PR against `master`. Depending on the type we then decide about backport branches, features usually get backported to the active release branch, e.g. `6.x`, bugfixes might get backported to concrete release branches e.g. `6.1`. If unsure about the versions to backport to, it can be discussed on the master PR.
 
-A backport starts right after merging the PR on `master`, please open backport PR's immediatly after merging, even if you plan to merge backports a little later. This helps to ensure that backports do not get lost. Rules for Backport PR's:
+A backport starts right after merging the PR on `master`, please open backport PR's immediatly after merging to `master`, even if you intend to merge backports a little later (e.g. to wait/analyse QA results). This helps to ensure that backports do not get lost. Rules for Backport PR's:
 
 1. Prefix the title with `[X.Y]` and the mandatory `[ML]`, e.g. `[6.3][ML] Store expanding window bucket values in a compressed format`
 1. Link to the originating PR in the description, you do not need to repeat the description as discussions should exclusively happen on the master PR.
