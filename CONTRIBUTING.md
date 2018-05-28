@@ -67,9 +67,9 @@ Please adhere to the general guideline that you should never force push to a pub
 
 ## Pull Requests
 
-Every change made to ml-cpp must be held to a high standard, Pull Requests are equally important as they document changes and decissions that have been made. `You Know, for Search` - a descriptive and relevant summary of the change, helps people to find your PR later on.
+Every change made to ml-cpp must be held to a high standard, Pull Requests are equally important as they document changes and decissions that have been made. `You Know, for Search` - a descriptive and relevant summary of the change helps people to find your PR later on.
 
-The followings lists some guide lines when authoring pull requests. Note: Try to follow this guideline as close as possible but do not feel bad if you are unsure, team members happily help you.
+The followings lists some guide lines when authoring pull requests. Note: Try to follow this guideline as close as possible but do not feel bad if you are unsure, team members can help you.
 
 1. PR title summarizes the change, short and descriptive.
    1. Use prefixes for quick categorization:
@@ -77,37 +77,29 @@ The followings lists some guide lines when authoring pull requests. Note: Try to
       1. [ML] mandatory prefix, to be consistent with other repositories
       1. [FEATURE] If your pull requests targets a feature branch, this prefix helps as a filter
 1. A detailed summary of what changed. Some hints:
-    1. Keep it short but do not ommit important details. Usually we squash and merge, write what you would write as commit message of the squashed commit
+    1. Keep it short but do not ommit important details. Usually we squash and merge, write what you would write as commit message of the squashed commit, later you can reuse what you wrote.
     1. A link to each issue that is closed by the PR (e.g. Closes #123) or related (Relates #456)
     1. Further information if necessary, maybe you want to share a screenshot, list open Todo's, describe your thought process, etc.
     1. Optional: List of backport PR's, other related PR's
 1. Label the PR, not all might apply:
     1. `:ml` mandatory label, to be consistent with other repositories.
-    1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`.
+    1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`, `>test`.
     1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version.
     1. `non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
     1. `affects-results` If the PR is expected to have an affect on our QA test suite, that is any change that affects scoring but can also be any change that affects memory consumption.
     1. `discuss` If your PR suggests a change which you first like to discuss regarding it's functional changes before going deep into actual implementation details (e.g. you change a default)
     1. `WIP` let's potential reviewers know, that you haven't completed the PR yet and you are still working on further changes, lets reviewers know to maybe wait a bit until you finalized the PR.
     1. `review` Try to find reviewers for your change, github has some suggestions, however if unsure or you know the reviewer is very busy, `review` marks the PR as free to grab for review. Still, PR's are open to anyone to comment.
-    
-    
 
 ### Backport
 
-There needs to be a link in the comments to the originating PR - for easy click through.
+Any development usually starts with an implementation on `master`, therefore any PR starts with a PR against `master`. Depending on the type we then decide about backport branches, features usually get backported to the active release branch, e.g. `6.x`, bugfixes might get backported to concrete release branches e.g. `6.1`. If unsure, the versions to backport to, can be discussed on the PR.
 
-We must create the backport PR at the same time as merging the original to master, although the backport may be merged later.
+A backport starts right after merging the PR on `master`, please open backport PR's immediatly after merging, even if you plan to merge backports a little later. This helps to ensure that backports do not get lost. Rules for Backport PR's:
 
-Backport PRs do not need to be reviewed, although you should if the backport becomes very different.
+1. Prefix the title with `[X.Y]` and the mandatory `[ML]`, e.g. `[6.3][ML] Store expanding window bucket values in a compressed format`
+1. Link to the originating PR in the description, you do not need to repeat the description as discussions should exclusively happen on the master PR.
+1. Backports do not need a review, however if you had to do further changes (merge conflicts, compiler specialities) it's advised to let the adjustments get quickly reviewed
+1. Label the PR with `>backport` and the version the backport, the full set of labels remain on the master PR.
 
-Once we have it in place (soon hopefully), we will wait for the CI to succeed before merging the backport. 
-In the meantime, BuildMyBranch should still be used even for backports. 
-(The downstream impact of build failures cannot be underestimated. There has been recent pressure on the es team to do everything possible to make CI green again, so it's a highlighted topic in other teams right now.)
-
-Backport PRs will be labelled with a new label - `backport`.
-(Note - if we decide to create a backport tool, then would love to move across labels e.g. bug, ehnancement)
-
-Originating PR will be labelled with the full set, as current - `v6.x` `x7.0.0` `bug` `:ml` `analytics`
-
-Backport check boxes in the originating PR or issue are a great idea, but can be left to personal choice. Because the originating PR/issue may get closed before the backports, I worry they will not get reviewed. 
+Although it might look simple, always wait for CI to confirm that changes are sound to avoid unnecessary build breaks.
