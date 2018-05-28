@@ -11,7 +11,7 @@
 
 === Deprecations
 
-=== New Features 
+=== New Features
 
 === Enhancements
 
@@ -36,6 +36,10 @@ Reduce model memory by storing state for periodicity testing in a compressed for
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
+
+Secure the ML processes by preventing system calls such as fork and exec. The Linux implemenation uses
+Seccomp BPF to intercept system calls and is available in kernels since 3.5. On Windows Job Objects prevent
+new processes being created and macOS uses the sandbox functionality ({pull}98[#98])
 
 === Bug Fixes
 
