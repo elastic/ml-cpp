@@ -32,6 +32,7 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/ref.hpp>
 
@@ -444,8 +445,8 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(),
-                                                         this->decayRate(), modes)),
+        return {boost::make_unique<CMultimodalPrior>(this->dataType(),
+                                                     this->decayRate(), modes),
                 Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
@@ -498,7 +499,7 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)),
+        return {boost::make_unique<CMultivariateMultimodalPrior<2>>(this->dataType(), modes),
                 Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 

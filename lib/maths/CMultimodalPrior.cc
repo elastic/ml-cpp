@@ -34,6 +34,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
@@ -92,7 +93,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
         normals.emplace_back(dataType, moments_, decayRate);
     }
 
-    m_Clusterer.reset(new CKMeansOnline1d(normals));
+    m_Clusterer = boost::make_unique<CKMeansOnline1d>(normals);
 
     m_Modes.reserve(normals.size());
     for (std::size_t i = 0u; i < normals.size(); ++i) {

@@ -490,13 +490,13 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
                                       params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
-            TMathsModelPtr prior;
+            TMathsModelPtr model;
             if (!traverser.traverseSubLevel(
                     boost::bind<bool>(maths::CModelStateSerialiser(),
-                                      boost::cref(params), boost::ref(prior), _1))) {
+                                      boost::cref(params), boost::ref(model), _1))) {
                 return false;
             }
-            s_Models.push_back(prior);
+            s_Models.push_back(std::move(model));
         }
     } while (traverser.next());
     return true;

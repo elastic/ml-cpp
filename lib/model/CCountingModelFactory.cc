@@ -15,6 +15,8 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 
+#include <boost/make_unique.hpp>
+
 #include <memory>
 
 namespace ml {
@@ -84,14 +86,13 @@ CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return TMultivariatePriorPtr{
-        new maths::CMultivariateConstantPrior{model_t::dimension(feature)}};
+    return boost::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return TMultivariatePriorPtr{new maths::CMultivariateConstantPrior(2)};
+    return boost::make_unique<maths::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

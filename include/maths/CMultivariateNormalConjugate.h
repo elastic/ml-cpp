@@ -30,6 +30,7 @@
 #include <maths/CSampling.h>
 #include <maths/ProbabilityAggregators.h>
 
+#include <boost/make_unique.hpp>
 #include <boost/math/special_functions/beta.hpp>
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
@@ -378,8 +379,8 @@ public:
         double m1 = m(i1[0]);
         double c11 = c(i1[0], i1[0]);
         if (condition.empty()) {
-            return {TUnivariatePriorPtr(new CNormalMeanPrecConjugate(
-                        dataType, m1, p, s, c11 * v / 2.0, decayRate)),
+            return {boost::make_unique<CNormalMeanPrecConjugate>(
+                        dataType, m1, p, s, c11 * v / 2.0, decayRate),
                     0.0};
         }
 
@@ -408,14 +409,14 @@ public:
             LOG_TRACE(<< "mean = " << mean << ", variance = " << variance
                       << ", weight = " << weight);
 
-            return {TUnivariatePriorPtr(new CNormalMeanPrecConjugate(
-                        dataType, mean, p, s, variance * v / 2.0, decayRate)),
+            return {boost::make_unique<CNormalMeanPrecConjugate>(
+                        dataType, mean, p, s, variance * v / 2.0, decayRate),
                     weight};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to get univariate prior: " << e.what());
         }
 
-        return TUnivariatePriorPtrDoublePr();
+        return {};
     }
 
     //! Compute the bivariate prior marginalizing over the variables
@@ -472,8 +473,8 @@ public:
             }
         }
         if (condition.empty()) {
-            return {TPriorPtr(new CMultivariateNormalConjugate<2>(
-                        dataType, m1, p, f, c11, decayRate)),
+            return {boost::make_unique<CMultivariateNormalConjugate<2>>(
+                        dataType, m1, p, f, c11, decayRate),
                     0.0};
         }
 
@@ -505,14 +506,14 @@ public:
             weight -= 0.5 * (xc - m2).transpose() * c22SolvexcMinusm2;
             LOG_TRACE(<< "mean = " << mean << ", covariance = " << covariance);
 
-            return {TPriorPtr(new CMultivariateNormalConjugate<2>(
-                        dataType, mean, p, f, covariance, decayRate)),
+            return {boost::make_unique<CMultivariateNormalConjugate<2>>(
+                        dataType, mean, p, f, covariance, decayRate),
                     weight};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to get univariate prior: " << e.what());
         }
 
-        return TPriorPtrDoublePr();
+        return {};
     }
 
     //! Get the support for the marginal likelihood function.
