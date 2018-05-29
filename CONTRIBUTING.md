@@ -86,7 +86,7 @@ The followings lists some guidelines when authoring pull requests. Note, try to 
     1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`, `>test`.
     1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version.
     1. `non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
-    1. `affects-results` If the PR is expected to have a significant impact on results (e.g. our QA test suite). E.g. changes of scoring but also changes of memory consumption can indirectly lead to significant result changes.
+    1. `affects-results` If the PR is expected to have a significant impact on results(QA test suite), e.g. changes of scoring. Be aware that changes in terms of memory consumption can indirectly lead to significant result changes.
     1. `discuss` If your PR suggests a change for which you'd first like to discuss regarding its functional changes before going deep into actual implementation details (e.g. you change a default)
     1. `WIP` lets potential reviewers know, that you haven't completed the PR yet and you are still working on further changes, lets reviewers know to maybe wait a bit until you finalized the PR.
     1. `review` Try to find reviewers for your change, github has some suggestions, however if unsure or you know the reviewer is very busy, `review` marks the PR as free to grab for review. Still, PR's are open to anyone to comment.
