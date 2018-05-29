@@ -85,7 +85,7 @@ The followings lists some guidelines when authoring pull requests. Note, try to 
     1. `:ml` mandatory label, to be consistent with other repositories.
     1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`, `>test`.
     1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version.
-    1. `non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
+    1. `>non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
     1. `affects-results` If the PR is expected to have a significant impact on results(QA test suite), e.g. changes of scoring. Be aware that changes in terms of memory consumption can indirectly lead to significant result changes.
     1. `discuss` If your PR suggests a change for which you'd first like to discuss regarding its functional changes before going deep into actual implementation details (e.g. you change a default)
     1. `WIP` lets potential reviewers know, that you haven't completed the PR yet and you are still working on further changes, lets reviewers know to maybe wait a bit until you finalized the PR.
@@ -100,6 +100,6 @@ A backport starts right after merging the PR on `master`, please open backport P
 1. Prefix the title with `[X.Y]` and the mandatory `[ML]`, e.g. `[6.3][ML] Store expanding window bucket values in a compressed format`.
 1. Link to the originating PR in the description, you do not need to repeat the description as discussions should exclusively happen on the master PR.
 1. Backports do not need a review, however if you had to do further changes (merge conflicts, compiler specialities) it's advised to let the adjustments get quickly reviewed.
-1. Label the PR with `>backport` and the corresponding version of this backport, the full set of labels remain on the master PR. If the master PR is classified as `non-issue` also add the `non-issue` label due to CI checks.
+1. Label the PR with `>backport` and the corresponding version of this backport, the full set of labels remain on the master PR. If the master PR is classified as `>non-issue` also add the `>non-issue` label due to CI checks.
 
 Although it might look simple, always wait for CI to confirm that changes are sound to avoid unnecessary build breaks.
