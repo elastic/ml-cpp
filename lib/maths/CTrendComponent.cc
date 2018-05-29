@@ -56,6 +56,9 @@ double scaleTime(core_t::TTime time, core_t::TTime origin) {
 
 //! Get the \p confidence interval for \p prediction and \p variance.
 TOptionalDoubleDoublePr confidenceInterval(double prediction, double variance, double confidence) {
+    if (variance == 0.0) {
+        return std::make_pair(prediction, prediction);
+    }
     try {
         boost::math::normal normal{prediction, std::sqrt(variance)};
         double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
@@ -430,10 +433,8 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double qu{0.0};
         double variance{a * CBasicStatistics::mean(variance_) +
                         b * CBasicStatistics::variance(m_ValueMoments)};
-        if (variance > 0.0) {
-            if (auto interval = confidenceInterval(0.0, variance, confidence)) {
-                boost::tie(ql, qu) = *interval;
-            }
+        if (auto interval = confidenceInterval(0.0, variance, confidence)) {
+            boost::tie(ql, qu) = *interval;
         }
 
         writer(time, {level_[0] + seasonal_[0] + prediction + ql,
