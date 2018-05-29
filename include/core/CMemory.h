@@ -297,7 +297,8 @@ public:
             return 0;
         }
         long uc = t.use_count();
-        // Round up
+        // Note we add on sizeof(long) here to account for the memory
+        // used by the shared reference count. Also, round up.
         return (sizeof(long) + staticSize(*t) + dynamicSize(*t) + std::size_t(uc - 1)) / uc;
     }
 
@@ -701,12 +702,16 @@ public:
             // might count it, so divide by the number of users.
             // However, if only 1 user has it, do a full debug.
             if (uc == 1) {
+                // Note we add on sizeof(long) here to account for
+                // the memory used by the shared reference count.
                 mem->addItem("shared_ptr", sizeof(long) + CMemory::staticSize(*t));
                 dynamicSize(name, *t, mem);
             } else {
                 std::ostringstream ss;
                 ss << "shared_ptr (x" << uc << ')';
-                // Round up
+                // Note we add on sizeof(long) here to account for
+                // the memory used by the shared reference count.
+                // Also, round up.
                 mem->addItem(ss.str(), (sizeof(long) + CMemory::staticSize(*t) +
                                         CMemory::dynamicSize(*t) + std::size_t(uc - 1)) /
                                            uc);

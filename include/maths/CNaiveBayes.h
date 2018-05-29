@@ -244,7 +244,7 @@ private:
 
         //! Get the number of examples in this class.
         double count() const;
-        //! Set the number of examples in this class.
+        //! Get a writable reference of the number of examples in this class.
         double& count();
         //! Get the class conditional densities.
         const TFeatureDensityPtrVec& conditionalDensities() const;
