@@ -636,7 +636,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
-            TExpandingWindowPtr window(this->newWindow(i));
+            TExpandingWindowPtr window(this->newWindow(i, false));
             result += core::CMemory::dynamicSize(window);
         }
     }
@@ -719,18 +719,20 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
-CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
+CExpandingWindow*
+CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    auto newWindow = [this](const TTimeVec& bucketLengths) {
+    auto newWindow = [this, deflate](const TTimeVec& bucketLengths) {
         if (m_BucketLength <= bucketLengths.back()) {
             std::ptrdiff_t a{std::lower_bound(bucketLengths.begin(),
                                               bucketLengths.end(), m_BucketLength) -
                              bucketLengths.begin()};
             std::size_t b{bucketLengths.size()};
             TTimeCRng bucketLengths_(bucketLengths, a, b);
-            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate);
+            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336,
+                                        m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };

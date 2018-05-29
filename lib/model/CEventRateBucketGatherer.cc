@@ -6,11 +6,11 @@
 
 #include <model/CEventRateBucketGatherer.h>
 
-#include <core/CCompressUtils.h>
 #include <core/CFunctional.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStatistics.h>
+#include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
@@ -1759,7 +1759,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
     using TStrCRefVec = std::vector<TStrCRef>;
 
     featureData.s_InfluenceValues.clear();
-    core::CCompressUtils compressor(true);
+    core::CDeflator compressor(true);
 
     try {
         TStrCRefVec strings;
@@ -1774,7 +1774,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         });
 
         std::size_t length = 0u;
-        if (compressor.compressedLength(true, length) == false) {
+        if (compressor.length(true, length) == false) {
             LOG_ERROR(<< "Failed to get compressed length");
             compressor.reset();
         }
@@ -1797,7 +1797,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
                                   compressor.addString(string);
                               });
                 length = 0u;
-                if (compressor.compressedLength(true, length) == false) {
+                if (compressor.length(true, length) == false) {
                     LOG_ERROR(<< "Failed to get compressed length");
                     compressor.reset();
                 }
