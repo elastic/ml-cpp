@@ -57,20 +57,21 @@ const struct sock_filter FILTER[] = {
     // be updated accordingly
 
     // Allowed sys calls, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 34, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 33, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 32, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 31, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 30, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 29, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 28, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 27, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 26, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 25, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 24, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 23, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 22, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 21, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 34, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 33, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 32, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 31, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 30, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 29, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 28, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 27, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 26, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 25, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 24, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 23, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 22, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 21, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 20, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 19, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
