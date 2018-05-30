@@ -23,6 +23,8 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventRatePopulationModel.h>
 
+#include <boost/make_unique.hpp>
+
 #include <memory>
 
 namespace ml {
@@ -113,13 +115,13 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
-        return TPriorPtr();
+        return nullptr;
     }
 
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
     if (model_t::isConstant(feature)) {
-        return std::make_shared<maths::CConstantPrior>();
+        return boost::make_unique<maths::CConstantPrior>();
     }
 
     if (model_t::isDiurnal(feature)) {
@@ -172,17 +174,17 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
         priors.emplace_back(multimodalPrior.clone());
     }
 
-    return std::make_shared<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
+    return boost::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
 }
 
-CEventRatePopulationModelFactory::TMultivariatePriorPtr
+CEventRatePopulationModelFactory::TMultivariatePriorUPtr
 CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                            const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
-    TMultivariatePriorPtrVec priors;
+    TMultivariatePriorUPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr normal{this->multivariateNormalPrior(dimension, params)};
+    TMultivariatePriorUPtr normal{this->multivariateNormalPrior(dimension, params)};
     priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
         priors.push_back(this->multivariateMultimodalPrior(dimension, params,
@@ -192,12 +194,12 @@ CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature fea
     return this->multivariateOneOfNPrior(dimension, params, priors);
 }
 
-CEventRatePopulationModelFactory::TMultivariatePriorPtr
+CEventRatePopulationModelFactory::TMultivariatePriorUPtr
 CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                                         const SModelParams& params) const {
-    TMultivariatePriorPtrVec priors;
+    TMultivariatePriorUPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
-    TMultivariatePriorPtr normal{this->multivariateNormalPrior(2, params)};
+    TMultivariatePriorUPtr normal{this->multivariateNormalPrior(2, params)};
     priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
         priors.push_back(this->multivariateMultimodalPrior(2, params, *priors.back()));
@@ -207,10 +209,10 @@ CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feat
 
 const CSearchKey& CEventRatePopulationModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.reset(CSearchKey(
-            m_Identifier, function_t::function(m_Features), m_UseNull,
-            this->modelParams().s_ExcludeFrequent, m_ValueFieldName, m_AttributeFieldName,
-            m_PersonFieldName, m_PartitionFieldName, m_InfluenceFieldNames));
+        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+                                 m_UseNull, this->modelParams().s_ExcludeFrequent,
+                                 m_ValueFieldName, m_AttributeFieldName, m_PersonFieldName,
+                                 m_PartitionFieldName, m_InfluenceFieldNames);
     }
     return *m_SearchKeyCache;
 }

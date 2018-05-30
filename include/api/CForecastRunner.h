@@ -115,7 +115,7 @@ public:
     using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 

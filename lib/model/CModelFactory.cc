@@ -30,6 +30,7 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 
 namespace ml {
 namespace model {
@@ -101,56 +102,51 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
             modelAnomalies && !model_t::isConstant(feature));
     }
 
-    TMultivariatePriorPtr prior{this->defaultMultivariatePrior(feature)};
+    TMultivariatePriorUPtr prior{this->defaultMultivariatePrior(feature)};
     return std::make_shared<maths::CMultivariateTimeSeriesModel>(
         params, *trend, *prior, controlDecayRate ? &controllers : nullptr,
         modelAnomalies && !model_t::isConstant(feature));
 }
 
-const CModelFactory::TFeatureMultivariatePriorPtrPrVec&
+const CModelFactory::TFeatureMultivariatePriorSPtrPrVec&
 CModelFactory::defaultCorrelatePriors(const TFeatureVec& features) const {
-    auto result = m_CorrelatePriorCache.emplace(features, nullptr);
+    auto result = m_CorrelatePriorCache.emplace(features, TFeatureMultivariatePriorSPtrPrVec{});
     if (result.second) {
-        result.first->second = std::make_shared<TFeatureMultivariatePriorPtrPrVec>();
-        result.first->second->reserve(features.size());
+        result.first->second.reserve(features.size());
         for (auto feature : features) {
             if (model_t::isCategorical(feature) || model_t::dimension(feature) > 1) {
                 continue;
             }
-            result.first->second->emplace_back(feature, this->defaultCorrelatePrior(feature));
+            result.first->second.emplace_back(feature, this->defaultCorrelatePrior(feature));
         }
     }
-    return *result.first->second;
+    return result.first->second;
 }
 
-const CModelFactory::TFeatureCorrelationsPtrPrVec&
+CModelFactory::TFeatureCorrelationsPtrPrVec
 CModelFactory::defaultCorrelates(const TFeatureVec& features) const {
-    auto result = m_CorrelationsCache.emplace(features, nullptr);
-    if (result.second) {
-        result.first->second = std::make_shared<TFeatureCorrelationsPtrPrVec>();
-        result.first->second->reserve(features.size());
-        for (auto feature : features) {
-            if (!model_t::isCategorical(feature) && model_t::dimension(feature) == 1) {
-                result.first->second->emplace_back(
-                    feature, TCorrelationsPtr(new maths::CTimeSeriesCorrelations(
-                                 m_ModelParams.s_MinimumSignificantCorrelation,
-                                 m_ModelParams.s_DecayRate)));
-            }
+    TFeatureCorrelationsPtrPrVec result;
+    result.reserve(features.size());
+    for (auto feature : features) {
+        if (!model_t::isCategorical(feature) && model_t::dimension(feature) == 1) {
+            result.emplace_back(feature, boost::make_unique<maths::CTimeSeriesCorrelations>(
+                                             m_ModelParams.s_MinimumSignificantCorrelation,
+                                             m_ModelParams.s_DecayRate));
         }
     }
-    return *result.first->second;
+    return result;
 }
 
 CModelFactory::TPriorPtr CModelFactory::defaultPrior(model_t::EFeature feature) const {
     return this->defaultPrior(feature, m_ModelParams);
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::defaultMultivariatePrior(model_t::EFeature feature) const {
     return this->defaultMultivariatePrior(feature, m_ModelParams);
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::defaultCorrelatePrior(model_t::EFeature feature) const {
     return this->defaultCorrelatePrior(feature, m_ModelParams);
 }
@@ -298,13 +294,13 @@ CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector(
     return result;
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateNormalPrior(std::size_t dimension, const SModelParams& params) const {
     return maths::CMultivariateNormalConjugateFactory::nonInformative(
         dimension, this->dataType(), params.s_DecayRate);
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateMultimodalPrior(std::size_t dimension,
                                            const SModelParams& params,
                                            const maths::CMultivariatePrior& modePrior) const {
@@ -314,10 +310,10 @@ CModelFactory::multivariateMultimodalPrior(std::size_t dimension,
         params.s_MinimumModeCount, params.minimumCategoryCount(), modePrior);
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateOneOfNPrior(std::size_t dimension,
                                        const SModelParams& params,
-                                       const TMultivariatePriorPtrVec& models) const {
+                                       const TMultivariatePriorUPtrVec& models) const {
     return maths::CMultivariateOneOfNPriorFactory::nonInformative(
         dimension, this->dataType(), params.s_DecayRate, models);
 }
@@ -341,14 +337,14 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& param
         4,    // minimumClusterCount
         CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION);
 
-    return std::make_shared<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
-                                                     params.s_DecayRate);
+    return boost::make_unique<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
+                                                       params.s_DecayRate);
 }
 
-CModelFactory::TMultivariatePriorPtr
+CModelFactory::TMultivariatePriorUPtr
 CModelFactory::latLongPrior(const SModelParams& params) const {
     maths_t::EDataType dataType = this->dataType();
-    TMultivariatePriorPtr modePrior = maths::CMultivariateNormalConjugateFactory::nonInformative(
+    TMultivariatePriorUPtr modePrior = maths::CMultivariateNormalConjugateFactory::nonInformative(
         2, dataType, params.s_DecayRate);
     return maths::CMultivariateMultimodalPriorFactory::nonInformative(
         2, // dimension

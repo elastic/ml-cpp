@@ -10,6 +10,7 @@
 
 #include <maths/CConstantPrior.h>
 #include <maths/CMultivariateConstantPrior.h>
+#include <maths/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>
@@ -80,16 +81,16 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CConstantPrior>();
+    return boost::make_unique<maths::CConstantPrior>();
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
+CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
     return boost::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
+CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
     return boost::make_unique<maths::CMultivariateConstantPrior>(2);
@@ -97,10 +98,9 @@ CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 
 const CSearchKey& CCountingModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.reset(
-            CSearchKey(m_Identifier, function_t::function(m_Features),
-                       m_UseNull, this->modelParams().s_ExcludeFrequent, "",
-                       m_PersonFieldName, "", m_PartitionFieldName));
+        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+                                 m_UseNull, this->modelParams().s_ExcludeFrequent,
+                                 "", m_PersonFieldName, "", m_PartitionFieldName);
     }
     return *m_SearchKeyCache;
 }

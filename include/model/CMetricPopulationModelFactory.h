@@ -87,7 +87,7 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TMultivariatePriorPtr
+    virtual TMultivariatePriorUPtr
     defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default prior for pairs of correlated time series
@@ -95,7 +95,7 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TMultivariatePriorPtr
+    virtual TMultivariatePriorUPtr
     defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const;
     //@}
 

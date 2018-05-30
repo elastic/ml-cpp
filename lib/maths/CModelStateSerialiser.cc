@@ -27,13 +27,13 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         if (name == UNIVARIATE_TIME_SERIES_TAG) {
-            result = std::make_shared<CUnivariateTimeSeriesModel>(params, traverser);
+            result = boost::make_unique<CUnivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MULTIVARIATE_TIME_SERIES_TAG) {
-            result = std::make_shared<CMultivariateTimeSeriesModel>(params, traverser);
+            result = boost::make_unique<CMultivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MODEL_STUB_TAG) {
-            result = std::make_shared<CModelStub>();
+            result = boost::make_unique<CModelStub>();
             ++numResults;
         } else {
             LOG_ERROR(<< "No model corresponds to name " << traverser.name());

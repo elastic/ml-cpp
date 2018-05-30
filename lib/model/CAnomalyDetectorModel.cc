@@ -478,7 +478,7 @@ const core_t::TTime CAnomalyDetectorModel::TIME_UNSET(-1);
 const std::string CAnomalyDetectorModel::EMPTY_STRING;
 
 CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
-                                                      TMathsModelPtr newModel)
+                                                      TMathsModelSPtr newModel)
     : s_Feature(feature), s_NewModel(newModel) {
 }
 
@@ -490,7 +490,7 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
                                       params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
-            TMathsModelPtr model;
+            TMathsModelUPtr model;
             if (!traverser.traverseSubLevel(
                     boost::bind<bool>(maths::CModelStateSerialiser(),
                                       boost::cref(params), boost::ref(model), _1))) {
@@ -521,9 +521,9 @@ std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
 
 CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     model_t::EFeature feature,
-    const TMultivariatePriorPtr& modelPrior,
-    const TCorrelationsPtr& model)
-    : s_Feature(feature), s_ModelPrior(modelPrior->clone()), s_Models(model->clone()) {
+    const TMultivariatePriorSPtr& modelPrior,
+    TCorrelationsPtr&& model)
+    : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
 }
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
@@ -587,14 +587,14 @@ std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::chunkSize
     return 500;
 }
 
-CAnomalyDetectorModel::TMultivariatePriorPtr
+CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::TMultivariatePriorUPtr
 CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior() const {
-    return TMultivariatePriorPtr(m_PrototypePrior->clone());
+    return TMultivariatePriorUPtr(m_PrototypePrior->clone());
 }
 
 void CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::prototypePrior(
-    const TMultivariatePriorPtr& prior) {
-    m_PrototypePrior.reset(prior->clone());
+    const TMultivariatePriorSPtr& prior) {
+    m_PrototypePrior = prior;
 }
 }
 }
