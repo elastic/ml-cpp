@@ -18,6 +18,9 @@
 
 #include <test/CTestTmpDir.h>
 
+#include <boost/filesystem.hpp>
+#include <boost/system/error_code.hpp>
+
 #include <cstdlib>
 #include <string>
 
@@ -172,6 +175,8 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     // Operations that must function after seccomp is initialised
     openPipeAndRead(readPipeName);
     openPipeAndWrite(writePipeName);
+
+    makeAndRemoveDirectory(ml::test::CTestTmpDir::tmpDir());
 }
 
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
@@ -228,4 +233,16 @@ void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, threadReader.data().length());
     CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+}
+
+void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
+
+    boost::filesystem::path temporaryFolder(dirname);
+    temporaryFolder /= "test-directory";
+
+    boost::system::error_code errorCode;
+    boost::filesystem::create_directories(temporaryFolder, errorCode);
+    CPPUNIT_ASSERT(errorCode == 0);
+    boost::filesystem::remove_all(temporaryFolder, errorCode);
+    CPPUNIT_ASSERT(errorCode == 0);
 }
