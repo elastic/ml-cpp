@@ -128,6 +128,8 @@ public:
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
     CMetricPopulationModel(bool isForPersistence, const CMetricPopulationModel& other);
+    CMetricPopulationModel(const CMetricPopulationModel&) = delete;
+    CMetricPopulationModel& operator=(const CMetricPopulationModel&) = delete;
     //@}
 
     //! Returns false.

@@ -152,6 +152,8 @@ public:
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
     CEventRatePopulationModel(bool isForPersistence, const CEventRatePopulationModel& other);
+    CEventRatePopulationModel(const CEventRatePopulationModel&) = delete;
+    CEventRatePopulationModel& operator=(const CEventRatePopulationModel&) = delete;
     //@}
 
     //! \name Persistence

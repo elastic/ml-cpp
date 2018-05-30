@@ -81,6 +81,8 @@ public:
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
     CIndividualModel(bool isForPersistence, const CIndividualModel& other);
+    CIndividualModel(const CIndividualModel&) = delete;
+    CIndividualModel& operator=(const CIndividualModel&) = delete;
     //@}
 
     //! Returns false.
