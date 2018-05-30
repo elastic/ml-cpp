@@ -19,6 +19,7 @@ public:
 private:
     void openPipeAndRead(const std::string& filename);
     void openPipeAndWrite(const std::string& filename);
+    void makeAndRemoveDirectory(const std::string& dirname);
 };
 
 #endif // INCLUDED_CSystemCallFilterTest_h
