@@ -95,7 +95,7 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(bool isForPersistence,
     : // The copy of m_DataGatherer is a shallow copy.  This would be unacceptable
       // if we were going to persist the data gatherer from within this class.
       // We don't, so that's OK, but the next issue is that another thread will be
-      // modifying the data gatherer m_DataGatherer points to whilst this object
+      // modifying the data gatherer m_DataGatherer points too whilst this object
       // is being persisted.  Therefore, persistence must only call methods on the
       // data gatherer that are invariant.
       m_Params(other.m_Params), m_DataGatherer(other.m_DataGatherer),

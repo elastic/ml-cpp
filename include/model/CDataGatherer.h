@@ -108,36 +108,24 @@ public:
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TFeatureVec = model_t::TFeatureVec;
-    using TFeatureVecCItr = TFeatureVec::const_iterator;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
-    using TSizeSizePrUInt64UMapItr = TSizeSizePrUInt64UMap::iterator;
-    using TSizeSizePrUInt64UMapCItr = TSizeSizePrUInt64UMap::const_iterator;
     using TSizeSizePrUInt64UMapQueue = CBucketQueue<TSizeSizePrUInt64UMap>;
-    using TSizeSizePrUInt64UMapQueueItr = TSizeSizePrUInt64UMapQueue::iterator;
-    using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
-    using TSizeSizePrUInt64UMapQueueCRItr = TSizeSizePrUInt64UMapQueue::const_reverse_iterator;
     using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
-        TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapItr =
-        TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
     using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
         std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
     using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
         CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
-    using TBucketGathererPVec = std::vector<CBucketGatherer*>;
-    using TBucketGathererPVecItr = TBucketGathererPVec::iterator;
-    using TBucketGathererPVecCItr = TBucketGathererPVec::const_iterator;
+    using TBucketGathererPtr = std::unique_ptr<CBucketGatherer>;
+    using TBucketGathererPtrVec = std::vector<TBucketGathererPtr>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
-    using TSampleCountsPtr = std::shared_ptr<CSampleCounts>;
+    using TSampleCountsPtr = std::unique_ptr<CSampleCounts>;
     using TTimeVec = std::vector<core_t::TTime>;
-    using TTimeVecCItr = TTimeVec::const_iterator;
 
 public:
     //! The summary count indicating an explicit null record.
@@ -161,8 +149,6 @@ public:
     //! \param[in] modelParams The global configuration parameters.
     //! \param[in] summaryCountFieldName If \p summaryMode is E_Manual
     //! then this is the name of the field holding the summary count.
-    //! \param[in] partitionFieldName The name of the field which splits
-    //! the data.
     //! \param[in] partitionFieldValue The value of the field which splits
     //! the data.
     //! \param[in] personFieldName The name of the field which identifies
@@ -173,8 +159,6 @@ public:
     //! the metric values.
     //! \param[in] influenceFieldNames The field names for which we will
     //! compute influences.
-    //! \param[in] useNull If true the gatherer will process missing
-    //! person and attribute field values (assuming they are empty).
     //! \param[in] key The key of the search for which to gatherer data.
     //! \param[in] features The features of the data to model.
     //! \param[in] startTime The start of the time interval for which
@@ -187,13 +171,11 @@ public:
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
                   const std::string& summaryCountFieldName,
-                  const std::string& partitionFieldName,
                   const std::string& partitionFieldValue,
                   const std::string& personFieldName,
                   const std::string& attributeFieldName,
                   const std::string& valueFieldName,
                   const TStrVec& influenceFieldNames,
-                  bool useNull,
                   const CSearchKey& key,
                   const TFeatureVec& features,
                   core_t::TTime startTime,
@@ -204,13 +186,11 @@ public:
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
                   const std::string& summaryCountFieldName,
-                  const std::string& partitionFieldName,
                   const std::string& partitionFieldValue,
                   const std::string& personFieldName,
                   const std::string& attributeFieldName,
                   const std::string& valueFieldName,
                   const TStrVec& influenceFieldNames,
-                  bool useNull,
                   const CSearchKey& key,
                   core::CStateRestoreTraverser& traverser);
 
@@ -220,8 +200,9 @@ public:
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
     CDataGatherer(bool isForPersistence, const CDataGatherer& other);
-
     ~CDataGatherer();
+    CDataGatherer(const CDataGatherer&) = delete;
+    CDataGatherer& operator=(const CDataGatherer&) = delete;
     //@}
 
     //! \name Persistence
@@ -546,7 +527,7 @@ public:
     void resetSampleCount(std::size_t id);
 
     //! Get the sample counts.
-    TSampleCountsPtr sampleCounts() const;
+    const TSampleCountsPtr& sampleCounts() const;
     //@}
 
     //! \name Time
@@ -759,7 +740,7 @@ private:
 
     //! The collection of bucket gatherers which contain the bucket-specific
     //! metrics and counts.
-    TBucketGathererPVec m_Gatherers;
+    TBucketGathererPtrVec m_Gatherers;
 
     //! Indicates whether the data being gathered are already summarized
     //! by an external aggregation process.
@@ -768,14 +749,11 @@ private:
     //! The global configuration parameters.
     TModelParamsCRef m_Params;
 
-    //! The partition field name or an empty string if there isn't one.
-    std::string m_PartitionFieldName;
+    //! The key of the search for which data is being gathered.
+    TSearchKeyCRef m_SearchKey;
 
     //! The value of the partition field for this detector.
     core::CStoredStringPtr m_PartitionFieldValue;
-
-    //! The key of the search for which data is being gathered.
-    TSearchKeyCRef m_SearchKey;
 
     //! A registry where person names are mapped to unique IDs.
     CDynamicStringIdRegistry m_PeopleRegistry;

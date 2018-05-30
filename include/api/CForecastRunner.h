@@ -109,7 +109,7 @@ public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
     using TOStreamConcurrentWrapperPtr = std::shared_ptr<TOStreamConcurrentWrapper>;
 
-    using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
+    using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
 
     using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;

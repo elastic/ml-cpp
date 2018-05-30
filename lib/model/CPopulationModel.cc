@@ -375,8 +375,13 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time,
         }
     }
 
-    while (numberNewAttributes > 0 && resourceMonitor.areAllocationsAllowed() &&
-           (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    this->estimateMemoryUsageOrComputeAndUpdate(numberExistingPeople,
+                                                numberExistingAttributes, 0);
+
+    while (numberNewAttributes > 0 &&
+           (numberExistingAttributes == 0 ||
+            (resourceMonitor.areAllocationsAllowed() &&
+             (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)))) {
         // We batch attributes in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewAttributes, CHUNK_SIZE);

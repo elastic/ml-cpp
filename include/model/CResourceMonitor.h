@@ -11,8 +11,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <functional>
-#include <map>
 
 class CResourceMonitorTest;
 class CResourceLimitTest;
@@ -42,8 +43,8 @@ public:
     };
 
 public:
-    using TModelPtrSizePr = std::pair<CAnomalyDetectorModel*, std::size_t>;
-    using TModelPtrSizeMap = std::map<CAnomalyDetectorModel*, std::size_t>;
+    using TDetectorPtrSizePr = std::pair<CAnomalyDetector*, std::size_t>;
+    using TDetectorPtrSizeUMap = boost::unordered_map<CAnomalyDetector*, std::size_t>;
     using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
@@ -127,13 +128,21 @@ public:
     //! Clears all extra memory
     void clearExtraMemory();
 
+    //! Decrease the margin on the memory limit.
+    //!
+    //! We start off applying a margin to the memory limit because
+    //! it is difficult to accurately estimate the long term memory
+    //! usage at this point. This is gradually decreased over time
+    //! by calling this pnce per bucket processed.
+    void decreaseMargin();
+
 private:
     //! Updates the memory limit fields and the prune threshold
     //! to the given value.
     void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
     //! Update the given model and recalculate the total usage
-    void memUsage(CAnomalyDetectorModel* model);
+    void memUsage(CAnomalyDetector* detector);
 
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
@@ -143,15 +152,24 @@ private:
     //! shoule be allowed or not
     void updateAllowAllocations();
 
+    //! Get the high memory limit with margin applied.
+    std::size_t highLimit() const;
+
+    //! Get the low memory limit with margin applied.
+    std::size_t lowLimit() const;
+
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
 
 private:
     //! The registered collection of components
-    TModelPtrSizeMap m_Models;
+    TDetectorPtrSizeUMap m_Detectors;
 
     //! Is there enough free memory to allow creating new components
     bool m_AllowAllocations;
+
+    //! The relative margin to apply to the byte limits.
+    double m_ByteLimitMargin;
 
     //! The upper limit for memory usage, checked on increasing values
     std::size_t m_ByteLimitHigh;

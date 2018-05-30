@@ -58,7 +58,8 @@ void CResourceMonitorTest::testMonitor() {
                                limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key));
 
-    std::size_t mem = detector1.memoryUsage() + detector2.memoryUsage() +
+    std::size_t mem = core::CMemory::dynamicSize(&detector1) +
+                      core::CMemory::dynamicSize(&detector2) +
                       CStringStore::names().memoryUsage() +
                       CStringStore::influencers().memoryUsage();
 
@@ -98,15 +99,15 @@ void CResourceMonitorTest::testMonitor() {
         // Test adding and removing a CAnomalyDetector
         CResourceMonitor mon;
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), mon.m_Models.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0), mon.m_Detectors.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), mon.m_CurrentAnomalyDetectorMemory);
         CPPUNIT_ASSERT(mon.m_PreviousTotal > 0); // because it includes string store memory
 
         mon.registerComponent(detector1);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mon.m_Models.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mon.m_Detectors.size());
 
         mon.registerComponent(detector2);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), mon.m_Models.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2), mon.m_Detectors.size());
 
         mon.refresh(detector1);
         mon.refresh(detector2);
@@ -115,10 +116,10 @@ void CResourceMonitorTest::testMonitor() {
         CPPUNIT_ASSERT_EQUAL(mem, mon.m_PreviousTotal);
 
         mon.unRegisterComponent(detector2);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mon.m_Models.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mon.m_Detectors.size());
 
         mon.unRegisterComponent(detector1);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), mon.m_Models.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0), mon.m_Detectors.size());
     }
     {
         // Check that High limit can be breached and then gone back

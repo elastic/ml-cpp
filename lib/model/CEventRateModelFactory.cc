@@ -91,23 +91,22 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
 
 CDataGatherer*
 CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
-    return new CDataGatherer(
-        model_t::E_EventRate, m_SummaryMode, this->modelParams(), m_SummaryCountFieldName,
-        m_PartitionFieldName, initData.s_PartitionFieldValue, m_PersonFieldName,
-        EMPTY_STRING, // AttributeFieldName
-        m_ValueFieldName, m_InfluenceFieldNames, m_UseNull, this->searchKey(),
-        m_Features, initData.s_StartTime, initData.s_SampleOverrideCount);
+    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
+                             this->modelParams(), m_SummaryCountFieldName,
+                             initData.s_PartitionFieldValue, m_PersonFieldName,
+                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
+                             m_InfluenceFieldNames, this->searchKey(), m_Features,
+                             initData.s_StartTime, initData.s_SampleOverrideCount);
 }
 
 CDataGatherer*
 CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                          core::CStateRestoreTraverser& traverser) const {
-    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode, this->modelParams(),
-                             m_SummaryCountFieldName, m_PartitionFieldName,
+    return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
+                             this->modelParams(), m_SummaryCountFieldName,
                              partitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING, // AttributeFieldName
-                             m_ValueFieldName, m_InfluenceFieldNames, m_UseNull,
-                             this->searchKey(), traverser);
+                             EMPTY_STRING /*AttributeFieldName*/, m_ValueFieldName,
+                             m_InfluenceFieldNames, this->searchKey(), traverser);
 }
 
 CEventRateModelFactory::TPriorPtr

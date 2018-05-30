@@ -413,6 +413,7 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime + bucketLength + latency <= time;
          lastBucketEndTime += effectiveBucketLength) {
         this->outputResults(lastBucketEndTime);
+        m_Limits.resourceMonitor().decreaseMargin();
         m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + effectiveBucketLength;
 
@@ -1403,7 +1404,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     // Check if we need to and are allowed to create a new detector.
     if (itr == m_Detectors.end() && resourceMonitor.areAllocationsAllowed()) {
         // Create an placeholder for the anomaly detector.
-        model::CAnomalyDetector::TAnomalyDetectorPtr& detector =
+        TAnomalyDetectorPtr& detector =
             m_Detectors
                 .emplace(model::CSearchKey::TStrKeyPr(partition, key), TAnomalyDetectorPtr())
                 .first->second;
@@ -1450,7 +1451,7 @@ void CAnomalyJob::pruneAllModels() {
     }
 }
 
-model::CAnomalyDetector::TAnomalyDetectorPtr
+CAnomalyJob::TAnomalyDetectorPtr
 CAnomalyJob::makeDetector(int identifier,
                           const model::CAnomalyDetectorModelConfig& modelConfig,
                           model::CLimits& limits,

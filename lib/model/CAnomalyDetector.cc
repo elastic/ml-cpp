@@ -24,6 +24,7 @@
 #include <model/CForecastModelPersist.h>
 #include <model/CModelDetailsView.h>
 #include <model/CModelPlotData.h>
+#include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 
 #include <boost/bind.hpp>
@@ -99,7 +100,7 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
                                    const std::string& partitionFieldValue,
                                    core_t::TTime firstTime,
                                    const TModelFactoryCPtr& modelFactory)
-    : m_Limits(limits), m_DetectorIndex(detectorIndex), m_ModelConfig(modelConfig),
+    : m_DetectorIndex(detectorIndex), m_Limits(limits), m_ModelConfig(modelConfig),
       m_LastBucketEndTime(maths::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
       m_DataGatherer(makeDataGatherer(modelFactory, m_LastBucketEndTime, partitionFieldValue)),
       m_ModelFactory(modelFactory),
@@ -120,7 +121,7 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
 }
 
 CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other)
-    : m_Limits(other.m_Limits), m_DetectorIndex(other.m_DetectorIndex),
+    : m_DetectorIndex(other.m_DetectorIndex), m_Limits(other.m_Limits),
       m_ModelConfig(other.m_ModelConfig),
       // Empty result function is fine in this case
       // Empty result count function is fine in this case
@@ -612,14 +613,12 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
 
 void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("Anomaly Detector Memory Usage");
+    core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
     core::CMemoryDebug::dynamicSize("m_Model", m_Model, mem);
 }
 
 std::size_t CAnomalyDetector::memoryUsage() const {
-    // We only account for the model in CResourceMonitor,
-    // so we just include that here.
-    std::size_t mem = core::CMemory::dynamicSize(m_Model);
-    return mem;
+    return core::CMemory::dynamicSize(m_DataGatherer) + core::CMemory::dynamicSize(m_Model);
 }
 
 const core_t::TTime& CAnomalyDetector::lastBucketEndTime() const {
