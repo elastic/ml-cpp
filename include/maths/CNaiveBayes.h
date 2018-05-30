@@ -248,7 +248,7 @@ private:
         double& count();
         //! Get the class conditional densities.
         const TFeatureDensityPtrVec& conditionalDensities() const;
-        //! Get the class conditional densities.
+        //! Get a writable reference of the class conditional densities.
         TFeatureDensityPtrVec& conditionalDensities();
 
         //! Debug the memory used by this object.
