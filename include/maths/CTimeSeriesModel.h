@@ -9,6 +9,7 @@
 
 #include <maths/CKMostCorrelated.h>
 #include <maths/CModel.h>
+#include <maths/CMultivariatePrior.h>
 #include <maths/ImportExport.h>
 
 #include <boost/array.hpp>
@@ -21,7 +22,6 @@
 namespace ml {
 namespace maths {
 class CDecayRateController;
-class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
