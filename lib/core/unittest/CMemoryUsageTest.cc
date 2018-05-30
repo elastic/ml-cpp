@@ -508,7 +508,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
         CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(pointer),
-                             sizeof(long) + sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
+                             sizeof(long) + sizeof(SBar) +
+                                 sizeof(SFoo) * value.s_State.capacity());
     }
 
     {
@@ -1109,8 +1110,8 @@ void CMemoryUsageTest::testSharedPointer() {
     // = 688
 
     std::size_t expectedSize =
-        vec1.capacity() * sizeof(TIntVecPtr) +
-      vec2.capacity() * sizeof(TIntVecPtr) + 3 * (sizeof(long) + sizeof(TIntVec)) +
+        vec1.capacity() * sizeof(TIntVecPtr) + vec2.capacity() * sizeof(TIntVecPtr) +
+        3 * (sizeof(long) + sizeof(TIntVec)) +
         (vec1[0]->capacity() + vec1[1]->capacity() + vec1[3]->capacity()) * sizeof(int);
 
     LOG_DEBUG(<< "Expected: " << expectedSize << ", actual: "
