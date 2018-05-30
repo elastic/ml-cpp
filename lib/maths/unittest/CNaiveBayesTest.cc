@@ -234,7 +234,7 @@ void CNaiveBayesTest::testMemoryUsage() {
     // Check invariants.
 
     using TMemoryUsagePtr = std::unique_ptr<core::CMemoryUsage>;
-    using TNaiveBayesPtr = std::shared_ptr<maths::CNaiveBayes>;
+    using TNaiveBayesPtr = std::unique_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
 

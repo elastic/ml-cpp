@@ -240,14 +240,14 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
 public:
     CMockEventRateModel(const SModelParams& params,
                         const TDataGathererPtr& dataGatherer,
-                        const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                        const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                         const maths::CMultinomialConjugate& personProbabilityPrior,
                         const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                         CResourceMonitor& resourceMonitor)
         : CEventRateModel(params,
                           dataGatherer,
                           newFeatureModels,
-                          TFeatureMultivariatePriorPtrPrVec(),
+                          TFeatureMultivariatePriorSPtrPrVec(),
                           TFeatureCorrelationsPtrPrVec(),
                           personProbabilityPrior,
                           influenceCalculators,
@@ -284,13 +284,13 @@ class CMockMetricModel : public ml::model::CMetricModel {
 public:
     CMockMetricModel(const SModelParams& params,
                      const TDataGathererPtr& dataGatherer,
-                     const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                     const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                      const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                      CResourceMonitor& resourceMonitor)
         : CMetricModel(params,
                        dataGatherer,
                        newFeatureModels,
-                       TFeatureMultivariatePriorPtrPrVec(),
+                       TFeatureMultivariatePriorSPtrPrVec(),
                        TFeatureCorrelationsPtrPrVec(),
                        influenceCalculators,
                        std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),

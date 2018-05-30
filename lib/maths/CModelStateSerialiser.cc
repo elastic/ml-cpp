@@ -9,6 +9,7 @@
 #include <maths/CTimeSeriesModel.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 
 namespace ml {
 namespace maths {
@@ -26,13 +27,13 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         if (name == UNIVARIATE_TIME_SERIES_TAG) {
-            result.reset(new CUnivariateTimeSeriesModel(params, traverser));
+            result = boost::make_unique<CUnivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MULTIVARIATE_TIME_SERIES_TAG) {
-            result.reset(new CMultivariateTimeSeriesModel(params, traverser));
+            result = boost::make_unique<CMultivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MODEL_STUB_TAG) {
-            result.reset(new CModelStub());
+            result = boost::make_unique<CModelStub>();
             ++numResults;
         } else {
             LOG_ERROR(<< "No model corresponds to name " << traverser.name());

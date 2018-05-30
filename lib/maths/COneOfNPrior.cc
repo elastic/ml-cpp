@@ -95,7 +95,7 @@ COneOfNPrior::COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataTy
     m_Models.reserve(models.size());
     CModelWeight weight(1.0);
     for (const auto& model : models) {
-        m_Models.emplace_back(weight, model);
+        m_Models.emplace_back(weight, TPriorPtr(model->clone()));
     }
 }
 
@@ -113,7 +113,7 @@ COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models,
     // Create a new model vector using the specified models and their associated weights.
     m_Models.reserve(models.size());
     for (const auto& model : models) {
-        m_Models.emplace_back(CModelWeight(model.first), model.second);
+        m_Models.emplace_back(CModelWeight(model.first), TPriorPtr(model.second->clone()));
     }
 }
 
@@ -1032,7 +1032,7 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams&
         return false;
     }
 
-    m_Models.emplace_back(weight, model);
+    m_Models.emplace_back(weight, std::move(model));
 
     return true;
 }

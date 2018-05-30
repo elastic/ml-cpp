@@ -12,6 +12,7 @@
 #include <maths/CAdaptiveBucketing.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CRegression.h>
+#include <maths/CSeasonalTime.h>
 #include <maths/ImportExport.h>
 
 #include <cstddef>
@@ -26,7 +27,6 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace maths {
-class CSeasonalTime;
 
 //! \brief An adaptive bucketing of the value of a periodic function.
 //!
@@ -181,7 +181,7 @@ public:
     //@}
 
 private:
-    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
 
     //! \brief The state maintained for each bucket.
     struct SBucket {

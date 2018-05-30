@@ -39,16 +39,22 @@ struct STimeSeriesDecompositionRestoreParams;
 //! compatibility in the future as the classes evolve.
 class MATHS_EXPORT CTimeSeriesDecompositionStateSerialiser {
 public:
-    //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
-    //! base class.
-    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionUPtr = std::unique_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionSPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
 
 public:
     //! Construct the appropriate CTimeSeriesDecompositionInterface
     //! sub-class from its state document representation. Sets \p result
     //! to NULL on failure.
     bool operator()(const STimeSeriesDecompositionRestoreParams& params,
-                    TDecompositionPtr& result,
+                    TDecompositionUPtr& result,
+                    core::CStateRestoreTraverser& traverser) const;
+
+    //! Construct the appropriate CTimeSeriesDecompositionInterface
+    //! sub-class from its state document representation. Sets \p result
+    //! to NULL on failure.
+    bool operator()(const STimeSeriesDecompositionRestoreParams& params,
+                    TDecompositionSPtr& result,
                     core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter.
