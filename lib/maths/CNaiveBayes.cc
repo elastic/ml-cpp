@@ -199,7 +199,7 @@ void CNaiveBayes::acceptPersistInserter(core::CStatePersistInserter& inserter) c
     }
 }
 
-const CNaiveBayes& CNaiveBayes::operator=(const CNaiveBayes& other) {
+CNaiveBayes& CNaiveBayes::operator=(const CNaiveBayes& other) {
     if (this != &other) {
         CNaiveBayes copy{other};
         this->swap(copy);

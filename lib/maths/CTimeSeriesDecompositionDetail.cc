@@ -416,8 +416,6 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{nullptr} {
 }
-CTimeSeriesDecompositionDetail::CHandler::~CHandler() {
-}
 
 void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue& /*message*/) {
 }

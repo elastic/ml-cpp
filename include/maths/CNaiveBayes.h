@@ -157,7 +157,7 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Copy by assign operator.
-    const CNaiveBayes& operator=(const CNaiveBayes& other);
+    CNaiveBayes& operator=(const CNaiveBayes& other);
 
     //! Efficiently swap the contents of this and \p other.
     void swap(CNaiveBayes& other);

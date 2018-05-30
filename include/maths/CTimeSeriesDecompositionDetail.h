@@ -52,7 +52,7 @@ public:
     };
 
     //! \brief The message passed to add a point.
-    struct MATHS_EXPORT SAddValue : public SMessage, private core::CNonCopyable {
+    struct MATHS_EXPORT SAddValue : public SMessage {
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
@@ -62,6 +62,8 @@ public:
                   double calendar,
                   const TPredictor& predictor,
                   const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
+        SAddValue(const SAddValue&) = delete;
+        SAddValue& operator=(const SAddValue&) = delete;
 
         //! The value to add.
         double s_Value;
@@ -122,10 +124,12 @@ public:
 
     //! \brief The basic interface for one aspect of the modeling of a time
     //! series decomposition.
-    class MATHS_EXPORT CHandler : core::CNonCopyable {
+    class MATHS_EXPORT CHandler {
     public:
         CHandler();
-        virtual ~CHandler();
+        virtual ~CHandler() = default;
+        CHandler(const CHandler&) = delete;
+        CHandler& operator=(const CHandler&) = delete;
 
         //! Add a value.
         virtual void handle(const SAddValue& message);
@@ -151,8 +155,12 @@ public:
     };
 
     //! \brief Manages communication between handlers.
-    class MATHS_EXPORT CMediator : core::CNonCopyable {
+    class MATHS_EXPORT CMediator {
     public:
+        CMediator() = default;
+        CMediator(const CMediator&) = delete;
+        CMediator& operator=(const CMediator&) = delete;
+
         //! Forward \p message to all registered models.
         template<typename M>
         void forward(const M& message) const;
@@ -185,7 +193,7 @@ public:
     public:
         CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
         CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
-        const CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
+        CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -275,7 +283,7 @@ public:
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
         CCalendarTest(const CCalendarTest& other, bool isForForecast = false);
-        const CCalendarTest& operator=(const CCalendarTest&) = delete;
+        CCalendarTest& operator=(const CCalendarTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -346,10 +354,12 @@ public:
         CComponents(const CComponents& other);
 
         //! \brief Watches to see if the seasonal components state changes.
-        class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable {
+        class MATHS_EXPORT CScopeNotifyOnStateChange {
         public:
             CScopeNotifyOnStateChange(CComponents& components);
             ~CScopeNotifyOnStateChange();
+            CScopeNotifyOnStateChange(const CScopeNotifyOnStateChange&) = delete;
+            CScopeNotifyOnStateChange& operator=(const CScopeNotifyOnStateChange&) = delete;
 
             //! Check if the seasonal component's state changed.
             bool changed() const;
