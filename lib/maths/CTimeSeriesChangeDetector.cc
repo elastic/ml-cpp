@@ -19,6 +19,7 @@
 #include <maths/CPrior.h>
 #include <maths/CPriorDetail.h>
 #include <maths/CPriorStateSerialiser.h>
+#include <maths/CRegressionDetail.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
@@ -37,12 +38,12 @@ using namespace time_series_change_detector_detail;
 namespace {
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TOptionalChangeDescription = CUnivariateTimeSeriesChangeDetector::TOptionalChangeDescription;
-const std::string MINIMUM_TIME_TO_DETECT{"a"};
-const std::string MAXIMUM_TIME_TO_DETECT{"b"};
-const std::string MINIMUM_DELTA_BIC_TO_DETECT{"c"};
+const std::string MINIMUM_TIME_TO_DETECT_TAG{"a"};
+const std::string MAXIMUM_TIME_TO_DETECT_TAG{"b"};
+const std::string MINIMUM_DELTA_BIC_TO_DETECT_TAG{"c"};
 const std::string RESIDUAL_MODEL_MODE_TAG{"d"};
 const std::string SAMPLE_COUNT_TAG{"e"};
-const std::string CURRENT_EVIDENCE_OF_CHANGE{"f"};
+const std::string DECISION_FUNCTION_TAG{"f"};
 const std::string MIN_TIME_TAG{"g"};
 const std::string MAX_TIME_TAG{"h"};
 const std::string CHANGE_MODEL_TAG{"i"};
@@ -51,12 +52,15 @@ const std::string EXPECTED_LOG_LIKELIHOOD_TAG{"k"};
 const std::string SHIFT_TAG{"l"};
 const std::string SCALE_TAG{"m"};
 const std::string RESIDUAL_MODEL_TAG{"n"};
+const std::string LOG_INVERSE_DECISION_FUNCTION_TREND_TAG{"p"};
 const std::size_t EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS{4u};
 const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
-const std::size_t COUNT_TO_INITIALIZE{5u};
+const std::size_t COUNT_TO_INITIALIZE{3u};
 const double MINIMUM_SCALE{0.1};
 const double MAXIMUM_SCALE{10.0};
 const double WINSORISATION_DERATE{1.0};
+const double MAXIMUM_DECISION_FUNCTION{32.0};
+const double LOG_INV_MAXIMUM_DECISION_FUNCTION{-CTools::fastLog(MAXIMUM_DECISION_FUNCTION)};
 }
 
 SChangeDescription::SChangeDescription(EDescription description, double value, const TPriorPtr& residualModel)
@@ -86,7 +90,7 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     core_t::TTime maximumTimeToDetect,
     double minimumDeltaBicToDetect)
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
-      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_CurrentEvidenceOfChange{0.0} {
+      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_DecisionFunction{0.0} {
     m_ChangeModels.push_back(
         std::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel));
     m_ChangeModels.push_back(
@@ -95,7 +99,6 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
         trendModel, residualModel, -core::constants::HOUR));
     m_ChangeModels.push_back(std::make_shared<CUnivariateTimeShiftModel>(
         trendModel, residualModel, +core::constants::HOUR));
-
     if (trendModel->seasonalComponents().size() > 0) {
         m_ChangeModels.push_back(std::make_shared<CUnivariateLinearScaleModel>(
             trendModel, residualModel));
@@ -108,11 +111,14 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(
     auto model = m_ChangeModels.begin();
     do {
         const std::string name{traverser.name()};
-        RESTORE_BUILT_IN(MINIMUM_TIME_TO_DETECT, m_MinimumTimeToDetect)
-        RESTORE_BUILT_IN(MAXIMUM_TIME_TO_DETECT, m_MaximumTimeToDetect)
-        RESTORE_BUILT_IN(MINIMUM_DELTA_BIC_TO_DETECT, m_MinimumDeltaBicToDetect)
+        RESTORE_BUILT_IN(MINIMUM_TIME_TO_DETECT_TAG, m_MinimumTimeToDetect)
+        RESTORE_BUILT_IN(MAXIMUM_TIME_TO_DETECT_TAG, m_MaximumTimeToDetect)
+        RESTORE_BUILT_IN(MINIMUM_DELTA_BIC_TO_DETECT_TAG, m_MinimumDeltaBicToDetect)
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
-        RESTORE_BUILT_IN(CURRENT_EVIDENCE_OF_CHANGE, m_CurrentEvidenceOfChange)
+        RESTORE_BUILT_IN(DECISION_FUNCTION_TAG, m_DecisionFunction)
+        RESTORE(LOG_INVERSE_DECISION_FUNCTION_TREND_TAG,
+                traverser.traverseSubLevel(boost::bind(&TRegression::acceptRestoreTraverser,
+                                                       &m_LogInvDecisionFunctionTrend, _1)))
         RESTORE_SETUP_TEARDOWN(MIN_TIME_TAG, core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
@@ -127,13 +133,16 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(
 }
 
 void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(MINIMUM_TIME_TO_DETECT, m_MinimumTimeToDetect);
-    inserter.insertValue(MAXIMUM_TIME_TO_DETECT, m_MaximumTimeToDetect);
-    inserter.insertValue(MINIMUM_DELTA_BIC_TO_DETECT, m_MinimumDeltaBicToDetect,
+    inserter.insertValue(MINIMUM_TIME_TO_DETECT_TAG, m_MinimumTimeToDetect);
+    inserter.insertValue(MAXIMUM_TIME_TO_DETECT_TAG, m_MaximumTimeToDetect);
+    inserter.insertValue(MINIMUM_DELTA_BIC_TO_DETECT_TAG, m_MinimumDeltaBicToDetect,
                          core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
-    inserter.insertValue(CURRENT_EVIDENCE_OF_CHANGE, m_CurrentEvidenceOfChange,
+    inserter.insertValue(DECISION_FUNCTION_TAG, m_DecisionFunction,
                          core::CIEEE754::E_SinglePrecision);
+    inserter.insertLevel(LOG_INVERSE_DECISION_FUNCTION_TREND_TAG,
+                         boost::bind(&TRegression::acceptPersistInserter,
+                                     &m_LogInvDecisionFunctionTrend, _1));
     if (m_TimeRange.initialized()) {
         inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
         inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
@@ -145,18 +154,25 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
 }
 
 TOptionalChangeDescription CUnivariateTimeSeriesChangeDetector::change() {
-    if (m_TimeRange.range() > m_MinimumTimeToDetect) {
-        std::size_t candidate{};
-        double p{this->decisionFunction(candidate)};
-
-        if (p > 1.0) {
-            return m_ChangeModels[candidate]->change();
-        }
-
-        m_CurrentEvidenceOfChange = m_ChangeModels[0]->bic() -
-                                    m_ChangeModels[candidate]->bic();
+    std::size_t best{};
+    m_DecisionFunction = this->decisionFunction(best);
+    if (m_DecisionFunction > 0.0) {
+        double x{static_cast<double>(m_TimeRange.range()) /
+                 static_cast<double>(m_MaximumTimeToDetect)};
+        double y{CTools::fastLog(1.0 / m_DecisionFunction)};
+        m_LogInvDecisionFunctionTrend.add(x, y);
     }
-    return TOptionalChangeDescription();
+    if (m_TimeRange.range() > m_MinimumTimeToDetect && m_DecisionFunction > 1.0) {
+        return m_ChangeModels[best]->change();
+    }
+    return TOptionalChangeDescription{};
+}
+
+double CUnivariateTimeSeriesChangeDetector::probabilityWillAccept() const {
+    double prediction{std::exp(-std::max(m_LogInvDecisionFunctionTrend.predict(1.0),
+                                         LOG_INV_MAXIMUM_DECISION_FUNCTION))};
+    return CTools::logisticFunction(std::max(m_DecisionFunction, prediction),
+                                    0.1, 1.0, -1.0);
 }
 
 double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change) const {
@@ -180,40 +196,37 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
                        noChangeBic - candidates[1].first};
     double expectedEvidence{noChangeBic - (*candidates[0].second)->expectedBic()};
 
-    double x[]{evidences[0] / m_MinimumDeltaBicToDetect,
-               2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
-               evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
-               static_cast<double>(m_TimeRange.range() - m_MinimumTimeToDetect) /
-                   static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
+    double x[]{
+        evidences[0] / m_MinimumDeltaBicToDetect,
+        2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
+        evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
+        std::max(static_cast<double>(m_TimeRange.range() - m_MinimumTimeToDetect), 0.0) /
+            static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
     double p{CTools::logisticFunction(x[0], 0.05, 1.0) *
              CTools::logisticFunction(x[1], 0.1, 1.0) *
              (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
              CTools::logisticFunction(x[3], 0.2, 0.5)};
-    LOG_TRACE("p(" << (*candidates[0].second)->change()->print() << ") = " << p
-                   << " | x = " << core::CContainerPrinter::print(x));
+    LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
+              << ") = " << MAXIMUM_DECISION_FUNCTION * p
+              << " | x = " << core::CContainerPrinter::print(x));
 
     change = candidates[0].second - m_ChangeModels.begin();
 
-    // Note 0.03125 = 0.5^5. This is chosen so that this function
-    // is equal to one when each of the decision criteria are at
-    // the centre of the sigmoid functions and the time range is
-    // equal to "minimum time to detect". This means we'll (just)
-    // accept the change if all of the individual hard decision
-    // criteria are satisfied.
+    // Note the maximum decision function value is chosen so that
+    // this function is equal to one when each of the decision
+    // criteria are at the centre of the sigmoid functions and
+    // the time range is equal to "minimum time to detect". This
+    // means we'll (just) accept the change if each "hard" decision
+    // criterion is individually satisfied.
 
-    return p / 0.03125;
+    return MAXIMUM_DECISION_FUNCTION * p;
 }
 
 bool CUnivariateTimeSeriesChangeDetector::stopTesting() const {
     core_t::TTime range{m_TimeRange.range()};
-    if (range > m_MinimumTimeToDetect) {
-        double scale{0.5 + CTools::logisticFunction(2.0 * m_CurrentEvidenceOfChange / m_MinimumDeltaBicToDetect,
-                                                    0.2, 1.0)};
-        return static_cast<double>(range) >
-               m_MinimumTimeToDetect +
-                   scale * static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect);
-    }
-    return false;
+    return (range > m_MinimumTimeToDetect) &&
+           (range > m_MaximumTimeToDetect || m_LogInvDecisionFunctionTrend.count() == 0.0 ||
+            m_LogInvDecisionFunctionTrend.predict(1.0) > 2.0);
 }
 
 void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& samples,
@@ -243,7 +256,8 @@ uint64_t CUnivariateTimeSeriesChangeDetector::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MinimumDeltaBicToDetect);
     seed = CChecksum::calculate(seed, m_TimeRange);
     seed = CChecksum::calculate(seed, m_SampleCount);
-    seed = CChecksum::calculate(seed, m_CurrentEvidenceOfChange);
+    seed = CChecksum::calculate(seed, m_DecisionFunction);
+    seed = CChecksum::calculate(seed, m_LogInvDecisionFunctionTrend);
     return CChecksum::calculate(seed, m_ChangeModels);
 }
 
@@ -662,12 +676,8 @@ void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
         for (std::size_t i = 0u; i < samples_.size(); ++i) {
             core_t::TTime time{samples_[i].first};
             double value{samples_[i].second};
-            double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double sample{this->trendModel().detrend(time + m_Shift, value, 0.0)};
-            double weight{winsorisation::tailWeight(
-                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
             samples.push_back(sample);
-            maths_t::setWinsorisationWeight(weight, weights[i]);
         }
 
         residualModel.addSamples(samples, weights);

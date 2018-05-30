@@ -14,6 +14,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CRegression.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -90,11 +91,17 @@ public:
     //! if there has been.
     TOptionalChangeDescription change();
 
-    //! The function used to decide whether to accept a change.
-    //! A change is accepted at a value of 1.0 for this function.
+    //! Get an rough estimate of the chance that the change will
+    //! eventually be accepted.
+    double probabilityWillAccept() const;
+
+    //! Evaluate the function used to decide whether to accept
+    //! a change.
     //!
-    //! \param[out] change Filled in with the index of the change
-    //! the most likely change.
+    //! A change is accepted for values >= 1.0.
+    //!
+    //! \param[out] change Filled in with the index of the most
+    //! likely change.
     double decisionFunction(std::size_t& change) const;
 
     //! Add \p samples to the change detector.
@@ -117,6 +124,7 @@ private:
     using TChangeModelPtr = std::shared_ptr<TChangeModel>;
     using TChangeModelPtr5Vec = core::CSmallVector<TChangeModelPtr, 5>;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
+    using TRegression = CRegression::CLeastSquaresOnline<1, double>;
 
 private:
     //! The minimum amount of time we need to observe before
@@ -135,8 +143,12 @@ private:
     //! The count of samples added to the change models.
     std::size_t m_SampleCount;
 
-    //! The current evidence of a change.
-    double m_CurrentEvidenceOfChange;
+    //! The current value of the decision function.
+    double m_DecisionFunction;
+
+    //! A least squares fit to the log of the inverse decision
+    //! function as a function of time.
+    TRegression m_LogInvDecisionFunctionTrend;
 
     //! The change models.
     TChangeModelPtr5Vec m_ChangeModels;
