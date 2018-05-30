@@ -46,9 +46,9 @@ public:
     using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
     using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDouble10VecWeightsAry1Vec = maths_t::TDouble10VecWeightsAry1Vec;
-    using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
+    using TUnivariatePriorPtr = std::unique_ptr<CPrior>;
     using TUnivariatePriorPtrDoublePr = std::pair<TUnivariatePriorPtr, double>;
-    using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
     using TPriorPtrDoublePr = std::pair<TPriorPtr, double>;
     using TWeights = maths_t::CUnitWeights;
 

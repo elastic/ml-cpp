@@ -118,7 +118,7 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
     bool restoredFeature = false;
     bool restoredDataType = false;
     byFieldValue.clear();
-    maths_t::EDataType dataType;
+    maths_t::EDataType dataType{};
 
     do {
         const std::string& name = traverser.name();

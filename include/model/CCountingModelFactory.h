@@ -79,12 +79,12 @@ public:
     virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default prior for \p feature which is a stub.
-    virtual TMultivariatePriorPtr
+    virtual TMultivariatePriorUPtr
     defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature which is a stub.
-    virtual TMultivariatePriorPtr
+    virtual TMultivariatePriorUPtr
     defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const;
     //@}
 

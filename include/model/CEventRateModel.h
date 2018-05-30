@@ -97,9 +97,9 @@ public:
     //! buckets.
     CEventRateModel(const SModelParams& params,
                     const TDataGathererPtr& dataGatherer,
-                    const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                     const maths::CMultinomialConjugate& probabilityPrior,
                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                     const TInterimBucketCorrectorCPtr& interimBucketCorrector);
@@ -110,9 +110,9 @@ public:
     //! and so must be sampled for before this model can be used.
     CEventRateModel(const SModelParams& params,
                     const TDataGathererPtr& dataGatherer,
-                    const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                     const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                     core::CStateRestoreTraverser& traverser);
