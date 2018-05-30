@@ -8,7 +8,6 @@
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
 #include <core/CMemory.h>
-#include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
 #include <core/CStatistics.h>
 #include <core/CoreTypes.h>
@@ -121,7 +120,7 @@ struct SAttributeProbability;
 //!
 //! The hierarchy is non-copyable because we don't currently need to be
 //! able to copy models and the "correct" copy semantics are not obvious.
-class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
+class MODEL_EXPORT CAnomalyDetectorModel {
     friend class CModelDetailsView;
 
 public:
@@ -190,6 +189,7 @@ public:
     CAnomalyDetectorModel(bool isForPersistence, const CAnomalyDetectorModel& other);
 
     virtual ~CAnomalyDetectorModel() = default;
+    CAnomalyDetectorModel& operator=(const CAnomalyDetectorModel&) = delete;
     //@}
 
     //! Get a human understandable description of the model for debugging.
@@ -502,6 +502,10 @@ protected:
     //! \brief The feature models.
     struct MODEL_EXPORT SFeatureModels {
         SFeatureModels(model_t::EFeature feature, TMathsModelSPtr newModel);
+        SFeatureModels(const SFeatureModels&) = delete;
+        SFeatureModels& operator=(const SFeatureModels&) = delete;
+        SFeatureModels(SFeatureModels&&) = default;
+        SFeatureModels& operator=(SFeatureModels&&) = default;
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,
@@ -528,6 +532,10 @@ protected:
         SFeatureCorrelateModels(model_t::EFeature feature,
                                 const TMultivariatePriorSPtr& modelPrior,
                                 TCorrelationsPtr&& model);
+        SFeatureCorrelateModels(const SFeatureCorrelateModels&) = delete;
+        SFeatureCorrelateModels& operator=(const SFeatureCorrelateModels&) = delete;
+        SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
+        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&) = default;
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,
