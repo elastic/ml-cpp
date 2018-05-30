@@ -350,6 +350,10 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         LOG_INFO(<< "Forecast of large model requested (requires "
                  << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
 
+        // create a subdirectory using the unique forecast id
+        temporaryFolder /= forecastJob.s_ForecastId;
+        forecastJob.s_TemporaryFolder = temporaryFolder.string();
+
         boost::system::error_code errorCode;
         boost::filesystem::create_directories(temporaryFolder, errorCode);
         if (errorCode) {
