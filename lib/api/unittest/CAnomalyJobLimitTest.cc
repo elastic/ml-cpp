@@ -390,7 +390,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_ByFields > 700 && used.s_ByFields < 860);
+        CPPUNIT_ASSERT(used.s_ByFields > 700 && used.s_ByFields < 900);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
     }
 
@@ -433,7 +433,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_PartitionFields > 430 && used.s_PartitionFields < 510);
+        CPPUNIT_ASSERT(used.s_PartitionFields > 400 && used.s_PartitionFields < 500);
         CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
                        0.95 * static_cast<double>(used.s_PartitionFields));
     }
@@ -475,6 +475,6 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# over = " << used.s_OverFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_OverFields > 8500 && used.s_OverFields < 10500);
+        CPPUNIT_ASSERT(used.s_OverFields > 8000 && used.s_OverFields < 9000);
     }
 }

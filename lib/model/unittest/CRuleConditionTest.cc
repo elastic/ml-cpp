@@ -48,10 +48,9 @@ void CRuleConditionTest::testTimeContition() {
 
     model_t::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    CAnomalyDetectorModel::TDataGathererPtr gathererPtr(new CDataGatherer(
-        model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-        false, key, features, startTime, 0));
+    CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
+        model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
 

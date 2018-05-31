@@ -22,13 +22,13 @@ namespace model {
 
 // Only prune once per hour
 const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
-
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
+const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
 
-CResourceMonitor::CResourceMonitor()
-    : m_AllowAllocations(true), m_ByteLimitMargin{0.7}, m_ByteLimitHigh(0),
-      m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0), m_ExtraMemory(0),
-      m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
+CResourceMonitor::CResourceMonitor(double byteLimitMargin)
+    : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
+      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
+      m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
       m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
       m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
       m_PruneWindow(std::numeric_limits<std::size_t>::max()),

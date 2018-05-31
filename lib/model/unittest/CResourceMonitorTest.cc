@@ -67,7 +67,7 @@ void CResourceMonitorTest::testMonitor() {
         // Test default constructor
         CResourceMonitor mon;
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > 0);
-        CPPUNIT_ASSERT_EQUAL(mon.m_ByteLimitLow + 1024, mon.m_ByteLimitHigh);
+        CPPUNIT_ASSERT_EQUAL((49 * mon.m_ByteLimitHigh) / 50, mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
         LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
@@ -87,13 +87,13 @@ void CResourceMonitorTest::testMonitor() {
         CResourceMonitor mon;
         mon.memoryLimit(543);
         CPPUNIT_ASSERT_EQUAL(std::size_t(569376768 / 2), mon.m_ByteLimitHigh);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(569376768 / 2 - 1024), mon.m_ByteLimitLow);
+        CPPUNIT_ASSERT_EQUAL(std::size_t((49 * 569376768ull / 2) / 50), mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
 
         // Test memoryLimit
         mon.memoryLimit(987);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1034944512ull / 2), mon.m_ByteLimitHigh);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1034944512ull / 2 - 1024), mon.m_ByteLimitLow);
+        CPPUNIT_ASSERT_EQUAL(std::size_t((49 * 1034944512ull / 2) / 50), mon.m_ByteLimitLow);
     }
     {
         // Test adding and removing a CAnomalyDetector
@@ -123,7 +123,7 @@ void CResourceMonitorTest::testMonitor() {
     }
     {
         // Check that High limit can be breached and then gone back
-        CResourceMonitor mon;
+        CResourceMonitor mon(1.0);
         CPPUNIT_ASSERT(mem > 5); // This SHOULD be OK
 
         // Let's go above the low but below the high limit
@@ -306,7 +306,7 @@ void CResourceMonitorTest::testPruning() {
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    CLimits limits;
+    CLimits limits(1.0);
 
     CSearchKey key(1, // identifier
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,

@@ -50,13 +50,14 @@ public:
 
     //! The minimum time between prunes
     static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
-
     //! Default memory limit for resource monitor
     static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
+    //! The initial byte limit margin to use if none is supplied
+    static const double DEFAULT_BYTE_LIMIT_MARGIN;
 
 public:
     //! Default constructor
-    CResourceMonitor();
+    explicit CResourceMonitor(double byteLimitMargin = DEFAULT_BYTE_LIMIT_MARGIN);
 
     //! Query the resource monitor to find out if the models are
     //! taking up too much memory and further allocations should be banned
