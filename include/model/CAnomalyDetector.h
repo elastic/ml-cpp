@@ -73,7 +73,7 @@ public:
 
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
-    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
+    using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
 
     //! A shared pointer to an instance of this class
     using TAnomalyDetectorPtr = std::shared_ptr<CAnomalyDetector>;
