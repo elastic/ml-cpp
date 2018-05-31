@@ -34,7 +34,7 @@ struct SModelRestoreParams;
 //! compatibility in the future as the classes evolve.
 class MATHS_EXPORT CModelStateSerialiser {
 public:
-    using TModelPtr = std::unique_ptr<CModel>;
+    using TModelPtr = std::shared_ptr<CModel>;
 
 public:
     //! Construct the appropriate CPrior sub-class from its state

@@ -74,6 +74,12 @@ namespace model {
 //! state can be maintained.
 class MODEL_EXPORT CEventRatePopulationModel : public CPopulationModel {
 public:
+    using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
+    using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
+    using TFeatureMathsModelPtrVecPr = std::pair<model_t::EFeature, TMathsModelPtrVec>;
+    using TFeatureMathsModelPtrVecPrVec = std::vector<TFeatureMathsModelPtrVecPr>;
+    using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
+    using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TFeatureData = SEventRateFeatureData;
@@ -127,9 +133,9 @@ public:
     //! and so must be sampled for before this model can be used.
     CEventRatePopulationModel(const SModelParams& params,
                               const TDataGathererPtr& dataGatherer,
-                              const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                              const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                              TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+                              const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                              const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                              const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                               const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                               const TInterimBucketCorrectorCPtr& interimBucketCorrector);
 
@@ -139,9 +145,9 @@ public:
     //! and so must be sampled for before this model can be used.
     CEventRatePopulationModel(const SModelParams& params,
                               const TDataGathererPtr& dataGatherer,
-                              const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                              const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                              TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+                              const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                              const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                              const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                               const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                               const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                               core::CStateRestoreTraverser& traverser);
@@ -152,8 +158,6 @@ public:
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
     CEventRatePopulationModel(bool isForPersistence, const CEventRatePopulationModel& other);
-    CEventRatePopulationModel(const CEventRatePopulationModel&) = delete;
-    CEventRatePopulationModel& operator=(const CEventRatePopulationModel&) = delete;
     //@}
 
     //! \name Persistence
@@ -305,9 +309,9 @@ public:
 
 private:
     //! Initialize the feature models.
-    void initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels);
+    void initialize(const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels);
 
     //! Get the start time of the current bucket.
     virtual core_t::TTime currentBucketStartTime() const;

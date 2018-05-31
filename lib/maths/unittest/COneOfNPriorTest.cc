@@ -48,7 +48,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TPriorPtr = std::unique_ptr<maths::CPrior>;
+using TPriorPtr = std::shared_ptr<maths::CPrior>;
 using TPriorPtrVec = std::vector<TPriorPtr>;
 using TOptionalDouble = boost::optional<double>;
 using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
@@ -64,7 +64,7 @@ COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec& models,
     COneOfNPrior::TPriorPtrVec result;
     result.reserve(models.size());
     for (std::size_t i = 0u; i < models.size(); ++i) {
-        result.push_back(TPriorPtr(models[i]->clone()));
+        result.push_back(COneOfNPrior::TPriorPtr(models[i]->clone()));
         if (decayRate) {
             result.back()->decayRate(*decayRate);
         }
@@ -505,7 +505,7 @@ void COneOfNPriorTest::testModelSelection() {
         maths::CNormalMeanPrecConjugate normal =
             maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
         maths::COneOfNPrior::TPriorPtrVec mode;
-        mode.push_back(TPriorPtr(normal.clone()));
+        mode.push_back(COneOfNPrior::TPriorPtr(normal.clone()));
         models.push_back(TPriorPtr(new maths::CMultimodalPrior(
             maths_t::E_ContinuousData, clusterer,
             maths::COneOfNPrior(mode, maths_t::E_ContinuousData))));

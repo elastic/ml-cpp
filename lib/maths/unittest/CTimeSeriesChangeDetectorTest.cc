@@ -41,6 +41,7 @@ using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
 using TDecompositionPtr = std::shared_ptr<maths::CTimeSeriesDecomposition>;
 using TPriorPtr = std::shared_ptr<maths::CPrior>;
+using TPriorPtrVec = std::vector<TPriorPtr>;
 
 core_t::TTime BUCKET_LENGTH{1800};
 const double DECAY_RATE{0.0002};
@@ -53,7 +54,7 @@ TPriorPtr makeResidualModel() {
     maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(
         maths_t::E_ContinuousData, DECAY_RATE)};
 
-    maths::COneOfNPrior::TPriorPtrVec mode;
+    TPriorPtrVec mode;
     mode.reserve(3u);
     mode.emplace_back(gamma.clone());
     mode.emplace_back(lognormal.clone());
@@ -69,7 +70,7 @@ TPriorPtr makeResidualModel() {
     maths::CMultimodalPrior multimodal{maths_t::E_ContinuousData, clusterer,
                                        modePrior, DECAY_RATE};
 
-    maths::COneOfNPrior::TPriorPtrVec models;
+    TPriorPtrVec models;
     mode.emplace_back(gamma.clone());
     mode.emplace_back(lognormal.clone());
     mode.emplace_back(normal.clone());

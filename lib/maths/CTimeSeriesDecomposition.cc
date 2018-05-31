@@ -17,7 +17,6 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CCalendarComponent.h>
 #include <maths/CChecksum.h>
-#include <maths/CExpandingWindow.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>

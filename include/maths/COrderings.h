@@ -331,11 +331,6 @@ public:
             return SPtrLess::less(lhs.get(), rhs.get());
         }
 
-        template<typename T>
-        bool operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
-            return SPtrLess::less(lhs.get(), rhs.get());
-        }
-
         template<typename U, typename V>
         bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return lexicographical_compare(lhs.first, lhs.second, rhs.first,
@@ -375,11 +370,6 @@ public:
         template<typename T>
         bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
             return SPtrGreater::greater(lhs.get(), rhs.get());
-        }
-
-        template<typename T>
-        bool operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
-            return SPtrLess::less(lhs.get(), rhs.get());
         }
 
         template<typename U, typename V>

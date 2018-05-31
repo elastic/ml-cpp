@@ -36,8 +36,6 @@ struct SMultimodalPriorMode {
     SMultimodalPriorMode() : s_Index(0), s_Prior() {}
     SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior)
         : s_Index(index), s_Prior(prior->clone()) {}
-    SMultimodalPriorMode(std::size_t index, PRIOR_PTR&& prior)
-        : s_Index(index), s_Prior(std::move(prior)) {}
 
     //! Get the weight of this sample.
     double weight() const { return s_Prior->numberSamples(); }

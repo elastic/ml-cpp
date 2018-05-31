@@ -42,7 +42,7 @@ void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc& repor
 }
 
 void CResourceMonitor::registerComponent(CAnomalyDetector& detector) {
-    LOG_TRACE(<< "Registering component: " << detector.model().get());
+    LOG_TRACE(<< "Registering component: " << detector.model());
     m_Models.insert({detector.model().get(), std::size_t(0)});
 }
 
@@ -50,11 +50,11 @@ void CResourceMonitor::unRegisterComponent(CAnomalyDetector& detector) {
     auto iter = m_Models.find(detector.model().get());
     if (iter == m_Models.end()) {
         LOG_ERROR(<< "Inconsistency - component has not been registered: "
-                  << detector.model().get());
+                  << detector.model());
         return;
     }
 
-    LOG_TRACE(<< "Unregistering component: " << detector.model().get());
+    LOG_TRACE(<< "Unregistering component: " << detector.model());
     m_Models.erase(iter);
 }
 

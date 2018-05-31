@@ -7,7 +7,6 @@
 #include <maths/CTimeSeriesDecompositionStub.h>
 
 #include <maths/CSeasonalComponent.h>
-#include <maths/CSeasonalTime.h>
 
 namespace ml {
 namespace maths {

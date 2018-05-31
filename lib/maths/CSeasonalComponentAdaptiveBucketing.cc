@@ -136,7 +136,7 @@ bool CSeasonalComponentAdaptiveBucketing::initialize(std::size_t n) {
 
     if (this->CAdaptiveBucketing::initialize(a, b, n)) {
         n = this->size();
-        m_Buckets.assign(n, {});
+        m_Buckets.assign(n, SBucket());
         return true;
     }
     return false;

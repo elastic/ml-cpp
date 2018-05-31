@@ -10,8 +10,6 @@
 #include <core/CStrCaseCmp.h>
 #include <core/Constants.h>
 
-#include <maths/CMultivariatePrior.h>
-#include <maths/CTimeSeriesModel.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 

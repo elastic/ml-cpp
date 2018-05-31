@@ -39,7 +39,6 @@
 #include <boost/config.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
@@ -416,6 +415,8 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{nullptr} {
 }
+CTimeSeriesDecompositionDetail::CHandler::~CHandler() {
+}
 
 void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue& /*message*/) {
 }
@@ -480,7 +481,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriod
     // Note that m_Windows is an array.
     for (std::size_t i = 0u; !isForForecast && i < other.m_Windows.size(); ++i) {
         if (other.m_Windows[i]) {
-            m_Windows[i] = boost::make_unique<CExpandingWindow>(*other.m_Windows[i]);
+            m_Windows[i] = std::make_shared<CExpandingWindow>(*other.m_Windows[i]);
         }
     }
 }
@@ -781,7 +782,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest
                                                              bool isForForecast)
     : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
-                                                 ? boost::make_unique<CCalendarCyclicTest>(
+                                                 ? std::make_shared<CCalendarCyclicTest>(
                                                        *other.m_Test)
                                                  : nullptr} {
 }
@@ -795,7 +796,7 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth);
         RESTORE_SETUP_TEARDOWN(
             CALENDAR_TEST_6_3_TAG,
-            m_Test = boost::make_unique<CCalendarCyclicTest>(m_DecayRate),
+            m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate),
             traverser.traverseSubLevel(boost::bind(
                 &CCalendarCyclicTest::acceptRestoreTraverser, m_Test.get(), _1)),
             /**/)
@@ -913,7 +914,7 @@ std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage() const {
 std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
-        TCalendarCyclicTestPtr test = boost::make_unique<CCalendarCyclicTest>(m_DecayRate);
+        TCalendarCyclicTestPtr test(new CCalendarCyclicTest(m_DecayRate));
         result = core::CMemory::dynamicSize(test);
     }
     return result;
@@ -933,8 +934,8 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
 
         switch (state) {
         case CC_TEST:
-            if (m_Test == nullptr) {
-                m_Test = boost::make_unique<CCalendarCyclicTest>(m_DecayRate);
+            if (!m_Test) {
+                m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate);
                 m_LastMonth = this->month(time) + 2;
             }
             break;
@@ -982,8 +983,8 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_BucketLength{other.m_BucketLength}, m_GainController{other.m_GainController},
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize}, m_Trend{other.m_Trend},
-      m_Seasonal{other.m_Seasonal ? boost::make_unique<CSeasonal>(*other.m_Seasonal) : nullptr},
-      m_Calendar{other.m_Calendar ? boost::make_unique<CCalendar>(*other.m_Calendar) : nullptr},
+      m_Seasonal{other.m_Seasonal ? new CSeasonal{*other.m_Seasonal} : nullptr},
+      m_Calendar{other.m_Calendar ? new CCalendar{*other.m_Calendar} : nullptr},
       m_MeanVarianceScale{other.m_MeanVarianceScale},
       m_PredictionErrorWithoutTrend{other.m_PredictionErrorWithoutTrend},
       m_PredictionErrorWithTrend{other.m_PredictionErrorWithTrend},
@@ -1007,13 +1008,13 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                                        &CTrendComponent::acceptRestoreTraverser,
                                        &m_Trend, boost::cref(params), _1)))
             RESTORE_SETUP_TEARDOWN(
-                SEASONAL_6_3_TAG, m_Seasonal = boost::make_unique<CSeasonal>(),
+                SEASONAL_6_3_TAG, m_Seasonal.reset(new CSeasonal),
                 traverser.traverseSubLevel(
                     boost::bind(&CSeasonal::acceptRestoreTraverser,
                                 m_Seasonal.get(), m_DecayRate, m_BucketLength, _1)),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
-                CALENDAR_6_3_TAG, m_Calendar = boost::make_unique<CCalendar>(),
+                CALENDAR_6_3_TAG, m_Calendar.reset(new CCalendar),
                 traverser.traverseSubLevel(
                     boost::bind(&CCalendar::acceptRestoreTraverser,
                                 m_Calendar.get(), m_DecayRate, m_BucketLength, _1)),
@@ -1042,13 +1043,13 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                                        m_BucketLength, boost::ref(m_Trend), _1)),
                                    m_UsingTrendForPrediction = true)
             RESTORE_SETUP_TEARDOWN(
-                SEASONAL_OLD_TAG, m_Seasonal = boost::make_unique<CSeasonal>(),
+                SEASONAL_OLD_TAG, m_Seasonal.reset(new CSeasonal),
                 traverser.traverseSubLevel(
                     boost::bind(&CSeasonal::acceptRestoreTraverser,
                                 m_Seasonal.get(), m_DecayRate, m_BucketLength, _1)),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
-                CALENDAR_OLD_TAG, m_Calendar = boost::make_unique<CCalendar>(),
+                CALENDAR_OLD_TAG, m_Calendar.reset(new CCalendar),
                 traverser.traverseSubLevel(
                     boost::bind(&CCalendar::acceptRestoreTraverser,
                                 m_Calendar.get(), m_DecayRate, m_BucketLength, _1)),
@@ -1205,7 +1206,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
     case SC_NORMAL:
     case SC_NEW_COMPONENTS: {
         if (!m_Seasonal) {
-            m_Seasonal = boost::make_unique<CSeasonal>();
+            m_Seasonal.reset(new CSeasonal);
         }
 
         core_t::TTime time{message.s_Time};
@@ -1247,7 +1248,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     case SC_NORMAL:
     case SC_NEW_COMPONENTS: {
         if (!m_Calendar) {
-            m_Calendar = boost::make_unique<CCalendar>();
+            m_Calendar.reset(new CCalendar);
         }
 
         core_t::TTime time{message.s_Time};

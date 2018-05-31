@@ -49,9 +49,11 @@ namespace maths {
 //! point of view this is the composite pattern.
 class MATHS_EXPORT CMultimodalPrior : public CPrior {
 public:
-    using TClustererPtr = std::unique_ptr<CClusterer1d>;
-    using TPriorPtr = std::unique_ptr<CPrior>;
+    using TClustererPtr = std::shared_ptr<CClusterer1d>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
+    using TPriorPtrVecItr = TPriorPtrVec::iterator;
+    using TPriorPtrVecCItr = TPriorPtrVec::const_iterator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
 
@@ -78,9 +80,6 @@ public:
                      double decayRate = 0.0);
 
     //! Create from a collection of weights and priors.
-    //!
-    //! \note The priors are moved into place clearing the values in \p priors.
-    //! \note This constructor doesn't support subsequent update of the prior.
     CMultimodalPrior(maths_t::EDataType dataType, double decayRate, TPriorPtrVec& priors);
 
     //! Construct from part of a state document.
@@ -321,7 +320,7 @@ private:
         CMultimodalPrior* m_Prior;
     };
 
-    using TMode = SMultimodalPriorMode<TPriorPtr>;
+    using TMode = SMultimodalPriorMode<std::shared_ptr<CPrior>>;
     using TModeVec = std::vector<TMode>;
 
 private:

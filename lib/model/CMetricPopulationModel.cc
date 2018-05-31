@@ -76,25 +76,24 @@ const std::string MEMORY_ESTIMATOR_TAG("d");
 CMetricPopulationModel::CMetricPopulationModel(
     const SModelParams& params,
     const TDataGathererPtr& dataGatherer,
-    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+    const TFeatureMathsModelPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
     const TInterimBucketCorrectorCPtr& interimBucketCorrector)
     : CPopulationModel(params, dataGatherer, influenceCalculators),
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
-    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
-                     std::move(featureCorrelatesModels));
+    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors, featureCorrelatesModels);
 }
 
 CMetricPopulationModel::CMetricPopulationModel(
     const SModelParams& params,
     const TDataGathererPtr& dataGatherer,
-    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+    const TFeatureMathsModelPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
     const TInterimBucketCorrectorCPtr& interimBucketCorrector,
     core::CStateRestoreTraverser& traverser)
@@ -102,15 +101,14 @@ CMetricPopulationModel::CMetricPopulationModel(
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
-    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
-                     std::move(featureCorrelatesModels));
+    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors, featureCorrelatesModels);
     traverser.traverseSubLevel(
         boost::bind(&CMetricPopulationModel::acceptRestoreTraverser, this, _1));
 }
 
-void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                                        const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                                        TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels) {
+void CMetricPopulationModel::initialize(const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                                        const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                                        const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels) {
     m_FeatureModels.reserve(newFeatureModels.size());
     for (const auto& model : newFeatureModels) {
         m_FeatureModels.emplace_back(model.first, model.second);
@@ -126,7 +124,7 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFe
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
-                std::move(featureCorrelatesModels[i].second));
+                featureCorrelatesModels[i].second);
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
                   [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {

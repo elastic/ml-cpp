@@ -246,7 +246,7 @@ class MATHS_EXPORT CSeasonalTimeStateSerializer {
 public:
     //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
     //! base class.
-    using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
 
 public:
     //! Construct the appropriate CSeasonalTime sub-class from its state

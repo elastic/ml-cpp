@@ -38,21 +38,14 @@ struct SDistributionRestoreParams;
 //! compatibility in the future as the classes evolve.
 class MATHS_EXPORT CPriorStateSerialiser {
 public:
-    using TPriorUPtr = std::unique_ptr<CPrior>;
-    using TPriorSPtr = std::shared_ptr<CPrior>;
-    using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
 
 public:
     //! Construct the appropriate CPrior sub-class from its state
     //! document representation.  Sets \p ptr to NULL on failure.
     bool operator()(const SDistributionRestoreParams& params,
-                    TPriorUPtr& ptr,
-                    core::CStateRestoreTraverser& traverser) const;
-
-    //! Construct the appropriate CPrior sub-class from its state
-    //! document representation.  Sets \p ptr to NULL on failure.
-    bool operator()(const SDistributionRestoreParams& params,
-                    TPriorSPtr& ptr,
+                    TPriorPtr& ptr,
                     core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter
