@@ -39,7 +39,7 @@ namespace model {
 //! locally never leaving process/io boundaries.
 class MODEL_EXPORT CForecastModelPersist final {
 public:
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
 
 public:
     class MODEL_EXPORT CPersist final {

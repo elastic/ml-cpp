@@ -508,8 +508,7 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
         CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(pointer),
-                             sizeof(long) + sizeof(SBar) +
-                                 sizeof(SFoo) * value.s_State.capacity());
+                             sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
     }
 
     {
@@ -626,7 +625,7 @@ void CMemoryUsageTest::testUsage() {
                              core::CMemory::dynamicSize(basederivedPtr));
 
         TBasePtr sPtr(new CDerived(6));
-        CPPUNIT_ASSERT_EQUAL(sPtr->memoryUsage() + sizeof(long) + sizeof(CDerived),
+        CPPUNIT_ASSERT_EQUAL(sPtr->memoryUsage() + sizeof(CDerived),
                              core::CMemory::dynamicSize(sPtr));
     }
     {
@@ -658,11 +657,9 @@ void CMemoryUsageTest::testUsage() {
         std::size_t total = core::CMemory::dynamicSize(vec);
         std::size_t calc = vec.capacity() * sizeof(TBasePtr);
         for (std::size_t i = 0; i < 6; ++i) {
-            calc += sizeof(long);
             calc += static_cast<CBase*>(vec[i].get())->memoryUsage();
             calc += sizeof(CBase);
         }
-        calc += sizeof(long);
         calc += static_cast<CDerived*>(vec[6].get())->memoryUsage();
         calc += sizeof(CDerived);
         CPPUNIT_ASSERT_EQUAL(calc, total);
@@ -1110,8 +1107,8 @@ void CMemoryUsageTest::testSharedPointer() {
     // = 688
 
     std::size_t expectedSize =
-        vec1.capacity() * sizeof(TIntVecPtr) + vec2.capacity() * sizeof(TIntVecPtr) +
-        3 * (sizeof(long) + sizeof(TIntVec)) +
+        vec1.capacity() * sizeof(TIntVecPtr) +
+        vec2.capacity() * sizeof(TIntVecPtr) + 3 * sizeof(TIntVec) +
         (vec1[0]->capacity() + vec1[1]->capacity() + vec1[3]->capacity()) * sizeof(int);
 
     LOG_DEBUG(<< "Expected: " << expectedSize << ", actual: "

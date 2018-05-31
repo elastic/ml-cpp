@@ -190,8 +190,8 @@ void CMockModel::mockAddBucketBaselineMean(model_t::EFeature feature,
     m_BucketBaselineMeans[{feature, core::make_triple(pid, cid, time)}] = value;
 }
 
-void CMockModel::mockTimeSeriesModels(TMathsModelUPtrVec&& models) {
-    m_Models = std::move(models);
+void CMockModel::mockTimeSeriesModels(const TMathsModelPtrVec& models) {
+    m_Models = models;
 }
 
 CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {

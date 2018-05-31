@@ -19,7 +19,6 @@
 #include <maths/CMathsFuncsForMatrixAndVectorTypes.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/optional.hpp>
 
 #include <iomanip>
@@ -117,7 +116,7 @@ CMultivariateConstantPrior::TUnivariatePriorPtrDoublePr
 CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
                                        const TSizeDoublePr10Vec& condition) const {
     if (!this->check(marginalize, condition)) {
-        return {};
+        return TUnivariatePriorPtrDoublePr();
     }
 
     TSize10Vec i1;
@@ -126,24 +125,24 @@ CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
                   << ", condition '" << core::CContainerPrinter::print(condition) << "'");
-        return {};
+        return TUnivariatePriorPtrDoublePr();
     }
 
     return this->isNonInformative()
-               ? TUnivariatePriorPtrDoublePr(boost::make_unique<CConstantPrior>(), 0.0)
+               ? TUnivariatePriorPtrDoublePr(TUnivariatePriorPtr(new CConstantPrior), 0.0)
                : TUnivariatePriorPtrDoublePr(
-                     boost::make_unique<CConstantPrior>((*m_Constant)[i1[0]]), 0.0);
+                     TUnivariatePriorPtr(new CConstantPrior((*m_Constant)[i1[0]])), 0.0);
 }
 
 CMultivariateConstantPrior::TPriorPtrDoublePr
 CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
                                       const TSizeDoublePr10Vec& condition) const {
     if (m_Dimension == 2) {
-        return {TPriorPtr(this->clone()), 0.0};
+        return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
     }
 
     if (!this->check(marginalize, condition)) {
-        return {};
+        return TPriorPtrDoublePr();
     }
 
     TSize10Vec i1;
@@ -152,16 +151,16 @@ CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
                   << ", condition '" << core::CContainerPrinter::print(condition) << "'");
-        return {};
+        return TPriorPtrDoublePr();
     }
 
     if (!this->isNonInformative()) {
         TDouble10Vec constant;
         constant[0] = (*m_Constant)[i1[0]];
         constant[1] = (*m_Constant)[i1[1]];
-        return {boost::make_unique<CMultivariateConstantPrior>(2, constant), 0.0};
+        return TPriorPtrDoublePr(TPriorPtr(new CMultivariateConstantPrior(2, constant)), 0.0);
     }
-    return {boost::make_unique<CMultivariateConstantPrior>(2), 0.0};
+    return TPriorPtrDoublePr(TPriorPtr(new CMultivariateConstantPrior(2)), 0.0);
 }
 
 CMultivariateConstantPrior::TDouble10VecDouble10VecPr
@@ -172,7 +171,7 @@ CMultivariateConstantPrior::marginalLikelihoodSupport() const {
         lowest[i] = boost::numeric::bounds<double>::lowest();
         highest[i] = boost::numeric::bounds<double>::highest();
     }
-    return {lowest, highest};
+    return std::make_pair(lowest, highest);
 }
 
 CMultivariateConstantPrior::TDouble10Vec

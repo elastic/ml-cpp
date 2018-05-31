@@ -125,6 +125,7 @@ public:
 template<typename POINT>
 class CClusterer : public CClustererTypes {
 public:
+    using TClustererPtr = std::shared_ptr<CClusterer>;
     using TPointVec = std::vector<POINT>;
     using TPointPrecise = typename SPromoted<POINT>::Type;
     using TPointPreciseVec = std::vector<TPointPrecise>;

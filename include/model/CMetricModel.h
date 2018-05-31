@@ -91,9 +91,9 @@ public:
     //! buckets.
     CMetricModel(const SModelParams& params,
                  const TDataGathererPtr& dataGatherer,
-                 const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                 const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                 TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+                 const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                 const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                 const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                  const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                  const TInterimBucketCorrectorCPtr& interimBucketCorrector);
 
@@ -103,9 +103,9 @@ public:
     //! and so must be sampled for before this model can be used.
     CMetricModel(const SModelParams& params,
                  const TDataGathererPtr& dataGatherer,
-                 const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                 const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
-                 TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
+                 const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                 const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                 const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
                  const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                  const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                  core::CStateRestoreTraverser& traverser);
