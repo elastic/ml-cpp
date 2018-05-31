@@ -2401,11 +2401,11 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
 
     // Create a rule to filter buckets where the actual value > 100
     CRuleCondition condition;
-    condition.type(CRuleCondition::E_NumericalActual);
+    condition.appliesTo(CRuleCondition::E_Actual);
     condition.condition().s_Op = CRuleCondition::E_GT;
     condition.condition().s_Threshold = 100.0;
     CDetectionRule rule;
-    rule.action(CDetectionRule::E_SkipSampling);
+    rule.action(CDetectionRule::E_SkipModelUpdate);
     rule.addCondition(condition);
 
     std::size_t bucketLength(300);

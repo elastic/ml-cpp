@@ -30,7 +30,6 @@
 #include <model/CModelDetailsView.h>
 #include <model/CPartitioningFields.h>
 #include <model/CResourceMonitor.h>
-#include <model/CRuleCondition.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -1343,12 +1342,9 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     core::CPatternSet valueFilter;
     valueFilter.initFromJson(filterJson);
 
-    CRuleCondition condition;
-    condition.type(CRuleCondition::E_CategoricalMatch);
-    condition.valueFilter(valueFilter);
     CDetectionRule rule;
-    rule.action(CDetectionRule::E_SkipSampling);
-    rule.addCondition(condition);
+    rule.action(CDetectionRule::E_SkipModelUpdate);
+    rule.includeScope("", valueFilter);
 
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);

@@ -21,7 +21,7 @@ class CPatternSet;
 namespace model {
 class CAnomalyDetectorModel;
 
-//! \brief A condition that may trigger a rule.
+//! \brief A numeric condition that may trigger a rule.
 //!
 //! DESCRIPTION:\n
 //! A condition has a type that determines the calculation
@@ -34,12 +34,10 @@ public:
     using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
 
 public:
-    enum ERuleConditionType {
-        E_CategoricalMatch,
-        E_CategoricalComplement,
-        E_NumericalActual,
-        E_NumericalTypical,
-        E_NumericalDiffAbs,
+    enum ERuleConditionAppliesTo {
+        E_Actual,
+        E_Typical,
+        E_DiffFromTypical,
         E_Time
     };
 
@@ -58,28 +56,11 @@ public:
     //! Default constructor.
     CRuleCondition();
 
-    //! Set the condition type.
-    void type(ERuleConditionType ruleType);
-
-    //! Set the field name. Empty means it is not specified.
-    void fieldName(const std::string& fieldName);
-
-    //! Set the field value. Empty means it is not specified.
-    void fieldValue(const std::string& fieldValue);
+    //! Set which value the condition applies to.
+    void appliesTo(ERuleConditionAppliesTo appliesTo);
 
     //! Get the numerical condition.
     SCondition& condition();
-
-    //! Set the value filter (used for categorical only).
-    void valueFilter(const core::CPatternSet& valueFilter);
-
-    //! Is the condition categorical?
-    //! Categorical conditions are pattern match conditions i.e.
-    //! E_CategoricalMatch and E_CategoricalComplement
-    bool isCategorical() const;
-
-    //! Is the condition numerical?
-    bool isNumerical() const;
 
     //! Pretty-print the condition.
     std::string print() const;
@@ -88,35 +69,20 @@ public:
     bool test(const CAnomalyDetectorModel& model,
               model_t::EFeature feature,
               const model_t::CResultType& resultType,
-              bool isScoped,
               std::size_t pid,
               std::size_t cid,
               core_t::TTime time) const;
 
 private:
-    bool checkCondition(const CAnomalyDetectorModel& model,
-                        model_t::EFeature feature,
-                        model_t::CResultType resultType,
-                        std::size_t pid,
-                        std::size_t cid,
-                        core_t::TTime time) const;
-    std::string print(ERuleConditionType type) const;
+    std::string print(ERuleConditionAppliesTo appliesTo) const;
     std::string print(EConditionOperator op) const;
 
 private:
-    //! The condition type.
-    ERuleConditionType m_Type;
+    //! The value the condition applies to.
+    ERuleConditionAppliesTo m_AppliesTo;
 
     //! The numerical condition.
     SCondition m_Condition;
-
-    //! The field name. Empty when not specified.
-    std::string m_FieldName;
-
-    //! The field value. Empty when not specified.
-    std::string m_FieldValue;
-
-    TPatternSetCRef m_ValueFilter;
 };
 }
 }

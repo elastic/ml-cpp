@@ -5,11 +5,9 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CPatternSet.h>
 #include <core/CStringUtils.h>
 
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CDataGatherer.h>
 #include <model/CRuleCondition.h>
 
 namespace ml {
@@ -17,7 +15,6 @@ namespace model {
 
 namespace {
 const CAnomalyDetectorModel::TSizeDoublePr1Vec EMPTY_CORRELATED;
-const core::CPatternSet EMPTY_FILTER;
 }
 
 using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
@@ -41,111 +38,31 @@ bool CRuleCondition::SCondition::test(double value) const {
 }
 
 CRuleCondition::CRuleCondition()
-    : m_Type(E_NumericalActual), m_Condition(E_LT, 0.0), m_FieldName(),
-      m_FieldValue(), m_ValueFilter(EMPTY_FILTER) {
+    : m_AppliesTo(E_Actual), m_Condition(E_LT, 0.0) {
 }
 
-void CRuleCondition::type(ERuleConditionType ruleType) {
-    m_Type = ruleType;
-}
-
-void CRuleCondition::fieldName(const std::string& fieldName) {
-    m_FieldName = fieldName;
-}
-
-void CRuleCondition::fieldValue(const std::string& fieldValue) {
-    m_FieldValue = fieldValue;
+void CRuleCondition::appliesTo(ERuleConditionAppliesTo appliesTo) {
+    m_AppliesTo = appliesTo;
 }
 
 CRuleCondition::SCondition& CRuleCondition::condition() {
     return m_Condition;
 }
 
-void CRuleCondition::valueFilter(const core::CPatternSet& valueFilter) {
-    m_ValueFilter = TPatternSetCRef(valueFilter);
-}
-
-bool CRuleCondition::isCategorical() const {
-    return m_Type == E_CategoricalMatch || m_Type == E_CategoricalComplement;
-}
-
-bool CRuleCondition::isNumerical() const {
-    return !this->isCategorical();
-}
-
 bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                           model_t::EFeature feature,
                           const model_t::CResultType& resultType,
-                          bool isScoped,
                           std::size_t pid,
                           std::size_t cid,
                           core_t::TTime time) const {
-    const CDataGatherer& gatherer = model.dataGatherer();
 
-    if (this->isCategorical()) {
-        bool containsValue{false};
-        if (m_FieldName == gatherer.partitionFieldName()) {
-            containsValue = m_ValueFilter.get().contains(gatherer.partitionFieldValue());
-        } else if (m_FieldName == gatherer.personFieldName()) {
-            containsValue = m_ValueFilter.get().contains(gatherer.personName(pid));
-        } else if (m_FieldName == gatherer.attributeFieldName()) {
-            containsValue = m_ValueFilter.get().contains(gatherer.attributeName(cid));
-        } else {
-            LOG_ERROR(<< "Unexpected fieldName = " << m_FieldName);
-            return false;
-        }
-
-        return (m_Type == E_CategoricalComplement) ? !containsValue : containsValue;
-    } else {
-        if (m_FieldValue.empty() == false) {
-            if (isScoped) {
-                // When scoped we are checking if the rule condition applies to the entity
-                // identified by m_FieldName/m_FieldValue, and we do this for all time
-                // series which have resolved to check this condition.
-                // Thus we ignore the supplied pid/cid and instead look up
-                // the time series identifier that matches the condition's m_FieldValue.
-                bool successfullyResolvedId =
-                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid)
-                                         : gatherer.personId(m_FieldValue, pid);
-                if (successfullyResolvedId == false) {
-                    return false;
-                }
-            } else {
-                // For numerical rules the field name may be:
-                //   - empty
-                //   - the person field name if the detector has only an over field or only a by field
-                //   - the attribute field name if the detector has both over and by fields
-                const std::string& fieldValue =
-                    model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
-                        ? gatherer.attributeName(cid)
-                        : gatherer.personName(pid);
-                if (m_FieldValue != fieldValue) {
-                    return false;
-                }
-            }
-        }
-        return this->checkCondition(model, feature, resultType, pid, cid, time);
-    }
-}
-
-bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
-                                    model_t::EFeature feature,
-                                    model_t::CResultType resultType,
-                                    std::size_t pid,
-                                    std::size_t cid,
-                                    core_t::TTime time) const {
     TDouble1Vec value;
-    switch (m_Type) {
-    case E_CategoricalMatch:
-    case E_CategoricalComplement: {
-        LOG_ERROR(<< "Should never check numerical condition for categorical rule condition");
-        return false;
-    }
-    case E_NumericalActual: {
+    switch (m_AppliesTo) {
+    case E_Actual: {
         value = model.currentBucketValue(feature, pid, cid, time);
         break;
     }
-    case E_NumericalTypical: {
+    case E_Typical: {
         value = model.baselineBucketMean(feature, pid, cid, resultType,
                                          EMPTY_CORRELATED, time);
         if (value.empty()) {
@@ -154,7 +71,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
         }
         break;
     }
-    case E_NumericalDiffAbs: {
+    case E_DiffFromTypical: {
         value = model.currentBucketValue(feature, pid, cid, time);
         TDouble1Vec typical = model.baselineBucketMean(feature, pid, cid, resultType,
                                                        EMPTY_CORRELATED, time);
@@ -190,39 +107,20 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
 }
 
 std::string CRuleCondition::print() const {
-    std::string result = this->print(m_Type);
-    if (m_FieldName.empty() == false) {
-        result += "(" + m_FieldName;
-        if (m_FieldValue.empty() == false) {
-            result += ":" + m_FieldValue;
-        }
-        result += ")";
-    }
-    result += " ";
-
-    if (this->isCategorical()) {
-        if (m_Type == E_CategoricalComplement) {
-            result += "NOT ";
-        }
-        result += "IN FILTER";
-    } else {
-        result += this->print(m_Condition.s_Op) + " " +
-                  core::CStringUtils::typeToString(m_Condition.s_Threshold);
-    }
+    std::string result = this->print(m_AppliesTo);
+    result += " " + this->print(m_Condition.s_Op) + " " +
+              core::CStringUtils::typeToString(m_Condition.s_Threshold);
     return result;
 }
 
-std::string CRuleCondition::print(ERuleConditionType type) const {
-    switch (type) {
-    case E_CategoricalMatch:
-    case E_CategoricalComplement:
-        return "";
-    case E_NumericalActual:
+std::string CRuleCondition::print(ERuleConditionAppliesTo appliesTo) const {
+    switch (appliesTo) {
+    case E_Actual:
         return "ACTUAL";
-    case E_NumericalTypical:
+    case E_Typical:
         return "TYPICAL";
-    case E_NumericalDiffAbs:
-        return "DIFF_ABS";
+    case E_DiffFromTypical:
+        return "DIFF_FROM_TYPICAL";
     case E_Time:
         return "TIME";
     }
