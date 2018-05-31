@@ -42,6 +42,8 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
+#include <seccomp/CSystemCallFilter.h>
+
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
@@ -119,6 +121,8 @@ int main(int argc, char** argv) {
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
+
+    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");

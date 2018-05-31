@@ -29,8 +29,8 @@ CFLAGS=-g $(OPTCFLAGS) -msse4.2 -mfpmath=sse -fstack-protector -fno-math-errno -
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
 CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc62/include -D$(OS) -DLINUX=2 -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
-COMP_OUT_FLAG=-o 
-LINK_OUT_FLAG=-o 
+COMP_OUT_FLAG=-o
+LINK_OUT_FLAG=-o
 DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
 LOCALLIBS=-lm -lpthread -ldl -lrt
 NETLIBS=-lnsl
@@ -72,6 +72,8 @@ LIB_ML_API=-lMlApi
 LIB_ML_MATHS=-lMlMaths
 LIB_ML_CONFIG=-lMlConfig
 LIB_ML_MODEL=-lMlModel
+LIB_ML_SECCOMP=-lMlSeccomp
+ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=-lMlTest
 
 LIB_PATH+=-L/usr/local/gcc62/lib
