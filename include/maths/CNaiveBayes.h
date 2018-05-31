@@ -149,7 +149,8 @@ public:
     explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          double decayRate = 0.0,
                          TOptionalDouble minMaxLogLikelihoodToUseFeature = TOptionalDouble());
-    CNaiveBayes(const SDistributionRestoreParams& params,
+    CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
+                const SDistributionRestoreParams& params,
                 core::CStateRestoreTraverser& traverser);
     CNaiveBayes(const CNaiveBayes& other);
 

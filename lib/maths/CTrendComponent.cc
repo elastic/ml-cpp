@@ -69,11 +69,14 @@ TOptionalDoubleDoublePr confidenceInterval(double prediction, double variance, d
     return TOptionalDoubleDoublePr{};
 }
 
+CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) {
+    return CNaiveBayesFeatureDensityFromPrior{CNormalMeanPrecConjugate::nonInformativePrior(
+        maths_t::E_ContinuousData, TIME_SCALES[NUMBER_MODELS - 1] * decayRate)};
+}
+
 CNaiveBayes initialProbabilityOfChangeModel(double decayRate) {
-    decayRate *= TIME_SCALES[NUMBER_MODELS - 1];
-    return CNaiveBayes{CNaiveBayesFeatureDensityFromPrior{CNormalMeanPrecConjugate::nonInformativePrior(
-                           maths_t::E_ContinuousData, decayRate)},
-                       decayRate, -20.0};
+    return CNaiveBayes{naiveBayesExemplar(decayRate),
+                       TIME_SCALES[NUMBER_MODELS - 1] * decayRate, -20.0};
 }
 
 CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
@@ -157,7 +160,8 @@ bool CTrendComponent::acceptRestoreTraverser(const SDistributionRestoreParams& p
         RESTORE(VALUE_MOMENTS_TAG, m_ValueMoments.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(TIME_OF_LAST_LEVEL_CHANGE_TAG, m_TimeOfLastLevelChange)
         RESTORE_NO_ERROR(PROBABILITY_OF_LEVEL_CHANGE_MODEL_TAG,
-                         m_ProbabilityOfLevelChangeModel = CNaiveBayes(params, traverser))
+                         m_ProbabilityOfLevelChangeModel = std::move(CNaiveBayes(
+                             naiveBayesExemplar(m_DefaultDecayRate), params, traverser)))
         RESTORE_NO_ERROR(MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG,
                          m_MagnitudeOfLevelChangeModel =
                              CNormalMeanPrecConjugate(params, traverser))
