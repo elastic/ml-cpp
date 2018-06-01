@@ -51,17 +51,18 @@ const struct sock_filter FILTER[] = {
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
     // Only applies to X86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 36, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
 
     // Allowed sys calls, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 35, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 34, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 33, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 32, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 31, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 34, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 33, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 32, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 31, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 30, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 29, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 28, 0),
