@@ -45,6 +45,7 @@ new processes being created and macOS uses the sandbox functionality ({pull}98[#
 
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
 Persist and restore was missing some of the trend model state ({pull}#99[#99])
+Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
 
 === Regressions
 
