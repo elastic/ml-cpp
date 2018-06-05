@@ -44,6 +44,9 @@ new processes being created and macOS uses the sandbox functionality ({pull}98[#
 Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
 by unnecessary reference counting ({pull}108[#108])
 
+Detectors now support rules that allow the user to improve the results by providing some domain specific
+knowledge in the form of rule. ({pull}119[#119])
+
 === Bug Fixes
 
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
