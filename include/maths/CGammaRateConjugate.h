@@ -371,10 +371,10 @@ private:
     //! We assume that the data are described by \f$X = Y - u\f$, where
     //! \f$u\f$ is a constant and \f$Y\f$ is gamma distributed. This allows
     //! us to model data with negative values greater than \f$-u\f$.
-    double m_Offset;
+    CFloatStorage m_Offset;
 
     //! The margin between the smallest value and the support left end.
-    double m_OffsetMargin;
+    CFloatStorage m_OffsetMargin;
 
     //! The maximum likelihood estimate of the shape parameter.
     double m_LikelihoodShape;
@@ -386,10 +386,10 @@ private:
     TMeanVarAccumulator m_SampleMoments;
 
     //! The initial shape parameter of the prior gamma distribution.
-    double m_PriorShape;
+    CFloatStorage m_PriorShape;
 
     //! The initial rate parameter of the prior gamma distribution.
-    double m_PriorRate;
+    CFloatStorage m_PriorRate;
 };
 }
 }

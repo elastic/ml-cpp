@@ -635,10 +635,10 @@ bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
-        RESTORE_BUILT_IN(OFFSET_TAG, m_Offset)
-        RESTORE_BUILT_IN(GAUSSIAN_MEAN_TAG, m_GaussianMean)
-        RESTORE_BUILT_IN(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision)
-        RESTORE_BUILT_IN(GAMMA_SHAPE_TAG, m_GammaShape)
+        RESTORE(OFFSET_TAG, m_Offset.fromString(traverser.value()))
+        RESTORE(GAUSSIAN_MEAN_TAG, m_GaussianMean.fromString(traverser.value()))
+        RESTORE(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.fromString(traverser.value()))
+        RESTORE(GAMMA_SHAPE_TAG, m_GammaShape.fromString(traverser.value()))
         RESTORE_BUILT_IN(GAMMA_RATE_TAG, m_GammaRate)
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -1488,12 +1488,11 @@ std::size_t CLogNormalMeanPrecConjugate::staticSize() const {
 
 void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(OFFSET_TAG, m_Offset, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision,
-                         core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(GAMMA_SHAPE_TAG, m_GammaShape, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean.toString());
+    inserter.insertValue(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toString());
+    inserter.insertValue(GAMMA_SHAPE_TAG, m_GammaShape.toString());
+    inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }

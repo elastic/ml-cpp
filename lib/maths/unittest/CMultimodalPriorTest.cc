@@ -1044,7 +1044,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
 
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(median) > i90.first);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(median) < i90.second);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-112.0, i90.first, 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-111.0, i90.first, 0.5);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(158952.0, i90.second, 0.5);
     }
 }
