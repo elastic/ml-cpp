@@ -223,8 +223,9 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value& rule
             return false;
         }
 
-        bool isValid = parseRuleAppliesTo(conditionObject, condition) &&
-                       parseCondition(conditionObject, condition);
+        bool isValid = parseConditionAppliesTo(conditionObject, condition) &&
+                       parseConditionOperator(conditionObject, condition) &&
+                       parseConditionValue(conditionObject, condition);
         if (isValid == false) {
             return false;
         }
@@ -234,22 +235,22 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value& rule
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseRuleAppliesTo(const rapidjson::Value& ruleConditionObject,
-                                                   model::CRuleCondition& ruleCondition) {
-    if (hasStringMember(ruleConditionObject, APPLIES_TO) == false) {
+bool CDetectionRulesJsonParser::parseConditionAppliesTo(const rapidjson::Value& conditionObject,
+                                                        model::CRuleCondition& condition) {
+    if (hasStringMember(conditionObject, APPLIES_TO) == false) {
         LOG_ERROR(<< "Missing rule condition field: " << APPLIES_TO);
         return false;
     }
 
-    const std::string& appliesTo = ruleConditionObject[APPLIES_TO.c_str()].GetString();
+    const std::string& appliesTo = conditionObject[APPLIES_TO.c_str()].GetString();
     if (appliesTo == ACTUAL) {
-        ruleCondition.appliesTo(model::CRuleCondition::E_Actual);
+        condition.appliesTo(model::CRuleCondition::E_Actual);
     } else if (appliesTo == TYPICAL) {
-        ruleCondition.appliesTo(model::CRuleCondition::E_Typical);
+        condition.appliesTo(model::CRuleCondition::E_Typical);
     } else if (appliesTo == DIFF_FROM_TYPICAL) {
-        ruleCondition.appliesTo(model::CRuleCondition::E_DiffFromTypical);
+        condition.appliesTo(model::CRuleCondition::E_DiffFromTypical);
     } else if (appliesTo == TIME) {
-        ruleCondition.appliesTo(model::CRuleCondition::E_Time);
+        condition.appliesTo(model::CRuleCondition::E_Time);
     } else {
         LOG_ERROR(<< "Invalid condition; unknown applies_to [" << appliesTo << "]");
         return false;
@@ -257,24 +258,8 @@ bool CDetectionRulesJsonParser::parseRuleAppliesTo(const rapidjson::Value& ruleC
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value& ruleConditionObject,
-                                               model::CRuleCondition& ruleCondition) {
-    if (ruleConditionObject.HasMember(CONDITION.c_str()) == false) {
-        LOG_ERROR(<< "Missing ruleCondition field: " << CONDITION);
-        return false;
-    }
-    const rapidjson::Value& conditionObject = ruleConditionObject[CONDITION.c_str()];
-    if (!conditionObject.IsObject()) {
-        LOG_ERROR(<< "Unexpected type for condition; object was expected");
-        return false;
-    }
-
-    return parseConditionOperator(conditionObject, ruleCondition) &&
-           parseConditionValue(conditionObject, ruleCondition);
-}
-
 bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& conditionObject,
-                                                       model::CRuleCondition& ruleCondition) {
+                                                       model::CRuleCondition& condition) {
     if (hasStringMember(conditionObject, OPERATOR) == false) {
         LOG_ERROR(<< "Missing condition field: " << OPERATOR);
         return false;
@@ -282,13 +267,13 @@ bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& c
 
     const std::string& operatorString = conditionObject[OPERATOR.c_str()].GetString();
     if (operatorString == LT) {
-        ruleCondition.condition().s_Op = model::CRuleCondition::E_LT;
+        condition.op(model::CRuleCondition::E_LT);
     } else if (operatorString == LTE) {
-        ruleCondition.condition().s_Op = model::CRuleCondition::E_LTE;
+        condition.op(model::CRuleCondition::E_LTE);
     } else if (operatorString == GT) {
-        ruleCondition.condition().s_Op = model::CRuleCondition::E_GT;
+        condition.op(model::CRuleCondition::E_GT);
     } else if (operatorString == GTE) {
-        ruleCondition.condition().s_Op = model::CRuleCondition::E_GTE;
+        condition.op(model::CRuleCondition::E_GTE);
     } else {
         LOG_ERROR(<< "Invalid operator value: " << operatorString);
         return false;
@@ -297,13 +282,13 @@ bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& c
 }
 
 bool CDetectionRulesJsonParser::parseConditionValue(const rapidjson::Value& conditionObject,
-                                                    model::CRuleCondition& ruleCondition) {
+                                                    model::CRuleCondition& condition) {
     if (hasDoubleMember(conditionObject, VALUE) == false) {
         LOG_ERROR(<< "Missing condition field: " << VALUE);
         return false;
     }
 
-    ruleCondition.condition().s_Threshold = conditionObject[VALUE.c_str()].GetDouble();
+    condition.value(conditionObject[VALUE.c_str()].GetDouble());
     return true;
 }
 }

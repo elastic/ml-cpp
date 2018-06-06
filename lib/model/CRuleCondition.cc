@@ -19,34 +19,20 @@ const CAnomalyDetectorModel::TSizeDoublePr1Vec EMPTY_CORRELATED;
 
 using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
 
-CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
-    : s_Op(op), s_Threshold(threshold) {
-}
-
-bool CRuleCondition::SCondition::test(double value) const {
-    switch (s_Op) {
-    case E_LT:
-        return value < s_Threshold;
-    case E_LTE:
-        return value <= s_Threshold;
-    case E_GT:
-        return value > s_Threshold;
-    case E_GTE:
-        return value >= s_Threshold;
-    }
-    return false;
-}
-
 CRuleCondition::CRuleCondition()
-    : m_AppliesTo(E_Actual), m_Condition(E_LT, 0.0) {
+    : m_AppliesTo(E_Actual), m_Operator(E_LT), m_Value(0.0) {
 }
 
 void CRuleCondition::appliesTo(ERuleConditionAppliesTo appliesTo) {
     m_AppliesTo = appliesTo;
 }
 
-CRuleCondition::SCondition& CRuleCondition::condition() {
-    return m_Condition;
+void CRuleCondition::op(ERuleConditionOperator op) {
+    m_Operator = op;
+}
+
+void CRuleCondition::value(double value) {
+    m_Value = value;
 }
 
 bool CRuleCondition::test(const CAnomalyDetectorModel& model,
@@ -103,13 +89,26 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
         return false;
     }
 
-    return m_Condition.test(value[0]);
+    return this->testValue(value[0]);
+}
+
+bool CRuleCondition::testValue(double value) const {
+    switch (m_Operator) {
+    case E_LT:
+        return value < m_Value;
+    case E_LTE:
+        return value <= m_Value;
+    case E_GT:
+        return value > m_Value;
+    case E_GTE:
+        return value >= m_Value;
+    }
+    return false;
 }
 
 std::string CRuleCondition::print() const {
     std::string result = this->print(m_AppliesTo);
-    result += " " + this->print(m_Condition.s_Op) + " " +
-              core::CStringUtils::typeToString(m_Condition.s_Threshold);
+    result += " " + this->print(m_Operator) + " " + core::CStringUtils::typeToString(m_Value);
     return result;
 }
 
@@ -127,7 +126,7 @@ std::string CRuleCondition::print(ERuleConditionAppliesTo appliesTo) const {
     return std::string();
 }
 
-std::string CRuleCondition::print(EConditionOperator op) const {
+std::string CRuleCondition::print(ERuleConditionOperator op) const {
     switch (op) {
     case E_LT:
         return "<";

@@ -41,16 +41,7 @@ public:
         E_Time
     };
 
-    enum EConditionOperator { E_LT, E_LTE, E_GT, E_GTE };
-
-    struct SCondition {
-        SCondition(EConditionOperator op, double threshold);
-
-        bool test(double value) const;
-
-        EConditionOperator s_Op;
-        double s_Threshold;
-    };
+    enum ERuleConditionOperator { E_LT, E_LTE, E_GT, E_GTE };
 
 public:
     //! Default constructor.
@@ -59,8 +50,11 @@ public:
     //! Set which value the condition applies to.
     void appliesTo(ERuleConditionAppliesTo appliesTo);
 
-    //! Get the numerical condition.
-    SCondition& condition();
+    //! Set the condition operator.
+    void op(ERuleConditionOperator op);
+
+    //! Set the condition value.
+    void value(double value);
 
     //! Pretty-print the condition.
     std::string print() const;
@@ -74,15 +68,19 @@ public:
               core_t::TTime time) const;
 
 private:
+    bool testValue(double value) const;
     std::string print(ERuleConditionAppliesTo appliesTo) const;
-    std::string print(EConditionOperator op) const;
+    std::string print(ERuleConditionOperator op) const;
 
 private:
     //! The value the condition applies to.
     ERuleConditionAppliesTo m_AppliesTo;
 
-    //! The numerical condition.
-    SCondition m_Condition;
+    //! The condition operator.
+    ERuleConditionOperator m_Operator;
+
+    //! The condition value.
+    double m_Value;
 };
 }
 }

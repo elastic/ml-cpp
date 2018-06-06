@@ -88,9 +88,9 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
 void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"skip_result\"],");
-    originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"condition\":{\"operator\":\"lt\",\"value\": 5.0}}]}]";
+    originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
     std::string originalRules1("[{\"actions\":[\"skip_result\"],");
-    originalRules1 += "\"conditions\":[{\"applies_to\":\"actual\",\"condition\":{\"operator\":\"gt\",\"value\": 5.0}}]}]";
+    originalRules1 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\": 5.0}]}]";
     fieldConfig.parseRules(0, originalRules0);
     fieldConfig.parseRules(1, originalRules1);
 
@@ -100,7 +100,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
     std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
                               "[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\","
-                              "\"condition\":{\"operator\":\"lt\",\"value\": 15.0}}]}]");
+                              "\"operator\":\"lt\",\"value\": 15.0}]}]");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -119,7 +119,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"skip_result\"],");
-    originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"condition\":{\"operator\":\"lt\",\"value\": 5.0}}]}]";
+    originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
     fieldConfig.parseRules(0, originalRules);
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -185,12 +185,12 @@ void CConfigUpdaterTest::testUpdateGivenFilters() {
 void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
     std::string validRule1 =
         "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\": 1.0}},"
-        "{\"applies_to\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\": 2.0}}]}]";
+        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
+        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
     std::string validRule2 =
         "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\": 3.0}},"
-        "{\"applies_to\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\": 4.0}}]}]";
+        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
+        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
 
     CFieldConfig fieldConfig;
 

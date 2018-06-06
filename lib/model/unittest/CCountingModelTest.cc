@@ -53,12 +53,12 @@ SModelParams::TStrDetectionRulePr
 makeScheduledEvent(const std::string& description, double start, double end) {
     CRuleCondition conditionGte;
     conditionGte.appliesTo(CRuleCondition::E_Time);
-    conditionGte.condition().s_Op = CRuleCondition::E_GTE;
-    conditionGte.condition().s_Threshold = start;
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(start);
     CRuleCondition conditionLt;
     conditionLt.appliesTo(CRuleCondition::E_Time);
-    conditionLt.condition().s_Op = CRuleCondition::E_LT;
-    conditionLt.condition().s_Threshold = end;
+    conditionLt.op(CRuleCondition::E_LT);
+    conditionLt.value(end);
 
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipModelUpdate);

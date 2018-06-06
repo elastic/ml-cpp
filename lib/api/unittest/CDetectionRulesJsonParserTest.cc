@@ -125,7 +125,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction() {
     std::string rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -141,7 +141,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray() {
     rulesJson += "{";
     rulesJson += "  \"actions\":\"not_array\",";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -157,7 +157,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction() {
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"something_invalid\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -214,7 +214,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"value\": 5.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -230,7 +230,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"ha\",\"value\": 5.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"ha\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -246,8 +246,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenConditionOnActual() {
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}},";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lte\",\"value\": 2.3}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0},";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lte\",\"value\": 2.3}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -266,8 +266,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenConditionsOnTypicalAndDif
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"typical\", \"condition\":{\"operator\":\"gt\",\"value\": 5.0}},";
-    rulesJson += "    {\"applies_to\":\"diff_from_typical\", \"condition\":{\"operator\":\"gte\",\"value\": 2.3}}";
+    rulesJson += "    {\"applies_to\":\"typical\", \"operator\":\"gt\",\"value\": 5.0},";
+    rulesJson += "    {\"applies_to\":\"diff_from_typical\", \"operator\":\"gte\",\"value\": 2.3}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -286,13 +286,13 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules() {
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 1.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 1.0}";
     rulesJson += "  ]";
     rulesJson += "},";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_model_update\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"typical\", \"condition\":{\"operator\":\"lt\",\"value\": 2.0}}";
+    rulesJson += "    {\"applies_to\":\"typical\", \"operator\":\"lt\",\"value\": 2.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -410,7 +410,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenScopeAndConditions() {
     rulesJson += "    \"foo\": {\"filter_id\": \"filter1\", \"filter_type\": \"include\"}";
     rulesJson += "  },";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 2.0}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 2.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -429,8 +429,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule() {
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"applies_to\":\"time\", \"condition\":{\"operator\":\"gte\",\"value\": 5000.0}},";
-    rulesJson += "    {\"applies_to\":\"time\", \"condition\":{\"operator\":\"lt\",\"value\": 10000.0}}";
+    rulesJson += "    {\"applies_to\":\"time\", \"operator\":\"gte\",\"value\": 5000.0},";
+    rulesJson += "    {\"applies_to\":\"time\", \"operator\":\"lt\",\"value\": 10000.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -449,7 +449,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"skip_result\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";
@@ -468,7 +468,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"skip_model_update\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";
@@ -487,7 +487,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"skip_model_update\", \"skip_result\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"applies_to\":\"actual\", \"condition\":{\"operator\":\"lt\",\"value\": 5.0}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";

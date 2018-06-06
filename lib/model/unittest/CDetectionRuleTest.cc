@@ -342,8 +342,8 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Actual);
-        condition.condition().s_Op = CRuleCondition::E_LT;
-        condition.condition().s_Threshold = 5.0;
+        condition.op(CRuleCondition::E_LT);
+        condition.value(5.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -362,8 +362,8 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Actual);
-        condition.condition().s_Op = CRuleCondition::E_LTE;
-        condition.condition().s_Threshold = 5.0;
+        condition.op(CRuleCondition::E_LTE);
+        condition.value(5.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -381,8 +381,8 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Actual);
-        condition.condition().s_Op = CRuleCondition::E_GT;
-        condition.condition().s_Threshold = 5.0;
+        condition.op(CRuleCondition::E_GT);
+        condition.value(5.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -400,8 +400,8 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Actual);
-        condition.condition().s_Op = CRuleCondition::E_GTE;
-        condition.condition().s_Threshold = 5.0;
+        condition.op(CRuleCondition::E_GTE);
+        condition.value(5.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -453,8 +453,8 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Typical);
-        condition.condition().s_Op = CRuleCondition::E_LT;
-        condition.condition().s_Threshold = 45.0;
+        condition.op(CRuleCondition::E_LT);
+        condition.value(45.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -473,8 +473,8 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Typical);
-        condition.condition().s_Op = CRuleCondition::E_GT;
-        condition.condition().s_Threshold = 45.0;
+        condition.op(CRuleCondition::E_GT);
+        condition.value(45.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -538,8 +538,8 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_DiffFromTypical);
-        condition.condition().s_Op = CRuleCondition::E_LT;
-        condition.condition().s_Threshold = 1.0;
+        condition.op(CRuleCondition::E_LT);
+        condition.value(1.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -564,8 +564,8 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
 
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_DiffFromTypical);
-        condition.condition().s_Op = CRuleCondition::E_GT;
-        condition.condition().s_Threshold = 1.0;
+        condition.op(CRuleCondition::E_GT);
+        condition.value(1.0);
         CDetectionRule rule;
         rule.addCondition(condition);
 
@@ -614,8 +614,8 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
 
     CRuleCondition condition;
     condition.appliesTo(CRuleCondition::E_Actual);
-    condition.condition().s_Op = CRuleCondition::E_LT;
-    condition.condition().s_Threshold = 5.0;
+    condition.op(CRuleCondition::E_LT);
+    condition.value(5.0);
     CDetectionRule rule;
     rule.addCondition(condition);
 
@@ -661,8 +661,8 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
 
     CRuleCondition condition;
     condition.appliesTo(CRuleCondition::E_Actual);
-    condition.condition().s_Op = CRuleCondition::E_LT;
-    condition.condition().s_Threshold = 5.0;
+    condition.op(CRuleCondition::E_LT);
+    condition.value(5.0);
 
     rule.addCondition(condition);
 
@@ -721,8 +721,8 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
 
     CRuleCondition condition;
     condition.appliesTo(CRuleCondition::E_Actual);
-    condition.condition().s_Op = CRuleCondition::E_LT;
-    condition.condition().s_Threshold = 5.0;
+    condition.op(CRuleCondition::E_LT);
+    condition.value(5.0);
     rule.addCondition(condition);
 
     model_t::CResultType resultType(model_t::CResultType::E_Final);
@@ -768,12 +768,12 @@ void CDetectionRuleTest::testApplyGivenMultipleConditions() {
         // None applies
         CRuleCondition condition1;
         condition1.appliesTo(CRuleCondition::E_Actual);
-        condition1.condition().s_Op = CRuleCondition::E_LT;
-        condition1.condition().s_Threshold = 9.0;
+        condition1.op(CRuleCondition::E_LT);
+        condition1.value(9.0);
         CRuleCondition condition2;
         condition2.appliesTo(CRuleCondition::E_Actual);
-        condition2.condition().s_Op = CRuleCondition::E_LT;
-        condition2.condition().s_Threshold = 9.5;
+        condition2.op(CRuleCondition::E_LT);
+        condition2.value(9.5);
         CDetectionRule rule;
         rule.addCondition(condition1);
         rule.addCondition(condition2);
@@ -787,12 +787,12 @@ void CDetectionRuleTest::testApplyGivenMultipleConditions() {
         // First applies only
         CRuleCondition condition1;
         condition1.appliesTo(CRuleCondition::E_Actual);
-        condition1.condition().s_Op = CRuleCondition::E_LT;
-        condition1.condition().s_Threshold = 11.0;
+        condition1.op(CRuleCondition::E_LT);
+        condition1.value(11.0);
         CRuleCondition condition2;
         condition2.appliesTo(CRuleCondition::E_Actual);
-        condition2.condition().s_Op = CRuleCondition::E_LT;
-        condition2.condition().s_Threshold = 9.5;
+        condition2.op(CRuleCondition::E_LT);
+        condition2.value(9.5);
         CDetectionRule rule;
         rule.addCondition(condition1);
         rule.addCondition(condition2);
@@ -806,12 +806,12 @@ void CDetectionRuleTest::testApplyGivenMultipleConditions() {
         // Second applies only
         CRuleCondition condition1;
         condition1.appliesTo(CRuleCondition::E_Actual);
-        condition1.condition().s_Op = CRuleCondition::E_LT;
-        condition1.condition().s_Threshold = 9.0;
+        condition1.op(CRuleCondition::E_LT);
+        condition1.value(9.0);
         CRuleCondition condition2;
         condition2.appliesTo(CRuleCondition::E_Actual);
-        condition2.condition().s_Op = CRuleCondition::E_LT;
-        condition2.condition().s_Threshold = 10.5;
+        condition2.op(CRuleCondition::E_LT);
+        condition2.value(10.5);
         CDetectionRule rule;
         rule.addCondition(condition1);
         rule.addCondition(condition2);
@@ -825,12 +825,12 @@ void CDetectionRuleTest::testApplyGivenMultipleConditions() {
         // Both apply
         CRuleCondition condition1;
         condition1.appliesTo(CRuleCondition::E_Actual);
-        condition1.condition().s_Op = CRuleCondition::E_LT;
-        condition1.condition().s_Threshold = 12.0;
+        condition1.op(CRuleCondition::E_LT);
+        condition1.value(12.0);
         CRuleCondition condition2;
         condition2.appliesTo(CRuleCondition::E_Actual);
-        condition2.condition().s_Op = CRuleCondition::E_LT;
-        condition2.condition().s_Threshold = 10.5;
+        condition2.op(CRuleCondition::E_LT);
+        condition2.value(10.5);
         CDetectionRule rule;
         rule.addCondition(condition1);
         rule.addCondition(condition2);
@@ -861,12 +861,12 @@ void CDetectionRuleTest::testApplyGivenTimeCondition() {
     CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.appliesTo(CRuleCondition::E_Time);
-    conditionGte.condition().s_Op = CRuleCondition::E_GTE;
-    conditionGte.condition().s_Threshold = 100;
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(100);
     CRuleCondition conditionLt;
     conditionLt.appliesTo(CRuleCondition::E_Time);
-    conditionLt.condition().s_Op = CRuleCondition::E_LT;
-    conditionLt.condition().s_Threshold = 200;
+    conditionLt.op(CRuleCondition::E_LT);
+    conditionLt.value(200);
 
     CDetectionRule rule;
     rule.addCondition(conditionGte);
@@ -903,8 +903,8 @@ void CDetectionRuleTest::testRuleActions() {
     CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.appliesTo(CRuleCondition::E_Time);
-    conditionGte.condition().s_Op = CRuleCondition::E_GTE;
-    conditionGte.condition().s_Threshold = 100;
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(100);
 
     CDetectionRule rule;
     rule.addCondition(conditionGte);

@@ -58,8 +58,8 @@ void CRuleConditionTest::testTimeContition() {
     {
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Time);
-        condition.condition().s_Op = CRuleCondition::E_GTE;
-        condition.condition().s_Threshold = 500;
+        condition.op(CRuleCondition::E_GTE);
+        condition.value(500);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
@@ -73,8 +73,8 @@ void CRuleConditionTest::testTimeContition() {
     {
         CRuleCondition condition;
         condition.appliesTo(CRuleCondition::E_Time);
-        condition.condition().s_Op = CRuleCondition::E_LT;
-        condition.condition().s_Threshold = 600;
+        condition.op(CRuleCondition::E_LT);
+        condition.value(600);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
