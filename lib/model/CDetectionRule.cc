@@ -12,9 +12,6 @@
 namespace ml {
 namespace model {
 
-CDetectionRule::CDetectionRule() : m_Action(E_SkipResult), m_Conditions() {
-}
-
 void CDetectionRule::action(int action) {
     m_Action = action;
 }
@@ -46,8 +43,8 @@ bool CDetectionRule::apply(ERuleAction action,
         return false;
     }
 
-    for (std::size_t i = 0; i < m_Conditions.size(); ++i) {
-        if (m_Conditions[i].test(model, feature, resultType, pid, cid, time) == false) {
+    for (const auto& condition : m_Conditions) {
+        if (condition.test(model, feature, resultType, pid, cid, time) == false) {
             return false;
         }
     }

@@ -14,21 +14,18 @@
 namespace ml {
 namespace model {
 
-CRuleScope::CRuleScope() : m_Scope() {
-}
-
 void CRuleScope::include(std::string field, const core::CPatternSet& filter) {
-    m_Scope.push_back({field, TPatternSetCRef(filter), E_Include});
+    m_Scope.emplace_back(field, TPatternSetCRef(filter), E_Include);
 }
 
 void CRuleScope::exclude(std::string field, const core::CPatternSet& filter) {
-    m_Scope.push_back({field, TPatternSetCRef(filter), E_Exclude});
+    m_Scope.emplace_back(field, TPatternSetCRef(filter), E_Exclude);
 }
 
 bool CRuleScope::check(const CAnomalyDetectorModel& model, std::size_t pid, std::size_t cid) const {
 
     const CDataGatherer& gatherer = model.dataGatherer();
-    for (auto& scopeField : m_Scope) {
+    for (const auto& scopeField : m_Scope) {
         bool containsValue{false};
         if (scopeField.first == gatherer.partitionFieldName()) {
             containsValue = scopeField.second.get().contains(gatherer.partitionFieldValue());
@@ -51,21 +48,19 @@ bool CRuleScope::check(const CAnomalyDetectorModel& model, std::size_t pid, std:
 
 std::string CRuleScope::print() const {
     std::string result{""};
-    if (m_Scope.empty() == false) {
-        auto itr = m_Scope.begin();
-        while (itr != m_Scope.end()) {
-            result += "'" + itr->first + "'";
-            if (itr->third == E_Include) {
-                result += " IN ";
-            } else {
-                result += " NOT IN ";
-            }
-            result += "FILTER";
+    auto itr = m_Scope.begin();
+    while (itr != m_Scope.end()) {
+        result += "'" + itr->first + "'";
+        if (itr->third == E_Include) {
+            result += " IN ";
+        } else {
+            result += " NOT IN ";
+        }
+        result += "FILTER";
 
-            ++itr;
-            if (itr != m_Scope.end()) {
-                result += " AND ";
-            }
+        ++itr;
+        if (itr != m_Scope.end()) {
+            result += " AND ";
         }
     }
     return result;

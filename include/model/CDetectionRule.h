@@ -37,10 +37,6 @@ public:
     enum ERuleAction { E_SkipResult = 1, E_SkipModelUpdate = 2 };
 
 public:
-    //! Default constructor.
-    //! The rule's action defaults to SKIP_RESULT.
-    CDetectionRule();
-
     //! Set the rule's action.
     void action(int ruleAction);
 
@@ -73,7 +69,7 @@ private:
     //! The rule action. It works as a bit mask so its value
     //! may not match any of the declared enum values but the
     //! corresponding bit will be 1 when an action is enabled.
-    int m_Action;
+    int m_Action{E_SkipResult};
 
     //! The rule scope.
     CRuleScope m_Scope;

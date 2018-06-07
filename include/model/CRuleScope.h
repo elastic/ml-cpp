@@ -41,7 +41,7 @@ public:
 
 public:
     //! Default constructor.
-    CRuleScope();
+    CRuleScope() = default;
 
     //! Adds a requirement for \p field to be in \p filter for the rule to apply
     void include(std::string field, const core::CPatternSet& filter);
