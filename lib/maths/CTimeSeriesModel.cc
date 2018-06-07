@@ -157,7 +157,7 @@ const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate fe
 
 namespace winsorisation {
 namespace {
-const double MAXIMUM_P_VALUE{1e-3};
+const double MAXIMUM_P_VALUE{1e-2};
 const double MINIMUM_P_VALUE{1e-10};
 const double MINIMUM_WEIGHT{1e-2};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
@@ -184,16 +184,9 @@ double pValueFromWeight(double weight) {
                                      4.0 * logw / LOG_MINIMUM_WEIGHT * LOG_MINIMUM_P_VALUE *
                                          (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE))));
 }
-
-//! Computes a Winsorisation weight based on the chance that the
-//! time series is currently undergoing a change.
-double changeWeight(const TChangeDetectorPtr& detector) {
-    return detector != nullptr ? std::max(detector->probabilityWillAccept(), MINIMUM_WEIGHT)
-                               : 1.0;
-}
 }
 
-double tailWeight(const CPrior& prior, double derate, double scale, double value) {
+double weight(const CPrior& prior, double derate, double scale, double value) {
     double minimumWeight{deratedMinimumWeight(derate)};
 
     double f{};
@@ -237,11 +230,11 @@ double tailWeight(const CPrior& prior, double derate, double scale, double value
     return result;
 }
 
-double tailWeight(const CMultivariatePrior& prior,
-                  std::size_t dimension,
-                  double derate,
-                  double scale,
-                  const core::CSmallVector<double, 10>& value) {
+double weight(const CMultivariatePrior& prior,
+              std::size_t dimension,
+              double derate,
+              double scale,
+              const core::CSmallVector<double, 10>& value) {
     std::size_t dimensions = prior.dimension();
     TSizeDoublePr10Vec condition(dimensions - 1);
     for (std::size_t i = 0u, j = 0u; i < dimensions; ++i) {
@@ -251,7 +244,7 @@ double tailWeight(const CMultivariatePrior& prior,
     }
     std::shared_ptr<CPrior> conditional(
         prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
-    return tailWeight(*conditional, derate, scale, value[dimension]);
+    return weight(*conditional, derate, scale, value[dimension]);
 }
 }
 
@@ -1119,8 +1112,7 @@ CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
                                                 const TDouble2Vec& value) const {
     double scale{this->seasonalWeight(0.0, time)[0]};
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
-    return {winsorisation::tailWeight(*m_ResidualModel, derate, scale, sample) *
-            winsorisation::changeWeight(m_ChangeDetector)};
+    return {winsorisation::weight(*m_ResidualModel, derate, scale, sample)};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
@@ -1399,6 +1391,8 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
         }
     }
 
+    change.s_TrendModel->decayRate(m_TrendModel->decayRate());
+    m_TrendModel = change.s_TrendModel;
     if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         this->reinitializeStateGivenNewComponent();
     } else {
@@ -2381,7 +2375,7 @@ CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
     }
 
     for (std::size_t d = 0u; d < dimension; ++d) {
-        result[d] = winsorisation::tailWeight(*m_ResidualModel, d, derate, scale[d], sample);
+        result[d] = winsorisation::weight(*m_ResidualModel, d, derate, scale[d], sample);
     }
 
     return result;

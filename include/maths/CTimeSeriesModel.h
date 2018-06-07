@@ -34,16 +34,16 @@ namespace winsorisation {
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.
 MATHS_EXPORT
-double tailWeight(const CPrior& prior, double derate, double scale, double value);
+double weight(const CPrior& prior, double derate, double scale, double value);
 
 //! Computes a Winsorisation weight for \p value based on its
 //! marginal for \p dimension one tail p-value.
 MATHS_EXPORT
-double tailWeight(const CMultivariatePrior& prior,
-                  std::size_t dimension,
-                  double derate,
-                  double scale,
-                  const core::CSmallVector<double, 10>& value);
+double weight(const CMultivariatePrior& prior,
+              std::size_t dimension,
+              double derate,
+              double scale,
+              const core::CSmallVector<double, 10>& value);
 }
 
 //! \brief A CModel implementation for modeling a univariate time series.

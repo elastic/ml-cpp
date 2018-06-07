@@ -23,10 +23,12 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTimeSeriesModel.h>
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
 #include <boost/utility/in_place_factory.hpp>
@@ -53,6 +55,7 @@ const std::string SHIFT_TAG{"l"};
 const std::string SCALE_TAG{"m"};
 const std::string RESIDUAL_MODEL_TAG{"n"};
 const std::string LOG_INVERSE_DECISION_FUNCTION_TREND_TAG{"p"};
+const std::string TREND_MODEL_TAG{"q"};
 const std::size_t EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS{4u};
 const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
 const std::size_t COUNT_TO_INITIALIZE{3u};
@@ -63,8 +66,11 @@ const double MAXIMUM_DECISION_FUNCTION{32.0};
 const double LOG_INV_MAXIMUM_DECISION_FUNCTION{-CTools::fastLog(MAXIMUM_DECISION_FUNCTION)};
 }
 
-SChangeDescription::SChangeDescription(EDescription description, double value, const TPriorPtr& residualModel)
-    : s_Description{description}, s_Value{value}, s_ResidualModel{residualModel} {
+SChangeDescription::SChangeDescription(EDescription description,
+                                       double value,
+                                       const TDecompositionPtr& trendModel,
+                                       const TPriorPtr& residualModel)
+    : s_Description{description}, s_Value{value}, s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
 }
 
 std::string SChangeDescription::print() const {
@@ -90,17 +96,32 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     core_t::TTime maximumTimeToDetect,
     double minimumDeltaBicToDetect)
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
-      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_DecisionFunction{0.0},
-      m_ChangeModels{
-          std::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
-          std::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel),
-          std::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, -core::constants::HOUR),
-          std::make_shared<CUnivariateTimeShiftModel>(trendModel,
-                                                      residualModel,
-                                                      +core::constants::HOUR)} {
+      m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0},
+      m_DecisionFunction{0.0}, m_TrendModel{trendModel->clone()} {
+    m_ChangeModels.push_back(
+        boost::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
+    m_ChangeModels.push_back(
+        boost::make_unique<CUnivariateLevelShiftModel>(m_TrendModel, residualModel));
     if (trendModel->seasonalComponents().size() > 0) {
-        m_ChangeModels.push_back(std::make_shared<CUnivariateLinearScaleModel>(
-            trendModel, residualModel));
+        m_ChangeModels.push_back(boost::make_unique<CUnivariateTimeShiftModel>(
+            m_TrendModel, residualModel, -core::constants::HOUR));
+        m_ChangeModels.push_back(boost::make_unique<CUnivariateTimeShiftModel>(
+            m_TrendModel, residualModel, +core::constants::HOUR));
+        m_ChangeModels.push_back(boost::make_unique<CUnivariateLinearScaleModel>(
+            m_TrendModel, residualModel));
+    }
+}
+
+CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(const CUnivariateTimeSeriesChangeDetector& other)
+    : m_MinimumTimeToDetect{other.m_MinimumTimeToDetect},
+      m_MaximumTimeToDetect{other.m_MaximumTimeToDetect},
+      m_MinimumDeltaBicToDetect{other.m_MinimumDeltaBicToDetect},
+      m_TimeRange{other.m_TimeRange}, m_SampleCount{other.m_SampleCount},
+      m_DecisionFunction{other.m_DecisionFunction},
+      m_LogInvDecisionFunctionTrend{other.m_LogInvDecisionFunctionTrend},
+      m_TrendModel{other.m_TrendModel->clone()} {
+    for (const auto& model : m_ChangeModels) {
+        m_ChangeModels.push_back(model->clone(m_TrendModel));
     }
 }
 
@@ -124,9 +145,16 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(
         RESTORE_SETUP_TEARDOWN(MAX_TIME_TAG, core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
-        RESTORE(CHANGE_MODEL_TAG, traverser.traverseSubLevel(boost::bind(
-                                      &CUnivariateChangeModel::acceptRestoreTraverser,
-                                      (model++)->get(), boost::cref(params), _1)))
+        RESTORE(TREND_MODEL_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                     CTimeSeriesDecompositionStateSerialiser(),
+                                     boost::cref(params.s_DecompositionParams),
+                                     boost::ref(m_TrendModel), _1)))
+        RESTORE_SETUP_TEARDOWN(CHANGE_MODEL_TAG,
+                               TChangeModelPtr restoredModel{(*model)->clone(m_TrendModel)},
+                               traverser.traverseSubLevel(boost::bind(
+                                   &CUnivariateChangeModel::acceptRestoreTraverser,
+                                   restoredModel.get(), boost::cref(params), _1)),
+                               *(model++) = std::move(restoredModel))
     } while (traverser.next());
     return true;
 }
@@ -146,6 +174,9 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
         inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
         inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
     }
+    inserter.insertLevel(TREND_MODEL_TAG,
+                         boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                           boost::cref(*m_TrendModel), _1));
     for (const auto& model : m_ChangeModels) {
         inserter.insertLevel(CHANGE_MODEL_TAG, boost::bind(&CUnivariateChangeModel::acceptPersistInserter,
                                                            model.get(), _1));
@@ -191,34 +222,47 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
     }
     candidates.sort();
 
-    double evidences[]{noChangeBic - candidates[0].first,
-                       noChangeBic - candidates[1].first};
-    double expectedEvidence{noChangeBic - (*candidates[0].second)->expectedBic()};
+    double df{};
 
-    double x[]{
-        evidences[0] / m_MinimumDeltaBicToDetect,
-        2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
-        evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
+    // Note the maximum decision function value in the following is chosen
+    // so that df is equal to one when each of the decision criteria are at
+    // the centre of the sigmoid functions and the time range is equal to
+    // "minimum time to detect". This means we'll (just) accept the change
+    // if each "hard" decision criterion is individually satisfied.
+
+    double expectedEvidence{noChangeBic - (*candidates[0].second)->expectedBic()};
+    double normalizedTimeRange{
         std::max(static_cast<double>(m_TimeRange.range() - m_MinimumTimeToDetect), 0.0) /
-            static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
-    double p{CTools::logisticFunction(x[0], 0.05, 1.0) *
+        static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
+
+    if (m_ChangeModels.size() == 2) {
+        double evidence{noChangeBic - candidates[0].first};
+        double x[]{evidence / m_MinimumDeltaBicToDetect,
+                   evidence / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
+                   normalizedTimeRange};
+        df = 0.5 * MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
+             (x[1] < 0.0 ? 1.0 : CTools::logisticFunction(x[1], 0.2, 1.0)) *
+             CTools::logisticFunction(x[2], 0.2, 0.5);
+        LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
+                  << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
+    } else {
+        double evidences[]{noChangeBic - candidates[0].first,
+                           noChangeBic - candidates[1].first};
+        double x[]{evidences[0] / m_MinimumDeltaBicToDetect,
+                   2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
+                   evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
+                   normalizedTimeRange};
+        df = MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
              CTools::logisticFunction(x[1], 0.1, 1.0) *
              (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
-             CTools::logisticFunction(x[3], 0.2, 0.5)};
-    LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
-              << ") = " << MAXIMUM_DECISION_FUNCTION * p
-              << " | x = " << core::CContainerPrinter::print(x));
+             CTools::logisticFunction(x[3], 0.2, 0.5);
+        LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
+                  << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
+    }
 
     change = candidates[0].second - m_ChangeModels.begin();
 
-    // Note the maximum decision function value is chosen so that
-    // this function is equal to one when each of the decision
-    // criteria are at the centre of the sigmoid functions and
-    // the time range is equal to "minimum time to detect". This
-    // means we'll (just) accept the change if each "hard" decision
-    // criterion is individually satisfied.
-
-    return MAXIMUM_DECISION_FUNCTION * p;
+    return df;
 }
 
 bool CUnivariateTimeSeriesChangeDetector::stopTesting() const {
@@ -257,6 +301,7 @@ uint64_t CUnivariateTimeSeriesChangeDetector::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_SampleCount);
     seed = CChecksum::calculate(seed, m_DecisionFunction);
     seed = CChecksum::calculate(seed, m_LogInvDecisionFunctionTrend);
+    seed = CChecksum::calculate(seed, m_TrendModel);
     return CChecksum::calculate(seed, m_ChangeModels);
 }
 
@@ -306,6 +351,13 @@ uint64_t CUnivariateChangeModel::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_ResidualModel);
 }
 
+CUnivariateChangeModel::CUnivariateChangeModel(const CUnivariateChangeModel& other,
+                                               const TDecompositionPtr& trendModel,
+                                               const TPriorPtr& residualModel)
+    : m_LogLikelihood{other.m_LogLikelihood}, m_ExpectedLogLikelihood{other.m_ExpectedLogLikelihood},
+      m_TrendModel{trendModel}, m_ResidualModel{residualModel} {
+}
+
 bool CUnivariateChangeModel::restoreResidualModel(const SDistributionRestoreParams& params,
                                                   core::CStateRestoreTraverser& traverser) {
     return traverser.traverseSubLevel(boost::bind<bool>(
@@ -344,6 +396,10 @@ const CTimeSeriesDecompositionInterface& CUnivariateChangeModel::trendModel() co
     return *m_TrendModel;
 }
 
+const CUnivariateChangeModel::TDecompositionPtr& CUnivariateChangeModel::trendModelPtr() const {
+    return m_TrendModel;
+}
+
 const CPrior& CUnivariateChangeModel::residualModel() const {
     return *m_ResidualModel;
 }
@@ -352,13 +408,23 @@ CPrior& CUnivariateChangeModel::residualModel() {
     return *m_ResidualModel;
 }
 
-CUnivariateChangeModel::TPriorPtr CUnivariateChangeModel::residualModelPtr() const {
+const CUnivariateChangeModel::TPriorPtr& CUnivariateChangeModel::residualModelPtr() const {
     return m_ResidualModel;
 }
 
 CUnivariateNoChangeModel::CUnivariateNoChangeModel(const TDecompositionPtr& trendModel,
                                                    const TPriorPtr& residualModel)
     : CUnivariateChangeModel{trendModel, residualModel} {
+}
+
+CUnivariateNoChangeModel::CUnivariateNoChangeModel(const CUnivariateNoChangeModel& other,
+                                                   const TDecompositionPtr& trendModel)
+    : CUnivariateChangeModel{other, trendModel, other.residualModelPtr()} {
+}
+
+CUnivariateNoChangeModel::TChangeModelPtr
+CUnivariateNoChangeModel::clone(const TDecompositionPtr& /*trendModel*/) const {
+    return boost::make_unique<CUnivariateNoChangeModel>(*this, this->trendModelPtr());
 }
 
 bool CUnivariateNoChangeModel::acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -420,6 +486,18 @@ CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const TDecompositionPtr& 
       m_ResidualModelMode{residualModel->marginalLikelihoodMode()}, m_SampleCount{0.0} {
 }
 
+CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const CUnivariateLevelShiftModel& other,
+                                                       const TDecompositionPtr& trendModel)
+    : CUnivariateChangeModel{other, trendModel, TPriorPtr{other.residualModel().clone()}},
+      m_Shift{other.m_Shift}, m_ResidualModelMode{other.m_ResidualModelMode},
+      m_SampleCount{other.m_SampleCount} {
+}
+
+CUnivariateLevelShiftModel::TChangeModelPtr
+CUnivariateLevelShiftModel::clone(const TDecompositionPtr& trendModel) const {
+    return boost::make_unique<CUnivariateLevelShiftModel>(*this, trendModel);
+}
+
 bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
     if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false) {
@@ -455,7 +533,8 @@ double CUnivariateLevelShiftModel::expectedBic() const {
 
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const {
     return SChangeDescription{SChangeDescription::E_LevelShift,
-                              CBasicStatistics::mean(m_Shift), this->residualModelPtr()};
+                              CBasicStatistics::mean(m_Shift),
+                              this->trendModelPtr(), this->residualModelPtr()};
 }
 
 void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
@@ -480,8 +559,8 @@ void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double sample{trendModel.detrend(time, value, 0.0) - shift};
-            double weight{winsorisation::tailWeight(
-                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
+            double weight{winsorisation::weight(residualModel, WINSORISATION_DERATE,
+                                                seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWinsorisationWeight(weight, weights[i]);
             m_SampleCount += maths_t::count(weights[i]);
@@ -521,6 +600,17 @@ CUnivariateLinearScaleModel::CUnivariateLinearScaleModel(const TDecompositionPtr
       m_ResidualModelMode{residualModel->marginalLikelihoodMode()}, m_SampleCount{0.0} {
 }
 
+CUnivariateLinearScaleModel::CUnivariateLinearScaleModel(const CUnivariateLinearScaleModel& other,
+                                                         const TDecompositionPtr& trendModel)
+    : CUnivariateChangeModel{other, trendModel, TPriorPtr{other.residualModel().clone()}},
+      m_Scale{other.m_Scale}, m_ResidualModelMode{other.m_ResidualModelMode}, m_SampleCount{0.0} {
+}
+
+CUnivariateLinearScaleModel::TChangeModelPtr
+CUnivariateLinearScaleModel::clone(const TDecompositionPtr& trendModel) const {
+    return boost::make_unique<CUnivariateLinearScaleModel>(*this, trendModel);
+}
+
 bool CUnivariateLinearScaleModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                          core::CStateRestoreTraverser& traverser) {
     if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false) {
@@ -557,7 +647,8 @@ double CUnivariateLinearScaleModel::expectedBic() const {
 CUnivariateLinearScaleModel::TOptionalChangeDescription
 CUnivariateLinearScaleModel::change() const {
     return SChangeDescription{SChangeDescription::E_LinearScale,
-                              CBasicStatistics::mean(m_Scale), this->residualModelPtr()};
+                              CBasicStatistics::mean(m_Scale),
+                              this->trendModelPtr(), this->residualModelPtr()};
 }
 
 void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
@@ -594,8 +685,8 @@ void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
             double seasonalScale{maths_t::seasonalVarianceScale(weights[i])};
             double prediction{CBasicStatistics::mean(trendModel.value(time, 0.0))};
             double sample{value - scale * prediction};
-            double weight{winsorisation::tailWeight(
-                residualModel, WINSORISATION_DERATE, seasonalScale, sample)};
+            double weight{winsorisation::weight(residualModel, WINSORISATION_DERATE,
+                                                seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWinsorisationWeight(weight, weights[i]);
             m_SampleCount += maths_t::count(weights[i]);
@@ -628,6 +719,17 @@ CUnivariateTimeShiftModel::CUnivariateTimeShiftModel(const TDecompositionPtr& tr
     : CUnivariateChangeModel{trendModel, TPriorPtr{residualModel->clone()}}, m_Shift{shift} {
 }
 
+CUnivariateTimeShiftModel::CUnivariateTimeShiftModel(const CUnivariateTimeShiftModel& other,
+                                                     const TDecompositionPtr& trendModel)
+    : CUnivariateChangeModel{other, trendModel, TPriorPtr{other.residualModel().clone()}},
+      m_Shift{other.m_Shift} {
+}
+
+CUnivariateTimeShiftModel::TChangeModelPtr
+CUnivariateTimeShiftModel::clone(const TDecompositionPtr& trendModel) const {
+    return boost::make_unique<CUnivariateTimeShiftModel>(*this, trendModel);
+}
+
 bool CUnivariateTimeShiftModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                        core::CStateRestoreTraverser& traverser) {
     if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false) {
@@ -657,8 +759,8 @@ double CUnivariateTimeShiftModel::expectedBic() const {
 }
 
 TOptionalChangeDescription CUnivariateTimeShiftModel::change() const {
-    return SChangeDescription{SChangeDescription::E_TimeShift,
-                              static_cast<double>(m_Shift), this->residualModelPtr()};
+    return SChangeDescription{SChangeDescription::E_TimeShift, static_cast<double>(m_Shift),
+                              this->trendModelPtr(), this->residualModelPtr()};
 }
 
 void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
