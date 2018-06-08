@@ -33,6 +33,7 @@ Improve behavior when there are abrupt changes in the seasonal components presen
 Explicit change point detection and modelling ({pull}92[#92])
 Improve partition analysis memory usage ({pull}97[#97])
 Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
+Improve the accuracy of model memory control ({pull}122[#122])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
