@@ -413,7 +413,7 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime + bucketLength + latency <= time;
          lastBucketEndTime += effectiveBucketLength) {
         this->outputResults(lastBucketEndTime);
-        m_Limits.resourceMonitor().decreaseMargin();
+        m_Limits.resourceMonitor().decreaseMargin(bucketLength);
         m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + effectiveBucketLength;
 

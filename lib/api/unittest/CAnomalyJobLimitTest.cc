@@ -353,8 +353,9 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
 
     LOG_DEBUG(<< "**** Test by ****");
     {
+        std::size_t memoryLimit{10 /*MB*/};
         model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(10);
+        limits.resourceMonitor().memoryLimit(memoryLimit);
         api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
         fieldConfig.initFromClause(clauses);
@@ -363,7 +364,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         core_t::TTime startTime{1495110323};
-        core_t::TTime endTime{1495230323};
+        core_t::TTime endTime{1495260323};
         core_t::TTime time{startTime};
         double reportProgress{0.0};
         for (/**/; time < endTime; time += bucketLength) {
@@ -389,15 +390,19 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# by = " << used.s_ByFields);
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
-        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_ByFields > 700 && used.s_ByFields < 900);
+        LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
+        LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
+        CPPUNIT_ASSERT(used.s_ByFields > 600 && used.s_ByFields < 800);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
     }
 
     LOG_DEBUG(<< "**** Test partition ****");
     {
+        std::size_t memoryLimit{10 /*MB*/};
         model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(10);
+        limits.resourceMonitor().memoryLimit(memoryLimit);
         api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
         fieldConfig.initFromClause(clauses);
@@ -406,7 +411,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         core_t::TTime startTime{1495110323};
-        core_t::TTime endTime{1495230323};
+        core_t::TTime endTime{1495260323};
         core_t::TTime time{startTime};
         double reportProgress{0.0};
         for (/**/; time < endTime; time += bucketLength) {
@@ -433,15 +438,18 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_PartitionFields > 400 && used.s_PartitionFields < 500);
+        CPPUNIT_ASSERT(used.s_PartitionFields > 350 && used.s_PartitionFields < 450);
         CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
-                       0.95 * static_cast<double>(used.s_PartitionFields));
+                       0.97 * static_cast<double>(used.s_PartitionFields));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
     }
 
     LOG_DEBUG(<< "**** Test over ****");
     {
+        std::size_t memoryLimit{5 /*MB*/};
         model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(5);
+        limits.resourceMonitor().memoryLimit(memoryLimit);
         api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
         fieldConfig.initFromClause(clauses);
@@ -475,6 +483,8 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         LOG_DEBUG(<< "# over = " << used.s_OverFields);
         LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
         LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_OverFields > 8000 && used.s_OverFields < 9000);
+        CPPUNIT_ASSERT(used.s_OverFields > 6000 && used.s_OverFields < 7000);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
     }
 }

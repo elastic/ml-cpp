@@ -168,7 +168,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         for (auto& detector : m_Detectors) {
             const auto& model = detector.first->model();
             model->prune(m_PruneWindow);
-            detector.second = model->memoryUsage();
+            detector.second = core::CMemory::dynamicSize(detector.first);
             usageAfter += detector.second;
         }
         m_CurrentAnomalyDetectorMemory = usageAfter;
@@ -305,8 +305,15 @@ void CResourceMonitor::clearExtraMemory() {
     }
 }
 
-void CResourceMonitor::decreaseMargin() {
-    m_ByteLimitMargin = 1.0 - 0.99 * (1.0 - m_ByteLimitMargin);
+void CResourceMonitor::decreaseMargin(core_t::TTime elapsedTime) {
+    // We choose to increase the margin to close to 1 on the order
+    // time it takes to detect diurnal periodic components. These
+    // will be the overwhelmingly common source of additional memory
+    // so the model memory should be accurate (on average) in this
+    // time frame.
+    double scale{1.0 - static_cast<double>(elapsedTime) /
+                           static_cast<double>(core::constants::DAY)};
+    m_ByteLimitMargin = 1.0 - scale * (1.0 - m_ByteLimitMargin);
 }
 
 std::size_t CResourceMonitor::highLimit() const {

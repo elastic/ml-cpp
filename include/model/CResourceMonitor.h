@@ -135,7 +135,7 @@ public:
     //! it is difficult to accurately estimate the long term memory
     //! usage at this point. This is gradually decreased over time
     //! by calling this pnce per bucket processed.
-    void decreaseMargin();
+    void decreaseMargin(core_t::TTime elapsedTime);
 
 private:
     //! Updates the memory limit fields and the prune threshold
