@@ -136,7 +136,7 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
         return false;
     }
 
-    models.emplace_back(weight, model);
+    models.emplace_back(weight, std::move(model));
 
     return true;
 }
@@ -191,7 +191,7 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
     m_Models.reserve(models.size());
     CModelWeight weight(1.0);
     for (const auto& model : models) {
-        m_Models.emplace_back(weight, model);
+        m_Models.emplace_back(weight, TPriorPtr(model->clone()));
     }
 }
 
@@ -210,7 +210,7 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
     // Create a new model vector using the specified models and their associated weights.
     m_Models.reserve(models.size());
     for (const auto& model : models) {
-        m_Models.emplace_back(CModelWeight(model.first), model.second);
+        m_Models.emplace_back(CModelWeight(model.first), TPriorPtr(model.second->clone()));
     }
 }
 
@@ -425,9 +425,9 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         if (model.second->participatesInModelSelection()) {
             TUnivariatePriorPtrDoublePr prior(model.second->univariate(marginalize, condition));
             if (prior.first == nullptr) {
-                return TUnivariatePriorPtrDoublePr();
+                return {};
             }
-            models.emplace_back(1.0, prior.first);
+            models.emplace_back(1.0, std::move(prior.first));
             weights.push_back(prior.second + model.first.logWeight());
             maxWeight.add(weights.back());
             Z += std::exp(model.first.logWeight());
@@ -446,7 +446,7 @@ CMultivariateOneOfNPrior::TPriorPtrDoublePr
 CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
                                     const TSizeDoublePr10Vec& condition) const {
     if (m_Dimension == 2) {
-        return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
+        return {TPriorPtr(this->clone()), 0.0};
     }
 
     TDoublePriorPtrPrVec models;
@@ -458,9 +458,9 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         if (model.second->participatesInModelSelection()) {
             TPriorPtrDoublePr prior(model.second->bivariate(marginalize, condition));
             if (prior.first == nullptr) {
-                return TPriorPtrDoublePr();
+                return {};
             }
-            models.emplace_back(1.0, prior.first);
+            models.emplace_back(1.0, std::move(prior.first));
             weights.push_back(prior.second + model.first.logWeight());
             maxWeight.add(weights.back());
             Z += std::exp(model.first.logWeight());

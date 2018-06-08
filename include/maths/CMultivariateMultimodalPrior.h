@@ -32,6 +32,7 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/ref.hpp>
 
@@ -50,10 +51,10 @@ namespace multivariate_multimodal_prior_detail {
 
 using TSizeDoublePr = std::pair<size_t, double>;
 using TSizeDoublePr3Vec = core::CSmallVector<TSizeDoublePr, 3>;
-using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
 using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
 using TDouble10VecWeightsAry1Vec = CMultivariatePrior::TDouble10VecWeightsAry1Vec;
-using TMode = SMultimodalPriorMode<std::shared_ptr<CMultivariatePrior>>;
+using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
+using TMode = SMultimodalPriorMode<TPriorPtr>;
 using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
@@ -134,7 +135,7 @@ public:
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TMatrixVec = std::vector<TMatrix>;
     using TClusterer = CClusterer<TFloatPoint>;
-    using TClustererPtr = std::shared_ptr<TClusterer>;
+    using TClustererPtr = std::unique_ptr<TClusterer>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
 
     // Lift all overloads of into scope.
@@ -162,13 +163,13 @@ public:
 
     //! Create from a collection of priors.
     //!
-    //! \note The priors are shallow copied.
+    //! \note The priors are moved into place clearing the values in \p priors.
     //! \note This constructor doesn't support subsequent update of the prior.
     CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors)
         : CMultivariatePrior(dataType, 0.0) {
         m_Modes.reserve(priors.size());
         for (std::size_t i = 0u; i < priors.size(); ++i) {
-            m_Modes.emplace_back(i, priors[i]);
+            m_Modes.emplace_back(i, std::move(priors[i]));
         }
     }
 
@@ -425,12 +426,12 @@ public:
         for (const auto& mode : m_Modes) {
             TUnivariatePriorPtrDoublePr prior(mode.s_Prior->univariate(marginalize, condition));
             if (prior.first == nullptr) {
-                return TUnivariatePriorPtrDoublePr();
+                return {};
             }
             if (prior.first->isNonInformative()) {
                 continue;
             }
-            modes.push_back(prior.first);
+            modes.push_back(std::move(prior.first));
             weights.push_back(prior.second);
             maxWeight.add(weights.back());
         }
@@ -444,8 +445,8 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(),
-                                                         this->decayRate(), modes)),
+        return {boost::make_unique<CMultimodalPrior>(this->dataType(),
+                                                     this->decayRate(), modes),
                 Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
@@ -465,7 +466,7 @@ public:
                                         const TSizeDoublePr10Vec& condition) const {
 
         if (N == 2) {
-            return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
+            return {TPriorPtr(this->clone()), 0.0};
         }
 
         std::size_t n = m_Modes.size();
@@ -484,7 +485,7 @@ public:
             if (prior.first->isNonInformative()) {
                 continue;
             }
-            modes.push_back(prior.first);
+            modes.push_back(std::move(prior.first));
             weights.push_back(prior.second);
             maxWeight.add(weights.back());
         }
@@ -498,7 +499,7 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)),
+        return {boost::make_unique<CMultivariateMultimodalPrior<2>>(this->dataType(), modes),
                 Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
@@ -905,7 +906,7 @@ private:
 
             // Create the child modes.
             LOG_TRACE(<< "Creating mode with index " << leftSplitIndex);
-            modes.emplace_back(leftSplitIndex, m_Prior->m_SeedPrior);
+            modes.emplace_back(leftSplitIndex, TPriorPtr(m_Prior->m_SeedPrior->clone()));
             {
                 TPointVec samples;
                 if (!m_Prior->m_Clusterer->sample(
@@ -935,7 +936,7 @@ private:
             }
 
             LOG_TRACE(<< "Creating mode with index " << rightSplitIndex);
-            modes.emplace_back(rightSplitIndex, m_Prior->m_SeedPrior);
+            modes.emplace_back(rightSplitIndex, TPriorPtr(m_Prior->m_SeedPrior->clone()));
             {
                 TPointVec samples;
                 if (!m_Prior->m_Clusterer->sample(
@@ -1025,7 +1026,7 @@ private:
                 MODE_TAG, TMode mode,
                 traverser.traverseSubLevel(boost::bind(
                     &TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
-                m_Modes.push_back(mode))
+                m_Modes.push_back(std::move(mode)))
             RESTORE_SETUP_TEARDOWN(
                 NUMBER_SAMPLES_TAG, double numberSamples,
                 core::CStringUtils::stringToType(traverser.value(), numberSamples),

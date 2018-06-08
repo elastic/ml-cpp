@@ -234,7 +234,7 @@ void CNaiveBayesTest::testMemoryUsage() {
     // Check invariants.
 
     using TMemoryUsagePtr = std::unique_ptr<core::CMemoryUsage>;
-    using TNaiveBayesPtr = std::shared_ptr<maths::CNaiveBayes>;
+    using TNaiveBayesPtr = std::unique_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
 
@@ -306,7 +306,8 @@ void CNaiveBayesTest::testPersist() {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1, 0.0, 0.0, 0.0};
-    maths::CNaiveBayes restoredNb{params, traverser};
+    maths::CNaiveBayes restoredNb{maths::CNaiveBayesFeatureDensityFromPrior(normal),
+                                  params, traverser};
 
     CPPUNIT_ASSERT_EQUAL(origNb.checksum(), restoredNb.checksum());
 

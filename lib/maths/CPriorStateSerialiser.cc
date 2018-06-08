@@ -25,7 +25,9 @@
 #include <maths/CPrior.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 
+#include <memory>
 #include <string>
 #include <typeinfo>
 
@@ -43,40 +45,68 @@ const std::string ONE_OF_N_TAG("e");
 const std::string POISSON_TAG("f");
 const std::string MULTINOMIAL_TAG("g");
 const std::string CONSTANT_TAG("h");
-
 const std::string EMPTY_STRING;
+
+//! Implements restore for std::shared_ptr.
+template<typename T>
+void doRestore(std::shared_ptr<CPrior>& ptr, core::CStateRestoreTraverser& traverser) {
+    ptr = std::make_shared<T>(traverser);
 }
 
-bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
-                                       TPriorPtr& ptr,
-                                       core::CStateRestoreTraverser& traverser) const {
-    size_t numResults(0);
+//! Implements restore for std::unique_ptr.
+template<typename T>
+void doRestore(std::unique_ptr<CPrior>& ptr, core::CStateRestoreTraverser& traverser) {
+    ptr = boost::make_unique<T>(traverser);
+}
+
+//! Implements restore for std::shared_ptr.
+template<typename T>
+void doRestore(const SDistributionRestoreParams& params,
+               std::shared_ptr<CPrior>& ptr,
+               core::CStateRestoreTraverser& traverser) {
+    ptr = std::make_shared<T>(params, traverser);
+}
+
+//! Implements restore for std::unique_ptr.
+template<typename T>
+void doRestore(const SDistributionRestoreParams& params,
+               std::unique_ptr<CPrior>& ptr,
+               core::CStateRestoreTraverser& traverser) {
+    ptr = boost::make_unique<T>(params, traverser);
+}
+
+//! Implements restore into the supplied pointer.
+template<typename PTR>
+bool restore(const SDistributionRestoreParams& params,
+             PTR& ptr,
+             core::CStateRestoreTraverser& traverser) {
+    std::size_t numResults{0};
 
     do {
         const std::string& name = traverser.name();
         if (name == CONSTANT_TAG) {
-            ptr.reset(new CConstantPrior(traverser));
+            doRestore<CConstantPrior>(ptr, traverser);
             ++numResults;
         } else if (name == GAMMA_TAG) {
-            ptr.reset(new CGammaRateConjugate(params, traverser));
+            doRestore<CGammaRateConjugate>(params, ptr, traverser);
             ++numResults;
         } else if (name == LOG_NORMAL_TAG) {
-            ptr.reset(new CLogNormalMeanPrecConjugate(params, traverser));
+            doRestore<CLogNormalMeanPrecConjugate>(params, ptr, traverser);
             ++numResults;
         } else if (name == MULTIMODAL_TAG) {
-            ptr.reset(new CMultimodalPrior(params, traverser));
+            doRestore<CMultimodalPrior>(params, ptr, traverser);
             ++numResults;
         } else if (name == MULTINOMIAL_TAG) {
-            ptr.reset(new CMultinomialConjugate(params, traverser));
+            doRestore<CMultinomialConjugate>(params, ptr, traverser);
             ++numResults;
         } else if (name == NORMAL_TAG) {
-            ptr.reset(new CNormalMeanPrecConjugate(params, traverser));
+            doRestore<CNormalMeanPrecConjugate>(params, ptr, traverser);
             ++numResults;
         } else if (name == ONE_OF_N_TAG) {
-            ptr.reset(new COneOfNPrior(params, traverser));
+            doRestore<COneOfNPrior>(params, ptr, traverser);
             ++numResults;
         } else if (name == POISSON_TAG) {
-            ptr.reset(new CPoissonMeanConjugate(params, traverser));
+            doRestore<CPoissonMeanConjugate>(params, ptr, traverser);
             ++numResults;
         } else {
             // Due to the way we divide large state into multiple chunks
@@ -94,6 +124,19 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
     }
 
     return true;
+}
+}
+
+bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
+                                       TPriorUPtr& ptr,
+                                       core::CStateRestoreTraverser& traverser) const {
+    return restore(params, ptr, traverser);
+}
+
+bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
+                                       TPriorSPtr& ptr,
+                                       core::CStateRestoreTraverser& traverser) const {
+    return restore(params, ptr, traverser);
 }
 
 void CPriorStateSerialiser::operator()(const CPrior& prior,
