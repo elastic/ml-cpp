@@ -16,6 +16,7 @@
 #include <maths/CIntegerTools.h>
 
 #include <boost/array.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <cstddef>
@@ -252,11 +253,11 @@ bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& resu
     do {
         const std::string& name = traverser.name();
         if (name == DIURNAL_TIME_TAG) {
-            result.reset(new CDiurnalTime);
+            result = boost::make_unique<CDiurnalTime>();
             result->fromString(traverser.value());
             ++numResults;
         } else if (name == ARBITRARY_PERIOD_TIME_TAG) {
-            result.reset(new CGeneralPeriodTime);
+            result = boost::make_unique<CGeneralPeriodTime>();
             result->fromString(traverser.value());
             ++numResults;
         } else {

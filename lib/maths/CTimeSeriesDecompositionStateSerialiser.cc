@@ -15,7 +15,9 @@
 #include <maths/CTimeSeriesDecompositionStub.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 
+#include <memory>
 #include <string>
 #include <typeinfo>
 
@@ -30,23 +32,49 @@ namespace {
 // DO NOT change the existing tags if new sub-classes are added.
 const std::string TIME_SERIES_DECOMPOSITION_TAG("a");
 const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
-
 const std::string EMPTY_STRING;
+
+//! Implements restore for std::shared_ptr.
+template<typename T>
+void doRestore(std::shared_ptr<CTimeSeriesDecompositionInterface>& ptr) {
+    ptr = std::make_shared<T>();
 }
 
-bool CTimeSeriesDecompositionStateSerialiser::
-operator()(const STimeSeriesDecompositionRestoreParams& params,
-           TDecompositionPtr& result,
-           core::CStateRestoreTraverser& traverser) const {
-    std::size_t numResults = 0;
+//! Implements restore for std::unique_ptr.
+template<typename T>
+void doRestore(std::unique_ptr<CTimeSeriesDecompositionInterface>& ptr) {
+    ptr = boost::make_unique<T>();
+}
 
+//! Implements restore for std::shared_ptr.
+template<typename T>
+void doRestore(const STimeSeriesDecompositionRestoreParams& params,
+               std::shared_ptr<CTimeSeriesDecompositionInterface>& ptr,
+               core::CStateRestoreTraverser& traverser) {
+    ptr = std::make_shared<T>(params, traverser);
+}
+
+//! Implements restore for std::unique_ptr.
+template<typename T>
+void doRestore(const STimeSeriesDecompositionRestoreParams& params,
+               std::unique_ptr<CTimeSeriesDecompositionInterface>& ptr,
+               core::CStateRestoreTraverser& traverser) {
+    ptr = boost::make_unique<T>(params, traverser);
+}
+
+//! Implements restore into the supplied pointer.
+template<typename PTR>
+bool restore(const STimeSeriesDecompositionRestoreParams& params,
+             PTR& ptr,
+             core::CStateRestoreTraverser& traverser) {
+    std::size_t numResults{0};
     do {
         const std::string& name = traverser.name();
         if (name == TIME_SERIES_DECOMPOSITION_TAG) {
-            result.reset(new CTimeSeriesDecomposition(params, traverser));
+            doRestore<CTimeSeriesDecomposition>(params, ptr, traverser);
             ++numResults;
         } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
-            result.reset(new CTimeSeriesDecompositionStub());
+            doRestore<CTimeSeriesDecompositionStub>(ptr);
             ++numResults;
         } else {
             LOG_ERROR(<< "No decomposition corresponds to name " << traverser.name());
@@ -56,11 +84,26 @@ operator()(const STimeSeriesDecompositionRestoreParams& params,
 
     if (numResults != 1) {
         LOG_ERROR(<< "Expected 1 (got " << numResults << ") decomposition tags");
-        result.reset();
+        ptr.reset();
         return false;
     }
 
     return true;
+}
+}
+
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params,
+           TDecompositionUPtr& ptr,
+           core::CStateRestoreTraverser& traverser) const {
+    return restore(params, ptr, traverser);
+}
+
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params,
+           TDecompositionSPtr& ptr,
+           core::CStateRestoreTraverser& traverser) const {
+    return restore(params, ptr, traverser);
 }
 
 void CTimeSeriesDecompositionStateSerialiser::
