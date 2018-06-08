@@ -35,7 +35,6 @@ const std::string CLASS_MODEL_TAG{"c"};
 const std::string MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG{"d"};
 const std::string COUNT_TAG{"e"};
 const std::string CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f"};
-const std::string EXEMPLAR_FROM_PRIOR_TAG{"g"};
 }
 
 CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior(const CPrior& prior)
@@ -125,9 +124,10 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
       m_DecayRate{decayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
 }
 
-CNaiveBayes::CNaiveBayes(const SDistributionRestoreParams& params,
+CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
+                         const SDistributionRestoreParams& params,
                          core::CStateRestoreTraverser& traverser)
-    : m_DecayRate{params.s_DecayRate}, m_ClassConditionalDensities{2} {
+    : m_DecayRate{params.s_DecayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
     traverser.traverseSubLevel(boost::bind(&CNaiveBayes::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
 }
@@ -147,13 +147,6 @@ bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& param
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(CLASS_LABEL_TAG, label)
         RESTORE_SETUP_TEARDOWN(
-            EXEMPLAR_FROM_PRIOR_TAG, CNaiveBayesFeatureDensityFromPrior density,
-            traverser.traverseSubLevel(
-                boost::bind(&CNaiveBayesFeatureDensityFromPrior::acceptRestoreTraverser,
-                            boost::ref(density), boost::cref(params), _1)),
-            m_Exemplar.reset(density.clone()))
-        // Add other implementations' restore code here.
-        RESTORE_SETUP_TEARDOWN(
             CLASS_MODEL_TAG, CClass class_,
             traverser.traverseSubLevel(boost::bind(&CClass::acceptRestoreTraverser,
                                                    boost::ref(class_),
@@ -169,13 +162,6 @@ bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& param
 void CNaiveBayes::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     using TSizeClassUMapCItr = TSizeClassUMap::const_iterator;
     using TSizeClassUMapCItrVec = std::vector<TSizeClassUMapCItr>;
-
-    if (dynamic_cast<const CNaiveBayesFeatureDensityFromPrior*>(m_Exemplar.get())) {
-        inserter.insertLevel(EXEMPLAR_FROM_PRIOR_TAG,
-                             boost::bind(&CNaiveBayesFeatureDensity::acceptPersistInserter,
-                                         m_Exemplar.get(), _1));
-    }
-    // Add other implementations' persist code here.
 
     TSizeClassUMapCItrVec classes;
     classes.reserve(m_ClassConditionalDensities.size());
