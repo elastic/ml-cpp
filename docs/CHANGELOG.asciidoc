@@ -1,7 +1,9 @@
 // Use these for links to issue and pulls. Note issues and pulls redirect one to
 // each other on Github, so don't worry too much on using the right prefix.
+// :issue:    https://github.com/elastic/elasticsearch/issues/
+// :pull:     https://github.com/elastic/elasticsearch/pull/
 // :ml-issue: https://github.com/elastic/ml-cpp/issues/
-// :ml-pull: https://github.com/elastic/ml-cpp/pull/
+// :ml-pull:  https://github.com/elastic/ml-cpp/pull/
 
 = Elasticsearch Release Notes
 
@@ -20,7 +22,7 @@
 
 === Bug Fixes
 
-* By-fields should respect model_plot_config.terms {ml-pull}86[#86] (issue: {ml-issue}30004[#30004])
+* By-fields should respect model_plot_config.terms {ml-pull}86[#86] (issue: {issue}30004[#30004])
 * Function description for population lat_long results should be lat_long instead of mean {ml-pull}81[#81] (issue: {ml-issue}80[#80])
 * Fix error causing us to overestimate effective history length {ml-pull}66[#66] (issue: {ml-issue}57[#57])
 * Clearing JSON memory allocators {ml-pull}30[#30] (issue: {ml-issue}26[#26])
