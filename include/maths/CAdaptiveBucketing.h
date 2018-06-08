@@ -80,6 +80,11 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 protected:
+    //! The minimum number of standard deviations for an error to be
+    //! considered large.
+    static const double LARGE_ERROR_STANDARD_DEVIATIONS;
+
+protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
     //! Construct by traversing a state document.
     CAdaptiveBucketing(double decayRate,
@@ -128,6 +133,9 @@ protected:
     //! this is the less influence it has on the bucket.
     void add(std::size_t bucket, core_t::TTime time, double weight);
 
+    //! Add a large error in \p bucket.
+    void addLargeError(std::size_t bucket);
+
     //! Set the rate at which the bucketing loses information.
     void decayRate(double value);
 
@@ -164,15 +172,18 @@ protected:
 
     //! Get the bucket end points.
     const TFloatVec& endpoints() const;
-
     //! Get the bucket end points.
     TFloatVec& endpoints();
 
     //! Get the bucket value centres.
     const TFloatVec& centres() const;
-
     //! Get the bucket value centres.
     TFloatVec& centres();
+
+    //! Get the bucket value centres.
+    const TFloatVec& largeErrorCounts() const;
+    //! Get the bucket value centres.
+    TFloatVec& largeErrorCounts();
 
     //! Get the total count of in the bucketing.
     double count() const;
@@ -217,6 +228,16 @@ private:
     //! Get the variance of \p bucket.
     virtual double variance(std::size_t bucket) const = 0;
 
+    //! Implements split \p bucket for derived state.
+    virtual void split(std::size_t bucket) = 0;
+
+    //! Check if there is evidence of systematically large errors in a
+    //! bucket and split it if there is.
+    void maybeSplitBucketMostInError();
+
+    //! Split \p bucket.
+    void splitBucket(std::size_t bucket);
+
 private:
     //! The rate at which information is aged out of the bucket values.
     double m_DecayRate;
@@ -225,11 +246,18 @@ private:
     //! is ignored.
     double m_MinimumBucketLength;
 
+    //! The maximum permitted buckets.
+    std::size_t m_TargetSize;
+
     //! The bucket end points.
     TFloatVec m_Endpoints;
 
-    //! The mean periodic time of each regression.
+    //! The mean offset (relative to the start of the bucket) of samples
+    //! in each bucket.
     TFloatVec m_Centres;
+
+    //! The count of large errors in each bucket.
+    TFloatVec m_LargeErrorCounts;
 
     //! An IIR low pass filter for the total desired end point displacement
     //! in refine.

@@ -233,6 +233,9 @@ private:
     //! Get the variance of \p bucket.
     virtual double variance(std::size_t bucket) const;
 
+    //! Split \p bucket.
+    virtual void split(std::size_t bucket);
+
     //! Get the interval which has been observed at \p time.
     double observedInterval(core_t::TTime time) const;
 

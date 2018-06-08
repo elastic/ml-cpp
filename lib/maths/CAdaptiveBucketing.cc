@@ -19,6 +19,7 @@
 #include <maths/CToolsDetail.h>
 
 #include <boost/bind.hpp>
+#include <boost/math/distributions/binomial.hpp>
 #include <boost/range.hpp>
 
 #include <algorithm>
@@ -45,6 +46,8 @@ const std::string ENDPOINT_TAG{"b"};
 const std::string CENTRES_TAG{"c"};
 const std::string MEAN_DESIRED_DISPLACEMENT_TAG{"d"};
 const std::string MEAN_ABS_DESIRED_DISPLACEMENT_TAG{"e"};
+const std::string LARGE_ERROR_COUNTS_TAG{"f"};
+const std::string TARGET_SIZE_TAG{"g"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
@@ -53,26 +56,40 @@ const double ALPHA{0.25};
 const double EPS{std::numeric_limits<double>::epsilon()};
 const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
 const double MINIMUM_DECAY_RATE{0.001};
+const double MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT{10.0};
+const double MAXIMUM_SIGNIFICANCE_TO_SPLIT_BUCKET{1e-3};
 }
 
 bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
+        RESTORE_BUILT_IN(TARGET_SIZE_TAG, m_TargetSize)
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
+        RESTORE(LARGE_ERROR_COUNTS_TAG,
+                core::CPersistUtils::fromString(traverser.value(), m_LargeErrorCounts))
         RESTORE(MEAN_DESIRED_DISPLACEMENT_TAG,
                 m_MeanDesiredDisplacement.fromDelimited(traverser.value()))
         RESTORE(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
                 m_MeanAbsDesiredDisplacement.fromDelimited(traverser.value()))
     } while (traverser.next());
+    if (m_TargetSize == 0) {
+        m_TargetSize = this->size();
+    }
+    if (m_LargeErrorCounts.empty()) {
+        m_LargeErrorCounts.resize(m_Centres.size(), 0.0);
+    }
     return true;
 }
 
 void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(TARGET_SIZE_TAG, m_TargetSize);
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
+    inserter.insertValue(LARGE_ERROR_COUNTS_TAG,
+                         core::CPersistUtils::toString(m_LargeErrorCounts));
     inserter.insertValue(MEAN_DESIRED_DISPLACEMENT_TAG,
                          m_MeanDesiredDisplacement.toDelimited());
     inserter.insertValue(MEAN_ABS_DESIRED_DISPLACEMENT_TAG,
@@ -80,13 +97,15 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
 }
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength)
-    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength} {
+    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)},
+      m_MinimumBucketLength{minimumBucketLength}, m_TargetSize{0} {
 }
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
                                        double minimumBucketLength,
                                        core::CStateRestoreTraverser& traverser)
-    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength} {
+    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)},
+      m_MinimumBucketLength{minimumBucketLength}, m_TargetSize{0} {
     traverser.traverseSubLevel(
         boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this, _1));
 }
@@ -94,8 +113,10 @@ CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
 void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
+    std::swap(m_TargetSize, other.m_TargetSize);
     m_Endpoints.swap(other.m_Endpoints);
     m_Centres.swap(other.m_Centres);
+    m_LargeErrorCounts.swap(other.m_LargeErrorCounts);
     std::swap(m_MeanDesiredDisplacement, other.m_MeanDesiredDisplacement);
     std::swap(m_MeanAbsDesiredDisplacement, other.m_MeanAbsDesiredDisplacement);
 }
@@ -117,6 +138,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
         n = std::min(n, static_cast<std::size_t>((b - a) / m_MinimumBucketLength));
     }
 
+    m_TargetSize = n;
     m_Endpoints.clear();
     m_Endpoints.reserve(n + 1);
     double width{(b - a) / static_cast<double>(n)};
@@ -125,6 +147,8 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     }
     m_Centres.clear();
     m_Centres.resize(n);
+    m_LargeErrorCounts.clear();
+    m_LargeErrorCounts.resize(n, 0.0);
 
     return true;
 }
@@ -166,6 +190,7 @@ std::size_t CAdaptiveBucketing::size() const {
 void CAdaptiveBucketing::clear() {
     clearAndShrink(m_Endpoints);
     clearAndShrink(m_Centres);
+    clearAndShrink(m_LargeErrorCounts);
 }
 
 void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weight) {
@@ -173,6 +198,10 @@ void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weig
         this->count(bucket), static_cast<double>(m_Centres[bucket]))};
     centre.add(this->offset(time), weight);
     m_Centres[bucket] = CBasicStatistics::mean(centre);
+}
+
+void CAdaptiveBucketing::addLargeError(std::size_t bucket) {
+    m_LargeErrorCounts[bucket] += 1.0;
 }
 
 void CAdaptiveBucketing::decayRate(double value) {
@@ -184,6 +213,9 @@ double CAdaptiveBucketing::decayRate() const {
 }
 
 void CAdaptiveBucketing::age(double factor) {
+    for (auto& count : m_LargeErrorCounts) {
+        count *= factor;
+    }
     m_MeanDesiredDisplacement.age(factor);
     m_MeanAbsDesiredDisplacement.age(factor);
 }
@@ -206,6 +238,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         return;
     }
     --n;
+
+    // Check if any buckets should be split based on the large error counts.
+    this->maybeSplitBucketMostInError();
 
     double a{m_Endpoints[0]};
     double b{m_Endpoints[n]};
@@ -488,6 +523,14 @@ CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::centres() {
     return m_Centres;
 }
 
+const CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::largeErrorCounts() const {
+    return m_LargeErrorCounts;
+}
+
+CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::largeErrorCounts() {
+    return m_LargeErrorCounts;
+}
+
 double CAdaptiveBucketing::count() const {
     double result = 0.0;
     for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
@@ -533,14 +576,80 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
 uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_MinimumBucketLength);
+    seed = CChecksum::calculate(seed, m_TargetSize);
     seed = CChecksum::calculate(seed, m_Endpoints);
-    return CChecksum::calculate(seed, m_Centres);
+    seed = CChecksum::calculate(seed, m_Centres);
+    seed = CChecksum::calculate(seed, m_LargeErrorCounts);
+    seed = CChecksum::calculate(seed, m_MeanDesiredDisplacement);
+    return CChecksum::calculate(seed, m_MeanAbsDesiredDisplacement);
 }
 
 std::size_t CAdaptiveBucketing::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_Endpoints)};
     mem += core::CMemory::dynamicSize(m_Centres);
+    mem += core::CMemory::dynamicSize(m_LargeErrorCounts);
     return mem;
 }
+
+void CAdaptiveBucketing::maybeSplitBucketMostInError() {
+    if (4 * this->size() == 5 * m_TargetSize) {
+        return;
+    }
+
+    double n{std::accumulate(m_LargeErrorCounts.begin(), m_LargeErrorCounts.end(), 0.0)};
+    if (n < MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
+        return;
+    }
+
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TMinAccumulator = CBasicStatistics::SMin<TDoubleSizePr>::TAccumulator;
+
+    // We compute the right tail p-value of the count of large errors
+    // in a bucket for the null hypothesis that they are uniformly
+    // distributed on the total bucketed window length and split if
+    // this is less than a specified threshold.
+    TMinAccumulator min;
+    double window{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
+    for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
+        double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
+        if (interval >= 2.0 * m_MinimumBucketLength) {
+            try {
+                boost::math::binomial binomial{n, interval / window};
+                min.add({maths::CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1]), i - 1});
+            } catch (const std::exception& e) {
+                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what());
+            }
+        }
+    }
+    if (min.count() > 0) {
+        // We're choosing the minimum of number of buckets so need the
+        // order statistic significance.
+        double significance{CTools::oneMinusPowOneMinusX(
+                min[0].first, static_cast<double>(this->size()))};
+        LOG_TRACE("significance = " << significance << " bucket n = "
+                  << m_LargeErrorCounts[min[0].second] << " n = " << n);
+
+        if (significance < MAXIMUM_SIGNIFICANCE_TO_SPLIT_BUCKET) {
+            this->splitBucket(min[0].second);
+        }
+    }
+}
+
+void CAdaptiveBucketing::splitBucket(std::size_t bucket) {
+    double leftEnd{m_Endpoints[bucket]};
+    double rightEnd{m_Endpoints[bucket + 1]};
+    double midpoint{(leftEnd + rightEnd) / 2.0};
+    double centre{m_Centres[bucket]};
+    double offset{std::min(centre - leftEnd, rightEnd - centre) / 2.0};
+    m_Endpoints.insert(m_Endpoints.begin() + bucket + 1, midpoint);
+    m_Centres[bucket] = std::max(centre + offset, midpoint);
+    m_Centres.insert(m_Centres.begin() + bucket, std::min(centre - offset, midpoint));
+    m_LargeErrorCounts[bucket] /= 2.0;
+    m_LargeErrorCounts.insert(m_LargeErrorCounts.begin() + bucket,
+                              m_LargeErrorCounts[bucket]);
+    this->split(bucket);
+}
+
+const double CAdaptiveBucketing::LARGE_ERROR_STANDARD_DEVIATIONS{3.0};
 }
 }

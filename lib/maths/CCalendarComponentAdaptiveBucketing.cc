@@ -112,11 +112,19 @@ void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
     std::size_t bucket{0};
     if (this->initialized() && this->bucket(time, bucket)) {
         this->CAdaptiveBucketing::add(bucket, time, weight);
-        TFloatMeanVarAccumulator variance{m_Values[bucket]};
-        variance.add(value, weight * weight);
+
+        TFloatMeanVarAccumulator moments{m_Values[bucket]};
+        double prediction{CBasicStatistics::mean(moments)};
+        moments.add(value, weight * weight);
+
         m_Values[bucket].add(value, weight);
         CBasicStatistics::moment<1>(m_Values[bucket]) =
-            CBasicStatistics::maximumLikelihoodVariance(variance);
+            CBasicStatistics::maximumLikelihoodVariance(moments);
+        if (std::fabs(value - prediction) >
+            LARGE_ERROR_STANDARD_DEVIATIONS *
+                std::sqrt(CBasicStatistics::maximumLikelihoodVariance(moments))) {
+            this->addLargeError(bucket);
+        }
     }
 }
 
@@ -228,7 +236,7 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
     return true;
 }
 
-void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
+void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints) {
     // Values are assigned based on their intersection with each
     // bucket in the previous configuration. The regression and
     // variance are computed using the appropriate combination
@@ -256,70 +264,78 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
     using TDoubleMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     std::size_t m{m_Values.size()};
-    std::size_t n{endpoints.size()};
+    std::size_t n{oldEndpoints.size()};
     if (m + 1 != n) {
         LOG_ERROR(<< "Inconsistent end points and regressions");
         return;
     }
 
-    TFloatVec& m_Endpoints{this->CAdaptiveBucketing::endpoints()};
-    TFloatVec& m_Centres{this->CAdaptiveBucketing::centres()};
+    const TFloatVec& newEndpoints{this->CAdaptiveBucketing::endpoints()};
+    const TFloatVec& oldCentres{this->CAdaptiveBucketing::centres()};
+    const TFloatVec& oldLargeErrorCounts{this->CAdaptiveBucketing::largeErrorCounts()};
 
-    TFloatMeanVarVec values;
-    TFloatVec centres;
-    values.reserve(m);
-    centres.reserve(m);
+    TFloatMeanVarVec newValues;
+    TFloatVec newCentres;
+    TFloatVec newLargeErrorCounts;
+    newValues.reserve(m);
+    newCentres.reserve(m);
+    newLargeErrorCounts.reserve(m);
 
     for (std::size_t i = 1u; i < n; ++i) {
-        double yl{m_Endpoints[i - 1]};
-        double yr{m_Endpoints[i]};
-        std::size_t r = std::lower_bound(endpoints.begin(), endpoints.end(), yr) -
-                        endpoints.begin();
+        double yl{newEndpoints[i - 1]};
+        double yr{newEndpoints[i]};
+        std::size_t r = std::lower_bound(oldEndpoints.begin(), oldEndpoints.end(), yr) -
+                        oldEndpoints.begin();
         r = CTools::truncate(r, std::size_t(1), n - 1);
 
-        std::size_t l = std::upper_bound(endpoints.begin(), endpoints.end(), yl) -
-                        endpoints.begin();
+        std::size_t l = std::upper_bound(oldEndpoints.begin(), oldEndpoints.end(), yl) -
+                        oldEndpoints.begin();
         l = CTools::truncate(l, std::size_t(1), r);
 
         LOG_TRACE(<< "interval = [" << yl << "," << yr << "]");
         LOG_TRACE(<< "l = " << l << ", r = " << r);
-        LOG_TRACE(<< "[x(l), x(r)] = [" << endpoints[l - 1] << "," << endpoints[r] << "]");
+        LOG_TRACE(<< "[x(l), x(r)] = [" << oldEndpoints[l - 1] << "," << oldEndpoints[r] << "]");
 
-        double xl{endpoints[l - 1]};
-        double xr{endpoints[l]};
+        double xl{oldEndpoints[l - 1]};
+        double xr{oldEndpoints[l]};
         if (l == r) {
-            double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
+            double interval{newEndpoints[i] - newEndpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
-            values.push_back(CBasicStatistics::scaled(m_Values[l - 1], w * w));
-            centres.push_back(
-                CTools::truncate(static_cast<double>(m_Centres[l - 1]), yl, yr));
+            newValues.push_back(CBasicStatistics::scaled(m_Values[l - 1], w * w));
+            newCentres.push_back(
+                CTools::truncate(static_cast<double>(oldCentres[l - 1]), yl, yr));
+            newLargeErrorCounts.push_back(w * oldLargeErrorCounts[l - 1]);
         } else {
-            double interval{xr - m_Endpoints[i - 1]};
+            double interval{xr - newEndpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l - 1], w)};
             TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(
                 w * CBasicStatistics::count(m_Values[l - 1]),
-                static_cast<double>(m_Centres[l - 1]))};
+                static_cast<double>(oldCentres[l - 1]))};
+            double largeErrorCount{w * oldLargeErrorCounts[l - 1]};
             double count{w * w * CBasicStatistics::count(m_Values[l - 1])};
             while (++l < r) {
                 value += m_Values[l - 1];
                 centre += CBasicStatistics::accumulator(
                     CBasicStatistics::count(m_Values[l - 1]),
-                    static_cast<double>(m_Centres[l - 1]));
+                    static_cast<double>(oldCentres[l - 1]));
+                largeErrorCount += oldLargeErrorCounts[l - 1];
                 count += CBasicStatistics::count(m_Values[l - 1]);
             }
-            xl = endpoints[l - 1];
-            xr = endpoints[l];
-            interval = m_Endpoints[i] - xl;
+            xl = oldEndpoints[l - 1];
+            xr = oldEndpoints[l];
+            interval = newEndpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
             value += CBasicStatistics::scaled(m_Values[l - 1], w);
             centre += CBasicStatistics::accumulator(
                 w * CBasicStatistics::count(m_Values[l - 1]),
-                static_cast<double>(m_Centres[l - 1]));
+                static_cast<double>(oldCentres[l - 1]));
+            largeErrorCount += w * oldLargeErrorCounts[l - 1];
             count += w * w * CBasicStatistics::count(m_Values[l - 1]);
             double scale{count / CBasicStatistics::count(value)};
-            values.push_back(CBasicStatistics::scaled(value, scale));
-            centres.push_back(CTools::truncate(CBasicStatistics::mean(centre), yl, yr));
+            newValues.push_back(CBasicStatistics::scaled(value, scale));
+            newCentres.push_back(CTools::truncate(CBasicStatistics::mean(centre), yl, yr));
+            newLargeErrorCounts.push_back(largeErrorCount);
         }
     }
 
@@ -328,26 +344,25 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
     // that is equal to the number of points they will receive in one
     // period.
     double count{0.0};
-    for (const auto& value : values) {
+    for (const auto& value : newValues) {
         count += CBasicStatistics::count(value);
     }
-    count /= (endpoints[m] - endpoints[0]);
+    count /= (oldEndpoints[m] - oldEndpoints[0]);
     for (std::size_t i = 0u; i < m; ++i) {
-        double ci{CBasicStatistics::count(values[i])};
+        double ci{CBasicStatistics::count(newValues[i])};
         if (ci > 0.0) {
-            CBasicStatistics::scale(count * (endpoints[i + 1] - endpoints[i]) / ci,
-                                    values[i]);
+            CBasicStatistics::scale(count * (oldEndpoints[i + 1] - oldEndpoints[i]) / ci,
+                                    newValues[i]);
         }
     }
 
     LOG_TRACE(<< "old endpoints = " << core::CContainerPrinter::print(endpoints));
-    LOG_TRACE(<< "old values    = " << core::CContainerPrinter::print(m_Values));
-    LOG_TRACE(<< "old centres   = " << core::CContainerPrinter::print(m_Centres));
-    LOG_TRACE(<< "new endpoints = " << core::CContainerPrinter::print(m_Endpoints));
-    LOG_TRACE(<< "new value     = " << core::CContainerPrinter::print(values));
-    LOG_TRACE(<< "new centres   = " << core::CContainerPrinter::print(centres));
-    m_Values.swap(values);
-    m_Centres.swap(centres);
+    LOG_TRACE(<< "old centres   = " << core::CContainerPrinter::print(oldCentres));
+    LOG_TRACE(<< "new endpoints = " << core::CContainerPrinter::print(newEndpoints));
+    LOG_TRACE(<< "new centres   = " << core::CContainerPrinter::print(newCentres));
+    m_Values.swap(newValues);
+    this->CAdaptiveBucketing::centres().swap(newCentres);
+    this->CAdaptiveBucketing::largeErrorCounts().swap(newLargeErrorCounts);
 }
 
 bool CCalendarComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
@@ -377,6 +392,11 @@ double CCalendarComponentAdaptiveBucketing::predict(std::size_t bucket,
 
 double CCalendarComponentAdaptiveBucketing::variance(std::size_t bucket) const {
     return CBasicStatistics::maximumLikelihoodVariance(m_Values[bucket]);
+}
+
+void CCalendarComponentAdaptiveBucketing::split(std::size_t bucket) {
+    CBasicStatistics::scale(0.5, m_Values[bucket]);
+    m_Values.insert(m_Values.begin() + bucket, m_Values[bucket]);
 }
 }
 }

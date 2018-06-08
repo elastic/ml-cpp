@@ -181,6 +181,9 @@ private:
     //! Get the variance of \p bucket.
     virtual double variance(std::size_t bucket) const;
 
+    //! Split \p bucket.
+    virtual void split(std::size_t bucket);
+
 private:
     //! The time provider.
     CCalendarFeature m_Feature;

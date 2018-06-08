@@ -214,6 +214,11 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
     regression.add(t, value, weight);
     bucket_.s_Variance = CBasicStatistics::maximumLikelihoodVariance(moments);
 
+    if (std::fabs(value - prediction) >
+        LARGE_ERROR_STANDARD_DEVIATIONS * std::sqrt(bucket_.s_Variance)) {
+        this->addLargeError(bucket);
+    }
+
     if (m_Time->regressionInterval(bucket_.s_FirstUpdate, bucket_.s_LastUpdate) <
         SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE) {
         double delta{regression.predict(t)};
@@ -432,11 +437,14 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
 
     const TFloatVec& newEndpoints{this->CAdaptiveBucketing::endpoints()};
     const TFloatVec& oldCentres{this->CAdaptiveBucketing::centres()};
+    const TFloatVec& oldLargeErrorCounts{this->CAdaptiveBucketing::largeErrorCounts()};
 
     TBucketVec buckets;
     TFloatVec newCentres;
+    TFloatVec newLargeErrorCounts;
     buckets.reserve(m);
     newCentres.reserve(m);
+    newLargeErrorCounts.reserve(m);
 
     for (std::size_t i = 1u; i < n; ++i) {
         double yl{newEndpoints[i - 1]};
@@ -464,6 +472,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
                                  bucket.s_FirstUpdate, bucket.s_LastUpdate);
             newCentres.push_back(
                 CTools::truncate(static_cast<double>(oldCentres[l - 1]), yl, yr));
+            newLargeErrorCounts.push_back(w * oldLargeErrorCounts[l - 1]);
         } else {
             double interval{xr - newEndpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
@@ -478,6 +487,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
             lastUpdate.add(bucket->s_LastUpdate);
             TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(
                 w * bucket->s_Regression.count(), static_cast<double>(oldCentres[l - 1]))};
+            double largeErrorCount{w * oldLargeErrorCounts[l - 1]};
             double count{w * w * bucket->s_Regression.count()};
             while (++l < r) {
                 bucket = &m_Buckets[l - 1];
@@ -489,6 +499,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
                 lastUpdate.add(bucket->s_LastUpdate);
                 centre += CBasicStatistics::accumulator(
                     bucket->s_Regression.count(), static_cast<double>(oldCentres[l - 1]));
+                largeErrorCount += oldLargeErrorCounts[l - 1];
                 count += bucket->s_Regression.count();
             }
             xl = oldEndpoints[l - 1];
@@ -504,12 +515,14 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
             lastUpdate.add(bucket->s_LastUpdate);
             centre += CBasicStatistics::accumulator(
                 w * bucket->s_Regression.count(), static_cast<double>(oldCentres[l - 1]));
+            largeErrorCount += w * oldLargeErrorCounts[l - 1];
             count += w * w * bucket->s_Regression.count();
             double scale{count == regression.count() ? 1.0 : count / regression.count()};
             buckets.emplace_back(regression.scaled(scale),
                                  CBasicStatistics::maximumLikelihoodVariance(variance),
                                  firstUpdate[0], lastUpdate[0]);
             newCentres.push_back(CTools::truncate(CBasicStatistics::mean(centre), yl, yr));
+            newLargeErrorCounts.push_back(largeErrorCount);
         }
     }
 
@@ -536,6 +549,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     LOG_TRACE(<< "new centres     = " << core::CContainerPrinter::print(newCentres));
     m_Buckets.swap(buckets);
     this->CAdaptiveBucketing::centres().swap(newCentres);
+    this->CAdaptiveBucketing::largeErrorCounts().swap(newLargeErrorCounts);
 }
 
 bool CSeasonalComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
@@ -594,6 +608,11 @@ double CSeasonalComponentAdaptiveBucketing::predict(std::size_t bucket,
 
 double CSeasonalComponentAdaptiveBucketing::variance(std::size_t bucket) const {
     return m_Buckets[bucket].s_Variance;
+}
+
+void CSeasonalComponentAdaptiveBucketing::split(std::size_t bucket) {
+    m_Buckets[bucket].s_Regression.scale(0.5);
+    m_Buckets.insert(m_Buckets.begin() + bucket, m_Buckets[bucket]);
 }
 
 double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time) const {
