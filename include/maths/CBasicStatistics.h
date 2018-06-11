@@ -1367,15 +1367,15 @@ public:
     //! \name Accumulator Typedefs
     //@{
     //! Accumulator object to compute the sample maximum.
-    template<typename T>
+    template<typename T, std::size_t N = 1>
     struct SMax {
-        using TAccumulator = COrderStatisticsStack<T, 1, std::greater<T>>;
+        using TAccumulator = COrderStatisticsStack<T, N, std::greater<T>>;
     };
 
     //! Accumulator object to compute the sample minimum.
-    template<typename T>
+    template<typename T, std::size_t N = 1>
     struct SMin {
-        using TAccumulator = COrderStatisticsStack<T, 1>;
+        using TAccumulator = COrderStatisticsStack<T, N>;
     };
     //@}
 

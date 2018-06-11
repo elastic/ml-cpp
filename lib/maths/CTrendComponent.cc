@@ -197,10 +197,15 @@ void CTrendComponent::shiftOrigin(core_t::TTime time) {
     }
 }
 
-void CTrendComponent::shiftSlope(double decayRate, double shift) {
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
-        double shift_{std::min(m_DefaultDecayRate * TIME_SCALES[i] / decayRate, 1.0) * shift};
-        m_TrendModels[i].s_Regression.shiftGradient(shift_);
+void CTrendComponent::shiftSlope(core_t::TTime time, double shift) {
+    if (std::fabs(shift) > 0.0) {
+        for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+            double modelDecayRate{m_DefaultDecayRate * TIME_SCALES[i]};
+            double shift_{std::min(modelDecayRate / m_TargetDecayRate, 1.0) * shift};
+            m_TrendModels[i].s_Regression.shiftGradient(shift_);
+            m_TrendModels[i].s_Regression.shiftOrdinate(
+                -shift_ * scaleTime(time, m_RegressionOrigin));
+        }
     }
 }
 

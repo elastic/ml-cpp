@@ -61,10 +61,9 @@ namespace maths {
 //!
 //! For sufficiently smooth functions and a given number of buckets
 //! the objective is minimized by ensuring that "bucket width" x
-//! "function range" is approximately equal in all buckets.
+//! "function range" is equal in all buckets.
 //!
-//! The bucketing is aged by relaxing it back towards uniform and
-//! aging the counts of the mean value for each bucket as usual.
+//! The bucketing is aged by relaxing it back towards uniform.
 class MATHS_EXPORT CAdaptiveBucketing {
 public:
     using TDoubleVec = std::vector<double>;
@@ -73,11 +72,67 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    //! Restore by traversing a state document
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    //! Refine the bucket end points to minimize the maximum averaging
+    //! error in any bucket.
+    //!
+    //! \param[in] time The time at which to refine.
+    void refine(core_t::TTime time);
 
-    //! Persist by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    //! Check if the bucketing has been initialized.
+    bool initialized() const;
+
+    //! Get the number of buckets.
+    std::size_t size() const;
+
+    //! Set the rate at which the bucketing loses information.
+    void decayRate(double value);
+
+    //! Get the rate at which the bucketing loses information.
+    double decayRate() const;
+
+    //! Get the minimum permitted bucket length.
+    double minimumBucketLength() const;
+
+    //! Get the bucket end points.
+    const TFloatVec& endpoints() const;
+
+    //! Get the bucket value centres.
+    const TFloatVec& centres() const;
+
+    //! Get the bucket value centres.
+    const TFloatVec& largeErrorCounts() const;
+
+    //! Get a set of knot points and knot point values to use for
+    //! interpolating the bucket values.
+    //!
+    //! \param[in] time The time at which to get the knot points.
+    //! \param[in] boundary Controls the style of start and end knots.
+    //! \param[out] knots Filled in with the knot points to interpolate.
+    //! \param[out] values Filled in with the values at \p knots.
+    //! \param[out] variances Filled in with the variances at \p knots.
+    //! \return True if there are sufficient knot points to interpolate
+    //! and false otherwise.
+    bool knots(core_t::TTime time,
+               CSplineTypes::EBoundaryCondition boundary,
+               TDoubleVec& knots,
+               TDoubleVec& values,
+               TDoubleVec& variances) const;
+
+    //! \name Test Functions
+    //@{
+    //! Get the total count of in the bucketing.
+    double count() const;
+
+    //! Get the bucket regressions.
+    TDoubleVec values(core_t::TTime time) const;
+
+    //! Get the bucket variances.
+    TDoubleVec variances() const;
+    //@}
+
+protected:
+    using TRestoreFunc = std::function<bool(core::CStateRestoreTraverser&)>;
+    using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
 protected:
     //! The minimum number of standard deviations for an error to be
@@ -86,17 +141,22 @@ protected:
 
 protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
-    //! Construct by traversing a state document.
-    CAdaptiveBucketing(double decayRate,
-                       double minimumBucketLength,
-                       core::CStateRestoreTraverser& traverser);
     virtual ~CAdaptiveBucketing() = default;
+
+    //! Get the restore function bound to this object.
+    TRestoreFunc getAcceptRestoreTraverser();
+
+    //! Get the accept persist function bound to this object.
+    TPersistFunc getAcceptPersistInserter() const;
+
+    //! Restore by traversing a state document
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Persist by passing information to the supplied inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two bucketing objects.
     void swap(CAdaptiveBucketing& other);
-
-    //! Check if the bucketing has been initialized.
-    bool initialized() const;
 
     //! Create a new uniform bucketing with \p n buckets on the
     //! interval [\p a, \p b].
@@ -118,9 +178,6 @@ protected:
                        core_t::TTime endTime,
                        const TFloatMeanAccumulatorVec& values);
 
-    //! Get the number of buckets.
-    std::size_t size() const;
-
     //! Clear the contents of this bucketing and recover any
     //! allocated memory.
     void clear();
@@ -128,71 +185,25 @@ protected:
     //! Add the function value at \p time.
     //!
     //! \param[in] bucket The index of the bucket of \p time.
-    //! \param[in] time The time of \p value.
-    //! \param[in] weight The weight of function point. The smaller
-    //! this is the less influence it has on the bucket.
+    //! \param[in] time The time of the value being added.
+    //! \param[in] weight The weight of the value being added. The
+    //! smaller this is the less influence it has on the bucket.
     void add(std::size_t bucket, core_t::TTime time, double weight);
 
     //! Add a large error in \p bucket.
-    void addLargeError(std::size_t bucket);
-
-    //! Set the rate at which the bucketing loses information.
-    void decayRate(double value);
-
-    //! Get the rate at which the bucketing loses information.
-    double decayRate() const;
+    void addLargeError(std::size_t bucket, core_t::TTime time);
 
     //! Age the force moments.
     void age(double factor);
 
-    //! Get the minimum permitted bucket length.
-    double minimumBucketLength() const;
-
-    //! Refine the bucket end points to minimize the maximum averaging
-    //! error in any bucket.
-    //!
-    //! \param[in] time The time at which to refine.
-    void refine(core_t::TTime time);
-
-    //! Get a set of knot points and knot point values to use for
-    //! interpolating the bucket values.
-    //!
-    //! \param[in] time The time at which to get the knot points.
-    //! \param[in] boundary Controls the style of start and end knots.
-    //! \param[out] knots Filled in with the knot points to interpolate.
-    //! \param[out] values Filled in with the values at \p knots.
-    //! \param[out] variances Filled in with the variances at \p knots.
-    //! \return True if there are sufficient knot points to interpolate
-    //! and false otherwise.
-    bool knots(core_t::TTime time,
-               CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec& knots,
-               TDoubleVec& values,
-               TDoubleVec& variances) const;
-
-    //! Get the bucket end points.
-    const TFloatVec& endpoints() const;
-    //! Get the bucket end points.
-    TFloatVec& endpoints();
-
-    //! Get the bucket value centres.
-    const TFloatVec& centres() const;
     //! Get the bucket value centres.
     TFloatVec& centres();
 
     //! Get the bucket value centres.
-    const TFloatVec& largeErrorCounts() const;
-    //! Get the bucket value centres.
     TFloatVec& largeErrorCounts();
 
-    //! Get the total count of in the bucketing.
-    double count() const;
-
-    //! Get the bucket regressions.
-    TDoubleVec values(core_t::TTime time) const;
-
-    //! Get the bucket variances.
-    TDoubleVec variances() const;
+    //! Adjust \p weight for significant large error counts.
+    double adjustedWeight(std::size_t bucket, double weight) const;
 
     //! Compute the index of the bucket to which \p time belongs
     bool bucket(core_t::TTime time, std::size_t& result) const;
@@ -202,6 +213,10 @@ protected:
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
+
+private:
+    using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
+    using TMinAccumulator = CBasicStatistics::SMin<TFloatUInt32Pr, 2>::TAccumulator;
 
 private:
     //! Compute the values corresponding to the change in end
@@ -219,8 +234,8 @@ private:
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     virtual double offset(core_t::TTime time) const = 0;
 
-    //! The count in \p bucket.
-    virtual double count(std::size_t bucket) const = 0;
+    //! Get the count in \p bucket.
+    virtual double bucketCount(std::size_t bucket) const = 0;
 
     //! Get the predicted value for the \p bucket at \p time.
     virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const = 0;
@@ -233,10 +248,14 @@ private:
 
     //! Check if there is evidence of systematically large errors in a
     //! bucket and split it if there is.
-    void maybeSplitBucketMostInError();
+    void splitBucketsWithSignificantLargeErrors();
 
     //! Split \p bucket.
     void splitBucket(std::size_t bucket);
+
+    //! Compute the statistical significance of the buckets' large error
+    //! counts.
+    bool computeLargeErrorSignificances();
 
 private:
     //! The rate at which information is aged out of the bucket values.
@@ -246,8 +265,23 @@ private:
     //! is ignored.
     double m_MinimumBucketLength;
 
-    //! The maximum permitted buckets.
+    //! The desired number of buckets. We can use more if we determine
+    //! that we aren't capturing the periodic pattern effectively.
+    //!
+    //! \see maybeSplitBucketMostSignificantBuckets for details.
     std::size_t m_TargetSize;
+
+    //! The bucket of the last large error added.
+    std::size_t m_LastLargeErrorBucket;
+
+    //! The period of the last large error added.
+    core_t::TTime m_LastLargeErrorPeriod;
+
+    //! The p-values of the most significant large error counts.
+    TMinAccumulator m_LargeErrorCountSignificances;
+
+    //! The mean weight of values added.
+    TFloatMeanAccumulator m_MeanWeight;
 
     //! The bucket end points.
     TFloatVec m_Endpoints;

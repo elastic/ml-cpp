@@ -111,9 +111,7 @@ operator=(const CSeasonalComponentAdaptiveBucketing& rhs) {
 
 void CSeasonalComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_3_TAG, "");
-    inserter.insertLevel(ADAPTIVE_BUCKETING_6_3_TAG,
-                         boost::bind(&CAdaptiveBucketing::acceptPersistInserter,
-                                     static_cast<const CAdaptiveBucketing*>(this), _1));
+    inserter.insertLevel(ADAPTIVE_BUCKETING_6_3_TAG, this->getAcceptPersistInserter());
     inserter.insertLevel(TIME_6_3_TAG, boost::bind(&CSeasonalTimeStateSerializer::acceptPersistInserter,
                                                    boost::cref(*m_Time), _1));
     core::CPersistUtils::persist(BUCKETS_6_3_TAG, m_Buckets, inserter);
@@ -123,10 +121,6 @@ void CSeasonalComponentAdaptiveBucketing::swap(CSeasonalComponentAdaptiveBucketi
     this->CAdaptiveBucketing::swap(other);
     m_Time.swap(other.m_Time);
     m_Buckets.swap(other.m_Buckets);
-}
-
-bool CSeasonalComponentAdaptiveBucketing::initialized() const {
-    return this->CAdaptiveBucketing::initialized();
 }
 
 bool CSeasonalComponentAdaptiveBucketing::initialize(std::size_t n) {
@@ -149,13 +143,9 @@ void CSeasonalComponentAdaptiveBucketing::initialValues(core_t::TTime startTime,
         this->shiftOrigin(startTime);
         if (!values.empty()) {
             this->CAdaptiveBucketing::initialValues(startTime, endTime, values);
-            this->shiftSlope(-this->slope());
+            this->shiftSlope(startTime, -this->slope());
         }
     }
-}
-
-std::size_t CSeasonalComponentAdaptiveBucketing::size() const {
-    return this->CAdaptiveBucketing::size();
 }
 
 void CSeasonalComponentAdaptiveBucketing::clear() {
@@ -180,9 +170,12 @@ void CSeasonalComponentAdaptiveBucketing::shiftLevel(double shift) {
     }
 }
 
-void CSeasonalComponentAdaptiveBucketing::shiftSlope(double shift) {
-    for (auto& bucket : m_Buckets) {
-        bucket.s_Regression.shiftGradient(shift);
+void CSeasonalComponentAdaptiveBucketing::shiftSlope(core_t::TTime time, double shift) {
+    if (std::fabs(shift) > 0.0) {
+        for (auto& bucket : m_Buckets) {
+            bucket.s_Regression.shiftGradient(shift);
+            bucket.s_Regression.shiftOrdinate(-shift * m_Time->regression(time));
+        }
     }
 }
 
@@ -201,6 +194,7 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
         return;
     }
 
+    weight = this->adjustedWeight(bucket, weight);
     this->CAdaptiveBucketing::add(bucket, time, weight);
 
     SBucket& bucket_{m_Buckets[bucket]};
@@ -216,7 +210,7 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
 
     if (std::fabs(value - prediction) >
         LARGE_ERROR_STANDARD_DEVIATIONS * std::sqrt(bucket_.s_Variance)) {
-        this->addLargeError(bucket);
+        this->addLargeError(bucket, time);
     }
 
     if (m_Time->regressionInterval(bucket_.s_FirstUpdate, bucket_.s_LastUpdate) <
@@ -239,33 +233,16 @@ const CSeasonalTime& CSeasonalComponentAdaptiveBucketing::time() const {
     return *m_Time;
 }
 
-void CSeasonalComponentAdaptiveBucketing::decayRate(double value) {
-    this->CAdaptiveBucketing::decayRate(value);
-}
-
-double CSeasonalComponentAdaptiveBucketing::decayRate() const {
-    return this->CAdaptiveBucketing::decayRate();
-}
-
 void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, bool meanRevert) {
     if (time < 0.0) {
         LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
-        double factor{std::exp(-this->CAdaptiveBucketing::decayRate() *
-                               m_Time->fractionInWindow() * time)};
-        this->CAdaptiveBucketing::age(factor);
+        double factor{std::exp(-this->decayRate() * m_Time->fractionInWindow() * time)};
+        this->age(factor);
         for (auto& bucket : m_Buckets) {
             bucket.s_Regression.age(factor, meanRevert);
         }
     }
-}
-
-double CSeasonalComponentAdaptiveBucketing::minimumBucketLength() const {
-    return this->CAdaptiveBucketing::minimumBucketLength();
-}
-
-void CSeasonalComponentAdaptiveBucketing::refine(core_t::TTime time) {
-    this->CAdaptiveBucketing::refine(time);
 }
 
 double CSeasonalComponentAdaptiveBucketing::count(core_t::TTime time) const {
@@ -282,14 +259,6 @@ const TRegression* CSeasonalComponentAdaptiveBucketing::regression(core_t::TTime
         result = &m_Buckets[bucket].s_Regression;
     }
     return result;
-}
-
-bool CSeasonalComponentAdaptiveBucketing::knots(core_t::TTime time,
-                                                CSplineTypes::EBoundaryCondition boundary,
-                                                TDoubleVec& knots,
-                                                TDoubleVec& values,
-                                                TDoubleVec& variances) const {
-    return this->CAdaptiveBucketing::knots(time, boundary, knots, values, variances);
 }
 
 double CSeasonalComponentAdaptiveBucketing::slope() const {
@@ -314,9 +283,8 @@ uint64_t CSeasonalComponentAdaptiveBucketing::checksum(uint64_t seed) const {
 
 void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CSeasonalComponentAdaptiveBucketing");
-    core::CMemoryDebug::dynamicSize("m_Endpoints",
-                                    this->CAdaptiveBucketing::endpoints(), mem);
-    core::CMemoryDebug::dynamicSize("m_Centres", this->CAdaptiveBucketing::centres(), mem);
+    core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
+    core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
     core::CMemoryDebug::dynamicSize("m_Buckets", m_Buckets, mem);
 }
 
@@ -324,33 +292,12 @@ std::size_t CSeasonalComponentAdaptiveBucketing::memoryUsage() const {
     return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Buckets);
 }
 
-const CSeasonalComponentAdaptiveBucketing::TFloatVec&
-CSeasonalComponentAdaptiveBucketing::endpoints() const {
-    return this->CAdaptiveBucketing::endpoints();
-}
-
-double CSeasonalComponentAdaptiveBucketing::count() const {
-    return this->CAdaptiveBucketing::count();
-}
-
-CSeasonalComponentAdaptiveBucketing::TDoubleVec
-CSeasonalComponentAdaptiveBucketing::values(core_t::TTime time) const {
-    return this->CAdaptiveBucketing::values(time);
-}
-
-CSeasonalComponentAdaptiveBucketing::TDoubleVec
-CSeasonalComponentAdaptiveBucketing::variances() const {
-    return this->CAdaptiveBucketing::variances();
-}
-
 bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE(ADAPTIVE_BUCKETING_6_3_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser,
-                                    static_cast<CAdaptiveBucketing*>(this), _1)));
+                    traverser.traverseSubLevel(this->getAcceptRestoreTraverser()))
             RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel(boost::bind(
                                       &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
                                       boost::ref(m_Time), _1)))
@@ -370,9 +317,7 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
         do {
             const std::string& name{traverser.name()};
             RESTORE(ADAPTIVE_BUCKETING_OLD_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser,
-                                    static_cast<CAdaptiveBucketing*>(this), _1)));
+                    traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
             RESTORE(TIME_OLD_TAG, traverser.traverseSubLevel(boost::bind(
                                       &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
                                       boost::ref(m_Time), _1)))
@@ -435,9 +380,9 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         return;
     }
 
-    const TFloatVec& newEndpoints{this->CAdaptiveBucketing::endpoints()};
-    const TFloatVec& oldCentres{this->CAdaptiveBucketing::centres()};
-    const TFloatVec& oldLargeErrorCounts{this->CAdaptiveBucketing::largeErrorCounts()};
+    const TFloatVec& newEndpoints{this->endpoints()};
+    const TFloatVec& oldCentres{this->centres()};
+    const TFloatVec& oldLargeErrorCounts{this->largeErrorCounts()};
 
     TBucketVec buckets;
     TFloatVec newCentres;
@@ -548,8 +493,8 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     LOG_TRACE(<< "new endpoints   = " << core::CContainerPrinter::print(newEndpoints));
     LOG_TRACE(<< "new centres     = " << core::CContainerPrinter::print(newCentres));
     m_Buckets.swap(buckets);
-    this->CAdaptiveBucketing::centres().swap(newCentres);
-    this->CAdaptiveBucketing::largeErrorCounts().swap(newLargeErrorCounts);
+    this->centres().swap(newCentres);
+    this->largeErrorCounts().swap(newLargeErrorCounts);
 }
 
 bool CSeasonalComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
@@ -574,7 +519,7 @@ double CSeasonalComponentAdaptiveBucketing::offset(core_t::TTime time) const {
     return m_Time->periodic(time);
 }
 
-double CSeasonalComponentAdaptiveBucketing::count(std::size_t bucket) const {
+double CSeasonalComponentAdaptiveBucketing::bucketCount(std::size_t bucket) const {
     return m_Buckets[bucket].s_Regression.count();
 }
 
@@ -611,7 +556,7 @@ double CSeasonalComponentAdaptiveBucketing::variance(std::size_t bucket) const {
 }
 
 void CSeasonalComponentAdaptiveBucketing::split(std::size_t bucket) {
-    m_Buckets[bucket].s_Regression.scale(0.5);
+    m_Buckets[bucket].s_Regression.scale(0.25);
     m_Buckets.insert(m_Buckets.begin() + bucket, m_Buckets[bucket]);
 }
 

@@ -64,9 +64,7 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
 }
 
 void CCalendarComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(ADAPTIVE_BUCKETING_TAG,
-                         boost::bind(&CAdaptiveBucketing::acceptPersistInserter,
-                                     static_cast<const CAdaptiveBucketing*>(this), _1));
+    inserter.insertLevel(ADAPTIVE_BUCKETING_TAG, this->getAcceptPersistInserter());
     inserter.insertValue(FEATURE_TAG, m_Feature.toDelimited());
     core::CPersistUtils::persist(VALUES_TAG, m_Values, inserter);
 }
@@ -75,10 +73,6 @@ void CCalendarComponentAdaptiveBucketing::swap(CCalendarComponentAdaptiveBucketi
     this->CAdaptiveBucketing::swap(other);
     std::swap(m_Feature, other.m_Feature);
     m_Values.swap(other.m_Values);
-}
-
-bool CCalendarComponentAdaptiveBucketing::initialized() const {
-    return this->CAdaptiveBucketing::initialized();
 }
 
 bool CCalendarComponentAdaptiveBucketing::initialize(std::size_t n) {
@@ -91,10 +85,6 @@ bool CCalendarComponentAdaptiveBucketing::initialize(std::size_t n) {
         return true;
     }
     return false;
-}
-
-std::size_t CCalendarComponentAdaptiveBucketing::size() const {
-    return this->CAdaptiveBucketing::size();
 }
 
 void CCalendarComponentAdaptiveBucketing::clear() {
@@ -123,7 +113,7 @@ void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
         if (std::fabs(value - prediction) >
             LARGE_ERROR_STANDARD_DEVIATIONS *
                 std::sqrt(CBasicStatistics::maximumLikelihoodVariance(moments))) {
-            this->addLargeError(bucket);
+            this->addLargeError(bucket, time);
         }
     }
 }
@@ -132,32 +122,16 @@ CCalendarFeature CCalendarComponentAdaptiveBucketing::feature() const {
     return m_Feature;
 }
 
-void CCalendarComponentAdaptiveBucketing::decayRate(double value) {
-    this->CAdaptiveBucketing::decayRate(value);
-}
-
-double CCalendarComponentAdaptiveBucketing::decayRate() const {
-    return this->CAdaptiveBucketing::decayRate();
-}
-
 void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
     if (time < 0.0) {
         LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
-        double factor{::exp(-this->CAdaptiveBucketing::decayRate() * time)};
-        this->CAdaptiveBucketing::age(factor);
+        double factor{std::exp(-this->decayRate() * time)};
+        this->age(factor);
         for (auto& value : m_Values) {
             value.age(factor);
         }
     }
-}
-
-double CCalendarComponentAdaptiveBucketing::minimumBucketLength() const {
-    return this->CAdaptiveBucketing::minimumBucketLength();
-}
-
-void CCalendarComponentAdaptiveBucketing::refine(core_t::TTime time) {
-    this->CAdaptiveBucketing::refine(time);
 }
 
 double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
@@ -177,14 +151,6 @@ CCalendarComponentAdaptiveBucketing::value(core_t::TTime time) const {
     return result;
 }
 
-bool CCalendarComponentAdaptiveBucketing::knots(core_t::TTime time,
-                                                CSplineTypes::EBoundaryCondition boundary,
-                                                TDoubleVec& knots,
-                                                TDoubleVec& values,
-                                                TDoubleVec& variances) const {
-    return this->CAdaptiveBucketing::knots(time, boundary, knots, values, variances);
-}
-
 uint64_t CCalendarComponentAdaptiveBucketing::checksum(uint64_t seed) const {
     seed = this->CAdaptiveBucketing::checksum(seed);
     seed = CChecksum::calculate(seed, m_Feature);
@@ -193,9 +159,8 @@ uint64_t CCalendarComponentAdaptiveBucketing::checksum(uint64_t seed) const {
 
 void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CCalendarComponentAdaptiveBucketing");
-    core::CMemoryDebug::dynamicSize("m_Endpoints",
-                                    this->CAdaptiveBucketing::endpoints(), mem);
-    core::CMemoryDebug::dynamicSize("m_Centres", this->CAdaptiveBucketing::centres(), mem);
+    core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
+    core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
     core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
 }
 
@@ -203,32 +168,11 @@ std::size_t CCalendarComponentAdaptiveBucketing::memoryUsage() const {
     return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Values);
 }
 
-const CCalendarComponentAdaptiveBucketing::TFloatVec&
-CCalendarComponentAdaptiveBucketing::endpoints() const {
-    return this->CAdaptiveBucketing::endpoints();
-}
-
-double CCalendarComponentAdaptiveBucketing::count() const {
-    return this->CAdaptiveBucketing::count();
-}
-
-CCalendarComponentAdaptiveBucketing::TDoubleVec
-CCalendarComponentAdaptiveBucketing::values(core_t::TTime time) const {
-    return this->CAdaptiveBucketing::values(time);
-}
-
-CCalendarComponentAdaptiveBucketing::TDoubleVec
-CCalendarComponentAdaptiveBucketing::variances() const {
-    return this->CAdaptiveBucketing::variances();
-}
-
 bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE(ADAPTIVE_BUCKETING_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser,
-                                static_cast<CAdaptiveBucketing*>(this), _1)));
+                traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
         RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()));
         RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
     } while (traverser.next());
@@ -270,9 +214,9 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         return;
     }
 
-    const TFloatVec& newEndpoints{this->CAdaptiveBucketing::endpoints()};
-    const TFloatVec& oldCentres{this->CAdaptiveBucketing::centres()};
-    const TFloatVec& oldLargeErrorCounts{this->CAdaptiveBucketing::largeErrorCounts()};
+    const TFloatVec& newEndpoints{this->endpoints()};
+    const TFloatVec& oldCentres{this->centres()};
+    const TFloatVec& oldLargeErrorCounts{this->largeErrorCounts()};
 
     TFloatMeanVarVec newValues;
     TFloatVec newCentres;
@@ -294,7 +238,8 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
 
         LOG_TRACE(<< "interval = [" << yl << "," << yr << "]");
         LOG_TRACE(<< "l = " << l << ", r = " << r);
-        LOG_TRACE(<< "[x(l), x(r)] = [" << oldEndpoints[l - 1] << "," << oldEndpoints[r] << "]");
+        LOG_TRACE(<< "[x(l), x(r)] = [" << oldEndpoints[l - 1] << ","
+                  << oldEndpoints[r] << "]");
 
         double xl{oldEndpoints[l - 1]};
         double xr{oldEndpoints[l]};
@@ -351,18 +296,18 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     for (std::size_t i = 0u; i < m; ++i) {
         double ci{CBasicStatistics::count(newValues[i])};
         if (ci > 0.0) {
-            CBasicStatistics::scale(count * (oldEndpoints[i + 1] - oldEndpoints[i]) / ci,
-                                    newValues[i]);
+            CBasicStatistics::scale(
+                count * (oldEndpoints[i + 1] - oldEndpoints[i]) / ci, newValues[i]);
         }
     }
 
-    LOG_TRACE(<< "old endpoints = " << core::CContainerPrinter::print(endpoints));
+    LOG_TRACE(<< "old endpoints = " << core::CContainerPrinter::print(oldEndpoints));
     LOG_TRACE(<< "old centres   = " << core::CContainerPrinter::print(oldCentres));
     LOG_TRACE(<< "new endpoints = " << core::CContainerPrinter::print(newEndpoints));
     LOG_TRACE(<< "new centres   = " << core::CContainerPrinter::print(newCentres));
     m_Values.swap(newValues);
-    this->CAdaptiveBucketing::centres().swap(newCentres);
-    this->CAdaptiveBucketing::largeErrorCounts().swap(newLargeErrorCounts);
+    this->centres().swap(newCentres);
+    this->largeErrorCounts().swap(newLargeErrorCounts);
 }
 
 bool CCalendarComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
@@ -380,7 +325,7 @@ double CCalendarComponentAdaptiveBucketing::offset(core_t::TTime time) const {
     return static_cast<double>(m_Feature.offset(time));
 }
 
-double CCalendarComponentAdaptiveBucketing::count(std::size_t bucket) const {
+double CCalendarComponentAdaptiveBucketing::bucketCount(std::size_t bucket) const {
     return CBasicStatistics::count(m_Values[bucket]);
 }
 
@@ -395,7 +340,7 @@ double CCalendarComponentAdaptiveBucketing::variance(std::size_t bucket) const {
 }
 
 void CCalendarComponentAdaptiveBucketing::split(std::size_t bucket) {
-    CBasicStatistics::scale(0.5, m_Values[bucket]);
+    CBasicStatistics::scale(0.25, m_Values[bucket]);
     m_Values.insert(m_Values.begin() + bucket, m_Values[bucket]);
 }
 }

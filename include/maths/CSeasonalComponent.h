@@ -97,8 +97,9 @@ public:
     //! Shift the component's values by \p shift.
     void shiftLevel(double shift);
 
-    //! Shift the component's slope by \p shift.
-    void shiftSlope(double shift);
+    //! Shift the component's slope by \p shift keeping the prediction at
+    //! \p time fixed.
+    void shiftSlope(core_t::TTime time, double shift);
 
     //! Linearly scale the component's by \p scale.
     void linearScale(core_t::TTime time, double scale);

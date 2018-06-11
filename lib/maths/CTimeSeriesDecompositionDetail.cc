@@ -1747,7 +1747,7 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
                     windowSlopes[component.time().window()] += si;
                 } else {
                     slope += si;
-                    component.shiftSlope(-si);
+                    component.shiftSlope(time, -si);
                 }
             }
         }
@@ -1760,12 +1760,12 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
 
         for (auto& component : seasonal) {
             if (component.slopeAccurate(time) && component.time().windowed()) {
-                component.shiftSlope(-windowedSlope.signMargin());
+                component.shiftSlope(time, -windowedSlope.signMargin());
             }
         }
 
         if (slope != 0.0) {
-            m_Trend.shiftSlope(m_DecayRate, slope);
+            m_Trend.shiftSlope(time, slope);
         }
     }
 }
