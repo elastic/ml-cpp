@@ -16,11 +16,11 @@ void CDetectionRule::action(int action) {
     m_Action = action;
 }
 
-void CDetectionRule::includeScope(std::string field, const core::CPatternSet& filter) {
+void CDetectionRule::includeScope(const std::string& field, const core::CPatternSet& filter) {
     m_Scope.include(field, filter);
 }
 
-void CDetectionRule::excludeScope(std::string field, const core::CPatternSet& filter) {
+void CDetectionRule::excludeScope(const std::string& field, const core::CPatternSet& filter) {
     m_Scope.exclude(field, filter);
 }
 

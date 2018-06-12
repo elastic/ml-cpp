@@ -41,10 +41,10 @@ public:
     void action(int ruleAction);
 
     //! Adds a requirement for \p field not to be in \p filter for the rule to apply
-    void includeScope(std::string field, const core::CPatternSet& filter);
+    void includeScope(const std::string& field, const core::CPatternSet& filter);
 
     //! Adds a requirement for \p field not to be in \p filter for the rule to apply
-    void excludeScope(std::string field, const core::CPatternSet& filter);
+    void excludeScope(const std::string& field, const core::CPatternSet& filter);
 
     //! Add a condition.
     void addCondition(const CRuleCondition& condition);

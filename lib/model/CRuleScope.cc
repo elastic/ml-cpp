@@ -14,11 +14,11 @@
 namespace ml {
 namespace model {
 
-void CRuleScope::include(std::string field, const core::CPatternSet& filter) {
+void CRuleScope::include(const std::string& field, const core::CPatternSet& filter) {
     m_Scope.emplace_back(field, TPatternSetCRef(filter), E_Include);
 }
 
-void CRuleScope::exclude(std::string field, const core::CPatternSet& filter) {
+void CRuleScope::exclude(const std::string& field, const core::CPatternSet& filter) {
     m_Scope.emplace_back(field, TPatternSetCRef(filter), E_Exclude);
 }
 

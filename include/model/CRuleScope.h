@@ -44,10 +44,10 @@ public:
     CRuleScope() = default;
 
     //! Adds a requirement for \p field to be in \p filter for the rule to apply
-    void include(std::string field, const core::CPatternSet& filter);
+    void include(const std::string& field, const core::CPatternSet& filter);
 
     //! Adds a requirement for \p field not to be in \p filter for the rule to apply
-    void exclude(std::string field, const core::CPatternSet& filter);
+    void exclude(const std::string& field, const core::CPatternSet& filter);
 
     //! Check whether the given series is in the rule scope.
     bool check(const CAnomalyDetectorModel& model, std::size_t pid, std::size_t cid) const;
