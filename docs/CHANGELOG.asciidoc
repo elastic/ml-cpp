@@ -13,6 +13,9 @@
 
 === New Features
 
+Detectors now support rules that allow the user to improve the results by providing some domain specific
+knowledge in the form of rule. ({pull}119[#119])
+
 === Enhancements
 
 Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])

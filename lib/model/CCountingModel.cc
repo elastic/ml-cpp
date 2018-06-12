@@ -261,7 +261,7 @@ CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const {
     for (auto& event : events) {
         // Note that as the counting model is not aware of partitions
         // scheduled events cannot support partitions as the code stands.
-        if (event.second.apply(CDetectionRule::E_SkipSampling, boost::cref(*this),
+        if (event.second.apply(CDetectionRule::E_SkipModelUpdate, boost::cref(*this),
                                model_t::E_IndividualCountByBucketAndPerson,
                                model_t::CResultType(), model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                                model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, sampleTime)) {
