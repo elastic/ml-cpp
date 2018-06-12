@@ -42,17 +42,14 @@ CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
         "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction",
         &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions));
+        "CDetectionRulesJsonParserTest::testParseRulesGivenNeitherScopeNorConditions",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenNeitherScopeNorConditions));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray",
         &CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
+        "CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsEmptyArray",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsEmptyArray));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator",
         &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator));
@@ -60,29 +57,35 @@ CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
         "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator",
         &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr));
+        "CDetectionRulesJsonParserTest::testParseRulesGivenConditionOnActual",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenConditionOnActual));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd));
+        "CDetectionRulesJsonParserTest::testParseRulesGivenConditionsOnTypicalAndDiffFromTypical",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenConditionsOnTypicalAndDiffFromTypical));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules",
         &CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule));
+        "CDetectionRulesJsonParserTest::testParseRulesGivenScopeIsEmpty",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenScopeIsEmpty));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule));
+        "CDetectionRulesJsonParserTest::testParseRulesGivenIncludeScope",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenIncludeScope));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
+        "CDetectionRulesJsonParserTest::testParseRulesGivenExcludeScope",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenExcludeScope));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
+        "CDetectionRulesJsonParserTest::testParseRulesGivenMultipleScopedFields",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenMultipleScopedFields));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
+        "CDetectionRulesJsonParserTest::testParseRulesGivenScopeAndConditions",
+        &CDetectionRulesJsonParserTest::testParseRulesGivenScopeAndConditions));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule",
         &CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions",
         &CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-        "CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule",
-        &CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule));
     return suiteOfTests;
 }
 
@@ -121,9 +124,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction() {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"condition+type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -138,9 +140,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray() {
     std::string rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":\"not_array\",";
-    rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -155,9 +156,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction() {
     std::string rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"something_invalid\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -166,43 +166,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction() {
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective() {
+void CDetectionRulesJsonParserTest::testParseRulesGivenNeitherScopeNorConditions() {
     CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
-    rulesJson += "  ]";
-    rulesJson += "}";
-    rulesJson += "]";
-
-    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
-    CPPUNIT_ASSERT(rules.empty());
-}
-
-void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective() {
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
-    CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
-    rulesJson += "{";
-    rulesJson += "  \"conditions_connective\":\"XOR\",";
-    rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
-    rulesJson += "  ]";
-    rulesJson += "}";
-    rulesJson += "]";
-
-    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
-    CPPUNIT_ASSERT(rules.empty());
-}
-
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions() {
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
-    CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
-    rulesJson += "{";
-    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"actions\":[\"skip_result\"]";
     rulesJson += "}";
     rulesJson += "]";
 
@@ -215,8 +184,22 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray(
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": {}";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
+    CPPUNIT_ASSERT(rules.empty());
+}
+
+void CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsEmptyArray() {
+    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"conditions\": []";
     rulesJson += "}";
     rulesJson += "]";
 
@@ -229,8 +212,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"value\":\"5\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -244,8 +228,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"ha\",\"value\":\"5\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"ha\",\"value\": 5.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -254,16 +239,15 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr() {
+void CDetectionRulesJsonParserTest::testParseRulesGivenConditionOnActual() {
     CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}},";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"field_name\":\"metric\", \"condition\":{\"operator\":\"lte\",\"value\":\"2.3\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0},";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lte\",\"value\": 2.3}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -271,21 +255,19 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithCo
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF ACTUAL < 5.000000 OR ACTUAL(metric) <= 2.300000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000 AND ACTUAL <= 2.300000"),
                          rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd() {
+void CDetectionRulesJsonParserTest::testParseRulesGivenConditionsOnTypicalAndDiffFromTypical() {
     CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"and\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_typical\", \"condition\":{\"operator\":\"gt\",\"value\":\"5\"}},";
-    rulesJson += "    {\"type\":\"numerical_diff_abs\", \"field_name\":\"metric\", "
-                 "\"field_value\":\"cpu\",\"condition\":{\"operator\":\"gte\",\"value\":\"2.3\"}}";
+    rulesJson += "    {\"applies_to\":\"typical\", \"operator\":\"gt\",\"value\": 5.0},";
+    rulesJson += "    {\"applies_to\":\"diff_from_typical\", \"operator\":\"gte\",\"value\": 2.3}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -293,7 +275,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAb
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL > 5.000000 AND DIFF_ABS(metric:cpu) >= 2.300000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF TYPICAL > 5.000000 AND DIFF_FROM_TYPICAL >= 2.300000"),
                          rules[0].print());
 }
 
@@ -302,21 +284,15 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules() {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
-    rulesJson += "  \"target_field_name\":\"id\",";
-    rulesJson += "  \"target_field_value\":\"foo\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"1\"}}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 1.0}";
     rulesJson += "  ]";
     rulesJson += "},";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"skip_sampling\"],";
-    rulesJson += "  \"conditions_connective\":\"and\",";
-    rulesJson += "  \"target_field_name\":\"id\",";
-    rulesJson += "  \"target_field_value\":\"42\",";
+    rulesJson += "  \"actions\":[\"skip_model_update\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}";
+    rulesJson += "    {\"applies_to\":\"typical\", \"operator\":\"lt\",\"value\": 2.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -324,13 +300,27 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules() {
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS (id:foo) IF ACTUAL < 1.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"),
                          rules[0].print());
-    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_SAMPLING (id:42) IF ACTUAL < 2.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_MODEL_UPDATE IF TYPICAL < 2.000000"),
                          rules[1].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule() {
+void CDetectionRulesJsonParserTest::testParseRulesGivenScopeIsEmpty() {
+    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"scope\": {}";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
+    CPPUNIT_ASSERT(rules.empty());
+}
+
+void CDetectionRulesJsonParserTest::testParseRulesGivenIncludeScope() {
     TStrPatternSetUMap filtersById;
     core::CPatternSet filter;
     filter.initFromJson("[\"b\", \"a\"]");
@@ -340,50 +330,72 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule() {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
-    rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"categorical_match\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
-    rulesJson += "  ]";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"scope\": {";
+    rulesJson += "    \"foo\": {\"filter_id\": \"filter1\", \"filter_type\": \"include\"}";
+    rulesJson += "  }";
     rulesJson += "}";
     rulesJson += "]";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER"), rules[0].print());
+}
+
+void CDetectionRulesJsonParserTest::testParseRulesGivenExcludeScope() {
+    TStrPatternSetUMap filtersById;
+    core::CPatternSet filter;
+    filter.initFromJson("[\"b\", \"a\"]");
+    filtersById["filter1"] = filter;
+
+    CDetectionRulesJsonParser parser(filtersById);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"scope\": {";
+    rulesJson += "    \"foo\": {\"filter_id\": \"filter1\", \"filter_type\": \"exclude\"}";
+    rulesJson += "  }";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF 'foo' NOT IN FILTER"),
                          rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule() {
-    // Tests that the rule type can be parsed as categorical_match
-    // when the type is categorical
-
+void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleScopedFields() {
     TStrPatternSetUMap filtersById;
-    core::CPatternSet filter;
-    filter.initFromJson("[\"b\", \"a\"]");
-    filtersById["filter1"] = filter;
+    core::CPatternSet filter1;
+    filter1.initFromJson("[\"b\", \"a\"]");
+    filtersById["filter1"] = filter1;
+    core::CPatternSet filter2;
+    filter2.initFromJson("[\"c\"]");
+    filtersById["filter2"] = filter2;
 
     CDetectionRulesJsonParser parser(filtersById);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
-    rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"categorical\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
-    rulesJson += "  ]";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"scope\": {";
+    rulesJson += "    \"foo\": {\"filter_id\": \"filter1\", \"filter_type\": \"include\"},";
+    rulesJson += "    \"bar\": {\"filter_id\": \"filter2\", \"filter_type\": \"exclude\"}";
+    rulesJson += "  }";
     rulesJson += "}";
     rulesJson += "]";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND 'bar' NOT IN FILTER"),
                          rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule() {
+void CDetectionRulesJsonParserTest::testParseRulesGivenScopeAndConditions() {
     TStrPatternSetUMap filtersById;
     core::CPatternSet filter;
     filter.initFromJson("[\"b\", \"a\"]");
@@ -393,10 +405,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
+    rulesJson += "  \"scope\": {";
+    rulesJson += "    \"foo\": {\"filter_id\": \"filter1\", \"filter_type\": \"include\"}";
+    rulesJson += "  },";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"categorical_complement\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
+    rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 2.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -404,7 +418,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) NOT IN FILTER"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND ACTUAL < 2.000000"),
                          rules[0].print());
 }
 
@@ -413,18 +427,17 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule() {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[";
     rulesJson += "{";
-    rulesJson += "  \"actions\":[\"filter_results\"],";
-    rulesJson += "  \"conditions_connective\":\"and\",";
+    rulesJson += "  \"actions\":[\"skip_result\"],";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"time\", \"condition\":{\"operator\":\"gte\",\"value\":\"5000\"}}";
-    rulesJson += "    ,{\"type\":\"time\", \"condition\":{\"operator\":\"lt\",\"value\":\"10000\"}}";
+    rulesJson += "    {\"applies_to\":\"time\", \"operator\":\"gte\",\"value\": 5000.0},";
+    rulesJson += "    {\"applies_to\":\"time\", \"operator\":\"lt\",\"value\": 10000.0}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TIME >= 5000.000000 AND TIME < 10000.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF TIME >= 5000.000000 AND TIME < 10000.000000"),
                          rules[0].print());
 }
 
@@ -434,10 +447,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
         std::string rulesJson = "[";
         rulesJson += "{";
-        rulesJson += "  \"actions\":[\"filter_results\"],";
-        rulesJson += "  \"conditions_connective\":\"and\",";
+        rulesJson += "  \"actions\":[\"skip_result\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";
@@ -445,7 +457,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF ACTUAL < 5.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000"),
                              rules[0].print());
     }
 
@@ -454,10 +466,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
         std::string rulesJson = "[";
         rulesJson += "{";
-        rulesJson += "  \"actions\":[\"skip_sampling\"],";
-        rulesJson += "  \"conditions_connective\":\"and\",";
+        rulesJson += "  \"actions\":[\"skip_model_update\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";
@@ -465,7 +476,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_SAMPLING IF ACTUAL < 5.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                              rules[0].print());
     }
 
@@ -474,10 +485,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
         std::string rulesJson = "[";
         rulesJson += "{";
-        rulesJson += "  \"actions\":[\"skip_sampling\", \"filter_results\"],";
-        rulesJson += "  \"conditions_connective\":\"and\",";
+        rulesJson += "  \"actions\":[\"skip_model_update\", \"skip_result\"],";
         rulesJson += "  \"conditions\": [";
-        rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
+        rulesJson += "    {\"applies_to\":\"actual\", \"operator\":\"lt\",\"value\": 5.0}";
         rulesJson += "  ]";
         rulesJson += "}";
         rulesJson += "]";
@@ -485,7 +495,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions() {
         CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF ACTUAL < 5.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                              rules[0].print());
     }
 }

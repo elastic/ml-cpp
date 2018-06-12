@@ -441,10 +441,10 @@ bool CAnomalyDetectorModel::shouldIgnoreResult(model_t::EFeature feature,
                                                core_t::TTime time) const {
     bool shouldIgnore =
         checkScheduledEvents(this->params().s_ScheduledEvents.get(),
-                             boost::cref(*this), feature, CDetectionRule::E_FilterResults,
+                             boost::cref(*this), feature, CDetectionRule::E_SkipResult,
                              resultType, pid, cid, time) ||
         checkRules(this->params().s_DetectionRules.get(), boost::cref(*this), feature,
-                   CDetectionRule::E_FilterResults, resultType, pid, cid, time);
+                   CDetectionRule::E_SkipResult, resultType, pid, cid, time);
 
     return shouldIgnore;
 }
@@ -455,10 +455,10 @@ bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
                                                core_t::TTime time) const {
     bool shouldIgnore =
         checkScheduledEvents(this->params().s_ScheduledEvents.get(),
-                             boost::cref(*this), feature, CDetectionRule::E_SkipSampling,
+                             boost::cref(*this), feature, CDetectionRule::E_SkipModelUpdate,
                              SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) ||
         checkRules(this->params().s_DetectionRules.get(), boost::cref(*this),
-                   feature, CDetectionRule::E_SkipSampling,
+                   feature, CDetectionRule::E_SkipModelUpdate,
                    SKIP_SAMPLING_RESULT_TYPE, pid, cid, time);
 
     return shouldIgnore;
