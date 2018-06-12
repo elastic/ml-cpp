@@ -127,7 +127,6 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value& ruleObj
 
     int action = 0;
     for (unsigned int i = 0; i < array.Size(); ++i) {
-        model::CRuleCondition ruleCondition;
         const std::string& parsedAction = array[i].GetString();
         if (parsedAction == SKIP_RESULT) {
             action |= model::CDetectionRule::E_SkipResult;
