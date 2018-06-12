@@ -49,7 +49,7 @@ private:
     static bool parseConditionsConnective(const rapidjson::Value& ruleObject,
                                           model::CDetectionRule& rule);
     static bool parseConditionAppliesTo(const rapidjson::Value& ruleConditionObject,
-                                   model::CRuleCondition& ruleCondition);
+                                        model::CRuleCondition& ruleCondition);
     static bool parseConditionOperator(const rapidjson::Value& conditionObject,
                                        model::CRuleCondition& condition);
     static bool parseConditionValue(const rapidjson::Value& conditionObject,
