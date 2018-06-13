@@ -128,7 +128,8 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
 CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          const SDistributionRestoreParams& params,
                          core::CStateRestoreTraverser& traverser)
-    : m_DecayRate{params.s_DecayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities(2) {
+    : m_DecayRate{params.s_DecayRate}, m_Exemplar{exemplar.clone()},
+      m_ClassConditionalDensities(2) {
     traverser.traverseSubLevel(boost::bind(&CNaiveBayes::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
 }
