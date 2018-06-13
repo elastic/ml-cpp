@@ -482,6 +482,11 @@ CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
     : s_Feature(feature), s_NewModel(newModel) {
 }
 
+CAnomalyDetectorModel::SFeatureModels::SFeatureModels(SFeatureModels&& other)
+    : s_Feature(other.s_Feature), s_NewModel(std::move(other.s_NewModel)),
+      s_Models(std::move(other.s_Models)) {
+}
+
 CAnomalyDetectorModel::SFeatureModels& CAnomalyDetectorModel::SFeatureModels::
 operator=(SFeatureModels&& other) {
     s_Feature = other.s_Feature;

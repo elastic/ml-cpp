@@ -504,7 +504,7 @@ protected:
         SFeatureModels(model_t::EFeature feature, TMathsModelSPtr newModel);
         SFeatureModels(const SFeatureModels&) = delete;
         SFeatureModels& operator=(const SFeatureModels&) = delete;
-        SFeatureModels(SFeatureModels&&) = default;
+        SFeatureModels(SFeatureModels&&);
         SFeatureModels& operator=(SFeatureModels&&);
 
         //! Restore the models reading state from \p traverser.
