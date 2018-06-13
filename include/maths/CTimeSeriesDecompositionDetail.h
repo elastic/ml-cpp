@@ -13,8 +13,10 @@
 
 #include <maths/CCalendarComponent.h>
 #include <maths/CCalendarCyclicTest.h>
+#include <maths/CExpandingWindow.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
+#include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
@@ -50,7 +52,7 @@ public:
     };
 
     //! \brief The message passed to add a point.
-    struct MATHS_EXPORT SAddValue : public SMessage, private core::CNonCopyable {
+    struct MATHS_EXPORT SAddValue : public SMessage {
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
@@ -60,6 +62,8 @@ public:
                   double calendar,
                   const TPredictor& predictor,
                   const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
+        SAddValue(const SAddValue&) = delete;
+        SAddValue& operator=(const SAddValue&) = delete;
 
         //! The value to add.
         double s_Value;
@@ -120,10 +124,12 @@ public:
 
     //! \brief The basic interface for one aspect of the modeling of a time
     //! series decomposition.
-    class MATHS_EXPORT CHandler : core::CNonCopyable {
+    class MATHS_EXPORT CHandler {
     public:
         CHandler();
-        virtual ~CHandler();
+        virtual ~CHandler() = default;
+        CHandler(const CHandler&) = delete;
+        CHandler& operator=(const CHandler&) = delete;
 
         //! Add a value.
         virtual void handle(const SAddValue& message);
@@ -149,8 +155,12 @@ public:
     };
 
     //! \brief Manages communication between handlers.
-    class MATHS_EXPORT CMediator : core::CNonCopyable {
+    class MATHS_EXPORT CMediator {
     public:
+        CMediator() = default;
+        CMediator(const CMediator&) = delete;
+        CMediator& operator=(const CMediator&) = delete;
+
         //! Forward \p message to all registered models.
         template<typename M>
         void forward(const M& message) const;
@@ -183,6 +193,7 @@ public:
     public:
         CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
         CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
+        CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -202,8 +213,16 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
-        //! Clear the test identified by \p test.
-        void clear(ETest test, core_t::TTime time);
+        //! Clear the test if the shift is large compared to the median
+        //! absolute deviation in the window.
+        //!
+        //! There is no point in continuing to use the historical window
+        //! if the signal has changed significantly w.r.t. the possible
+        //! magnitude of any seasonal component. Çonversely, if we detect
+        //! a small change we don't want to throw a lot of history: since,
+        //! depending on the false positive rate, we may never accumulate
+        //! enough history to detect long seasonal components.
+        void maybeClear(core_t::TTime time, double shift);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
@@ -220,7 +239,7 @@ public:
 
     private:
         using TTimeAry = boost::array<core_t::TTime, 2>;
-        using TExpandingWindowPtr = std::shared_ptr<CExpandingWindow>;
+        using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
     private:
@@ -264,6 +283,7 @@ public:
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
         CCalendarTest(const CCalendarTest& other, bool isForForecast = false);
+        CCalendarTest& operator=(const CCalendarTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -297,7 +317,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TCalendarCyclicTestPtr = std::shared_ptr<CCalendarCyclicTest>;
+        using TCalendarCyclicTestPtr = std::unique_ptr<CCalendarCyclicTest>;
 
     private:
         //! Handle \p symbol.
@@ -334,10 +354,12 @@ public:
         CComponents(const CComponents& other);
 
         //! \brief Watches to see if the seasonal components state changes.
-        class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable {
+        class MATHS_EXPORT CScopeNotifyOnStateChange {
         public:
             CScopeNotifyOnStateChange(CComponents& components);
             ~CScopeNotifyOnStateChange();
+            CScopeNotifyOnStateChange(const CScopeNotifyOnStateChange&) = delete;
+            CScopeNotifyOnStateChange& operator=(const CScopeNotifyOnStateChange&) = delete;
 
             //! Check if the seasonal component's state changed.
             bool changed() const;
@@ -655,7 +677,7 @@ public:
             TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TSeasonalPtr = std::shared_ptr<CSeasonal>;
+        using TSeasonalPtr = std::unique_ptr<CSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
         class MATHS_EXPORT CCalendar {
@@ -730,7 +752,7 @@ public:
             TComponentErrorsVec m_PredictionErrors;
         };
 
-        using TCalendarPtr = std::shared_ptr<CCalendar>;
+        using TCalendarPtr = std::unique_ptr<CCalendar>;
 
     private:
         //! Get the total size of the components.

@@ -158,9 +158,16 @@ public:
                        : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
-    //! Checksum a pointer.
+    //! Checksum a shared pointer.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const std::shared_ptr<T>& target) {
+        return !target ? seed
+                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+    }
+
+    //! Checksum a unique pointer.
+    template<typename T>
+    static uint64_t dispatch(uint64_t seed, const std::unique_ptr<T>& target) {
         return !target ? seed
                        : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }

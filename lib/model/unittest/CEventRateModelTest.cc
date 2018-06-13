@@ -2467,9 +2467,9 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored() {
 
 void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
     CRuleCondition condition;
-    condition.type(CRuleCondition::E_NumericalActual);
-    condition.condition().s_Op = CRuleCondition::E_LT;
-    condition.condition().s_Threshold = 100.0;
+    condition.appliesTo(CRuleCondition::E_Actual);
+    condition.op(CRuleCondition::E_LT);
+    condition.value(100.0);
     CDetectionRule rule;
     rule.addCondition(condition);
 
@@ -2722,11 +2722,11 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
 
     // Create a rule to filter buckets where the count > 100
     CRuleCondition condition;
-    condition.type(CRuleCondition::E_NumericalActual);
-    condition.condition().s_Op = CRuleCondition::E_GT;
-    condition.condition().s_Threshold = 100.0;
+    condition.appliesTo(CRuleCondition::E_Actual);
+    condition.op(CRuleCondition::E_GT);
+    condition.value(100.0);
     CDetectionRule rule;
-    rule.action(CDetectionRule::E_SkipSampling);
+    rule.action(CDetectionRule::E_SkipModelUpdate);
     rule.addCondition(condition);
 
     std::size_t bucketLength(100);

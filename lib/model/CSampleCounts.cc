@@ -8,6 +8,7 @@
 
 #include <core/CMemory.h>
 #include <core/CStringUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
@@ -67,24 +68,11 @@ void CSampleCounts::acceptPersistInserter(core::CStatePersistInserter& inserter)
 bool CSampleCounts::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == SAMPLE_COUNT_TAG) {
-            if (core::CPersistUtils::restore(name, m_SampleCounts, traverser) == false) {
-                LOG_ERROR(<< "Invalid sample counts");
-                return false;
-            }
-        } else if (name == MEAN_NON_ZERO_BUCKET_COUNT_TAG) {
-            if (core::CPersistUtils::restore(name, m_MeanNonZeroBucketCounts,
-                                             traverser) == false) {
-                LOG_ERROR(<< "Invalid non-zero bucket count means");
-                return false;
-            }
-        } else if (name == EFFECTIVE_SAMPLE_VARIANCE_TAG) {
-            if (core::CPersistUtils::restore(name, m_EffectiveSampleVariances,
-                                             traverser) == false) {
-                LOG_ERROR(<< "Invalid effective sample variances");
-                return false;
-            }
-        }
+        RESTORE(SAMPLE_COUNT_TAG, core::CPersistUtils::restore(name, m_SampleCounts, traverser))
+        RESTORE(MEAN_NON_ZERO_BUCKET_COUNT_TAG,
+                core::CPersistUtils::restore(name, m_MeanNonZeroBucketCounts, traverser))
+        RESTORE(EFFECTIVE_SAMPLE_VARIANCE_TAG,
+                core::CPersistUtils::restore(name, m_EffectiveSampleVariances, traverser))
     } while (traverser.next());
     return true;
 }
@@ -119,10 +107,9 @@ void CSampleCounts::resetSampleCount(const CDataGatherer& gatherer, std::size_t 
     if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
         unsigned sampleCountThreshold = 0;
         const CDataGatherer::TFeatureVec& features = gatherer.features();
-        for (CDataGatherer::TFeatureVecCItr i = features.begin();
-             i != features.end(); ++i) {
-            sampleCountThreshold =
-                std::max(sampleCountThreshold, model_t::minimumSampleCount(*i));
+        for (const auto& feature : features) {
+            sampleCountThreshold = std::max(sampleCountThreshold,
+                                            model_t::minimumSampleCount(feature));
         }
         double count = maths::CBasicStatistics::mean(count_);
         m_SampleCounts[id] = std::max(sampleCountThreshold,
@@ -139,9 +126,9 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
 
     unsigned sampleCountThreshold = 0;
     const CDataGatherer::TFeatureVec& features = gatherer.features();
-    for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
+    for (const auto& feature : features) {
         sampleCountThreshold =
-            std::max(sampleCountThreshold, model_t::minimumSampleCount(*i));
+            std::max(sampleCountThreshold, model_t::minimumSampleCount(feature));
     }
 
     for (std::size_t id = 0u; id < m_MeanNonZeroBucketCounts.size(); ++id) {

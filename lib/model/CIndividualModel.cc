@@ -72,9 +72,9 @@ const std::string MEMORY_ESTIMATOR_TAG("i");
 
 CIndividualModel::CIndividualModel(const SModelParams& params,
                                    const TDataGathererPtr& dataGatherer,
-                                   const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                                   const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                                   const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                                   const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                                   const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                                   TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                                    const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators) {
     m_FeatureModels.reserve(newFeatureModels.size());
@@ -92,7 +92,7 @@ CIndividualModel::CIndividualModel(const SModelParams& params,
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
-                featureCorrelatesModels[i].second);
+                std::move(featureCorrelatesModels[i].second));
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
                   [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {
@@ -428,6 +428,7 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
                 numberExistingPeople, 0, numberCorrelations);
         }
     }
+    this->estimateMemoryUsageOrComputeAndUpdate(numberExistingPeople, 0, numberCorrelations);
 
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);

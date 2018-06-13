@@ -64,10 +64,7 @@ public:
 
 public:
     //! Default constructor
-    CLimits();
-
-    //! Default destructor
-    ~CLimits();
+    explicit CLimits(double byteLimitMargin = CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN);
 
     //! Initialise from a config file.  This overwrites current settings
     //! with any found in the config file.  Settings that are not present

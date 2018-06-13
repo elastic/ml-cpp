@@ -12,17 +12,14 @@
 
 class CDetectionRuleTest : public CppUnit::TestFixture {
 public:
-    void testApplyGivenCategoricalCondition();
+    void testApplyGivenScope();
     void testApplyGivenNumericalActualCondition();
     void testApplyGivenNumericalTypicalCondition();
     void testApplyGivenNumericalDiffAbsCondition();
-    void testApplyGivenSingleSeriesModelAndConditionWithField();
     void testApplyGivenNoActualValueAvailable();
     void testApplyGivenDifferentSeriesAndIndividualModel();
     void testApplyGivenDifferentSeriesAndPopulationModel();
-    void testApplyGivenMultipleConditionsWithOr();
-    void testApplyGivenMultipleConditionsWithAnd();
-    void testApplyGivenTargetFieldIsPartitionAndIndividualModel();
+    void testApplyGivenMultipleConditions();
     void testApplyGivenTimeCondition();
     void testRuleActions();
 

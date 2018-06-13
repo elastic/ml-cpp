@@ -18,6 +18,8 @@ COMPONENTS= \
             test \
             api \
             config \
+            seccomp \
+
 
 
 include $(CPP_SRC_HOME)/mk/toplevel.mk

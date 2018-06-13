@@ -16,6 +16,7 @@ public:
     void testCovariances();
     void testCovariancesLedoitWolf();
     void testMedian();
+    void testMad();
     void testOrderStatistics();
     void testMinMax();
 

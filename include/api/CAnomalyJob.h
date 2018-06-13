@@ -108,10 +108,8 @@ public:
 public:
     using TPersistCompleteFunc =
         std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport&)>;
-    using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
+    using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
-    using TAnomalyDetectorPtrVecItr = std::vector<TAnomalyDetectorPtr>::iterator;
-    using TAnomalyDetectorPtrVecCItr = std::vector<TAnomalyDetectorPtr>::const_iterator;
     using TKeyVec = std::vector<model::CSearchKey>;
     using TKeyAnomalyDetectorPtrUMap =
         boost::unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>;
@@ -359,7 +357,7 @@ private:
     //! Update configuration
     void doForecast(const std::string& controlMessage);
 
-    model::CAnomalyDetector::TAnomalyDetectorPtr
+    TAnomalyDetectorPtr
     makeDetector(int identifier,
                  const model::CAnomalyDetectorModelConfig& modelConfig,
                  model::CLimits& limits,
