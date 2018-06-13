@@ -155,7 +155,7 @@ bool CDetectionRulesJsonParser::parseRuleScope(const rapidjson::Value& ruleObjec
         return false;
     }
 
-    if (scopeObject.Empty()) {
+    if (scopeObject.ObjectEmpty()) {
         LOG_ERROR(<< "Scope must not be empty");
         return false;
     }
