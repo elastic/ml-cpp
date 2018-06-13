@@ -56,6 +56,9 @@ double scaleTime(core_t::TTime time, core_t::TTime origin) {
 
 //! Get the \p confidence interval for \p prediction and \p variance.
 TOptionalDoubleDoublePr confidenceInterval(double prediction, double variance, double confidence) {
+    if (variance == 0.0) {
+        return std::make_pair(prediction, prediction);
+    }
     try {
         boost::math::normal normal{prediction, std::sqrt(variance)};
         double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
