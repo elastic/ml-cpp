@@ -392,6 +392,9 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time,
         }
     }
 
+    this->estimateMemoryUsageOrComputeAndUpdate(numberExistingPeople,
+                                                numberExistingAttributes, 0);
+
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
         LOG_DEBUG(<< "Not enough memory to create person models");

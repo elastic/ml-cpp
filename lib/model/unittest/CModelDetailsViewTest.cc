@@ -44,10 +44,10 @@ void CModelDetailsViewTest::testModelPlot() {
     TMockModelPtr model;
 
     auto setupTest = [&]() {
-        gatherer.reset(new model::CDataGatherer{
+        gatherer = std::make_shared<model::CDataGatherer>(
             model_t::analysisCategory(features[0]), model_t::E_None, params,
-            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING,
-            EMPTY_STRING, TStrVec(), false, key, features, 0, 0});
+            EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,
+            TStrVec{}, key, features, 0, 0);
         std::string person11{"p11"};
         std::string person12{"p12"};
         std::string person21{"p21"};
@@ -81,12 +81,10 @@ void CModelDetailsViewTest::testModelPlot() {
         setupTest();
 
         TDoubleVec values{2.0, 3.0, 0.0, 0.0};
-        {
-            std::size_t pid{0};
-            for (auto value : values) {
-                model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson,
-                                          pid++, 0, 0, {value});
-            }
+        std::size_t pid{0};
+        for (auto value : values) {
+            model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson,
+                                      pid++, 0, 0, {value});
         }
 
         model::CModelPlotData plotData;
@@ -95,7 +93,6 @@ void CModelDetailsViewTest::testModelPlot() {
         for (const auto& featureByFieldData : plotData) {
             CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
-                std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                      byFieldData.second.s_ValuesPerOverField.size());
@@ -112,12 +109,10 @@ void CModelDetailsViewTest::testModelPlot() {
         setupTest();
 
         TDoubleVec values{0.0, 1.0, 3.0};
-        {
-            std::size_t pid{0};
-            for (auto value : values) {
-                model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
-                                          pid++, 0, 0, {value});
-            }
+        std::size_t pid{0};
+        for (auto value : values) {
+            model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
+                                      pid++, 0, 0, {value});
         }
 
         model::CModelPlotData plotData;
@@ -126,7 +121,6 @@ void CModelDetailsViewTest::testModelPlot() {
         for (const auto& featureByFieldData : plotData) {
             CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
-                std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                      byFieldData.second.s_ValuesPerOverField.size());

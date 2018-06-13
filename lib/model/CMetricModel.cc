@@ -442,8 +442,7 @@ void CMetricModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) con
 }
 
 std::size_t CMetricModel::memoryUsage() const {
-    return this->CIndividualModel::memoryUsage() +
-           core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    return this->CIndividualModel::memoryUsage();
 }
 
 std::size_t CMetricModel::computeMemoryUsage() const {

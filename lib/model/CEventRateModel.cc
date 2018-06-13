@@ -478,9 +478,7 @@ void CEventRateModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
 }
 
 std::size_t CEventRateModel::memoryUsage() const {
-    return this->CIndividualModel::memoryUsage() +
-           core::CMemory::dynamicSize(m_InterimBucketCorrector);
-    ;
+    return this->CIndividualModel::memoryUsage();
 }
 
 std::size_t CEventRateModel::staticSize() const {

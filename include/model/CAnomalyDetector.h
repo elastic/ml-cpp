@@ -70,14 +70,9 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
-
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
-
-    //! A shared pointer to an instance of this class
-    using TAnomalyDetectorPtr = std::shared_ptr<CAnomalyDetector>;
-
     using TOutputModelPlotDataFunc =
         std::function<void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>;
     using TStrSet = CAnomalyDetectorModelConfig::TStrSet;
@@ -334,13 +329,12 @@ private:
     //! in the model ensemble class.
     void legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-protected:
-    //! Configurable limits
-    CLimits& m_Limits;
-
 private:
     //! An identifier for the search for which this is detecting anomalies.
     int m_DetectorIndex;
+
+    //! Configurable limits
+    CLimits& m_Limits;
 
     //! Configurable behaviour
     const CAnomalyDetectorModelConfig& m_ModelConfig;

@@ -428,6 +428,7 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
                 numberExistingPeople, 0, numberCorrelations);
         }
     }
+    this->estimateMemoryUsageOrComputeAndUpdate(numberExistingPeople, 0, numberCorrelations);
 
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
