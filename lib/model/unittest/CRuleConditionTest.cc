@@ -56,37 +56,31 @@ void CRuleConditionTest::testTimeContition() {
 
     {
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Time);
-        condition.condition().s_Op = CRuleCondition::E_GTE;
-        condition.condition().s_Threshold = 500;
-
-        CPPUNIT_ASSERT(condition.isNumerical());
-        CPPUNIT_ASSERT(condition.isCategorical() == false);
+        condition.appliesTo(CRuleCondition::E_Time);
+        condition.op(CRuleCondition::E_GTE);
+        condition.value(500);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, false, std::size_t(0),
-                                      std::size_t(1), core_t::TTime(450)) == false);
+                                      resultType, std::size_t(0), std::size_t(1),
+                                      core_t::TTime(450)) == false);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, false, std::size_t(0),
+                                      resultType, std::size_t(0),
                                       std::size_t(1), core_t::TTime(550)));
     }
 
     {
         CRuleCondition condition;
-        condition.type(CRuleCondition::E_Time);
-        condition.condition().s_Op = CRuleCondition::E_LT;
-        condition.condition().s_Threshold = 600;
-
-        CPPUNIT_ASSERT(condition.isNumerical());
-        CPPUNIT_ASSERT(condition.isCategorical() == false);
+        condition.appliesTo(CRuleCondition::E_Time);
+        condition.op(CRuleCondition::E_LT);
+        condition.value(600);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, false, std::size_t(0),
-                                      std::size_t(1), core_t::TTime(600)) == false);
+                                      resultType, std::size_t(0), std::size_t(1),
+                                      core_t::TTime(600)) == false);
         CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, false, std::size_t(0),
+                                      resultType, std::size_t(0),
                                       std::size_t(1), core_t::TTime(599)));
     }
 }
