@@ -13,6 +13,9 @@
 
 === New Features
 
+Detectors now support rules that allow the user to improve the results by providing some domain specific
+knowledge in the form of rule. ({pull}119[#119])
+
 === Enhancements
 
 Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
@@ -36,6 +39,7 @@ by unnecessary reference counting ({pull}108[#108])
 
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
 Persist and restore was missing some of the trend model state ({pull}#99[#99])
+Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
 
 === Regressions
 
