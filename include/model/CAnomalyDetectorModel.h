@@ -505,7 +505,7 @@ protected:
         SFeatureModels(const SFeatureModels&) = delete;
         SFeatureModels& operator=(const SFeatureModels&) = delete;
         SFeatureModels(SFeatureModels&&) = default;
-        SFeatureModels& operator=(SFeatureModels&&) = default;
+        SFeatureModels& operator=(SFeatureModels&&);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,

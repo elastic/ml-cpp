@@ -482,6 +482,14 @@ CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
     : s_Feature(feature), s_NewModel(newModel) {
 }
 
+CAnomalyDetectorModel::SFeatureModels& CAnomalyDetectorModel::SFeatureModels::
+operator=(SFeatureModels&& other) {
+    s_Feature = other.s_Feature;
+    s_NewModel = std::move(other.s_NewModel);
+    s_Models = std::move(other.s_Models);
+    return *this;
+}
+
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_,
                                                                    core::CStateRestoreTraverser& traverser) {
     maths_t::EDataType dataType{s_NewModel->dataType()};
