@@ -504,8 +504,8 @@ protected:
         SFeatureModels(model_t::EFeature feature, TMathsModelSPtr newModel);
         SFeatureModels(const SFeatureModels&) = delete;
         SFeatureModels& operator=(const SFeatureModels&) = delete;
-        SFeatureModels(SFeatureModels&&);
-        SFeatureModels& operator=(SFeatureModels&&);
+        SFeatureModels(SFeatureModels&& other);
+        SFeatureModels& operator=(SFeatureModels&& other);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,
@@ -534,8 +534,8 @@ protected:
                                 TCorrelationsPtr&& model);
         SFeatureCorrelateModels(const SFeatureCorrelateModels&) = delete;
         SFeatureCorrelateModels& operator=(const SFeatureCorrelateModels&) = delete;
-        SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
-        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&) = default;
+        SFeatureCorrelateModels(SFeatureCorrelateModels&& other);
+        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&& other);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,

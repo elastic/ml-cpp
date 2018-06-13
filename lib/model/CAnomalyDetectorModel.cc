@@ -539,6 +539,19 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
 }
 
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(SFeatureCorrelateModels&& other)
+    : s_Feature(other.s_Feature), s_ModelPrior(std::move(other.s_ModelPrior)),
+      s_Models(std::move(other.s_Models)) {
+}
+
+CAnomalyDetectorModel::SFeatureCorrelateModels& CAnomalyDetectorModel::SFeatureCorrelateModels::
+operator=(SFeatureCorrelateModels&& other) {
+    s_Feature = other.s_Feature;
+    s_ModelPrior = std::move(other.s_ModelPrior);
+    s_Models = std::move(other.s_Models);
+    return *this;
+}
+
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     const SModelParams& params_,
     core::CStateRestoreTraverser& traverser) {
