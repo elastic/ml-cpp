@@ -52,17 +52,16 @@ void addArrival(CDataGatherer& gatherer,
 SModelParams::TStrDetectionRulePr
 makeScheduledEvent(const std::string& description, double start, double end) {
     CRuleCondition conditionGte;
-    conditionGte.type(CRuleCondition::E_Time);
-    conditionGte.condition().s_Op = CRuleCondition::E_GTE;
-    conditionGte.condition().s_Threshold = start;
+    conditionGte.appliesTo(CRuleCondition::E_Time);
+    conditionGte.op(CRuleCondition::E_GTE);
+    conditionGte.value(start);
     CRuleCondition conditionLt;
-    conditionLt.type(CRuleCondition::E_Time);
-    conditionLt.condition().s_Op = CRuleCondition::E_LT;
-    conditionLt.condition().s_Threshold = end;
+    conditionLt.appliesTo(CRuleCondition::E_Time);
+    conditionLt.op(CRuleCondition::E_LT);
+    conditionLt.value(end);
 
     CDetectionRule rule;
-    rule.action(CDetectionRule::E_SkipSampling);
-    rule.conditionsConnective(CDetectionRule::E_And);
+    rule.action(CDetectionRule::E_SkipModelUpdate);
     rule.addCondition(conditionGte);
     rule.addCondition(conditionLt);
 

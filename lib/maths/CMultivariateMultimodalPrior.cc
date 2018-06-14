@@ -178,7 +178,7 @@ void modeMergeCallback(std::size_t dimension,
     using TSizeSet = std::set<std::size_t>;
 
     // Create the new mode.
-    TMode newMode(targetIndex, seedPrior);
+    TMode newMode(targetIndex, TPriorPtr(seedPrior->clone()));
 
     double wl = 0.0;
     double wr = 0.0;
@@ -253,7 +253,7 @@ void modeMergeCallback(std::size_t dimension,
 
     // Add the new mode.
     LOG_TRACE(<< "Creating mode with index " << targetIndex);
-    modes.push_back(newMode);
+    modes.push_back(std::move(newMode));
 
     LOG_TRACE(<< "Merged modes");
 }

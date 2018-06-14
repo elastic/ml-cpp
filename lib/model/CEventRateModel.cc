@@ -59,9 +59,9 @@ const std::string PROBABILITY_PRIOR_TAG("b");
 
 CEventRateModel::CEventRateModel(const SModelParams& params,
                                  const TDataGathererPtr& dataGatherer,
-                                 const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                                 const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                                 const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                                 const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                                 const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                                 TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                                  const maths::CMultinomialConjugate& probabilityPrior,
                                  const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                                  const TInterimBucketCorrectorCPtr& interimBucketCorrector)
@@ -69,7 +69,7 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                        dataGatherer,
                        newFeatureModels,
                        newFeatureCorrelateModelPriors,
-                       featureCorrelatesModels,
+                       std::move(featureCorrelatesModels),
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
       m_ProbabilityPrior(probabilityPrior),
@@ -78,9 +78,9 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
 
 CEventRateModel::CEventRateModel(const SModelParams& params,
                                  const TDataGathererPtr& dataGatherer,
-                                 const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                                 const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                                 const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                                 const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                                 const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                                 TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                                  const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                                  const TInterimBucketCorrectorCPtr& interimBucketCorrector,
                                  core::CStateRestoreTraverser& traverser)
@@ -88,7 +88,7 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                        dataGatherer,
                        newFeatureModels,
                        newFeatureCorrelateModelPriors,
-                       featureCorrelatesModels,
+                       std::move(featureCorrelatesModels),
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
@@ -478,9 +478,7 @@ void CEventRateModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
 }
 
 std::size_t CEventRateModel::memoryUsage() const {
-    return this->CIndividualModel::memoryUsage() +
-           core::CMemory::dynamicSize(m_InterimBucketCorrector);
-    ;
+    return this->CIndividualModel::memoryUsage();
 }
 
 std::size_t CEventRateModel::staticSize() const {
