@@ -53,7 +53,7 @@ by unnecessary reference counting ({pull}108[#108])
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
 Persist and restore was missing some of the trend model state ({pull}#99[#99])
 Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
-Fix cornercase failing to calculate lgamma values and the correspoinding log errors ({pull}#126[#126])
+Fix corner case failing to calculate lgamma values and the correspoinding log errors ({pull}#126[#126])
 
 === Regressions
 
