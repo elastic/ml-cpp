@@ -176,14 +176,6 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
     using TDoubleTimeCalendarFeatureTr = core::CTriple<double, core_t::TTime, CCalendarFeature>;
     using TMaxAccumulator = CBasicStatistics::SMax<TDoubleTimeCalendarFeatureTr>::TAccumulator;
 
-    TMaxAccumulator result;
-
-    // Most features get the same count. The odd ones out are features
-    // which happen sporadically because of the variation of the days
-    // in a month and the day of week on which the first of the month
-    // falls. The test therefore isn't that sensitive to the exact value
-    // of this threshold.
-
     TErrorStatsVec errors{this->inflate()};
     TFeatureStatsUMap stats{errors.size()};
 
@@ -215,6 +207,8 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
     double errorThreshold;
     m_ErrorQuantiles.quantile(50.0, errorThreshold);
     errorThreshold *= 2.0;
+
+    TMaxAccumulator result;
 
     for (const auto& stat : stats) {
         CCalendarFeature feature = stat.first;
