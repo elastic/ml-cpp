@@ -62,7 +62,7 @@ bool parseOptions(int argc, const char* const* argv, std::string& outputDir) {
             "Utility for creating ML model state files for use in BWC tests");
         desc.add_options()("help", "Display this information and exit")(
             "outputDir", boost::program_options::value<std::string>(),
-            "The directory to write state files to");
+            "Optional directory to write state files to");
 
         boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =
@@ -71,11 +71,15 @@ bool parseOptions(int argc, const char* const* argv, std::string& outputDir) {
                 .run();
         boost::program_options::store(parsed, vm);
         if (vm.count("help") > 0) {
-            std::cout << desc << std::endl;
+            std::cerr << desc << std::endl;
             return false;
         }
         if (vm.count("outputDir") > 0) {
             outputDir = vm["outputDir"].as<std::string>();
+            if (outputDir.empty()) {
+                std::cerr << "Error processing command line: outputDir is an empty string" << std::endl;
+                return false;
+            }
             if (outputDir.back() != '/') {
                 outputDir.push_back('/');
             }
@@ -83,7 +87,7 @@ bool parseOptions(int argc, const char* const* argv, std::string& outputDir) {
 
         return true;
     } catch (std::exception& e) {
-        std::cout << "Error processing command line: " << e.what() << std::endl;
+        std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }
 }
