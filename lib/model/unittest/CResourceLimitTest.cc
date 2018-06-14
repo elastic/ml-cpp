@@ -240,14 +240,14 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
 public:
     CMockEventRateModel(const SModelParams& params,
                         const TDataGathererPtr& dataGatherer,
-                        const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                        const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                         const maths::CMultinomialConjugate& personProbabilityPrior,
                         const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                         CResourceMonitor& resourceMonitor)
         : CEventRateModel(params,
                           dataGatherer,
                           newFeatureModels,
-                          TFeatureMultivariatePriorPtrPrVec(),
+                          TFeatureMultivariatePriorSPtrPrVec(),
                           TFeatureCorrelationsPtrPrVec(),
                           personProbabilityPrior,
                           influenceCalculators,
@@ -265,6 +265,7 @@ public:
     }
 
     void test(core_t::TTime time) {
+        m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
@@ -284,13 +285,13 @@ class CMockMetricModel : public ml::model::CMetricModel {
 public:
     CMockMetricModel(const SModelParams& params,
                      const TDataGathererPtr& dataGatherer,
-                     const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                     const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                      const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                      CResourceMonitor& resourceMonitor)
         : CMetricModel(params,
                        dataGatherer,
                        newFeatureModels,
-                       TFeatureMultivariatePriorPtrPrVec(),
+                       TFeatureMultivariatePriorSPtrPrVec(),
                        TFeatureCorrelationsPtrPrVec(),
                        influenceCalculators,
                        std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
@@ -307,6 +308,7 @@ public:
     }
 
     void test(core_t::TTime time) {
+        m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
@@ -388,7 +390,7 @@ void CResourceLimitTest::testLargeAllocations() {
         factory.features(features);
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
 
-        CResourceMonitor resourceMonitor;
+        CResourceMonitor resourceMonitor(1.0);
         resourceMonitor.memoryLimit(std::size_t(70));
         const maths::CMultinomialConjugate conjugate;
         ::CMockEventRateModel model(
@@ -425,20 +427,22 @@ void CResourceLimitTest::testLargeAllocations() {
 
         LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2000), model.getNewPeople());
+        LOG_DEBUG(<< "# new people = " << model.getNewPeople());
+        CPPUNIT_ASSERT(model.getNewPeople() > 2700 && model.getNewPeople() < 2900);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2000), gatherer->numberActivePeople());
+        CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
 
         // Adding a small number of new people should be fine though,
-        // as there are allowed in
+        // as they're allowed in
         time += BUCKET_LENGTH;
-        ::addPersonData(4400, 4410, time, *gatherer, resourceMonitor);
+        std::size_t oldNumberPeople{model.getNewPeople()};
+        ::addPersonData(3000, 3010, time, *gatherer, resourceMonitor);
 
         LOG_DEBUG(<< "Testing for 3rd time");
         model.test(time);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2010), model.getNewPeople());
+        CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2010), gatherer->numberActivePeople());
+        CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
     }
     {
         // Test CMetricModel::createUpdateNewModels()
@@ -488,28 +492,30 @@ void CResourceLimitTest::testLargeAllocations() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
         time += BUCKET_LENGTH;
 
-        ::addPersonMetricData(400, 900, time, *gatherer, resourceMonitor);
+        ::addPersonMetricData(400, 1000, time, *gatherer, resourceMonitor);
         model.test(time);
 
         // This should add enough people to go over the memory limit
-        ::addPersonMetricData(900, 4400, time, *gatherer, resourceMonitor);
+        ::addPersonMetricData(1000, 3000, time, *gatherer, resourceMonitor);
 
         LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1400), model.getNewPeople());
+        LOG_DEBUG(<< "# new people = " << model.getNewPeople());
+        CPPUNIT_ASSERT(model.getNewPeople() > 2700 && model.getNewPeople() < 2900);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1400), gatherer->numberActivePeople());
+        CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
 
         // Adding a small number of new people should be fine though,
         // as they are are allowed in
         time += BUCKET_LENGTH;
-        ::addPersonMetricData(4400, 4410, time, *gatherer, resourceMonitor);
+        std::size_t oldNumberPeople{model.getNewPeople()};
+        ::addPersonMetricData(3000, 3010, time, *gatherer, resourceMonitor);
 
         LOG_DEBUG(<< "Testing for 3rd time");
         model.test(time);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1410), model.getNewPeople());
+        CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1410), gatherer->numberActivePeople());
+        CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
     }
 }
 

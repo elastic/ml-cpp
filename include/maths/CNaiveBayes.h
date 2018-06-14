@@ -129,7 +129,7 @@ public:
     virtual std::string print() const;
 
 private:
-    using TPriorPtr = std::shared_ptr<CPrior>;
+    using TPriorPtr = std::unique_ptr<CPrior>;
 
 private:
     //! The density model.
@@ -149,11 +149,16 @@ public:
     explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          double decayRate = 0.0,
                          TOptionalDouble minMaxLogLikelihoodToUseFeature = TOptionalDouble());
-    CNaiveBayes(const SDistributionRestoreParams& params,
+    CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
+                const SDistributionRestoreParams& params,
                 core::CStateRestoreTraverser& traverser);
+    CNaiveBayes(const CNaiveBayes& other);
 
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Copy by assign operator.
+    CNaiveBayes& operator=(const CNaiveBayes& other);
 
     //! Efficiently swap the contents of this and \p other.
     void swap(CNaiveBayes& other);
@@ -222,30 +227,47 @@ public:
     std::string print() const;
 
 private:
-    using TFeatureDensityPtr = std::shared_ptr<CNaiveBayesFeatureDensity>;
+    using TFeatureDensityPtr = std::unique_ptr<CNaiveBayesFeatureDensity>;
     using TFeatureDensityPtrVec = std::vector<TFeatureDensityPtr>;
 
     //! \brief The data associated with a class.
-    struct SClass {
+    class CClass {
+    public:
+        CClass() = default;
+        explicit CClass(double count);
+        CClass(const CClass& other);
+
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                     core::CStateRestoreTraverser& traverser);
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Get the number of examples in this class.
+        double count() const;
+        //! Get a writable reference of the number of examples in this class.
+        double& count();
+        //! Get the class conditional densities.
+        const TFeatureDensityPtrVec& conditionalDensities() const;
+        //! Get a writable reference of the class conditional densities.
+        TFeatureDensityPtrVec& conditionalDensities();
+
         //! Debug the memory used by this object.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
+
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
 
+    private:
         //! The number of examples in this class.
-        double s_Count = 0.0;
+        double m_Count = 0.0;
         //! The feature conditional densities for this class.
-        TFeatureDensityPtrVec s_ConditionalDensities;
+        TFeatureDensityPtrVec m_ConditionalDensities;
     };
 
-    using TSizeClassUMap = boost::unordered_map<std::size_t, SClass>;
+    using TSizeClassUMap = boost::unordered_map<std::size_t, CClass>;
 
 private:
     //! Initialize by reading state from \p traverser.

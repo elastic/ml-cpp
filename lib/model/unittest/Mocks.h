@@ -118,7 +118,7 @@ public:
                                    core_t::TTime time,
                                    const TDouble1Vec& value);
 
-    void mockTimeSeriesModels(const TMathsModelPtrVec& model);
+    void mockTimeSeriesModels(TMathsModelUPtrVec&& model);
 
 private:
     using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
@@ -141,7 +141,7 @@ private:
     bool m_IsPopulation;
     TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketValues;
     TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketBaselineMeans;
-    TMathsModelPtrVec m_Models;
+    TMathsModelUPtrVec m_Models;
     model::CInterimBucketCorrector m_InterimBucketCorrector;
 };
 

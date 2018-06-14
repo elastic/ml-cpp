@@ -109,13 +109,13 @@ public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
     using TOStreamConcurrentWrapperPtr = std::shared_ptr<TOStreamConcurrentWrapper>;
 
-    using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
+    using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
 
     using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 

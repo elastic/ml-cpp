@@ -287,21 +287,25 @@ public:
     static std::size_t
     dynamicSize(const T& t,
                 typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
-        if (t == nullptr) {
-            return 0;
-        }
-        return staticSize(*t) + dynamicSize(*t);
+        return t == nullptr ? 0 : staticSize(*t) + dynamicSize(*t);
     }
 
     //! Overload for std::shared_ptr.
     template<typename T>
     static std::size_t dynamicSize(const std::shared_ptr<T>& t) {
-        if (!t) {
+        if (t == nullptr) {
             return 0;
         }
         long uc = t.use_count();
-        // Round up
-        return (staticSize(*t) + dynamicSize(*t) + std::size_t(uc - 1)) / uc;
+        // Note we add on sizeof(long) here to account for the memory
+        // used by the shared reference count. Also, round up.
+        return (sizeof(long) + staticSize(*t) + dynamicSize(*t) + std::size_t(uc - 1)) / uc;
+    }
+
+    //! Overload for std::unique_ptr.
+    template<typename T>
+    static std::size_t dynamicSize(const std::unique_ptr<T>& t) {
+        return t == nullptr ? 0 : staticSize(*t) + dynamicSize(*t);
     }
 
     //! Overload for boost::array.
@@ -692,22 +696,37 @@ public:
     static void dynamicSize(const char* name,
                             const std::shared_ptr<T>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
-        if (t) {
+        if (t != nullptr) {
             long uc = t.use_count();
             // If the pointer is shared by multiple users, each one
             // might count it, so divide by the number of users.
             // However, if only 1 user has it, do a full debug.
             if (uc == 1) {
-                mem->addItem("shared_ptr", CMemory::staticSize(*t));
+                // Note we add on sizeof(long) here to account for
+                // the memory used by the shared reference count.
+                mem->addItem("shared_ptr", sizeof(long) + CMemory::staticSize(*t));
                 dynamicSize(name, *t, mem);
             } else {
                 std::ostringstream ss;
                 ss << "shared_ptr (x" << uc << ')';
-                // Round up
-                mem->addItem(ss.str(), (CMemory::staticSize(*t) +
+                // Note we add on sizeof(long) here to account for
+                // the memory used by the shared reference count.
+                // Also, round up.
+                mem->addItem(ss.str(), (sizeof(long) + CMemory::staticSize(*t) +
                                         CMemory::dynamicSize(*t) + std::size_t(uc - 1)) /
                                            uc);
             }
+        }
+    }
+
+    //! Overload for std::unique_ptr.
+    template<typename T>
+    static void dynamicSize(const char* name,
+                            const std::unique_ptr<T>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
+        if (t != nullptr) {
+            mem->addItem("ptr", CMemory::staticSize(*t));
+            memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
         }
     }
 

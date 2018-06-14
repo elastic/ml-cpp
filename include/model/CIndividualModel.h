@@ -53,12 +53,6 @@ public:
     using TFeatureSizeSizeTriple = core::CTriple<model_t::EFeature, std::size_t, std::size_t>;
     using TFeatureSizeSizeTripleDouble1VecUMap =
         boost::unordered_map<TFeatureSizeSizeTriple, TDouble1Vec>;
-    using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
-    using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
-    using TFeatureMathsModelPtrVecPr = std::pair<model_t::EFeature, TMathsModelPtrVec>;
-    using TFeatureMathsModelPtrVecPrVec = std::vector<TFeatureMathsModelPtrVecPr>;
-    using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
-    using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
 
 public:
     //! \name Life-cycle
@@ -76,9 +70,9 @@ public:
     //! and so must be sampled for before this model can be used.
     CIndividualModel(const SModelParams& params,
                      const TDataGathererPtr& dataGatherer,
-                     const TFeatureMathsModelPtrPrVec& newFeatureModels,
-                     const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-                     const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                     const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+                     const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+                     TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
                      const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Create a copy that will result in the same persisted state as the
@@ -87,6 +81,8 @@ public:
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
     CIndividualModel(bool isForPersistence, const CIndividualModel& other);
+    CIndividualModel(const CIndividualModel&) = delete;
+    CIndividualModel& operator=(const CIndividualModel&) = delete;
     //@}
 
     //! Returns false.
