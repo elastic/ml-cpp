@@ -478,8 +478,21 @@ const core_t::TTime CAnomalyDetectorModel::TIME_UNSET(-1);
 const std::string CAnomalyDetectorModel::EMPTY_STRING;
 
 CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
-                                                      TMathsModelPtr newModel)
+                                                      TMathsModelSPtr newModel)
     : s_Feature(feature), s_NewModel(newModel) {
+}
+
+CAnomalyDetectorModel::SFeatureModels::SFeatureModels(SFeatureModels&& other)
+    : s_Feature(other.s_Feature), s_NewModel(std::move(other.s_NewModel)),
+      s_Models(std::move(other.s_Models)) {
+}
+
+CAnomalyDetectorModel::SFeatureModels& CAnomalyDetectorModel::SFeatureModels::
+operator=(SFeatureModels&& other) {
+    s_Feature = other.s_Feature;
+    s_NewModel = std::move(other.s_NewModel);
+    s_Models = std::move(other.s_Models);
+    return *this;
 }
 
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_,
@@ -490,13 +503,13 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
                                       params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
-            TMathsModelPtr prior;
+            TMathsModelUPtr model;
             if (!traverser.traverseSubLevel(
                     boost::bind<bool>(maths::CModelStateSerialiser(),
-                                      boost::cref(params), boost::ref(prior), _1))) {
+                                      boost::cref(params), boost::ref(model), _1))) {
                 return false;
             }
-            s_Models.push_back(prior);
+            s_Models.push_back(std::move(model));
         }
     } while (traverser.next());
     return true;
@@ -519,10 +532,24 @@ std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
     return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
 }
 
-CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(model_t::EFeature feature,
-                                                                        TMultivariatePriorPtr modelPrior,
-                                                                        TCorrelationsPtr model)
-    : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(model->clone()) {
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
+    model_t::EFeature feature,
+    const TMultivariatePriorSPtr& modelPrior,
+    TCorrelationsPtr&& model)
+    : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
+}
+
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(SFeatureCorrelateModels&& other)
+    : s_Feature(other.s_Feature), s_ModelPrior(std::move(other.s_ModelPrior)),
+      s_Models(std::move(other.s_Models)) {
+}
+
+CAnomalyDetectorModel::SFeatureCorrelateModels& CAnomalyDetectorModel::SFeatureCorrelateModels::
+operator=(SFeatureCorrelateModels&& other) {
+    s_Feature = other.s_Feature;
+    s_ModelPrior = std::move(other.s_ModelPrior);
+    s_Models = std::move(other.s_Models);
+    return *this;
 }
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
@@ -586,13 +613,13 @@ std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::chunkSize
     return 500;
 }
 
-CAnomalyDetectorModel::TMultivariatePriorPtr
+CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::TMultivariatePriorUPtr
 CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior() const {
-    return TMultivariatePriorPtr(m_PrototypePrior->clone());
+    return TMultivariatePriorUPtr(m_PrototypePrior->clone());
 }
 
 void CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::prototypePrior(
-    const TMultivariatePriorPtr& prior) {
+    const TMultivariatePriorSPtr& prior) {
     m_PrototypePrior = prior;
 }
 }

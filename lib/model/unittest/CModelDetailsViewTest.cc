@@ -67,11 +67,12 @@ void CModelDetailsViewTest::testModelPlot() {
             bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
         maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams,
                                                           0, trend, prior};
-        model->mockTimeSeriesModels(
-            {model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
-             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(1)),
-             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(2)),
-             model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(3))});
+        model::CMockModel::TMathsModelUPtrVec models;
+        models.emplace_back(timeSeriesModel.clone(0));
+        models.emplace_back(timeSeriesModel.clone(1));
+        models.emplace_back(timeSeriesModel.clone(2));
+        models.emplace_back(timeSeriesModel.clone(3));
+        model->mockTimeSeriesModels(std::move(models));
     };
 
     LOG_DEBUG(<< "Individual sum");

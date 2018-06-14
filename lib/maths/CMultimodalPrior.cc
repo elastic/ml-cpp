@@ -34,6 +34,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
@@ -92,7 +93,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
         normals.emplace_back(dataType, moments_, decayRate);
     }
 
-    m_Clusterer.reset(new CKMeansOnline1d(normals));
+    m_Clusterer = boost::make_unique<CKMeansOnline1d>(normals);
 
     m_Modes.reserve(normals.size());
     for (std::size_t i = 0u; i < normals.size(); ++i) {
@@ -104,7 +105,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
     : CPrior(dataType, decayRate) {
     m_Modes.reserve(priors.size());
     for (std::size_t i = 0u; i < priors.size(); ++i) {
-        m_Modes.emplace_back(i, priors[i]);
+        m_Modes.emplace_back(i, std::move(priors[i]));
     }
 }
 
@@ -132,7 +133,7 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
             MODE_TAG, TMode mode,
             traverser.traverseSubLevel(boost::bind(&TMode::acceptRestoreTraverser,
                                                    &mode, boost::cref(params), _1)),
-            m_Modes.push_back(mode))
+            m_Modes.push_back(std::move(mode)))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
                                this->numberSamples(numberSamples))
@@ -637,7 +638,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
     // Create the child modes.
 
     LOG_TRACE(<< "Creating mode with index " << leftSplitIndex);
-    modes.emplace_back(leftSplitIndex, m_Prior->m_SeedPrior);
+    modes.emplace_back(leftSplitIndex, TPriorPtr(m_Prior->m_SeedPrior->clone()));
     {
         TDoubleVec samples;
         if (!m_Prior->m_Clusterer->sample(leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
@@ -661,7 +662,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
     }
 
     LOG_TRACE(<< "Creating mode with index " << rightSplitIndex);
-    modes.emplace_back(rightSplitIndex, m_Prior->m_SeedPrior);
+    modes.emplace_back(rightSplitIndex, TPriorPtr(m_Prior->m_SeedPrior->clone()));
     {
         TDoubleVec samples;
         if (!m_Prior->m_Clusterer->sample(rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
@@ -707,7 +708,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
     TModeVec& modes = m_Prior->m_Modes;
 
     // Create the new mode.
-    TMode newMode(targetIndex, m_Prior->m_SeedPrior);
+    TMode newMode(targetIndex, TPriorPtr(m_Prior->m_SeedPrior->clone()));
 
     double wl = 0.0;
     double wr = 0.0;
@@ -778,7 +779,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
 
     // Add the new mode.
     LOG_TRACE(<< "Creating mode with index " << targetIndex);
-    modes.push_back(newMode);
+    modes.push_back(std::move(newMode));
 
     m_Prior->checkInvariants("MERGE: ");
 

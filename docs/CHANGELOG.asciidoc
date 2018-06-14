@@ -32,6 +32,9 @@ Secure the ML processes by preventing system calls such as fork and exec. The Li
 Seccomp BPF to intercept system calls and is available in kernels since 3.5. On Windows Job Objects prevent
 new processes being created and macOS uses the sandbox functionality ({pull}98[#98])
 
+Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
+by unnecessary reference counting ({pull}108[#108])
+
 === Bug Fixes
 
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])

@@ -70,9 +70,9 @@ const std::string EMPTY_STRING("");
 CEventRatePopulationModel::CEventRatePopulationModel(
     const SModelParams& params,
     const TDataGathererPtr& dataGatherer,
-    const TFeatureMathsModelPtrPrVec& newFeatureModels,
-    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
     const TInterimBucketCorrectorCPtr& interimBucketCorrector)
     : CPopulationModel(params, dataGatherer, influenceCalculators),
@@ -85,15 +85,16 @@ CEventRatePopulationModel::CEventRatePopulationModel(
           boost::numeric::bounds<int>::highest(),
           params.s_DecayRate)),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
-    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors, featureCorrelatesModels);
+    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
+                     std::move(featureCorrelatesModels));
 }
 
 CEventRatePopulationModel::CEventRatePopulationModel(
     const SModelParams& params,
     const TDataGathererPtr& dataGatherer,
-    const TFeatureMathsModelPtrPrVec& newFeatureModels,
-    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
     const TInterimBucketCorrectorCPtr& interimBucketCorrector,
     core::CStateRestoreTraverser& traverser)
@@ -101,15 +102,16 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
-    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors, featureCorrelatesModels);
+    this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
+                     std::move(featureCorrelatesModels));
     traverser.traverseSubLevel(
         boost::bind(&CEventRatePopulationModel::acceptRestoreTraverser, this, _1));
 }
 
 void CEventRatePopulationModel::initialize(
-    const TFeatureMathsModelPtrPrVec& newFeatureModels,
-    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels) {
+    const TFeatureMathsModelSPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
+    TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels) {
     m_FeatureModels.reserve(newFeatureModels.size());
     for (const auto& model : newFeatureModels) {
         m_FeatureModels.emplace_back(model.first, model.second);
@@ -125,7 +127,7 @@ void CEventRatePopulationModel::initialize(
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
-                featureCorrelatesModels[i].second);
+                std::move(featureCorrelatesModels[i].second));
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
                   [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {
@@ -365,7 +367,6 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
-            std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(<< model_t::print(feature) << ": "
