@@ -41,15 +41,56 @@
 #include <api/CSingleStreamSearcher.h>
 
 #include <boost/bind.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
 static std::string persistedNormalizerState;
 static std::vector<std::string> persistedStateFiles;
+
+static const std::string TEST_FILES_PATH{"../unittest/testfiles/"};
+
+bool parseOptions(int argc, const char* const* argv, std::string& outputDir) {
+    try {
+        boost::program_options::options_description desc(
+            "Utility for creating ML model state files for use in BWC tests");
+        desc.add_options()("help", "Display this information and exit")(
+            "outputDir", boost::program_options::value<std::string>(),
+            "Optional directory to write state files to");
+
+        boost::program_options::variables_map vm;
+        boost::program_options::parsed_options parsed =
+            boost::program_options::command_line_parser(argc, argv)
+                .options(desc)
+                .run();
+        boost::program_options::store(parsed, vm);
+        if (vm.count("help") > 0) {
+            std::cerr << desc << std::endl;
+            return false;
+        }
+        if (vm.count("outputDir") > 0) {
+            outputDir = vm["outputDir"].as<std::string>();
+            if (outputDir.empty()) {
+                std::cerr << "Error processing command line: outputDir is an empty string" << std::endl;
+                return false;
+            }
+            if (outputDir.back() != '/') {
+                outputDir.push_back('/');
+            }
+        }
+
+        return true;
+    } catch (std::exception& e) {
+        std::cerr << "Error processing command line: " << e.what() << std::endl;
+        return false;
+    }
+}
 
 std::string versionNumber() {
     ml::core::CRegex regex;
@@ -184,43 +225,43 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     return true;
 }
 
-bool persistByDetector(const std::string& version) {
+bool persistByDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_mlfields.conf", "../unittest/testfiles/big_ascending.txt",
-        "../unittest/testfiles/state/" + version + "/by_detector_state.json", 0,
-        "%d/%b/%Y:%T %z");
+        TEST_FILES_PATH + "new_mlfields.conf", TEST_FILES_PATH + "big_ascending.txt",
+        stateFilesPath + "by_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
-bool persistOverDetector(const std::string& version) {
+bool persistOverDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_mlfields_over.conf", "../unittest/testfiles/big_ascending.txt",
-        "../unittest/testfiles/state/" + version + "/over_detector_state.json",
-        0, "%d/%b/%Y:%T %z");
+        TEST_FILES_PATH + "new_mlfields_over.conf", TEST_FILES_PATH + "big_ascending.txt",
+        stateFilesPath + "over_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
-bool persistPartitionDetector(const std::string& version) {
+bool persistPartitionDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_mlfields_partition.conf",
-        "../unittest/testfiles/big_ascending.txt",
-        "../unittest/testfiles/state/" + version + "/partition_detector_state.json",
-        0, "%d/%b/%Y:%T %z");
+        TEST_FILES_PATH + "new_mlfields_partition.conf", TEST_FILES_PATH + "big_ascending.txt",
+        stateFilesPath + "partition_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
-bool persistDcDetector(const std::string& version) {
+bool persistDcDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_persist_dc.conf",
-        "../unittest/testfiles/files_users_programs.csv",
-        "../unittest/testfiles/state/" + version + "/dc_detector_state.json", 5);
+        TEST_FILES_PATH + "new_persist_dc.conf", TEST_FILES_PATH + "files_users_programs.csv",
+        stateFilesPath + "dc_detector_state.json", 5);
 }
 
-bool persistCountDetector(const std::string& version) {
+bool persistCountDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_persist_count.conf",
-        "../unittest/testfiles/files_users_programs.csv",
-        "../unittest/testfiles/state/" + version + "/count_detector_state.json", 5);
+        TEST_FILES_PATH + "new_persist_count.conf", TEST_FILES_PATH + "files_users_programs.csv",
+        stateFilesPath + "count_detector_state.json", 5);
 }
 
-int main(int /*argc*/, char** /*argv*/) {
+int main(int argc, char** argv) {
+
+    std::string stateFilesPath;
+    if (parseOptions(argc, argv, stateFilesPath) == false) {
+        return EXIT_FAILURE;
+    }
+
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Info);
 
     std::string version = versionNumber();
@@ -228,9 +269,24 @@ int main(int /*argc*/, char** /*argv*/) {
         LOG_ERROR(<< "Cannot get version number");
         return EXIT_FAILURE;
     }
-    LOG_INFO(<< "Saving model state for version: " << version);
 
-    bool persisted = persistByDetector(version);
+    if (stateFilesPath.empty()) {
+        // The outputDir argument wasn't set, use the default path
+        stateFilesPath = TEST_FILES_PATH + "state/" + version + "/";
+    }
+
+    boost::system::error_code errorCode;
+    boost::filesystem::create_directories(stateFilesPath, errorCode);
+    if (errorCode) {
+        LOG_ERROR(<< "Failed to create directory " << stateFilesPath
+                  << ", error: " << errorCode.message());
+        return EXIT_FAILURE;
+    }
+
+    LOG_INFO(<< "Saving model state for version: " << version
+             << " to directory: " << stateFilesPath);
+
+    bool persisted = persistByDetector(stateFilesPath);
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist state for by detector");
         return EXIT_FAILURE;
@@ -240,37 +296,36 @@ int main(int /*argc*/, char** /*argv*/) {
         LOG_ERROR(<< "Normalizer state not persisted");
         return EXIT_FAILURE;
     }
-    if (!writeNormalizerState("../unittest/testfiles/state/" + version + "/normalizer_state.json")) {
+    if (!writeNormalizerState(stateFilesPath + "normalizer_state.json")) {
         LOG_ERROR(<< "Error writing normalizer state file");
         return EXIT_FAILURE;
     }
 
-    persisted = persistOverDetector(version);
+    persisted = persistOverDetector(stateFilesPath);
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist state for over detector");
         return EXIT_FAILURE;
     }
 
-    persisted = persistPartitionDetector(version);
+    persisted = persistPartitionDetector(stateFilesPath);
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist state for partition detector");
         return EXIT_FAILURE;
     }
 
-    persisted = persistDcDetector(version);
+    persisted = persistDcDetector(stateFilesPath);
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist state for DC detector");
         return EXIT_FAILURE;
     }
 
-    persisted = persistCountDetector(version);
+    persisted = persistCountDetector(stateFilesPath);
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist state for count detector");
         return EXIT_FAILURE;
     }
 
-    persisted = persistCategorizerStateToFile("../unittest/testfiles/state/" +
-                                              version + "/categorizer_state.json");
+    persisted = persistCategorizerStateToFile(stateFilesPath + "categorizer_state.json");
     if (!persisted) {
         LOG_ERROR(<< "Failed to persist categorizer state");
         return EXIT_FAILURE;
