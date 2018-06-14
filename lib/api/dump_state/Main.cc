@@ -77,7 +77,8 @@ bool parseOptions(int argc, const char* const* argv, std::string& outputDir) {
         if (vm.count("outputDir") > 0) {
             outputDir = vm["outputDir"].as<std::string>();
             if (outputDir.empty()) {
-                std::cerr << "Error processing command line: outputDir is an empty string" << std::endl;
+                std::cerr << "Error processing command line: outputDir is an empty string"
+                          << std::endl;
                 return false;
             }
             if (outputDir.back() != '/') {
