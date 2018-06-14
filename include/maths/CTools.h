@@ -693,6 +693,9 @@ public:
     //! A custom implementation of \f$\log(1 - x)\f$ which handles the
     //! cancellation error for small x.
     static double logOneMinusX(double x);
+
+    //! A wrapper around lgamma which handles corner cases if requested
+    static bool lgamma(double value, double& result, bool checkForFinite = false);
 };
 }
 }

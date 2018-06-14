@@ -30,7 +30,6 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -285,6 +284,7 @@ void BICGain(maths_t::EDataType dataType,
     double mr = mean(dataType, mvr);
     double vr = std::max(variance(dataType, mvr), vmin);
 
+    bool haveGamma = distributions.haveGamma();
     try {
         // Mixture of log-normals (method of moments)
         double sl = std::log(1.0 + vl / CTools::pow2(ml + logNormalOffset));
@@ -299,7 +299,21 @@ void BICGain(maths_t::EDataType dataType,
 
         double log2piv = std::log(boost::math::double_constants::two_pi * v);
         double log2pis = std::log(boost::math::double_constants::two_pi * s);
-        double loggn = boost::math::lgamma(a) - a * std::log(b);
+
+        double loggn = 0.0;
+        double loggnl = 0.0;
+        double loggnr = 0.0;
+
+        if (haveGamma && maths::CTools::lgamma(a, loggn, true) &&
+            maths::CTools::lgamma(al, loggnl, true) &&
+            maths::CTools::lgamma(ar, loggnr, true)) {
+            loggn -= a * std::log(b);
+            loggnl -= al * std::log(bl) + std::log(wl);
+            loggnr -= ar * std::log(br) + std::log(wr);
+        } else {
+            haveGamma = false;
+        }
+
         double log2pivl =
             std::log(boost::math::double_constants::two_pi * vl / CTools::pow2(wl));
         double log2pivr =
@@ -308,8 +322,6 @@ void BICGain(maths_t::EDataType dataType,
             std::log(boost::math::double_constants::two_pi * sl / CTools::pow2(wl));
         double log2pisr =
             std::log(boost::math::double_constants::two_pi * sr / CTools::pow2(wr));
-        double loggnl = boost::math::lgamma(al) - al * std::log(bl) - std::log(wl);
-        double loggnr = boost::math::lgamma(ar) - ar * std::log(br) - std::log(wr);
 
         for (std::size_t i = start; i < split; ++i) {
             double ni = CBasicStatistics::count(categories[i]);
@@ -372,15 +384,15 @@ void BICGain(maths_t::EDataType dataType,
     double ll1 =
         min(distributions.haveNormal() ? ll1n : boost::numeric::bounds<double>::highest(),
             distributions.haveLogNormal() ? ll1l : boost::numeric::bounds<double>::highest(),
-            distributions.haveGamma() ? ll1g : boost::numeric::bounds<double>::highest()) +
+            haveGamma ? ll1g : boost::numeric::bounds<double>::highest()) +
         distributions.parameters() * logn;
     double ll2 =
         min(distributions.haveNormal() ? ll2nl : boost::numeric::bounds<double>::highest(),
             distributions.haveLogNormal() ? ll2ll : boost::numeric::bounds<double>::highest(),
-            distributions.haveGamma() ? ll2gl : boost::numeric::bounds<double>::highest()) +
+            haveGamma ? ll2gl : boost::numeric::bounds<double>::highest()) +
         min(distributions.haveNormal() ? ll2nr : boost::numeric::bounds<double>::highest(),
             distributions.haveLogNormal() ? ll2lr : boost::numeric::bounds<double>::highest(),
-            distributions.haveGamma() ? ll2gr : boost::numeric::bounds<double>::highest()) +
+            haveGamma ? ll2gr : boost::numeric::bounds<double>::highest()) +
         (2.0 * distributions.parameters() + 1.0) * logn;
 
     LOG_TRACE(<< "BIC(1) = " << ll1 << ", BIC(2) = " << ll2);
