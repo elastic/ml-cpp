@@ -2005,5 +2005,10 @@ double CTools::logOneMinusX(double x) {
 
     return result;
 }
+
+bool CTools::lgamma(double value, double& result, bool checkForFinite) {
+    result = std::lgamma(value);
+    return checkForFinite ? std::isfinite(result) : true;
+}
 }
 }

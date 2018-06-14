@@ -18,6 +18,7 @@ public:
     void testSpread();
     void testFastLog();
     void testMiscellaneous();
+    void testLgamma();
 
     static CppUnit::Test* suite();
 };
