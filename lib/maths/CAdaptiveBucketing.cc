@@ -33,6 +33,7 @@ namespace maths {
 namespace {
 
 using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TSizeVec = std::vector<std::size_t>;
 
 //! Clear a vector and recover its memory.
 template<typename T>
@@ -248,7 +249,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     }
 
     // Check if any buckets should be split based on the large error counts.
-    this->splitBucketsWithSignificantLargeErrors();
+    this->maybeSplitBucket();
 
     std::size_t n{m_Endpoints.size() - 1};
     double a{m_Endpoints[0]};
@@ -488,8 +489,6 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     }
 
     if (knots.size() > 2) {
-        using TSizeVec = std::vector<std::size_t>;
-
         // If the distance between knot points becomes too small the
         // spline can become poorly conditioned. We can safely discard
         // knot points which are very close to one another.
@@ -576,7 +575,6 @@ CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::variances() const {
 
 bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     double t{this->offset(time)};
-
     std::size_t i(std::upper_bound(m_Endpoints.begin(), m_Endpoints.end(), t) -
                   m_Endpoints.begin());
     std::size_t n{m_Endpoints.size()};
@@ -585,7 +583,6 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
                   << m_Endpoints[n - 1] << ")");
         return false;
     }
-
     result = i - 1;
     return true;
 }
@@ -608,8 +605,13 @@ std::size_t CAdaptiveBucketing::memoryUsage() const {
     return mem;
 }
 
-void CAdaptiveBucketing::splitBucketsWithSignificantLargeErrors() {
-    if (this->computeLargeErrorSignificances() && 2 * this->size() < 3 * m_TargetSize) {
+void CAdaptiveBucketing::maybeSplitBucket() {
+    double largeErrorCount{std::accumulate(m_LargeErrorCounts.begin(), m_LargeErrorCounts.end(), 0.0)};
+    this->refreshLargeErrorSignificances();
+    if (2 * this->size() < 3 * m_TargetSize &&
+        largeErrorCount > MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
+        m_LargeErrorCountSignificances.count() > 0 &&
+        m_LargeErrorCountSignificances[0].first < HIGH_SIGNIFICANCE) {
         this->splitBucket(m_LargeErrorCountSignificances[0].second);
     }
 }
@@ -630,10 +632,12 @@ void CAdaptiveBucketing::splitBucket(std::size_t bucket) {
     this->split(bucket);
 }
 
-bool CAdaptiveBucketing::computeLargeErrorSignificances() {
+void CAdaptiveBucketing::refreshLargeErrorSignificances() {
+    m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
+
     double n{std::accumulate(m_LargeErrorCounts.begin(), m_LargeErrorCounts.end(), 0.0)};
-    if (n < MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
-        return false;
+    if (n == 0.0) {
+        return;
     }
 
     // We compute the right tail p-value of the count of large errors
@@ -662,9 +666,7 @@ bool CAdaptiveBucketing::computeLargeErrorSignificances() {
                       << m_LargeErrorCounts[significance.second] << " n = " << n);
         }
         m_LargeErrorCountSignificances.sort();
-        return true;
     }
-    return false;
 }
 
 const double CAdaptiveBucketing::LARGE_ERROR_STANDARD_DEVIATIONS{3.0};

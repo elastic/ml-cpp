@@ -216,7 +216,7 @@ protected:
 
 private:
     using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
-    using TMinAccumulator = CBasicStatistics::SMin<TFloatUInt32Pr, 2>::TAccumulator;
+    using TFloatUInt32PrMinAccumulator = CBasicStatistics::SMin<TFloatUInt32Pr, 2>::TAccumulator;
 
 private:
     //! Compute the values corresponding to the change in end
@@ -248,14 +248,14 @@ private:
 
     //! Check if there is evidence of systematically large errors in a
     //! bucket and split it if there is.
-    void splitBucketsWithSignificantLargeErrors();
+    void maybeSplitBucket();
 
     //! Split \p bucket.
     void splitBucket(std::size_t bucket);
 
     //! Compute the statistical significance of the buckets' large error
     //! counts.
-    bool computeLargeErrorSignificances();
+    void refreshLargeErrorSignificances();
 
 private:
     //! The rate at which information is aged out of the bucket values.
@@ -278,7 +278,7 @@ private:
     core_t::TTime m_LastLargeErrorPeriod;
 
     //! The p-values of the most significant large error counts.
-    TMinAccumulator m_LargeErrorCountSignificances;
+    TFloatUInt32PrMinAccumulator m_LargeErrorCountSignificances;
 
     //! The mean weight of values added.
     TFloatMeanAccumulator m_MeanWeight;
