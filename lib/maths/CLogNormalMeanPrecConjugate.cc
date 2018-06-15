@@ -30,7 +30,6 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
@@ -524,9 +523,15 @@ private:
             double impliedPrecision = m_Precision + weightedNumberSamples;
 
             m_Constant = 0.5 * (std::log(m_Precision) - std::log(impliedPrecision)) -
-                         0.5 * m_NumberSamples * LOG_2_PI - 0.5 * logVarianceScaleSum +
-                         boost::math::lgamma(impliedShape) -
-                         boost::math::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
+                         0.5 * m_NumberSamples * LOG_2_PI -
+                         0.5 * logVarianceScaleSum + std::lgamma(impliedShape) -
+                         std::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
+
+            if (std::isfinite(m_Constant) == false) {
+                LOG_ERROR(<< "Error calculating marginal likelihood, flooting point overflow");
+                this->addErrorStatus(maths_t::E_FpOverflowed);
+            }
+
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);

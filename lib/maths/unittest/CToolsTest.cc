@@ -237,8 +237,8 @@ double numericalProbabilityOfLessLikelySample(const boost::math::beta_distributi
 
     double xmin = 1000.0 * std::numeric_limits<double>::min();
     if (a >= 1.0 && fx < CTools::safePdf(beta, xmin)) {
-        return std::exp(a * std::log(xmin) - std::log(a) + boost::math::lgamma(a + b) -
-                        boost::math::lgamma(a) - boost::math::lgamma(b)) +
+        return std::exp(a * std::log(xmin) - std::log(a) + std::lgamma(a + b) -
+                        std::lgamma(a) - std::lgamma(b)) +
                CTools::safeCdfComplement(beta, x);
     }
 

@@ -14,7 +14,6 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/math/distributions/binomial.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <cmath>
@@ -408,8 +407,7 @@ double CCategoricalTools::logBinomialCoefficient(std::size_t n, std::size_t m) {
     }
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
-    return boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) -
-           boost::math::lgamma(n_ - m_ + 1.0);
+    return std::lgamma(n_ + 1.0) - std::lgamma(m_ + 1.0) - std::lgamma(n_ - m_ + 1.0);
 }
 
 double CCategoricalTools::binomialCoefficient(std::size_t n, std::size_t m) {
@@ -544,8 +542,19 @@ CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m
 
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
-    result = std::min(boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) -
-                          boost::math::lgamma(n_ - m_ + 1.0) +
+
+    double logGammaNPlusOne = 0.0;
+    double logGammaMPlusOne = 0.0;
+    double logGammaNMinusMPlusOne = 0.0;
+
+    if ((CTools::lgamma(n_ + 1.0, logGammaNPlusOne, true) &&
+         CTools::lgamma(m_ + 1.0, logGammaMPlusOne, true) &&
+         CTools::lgamma(n_ - m_ + 1.0, logGammaNMinusMPlusOne, true)) == false) {
+
+        return maths_t::E_FpOverflowed;
+    }
+
+    result = std::min(logGammaNPlusOne - logGammaMPlusOne - logGammaNMinusMPlusOne +
                           m_ * std::log(p) + (n_ - m_) * std::log(1.0 - p),
                       0.0);
     return maths_t::E_FpNoErrors;
@@ -570,7 +579,11 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
     }
 
     double n_ = static_cast<double>(n);
-    double logP = boost::math::lgamma(n_ + 1.0);
+    double logP = 0.0;
+
+    if (CTools::lgamma(n_ + 1.0, logP, true) == false) {
+        return maths_t::E_FpOverflowed;
+    }
 
     for (std::size_t i = 0u; i < ni.size(); ++i) {
         double ni_ = static_cast<double>(ni[i]);
@@ -584,7 +597,13 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
                 result = boost::numeric::bounds<double>::lowest();
                 return maths_t::E_FpOverflowed;
             }
-            logP += ni_ * std::log(pi_) - boost::math::lgamma(ni_ + 1.0);
+
+            double logGammaNiPlusOne = 0.0;
+            if (CTools::lgamma(ni_ + 1.0, logGammaNiPlusOne, true) == false) {
+                return maths_t::E_FpOverflowed;
+            }
+
+            logP += ni_ * std::log(pi_) - logGammaNiPlusOne;
         }
     }
 

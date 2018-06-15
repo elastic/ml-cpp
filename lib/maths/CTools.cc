@@ -32,7 +32,6 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/tools/precision.hpp>
 #include <boost/optional.hpp>
 
@@ -1845,7 +1844,7 @@ double CTools::differentialEntropy(const gamma& gamma_) {
 
     double shape = gamma_.shape();
     double scale = gamma_.scale();
-    return shape + std::log(scale) + boost::math::lgamma(shape) +
+    return shape + std::log(scale) + std::lgamma(shape) +
            (1 - shape) * boost::math::digamma(shape);
 }
 

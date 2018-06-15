@@ -19,6 +19,8 @@
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 
+#include <cmath>
+
 using namespace ml;
 using namespace maths;
 using namespace test;
@@ -125,8 +127,8 @@ public:
         TDoubleVec p(m_P.begin(), m_P.end());
         CLogIntegrand f(p, m_N, p.size(), 1u);
         CIntegration::logGaussLegendre<CIntegration::OrderTen>(f, 0, p[0], result);
-        result += boost::math::lgamma(static_cast<double>(m_N) + 1.0) -
-                  boost::math::lgamma(static_cast<double>(m_N - p.size()) + 1.0);
+        result += std::lgamma(static_cast<double>(m_N) + 1.0) -
+                  std::lgamma(static_cast<double>(m_N - p.size()) + 1.0);
         return result;
     }
 
@@ -282,7 +284,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
         double s = jointProbability.numberSamples() / 2.0;
         double x = jointProbability.distance() / 2.0;
 
-        double logP = logUpperIncompleteGamma(s, x) - boost::math::lgamma(s);
+        double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
         LOG_DEBUG(<< "log(p) = " << logP);
 
         double lowerBound, upperBound;
@@ -328,7 +330,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
                     double x = jointProbability.distance() / 2.0;
                     LOG_DEBUG(<< "s = " << s << ", x = " << x);
 
-                    double logP = logUpperIncompleteGamma(s, x) - boost::math::lgamma(s);
+                    double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
                     LOG_DEBUG(<< "log(p) = " << logP);
 
                     double lowerBound, upperBound;
@@ -348,7 +350,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
                     double s = jointProbability.numberSamples() / 2.0;
                     double x = jointProbability.distance() / 2.0;
 
-                    double logP = logUpperIncompleteGamma(s, x) - boost::math::lgamma(s);
+                    double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
 
                     double lowerBound, upperBound;
                     CPPUNIT_ASSERT(logJointProbability.calculateLowerBound(lowerBound));

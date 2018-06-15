@@ -25,7 +25,6 @@
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
@@ -548,7 +547,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             numberSamples += n;
             sampleSum += n * x;
             // Recall n! = Gamma(n + 1).
-            sampleLogFactorialSum += n * boost::math::lgamma(x + 1.0);
+            sampleLogFactorialSum += n * std::lgamma(x + 1.0);
         }
 
         // Get the implied shape parameter for the gamma distribution
@@ -556,9 +555,9 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         double impliedShape = m_Shape + sampleSum;
         double impliedRate = m_Rate + numberSamples;
 
-        result = boost::math::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
+        result = std::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
                  impliedShape * std::log(impliedRate) - sampleLogFactorialSum -
-                 boost::math::lgamma(m_Shape);
+                 std::lgamma(m_Shape);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
         return maths_t::E_FpFailed;

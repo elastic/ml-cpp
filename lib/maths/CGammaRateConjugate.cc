@@ -27,7 +27,6 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
@@ -647,7 +646,7 @@ private:
                     logVarianceScaleSum -= m_LikelihoodShape / varianceScale *
                                            std::log(varianceScale);
                     logGammaScaledLikelihoodShape +=
-                        n * boost::math::lgamma(m_LikelihoodShape / varianceScale);
+                        n * std::lgamma(m_LikelihoodShape / varianceScale);
                     scaledImpliedShape += n * m_LikelihoodShape / varianceScale;
                 } else {
                     nResidual += n;
@@ -658,11 +657,15 @@ private:
 
             LOG_TRACE(<< "numberSamples = " << m_NumberSamples);
 
-            m_Constant = m_PriorShape * std::log(m_PriorRate) -
-                         boost::math::lgamma(m_PriorShape) +
+            m_Constant = m_PriorShape * std::log(m_PriorRate) - std::lgamma(m_PriorShape) +
                          logVarianceScaleSum - logGammaScaledLikelihoodShape -
-                         nResidual * boost::math::lgamma(m_LikelihoodShape) +
-                         boost::math::lgamma(m_ImpliedShape);
+                         nResidual * std::lgamma(m_LikelihoodShape) +
+                         std::lgamma(m_ImpliedShape);
+
+            if (std::isfinite(m_ImpliedShape) && std::isfinite(m_Constant) == false) {
+                LOG_ERROR(<< "Error calculating marginal likelihood: floating point overflow");
+                this->addErrorStatus(maths_t::E_FpOverflowed);
+            }
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
