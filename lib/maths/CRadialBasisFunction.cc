@@ -143,8 +143,7 @@ double CGaussianBasisFunction::mean(double a, double b, double centre, double sc
     }
 
     return std::max(boost::math::double_constants::root_pi / 2.0 / scale *
-                        (std::erf(scale * (b - centre)) -
-                         std::erf(scale * (a - centre))) /
+                        (std::erf(scale * (b - centre)) - std::erf(scale * (a - centre))) /
                         (b - a),
                     0.0);
 }
