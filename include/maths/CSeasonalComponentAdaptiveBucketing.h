@@ -177,7 +177,7 @@ private:
     //! The count in \p bucket.
     virtual double bucketCount(std::size_t bucket) const;
 
-    //! Get the predicted value for the \p bucket at \p time.
+    //! Get the predicted value for \p bucket at \p time.
     virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const;
 
     //! Get the variance of \p bucket.

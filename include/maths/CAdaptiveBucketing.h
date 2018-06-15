@@ -237,13 +237,13 @@ private:
     //! Get the count in \p bucket.
     virtual double bucketCount(std::size_t bucket) const = 0;
 
-    //! Get the predicted value for the \p bucket at \p time.
+    //! Get the predicted value for \p bucket at \p time.
     virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const = 0;
 
     //! Get the variance of \p bucket.
     virtual double variance(std::size_t bucket) const = 0;
 
-    //! Implements split \p bucket for derived state.
+    //! Implements split of \p bucket for derived state.
     virtual void split(std::size_t bucket) = 0;
 
     //! Check if there is evidence of systematically large errors in a
@@ -252,10 +252,6 @@ private:
 
     //! Split \p bucket.
     void splitBucket(std::size_t bucket);
-
-    //! Compute the statistical significance of the buckets' large error
-    //! counts.
-    void refreshLargeErrorSignificances();
 
 private:
     //! The rate at which information is aged out of the bucket values.

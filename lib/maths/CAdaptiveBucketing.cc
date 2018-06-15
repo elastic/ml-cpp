@@ -23,6 +23,7 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <numeric>
 #include <utility>
@@ -32,7 +33,6 @@ namespace ml {
 namespace maths {
 namespace {
 
-using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TSizeVec = std::vector<std::size_t>;
 
 //! Clear a vector and recover its memory.
@@ -197,6 +197,7 @@ void CAdaptiveBucketing::clear() {
 }
 
 void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weight) {
+    using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(
         this->bucketCount(bucket), static_cast<double>(m_Centres[bucket]))};
     centre.add(this->offset(time), weight);
@@ -306,13 +307,15 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         error *= h / (b - a);
         averagingErrors.push_back(error);
     }
-    double maxAveragingError{*std::max_element(averagingErrors.begin(), averagingErrors.end())};
+    double maxAveragingError{
+        *std::max_element(averagingErrors.begin(), averagingErrors.end())};
     for (const auto& significance : m_LargeErrorCountSignificances) {
         if (significance.first < MODERATE_SIGNIFICANCE) {
             averagingErrors[significance.second] = maxAveragingError;
         }
     }
-    double totalAveragingError{std::accumulate(averagingErrors.begin(), averagingErrors.end(), 0.0)};
+    double totalAveragingError{
+        std::accumulate(averagingErrors.begin(), averagingErrors.end(), 0.0)};
     LOG_TRACE(<< "averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
@@ -606,13 +609,46 @@ std::size_t CAdaptiveBucketing::memoryUsage() const {
 }
 
 void CAdaptiveBucketing::maybeSplitBucket() {
-    double largeErrorCount{std::accumulate(m_LargeErrorCounts.begin(), m_LargeErrorCounts.end(), 0.0)};
-    this->refreshLargeErrorSignificances();
-    if (2 * this->size() < 3 * m_TargetSize &&
-        largeErrorCount > MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
-        m_LargeErrorCountSignificances.count() > 0 &&
-        m_LargeErrorCountSignificances[0].first < HIGH_SIGNIFICANCE) {
-        this->splitBucket(m_LargeErrorCountSignificances[0].second);
+    double largeErrorCount{std::accumulate(m_LargeErrorCounts.begin(),
+                                           m_LargeErrorCounts.end(), 0.0)};
+    if (largeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
+        m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
+
+        // We compute the right tail p-value of the count of large errors
+        // in a bucket for the null hypothesis that they are uniformly
+        // distributed on the total bucketed period and split if this is
+        // less than a specified threshold.
+        double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
+        for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
+            double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
+            try {
+                boost::math::binomial binomial{largeErrorCount, interval / period};
+                double oneMinusCdf{
+                    CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1])};
+                m_LargeErrorCountSignificances.add({oneMinusCdf, i - 1});
+            } catch (const std::exception& e) {
+                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what());
+            }
+        }
+        if (m_LargeErrorCountSignificances.count() > 0) {
+            // We're choosing the minimum of number of buckets so need the
+            // order statistic significance.
+            for (auto& significance : m_LargeErrorCountSignificances) {
+                significance.first = CTools::oneMinusPowOneMinusX(
+                    significance.first, static_cast<double>(this->size()));
+                LOG_TRACE(<< "bucket [" << m_Endpoints[significance.second]
+                          << "," << m_Endpoints[significance.second + 1]
+                          << ") split significance = " << significance.first);
+            }
+            m_LargeErrorCountSignificances.sort();
+        }
+
+        if (2 * this->size() < 3 * m_TargetSize &&
+            largeErrorCount > MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
+            m_LargeErrorCountSignificances.count() > 0 &&
+            m_LargeErrorCountSignificances[0].first < HIGH_SIGNIFICANCE) {
+            this->splitBucket(m_LargeErrorCountSignificances[0].second);
+        }
     }
 }
 
@@ -630,43 +666,6 @@ void CAdaptiveBucketing::splitBucket(std::size_t bucket) {
     m_LargeErrorCounts.insert(m_LargeErrorCounts.begin() + bucket,
                               m_LargeErrorCounts[bucket]);
     this->split(bucket);
-}
-
-void CAdaptiveBucketing::refreshLargeErrorSignificances() {
-    m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
-
-    double n{std::accumulate(m_LargeErrorCounts.begin(), m_LargeErrorCounts.end(), 0.0)};
-    if (n == 0.0) {
-        return;
-    }
-
-    // We compute the right tail p-value of the count of large errors
-    // in a bucket for the null hypothesis that they are uniformly
-    // distributed on the total bucketed period and split if this is
-    // less than a specified threshold.
-    double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
-    for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
-        double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
-        try {
-            boost::math::binomial binomial{n, interval / period};
-            double oneMinusCdf{
-                CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1])};
-            m_LargeErrorCountSignificances.add({oneMinusCdf, i - 1});
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what());
-        }
-    }
-    if (m_LargeErrorCountSignificances.count() > 0) {
-        // We're choosing the minimum of number of buckets so need the
-        // order statistic significance.
-        for (auto& significance : m_LargeErrorCountSignificances) {
-            significance.first = CTools::oneMinusPowOneMinusX(
-                significance.first, static_cast<double>(this->size()));
-            LOG_TRACE(<< "significance = " << significance.first << " bucket n = "
-                      << m_LargeErrorCounts[significance.second] << " n = " << n);
-        }
-        m_LargeErrorCountSignificances.sort();
-    }
 }
 
 const double CAdaptiveBucketing::LARGE_ERROR_STANDARD_DEVIATIONS{3.0};
