@@ -1224,7 +1224,7 @@ void CLogNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSam
             double z = (xq - m_GaussianMean - scale * scale) / scale /
                        boost::math::double_constants::root_two;
 
-            double partialExpectation = mean * (1.0 + boost::math::erf(z)) / 2.0;
+            double partialExpectation = mean * (1.0 + std::erf(z)) / 2.0;
 
             double sample = static_cast<double>(numberSamples) *
                                 (partialExpectation - lastPartialExpectation) -

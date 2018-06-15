@@ -11,7 +11,6 @@
 #include <maths/CTools.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/special_functions/erf.hpp>
 
 #include <cmath>
 
@@ -33,7 +32,7 @@ double gaussianSquareDerivative(double x, double centre, double scale) {
     double r = scale * (x - centre);
     return scale *
            (boost::math::double_constants::root_two_pi *
-                boost::math::erf(boost::math::double_constants::root_two * r) -
+                std::erf(boost::math::double_constants::root_two * r) -
             4.0 * r * std::exp(-2.0 * r * r)) /
            4.0;
 }
@@ -51,7 +50,7 @@ double gaussianProduct(double x, double centre1, double centre2, double scale1, 
     double d = scale1 * scale2 * (centre2 - centre1);
 
     return boost::math::double_constants::root_pi * std::exp(-d * d / (scale * scale)) *
-           boost::math::erf(scale * (x - m)) / (2.0 * scale);
+           std::erf(scale * (x - m)) / (2.0 * scale);
 }
 
 //! The indefinite integral
@@ -144,8 +143,8 @@ double CGaussianBasisFunction::mean(double a, double b, double centre, double sc
     }
 
     return std::max(boost::math::double_constants::root_pi / 2.0 / scale *
-                        (boost::math::erf(scale * (b - centre)) -
-                         boost::math::erf(scale * (a - centre))) /
+                        (std::erf(scale * (b - centre)) -
+                         std::erf(scale * (a - centre))) /
                         (b - a),
                     0.0);
 }
