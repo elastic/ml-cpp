@@ -56,6 +56,11 @@ public:
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
 public:
+    //! The default length of the sliding window of residuals used to compute
+    //! bulk features.
+    static const std::size_t RECENT_RESIDUAL_COUNT;
+
+public:
     //! \param[in] params The model parameters.
     //! \param[in] id The *unique* identifier for this time series.
     //! \param[in] trendModel The time series trend decomposition.
@@ -64,14 +69,18 @@ public:
     //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
+    //! \param[in] recentResidualCount The length of the sliding window of
+    //! residuals used to compute bulk features.
     CUnivariateTimeSeriesModel(const CModelParams& params,
                                std::size_t id,
                                const CTimeSeriesDecompositionInterface& trendModel,
                                const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
-                               bool modelAnomalies = true);
+                               bool modelAnomalies = true,
+                               std::size_t recentResidualCount = RECENT_RESIDUAL_COUNT);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
-                               core::CStateRestoreTraverser& traverser);
+                               core::CStateRestoreTraverser& traverser,
+                               std::size_t recentResidualCount = RECENT_RESIDUAL_COUNT);
     ~CUnivariateTimeSeriesModel();
 
     const CUnivariateTimeSeriesModel& operator=(const CUnivariateTimeSeriesModel&) = delete;
@@ -185,13 +194,6 @@ public:
     //@{
     //! Unpack the weights in \p weights.
     static TDoubleWeightsAry unpack(const TDouble2VecWeightsAry& weights);
-
-    //! Reinitialize \p residualModel using the detrended values
-    //! from \p slidingWindow.
-    static void reinitializeResidualModel(double learnRate,
-                                          const TDecompositionPtr& trend,
-                                          const TTimeDoublePrCBuf& slidingWindow,
-                                          CPrior& residualModel);
     //@}
 
     //! \name Test Functions
@@ -210,9 +212,12 @@ private:
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
+    using TDouble1VecDoubleWeightsAry1VecPr =
+        std::pair<TDouble1Vec, maths_t::TDoubleWeightsAry1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
-    using TVector = CVectorNx1<double, 2>;
-    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeFloatMeanAccumulatorPr>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
@@ -239,12 +244,24 @@ private:
     EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                               const TDouble2VecWeightsAryVec& trendWeights);
 
+    //! Update the various model decay rates based on the prediction errors
+    //! for \p samples.
+    double updateDecayRates(const CModelAddSamplesParams& params,
+                            core_t::TTime time,
+                            const TDouble1Vec& samples);
+
     //! Compute the prediction errors for \p sample.
     void appendPredictionErrors(double interval, double sample, TDouble1VecVec (&result)[2]);
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(void);
+    void reinitializeStateGivenNewComponent();
+
+    //! Get the sliding window mean residual.
+    TDouble1VecDoubleWeightsAry1VecPr residualMean() const;
+
+    //! Get the sliding window residual contrast.
+    TDouble1VecDoubleWeightsAry1VecPr residualContrast() const;
 
     //! Get the models for the correlations and the models of the correlated
     //! time series.
@@ -275,10 +292,26 @@ private:
     //! \note This can be temporarily be shared with the change detector.
     TDecompositionPtr m_TrendModel;
 
+    //! A sliding window of the most recent normalized prediction
+    //! residuals.
+    TTimeFloatMeanAccumulatorPrCBuf m_RecentResiduals;
+
     //! The time series' residual model.
     //!
     //! \note This can be temporarily be shared with the change detector.
     TPriorPtr m_ResidualModel;
+
+    //! A model of the mean of the recent residuals.
+    //!
+    //! This models a feature constructed from the mean of residuals in
+    //! a sliding window.
+    TPriorPtr m_ResidualMeanModel;
+
+    //! A model of the contrast between recent residuals.
+    //!
+    //! This models a feature constructed by differencing the residuals
+    //! about the centre of a sliding window.
+    TPriorPtr m_ResidualContrastModel;
 
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.
@@ -296,7 +329,7 @@ private:
 
     //! A sliding window of the recent samples (used to reinitialize the
     //! residual model when a new trend component is detected).
-    TTimeDoublePrCBuf m_SlidingWindow;
+    TTimeDoublePrCBuf m_RecentSamples;
 
     //! Models the correlations between time series.
     CTimeSeriesCorrelations* m_Correlations;
@@ -508,6 +541,7 @@ private:
 class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
+    using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
     using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
     using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
     using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
@@ -666,8 +700,6 @@ private:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
-    using TVector = CVectorNx1<double, 2>;
-    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
     using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
@@ -677,14 +709,20 @@ private:
     EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                               const TDouble2VecWeightsAryVec& trendWeights);
 
+    //! Update the various model decay rates based on the prediction errors
+    //! for \p samples.
+    void updateDecayRates(const CModelAddSamplesParams& params,
+                          core_t::TTime time,
+                          const TDouble10Vec1Vec& samples);
+
     //! Compute the prediction errors for \p sample.
     void appendPredictionErrors(double interval,
-                                const TDouble2Vec& sample,
+                                const TDouble10Vec& sample,
                                 TDouble1VecVec (&result)[2]);
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(void);
+    void reinitializeStateGivenNewComponent();
 
     //! Get the model dimension.
     std::size_t dimension() const;
@@ -712,7 +750,7 @@ private:
 
     //! A sliding window of the recent samples (used to reinitialize the
     //! residual model when a new trend component is detected).
-    TTimeDouble2VecPrCBuf m_SlidingWindow;
+    TTimeDouble2VecPrCBuf m_RecentSamples;
 };
 }
 }
