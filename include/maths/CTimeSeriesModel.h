@@ -257,6 +257,22 @@ private:
     //! decomposition.
     void reinitializeStateGivenNewComponent();
 
+    //! Compute the probability for uncorrelated series.
+    bool uncorrelatedProbability(const CModelProbabilityParams& params,
+                                 const TTime2Vec1Vec& time_,
+                                 const TDouble2Vec1Vec& value,
+                                 double& probability,
+                                 TTail2Vec& tail) const;
+
+    //! Compute the probability for correlated series.
+    bool correlatedProbability(const CModelProbabilityParams& params,
+                               const TTime2Vec1Vec& time,
+                               const TDouble2Vec1Vec& value,
+                               double& probability,
+                               TTail2Vec& tail,
+                               bool& conditional,
+                               TSize1Vec& mostAnomalousCorrelate) const;
+
     //! Get the sliding window mean residual.
     TDouble1VecDoubleWeightsAry1VecPr residualMean() const;
 
