@@ -104,8 +104,7 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
                                            const std::string& summaryCountFieldName,
                                            core_t::TTime latency,
                                            std::size_t bucketResultsDelay,
-                                           bool multivariateByFields,
-                                           const std::string& multipleBucketLengths) {
+                                           bool multivariateByFields) {
     bucketLength = detail::validateBucketLength(bucketLength);
 
     double learnRate = DEFAULT_LEARN_RATE * bucketNormalizationFactor(bucketLength);
@@ -117,8 +116,6 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
     params.s_ExcludeFrequent = model_t::E_XF_None;
     params.configureLatency(latency, bucketLength);
     params.s_BucketResultsDelay = bucketResultsDelay;
-    params.s_MultipleBucketLengths = CAnomalyDetectorModelConfig::multipleBucketLengths(
-        bucketLength, multipleBucketLengths);
 
     TInterimBucketCorrectorPtr interimBucketCorrector =
         std::make_shared<CInterimBucketCorrector>(bucketLength);
@@ -191,30 +188,6 @@ void CAnomalyDetectorModelConfig::bucketLength(core_t::TTime length) {
 
 void CAnomalyDetectorModelConfig::bucketResultsDelay(std::size_t delay) {
     m_BucketResultsDelay = delay;
-}
-
-CAnomalyDetectorModelConfig::TTimeVec
-CAnomalyDetectorModelConfig::multipleBucketLengths(core_t::TTime bucketLength,
-                                                   const std::string& multipleBucketLengths) {
-    TStrVec multiBucketTokens;
-    core::CRegex regex;
-    regex.init(",");
-    regex.split(multipleBucketLengths, multiBucketTokens);
-    TTimeVec multiBuckets;
-    for (TStrVecCItr itr = multiBucketTokens.begin();
-         itr != multiBucketTokens.end(); ++itr) {
-        core_t::TTime t = 0;
-        if (core::CStringUtils::stringToType(*itr, t)) {
-            if ((t <= bucketLength) || (t % bucketLength != 0)) {
-                LOG_ERROR(<< "MultipleBucketLength " << t
-                          << " must be a multiple of " << bucketLength);
-                return TTimeVec();
-            }
-            multiBuckets.push_back(t);
-        }
-    }
-    std::sort(multiBuckets.begin(), multiBuckets.end());
-    return multiBuckets;
 }
 
 void CAnomalyDetectorModelConfig::interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector) {

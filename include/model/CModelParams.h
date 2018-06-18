@@ -155,9 +155,6 @@ struct MODEL_EXPORT SModelParams {
     //! The number of buckets to delay finalizing out-of-phase buckets.
     std::size_t s_BucketResultsDelay;
 
-    //! The collection of multiple bucket lengths (if any)
-    TTimeVec s_MultipleBucketLengths;
-
     //! The minimum data size to trigger fuzzy de-duplication of samples to add
     //! to population models.
     std::size_t s_MinimumToFuzzyDeduplicate;

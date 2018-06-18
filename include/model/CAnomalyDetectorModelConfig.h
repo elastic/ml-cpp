@@ -236,16 +236,13 @@ public:
     //! to sit on before giving a definitive result.
     //! \param[in] multivariateByFields Should multivariate analysis of
     //! correlated 'by' fields be performed?
-    //! \param[in] multipleBucketLengths If specified, set multiple bucket
-    //! lengths to be analysed (CSV string of time values)
     static CAnomalyDetectorModelConfig
     defaultConfig(core_t::TTime bucketLength,
                   model_t::ESummaryMode summaryMode,
                   const std::string& summaryCountFieldName,
                   core_t::TTime latency,
                   std::size_t bucketResultsDelay,
-                  bool multivariateByFields,
-                  const std::string& multipleBucketLengths);
+                  bool multivariateByFields);
 
     //! Overload using defaults.
     static CAnomalyDetectorModelConfig
@@ -254,7 +251,7 @@ public:
                   const std::string& summaryCountFieldName = "") {
         return defaultConfig(bucketLength, summaryMode, summaryCountFieldName,
                              DEFAULT_LATENCY_BUCKETS * bucketLength,
-                             DEFAULT_BUCKET_RESULTS_DELAY, false, "");
+                             DEFAULT_BUCKET_RESULTS_DELAY, false);
     }
 
     //! Get the factor to normalize all bucket lengths to the default
@@ -264,11 +261,6 @@ public:
     //! Get the decay rate to use for the time series decomposition given
     //! the model decay rate \p modelDecayRate.
     static double trendDecayRate(double modelDecayRate, core_t::TTime bucketLength);
-
-    //! Parse and verify the multiple bucket lengths - these should all be
-    //! multiples of the standard bucket length.
-    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength,
-                                          const std::string& multipleBucketLengths);
 
 public:
     CAnomalyDetectorModelConfig();
