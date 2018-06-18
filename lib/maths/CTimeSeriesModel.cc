@@ -607,8 +607,8 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams& param
     : CModel(params), m_Id(id), m_IsNonNegative(false), m_IsForecastable(true),
       m_TrendModel(trendModel.clone()), m_RecentResiduals(recentResidualCount),
       m_ResidualModel(residualModel.clone()),
-      m_ResidualMeanModel(residualModel.clone()),
-      m_ResidualContrastModel(residualModel.clone()),
+      m_ResidualMeanModel(recentResidualCount > 0 ? residualModel.clone() : nullptr),
+      m_ResidualContrastModel(recentResidualCount > 0 ? residualModel.clone() : nullptr),
       m_AnomalyModel(modelAnomalies ? boost::make_unique<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
@@ -718,8 +718,12 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     m_IsNonNegative = params.isNonNegative();
     maths_t::EDataType type{params.type()};
     m_ResidualModel->dataType(type);
-    m_ResidualMeanModel->dataType(type);
-    m_ResidualContrastModel->dataType(type);
+    if (m_ResidualMeanModel != nullptr) {
+        m_ResidualMeanModel->dataType(type);
+    }
+    if (m_ResidualContrastModel != nullptr) {
+        m_ResidualContrastModel->dataType(type);
+    }
     m_TrendModel->dataType(type);
 
     result = CModel::combine(result, this->updateTrend(samples, params.trendWeights()));
@@ -775,11 +779,11 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     // Update the residual models.
     m_ResidualModel->addSamples(samples_, weights_);
     m_ResidualModel->propagateForwardsByTime(params.propagationInterval());
-    if (mean.size() > 0) {
+    if (mean.size() > 0 && m_ResidualMeanModel != nullptr) {
         m_ResidualMeanModel->addSamples(mean, meanWeight);
         m_ResidualMeanModel->propagateForwardsByTime(params.propagationInterval());
     }
-    if (contrast.size() > 0) {
+    if (contrast.size() > 0 && m_ResidualContrastModel != nullptr) {
         m_ResidualContrastModel->addSamples(contrast, contrastWeight);
         m_ResidualContrastModel->propagateForwardsByTime(params.propagationInterval());
     }
@@ -1035,10 +1039,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
     }
     double bucketProbability{(pl + pu) / 2.0};
 
-    double meanProbability{1.0};
+    double meanProbability{m_ResidualMeanModel != nullptr ? 1.0 : bucketProbability};
     TDouble1Vec mean;
     std::tie(mean, std::ignore) = this->residualMean();
-    if (mean.size() > 0) {
+    if (mean.size() > 0 && m_ResidualMeanModel != nullptr) {
         for (auto calculation : expand(params.calculation(0))) {
             if (m_ResidualMeanModel->probabilityOfLessLikelySamples(
                     calculation, mean, maths_t::CUnitWeights::SINGLE_UNIT, pl, pu, tail_)) {
@@ -1051,10 +1055,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         }
     }
 
-    double contrastProbability{1.0};
+    double contrastProbability{m_ResidualContrastModel != nullptr ? 1.0 : bucketProbability};
     TDouble1Vec contrast;
     std::tie(contrast, std::ignore) = this->residualContrast();
-    if (contrast.size() > 0) {
+    if (contrast.size() > 0 && m_ResidualContrastModel != nullptr) {
         for (auto calculation : expand(params.calculation(0))) {
             if (m_ResidualContrastModel->probabilityOfLessLikelySamples(
                     calculation, contrast, maths_t::CUnitWeights::SINGLE_UNIT, pl, pu, tail_)) {
@@ -1427,9 +1431,13 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
       m_RecentResiduals(!isForForecast ? other.m_RecentResiduals
                                        : TTimeFloatMeanAccumulatorPrCBuf{}),
       m_ResidualModel(!isForForecast ? other.m_ResidualModel->clone() : nullptr),
-      m_ResidualMeanModel(!isForForecast ? other.m_ResidualMeanModel->clone() : nullptr),
-      m_ResidualContrastModel(!isForForecast ? other.m_ResidualContrastModel->clone() : nullptr),
-      m_AnomalyModel(!isForForecast && other.m_AnomalyModel
+      m_ResidualMeanModel(!isForForecast && other.m_ResidualMeanModel != nullptr
+                              ? other.m_ResidualMeanModel->clone()
+                              : nullptr),
+      m_ResidualContrastModel(!isForForecast && other.m_ResidualContrastModel != nullptr
+                                  ? other.m_ResidualContrastModel->clone()
+                                  : nullptr),
+      m_AnomalyModel(!isForForecast && other.m_AnomalyModel != nullptr
                          ? boost::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr),
       m_CandidateChangePoint(other.m_CandidateChangePoint),
@@ -1591,8 +1599,12 @@ double CUnivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
         if (multiplier != 1.0) {
             double decayRate{multiplier * m_ResidualModel->decayRate()};
             m_ResidualModel->decayRate(decayRate);
-            m_ResidualMeanModel->decayRate(decayRate);
-            m_ResidualContrastModel->decayRate(decayRate);
+            if (m_ResidualMeanModel != nullptr) {
+                m_ResidualMeanModel->decayRate(decayRate);
+            }
+            if (m_ResidualContrastModel != nullptr) {
+                m_ResidualContrastModel->decayRate(decayRate);
+            }
             LOG_TRACE(<< "prior decay rate = " << decayRate);
         }
     }
@@ -1625,8 +1637,12 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent() {
         }
     }
     m_RecentResiduals.clear();
-    m_ResidualMeanModel->setToNonInformative(0.0, m_ResidualMeanModel->decayRate());
-    m_ResidualContrastModel->setToNonInformative(0.0, m_ResidualContrastModel->decayRate());
+    if (m_ResidualMeanModel != nullptr) {
+        m_ResidualMeanModel->setToNonInformative(0.0, m_ResidualMeanModel->decayRate());
+    }
+    if (m_ResidualContrastModel != nullptr) {
+        m_ResidualContrastModel->setToNonInformative(0.0, m_ResidualContrastModel->decayRate());
+    }
     if (m_Correlations != nullptr) {
         m_Correlations->removeTimeSeries(m_Id);
     }
