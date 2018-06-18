@@ -38,8 +38,7 @@ namespace maths {
 //!
 class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
 public:
-    //! Wrapper around std::isnan() which avoids the need to add
-    //! cryptic brackets everywhere to deal with macros.
+    //! Check if value is NaN.
     static bool isNan(double val);
     //! Check if any of the components are NaN.
     template<std::size_t N>
@@ -54,8 +53,7 @@ public:
     //! Check if an element is NaN.
     static bool isNan(const core::CSmallVectorBase<double>& val);
 
-    //! Wrapper around std::isinf() which avoids the need to add
-    //! cryptic brackets everywhere to deal with macros.
+    //! Check if value is infinite.
     static bool isInf(double val);
     //! Check if any of the components are infinite.
     template<std::size_t N>

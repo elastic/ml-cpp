@@ -10,14 +10,6 @@
 
 #include <cmath>
 
-#ifdef isnan
-#undef isnan
-#endif
-
-#ifdef isinf
-#undef isinf
-#endif
-
 namespace ml {
 namespace maths {
 
