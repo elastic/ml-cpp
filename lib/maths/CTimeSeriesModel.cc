@@ -718,6 +718,8 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     m_IsNonNegative = params.isNonNegative();
     maths_t::EDataType type{params.type()};
     m_ResidualModel->dataType(type);
+    m_ResidualMeanModel->dataType(type);
+    m_ResidualContrastModel->dataType(type);
     m_TrendModel->dataType(type);
 
     result = CModel::combine(result, this->updateTrend(samples, params.trendWeights()));
@@ -881,7 +883,6 @@ CUnivariateTimeSeriesModel::TDouble2Vec
 CUnivariateTimeSeriesModel::predict(core_t::TTime time,
                                     const TSizeDoublePr1Vec& correlatedValue,
                                     TDouble2Vec hint) const {
-
     double correlateCorrection{0.0};
     if (!correlatedValue.empty()) {
         TSize1Vec correlated{correlatedValue[0].first};
@@ -1233,7 +1234,6 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualMeanModel", m_ResidualMeanModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualContrastModel", m_ResidualContrastModel, mem);
-    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
     core::CMemoryDebug::dynamicSize("m_ChangeDetector", m_ChangeDetector, mem);
     core::CMemoryDebug::dynamicSize("m_RecentSamples", m_RecentSamples, mem);
@@ -1362,7 +1362,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
     if (m_ResidualMeanModel != nullptr) {
         inserter.insertLevel(RESIDUAL_MEAN_MODEL_6_3_TAG,
                              boost::bind<void>(CPriorStateSerialiser{},
-                                               boost::cref(*m_ResidualContrastModel), _1));
+                                               boost::cref(*m_ResidualMeanModel), _1));
     }
     if (m_ResidualContrastModel != nullptr) {
         inserter.insertLevel(RESIDUAL_CONTRAST_MODEL_6_3_TAG,
@@ -1408,6 +1408,14 @@ const CTimeSeriesDecompositionInterface& CUnivariateTimeSeriesModel::trendModel(
 
 const CPrior& CUnivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CPrior& CUnivariateTimeSeriesModel::residualMeanModel() const {
+    return *m_ResidualMeanModel;
+}
+
+const CPrior& CUnivariateTimeSeriesModel::residualContrastModel() const {
+    return *m_ResidualContrastModel;
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,

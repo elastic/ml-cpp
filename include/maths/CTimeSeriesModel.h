@@ -205,7 +205,13 @@ public:
     const CTimeSeriesDecompositionInterface& trendModel() const;
 
     //! Get the residual model.
-    const CPrior& residualModel(void) const;
+    const CPrior& residualModel() const;
+
+    //! Get the sliding window mean residual model.
+    const CPrior& residualMeanModel() const;
+
+    //! Get the sliding window residual contrast model.
+    const CPrior& residualContrastModel() const;
     //@}
 
 private:
