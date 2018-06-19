@@ -186,16 +186,19 @@ public:
     //! \name Defaults
     //@{
     //! Get the default models to use for \p features and \p bucketLength.
-    const TFeatureMathsModelPtrPrVec& defaultFeatureModels(const TFeatureVec& features,
-                                                           core_t::TTime bucketLength,
-                                                           double minimumSeasonalVarianceScale,
-                                                           bool modelAnomalies) const;
+    const TFeatureMathsModelPtrPrVec&
+    defaultFeatureModels(const TFeatureVec& features,
+                         core_t::TTime bucketLength,
+                         double minimumSeasonalVarianceScale,
+                         bool modelAnomalies,
+                         std::size_t bulkFeaturesWindowLength) const;
 
     //! Get the default model to use for \p features and \p bucketLength.
     TMathsModelPtr defaultFeatureModel(model_t::EFeature feature,
                                        core_t::TTime bucketLength,
                                        double minimumSeasonalVarianceScale,
-                                       bool modelAnomalies) const;
+                                       bool modelAnomalies,
+                                       std::size_t bulkFeaturesWindowLength) const;
 
     //! Get the default correlate priors to use for correlated pairs of time
     //! series of \p features.
@@ -369,11 +372,6 @@ protected:
     using TOptionalSearchKey = boost::optional<CSearchKey>;
 
 protected:
-    //! Efficiently swap the contents of this and other.
-    //!
-    //! \note This only swaps the state held on this base class.
-    void swap(CModelFactory& other);
-
     //! Get the singleton interim bucket correction calculator.
     TInterimBucketCorrectorPtr interimBucketCorrector() const;
 

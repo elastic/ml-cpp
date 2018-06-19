@@ -69,10 +69,10 @@ public:
     bool testForChange(core_t::TTime changeInterval) const;
 
     //! Get the minimum time to detect a change point in the model.
-    core_t::TTime minimumTimeToDetectChange(void) const;
+    core_t::TTime minimumTimeToDetectChange() const;
 
     //! Get the maximum time to test for a change point in the model.
-    core_t::TTime maximumTimeToTestForChange(void) const;
+    core_t::TTime maximumTimeToTestForChange() const;
 
     //! Set the probability that the bucket will be empty for the model.
     void probabilityBucketEmpty(double probability);
@@ -104,8 +104,6 @@ public:
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
 
 public:
-    CModelAddSamplesParams();
-
     //! Set whether or not the data are integer valued.
     CModelAddSamplesParams& integer(bool integer);
     //! Get the data type.
@@ -133,15 +131,15 @@ public:
 
 private:
     //! The data type.
-    maths_t::EDataType m_Type;
+    maths_t::EDataType m_Type = maths_t::E_MixedData;
     //! True if the data are non-negative false otherwise.
-    bool m_IsNonNegative;
+    bool m_IsNonNegative = false;
     //! The propagation interval.
-    double m_PropagationInterval;
+    double m_PropagationInterval = 1.0;
     //! The trend sample weights.
-    const TDouble2VecWeightsAryVec* m_TrendWeights;
+    const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
     //! The prior sample weights.
-    const TDouble2VecWeightsAryVec* m_PriorWeights;
+    const TDouble2VecWeightsAryVec* m_PriorWeights = nullptr;
 };
 
 //! \brief The extra parameters needed by CModel::probability.
@@ -200,14 +198,19 @@ public:
     //! Get the most anomalous correlate if there is one.
     TOptionalSize mostAnomalousCorrelate() const;
 
-    //! Set whether or not to update the anomaly model.
-    CModelProbabilityParams& updateAnomalyModel(bool update);
-    //! Get whether or not to update the anomaly model.
-    bool updateAnomalyModel() const;
+    //! Set whether or not to use bulk features.
+    CModelProbabilityParams& useBulkFeatures(bool use);
+    //! Get whether or not to use bulk features.
+    bool useBulkFeatures() const;
+
+    //! Set whether or not to use the anomaly model.
+    CModelProbabilityParams& useAnomalyModel(bool use);
+    //! Get whether or not to use the anomaly model.
+    bool useAnomalyModel() const;
 
 private:
     //! The entity tag (if relevant otherwise 0).
-    std::size_t m_Tag;
+    std::size_t m_Tag = 0;
     //! The coordinates' probability calculations.
     TProbabilityCalculation2Vec m_Calculations;
     //! The confidence interval to use when detrending.
@@ -220,8 +223,35 @@ private:
     TSize2Vec m_Coordinates;
     //! The most anomalous coordinate (if there is one).
     TOptionalSize m_MostAnomalousCorrelate;
-    //! Whether or not to update the anomaly model.
-    bool m_UpdateAnomalyModel;
+    //! Whether or not to use bulk features.
+    bool m_UseBulkFeatures = true;
+    //! Whether or not to use the anomaly model.
+    bool m_UseAnomalyModel = true;
+};
+
+//! \brief Describes the result of the model probability calculation.
+struct MATHS_EXPORT SModelProbabilityResult {
+    using TDouble4Vec = core::CSmallVector<double, 4>;
+    using TSize1Vec = core::CSmallVector<std::size_t, 1>;
+    using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef4Vec = core::CSmallVector<TStrCRef, 4>;
+
+    //! The overall result probability.
+    double s_Probability = 1.0;
+    //! True if the probability depends on the correlation between two
+    //! time series and false otherwise.
+    bool s_Conditional = false;
+    //! The feature probability labels.
+    TStrCRef4Vec s_FeatureLabels;
+    //! The probabilities for each individual feature.
+    TDouble4Vec s_FeatureProbabilities;
+    //! The tail of the current bucket probability.
+    TTail2Vec s_Tail;
+    //! The identifier of the time series correlated with this one which
+    //! has the smallest probability in the current bucket (if and only
+    //! if the result depends on the correlation structure).
+    TSize1Vec s_MostAnomalousCorrelate;
 };
 
 //! \brief The model interface.
@@ -355,10 +385,7 @@ public:
     virtual bool probability(const CModelProbabilityParams& params,
                              const TTime2Vec1Vec& time,
                              const TDouble2Vec1Vec& value,
-                             double& probability,
-                             TTail2Vec& tail,
-                             bool& conditional,
-                             TSize1Vec& mostAnomalousCorrelate) const = 0;
+                             SModelProbabilityResult& result) const = 0;
 
     //! Get the Winsorisation weight to apply to \p value,
     //! if appropriate.
@@ -499,14 +526,11 @@ public:
                           const TForecastPushDatapointFunc& forecastPushDataPointFunc,
                           std::string& messageOut);
 
-    //! Returns 1.0.
+    //! Returns true.
     virtual bool probability(const CModelProbabilityParams& params,
                              const TTime2Vec1Vec& time,
                              const TDouble2Vec1Vec& value,
-                             double& probability,
-                             TTail2Vec& tail,
-                             bool& conditional,
-                             TSize1Vec& mostAnomalousCorrelate) const;
+                             SModelProbabilityResult& result) const;
 
     //! Returns empty.
     virtual TDouble2Vec

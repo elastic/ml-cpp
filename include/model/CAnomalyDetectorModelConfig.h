@@ -162,6 +162,10 @@ public:
     //! The default maximum time to test for a change point in a time series.
     static const core_t::TTime DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE;
 
+    //! The default number of time buckets used to generate bulk features
+    //! for anomaly detection.
+    static const std::size_t BULK_FEATURE_WINDOW_LENGTH;
+
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are
     //! computed on a fixed number of measurements rather than a fixed
@@ -236,13 +240,12 @@ public:
     //! to sit on before giving a definitive result.
     //! \param[in] multivariateByFields Should multivariate analysis of
     //! correlated 'by' fields be performed?
-    static CAnomalyDetectorModelConfig
-    defaultConfig(core_t::TTime bucketLength,
-                  model_t::ESummaryMode summaryMode,
-                  const std::string& summaryCountFieldName,
-                  core_t::TTime latency,
-                  std::size_t bucketResultsDelay,
-                  bool multivariateByFields);
+    static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
+                                                     model_t::ESummaryMode summaryMode,
+                                                     const std::string& summaryCountFieldName,
+                                                     core_t::TTime latency,
+                                                     std::size_t bucketResultsDelay,
+                                                     bool multivariateByFields);
 
     //! Overload using defaults.
     static CAnomalyDetectorModelConfig

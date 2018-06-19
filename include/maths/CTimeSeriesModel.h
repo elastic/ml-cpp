@@ -58,7 +58,7 @@ public:
 public:
     //! The default length of the sliding window of residuals used to compute
     //! bulk features.
-    static const std::size_t RECENT_RESIDUAL_COUNT;
+    static const std::size_t BULK_FEATURES_WINDOW_LENGTH;
 
 public:
     //! \param[in] params The model parameters.
@@ -69,18 +69,18 @@ public:
     //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
-    //! \param[in] recentResidualCount The length of the sliding window of
-    //! residuals used to compute bulk features.
+    //! \param[in] bulkFeaturesWindowLength The length of the sliding window
+    //! of residuals used to compute bulk features.
     CUnivariateTimeSeriesModel(const CModelParams& params,
                                std::size_t id,
                                const CTimeSeriesDecompositionInterface& trendModel,
                                const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
                                bool modelAnomalies = true,
-                               std::size_t recentResidualCount = RECENT_RESIDUAL_COUNT);
+                               std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
                                core::CStateRestoreTraverser& traverser,
-                               std::size_t recentResidualCount = RECENT_RESIDUAL_COUNT);
+                               std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
     ~CUnivariateTimeSeriesModel();
 
     const CUnivariateTimeSeriesModel& operator=(const CUnivariateTimeSeriesModel&) = delete;
@@ -159,10 +159,7 @@ public:
     virtual bool probability(const CModelProbabilityParams& params,
                              const TTime2Vec1Vec& time,
                              const TDouble2Vec1Vec& value,
-                             double& probability,
-                             TTail2Vec& tail,
-                             bool& conditional,
-                             TSize1Vec& mostAnomalousCorrelate) const;
+                             SModelProbabilityResult& result) const;
 
     //! Get the Winsorisation weight to apply to \p value.
     virtual TDouble2Vec
@@ -267,17 +264,13 @@ private:
     bool uncorrelatedProbability(const CModelProbabilityParams& params,
                                  const TTime2Vec1Vec& time_,
                                  const TDouble2Vec1Vec& value,
-                                 double& probability,
-                                 TTail2Vec& tail) const;
+                                 SModelProbabilityResult& result) const;
 
     //! Compute the probability for correlated series.
     bool correlatedProbability(const CModelProbabilityParams& params,
                                const TTime2Vec1Vec& time,
                                const TDouble2Vec1Vec& value,
-                               double& probability,
-                               TTail2Vec& tail,
-                               bool& conditional,
-                               TSize1Vec& mostAnomalousCorrelate) const;
+                               SModelProbabilityResult& result) const;
 
     //! Get the sliding window mean residual.
     TDouble1VecDoubleWeightsAry1VecPr residualMean() const;
@@ -579,6 +572,8 @@ public:
     //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
+    //! \param[in] bulkFeaturesWindowLength The length of the sliding window
+    //! of residuals used to compute bulk features.
     CMultivariateTimeSeriesModel(const CModelParams& params,
                                  const CTimeSeriesDecompositionInterface& trendModel,
                                  const CMultivariatePrior& residualModel,
@@ -662,10 +657,7 @@ public:
     virtual bool probability(const CModelProbabilityParams& params,
                              const TTime2Vec1Vec& time,
                              const TDouble2Vec1Vec& value,
-                             double& probability,
-                             TTail2Vec& tail,
-                             bool& conditional,
-                             TSize1Vec& mostAnomalousCorrelate) const;
+                             SModelProbabilityResult& result) const;
 
     //! Get the Winsorisation weight to apply to \p value.
     virtual TDouble2Vec
@@ -763,7 +755,7 @@ private:
     //! The time series trend decomposition.
     TDecompositionPtr10Vec m_TrendModel;
 
-    //! The time series residual model.
+    //! The time series' residual model.
     TMultivariatePriorPtr m_ResidualModel;
 
     //! A model for time periods when the basic model can't predict the

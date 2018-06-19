@@ -59,7 +59,7 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
     return new CMetricPopulationModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
-                                   this->minimumSeasonalVarianceScale(), false),
+                                   this->minimumSeasonalVarianceScale(), false, 0),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector());
 }
@@ -82,7 +82,7 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
 
     return new CMetricPopulationModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false, 0),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }

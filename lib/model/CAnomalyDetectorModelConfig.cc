@@ -73,6 +73,7 @@ const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(12 * core::constants::HOUR);
 const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(core::constants::DAY);
+const std::size_t CAnomalyDetectorModelConfig::BULK_FEATURE_WINDOW_LENGTH(12);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.5);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
