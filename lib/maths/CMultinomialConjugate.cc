@@ -655,36 +655,28 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         categoryCounts[samples[i]] += n;
     }
 
-    try {
-        LOG_TRACE(<< "# samples = " << numberSamples
-                  << ", total concentration = " << m_TotalConcentration);
+    LOG_TRACE(<< "# samples = " << numberSamples
+              << ", total concentration = " << m_TotalConcentration);
 
-        result = std::lgamma(numberSamples + 1.0) + std::lgamma(m_TotalConcentration) -
-                 std::lgamma(m_TotalConcentration + numberSamples);
+    result = std::lgamma(numberSamples + 1.0) + std::lgamma(m_TotalConcentration) -
+             std::lgamma(m_TotalConcentration + numberSamples);
 
-        for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
-             countItr != categoryCounts.end(); ++countItr) {
-            double category = countItr->first;
-            double count = countItr->second;
-            LOG_TRACE(<< "category = " << category << ", count = " << count);
+    for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
+         countItr != categoryCounts.end(); ++countItr) {
+        double category = countItr->first;
+        double count = countItr->second;
+        LOG_TRACE(<< "category = " << category << ", count = " << count);
 
-            result -= std::lgamma(countItr->second + 1.0);
+        result -= std::lgamma(countItr->second + 1.0);
 
-            std::size_t index = std::lower_bound(m_Categories.begin(),
-                                                 m_Categories.end(), category) -
-                                m_Categories.begin();
-            if (index < m_Categories.size() && m_Categories[index] == category) {
-                LOG_TRACE(<< "concentration = " << m_Concentrations[index]);
-                result += std::lgamma(m_Concentrations[index] + count) -
-                          std::lgamma(m_Concentrations[index]);
-            }
+        std::size_t index = std::lower_bound(m_Categories.begin(),
+                                             m_Categories.end(), category) -
+                            m_Categories.begin();
+        if (index < m_Categories.size() && m_Categories[index] == category) {
+            LOG_TRACE(<< "concentration = " << m_Concentrations[index]);
+            result += std::lgamma(m_Concentrations[index] + count) -
+                      std::lgamma(m_Concentrations[index]);
         }
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Unable to compute joint log likelihood: " << e.what()
-                  << ", samples = " << core::CContainerPrinter::print(samples)
-                  << ", categories = " << core::CContainerPrinter::print(m_Categories)
-                  << ", concentrations = " << core::CContainerPrinter::print(m_Concentrations));
-        return maths_t::E_FpFailed;
     }
 
     LOG_TRACE(<< "result = " << result);

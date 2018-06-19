@@ -526,10 +526,10 @@ private:
                      std::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
 
         if (std::isnan(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood, flooting point nan");
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point nan");
             this->addErrorStatus(maths_t::E_FpFailed);
         } else if (std::isinf(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood, flooting point overflow");
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point overflow");
             this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
