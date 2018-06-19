@@ -636,39 +636,37 @@ private:
         double logGammaScaledLikelihoodShape = 0.0;
         double scaledImpliedShape = 0.0;
 
-        try {
-            for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
-                double n = maths_t::countForUpdate(m_Weights[i]);
-                double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
-                                       maths_t::countVarianceScale(m_Weights[i]);
-                m_NumberSamples += n;
-                if (varianceScale != 1.0) {
-                    logVarianceScaleSum -= m_LikelihoodShape / varianceScale *
-                                           std::log(varianceScale);
-                    logGammaScaledLikelihoodShape +=
-                        n * std::lgamma(m_LikelihoodShape / varianceScale);
-                    scaledImpliedShape += n * m_LikelihoodShape / varianceScale;
-                } else {
-                    nResidual += n;
-                }
+        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+            double n = maths_t::countForUpdate(m_Weights[i]);
+            double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
+                                   maths_t::countVarianceScale(m_Weights[i]);
+            m_NumberSamples += n;
+            if (varianceScale != 1.0) {
+                logVarianceScaleSum -= m_LikelihoodShape / varianceScale *
+                                       std::log(varianceScale);
+                logGammaScaledLikelihoodShape +=
+                    n * std::lgamma(m_LikelihoodShape / varianceScale);
+                scaledImpliedShape += n * m_LikelihoodShape / varianceScale;
+            } else {
+                nResidual += n;
             }
+        }
 
-            m_ImpliedShape = scaledImpliedShape + nResidual * m_LikelihoodShape + m_PriorShape;
+        m_ImpliedShape = scaledImpliedShape + nResidual * m_LikelihoodShape + m_PriorShape;
 
-            LOG_TRACE(<< "numberSamples = " << m_NumberSamples);
+        LOG_TRACE(<< "numberSamples = " << m_NumberSamples);
 
-            m_Constant = m_PriorShape * std::log(m_PriorRate) - std::lgamma(m_PriorShape) +
-                         logVarianceScaleSum - logGammaScaledLikelihoodShape -
-                         nResidual * std::lgamma(m_LikelihoodShape) +
-                         std::lgamma(m_ImpliedShape);
+        m_Constant = m_PriorShape * std::log(m_PriorRate) - std::lgamma(m_PriorShape) +
+                     logVarianceScaleSum - logGammaScaledLikelihoodShape -
+                     nResidual * std::lgamma(m_LikelihoodShape) +
+                     std::lgamma(m_ImpliedShape);
 
-            if (std::isfinite(m_ImpliedShape) && std::isfinite(m_Constant) == false) {
-                LOG_ERROR(<< "Error calculating marginal likelihood: floating point overflow");
-                this->addErrorStatus(maths_t::E_FpOverflowed);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
+        if (std::isnan(m_ImpliedShape) || std::isnan(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood: floating point nan");
             this->addErrorStatus(maths_t::E_FpFailed);
+        } else if (std::isinf(m_ImpliedShape) || std::isinf(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood: floating point overflow");
+            this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
 
