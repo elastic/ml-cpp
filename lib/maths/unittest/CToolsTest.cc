@@ -1198,19 +1198,20 @@ void CToolsTest::testLgamma() {
     }
 
     double result;
-    CPPUNIT_ASSERT(maths::CTools::lgamma(0, result));
+    CPPUNIT_ASSERT(maths::CTools::lgamma(0, result, false));
     CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
 
     CPPUNIT_ASSERT((maths::CTools::lgamma(0, result, true) == false));
     CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(-1, result)));
+    CPPUNIT_ASSERT((maths::CTools::lgamma(-1, result, false)));
     CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
 
     CPPUNIT_ASSERT((maths::CTools::lgamma(-1, result, true) == false));
     CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1, result)));
+    CPPUNIT_ASSERT((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
+                                          result, false)));
     CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
 
     CPPUNIT_ASSERT((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
