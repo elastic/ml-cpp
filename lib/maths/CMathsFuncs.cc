@@ -8,21 +8,13 @@
 
 #include <maths/CMathsFuncsForMatrixAndVectorTypes.h>
 
-#include <boost/math/special_functions/fpclassify.hpp>
-
-#ifdef isnan
-#undef isnan
-#endif
-
-#ifdef isinf
-#undef isinf
-#endif
+#include <cmath>
 
 namespace ml {
 namespace maths {
 
 bool CMathsFuncs::isNan(double val) {
-    return boost::math::isnan(val);
+    return std::isnan(val);
 }
 bool CMathsFuncs::isNan(const CSymmetricMatrix<double>& val) {
     return anElement(static_cast<bool (*)(double)>(&isNan), val);
@@ -40,7 +32,7 @@ bool CMathsFuncs::isNan(const core::CSmallVectorBase<double>& val) {
 }
 
 bool CMathsFuncs::isInf(double val) {
-    return boost::math::isinf(val);
+    return std::isinf(val);
 }
 bool CMathsFuncs::isInf(const CVector<double>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isInf), val);
@@ -58,7 +50,7 @@ bool CMathsFuncs::isInf(const core::CSmallVectorBase<double>& val) {
 }
 
 bool CMathsFuncs::isFinite(double val) {
-    return boost::math::isfinite(val);
+    return std::isfinite(val);
 }
 bool CMathsFuncs::isFinite(const CVector<double>& val) {
     return everyComponent(static_cast<bool (*)(double)>(&isFinite), val);

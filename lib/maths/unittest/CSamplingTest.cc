@@ -12,9 +12,9 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CSampling.h>
 
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <numeric>
 
 using TDoubleVec = std::vector<double>;
@@ -28,11 +28,11 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 
 double multinomialProbability(const TDoubleVec& probabilities, const TSizeVec& counts) {
     std::size_t n = std::accumulate(counts.begin(), counts.end(), std::size_t(0));
-    double logP = boost::math::lgamma(static_cast<double>(n + 1));
+    double logP = std::lgamma(static_cast<double>(n + 1));
     for (std::size_t i = 0u; i < counts.size(); ++i) {
         double ni = static_cast<double>(counts[i]);
         if (ni > 0.0) {
-            logP += ni * std::log(probabilities[i]) - boost::math::lgamma(ni + 1.0);
+            logP += ni * std::log(probabilities[i]) - std::lgamma(ni + 1.0);
         }
     }
     return std::exp(logP);
