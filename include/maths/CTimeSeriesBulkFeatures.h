@@ -11,10 +11,14 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CTypeConversions.h>
 #include <maths/MathsTypes.h>
 
+#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/iterator/counting_iterator.hpp>
 
+#include <numeric>
 #include <utility>
 
 namespace ml {
@@ -29,24 +33,134 @@ namespace maths {
 //! are expected to be indicative of interesting events in time series.
 class CTimeSeriesBulkFeatures {
 public:
-    using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDouble1VecDoubleWeightsArray1VecPr =
-        std::pair<TDouble1Vec, maths_t::TDoubleWeightsAry1Vec>;
-    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeFloatMeanAccumulatorPr>;
-    using TTimeFloatMeanAccumulatorPrCBufCItr = TTimeFloatMeanAccumulatorPrCBuf::const_iterator;
-
-public:
     //! The mean of a collection of time series values.
-    static TDouble1VecDoubleWeightsArray1VecPr
-    mean(TTimeFloatMeanAccumulatorPrCBufCItr begin, TTimeFloatMeanAccumulatorPrCBufCItr end);
+    template<typename VECTOR, typename ITR>
+    static std::pair<core::CSmallVector<VECTOR, 1>, core::CSmallVector<maths_t::TWeightsAry<VECTOR>, 1>>
+    mean(ITR begin, ITR end) {
+        if (begin == end) {
+            return {{}, {}};
+        }
+
+        using T = typename std::iterator_traits<ITR>::value_type;
+        using TMeanAccumulator =
+            typename SPromoted<typename SSecondType<T>::Type>::Type;
+
+        auto count = [](TMeanAccumulator partial, const T& value) {
+            partial.add(conformable(CBasicStatistics::mean(value.second),
+                                    CBasicStatistics::count(value.second)));
+            partial.age(0.9);
+            return partial;
+        };
+        auto mean = [](TMeanAccumulator partial, const T& value) {
+            partial.add(CBasicStatistics::mean(value.second));
+            partial.age(0.9);
+            return partial;
+        };
+
+        auto zero = conformable(CBasicStatistics::mean(begin->second), 0.0);
+        auto value = toVector<VECTOR>(CBasicStatistics::mean(
+            std::accumulate(begin, end, TMeanAccumulator{zero}, mean)));
+        auto weight = toVector<VECTOR>(CBasicStatistics::mean(
+            std::accumulate(begin, end, TMeanAccumulator{zero}, count)));
+
+        return {{value}, {maths_t::countWeight(weight)}};
+    }
 
     //! The contrast between two sets in a binary partition of a collection
-    //! of time series values.
-    static TDouble1VecDoubleWeightsArray1VecPr
-    contrast(TTimeFloatMeanAccumulatorPrCBufCItr begin,
-             TTimeFloatMeanAccumulatorPrCBufCItr end);
+    //! of univariate time series values.
+    template<typename ITR>
+    static std::pair<core::CSmallVector<double, 1>, maths_t::TDoubleWeightsAry1Vec>
+    contrast(ITR begin, ITR end) {
+        std::ptrdiff_t zero{0};
+        std::ptrdiff_t N{std::distance(begin, end)};
+        std::ptrdiff_t m{N / 2};
+        if (m < 5) {
+            return {{}, {}};
+        }
+
+        using TDoublePtrDiffPr = std::pair<double, std::ptrdiff_t>;
+        using TMinMaxAccumulator = CBasicStatistics::CMinMax<TDoublePtrDiffPr>;
+
+        auto minmax = [begin](TMinMaxAccumulator partial, std::ptrdiff_t index) {
+            partial.add({CBasicStatistics::mean((begin + index)->second), index});
+            return partial;
+        };
+
+        TMinMaxAccumulator support;
+        TMinMaxAccumulator lseed{std::accumulate(boost::make_counting_iterator(zero),
+                                                 boost::make_counting_iterator(m - 4),
+                                                 TMinMaxAccumulator{}, minmax)};
+        TMinMaxAccumulator rseed{std::accumulate(boost::make_counting_iterator(m + 4),
+                                                 boost::make_counting_iterator(N),
+                                                 TMinMaxAccumulator{}, minmax)};
+        for (std::ptrdiff_t split : {m - 3, m - 2, m - 1, m, m + 1, m + 2, m + 3}) {
+            auto l = std::accumulate(boost::make_counting_iterator(m - 4),
+                                     boost::make_counting_iterator(split - 1),
+                                     lseed, minmax);
+            auto r = std::accumulate(boost::make_counting_iterator(split + 1),
+                                     boost::make_counting_iterator(m + 4), rseed, minmax);
+            if (r.max().first < l.min().first) {
+                double lweight{CBasicStatistics::count((begin + l.min().second)->second)};
+                double rweight{CBasicStatistics::count((begin + r.max().second)->second)};
+                std::ptrdiff_t index{lweight > rweight ? l.min().second
+                                                       : r.max().second};
+                support.add({r.max().first - l.min().first, index});
+            } else if (r.min().first > l.max().first) {
+                double lweight{CBasicStatistics::count((begin + l.max().second)->second)};
+                double rweight{CBasicStatistics::count((begin + r.min().second)->second)};
+                std::ptrdiff_t index{lweight > rweight ? l.max().second
+                                                       : r.min().second};
+                support.add({r.min().first - l.max().first, index});
+            }
+        }
+
+        if (support.initialized()) {
+            if (-support.min().first > support.max().first) {
+                double weight{
+                    CBasicStatistics::count((begin + support.min().second)->second)};
+                return {{support.min().first}, {maths_t::countWeight(weight)}};
+            } else {
+                double weight{
+                    CBasicStatistics::count((begin + support.max().second)->second)};
+                return {{support.max().first}, {maths_t::countWeight(weight)}};
+            }
+        }
+        return {{}, {}};
+    }
+
+private:
+    //! Univariate implementation returns zero.
+    template<typename T>
+    static double conformable(const T& /*x*/, double value) {
+        return value;
+    }
+    //! Multivariate implementation returns zero vector conformable with \p x.
+    template<typename T>
+    static CVector<double> conformable(const CVector<T>& x, double value) {
+        return CVector<double>(x.dimension(), value);
+    }
+
+    //! Univariate implementation returns 1.
+    template<typename T>
+    static std::size_t dimension(const T& /*x*/) {
+        return 1;
+    }
+    //! Multivariate implementation returns the dimension of \p x.
+    template<typename T>
+    static std::size_t dimension(const CVector<T>& x) {
+        return x.dimension();
+    }
+
+    //! Univariate implementation returns a vector containing \p x.
+    template<typename T>
+    static double toVector(const T& x) {
+        return x;
+    }
+    //! Multivariate implementation returns a vector containing \p x.
+    template<typename VECTOR, typename T>
+    static VECTOR toVector(const CVector<T>& x) {
+        return x.template toVector<VECTOR>();
+    }
 };
 }
 }

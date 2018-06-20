@@ -173,7 +173,7 @@ void reinitializePrior(double learnRate,
                        TDecayRateController2Ary* controllers = nullptr) {
     prior.setToNonInformative(0.0, prior.decayRate());
     TDouble10Vec1Vec detrended_{TDouble10Vec(3)};
-    for (const auto& value : model.slidingWindow()) {
+    for (const auto& value : model.recentSamples()) {
         for (std::size_t i = 0u; i < value.second.size(); ++i) {
             detrended_[0][i] = trends[i]->detrend(value.first, value.second[i], 0.0);
         }
@@ -375,7 +375,7 @@ void CTimeSeriesModelTest::testMode() {
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);
-                for (const auto& value : model.slidingWindow()) {
+                for (const auto& value : model.recentSamples()) {
                     prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
                                      maths_t::CUnitWeights::SINGLE_UNIT);
                 }
@@ -742,7 +742,7 @@ void CTimeSeriesModelTest::testAddSamples() {
             if (trend.addPoint(time, sample)) {
                 trend.decayRate(trend.decayRate() / controllers[0].multiplier());
                 prior.setToNonInformative(0.0, prior.decayRate());
-                for (const auto& value : model.slidingWindow()) {
+                for (const auto& value : model.recentSamples()) {
                     prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
                                      maths_t::CUnitWeights::SINGLE_UNIT);
                 }
@@ -893,7 +893,7 @@ void CTimeSeriesModelTest::testPredict() {
 
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);
-                for (const auto& value : model.slidingWindow()) {
+                for (const auto& value : model.recentSamples()) {
                     prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
                                      maths_t::CUnitWeights::SINGLE_UNIT);
                 }
@@ -1495,9 +1495,11 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             sizeof(maths::CTimeSeriesDecomposition) + trend.memoryUsage() +
-            sizeof(maths::CNormalMeanPrecConjugate) +
+            16 * maths::CUnivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
+            3 * sizeof(maths::CNormalMeanPrecConjugate) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
-            2 * controllers[0].memoryUsage()};
+            2 * controllers[0].memoryUsage() +
+            16 * 12/*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
         CPPUNIT_ASSERT(size < 1.1 * expectedSize);
@@ -1531,9 +1533,11 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             3 * sizeof(maths::CTimeSeriesDecomposition) + 3 * trend.memoryUsage() +
-            sizeof(maths::CMultivariateNormalConjugate<3>) +
+            48 * maths::CMultivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
+            2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
-            2 * controllers[0].memoryUsage()};
+            2 * controllers[0].memoryUsage() +
+            32 * 12/*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
         CPPUNIT_ASSERT(size < 1.1 * expectedSize);
@@ -1938,6 +1942,14 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
+        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+                                 1904) != anomalyBuckets.end());
+        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+                                 1905) != anomalyBuckets.end());
+        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+                                 1906) != anomalyBuckets.end());
+        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+                                 1907) != anomalyBuckets.end());
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1908) != anomalyBuckets.end());
 

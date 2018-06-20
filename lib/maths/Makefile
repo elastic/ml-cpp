@@ -86,7 +86,6 @@ CSeasonalTime.cc \
 CSignal.cc \
 CSpline.cc \
 CStatisticalTests.cc \
-CTimeSeriesBulkFeatures.cc \
 CTimeSeriesChangeDetector.cc \
 CTimeSeriesDecomposition.cc \
 CTimeSeriesDecompositionDetail.cc \

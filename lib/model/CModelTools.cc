@@ -355,12 +355,12 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
     //      probability as a function of value is monotonic
     //   2. Check that the difference in the probability at the end
     //      points of the interval [a, b] including x is less than the
-    //      required tolerance, hence by 1 that using the interpolated
-    //      value won't introduce an error greater than the tolerance.
+    //      required tolerance, so by 1 using the interpolated value
+    //      won't introduce an error greater than the tolerance.
     //
     // To achieve 1 we note that the function is monotonic on an interval
     // [a, b] if we can verify it doesn't contain more than one stationary
-    // points and the gradients satisfy P'(a) * P'(b) > 0.
+    // point and the gradients satisfy P'(a) * P'(b) > 0.
 
     result = maths::SModelProbabilityResult{};
 

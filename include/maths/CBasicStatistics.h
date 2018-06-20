@@ -1582,6 +1582,23 @@ template<typename U>
 void CBasicStatistics::SSampleCentralMoments<T, ORDER>::add(const U& x, const TCoordinate& n) {
     basic_statistics_detail::SCentralMomentsCustomAdd<U>::add(x, n, *this);
 }
+
+//! \brief Defines a promoted type for a SSampleCentralMoments.
+//!
+//! \see CTypeConversions.h for details.
+template<typename T, unsigned int N>
+struct SPromoted<CBasicStatistics::SSampleCentralMoments<T, N>> {
+    using Type = CBasicStatistics::SSampleCentralMoments<typename SPromoted<T>::Type, N>;
+};
+
+//! \brief Defines SSampleCentralMoments on a suitable floating point type.
+//!
+//! \see CTypeConversions.h for details.
+template<typename T, unsigned int N, typename U>
+struct SFloatingPoint<CBasicStatistics::SSampleCentralMoments<T, N>, U> {
+    using Type =
+        CBasicStatistics::SSampleCentralMoments<typename SFloatingPoint<T, U>::Type, N>;
+};
 }
 }
 
