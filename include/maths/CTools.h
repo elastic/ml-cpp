@@ -695,7 +695,7 @@ public:
     static double logOneMinusX(double x);
 
     //! A wrapper around lgamma which handles corner cases if requested
-    static bool lgamma(double value, double& result, bool checkForFinite = false);
+    static bool lgamma(double value, double& result, bool checkForFinite = true);
 };
 }
 }

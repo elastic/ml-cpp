@@ -25,7 +25,6 @@
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
@@ -522,47 +521,42 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     //   a is the prior gamma shape
     //   b is the prior gamma rate
 
-    try {
-        // Calculate the statistics we need for the calculation.
-        double numberSamples = 0.0;
-        double sampleSum = 0.0;
-        double sampleLogFactorialSum = 0.0;
+    // Calculate the statistics we need for the calculation.
+    double numberSamples = 0.0;
+    double sampleSum = 0.0;
+    double sampleLogFactorialSum = 0.0;
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
-            double n = maths_t::countForUpdate(weights[i]);
-            double x = samples[i] + m_Offset;
-            if (x < 0.0) {
-                // Technically, the marginal likelihood is zero here
-                // so the log would be infinite. We use minus max
-                // double because log(0) = HUGE_VALUE, which causes
-                // problems for Windows. Calling code is notified
-                // when the calculation overflows and should avoid
-                // taking the exponential since this will underflow
-                // and pollute the floating point environment. This
-                // may cause issues for some library function
-                // implementations (see fe*exceptflag for more details).
-                result = boost::numeric::bounds<double>::lowest();
-                return maths_t::E_FpOverflowed;
-            }
-
-            numberSamples += n;
-            sampleSum += n * x;
-            // Recall n! = Gamma(n + 1).
-            sampleLogFactorialSum += n * boost::math::lgamma(x + 1.0);
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
+        double n = maths_t::countForUpdate(weights[i]);
+        double x = samples[i] + m_Offset;
+        if (x < 0.0) {
+            // Technically, the marginal likelihood is zero here
+            // so the log would be infinite. We use minus max
+            // double because log(0) = HUGE_VALUE, which causes
+            // problems for Windows. Calling code is notified
+            // when the calculation overflows and should avoid
+            // taking the exponential since this will underflow
+            // and pollute the floating point environment. This
+            // may cause issues for some library function
+            // implementations (see fe*exceptflag for more details).
+            result = boost::numeric::bounds<double>::lowest();
+            return maths_t::E_FpOverflowed;
         }
 
-        // Get the implied shape parameter for the gamma distribution
-        // including the samples.
-        double impliedShape = m_Shape + sampleSum;
-        double impliedRate = m_Rate + numberSamples;
-
-        result = boost::math::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
-                 impliedShape * std::log(impliedRate) - sampleLogFactorialSum -
-                 boost::math::lgamma(m_Shape);
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
-        return maths_t::E_FpFailed;
+        numberSamples += n;
+        sampleSum += n * x;
+        // Recall n! = Gamma(n + 1).
+        sampleLogFactorialSum += n * std::lgamma(x + 1.0);
     }
+
+    // Get the implied shape parameter for the gamma distribution
+    // including the samples.
+    double impliedShape = m_Shape + sampleSum;
+    double impliedRate = m_Rate + numberSamples;
+
+    result = std::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
+             impliedShape * std::log(impliedRate) - sampleLogFactorialSum -
+             std::lgamma(m_Shape);
 
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if (status & maths_t::E_FpFailed) {

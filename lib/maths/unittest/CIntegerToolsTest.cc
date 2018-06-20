@@ -13,7 +13,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
 
@@ -183,10 +182,9 @@ void CIntegerToolsTest::testBinomial() {
             LOG_DEBUG(<< "j = " << j << ", n = " << n[i]
                       << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 
-            double expected =
-                std::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) -
-                         boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -
-                         boost::math::lgamma(static_cast<double>(j + 1)));
+            double expected = std::exp(std::lgamma(static_cast<double>(n[i] + 1)) -
+                                       std::lgamma(static_cast<double>(n[i] - j + 1)) -
+                                       std::lgamma(static_cast<double>(j + 1)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
