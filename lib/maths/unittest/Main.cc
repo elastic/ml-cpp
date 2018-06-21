@@ -72,6 +72,7 @@
 #include "CSolversTest.h"
 #include "CSplineTest.h"
 #include "CStatisticalTestsTest.h"
+#include "CTimeSeriesBulkFeaturesTest.h"
 #include "CTimeSeriesChangeDetectorTest.h"
 #include "CTimeSeriesDecompositionTest.h"
 #include "CTimeSeriesModelTest.h"
@@ -151,6 +152,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CSolversTest::suite());
     runner.addTest(CSplineTest::suite());
     runner.addTest(CStatisticalTestsTest::suite());
+    runner.addTest(CTimeSeriesBulkFeaturesTest::suite());
     runner.addTest(CTimeSeriesChangeDetectorTest::suite());
     runner.addTest(CTimeSeriesDecompositionTest::suite());
     runner.addTest(CTimeSeriesModelTest::suite());

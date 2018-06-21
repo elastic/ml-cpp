@@ -11,6 +11,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLinearAlgebra.h>
 #include <maths/CTypeConversions.h>
 #include <maths/MathsTypes.h>
 
@@ -42,8 +43,7 @@ public:
         }
 
         using T = typename std::iterator_traits<ITR>::value_type;
-        using TMeanAccumulator =
-            typename SPromoted<typename SSecondType<T>::Type>::Type;
+        using TMeanAccumulator = typename SPromoted<typename SSecondType<T>::Type>::Type;
 
         auto count = [](TMeanAccumulator partial, const T& value) {
             partial.add(conformable(CBasicStatistics::mean(value.second),
@@ -78,6 +78,9 @@ public:
             return {{}, {}};
         }
 
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TMinAccumulator = CBasicStatistics::SMin<TDoubleDoublePr>::TAccumulator;
+        using TMaxAccumulator = CBasicStatistics::SMax<TDoubleDoublePr>::TAccumulator;
         using TDoublePtrDiffPr = std::pair<double, std::ptrdiff_t>;
         using TMinMaxAccumulator = CBasicStatistics::CMinMax<TDoublePtrDiffPr>;
 
@@ -86,7 +89,8 @@ public:
             return partial;
         };
 
-        TMinMaxAccumulator support;
+        TMinAccumulator supportMin;
+        TMaxAccumulator supportMax;
         TMinMaxAccumulator lseed{std::accumulate(boost::make_counting_iterator(zero),
                                                  boost::make_counting_iterator(m - 4),
                                                  TMinMaxAccumulator{}, minmax)};
@@ -100,29 +104,25 @@ public:
             auto r = std::accumulate(boost::make_counting_iterator(split + 1),
                                      boost::make_counting_iterator(m + 4), rseed, minmax);
             if (r.max().first < l.min().first) {
-                double lweight{CBasicStatistics::count((begin + l.min().second)->second)};
-                double rweight{CBasicStatistics::count((begin + r.max().second)->second)};
-                std::ptrdiff_t index{lweight > rweight ? l.min().second
-                                                       : r.max().second};
-                support.add({r.max().first - l.min().first, index});
+                double weight{CBasicStatistics::count((begin + l.min().second)->second) +
+                              CBasicStatistics::count((begin + r.max().second)->second)};
+                supportMin.add({r.max().first - l.min().first, -weight / 2.0});
+                supportMax.add({r.max().first - l.min().first, +weight / 2.0});
             } else if (r.min().first > l.max().first) {
-                double lweight{CBasicStatistics::count((begin + l.max().second)->second)};
-                double rweight{CBasicStatistics::count((begin + r.min().second)->second)};
-                std::ptrdiff_t index{lweight > rweight ? l.max().second
-                                                       : r.min().second};
-                support.add({r.min().first - l.max().first, index});
+                double weight{CBasicStatistics::count((begin + l.max().second)->second) +
+                              CBasicStatistics::count((begin + r.min().second)->second)};
+                supportMin.add({r.min().first - l.max().first, -weight / 2.0});
+                supportMax.add({r.min().first - l.max().first, +weight / 2.0});
             }
         }
 
-        if (support.initialized()) {
-            if (-support.min().first > support.max().first) {
-                double weight{
-                    CBasicStatistics::count((begin + support.min().second)->second)};
-                return {{support.min().first}, {maths_t::countWeight(weight)}};
+        if (supportMin.count() > 0 && supportMax.count() > 0) {
+            if (-supportMin[0].first > supportMax[0].first) {
+                double weight{-supportMin[0].second};
+                return {{supportMin[0].first}, {maths_t::countWeight(weight)}};
             } else {
-                double weight{
-                    CBasicStatistics::count((begin + support.max().second)->second)};
-                return {{support.max().first}, {maths_t::countWeight(weight)}};
+                double weight{supportMax[0].second};
+                return {{supportMax[0].first}, {maths_t::countWeight(weight)}};
             }
         }
         return {{}, {}};

@@ -96,10 +96,9 @@ int main(int argc, char** argv) {
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage,
-            bucketResultsDelay, multivariateByFields,
-            perPartitionNormalization, clauseTokens) == false) {
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage, bucketResultsDelay,
+            multivariateByFields, perPartitionNormalization, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 

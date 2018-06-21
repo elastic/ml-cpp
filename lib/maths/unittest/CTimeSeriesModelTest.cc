@@ -1498,8 +1498,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
             16 * maths::CUnivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
             3 * sizeof(maths::CNormalMeanPrecConjugate) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
-            2 * controllers[0].memoryUsage() +
-            16 * 12/*Recent samples*/};
+            2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
         CPPUNIT_ASSERT(size < 1.1 * expectedSize);
@@ -1536,8 +1535,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
             48 * maths::CMultivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
-            2 * controllers[0].memoryUsage() +
-            32 * 12/*Recent samples*/};
+            2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
         CPPUNIT_ASSERT(size < 1.1 * expectedSize);
