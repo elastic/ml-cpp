@@ -1150,7 +1150,6 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
 
     // Declared outside the loop to minimize the number of times they are created.
     maths_t::EProbabilityCalculation calculation{params.calculation(0)};
-    TSize10Vec variable(1);
     TDouble10Vec1Vec sample{TDouble10Vec(2)};
     maths_t::TDouble10VecWeightsAry1Vec weights{
         maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
@@ -1165,39 +1164,54 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     bool conditional{false};
     TSize1Vec mostAnomalousCorrelate;
 
-    for (std::size_t i = 0u; i < variables.size(); ++i) {
-        if (!value[i].empty() || (!params.mostAnomalousCorrelate() ||
-                                  i == *params.mostAnomalousCorrelate())) {
-            variable[0] = variables[i][0];
-            sample[0][variables[i][0]] = m_TrendModel->detrend(
-                time[i][variables[i][0]], value[i][variables[i][0]],
-                params.seasonalConfidenceInterval());
-            sample[0][variables[i][1]] =
-                correlatedTimeSeriesModels[i]->m_TrendModel->detrend(
-                    time[i][variables[i][1]], value[i][variables[i][1]],
-                    params.seasonalConfidenceInterval());
+    TSize1Vec correlateIndices;
+    if (params.mostAnomalousCorrelate() != boost::none) {
+        if (*params.mostAnomalousCorrelate() >= variables.size()) {
+            LOG_ERROR(<< "Unexpected correlate " << *params.mostAnomalousCorrelate());
+            return false;
+        }
+        correlateIndices.push_back(*params.mostAnomalousCorrelate());
+    } else {
+        correlateIndices.resize(variables.size());
+        std::iota(correlateIndices.begin(), correlateIndices.end(), 0);
+    }
+
+    for (std::size_t i = 0; i < correlateIndices.size(); ++i) {
+        if (!value[i].empty()) {
+            std::size_t correlateIndex{correlateIndices[i]};
+            std::size_t v0{variables[correlateIndex][0]};
+            std::size_t v1{variables[correlateIndex][1]};
+            TDecompositionPtr trendModels[2];
+            trendModels[v0] = m_TrendModel;
+            trendModels[v1] = correlatedTimeSeriesModels[correlateIndex]->m_TrendModel;
+            const auto& correlationModel = correlationModels[correlateIndex].first;
+
+            sample[0][0] = trendModels[0]->detrend(
+                time[i][0], value[i][0], params.seasonalConfidenceInterval());
+            sample[0][1] = trendModels[1]->detrend(
+                time[i][1], value[i][1], params.seasonalConfidenceInterval());
             weights[0] = CMultivariateTimeSeriesModel::unpack(params.weights()[i]);
 
-            if (correlationModels[i].first->probabilityOfLessLikelySamples(
-                    calculation, sample, weights, variable, pli, pui, ti)) {
-                LOG_TRACE(<< "Marginal P(" << sample << " | weight = " << weights
-                          << ", coordinate = " << variable
+            if (correlationModel->probabilityOfLessLikelySamples(
+                    calculation, sample, weights, {v0}, pli, pui, ti)) {
+                LOG_TRACE(<< "Marginal P(" << sample
+                          << " | weight = " << weights << ", coordinate = " << v0
                           << ") = " << (pli[0][0] + pui[0][0]) / 2.0);
-                LOG_TRACE(<< "Conditional P(" << sample << " | weight = " << weights
-                          << ", coordinate = " << variable
+                LOG_TRACE(<< "Conditional P(" << sample
+                          << " | weight = " << weights << ", coordinate = " << v0
                           << ") = " << (pli[1][0] + pui[1][0]) / 2.0);
             } else {
                 LOG_ERROR(<< "Failed to compute P(" << sample << " | weight = " << weights
-                          << ", coordinate = " << variable << ")");
+                          << ", coordinate = " << v0 << ")");
                 continue;
             }
 
-            probabilityBucketEmpty[variables[i][0]] = this->params().probabilityBucketEmpty();
-            probabilityBucketEmpty[variables[i][1]] =
-                correlatedTimeSeriesModels[i]->params().probabilityBucketEmpty();
+            probabilityBucketEmpty[v0] = this->params().probabilityBucketEmpty();
+            probabilityBucketEmpty[v1] =
+                correlatedTimeSeriesModels[correlateIndex]->params().probabilityBucketEmpty();
             double pl{std::sqrt(pli[0][0] * pli[1][0])};
             double pu{std::sqrt(pui[0][0] * pui[1][0])};
-            double pi{correctForEmptyBucket(calculation, value[0][variable[0]],
+            double pi{correctForEmptyBucket(calculation, value[i][v0],
                                             params.bucketEmpty()[i],
                                             probabilityBucketEmpty, (pl + pu) / 2.0)};
 
@@ -1205,20 +1219,17 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
             if (minProbability.add(pi)) {
                 tail.assign(1, ti[0]);
                 conditional = ((pli[1][0] + pui[1][0]) < (pli[0][0] + pui[0][0]));
-                mostAnomalousCorrelate.assign(1, i);
-                mostAnomalousTime = time[0][variables[i][0]];
-                mostAnomalousSample = sample[0][variables[i][0]];
+                mostAnomalousCorrelate.assign(1, correlateIndex);
+                mostAnomalousTime = time[i][v0];
+                mostAnomalousSample = sample[0][v0];
                 mostAnomalousCorrelationModel =
-                    conditional
-                        ? correlationModels[i]
-                              .first
-                              ->univariate({variables[i][1]}, NOTHING_TO_CONDITION)
-                              .first
-                        : correlationModels[i]
-                              .first
-                              ->univariate(NOTHING_TO_MARGINALIZE,
-                                           {{variables[i][1], sample[0][variables[i][1]]}})
-                              .first;
+                    conditional ? correlationModel
+                                      ->univariate(NOTHING_TO_MARGINALIZE,
+                                                   {{v1, sample[0][v1]}})
+                                      .first
+                                : correlationModel
+                                      ->univariate({v1}, NOTHING_TO_CONDITION)
+                                      .first;
             }
         } else {
             aggregator.add(1.0, neff);
@@ -1244,9 +1255,11 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     }
 
     result.s_Probability = probability;
+    result.s_Conditional = conditional;
     result.s_FeatureLabels = std::move(labels);
     result.s_FeatureProbabilities = std::move(probabilities);
-    result.s_Tail = tail;
+    result.s_Tail = std::move(tail);
+    result.s_MostAnomalousCorrelate = std::move(mostAnomalousCorrelate);
 
     return true;
 }

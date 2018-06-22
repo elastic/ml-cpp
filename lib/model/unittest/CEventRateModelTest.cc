@@ -290,7 +290,7 @@ void CEventRateModelTest::testOnlineCountSample() {
     CPPUNIT_ASSERT(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
-        model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true)};
+        model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true, 12)};
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
@@ -384,7 +384,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
     CPPUNIT_ASSERT(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
-        model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true)};
+        model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true, 12)};
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
@@ -497,7 +497,7 @@ void CEventRateModelTest::testOnlineRare() {
     }
 
     LOG_TRACE(<< "origXml = " << origXml);
-    LOG_DEBUG(<< "size = " << origXml.size());
+    LOG_DEBUG(<< "origXml size = " << origXml.size());
     CPPUNIT_ASSERT(origXml.size() < 22000);
 
     // Restore the XML into a new filter
@@ -674,7 +674,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
     test::CRandomNumbers rng;
 
-    const std::size_t b = 200;
+    const std::size_t numberBuckets = 200;
     const double means_[] = {20.0, 25.0, 100.0, 800.0};
     const double covariances_[][4] = {{3.0, 2.5, 0.0, 0.0},
                                       {2.5, 4.0, 0.0, 0.0},
@@ -687,7 +687,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
     }
     TDoubleVecVec samples;
-    rng.generateMultivariateNormalSamples(means, covariances, b, samples);
+    rng.generateMultivariateNormalSamples(means, covariances, numberBuckets, samples);
 
     {
         SModelParams params(bucketLength);
@@ -702,7 +702,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
         LOG_DEBUG(<< "Test correlation anomalies");
 
-        std::size_t anomalyBuckets[] = {100, 160, 190, b};
+        std::size_t anomalyBuckets[] = {100, 160, 190, numberBuckets};
         double anomalies[][4] = {{-5.73, 4.29, 0.0, 0.0},
                                  {0.0, 0.0, 89.99, 15.38},
                                  {-7.73, 5.59, 52.99, 9.03}};
@@ -711,7 +711,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                                             TMinAccumulator(2), TMinAccumulator(2)};
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
@@ -767,8 +767,8 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         }
 
         LOG_TRACE(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "size = " << origXml.size());
-        CPPUNIT_ASSERT(origXml.size() < 151000);
+        LOG_DEBUG(<< "origXml size = " << origXml.size());
+        CPPUNIT_ASSERT(origXml.size() < 170000);
 
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -796,7 +796,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
         CPPUNIT_ASSERT(model);
 
-        std::size_t anomalyBuckets[] = {100, 160, 190, b};
+        std::size_t anomalyBuckets[] = {100, 160, 190, numberBuckets};
         double anomalies[][4] = {{11.07, 14.19, 0.0, 0.0},
                                  {0.0, 0.0, -66.9, 399.95},
                                  {11.07, 14.19, -48.15, 329.95}};
@@ -805,7 +805,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                                             TMinAccumulator(2), TMinAccumulator(2)};
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);

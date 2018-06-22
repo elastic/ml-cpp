@@ -368,7 +368,7 @@ void CEventRatePopulationModelTest::testFeatures() {
         dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
     model::CModelFactory::TFeatureMathsModelPtrPrVec models{
-        factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
+        factory.defaultFeatureModels(features, bucketLength, 1.0, false, 12)};
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), models.size());
     CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
                          models[0].first);

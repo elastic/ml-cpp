@@ -122,17 +122,17 @@ void computeProbability(core_t::TTime time,
                         maths_t::EProbabilityCalculation calculation,
                         const TDouble2Vec& sample,
                         const maths::CModel& model,
-                        double& probablity,
+                        double& probability,
                         TTail2Vec& tail) {
     maths_t::TDouble2VecWeightsAry weight(
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
     maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation).addBucketEmpty(TBool2Vec{false}).addWeights(weight);
-    bool conditional;
-    TSize1Vec mostAnomalousCorrelate;
-    model.probability(params, {{time}}, {sample}, probablity, tail, conditional,
-                      mostAnomalousCorrelate);
+    maths::SModelProbabilityResult result;
+    model.probability(params, {{time}}, {sample}, result);
+    probability = result.s_Probability;
+    tail = std::move(result.s_Tail);
 }
 
 const std::string I("I");

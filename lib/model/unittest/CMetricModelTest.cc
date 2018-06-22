@@ -306,11 +306,11 @@ void CMetricModelTest::testSample() {
             std::size_t numberSamples = 0;
 
             TMathsModelPtr expectedMeanModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true);
+                model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true, 12);
             TMathsModelPtr expectedMinModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMinByPerson, bucketLength, 0.4, true);
+                model_t::E_IndividualMinByPerson, bucketLength, 0.4, true, 12);
             TMathsModelPtr expectedMaxModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMaxByPerson, bucketLength, 0.4, true);
+                model_t::E_IndividualMaxByPerson, bucketLength, 0.4, true, 12);
 
             std::size_t j = 0;
             core_t::TTime time = startTime;
@@ -735,7 +735,7 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
               << core::CContainerPrinter::print(minProbabilities.begin(),
                                                 minProbabilities.end()));
     CPPUNIT_ASSERT_EQUAL(anomalousBucket, minProbabilities[0].second);
-    CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
+    CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
 
 void CMetricModelTest::testProbabilityCalculationForMedian() {

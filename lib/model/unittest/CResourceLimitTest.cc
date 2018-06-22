@@ -395,7 +395,7 @@ void CResourceLimitTest::testLargeAllocations() {
         const maths::CMultinomialConjugate conjugate;
         ::CMockEventRateModel model(
             factory.modelParams(), gatherer,
-            factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true), conjugate,
+            factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true, 12), conjugate,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 
@@ -468,7 +468,7 @@ void CResourceLimitTest::testLargeAllocations() {
         resourceMonitor.memoryLimit(std::size_t(100));
         ::CMockMetricModel model(
             factory.modelParams(), gatherer,
-            factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
+            factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true, 12),
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 

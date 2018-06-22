@@ -479,7 +479,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
         dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
 
     CModelFactory::TFeatureMathsModelPtrPrVec models{
-        factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
+        factory.defaultFeatureModels(features, bucketLength, 1.0, false, 12)};
     CPPUNIT_ASSERT_EQUAL(features.size(), models.size());
     CPPUNIT_ASSERT_EQUAL(features[0], models[0].first);
     CPPUNIT_ASSERT_EQUAL(features[1], models[1].first);
@@ -510,7 +510,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
                     TMathsModelPtr& model_ = expectedPopulationModels[feature][cid];
                     if (!model_) {
                         model_ = factory.defaultFeatureModel(
-                            features[feature], bucketLength, 1.0, false);
+                            features[feature], bucketLength, 1.0, false, 12);
                     }
                     for (std::size_t j = 0u; j < samples_.second.size(); ++j) {
                         // We round to the nearest integer time (note this has to match

@@ -176,6 +176,8 @@ public:
 
     //! Add whether a value's bucket is empty.
     CModelProbabilityParams& addBucketEmpty(const TBool2Vec& empty);
+    //! Set whether or not the values' bucket is empty.
+    CModelProbabilityParams& bucketEmpty(const TBool2Vec1Vec& empty);
     //! Get whether the values' bucket is empty.
     const TBool2Vec1Vec& bucketEmpty() const;
 

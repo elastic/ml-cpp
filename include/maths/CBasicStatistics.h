@@ -149,6 +149,7 @@ public:
     template<typename T, unsigned int ORDER>
     struct SSampleCentralMoments : public std::unary_function<T, void> {
         using TCoordinate = typename SCoordinate<T>::Type;
+        using TValue = T;
 
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() {
@@ -1367,15 +1368,15 @@ public:
     //! \name Accumulator Typedefs
     //@{
     //! Accumulator object to compute the sample maximum.
-    template<typename T>
+    template<typename T, std::size_t N = 1>
     struct SMax {
-        using TAccumulator = COrderStatisticsStack<T, 1, std::greater<T>>;
+        using TAccumulator = COrderStatisticsStack<T, N, std::greater<T>>;
     };
 
     //! Accumulator object to compute the sample minimum.
-    template<typename T>
+    template<typename T, std::size_t N = 1>
     struct SMin {
-        using TAccumulator = COrderStatisticsStack<T, 1>;
+        using TAccumulator = COrderStatisticsStack<T, N>;
     };
     //@}
 
@@ -1466,17 +1467,6 @@ public:
         //! The set maximum.
         COrderStatisticsStack<T, 1, GREATER> m_Max;
     };
-
-    // Friends
-    template<typename T>
-    friend std::ostream&
-    operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 1u>&);
-    template<typename T>
-    friend std::ostream&
-    operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 2u>&);
-    template<typename T>
-    friend std::ostream&
-    operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 3u>&);
 };
 
 template<typename T>

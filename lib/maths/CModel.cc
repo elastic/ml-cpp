@@ -215,6 +215,11 @@ CModelProbabilityParams& CModelProbabilityParams::addBucketEmpty(const TBool2Vec
     return *this;
 }
 
+CModelProbabilityParams& CModelProbabilityParams::bucketEmpty(const TBool2Vec1Vec& empty) {
+    m_BucketEmpty = empty;
+    return *this;
+}
+
 const CModelProbabilityParams::TBool2Vec1Vec& CModelProbabilityParams::bucketEmpty() const {
     return m_BucketEmpty;
 }

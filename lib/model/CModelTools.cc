@@ -340,7 +340,7 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
 void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     std::size_t id,
                                                     const TDouble2Vec1Vec& value,
-                                                    maths::SModelProbabilityResult& result) {
+                                                    const maths::SModelProbabilityResult& result) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0], result);
     }
