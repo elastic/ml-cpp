@@ -46,7 +46,7 @@ struct SDistributionRestoreParams;
 //! value semantics and manage the heap.
 class MATHS_EXPORT COneOfNPrior : public CPrior {
 public:
-    using TPriorPtr = std::shared_ptr<CPrior>;
+    using TPriorPtr = std::unique_ptr<CPrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
     using TPriorCPtrVec = std::vector<const CPrior*>;
     using TDoublePriorPtrPr = std::pair<double, TPriorPtr>;

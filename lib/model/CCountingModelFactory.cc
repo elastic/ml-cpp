@@ -10,10 +10,13 @@
 
 #include <maths/CConstantPrior.h>
 #include <maths/CMultivariateConstantPrior.h>
+#include <maths/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
+
+#include <boost/make_unique.hpp>
 
 #include <memory>
 
@@ -59,9 +62,8 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData,
 CDataGatherer*
 CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode, this->modelParams(),
-                             m_SummaryCountFieldName, m_PartitionFieldName,
-                             initData.s_PartitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING, EMPTY_STRING, TStrVec(), m_UseNull,
+                             m_SummaryCountFieldName, initData.s_PartitionFieldValue,
+                             m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {},
                              this->searchKey(), m_Features, initData.s_StartTime, 0);
 }
 
@@ -70,35 +72,33 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                         core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
                              this->modelParams(), m_SummaryCountFieldName,
-                             m_PartitionFieldName, partitionFieldValue,
-                             m_PersonFieldName, EMPTY_STRING, EMPTY_STRING,
-                             TStrVec(), m_UseNull, this->searchKey(), traverser);
+                             partitionFieldValue, m_PersonFieldName, EMPTY_STRING,
+                             EMPTY_STRING, {}, this->searchKey(), traverser);
 }
 
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CConstantPrior>();
+    return boost::make_unique<maths::CConstantPrior>();
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
+CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return boost::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
+CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return std::make_shared<maths::CMultivariateConstantPrior>(2);
+    return boost::make_unique<maths::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.reset(
-            CSearchKey(m_Identifier, function_t::function(m_Features),
-                       m_UseNull, this->modelParams().s_ExcludeFrequent, "",
-                       m_PersonFieldName, "", m_PartitionFieldName));
+        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+                                 m_UseNull, this->modelParams().s_ExcludeFrequent,
+                                 "", m_PersonFieldName, "", m_PartitionFieldName);
     }
     return *m_SearchKeyCache;
 }

@@ -645,7 +645,7 @@ public:
                     TSizeSizeTUMapUMap<T>& data,
                     core_t::TTime time,
                     const CMetricBucketGatherer& gatherer,
-                    CDataGatherer::TSampleCountsPtr sampleCounts) const {
+                    CSampleCounts& sampleCounts) const {
         for (const auto& count : gatherer.bucketCounts(time)) {
             std::size_t pid = CDataGatherer::extractPersonId(count);
             std::size_t cid = CDataGatherer::extractAttributeId(count);
@@ -661,8 +661,8 @@ public:
                     LOG_ERROR(<< "No gatherer for attribute "
                               << gatherer.dataGatherer().attributeName(cid) << " of person "
                               << gatherer.dataGatherer().personName(pid));
-                } else if (pidEntry->second.sample(time, sampleCounts->count(activeId))) {
-                    sampleCounts->updateSampleVariance(activeId);
+                } else if (pidEntry->second.sample(time, sampleCounts.count(activeId))) {
+                    sampleCounts.updateSampleVariance(activeId);
                 }
             }
         }
@@ -1353,8 +1353,9 @@ void CMetricBucketGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
 
 void CMetricBucketGatherer::sample(core_t::TTime time) {
     if (m_DataGatherer.sampleCounts()) {
-        apply(m_FeatureData, boost::bind<void>(SDoSample(), _1, _2, time, boost::cref(*this),
-                                               m_DataGatherer.sampleCounts()));
+        apply(m_FeatureData,
+              boost::bind<void>(SDoSample(), _1, _2, time, boost::cref(*this),
+                                boost::ref(*m_DataGatherer.sampleCounts())));
     }
     // Merge smallest bucket into longer buckets, if they exist
     this->CBucketGatherer::sample(time);

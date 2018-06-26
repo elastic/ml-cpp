@@ -87,10 +87,10 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
 
 void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CFieldConfig fieldConfig;
-    std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
-    std::string originalRules1("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
+    std::string originalRules0("[{\"actions\":[\"skip_result\"],");
+    originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
+    std::string originalRules1("[{\"actions\":[\"skip_result\"],");
+    originalRules1 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\": 5.0}]}]";
     fieldConfig.parseRules(0, originalRules0);
     fieldConfig.parseRules(1, originalRules1);
 
@@ -98,10 +98,9 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
-    std::string configUpdate1(
-        "[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",\"conditions\":[{\"type\":\"numerical_"
-        "typical\",\"condition\":{\"operator\":\"lt\",\"value\":\"15\"}}]}]");
+    std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
+                              "[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\","
+                              "\"operator\":\"lt\",\"value\": 15.0}]}]");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -113,14 +112,14 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CPPUNIT_ASSERT(itr->second.empty());
     itr = fieldConfig.detectionRules().find(1);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), itr->second.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"),
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
                          itr->second[0].print());
 }
 
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     CFieldConfig fieldConfig;
-    std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
+    std::string originalRules("[{\"actions\":[\"skip_result\"],");
+    originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
     fieldConfig.parseRules(0, originalRules);
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -185,13 +184,13 @@ void CConfigUpdaterTest::testUpdateGivenFilters() {
 
 void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
     std::string validRule1 =
-        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
-        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
+        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
+        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
     std::string validRule2 =
-        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
-        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
+        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
+        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
 
     CFieldConfig fieldConfig;
 
@@ -211,10 +210,10 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[1].second.print());
     }
 
@@ -239,10 +238,10 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[1].second.print());
     }
 
