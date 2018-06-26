@@ -173,7 +173,7 @@ void CModelToolsTest::testProbabilityCache() {
 
     maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
     maths::CUnivariateTimeSeriesModel model{
-        params(bucketLength), 0, trend, multimodal(), nullptr, false};
+        params(bucketLength), 0, trend, multimodal(), nullptr, false, 0};
     test::CRandomNumbers rng;
 
     core_t::TTime time_{0};
@@ -244,7 +244,7 @@ void CModelToolsTest::testProbabilityCache() {
                 CPPUNIT_ASSERT(result.s_MostAnomalousCorrelate.empty());
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature, id, sample, result);
+                cache.addProbability(feature, id, sample, expectedResult);
             }
         }
 
@@ -276,7 +276,7 @@ void CModelToolsTest::testProbabilityCache() {
                 CPPUNIT_ASSERT(false);
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature, id, sample, result);
+                cache.addProbability(feature, id, sample, expectedResult);
             }
         }
     }

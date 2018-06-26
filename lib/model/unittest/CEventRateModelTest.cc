@@ -768,7 +768,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
         LOG_TRACE(<< "origXml = " << origXml);
         LOG_DEBUG(<< "origXml size = " << origXml.size());
-        CPPUNIT_ASSERT(origXml.size() < 170000);
+        CPPUNIT_ASSERT(origXml.size() < 180000);
 
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -1398,16 +1398,16 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be shared by the two influencers, and as the anomaly
-        // is about twice the regular count, each influencer contributes a lot to
-        // the anomaly
+        // We expect equal influence since the influencers share the count.
+        // Also the count would be fairly normal if either influencer were
+        // removed so their influence is high.
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.8);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.75);
     }
     {
-        // Test single influence name, two influence values, less anomalousness for each
+        // Test single influence name, two influence values, low influence
         SModelParams params(bucketLength);
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
@@ -1461,15 +1461,14 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be shared by the two influencers, and as the anomaly
-        // is about twice the regular count, each influencer contributes to
-        // the anomaly, but less than the previous test as each the results would
-        // be anomalous even without the contribution from the influencer
+        // We expect equal influence since the influencers share the count.
+        // However, the bucket is still significantly anomalous omitting
+        // the records from either influencer so their influence is smaller.
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.5);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.6);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.4);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.5);
     }
     {
         // Test single influence name, two asymmetric influence values
@@ -1530,7 +1529,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
         // The influence should be dominated by the first influencer, and the
-        // _extra influencer should be dropped by the cutoff threshold
+        // _extra influencers should be dropped by the cutoff threshold
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), lastInfluencersResult.size());
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.99);
     }
@@ -1597,8 +1596,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be dominated by the first influencer for both fields, and the
-        // _extra influencers should be dropped by the cutoff threshold
+        // The influence should be dominated by the first influencer for both fields,
+        // and the _extra influencers should be dropped by the cutoff threshold
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
         CPPUNIT_ASSERT_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
@@ -2222,6 +2221,7 @@ void CEventRateModelTest::testInterimCorrections() {
     core_t::TTime endTime(2 * 24 * bucketLength);
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
+    params.s_BulkFeaturesWindowLength = 0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 3);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     CCountingModel countingModel(params, m_Gatherer, m_InterimBucketCorrector);

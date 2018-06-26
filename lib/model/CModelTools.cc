@@ -369,14 +369,14 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
         if (pos != m_Caches.end()) {
             double x{value[0][0]};
             const TDouble1Vec& modes{pos->second.s_Modes};
-            const TDoubleProbabilityFMap& probabilities{pos->second.s_Probabilities};
-            auto right = probabilities.lower_bound(x);
+            const TDoubleProbabilityFMap& cache{pos->second.s_Probabilities};
+            auto right = cache.lower_bound(x);
 
-            if (right != probabilities.end() && right->first == x) {
+            if (right != cache.end() && right->first == x) {
                 result = right->second;
                 return true;
-            } else if (probabilities.size() >= 4 && right < probabilities.end() - 2 &&
-                       right > probabilities.begin() + 1) {
+            } else if (cache.size() >= 4 && right < cache.end() - 2 &&
+                       right > cache.begin() + 1) {
                 auto left = right - 1;
                 if (this->canInterpolate(modes, left, right)) {
                     double probabilities[]{(left - 1)->second.s_Probability,
@@ -394,18 +394,19 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
 
                         double a{left->first};
                         double b{right->first};
-                        auto interpolate = [a, b](double pa, double pb, double x) {
+                        auto interpolate = [a, b, x](double pa, double pb) {
                             return (pa * (b - x) + pb * (x - a)) / (b - a);
                         };
 
                         auto nearest = x - a < b - x ? left : right;
                         result.s_Probability = interpolate(
-                            left->second.s_Probability, right->second.s_Probability, x);
+                            left->second.s_Probability, right->second.s_Probability);
                         result.s_FeatureLabels = nearest->second.s_FeatureLabels;
                         result.s_FeatureProbabilities = {
                             interpolate(left->second.s_FeatureProbabilities[0],
-                                        right->second.s_FeatureProbabilities[0], x)};
+                                        right->second.s_FeatureProbabilities[0])};
                         result.s_Tail = nearest->second.s_Tail;
+                        return true;
                     }
                 }
             }

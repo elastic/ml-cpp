@@ -311,7 +311,7 @@ public:
     //! CModelConfig this is ensured for you.
     void interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector);
 
-    //! \name Customization by mlmodel.conf
+    //! \name Customization
     //@{
     //! Set the learn rate used for initializing models.
     void learnRate(double learnRate);
@@ -332,6 +332,11 @@ public:
 
     //! Set the prune window scale factor maximum
     void pruneWindowScaleMaximum(double factor);
+
+    //! Set the window length to use for bulk features.
+    //!
+    //! \note A length of zero disables modeling of bulk features altogether.
+    void bulkFeaturesWindowLength(std::size_t length);
 
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.

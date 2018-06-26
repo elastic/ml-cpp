@@ -263,6 +263,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
+        modelConfig.useBulkFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
@@ -331,7 +332,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
+    CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.35);
 }
 
 void CMetricAnomalyDetectorTest::testPersist() {
@@ -392,6 +393,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        modelConfig.useBulkFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
@@ -419,6 +421,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        modelConfig.useBulkFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,

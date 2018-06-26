@@ -162,7 +162,7 @@ void CTimeSeriesBulkFeaturesTest::testContrast() {
     CPPUNIT_ASSERT_EQUAL(-2.0, mean[0]);
     CPPUNIT_ASSERT_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     CPPUNIT_ASSERT_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(1.25, maths_t::countForUpdate(weight[0]));
+    CPPUNIT_ASSERT_EQUAL(std::sqrt(1.2 * 1.3), maths_t::countForUpdate(weight[0]));
 
     std::tie(mean, weight) =
         maths::CTimeSeriesBulkFeatures::contrast(buf.rbegin(), buf.rend());
@@ -172,7 +172,7 @@ void CTimeSeriesBulkFeaturesTest::testContrast() {
     CPPUNIT_ASSERT_EQUAL(2.0, mean[0]);
     CPPUNIT_ASSERT_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     CPPUNIT_ASSERT_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(1.25, maths_t::countForUpdate(weight[0]));
+    CPPUNIT_ASSERT_EQUAL(std::sqrt(1.2 * 1.3), maths_t::countForUpdate(weight[0]));
 }
 
 CppUnit::Test* CTimeSeriesBulkFeaturesTest::suite() {

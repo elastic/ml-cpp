@@ -436,12 +436,11 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime& startTime, core_t::TTim
     //   4) The start time is greater than or equal to the start time
     //      of the last sampled bucket
 
-    if (!maths::CIntegerTools::aligned(startTime, this->bucketLength())) {
+    if (!maths::CIntegerTools::aligned(startTime - m_BucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Sample start time " << startTime << " is not bucket aligned");
-        LOG_ERROR(<< "However, my bucketStart time is " << m_BucketStart);
         return false;
     }
-    if (!maths::CIntegerTools::aligned(endTime, this->bucketLength())) {
+    if (!maths::CIntegerTools::aligned(endTime - m_BucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Sample end time " << endTime << " is not bucket aligned");
         return false;
     }

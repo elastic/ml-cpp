@@ -129,6 +129,7 @@ void CResourceLimitTest::testLimitBy() {
     {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        modelConfig.useBulkFeatures(false);
         CLimits limits;
         CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric, false,
@@ -501,7 +502,7 @@ void CResourceLimitTest::testLargeAllocations() {
         LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
         LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-        CPPUNIT_ASSERT(model.getNewPeople() > 2700 && model.getNewPeople() < 2900);
+        CPPUNIT_ASSERT(model.getNewPeople() > 2400 && model.getNewPeople() < 2600);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
         CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
 

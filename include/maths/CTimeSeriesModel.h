@@ -202,10 +202,10 @@ public:
     const CPrior& residualModel() const;
 
     //! Get the sliding window mean residual model.
-    const CPrior& residualMeanModel() const;
+    const CPrior* residualMeanModel() const;
 
     //! Get the sliding window residual contrast model.
-    const CPrior& residualContrastModel() const;
+    const CPrior* residualContrastModel() const;
     //@}
 
 private:
@@ -702,6 +702,9 @@ public:
 
     //! Get the residual model.
     const CMultivariatePrior& residualModel() const;
+
+    //! Get the sliding window mean residual model.
+    const CMultivariatePrior* residualMeanModel() const;
     //@}
 
 private:

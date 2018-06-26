@@ -272,9 +272,10 @@ public:
     void bucketLength(core_t::TTime length);
     //! Set the number of buckets to delay finalizing out-of-phase buckets.
     void bucketResultsDelay(std::size_t delay);
-
     //! Set the single interim bucket correction calculator.
     void interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector);
+    //! Set whether to model bulk features.
+    void useBulkFeatures(bool enabled);
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.
     void multivariateByFields(bool enabled);
@@ -305,13 +306,6 @@ public:
 
     //! Populate the parameters from a property tree.
     bool init(const boost::property_tree::ptree& propTree);
-
-    //! Configure modelPlotConfig params from file
-    bool configureModelPlot(const std::string& modelPlotConfigFile);
-
-    //! Configure modelPlotConfig params from a property tree
-    //! expected to contain two properties: 'boundsPercentile' and 'terms'
-    bool configureModelPlot(const boost::property_tree::ptree& propTree);
 
     //! Get the factory for new models.
     //!
@@ -345,7 +339,6 @@ public:
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);
-
     //! Get the rate at which the models lose information.
     double decayRate() const;
 
@@ -365,14 +358,20 @@ public:
     //! Get the bucket result delay window.
     std::size_t bucketResultsDelay() const;
 
-    //! Get the multiple bucket lengths.
-    const TTimeVec& multipleBucketLengths() const;
-
     //! Get the single interim bucket correction calculator.
     const CInterimBucketCorrector& interimBucketCorrector() const;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool multivariateByFields() const;
+
+    //! \name Model Plot
+    //@{
+    //! Configure modelPlotConfig params from file
+    bool configureModelPlot(const std::string& modelPlotConfigFile);
+
+    //! Configure modelPlotConfig params from a property tree
+    //! expected to contain two properties: 'boundsPercentile' and 'terms'
+    bool configureModelPlot(const boost::property_tree::ptree& propTree);
 
     //! Set the central confidence interval for the model debug plot
     //! to \p percentage.

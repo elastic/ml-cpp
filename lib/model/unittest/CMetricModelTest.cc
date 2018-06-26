@@ -611,8 +611,8 @@ void CMetricModelTest::testMultivariateSample() {
 
                 LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(count));
                 LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong)
-                          << "expected baseline = "
-                          << maths::CBasicStatistics::mean(expectedBaselineLatLong) << "actual baseline = "
+                          << ", expected baseline = "
+                          << maths::CBasicStatistics::mean(expectedBaselineLatLong) << ", actual baseline = "
                           << core::CContainerPrinter::print(baselineLatLong));
 
                 CPPUNIT_ASSERT(count);
@@ -1213,7 +1213,7 @@ void CMetricModelTest::testInfluence() {
             {},
             {},
             {},
-            {core::make_triple(std::string{"i1"}, 0.6, 0.7),
+            {core::make_triple(std::string{"i1"}, 0.5, 0.6),
              core::make_triple(std::string{"i2"}, 0.9, 1.0)},
             {core::make_triple(std::string{"i1"}, 0.9, 1.0),
              core::make_triple(std::string{"i2"}, 0.9, 1.0)},

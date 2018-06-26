@@ -246,6 +246,10 @@ void CModelFactory::pruneWindowScaleMaximum(double factor) {
     m_ModelParams.s_PruneWindowScaleMaximum = factor;
 }
 
+void CModelFactory::bulkFeaturesWindowLength(std::size_t length) {
+    m_ModelParams.s_BulkFeaturesWindowLength = length;
+}
+
 void CModelFactory::multivariateByFields(bool enabled) {
     m_ModelParams.s_MultivariateByFields = enabled;
 }

@@ -404,19 +404,8 @@ void CAnomalyDetector::sample(core_t::TTime startTime,
 
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
 
-    bool isEndOfBucketSample = endTime % bucketLength == 0;
-    if (isEndOfBucketSample) {
-        LOG_TRACE(<< "Going to do end-of-bucket sample");
-    } else {
-        LOG_TRACE(<< "Going to do out-of-phase sampleBucketStatistics");
-    }
-
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        if (isEndOfBucketSample) {
-            m_Model->sample(time, time + bucketLength, resourceMonitor);
-        } else {
-            m_Model->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
-        }
+        m_Model->sample(time, time + bucketLength, resourceMonitor);
     }
 
     if ((endTime / bucketLength) % 10 == 0) {

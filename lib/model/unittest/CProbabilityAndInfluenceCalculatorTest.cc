@@ -1521,7 +1521,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, influences[0].second, 0.03);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.95, influences[0].second, 0.06);
         }
     }
     {
@@ -1583,7 +1583,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.7, influences[0].second, 0.03);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4, influences[0].second, 0.03);
         }
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;

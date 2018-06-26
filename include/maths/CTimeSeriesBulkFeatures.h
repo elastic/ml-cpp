@@ -43,7 +43,7 @@ public:
     template<typename VECTOR, typename ITR>
     static std::pair<core::CSmallVector<VECTOR, 1>, core::CSmallVector<maths_t::TWeightsAry<VECTOR>, 1>>
     mean(ITR begin, ITR end) {
-        if (begin == end) {
+        if (begin != end) {
             using TValueType = typename std::iterator_traits<ITR>::value_type;
             using TSecondType = typename SSecondType<TValueType>::Type;
             using TPrecise = typename SPromoted<typename TSecondType::TValue>::Type;
@@ -123,14 +123,14 @@ public:
                     double weight{std::sqrt(
                         CBasicStatistics::count((begin + l.min().second)->second) *
                         CBasicStatistics::count((begin + r.max().second)->second))};
-                    minContrast.add({r.max().first - l.min().first, -weight / 2.0});
-                    maxContrast.add({r.max().first - l.min().first, +weight / 2.0});
+                    minContrast.add({r.max().first - l.min().first, -weight});
+                    maxContrast.add({r.max().first - l.min().first, +weight});
                 } else if (r.min().first > l.max().first) {
                     double weight{std::sqrt(
                         CBasicStatistics::count((begin + l.max().second)->second) *
                         CBasicStatistics::count((begin + r.min().second)->second))};
-                    minContrast.add({r.min().first - l.max().first, -weight / 2.0});
-                    maxContrast.add({r.min().first - l.max().first, +weight / 2.0});
+                    minContrast.add({r.min().first - l.max().first, -weight});
+                    maxContrast.add({r.min().first - l.max().first, +weight});
                 }
             }
 

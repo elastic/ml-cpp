@@ -345,16 +345,17 @@ void doComputeInfluences(model_t::EFeature feature,
     auto description = [&influencerName](const std::string& v) {
         return std::make_pair(influencerName, canonical(v));
     };
-    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
-        double p{r.s_Probability};
-        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
-        return model_t::adjustProbability(feature, elapsedTime, p);
-    };
 
     if (influencerValues.size() == 1) {
         result.emplace_back(description(influencerValues[0].first), 1.0);
         return;
     }
+
+    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
+        double p{r.s_Probability};
+        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+        return model_t::adjustProbability(feature, elapsedTime, p);
+    };
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
     computeProbabilityParams.weights(weights)
@@ -461,8 +462,6 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         .useAnomalyModel(false)
         .bucketEmpty({{count[0] == 0.0, count[1] == 0.0}});
     maths::SModelProbabilityResult overallResult;
-    LOG_DEBUG(<< model_t::print(feature) << " "
-              << model_t::stripExtraStatistics(feature, {value}));
     model.probability(computeProbabilityParams, {time},
                       model_t::stripExtraStatistics(feature, {value}), overallResult);
     double overallProbability{probability(overallResult)};
@@ -720,9 +719,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_InfluenceCalculator->computeInfluences(params);
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
-        m_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                      params.s_InfluencerName, canonical(*influencerValue)),
-                                  1.0);
+        m_Influences.emplace_back(
+            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
@@ -760,9 +758,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_InfluenceCalculator->computeInfluences(params);
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
-        m_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                      params.s_InfluencerName, canonical(*influencerValue)),
-                                  1.0);
+        m_Influences.emplace_back(
+            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
@@ -813,7 +810,8 @@ void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feat
                 .first->second;
         if (!model_t::isConstant(feature)) {
             double probability = std::exp(influence.second * logp);
-            LOG_TRACE(<< "Adding = " << influence.first.second.get() << " " << probability);
+            LOG_TRACE(<< "Adding '" << *influence.first.second << "', probability = "
+                      << probability << ", influence = " << influence.second);
             aggregator.add(probability, weight);
         }
     }

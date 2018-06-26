@@ -503,12 +503,12 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
         [tag](const CAnomaly& anomaly_) { return anomaly_.tag() == tag; });
 
     if (probability < LARGEST_ANOMALOUS_PROBABILITY) {
-        double sign{std::accumulate(errors.begin(), errors.end(), 0.0)};
         if (anomaly == m_Anomalies.end()) {
             m_Anomalies.emplace_back(tag, this->scale(time));
             anomaly = m_Anomalies.end() - 1;
         }
-        anomaly->update(-CTools::fastLog(probability), sign);
+        anomaly->update(-CTools::fastLog(probability),
+                        std::accumulate(errors.begin(), errors.end(), 0.0));
     } else if (anomaly != m_Anomalies.end()) {
         this->sample(time, *anomaly, 1.0 - anomaly->weight(this->scale(time)));
         m_Anomalies.erase(anomaly);
@@ -1482,12 +1482,12 @@ const CPrior& CUnivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
 }
 
-const CPrior& CUnivariateTimeSeriesModel::residualMeanModel() const {
-    return *m_ResidualMeanModel;
+const CPrior* CUnivariateTimeSeriesModel::residualMeanModel() const {
+    return m_ResidualMeanModel.get();
 }
 
-const CPrior& CUnivariateTimeSeriesModel::residualContrastModel() const {
-    return *m_ResidualContrastModel;
+const CPrior* CUnivariateTimeSeriesModel::residualContrastModel() const {
+    return m_ResidualContrastModel.get();
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
@@ -2732,6 +2732,7 @@ uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
+    seed = CChecksum::calculate(seed, m_RecentResiduals);
     seed = CChecksum::calculate(seed, m_ResidualModel);
     seed = CChecksum::calculate(seed, m_ResidualMeanModel);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
@@ -2778,6 +2779,9 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                                       boost::cref(params.s_DecompositionParams),
                                       boost::ref(m_TrendModel.back()), _1)),
                 /**/)
+            RESTORE(RECENT_RESIDUALS_6_3_TAG,
+                    core::CPersistUtils::restore(RECENT_RESIDUALS_6_3_TAG,
+                                                 m_RecentResiduals, traverser))
             RESTORE(RESIDUAL_MODEL_6_3_TAG,
                     traverser.traverseSubLevel(boost::bind<bool>(
                         CPriorStateSerialiser(), boost::cref(params.s_DistributionParams),
@@ -2842,6 +2846,7 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
                              boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
                                                boost::cref(*trend), _1));
     }
+    core::CPersistUtils::persist(RECENT_RESIDUALS_6_3_TAG, m_RecentResiduals, inserter);
     inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
                          boost::bind<void>(CPriorStateSerialiser(),
                                            boost::cref(*m_ResidualModel), _1));
@@ -2883,6 +2888,10 @@ CMultivariateTimeSeriesModel::trendModel() const {
 
 const CMultivariatePrior& CMultivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CMultivariatePrior* CMultivariateTimeSeriesModel::residualMeanModel() const {
+    return m_ResidualModel.get();
 }
 
 CMultivariateTimeSeriesModel::EUpdateResult
