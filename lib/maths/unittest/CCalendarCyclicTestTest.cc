@@ -250,7 +250,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
 
     LOG_DEBUG(<< "Normal");
     for (std::size_t t = 0; t < 10; ++t) {
-        LOG_DEBUG(<< "test = " << t+1);
+        LOG_DEBUG(<< "test = " << t + 1);
 
         maths::CCalendarCyclicTest cyclic(HALF_HOUR);
 
@@ -274,7 +274,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
 
     LOG_DEBUG(<< "Log-normal");
     for (std::size_t t = 0; t < 10; ++t) {
-        LOG_DEBUG(<< "test = " << t+1);
+        LOG_DEBUG(<< "test = " << t + 1);
 
         maths::CCalendarCyclicTest cyclic(HALF_HOUR);
 
@@ -298,7 +298,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
 
     LOG_DEBUG(<< "Mixture");
     for (std::size_t t = 0; t < 10; ++t) {
-        LOG_DEBUG(<< "test = " << t+1);
+        LOG_DEBUG(<< "test = " << t + 1);
 
         maths::CCalendarCyclicTest cyclic(HALF_HOUR);
 
@@ -375,7 +375,8 @@ CppUnit::Test* CCalendarCyclicTestTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
         "CCalendarCyclicTestTest::testTruePositives", &CCalendarCyclicTestTest::testTruePositives));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
-        "CCalendarCyclicTestTest::testFalsePositives", &CCalendarCyclicTestTest::testFalsePositives));
+        "CCalendarCyclicTestTest::testFalsePositives",
+        &CCalendarCyclicTestTest::testFalsePositives));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
         "CCalendarCyclicTestTest::testPersist", &CCalendarCyclicTestTest::testPersist));
 
