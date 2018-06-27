@@ -125,7 +125,7 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
 }
 
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {
-    if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+    if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }

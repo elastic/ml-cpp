@@ -24,6 +24,7 @@
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 
+#include <string>
 #include <vector>
 
 using namespace ml;
@@ -170,6 +171,7 @@ void CRandomizedPeriodicityTestTest::testPersist() {
         inserter.toXml(newXml);
     }
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    CPPUNIT_ASSERT_EQUAL(test.checksum(), test2.checksum());
 
     {
         core::CRapidXmlParser parser;

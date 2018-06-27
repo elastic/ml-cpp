@@ -280,13 +280,12 @@ void CRandomizedPeriodicityTest::reset() {
 std::uint64_t CRandomizedPeriodicityTest::checksum(std::uint64_t seed) const {
     // This checksum is problematic until we switch to using our
     // own rng for each test.
-    //seed = CChecksum::calculate(seed, m_DayProjections);
-    //seed = CChecksum::calculate(seed, m_DayStatistics);
-    //seed = CChecksum::calculate(seed, m_DayRefreshedProjections);
-    //seed = CChecksum::calculate(seed, m_WeekProjections);
-    //seed = CChecksum::calculate(seed, m_WeekStatistics);
-    //return CChecksum::calculate(seed, m_WeekRefreshedProjections);
-    return seed;
+    seed = CChecksum::calculate(seed, m_DayProjections);
+    seed = CChecksum::calculate(seed, m_DayStatistics);
+    seed = CChecksum::calculate(seed, m_DayRefreshedProjections);
+    seed = CChecksum::calculate(seed, m_WeekProjections);
+    seed = CChecksum::calculate(seed, m_WeekStatistics);
+    return CChecksum::calculate(seed, m_WeekRefreshedProjections);
 }
 
 void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& projections,

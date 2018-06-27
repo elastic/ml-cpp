@@ -7,11 +7,13 @@
 #ifndef INCLUDED_ml_maths_CCalendarCyclicTest_h
 #define INCLUDED_ml_maths_CCalendarCyclicTest_h
 
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CCalendarFeature.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/ImportExport.h>
+#include <maths/MathsTypes.h>
 
 #include <boost/optional.hpp>
 
@@ -121,6 +123,8 @@ private:
     SErrorStats m_CurrentBucketErrorStats;
 
     //! The compressed error statistics.
+    //!
+    //! \note We always persist the errors in uncompressed format.
     TByteVec m_CompressedBucketErrorStats;
 };
 }
