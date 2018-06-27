@@ -48,6 +48,9 @@ new processes being created and macOS uses the sandbox functionality ({pull}98[#
 Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
 by unnecessary reference counting ({pull}108[#108])
 
+Reduce model memory by storing state for testing for predictive calendar features in a compressed format
+({pull}127[#127])
+
 === Bug Fixes
 
 Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
