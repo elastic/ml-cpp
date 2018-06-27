@@ -28,11 +28,11 @@
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSampling.h>
+#include <maths/CTools.h>
 #include <maths/ProbabilityAggregators.h>
 
 #include <boost/make_unique.hpp>
 #include <boost/math/special_functions/beta.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 
@@ -1079,41 +1079,42 @@ private:
             LOG_ERROR(<< "Failed to calculate log det " << wishartScaleMatrixPost);
             return maths_t::E_FpFailed;
         }
+        double logGammaPost = 0.0;
+        double logGammaPrior = 0.0;
+        double logGammaPostMinusPrior = 0.0;
 
-        try {
-            double logGammaPostMinusPrior = 0.0;
-            for (std::size_t i = 0u; i < N; ++i) {
-                logGammaPostMinusPrior +=
-                    boost::math::lgamma(
-                        0.5 * (wishartDegreesFreedomPost - static_cast<double>(i))) -
-                    boost::math::lgamma(0.5 * (wishartDegreesFreedomPrior -
-                                               static_cast<double>(i)));
+        for (std::size_t i = 0u; i < N; ++i) {
+            if (CTools::lgamma(0.5 * (wishartDegreesFreedomPost - static_cast<double>(i)),
+                               logGammaPost, true) &&
+                CTools::lgamma(0.5 * (wishartDegreesFreedomPrior - static_cast<double>(i)),
+                               logGammaPrior, true)) {
+
+                logGammaPostMinusPrior += logGammaPost - logGammaPrior;
+            } else {
+                return maths_t::E_FpOverflowed;
             }
-            LOG_TRACE(<< "numberSamples = " << numberSamples);
-            LOG_TRACE(<< "logGaussianPrecisionPrior = " << logGaussianPrecisionPrior
-                      << ", logGaussianPrecisionPost  = " << logGaussianPrecisionPost);
-            LOG_TRACE(<< "wishartDegreesFreedomPrior = " << wishartDegreesFreedomPrior
-                      << ", wishartDegreesFreedomPost  = " << wishartDegreesFreedomPost);
-            LOG_TRACE(<< "wishartScaleMatrixPrior = " << m_WishartScaleMatrix);
-            LOG_TRACE(<< "wishartScaleMatrixPost  = " << wishartScaleMatrixPost);
-            LOG_TRACE(<< "logDeterminantPrior = " << logDeterminantPrior
-                      << ", logDeterminantPost = " << logDeterminantPost);
-            LOG_TRACE(<< "logGammaPostMinusPrior = " << logGammaPostMinusPrior);
-            LOG_TRACE(<< "logCountVarianceScales = " << logCountVarianceScales);
-
-            double d = static_cast<double>(N);
-            result = 0.5 * (wishartDegreesFreedomPrior * logDeterminantPrior -
-                            wishartDegreesFreedomPost * logDeterminantPost -
-                            d * (logGaussianPrecisionPost - logGaussianPrecisionPrior) +
-                            (wishartDegreesFreedomPost - wishartDegreesFreedomPrior) *
-                                d * core::constants::LOG_TWO +
-                            2.0 * logGammaPostMinusPrior -
-                            numberSamples * d * core::constants::LOG_TWO_PI -
-                            logCountVarianceScales);
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to calculate marginal likelihood: " << e.what());
-            return maths_t::E_FpFailed;
         }
+        LOG_TRACE(<< "numberSamples = " << numberSamples);
+        LOG_TRACE(<< "logGaussianPrecisionPrior = " << logGaussianPrecisionPrior
+                  << ", logGaussianPrecisionPost  = " << logGaussianPrecisionPost);
+        LOG_TRACE(<< "wishartDegreesFreedomPrior = " << wishartDegreesFreedomPrior
+                  << ", wishartDegreesFreedomPost  = " << wishartDegreesFreedomPost);
+        LOG_TRACE(<< "wishartScaleMatrixPrior = " << m_WishartScaleMatrix);
+        LOG_TRACE(<< "wishartScaleMatrixPost  = " << wishartScaleMatrixPost);
+        LOG_TRACE(<< "logDeterminantPrior = " << logDeterminantPrior
+                  << ", logDeterminantPost = " << logDeterminantPost);
+        LOG_TRACE(<< "logGammaPostMinusPrior = " << logGammaPostMinusPrior);
+        LOG_TRACE(<< "logCountVarianceScales = " << logCountVarianceScales);
+
+        double d = static_cast<double>(N);
+        result = 0.5 * (wishartDegreesFreedomPrior * logDeterminantPrior -
+                        wishartDegreesFreedomPost * logDeterminantPost -
+                        d * (logGaussianPrecisionPost - logGaussianPrecisionPrior) +
+                        (wishartDegreesFreedomPost - wishartDegreesFreedomPrior) *
+                            d * core::constants::LOG_TWO +
+                        2.0 * logGammaPostMinusPrior -
+                        numberSamples * d * core::constants::LOG_TWO_PI - logCountVarianceScales);
+
         return static_cast<maths_t::EFloatingPointErrorStatus>(CMathsFuncs::fpStatus(result));
     }
 
