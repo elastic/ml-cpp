@@ -340,6 +340,14 @@ double CCalendarComponentAdaptiveBucketing::variance(std::size_t bucket) const {
 }
 
 void CCalendarComponentAdaptiveBucketing::split(std::size_t bucket) {
+    // We don't know the fraction of values' (weights) which would
+    // have fallen in each half of the split bucket. However, some
+    // fraction of them would ideally not be included in these
+    // statistics, i.e. the values in the other half of the split.
+    // If we assume an equal split but assign a weight of 0.0 to the
+    // samples included in error we arrive at a multiplier of 0.25.
+    // In practice this simply means we increase the significance
+    // of new samples for some time which is reasonable.
     CBasicStatistics::scale(0.25, m_Values[bucket]);
     m_Values.insert(m_Values.begin() + bucket, m_Values[bucket]);
 }

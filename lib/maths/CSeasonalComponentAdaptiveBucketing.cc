@@ -557,6 +557,14 @@ double CSeasonalComponentAdaptiveBucketing::variance(std::size_t bucket) const {
 }
 
 void CSeasonalComponentAdaptiveBucketing::split(std::size_t bucket) {
+    // We don't know the fraction of values' (weights) which would
+    // have fallen in each half of the split bucket. However, some
+    // fraction of them would ideally not be included in these
+    // models, i.e. the values in the other half of the split. If
+    // we assume an equal split but assign a weight of 0.0 to the
+    // samples included in error we arrive at a multiplier of 0.25.
+    // In practice this simply means we increase the significance
+    // of new samples for some time which is reasonable.
     m_Buckets[bucket].s_Regression.scale(0.25);
     m_Buckets.insert(m_Buckets.begin() + bucket, m_Buckets[bucket]);
 }
