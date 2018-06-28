@@ -285,6 +285,7 @@ void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::T
     mem->setName("CSeasonalComponentAdaptiveBucketing");
     core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
     core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
+    core::CMemoryDebug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
     core::CMemoryDebug::dynamicSize("m_Buckets", m_Buckets, mem);
 }
 

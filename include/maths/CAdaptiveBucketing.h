@@ -265,13 +265,13 @@ private:
     //! that we aren't capturing the periodic pattern effectively.
     //!
     //! \see maybeSplitBucketMostSignificantBuckets for details.
-    std::size_t m_TargetSize;
+    std::size_t m_TargetSize = 0;
 
     //! The bucket of the last large error added.
-    std::size_t m_LastLargeErrorBucket;
+    std::size_t m_LastLargeErrorBucket = 0;
 
     //! The period of the last large error added.
-    core_t::TTime m_LastLargeErrorPeriod;
+    core_t::TTime m_LastLargeErrorPeriod = 0;
 
     //! The p-values of the most significant large error counts.
     TFloatUInt32PrMinAccumulator m_LargeErrorCountSignificances;

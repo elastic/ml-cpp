@@ -34,6 +34,30 @@ namespace maths {
 namespace {
 
 using TSizeVec = std::vector<std::size_t>;
+using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
+
+//! Convert to a delimited string.
+std::string significanceToDelimited(const TFloatUInt32Pr& value) {
+    return value.first.toString() + CBasicStatistics::EXTERNAL_DELIMITER +
+           core::CStringUtils::typeToString(value.second);
+}
+
+//! Initialize from a delimited string.
+bool significanceFromDelimited(const std::string& delimited, TFloatUInt32Pr& value) {
+    std::size_t pos{delimited.find(CBasicStatistics::EXTERNAL_DELIMITER)};
+    if (pos == std::string::npos) {
+        LOG_ERROR(<< "Failed to delimiter in '" << delimited << "'");
+        return false;
+    }
+    unsigned int count{};
+    if (value.first.fromString(delimited.substr(0, pos)) == false ||
+        core::CStringUtils::stringToType(delimited.substr(pos + 1), count) == false) {
+        LOG_ERROR(<< "Failed to extract value from '" << delimited << "'");
+        return false;
+    }
+    value.second = count;
+    return true;
+}
 
 //! Clear a vector and recover its memory.
 template<typename T>
@@ -49,6 +73,10 @@ const std::string MEAN_DESIRED_DISPLACEMENT_TAG{"d"};
 const std::string MEAN_ABS_DESIRED_DISPLACEMENT_TAG{"e"};
 const std::string LARGE_ERROR_COUNTS_TAG{"f"};
 const std::string TARGET_SIZE_TAG{"g"};
+const std::string LAST_LARGE_ERROR_BUCKET_TAG{"h"};
+const std::string LAST_LARGE_ERROR_PERIOD_TAG{"i"};
+const std::string LARGE_ERROR_COUNT_SIGNIFICANCES_TAG{"j"};
+const std::string MEAN_WEIGHT_TAG{"k"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
@@ -65,8 +93,7 @@ const double LOG_HIGH_SIGNIFICANCE{std::log(HIGH_SIGNIFICANCE)};
 }
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength)
-    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength},
-      m_TargetSize{0}, m_LastLargeErrorBucket{0}, m_LastLargeErrorPeriod{0} {
+    : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength} {
 }
 
 CAdaptiveBucketing::TRestoreFunc CAdaptiveBucketing::getAcceptRestoreTraverser() {
@@ -82,6 +109,11 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
         RESTORE_BUILT_IN(TARGET_SIZE_TAG, m_TargetSize)
+        RESTORE_BUILT_IN(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket)
+        RESTORE_BUILT_IN(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod)
+        RESTORE(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
+                m_LargeErrorCountSignificances.fromDelimited(traverser.value(), significanceFromDelimited))
+        RESTORE(MEAN_WEIGHT_TAG, m_MeanWeight.fromDelimited(traverser.value()))
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
         RESTORE(LARGE_ERROR_COUNTS_TAG,
@@ -103,6 +135,11 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
 void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(TARGET_SIZE_TAG, m_TargetSize);
+    inserter.insertValue(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket);
+    inserter.insertValue(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod);
+    inserter.insertValue(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
+                         m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    inserter.insertValue(MEAN_WEIGHT_TAG, m_MeanWeight.toDelimited());
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
     inserter.insertValue(LARGE_ERROR_COUNTS_TAG,
@@ -117,6 +154,10 @@ void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
     std::swap(m_TargetSize, other.m_TargetSize);
+    std::swap(m_LastLargeErrorBucket, other.m_LastLargeErrorBucket);
+    std::swap(m_LastLargeErrorPeriod, other.m_LastLargeErrorPeriod);
+    std::swap(m_LargeErrorCountSignificances, other.m_LargeErrorCountSignificances);
+    std::swap(m_MeanWeight, other.m_MeanWeight);
     m_Endpoints.swap(other.m_Endpoints);
     m_Centres.swap(other.m_Centres);
     m_LargeErrorCounts.swap(other.m_LargeErrorCounts);
@@ -594,6 +635,11 @@ uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_MinimumBucketLength);
     seed = CChecksum::calculate(seed, m_TargetSize);
+    seed = CChecksum::calculate(seed, m_LastLargeErrorBucket);
+    seed = CChecksum::calculate(seed, m_LastLargeErrorPeriod);
+    seed = CChecksum::calculate(
+        seed, m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    seed = CChecksum::calculate(seed, m_MeanWeight);
     seed = CChecksum::calculate(seed, m_Endpoints);
     seed = CChecksum::calculate(seed, m_Centres);
     seed = CChecksum::calculate(seed, m_LargeErrorCounts);
@@ -631,8 +677,9 @@ void CAdaptiveBucketing::maybeSplitBucket() {
             }
         }
         if (m_LargeErrorCountSignificances.count() > 0) {
-            // We're choosing the minimum of number of buckets so need the
-            // order statistic significance.
+            // We're choosing the minimum p-value of number of buckets
+            // independent statistics so the significance is one minus
+            // the chance that all of them are greater than the observation.
             for (auto& significance : m_LargeErrorCountSignificances) {
                 significance.first = CTools::oneMinusPowOneMinusX(
                     significance.first, static_cast<double>(this->size()));

@@ -1313,6 +1313,42 @@ void CBasicStatisticsTest::testOrderStatistics() {
         CPPUNIT_ASSERT_EQUAL(
             false, ml::core::memory_detail::SDynamicSizeAlwaysZero<TMaxStatsHeap>::value());
     }
+    {
+        // Test to from delimited with callback to persist values.
+
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrMinAccumulator =
+            ml::maths::CBasicStatistics::COrderStatisticsStack<TDoubleDoublePr, 2u>;
+
+        TDoubleDoublePrMinAccumulator orig;
+        orig.add({1.0, 3.2});
+        orig.add({3.1, 1.2});
+
+        auto toDelimited = [](const TDoubleDoublePr& value) {
+            return ml::core::CStringUtils::typeToStringPrecise(
+                       value.first, ml::core::CIEEE754::E_DoublePrecision) +
+                   ml::maths::CBasicStatistics::EXTERNAL_DELIMITER +
+                   ml::core::CStringUtils::typeToStringPrecise(
+                       value.second, ml::core::CIEEE754::E_DoublePrecision);
+        };
+        std::string delimited{orig.toDelimited(toDelimited)};
+        LOG_DEBUG(<< "delimited = " << delimited);
+
+        TDoubleDoublePrMinAccumulator restored;
+        restored.fromDelimited(delimited, [](const std::string& value, TDoubleDoublePr& result) {
+            std::size_t pos{value.find(ml::maths::CBasicStatistics::EXTERNAL_DELIMITER)};
+            return ml::core::CStringUtils::stringToType(value.substr(0, pos),
+                                                        result.first) &&
+                   ml::core::CStringUtils::stringToType(value.substr(pos + 1),
+                                                        result.second);
+        });
+
+        CPPUNIT_ASSERT_EQUAL(delimited, restored.toDelimited(toDelimited));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[0].first, restored[0].first, 1e-15);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[0].second, restored[0].second, 1e-15);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[1].first, restored[1].first, 1e-15);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[1].second, restored[1].second, 1e-15);
+    }
 }
 
 void CBasicStatisticsTest::testMinMax() {

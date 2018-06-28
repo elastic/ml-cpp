@@ -78,7 +78,6 @@ void CCalendarComponentAdaptiveBucketing::swap(CCalendarComponentAdaptiveBucketi
 bool CCalendarComponentAdaptiveBucketing::initialize(std::size_t n) {
     double a{0.0};
     double b{static_cast<double>(m_Feature.window())};
-
     if (this->CAdaptiveBucketing::initialize(a, b, n)) {
         m_Values.clear();
         m_Values.resize(this->size());
@@ -161,6 +160,7 @@ void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::T
     mem->setName("CCalendarComponentAdaptiveBucketing");
     core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
     core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
+    core::CMemoryDebug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
     core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
 }
 
