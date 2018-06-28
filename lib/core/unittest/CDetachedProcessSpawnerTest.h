@@ -8,17 +8,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CDetachedProcessSpawnerTest : public CppUnit::TestFixture {
+public:
+    void testSpawn();
+    void testKill();
+    void testPermitted();
+    void testNonExistent();
 
-class CDetachedProcessSpawnerTest : public CppUnit::TestFixture
-{
-    public:
-        void testSpawn(void);
-        void testKill(void);
-        void testPermitted(void);
-        void testNonExistent(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDetachedProcessSpawnerTest_h
-

@@ -8,19 +8,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBucketQueueTest : public CppUnit::TestFixture
-{
-    public:
-        void testConstructorFillsQueue(void);
-        void testPushGivenEarlierTime(void);
-        void testGetGivenFullQueueWithNoPop(void);
-        void testGetGivenFullQueueAfterPop(void);
-        void testClear(void);
-        void testIterators(void);
-        void testReverseIterators(void);
-        void testBucketQueueUMap(void);
+class CBucketQueueTest : public CppUnit::TestFixture {
+public:
+    void testConstructorFillsQueue();
+    void testPushGivenEarlierTime();
+    void testGetGivenFullQueueWithNoPop();
+    void testGetGivenFullQueueAfterPop();
+    void testClear();
+    void testIterators();
+    void testReverseIterators();
+    void testBucketQueueUMap();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CBucketQueueTest_h

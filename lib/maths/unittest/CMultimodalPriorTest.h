@@ -9,24 +9,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultimodalPriorTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testSingleMode(void);
-        void testMultipleModes(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodConfidenceInterval(void);
-        void testSampleMarginalLikelihood(void);
-        void testCdf(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testSeasonalVarianceScale(void);
-        void testLargeValues(void);
-        void testPersist(void);
+class CMultimodalPriorTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testSingleMode();
+    void testMultipleModes();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMode();
+    void testMarginalLikelihoodConfidenceInterval();
+    void testSampleMarginalLikelihood();
+    void testCdf();
+    void testProbabilityOfLessLikelySamples();
+    void testSeasonalVarianceScale();
+    void testLargeValues();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMultimodalPriorTest_h

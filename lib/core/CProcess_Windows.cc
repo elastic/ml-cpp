@@ -16,9 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-namespace
-{
+namespace {
 
 // The wait hint of 10 seconds is about three times the observed time Ml
 // services generally take to shut down.  However, it is better to give too high
@@ -28,11 +26,9 @@ const DWORD STOP_WAIT_HINT_MSECS(10000);
 
 //! This needs to be called quickly after startup, because it will only work
 //! while the parent process is still running.
-DWORD findParentProcessId(void)
-{
+DWORD findParentProcessId() {
     HANDLE snapshotHandle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
-    if (snapshotHandle == INVALID_HANDLE_VALUE)
-    {
+    if (snapshotHandle == INVALID_HANDLE_VALUE) {
         // Log at the point of retrieval, as this is too early in the program
         // lifecycle
         return 0;
@@ -45,17 +41,13 @@ DWORD findParentProcessId(void)
     DWORD pid(GetCurrentProcessId());
     DWORD ppid(0);
 
-    if (Process32First(snapshotHandle, &processEntry) != FALSE)
-    {
-        do
-        {
-            if (processEntry.th32ProcessID == pid)
-            {
+    if (Process32First(snapshotHandle, &processEntry) != FALSE) {
+        do {
+            if (processEntry.th32ProcessID == pid) {
                 ppid = processEntry.th32ParentProcessID;
                 break;
             }
-        }
-        while (Process32Next(snapshotHandle, &processEntry) != FALSE);
+        } while (Process32Next(snapshotHandle, &processEntry) != FALSE);
     }
 
     CloseHandle(snapshotHandle);
@@ -65,89 +57,65 @@ DWORD findParentProcessId(void)
 
 // If this is zero it indicates that an error occurred when getting it
 const DWORD PPID(findParentProcessId());
-
 }
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
+const char* const CProcess::STARTING_MSG("Process Starting.");
+const char* const CProcess::STARTED_MSG("Process Started.");
+const char* const CProcess::STOPPING_MSG("Process Shutting Down.");
+const char* const CProcess::STOPPED_MSG("Process Exiting.");
 
-const char *CProcess::STARTING_MSG("Process Starting.");
-const char *CProcess::STARTED_MSG("Process Started.");
-const char *CProcess::STOPPING_MSG("Process Shutting Down.");
-const char *CProcess::STOPPED_MSG("Process Exiting.");
-
-
-CProcess::CProcess(void)
-    : m_IsService(false),
-      m_Initialised(false),
-      m_Running(false),
-      m_MlMainFunc(0),
-      m_ServiceHandle(0)
-{
+CProcess::CProcess()
+    : m_IsService(false), m_Initialised(false), m_Running(false),
+      m_MlMainFunc(0), m_ServiceHandle(0) {
 }
 
-CProcess &CProcess::instance(void)
-{
+CProcess& CProcess::instance() {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const
-{
+bool CProcess::isService() const {
     return m_IsService;
 }
 
-CProcess::TPid CProcess::id(void) const
-{
+CProcess::TPid CProcess::id() const {
     return GetCurrentProcessId();
 }
 
-CProcess::TPid CProcess::parentId(void) const
-{
-    if (PPID == 0)
-    {
-        LOG_ERROR("Failed to find parent process ID");
+CProcess::TPid CProcess::parentId() const {
+    if (PPID == 0) {
+        LOG_ERROR(<< "Failed to find parent process ID");
     }
     return PPID;
 }
 
-bool CProcess::startDispatcher(TMlMainFunc mlMain,
-                               int argc,
-                               char *argv[])
-{
-    if (mlMain == 0)
-    {
-        LOG_ABORT("NULL mlMain() function passed");
+bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
+    if (mlMain == 0) {
+        LOG_ABORT(<< "NULL mlMain() function passed");
     }
 
-    if (argc <= 0)
-    {
+    if (argc <= 0) {
         // Arguments are invalid, but at this point it's debatable whether
         // logging will work if we're running as a service, as ServiceMain()
         // hasn't yet run.
-        LOG_ERROR("Windows service dispatcher received argc " << argc);
+        LOG_ERROR(<< "Windows service dispatcher received argc " << argc);
         return false;
     }
 
     m_MlMainFunc = mlMain;
     m_Args.reserve(argc);
-    for (int count = 0; count < argc; ++count)
-    {
+    for (int count = 0; count < argc; ++count) {
         m_Args.push_back(argv[count]);
     }
 
-    SERVICE_TABLE_ENTRY serviceTable[] = {
-        { argv[0], &CProcess::serviceMain },
-        { 0, 0 }
-    };
+    SERVICE_TABLE_ENTRY serviceTable[] = {{argv[0], &CProcess::serviceMain}, {0, 0}};
 
     // Start on the assumption we ARE running as a Windows service
     m_IsService = true;
-    if (StartServiceCtrlDispatcher(serviceTable) != FALSE)
-    {
+    if (StartServiceCtrlDispatcher(serviceTable) != FALSE) {
         // We're running as a Windows service, so Windows will
         // call serviceMain.  The service dispatcher won't return
         // until Windows wants the process to exit.
@@ -155,13 +123,11 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain,
     }
 
     DWORD errCode(GetLastError());
-    if (errCode != ERROR_FAILED_SERVICE_CONTROLLER_CONNECT)
-    {
+    if (errCode != ERROR_FAILED_SERVICE_CONTROLLER_CONNECT) {
         // We're supposed to be running as a service, but something's gone
         // wrong.  At this point it's debatable whether logging will work, as
         // ServiceMain() hasn't yet run.
-        LOG_ERROR("Windows service dispatcher failed " <<
-                  CWindowsError(errCode));
+        LOG_ERROR(<< "Windows service dispatcher failed " << CWindowsError(errCode));
         return false;
     }
 
@@ -174,28 +140,23 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain,
     // Only log process status messages if the logger has been reconfigured to
     // log somewhere more sensible that STDERR.  (This prevents us spoiling the
     // output from --version and --help.)
-    if (CLogger::instance().hasBeenReconfigured())
-    {
-        LOG_INFO(STOPPED_MSG);
+    if (CLogger::instance().hasBeenReconfigured()) {
+        LOG_INFO(<< STOPPED_MSG);
     }
 
     return success;
 }
 
-bool CProcess::isInitialised(void) const
-{
+bool CProcess::isInitialised() const {
     return m_Initialised;
 }
 
-void CProcess::initialisationComplete(const TShutdownFunc &shutdownFunc)
-{
+void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
-    if (!m_Initialised)
-    {
-        if (CLogger::instance().hasBeenReconfigured())
-        {
-            LOG_INFO(STARTED_MSG);
+    if (!m_Initialised) {
+        if (CLogger::instance().hasBeenReconfigured()) {
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -207,15 +168,12 @@ void CProcess::initialisationComplete(const TShutdownFunc &shutdownFunc)
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-void CProcess::initialisationComplete(void)
-{
+void CProcess::initialisationComplete() {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
-    if (!m_Initialised)
-    {
-        if (CLogger::instance().hasBeenReconfigured())
-        {
-            LOG_INFO(STARTED_MSG);
+    if (!m_Initialised) {
+        if (CLogger::instance().hasBeenReconfigured()) {
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -229,49 +187,39 @@ void CProcess::initialisationComplete(void)
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-bool CProcess::isRunning(void) const
-{
+bool CProcess::isRunning() const {
     return m_Running;
 }
 
-void WINAPI CProcess::serviceMain(DWORD argc, char *argv[])
-{
+void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
     // This is a static method, so get the singleton instance
-    CProcess &process = CProcess::instance();
+    CProcess& process = CProcess::instance();
 
     // Since we're an "own process" service the name is not required
-    process.m_ServiceHandle = RegisterServiceCtrlHandler("",
-                                                         &serviceCtrlHandler);
-    if (process.m_ServiceHandle == 0)
-    {
+    process.m_ServiceHandle = RegisterServiceCtrlHandler("", &serviceCtrlHandler);
+    if (process.m_ServiceHandle == 0) {
         return;
     }
 
-    if (process.m_MlMainFunc != 0)
-    {
-        typedef boost::scoped_array<char *> TScopedCharPArray;
+    if (process.m_MlMainFunc != 0) {
+        using TScopedCharPArray = boost::scoped_array<char*>;
 
         // Merge the arguments from the service itself with the arguments
         // passed to the original main() call
         int mergedArgC(static_cast<int>(process.m_Args.size()));
-        if (argv != 0 && argc > 1)
-        {
+        if (argv != 0 && argc > 1) {
             mergedArgC += static_cast<int>(argc - 1);
         }
 
         size_t index(0);
-        TScopedCharPArray mergedArgV(new char *[mergedArgC]);
+        TScopedCharPArray mergedArgV(new char*[mergedArgC]);
         for (TStrVecCItr iter = process.m_Args.begin();
-             iter != process.m_Args.end();
-             ++iter)
-        {
-            mergedArgV[index++] = const_cast<char *>(iter->c_str());
+             iter != process.m_Args.end(); ++iter) {
+            mergedArgV[index++] = const_cast<char*>(iter->c_str());
         }
 
-        if (argv != 0 && argc > 1)
-        {
-            for (size_t arg = 1; arg < argc; ++arg)
-            {
+        if (argv != 0 && argc > 1) {
+            for (size_t arg = 1; arg < argc; ++arg) {
                 mergedArgV[index++] = argv[arg];
             }
         }
@@ -282,9 +230,8 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[])
         // Only log process status messages if the logger has been reconfigured
         // to log somewhere more sensible that STDERR.  (This prevents us
         // spoiling the output from --version and --help.)
-        if (CLogger::instance().hasBeenReconfigured())
-        {
-            LOG_INFO(STOPPED_MSG);
+        if (CLogger::instance().hasBeenReconfigured()) {
+            LOG_INFO(<< STOPPED_MSG);
         }
 
         // Update the service status to say we've stopped
@@ -293,7 +240,8 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[])
 
         serviceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
         serviceStatus.dwControlsAccepted = 0;
-        serviceStatus.dwWin32ExitCode = (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
+        serviceStatus.dwWin32ExitCode =
+            (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
         serviceStatus.dwServiceSpecificExitCode = static_cast<DWORD>(ret);
         serviceStatus.dwCheckPoint = 0;
         serviceStatus.dwWaitHint = 0;
@@ -302,14 +250,12 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[])
     }
 }
 
-void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType)
-{
+void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
     // This is a static method, so get the singleton instance
-    CProcess &process = CProcess::instance();
+    CProcess& process = CProcess::instance();
 
     // If we're not running as a service, do nothing
-    if (process.m_ServiceHandle == 0)
-    {
+    if (process.m_ServiceHandle == 0) {
         return;
     }
 
@@ -323,67 +269,53 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType)
     // documentation, we don't accept stop until we've finished initialising, as
     // apparently doing this can cause a crash.
     serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_SHUTDOWN;
-    if (process.isInitialised())
-    {
+    if (process.isInitialised()) {
         serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_STOP;
     }
     serviceStatus.dwWin32ExitCode = NO_ERROR;
     serviceStatus.dwServiceSpecificExitCode = 0;
     serviceStatus.dwCheckPoint = 0;
 
-    switch (ctrlType)
-    {
-        case SERVICE_CONTROL_INTERROGATE:
-        {
-            serviceStatus.dwWaitHint = 0;
-            if (process.isRunning())
-            {
-                if (process.isInitialised())
-                {
-                    serviceStatus.dwCurrentState = SERVICE_RUNNING;
-                }
-                else
-                {
-                    serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-                }
+    switch (ctrlType) {
+    case SERVICE_CONTROL_INTERROGATE: {
+        serviceStatus.dwWaitHint = 0;
+        if (process.isRunning()) {
+            if (process.isInitialised()) {
+                serviceStatus.dwCurrentState = SERVICE_RUNNING;
+            } else {
+                serviceStatus.dwCurrentState = SERVICE_START_PENDING;
             }
-            else
-            {
-                serviceStatus.dwCurrentState = SERVICE_STOPPED;
-            }
-            SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
-            break;
+        } else {
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
         }
-        case SERVICE_CONTROL_SHUTDOWN:
-        case SERVICE_CONTROL_STOP:
-        {
-            serviceStatus.dwWaitHint = STOP_WAIT_HINT_MSECS;
-            serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-            SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
-            if (process.shutdown() == false)
-            {
-                // This won't stop the process gracefully, and will trigger an
-                // error message from Windows, but that's probably better than
-                // having a rogue process hanging around after it's been told to
-                // stop
-                ::exit(EXIT_SUCCESS);
-            }
-            break;
+        SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
+        break;
+    }
+    case SERVICE_CONTROL_SHUTDOWN:
+    case SERVICE_CONTROL_STOP: {
+        serviceStatus.dwWaitHint = STOP_WAIT_HINT_MSECS;
+        serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
+        if (process.shutdown() == false) {
+            // This won't stop the process gracefully, and will trigger an
+            // error message from Windows, but that's probably better than
+            // having a rogue process hanging around after it's been told to
+            // stop
+            ::exit(EXIT_SUCCESS);
         }
+        break;
+    }
     }
 }
 
-bool CProcess::shutdown(void)
-{
-    if (CLogger::instance().hasBeenReconfigured())
-    {
-        LOG_INFO(STOPPING_MSG);
+bool CProcess::shutdown() {
+    if (CLogger::instance().hasBeenReconfigured()) {
+        LOG_INFO(<< STOPPING_MSG);
     }
 
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
-    if (!m_ShutdownFunc)
-    {
+    if (!m_ShutdownFunc) {
         return false;
     }
 
@@ -391,8 +323,5 @@ bool CProcess::shutdown(void)
 
     return true;
 }
-
-
 }
 }
-

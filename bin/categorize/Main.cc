@@ -17,8 +17,8 @@
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
-#include <core/CoreTypes.h>
 #include <core/CProcessPriority.h>
+#include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
 
@@ -38,162 +38,130 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
+#include <seccomp/CSystemCallFilter.h>
+
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
 
-
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     // Read command line options
-    std::string       limitConfigFile;
-    std::string       jobId;
-    std::string       logProperties;
-    std::string       logPipe;
-    char              delimiter('\t');
-    bool              lengthEncodedInput(false);
+    std::string limitConfigFile;
+    std::string jobId;
+    std::string logProperties;
+    std::string logPipe;
+    char delimiter('\t');
+    bool lengthEncodedInput(false);
     ml::core_t::TTime persistInterval(-1);
-    std::string       inputFileName;
-    bool              isInputFileNamedPipe(false);
-    std::string       outputFileName;
-    bool              isOutputFileNamedPipe(false);
-    std::string       restoreFileName;
-    bool              isRestoreFileNamedPipe(false);
-    std::string       persistFileName;
-    bool              isPersistFileNamedPipe(false);
-    std::string       categorizationFieldName;
-    if (ml::categorize::CCmdLineParser::parse(argc,
-                                              argv,
-                                              limitConfigFile,
-                                              jobId,
-                                              logProperties,
-                                              logPipe,
-                                              delimiter,
-                                              lengthEncodedInput,
-                                              persistInterval,
-                                              inputFileName,
-                                              isInputFileNamedPipe,
-                                              outputFileName,
-                                              isOutputFileNamedPipe,
-                                              restoreFileName,
-                                              isRestoreFileNamedPipe,
-                                              persistFileName,
-                                              isPersistFileNamedPipe,
-                                              categorizationFieldName) == false)
-    {
+    std::string inputFileName;
+    bool isInputFileNamedPipe(false);
+    std::string outputFileName;
+    bool isOutputFileNamedPipe(false);
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe(false);
+    std::string persistFileName;
+    bool isPersistFileNamedPipe(false);
+    std::string categorizationFieldName;
+    if (ml::categorize::CCmdLineParser::parse(
+            argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
+            lengthEncodedInput, persistInterval, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, categorizationFieldName) == false) {
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe,
-                              restoreFileName,
-                              isRestoreFileNamedPipe,
-                              persistFileName,
-                              isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
+                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+                              persistFileName, isPersistFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
-        LOG_FATAL("Could not reconfigure logging");
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
-        LOG_FATAL("Failed to initialise IO");
+    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+
+    if (ioMgr.initIo() == false) {
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
-    if (jobId.empty())
-    {
-        LOG_FATAL("No job ID specified");
+    if (jobId.empty()) {
+        LOG_FATAL(<< "No job ID specified");
         return EXIT_FAILURE;
     }
 
     ml::model::CLimits limits;
-    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false)
-    {
-        LOG_FATAL("Ml limit config file '" << limitConfigFile <<
-                  "' could not be loaded");
+    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
+        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (categorizationFieldName.empty())
-    {
-        LOG_FATAL("No categorization field name specified");
+    if (categorizationFieldName.empty()) {
+        LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
     ml::api::CFieldConfig fieldConfig(categorizationFieldName);
 
-    typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
-    TScopedDataSearcherP restoreSearcher;
-    if (ioMgr.restoreStream() != 0)
-    {
-        // Check whether state is restored from a file, if so we assume that this is a debugging case
-        // and therefore does not originate from X-Pack.
-        if (!isRestoreFileNamedPipe)
-        {
-            // apply a filter to overcome differences in the way persistence vs. restore works
-            auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
-            strm->push(ml::api::CStateRestoreStreamFilter());
-            strm->push(*ioMgr.restoreStream());
-            restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
+        if (ioMgr.restoreStream()) {
+            // Check whether state is restored from a file, if so we assume that this is a debugging case
+            // and therefore does not originate from X-Pack.
+            if (!isRestoreFileNamedPipe) {
+                // apply a filter to overcome differences in the way persistence vs. restore works
+                auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+                strm->push(ml::api::CStateRestoreStreamFilter());
+                strm->push(*ioMgr.restoreStream());
+                return std::make_unique<ml::api::CSingleStreamSearcher>(strm);
+            }
+            return std::make_unique<ml::api::CSingleStreamSearcher>(ioMgr.restoreStream());
         }
-        else
-        {
-            restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
+        return nullptr;
+    }()};
+
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    const TDataAdderUPtr persister{[&ioMgr]() -> TDataAdderUPtr {
+        if (ioMgr.persistStream()) {
+            return std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
         }
-    }
+        return nullptr;
+    }()};
 
-    typedef boost::scoped_ptr<ml::core::CDataAdder> TScopedDataAdderP;
-    TScopedDataAdderP persister;
-    if (ioMgr.persistStream() != 0)
-    {
-        persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
+    if (persistInterval >= 0 && persister == nullptr) {
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                     "unless a place to persist to has been specified using the 'persist' argument");
+        return EXIT_FAILURE;
     }
-
-    typedef boost::scoped_ptr<ml::api::CBackgroundPersister> TScopedBackgroundPersisterP;
-    TScopedBackgroundPersisterP periodicPersister;
-    if (persistInterval >= 0)
-    {
-        if (persister == 0)
-        {
-            LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                      "unless a place to persist to has been specified using the 'persist' argument");
-            return EXIT_FAILURE;
+    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
+    const TBackgroundPersisterUPtr periodicPersister{[persistInterval, &persister]() -> TBackgroundPersisterUPtr {
+        if (persistInterval >= 0) {
+            return std::make_unique<ml::api::CBackgroundPersister>(persistInterval, *persister);
         }
+        return nullptr;
+    }()};
 
-        periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval,
-                                                                  *persister));
-    }
-
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
-    TScopedInputParserP inputParser;
-    if (lengthEncodedInput)
-    {
-        inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
-                                                       delimiter));
-    }
+    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+    const TInputParserUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> TInputParserUPtr {
+        if (lengthEncodedInput) {
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        }
+        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
+    }()};
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
@@ -205,25 +173,17 @@ int main(int argc, char **argv)
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId,
-                                   fieldConfig,
-                                   limits,
-                                   nullOutput,
-                                   outputWriter,
-                                   periodicPersister.get());
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput,
+                                   outputWriter, periodicPersister.get());
 
-    if (periodicPersister != nullptr)
-    {
-        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(&ml::api::CFieldDataTyper::periodicPersistState,
-                                                                         &typer,
-                                                                         _1));
+    if (periodicPersister != nullptr) {
+        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
+            &ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(),
-                                   persister.get(),
-                                   *inputParser,
-                                   typer);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
+                                   *inputParser, typer);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer
@@ -232,16 +192,15 @@ int main(int argc, char **argv)
     // writer as it was constructed last.
     outputWriter.finalise();
 
-    if (!ioLoopSucceeded)
-    {
-        LOG_FATAL("Ml categorization job failed");
+    if (!ioLoopSucceeded) {
+        LOG_FATAL(<< "Ml categorization job failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("Ml categorization job exiting");
+    LOG_DEBUG(<< "Ml categorization job exiting");
 
     return EXIT_SUCCESS;
 }

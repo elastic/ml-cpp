@@ -11,12 +11,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Get the name/location of the current program.
@@ -32,21 +28,17 @@ namespace core
 //! For the name, just the program name is returned, with no path
 //! or extension.
 //!
-class CORE_EXPORT CProgName : private CNonInstantiatable
-{
-    public:
-        //! Get the name of the current program.  On error, an empty string is
-        //! returned.
-        static std::string progName(void);
+class CORE_EXPORT CProgName : private CNonInstantiatable {
+public:
+    //! Get the name of the current program.  On error, an empty string is
+    //! returned.
+    static std::string progName();
 
-        //! Get the directory where the current program's executable image is
-        //! located.  On error, an empty string is returned.
-        static std::string progDir(void);
+    //! Get the directory where the current program's executable image is
+    //! located.  On error, an empty string is returned.
+    static std::string progDir();
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CProgName_h
-

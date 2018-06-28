@@ -12,25 +12,22 @@
 
 #include <string>
 
+CppUnit::Test* CBuildInfoTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBuildInfoTest");
 
-CppUnit::Test *CBuildInfoTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBuildInfoTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CBuildInfoTest>(
-                                   "CBuildInfoTest::testFullInfo",
-                                   &CBuildInfoTest::testFullInfo) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBuildInfoTest>(
+        "CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
 
     return suiteOfTests;
 }
 
-void CBuildInfoTest::testFullInfo(void)
-{
+void CBuildInfoTest::testFullInfo(void) {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
-    LOG_DEBUG(fullInfo);
+    LOG_DEBUG(<< fullInfo);
 
-    std::string currentYear(ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
-    LOG_DEBUG("Current year is " << currentYear);
+    std::string currentYear(
+        ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
+    LOG_DEBUG(<< "Current year is " << currentYear);
 
     CPPUNIT_ASSERT(fullInfo.find("ml_test") != std::string::npos);
     CPPUNIT_ASSERT(fullInfo.find("Version") != std::string::npos);
@@ -39,4 +36,3 @@ void CBuildInfoTest::testFullInfo(void)
     CPPUNIT_ASSERT(fullInfo.find("Elasticsearch BV") != std::string::npos);
     CPPUNIT_ASSERT(fullInfo.find(currentYear) != std::string::npos);
 }
-

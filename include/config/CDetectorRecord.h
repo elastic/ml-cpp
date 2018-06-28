@@ -20,10 +20,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CDetectorSpecification;
 
 //! \brief Holds the field values needed to update a detector.
@@ -32,80 +30,79 @@ class CDetectorSpecification;
 //! The state from a record need to update a detector's penalty functions.
 //! This is its time and its field values corresponding to the argument
 //! and partitioning field(s) used by the detector.
-class CONFIG_EXPORT CDetectorRecord
-{
-    public:
-        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-        typedef boost::array<const std::string*, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
+class CONFIG_EXPORT CDetectorRecord {
+public:
+    using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+    using TStrCPtrAry = boost::array<const std::string*, constants::NUMBER_FIELD_INDICES>;
+    using TStrStrUMap = boost::unordered_map<std::string, std::string>;
 
-    public:
-        CDetectorRecord(core_t::TTime time,
-                        config_t::EFunctionCategory function,
-                        const TStrCPtrAry &fieldNames,
-                        const TStrCPtrAry &fieldValues,
-                        const TSizeAry &hashedFieldValues);
+public:
+    CDetectorRecord(core_t::TTime time,
+                    config_t::EFunctionCategory function,
+                    const TStrCPtrAry& fieldNames,
+                    const TStrCPtrAry& fieldValues,
+                    const TSizeAry& hashedFieldValues);
 
-        //! Get the record time.
-        core_t::TTime time(void) const;
+    //! Get the record time.
+    core_t::TTime time() const;
 
-        //! Get the function of the record detector.
-        config_t::EFunctionCategory function(void) const;
+    //! Get the function of the record detector.
+    config_t::EFunctionCategory function() const;
 
-        //! Get the name of the argument field.
-        const std::string *argumentFieldName(void) const;
+    //! Get the name of the argument field.
+    const std::string* argumentFieldName() const;
 
-        //! Get the name of the by field.
-        const std::string *byFieldName(void) const;
+    //! Get the name of the by field.
+    const std::string* byFieldName() const;
 
-        //! Get the name of the over field.
-        const std::string *overFieldName(void) const;
+    //! Get the name of the over field.
+    const std::string* overFieldName() const;
 
-        //! Get the name of the partition field.
-        const std::string *partitionFieldName(void) const;
+    //! Get the name of the partition field.
+    const std::string* partitionFieldName() const;
 
-        //! Get the argument field value if there is one or null.
-        const std::string *argumentFieldValue(void) const;
+    //! Get the argument field value if there is one or null.
+    const std::string* argumentFieldValue() const;
 
-        //! Get the by field value if there is one or null.
-        const std::string *byFieldValue(void) const;
+    //! Get the by field value if there is one or null.
+    const std::string* byFieldValue() const;
 
-        //! Get the over field value if there is one or null.
-        const std::string *overFieldValue(void) const;
+    //! Get the over field value if there is one or null.
+    const std::string* overFieldValue() const;
 
-        //! Get the partition field value if there is one or null.
-        const std::string *partitionFieldValue(void) const;
+    //! Get the partition field value if there is one or null.
+    const std::string* partitionFieldValue() const;
 
-        //! Get the argument field value hash.
-        std::size_t argumentFieldValueHash(void) const;
+    //! Get the argument field value hash.
+    std::size_t argumentFieldValueHash() const;
 
-        //! Get the by field value hash.
-        std::size_t byFieldValueHash(void) const;
+    //! Get the by field value hash.
+    std::size_t byFieldValueHash() const;
 
-        //! Get the over field value hash.
-        std::size_t overFieldValueHash(void) const;
+    //! Get the over field value hash.
+    std::size_t overFieldValueHash() const;
 
-        //! Get the partition field value hash.
-        std::size_t partitionFieldValueHash(void) const;
+    //! Get the partition field value hash.
+    std::size_t partitionFieldValueHash() const;
 
-        //! Print a description of this record for debug.
-        std::string print(void) const;
+    //! Print a description of this record for debug.
+    std::string print() const;
 
-    private:
-        //! The record time.
-        core_t::TTime m_Time;
+private:
+    //! The record time.
+    core_t::TTime m_Time;
 
-        //! The function of the record's detector.
-        config_t::EFunctionCategory m_Function;
+    //! The function of the record's detector.
+    config_t::EFunctionCategory m_Function;
 
-        //! The relevant field names.
-        TStrCPtrAry m_FieldNames;
+    //! The relevant field names.
+    TStrCPtrAry m_FieldNames;
 
-        //! The relevant field values.
-        TStrCPtrAry m_FieldValues;
+    //! The relevant field values.
+    TStrCPtrAry m_FieldValues;
 
-        //! Hashes of the field values.
-        TSizeAry m_HashedFieldValues;
+    //! Hashes of the field values.
+    TSizeAry m_HashedFieldValues;
 };
 
 //! \brief Defines a fast scheme, which minimizes lookups in the field values
@@ -117,50 +114,48 @@ class CONFIG_EXPORT CDetectorRecord
 //! address table from every detector, built once up front on the set of initial
 //! candidate detectors, to a corresponding collection of entries in a field
 //! value vector which we populate once per record.
-class CONFIG_EXPORT CDetectorRecordDirectAddressTable
-{
-    public:
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
+class CONFIG_EXPORT CDetectorRecordDirectAddressTable {
+public:
+    using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+    using TDetectorSpecificationVec = std::vector<CDetectorSpecification>;
+    using TDetectorRecordVec = std::vector<CDetectorRecord>;
 
-    public:
-        //! Build the table from \p specs.
-        void build(const TDetectorSpecificationVec &specs);
+public:
+    //! Build the table from \p specs.
+    void build(const TDetectorSpecificationVec& specs);
 
-        //! Get the unique records from \p time and \p fieldValues for \p specs.
-        void detectorRecords(core_t::TTime time,
-                             const TStrStrUMap &fieldValues,
-                             const TDetectorSpecificationVec &specs,
-                             TDetectorRecordVec &result);
+    //! Get the unique records from \p time and \p fieldValues for \p specs.
+    void detectorRecords(core_t::TTime time,
+                         const TStrStrUMap& fieldValues,
+                         const TDetectorSpecificationVec& specs,
+                         TDetectorRecordVec& result);
 
-    private:
-        //! Clear the state (as a precursor to build).
-        void clear(void);
+private:
+    //! Clear the state (as a precursor to build).
+    void clear();
 
-    private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::string, std::size_t> TStrSizePr;
-        typedef std::vector<TStrSizePr> TStrSizePrVec;
-        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-        typedef std::vector<TSizeAry> TSizeAryVec;
-        typedef std::vector<const std::string*> TStrCPtrVec;
+private:
+    using TSizeVec = std::vector<std::size_t>;
+    using TStrSizePr = std::pair<std::string, std::size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
+    using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+    using TSizeAryVec = std::vector<TSizeAry>;
+    using TStrCPtrVec = std::vector<const std::string*>;
 
-    private:
-        //! A map from field to its value entry in the field value table.
-        TStrSizePrVec m_FieldSchema;
+private:
+    //! A map from field to its value entry in the field value table.
+    TStrSizePrVec m_FieldSchema;
 
-        //! A map from detectors to their field value entries in the field
-        //! value table.
-        TSizeAryVec m_DetectorFieldSchema;
+    //! A map from detectors to their field value entries in the field
+    //! value table.
+    TSizeAryVec m_DetectorFieldSchema;
 
-        //! The table of field values populated once per record.
-        TStrCPtrVec m_FieldValueTable;
+    //! The table of field values populated once per record.
+    TStrCPtrVec m_FieldValueTable;
 
-        //! The table of field value hashes populated once per record.
-        TSizeVec m_HashedFieldValueTable;
+    //! The table of field value hashes populated once per record.
+    TSizeVec m_HashedFieldValueTable;
 };
-
 }
 }
 

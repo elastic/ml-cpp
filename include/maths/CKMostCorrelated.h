@@ -9,8 +9,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CPackedBitVector.h>
 #include <maths/CPRNG.h>
+#include <maths/CPackedBitVector.h>
 #include <maths/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -20,11 +20,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Randomized linear complexity search for the most correlated
 //! pairs of variables.
@@ -52,210 +49,205 @@ namespace maths
 //! components are the projected normalised residuals, finding the
 //! most correlated variables amounts to a collection neighbourhood
 //! searches around each point.
-class MATHS_EXPORT CKMostCorrelated
-{
-    public:
-        //! The number of projections of the data to maintain
-        //! simultaneously.
-        static const std::size_t NUMBER_PROJECTIONS = 10u;
+class MATHS_EXPORT CKMostCorrelated {
+public:
+    //! The number of projections of the data to maintain
+    //! simultaneously.
+    static const std::size_t NUMBER_PROJECTIONS = 10u;
 
-    public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS> TVector;
-        typedef std::vector<TVector> TVectorVec;
-        typedef boost::unordered_map<std::size_t, TVector> TSizeVectorUMap;
-        typedef std::pair<TVector, CPackedBitVector> TVectorPackedBitVectorPr;
-        typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr> TSizeVectorPackedBitVectorPrUMap;
+public:
+    using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TSizeSizePrVec = std::vector<TSizeSizePr>;
+    using TVector = CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS>;
+    using TVectorVec = std::vector<TVector>;
+    using TSizeVectorUMap = boost::unordered_map<std::size_t, TVector>;
+    using TVectorPackedBitVectorPr = std::pair<TVector, CPackedBitVector>;
+    using TSizeVectorPackedBitVectorPrUMap =
+        boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>;
 
-    public:
-        CKMostCorrelated(std::size_t k, double decayRate, bool initialize = true);
+public:
+    CKMostCorrelated(std::size_t k, double decayRate, bool initialize = true);
+
+    //! Create from part of a state document.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Persist state by passing to the supplied inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Get the most correlated variables.
+    void mostCorrelated(TSizeSizePrVec& result) const;
+
+    //! Get the \p n most correlated variables.
+    void mostCorrelated(std::size_t n, TSizeSizePrVec& correlates, TDoubleVec* pearson = nullptr) const;
+
+    //! Get the most correlated variables correlations.
+    void correlations(TDoubleVec& result) const;
+
+    //! Get the \p n most correlated variables correlations.
+    void correlations(std::size_t n, TDoubleVec& result) const;
+
+    //! Resize the relevant statistics to accommodate up to \p n variables.
+    void addVariables(std::size_t n);
+
+    //! Remove the variables \p remove.
+    void removeVariables(const TSizeVec& remove);
+
+    //! Check if the correlations may have just changed.
+    bool changed() const;
+
+    //! Add the value \p x for the variable \p X.
+    void add(std::size_t X, double x);
+
+    //! Capture the projections of all variables added.
+    void capture();
+
+    //! Get the checksum of this object.
+    uint64_t checksum(uint64_t seed = 0) const;
+
+    //! Debug the memory used by this object.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+protected:
+    //! The length of the projected sequence to capture.
+    static const std::size_t PROJECTION_DIMENSION;
+    //! The minimum sparseness, in terms of proportion of missing values,
+    //! for a variable we'll consider trying to correlate.
+    static const double MINIMUM_SPARSENESS;
+    //! The proportion of values to replace for each projection.
+    static const double REPLACE_FRACTION;
+
+protected:
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
+    using TSizeVectorUMapCItr = TSizeVectorUMap::const_iterator;
+    using TSizeVectorPackedBitVectorPrUMapItr = TSizeVectorPackedBitVectorPrUMap::iterator;
+    using TSizeVectorPackedBitVectorPrUMapCItr = TSizeVectorPackedBitVectorPrUMap::const_iterator;
+
+    //! \brief A pair of variables and their correlation.
+    //!
+    //! DESCRIPTION:\n
+    //! This manages the estimation of the sample correlation,
+    //! i.e. \f$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}\f$,
+    //! from the projected data.
+    struct MATHS_EXPORT SCorrelation {
+        //! See core::CMemory.
+        static bool dynamicSizeAlwaysZero() { return true; }
+
+        SCorrelation();
+        SCorrelation(std::size_t X,
+                     const TVector& px,
+                     const CPackedBitVector& ix,
+                     std::size_t Y,
+                     const TVector& py,
+                     const CPackedBitVector& iy);
 
         //! Create from part of a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing to the supplied inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Get the most correlated variables.
-        void mostCorrelated(TSizeSizePrVec &result) const;
+        //! Complete ordering of correlations by _increasing_
+        //! absolute correlation.
+        bool operator<(const SCorrelation& rhs) const;
 
-        //! Get the \p n most correlated variables.
-        void mostCorrelated(std::size_t n,
-                            TSizeSizePrVec &correlates,
-                            TDoubleVec *pearson = 0) const;
+        //! Update the correlation with a new projection.
+        void update(const TSizeVectorPackedBitVectorPrUMap& projected);
 
-        //! Get the most correlated variables correlations.
-        void correlations(TDoubleVec &result) const;
+        //! Get the Euclidean distance between points corresponding
+        //! to this correlation.
+        double distance(double amax) const;
 
-        //! Get the \p n most correlated variables correlations.
-        void correlations(std::size_t n, TDoubleVec &result) const;
+        //! Get (a lower bound) on the estimated absolute correlation.
+        double absCorrelation() const;
 
-        //! Resize the relevant statistics to accommodate up to \p n variables.
-        void addVariables(std::size_t n);
-
-        //! Remove the variables \p remove.
-        void removeVariables(const TSizeVec &remove);
-
-        //! Check if the correlations may have just changed.
-        bool changed(void) const;
-
-        //! Add the value \p x for the variable \p X.
-        void add(std::size_t X, double x);
-
-        //! Capture the projections of all variables added.
-        void capture(void);
+        //! Estimate the correlation based on the projections
+        //! \p px and \p py.
+        static double correlation(const TVector& px,
+                                  const CPackedBitVector& ix,
+                                  const TVector& py,
+                                  const CPackedBitVector& iy);
 
         //! Get the checksum of this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        uint64_t checksum(uint64_t seed) const;
 
-        //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        //! Print for debug.
+        std::string print() const;
 
-        //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        //! The correlation.
+        TMeanVarAccumulator s_Correlation;
+        //! The first variable.
+        std::size_t s_X;
+        //! The second variable.
+        std::size_t s_Y;
+    };
 
-    protected:
-        //! The length of the projected sequence to capture.
-        static const std::size_t PROJECTION_DIMENSION;
-        //! The minimum sparseness, in terms of proportion of missing values,
-        //! for a variable we'll consider trying to correlate.
-        static const double MINIMUM_SPARSENESS;
-        //! The proportion of values to replace for each projection.
-        static const double REPLACE_FRACTION;
+    //! \brief Checks if a correlation includes a specified variable.
+    class MATHS_EXPORT CMatches {
+    public:
+        CMatches(std::size_t x);
 
-    protected:
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-        typedef TSizeVectorUMap::const_iterator TSizeVectorUMapCItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::iterator TSizeVectorPackedBitVectorPrUMapItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator TSizeVectorPackedBitVectorPrUMapCItr;
-
-        //! \brief A pair of variables and their correlation.
-        //!
-        //! DESCRIPTION:\n
-        //! This manages the estimation of the sample correlation,
-        //! i.e. \f$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}\f$,
-        //! from the projected data.
-        struct MATHS_EXPORT SCorrelation
-        {
-            //! See core::CMemory.
-            static bool dynamicSizeAlwaysZero(void) { return true; }
-
-            SCorrelation(void);
-            SCorrelation(std::size_t X,
-                         const TVector &px,
-                         const CPackedBitVector &ix,
-                         std::size_t Y,
-                         const TVector &py,
-                         const CPackedBitVector &iy);
-
-            //! Create from part of a state document.
-            bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-
-            //! Persist state by passing to the supplied inserter.
-            void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-
-            //! Complete ordering of correlations by _increasing_
-            //! absolute correlation.
-            bool operator<(const SCorrelation &rhs) const;
-
-            //! Update the correlation with a new projection.
-            void update(const TSizeVectorPackedBitVectorPrUMap &projected);
-
-            //! Get the Euclidean distance between points corresponding
-            //! to this correlation.
-            double distance(double amax) const;
-
-            //! Get (a lower bound) on the estimated absolute correlation.
-            double absCorrelation(void) const;
-
-            //! Estimate the correlation based on the projections
-            //! \p px and \p py.
-            static double correlation(const TVector &px,
-                                      const CPackedBitVector &ix,
-                                      const TVector &py,
-                                      const CPackedBitVector &iy);
-
-            //! Get the checksum of this object.
-            uint64_t checksum(uint64_t seed) const;
-
-            //! Print for debug.
-            std::string print(void) const;
-
-            //! The correlation.
-            TMeanVarAccumulator s_Correlation;
-            //! The first variable.
-            std::size_t s_X;
-            //! The second variable.
-            std::size_t s_Y;
-        };
-
-        //! \brief Checks if a correlation includes a specified variable.
-        class MATHS_EXPORT CMatches
-        {
-            public:
-                CMatches(std::size_t x);
-
-                bool operator()(const SCorrelation &correlation) const;
-
-            private:
-                std::size_t m_X;
-        };
-
-        typedef std::vector<SCorrelation> TCorrelationVec;
-
-    protected:
-        //! Get the most correlated variables based on the current
-        //! projections.
-        void mostCorrelated(TCorrelationVec &result) const;
-
-        //! Generate the next projection and reinitialize related state.
-        void nextProjection(void);
-
-        //! Get the projections.
-        const TVectorVec &projections(void) const;
-
-        //! Get the projected residuals.
-        const TSizeVectorPackedBitVectorPrUMap &projected(void) const;
-
-        //! Get the current correlation collection.
-        const TCorrelationVec &correlations(void) const;
-
-        //! Get the variable moments.
-        const TMeanVarAccumulatorVec &moments(void) const;
+        bool operator()(const SCorrelation& correlation) const;
 
     private:
-        //! The number of correlations to find.
-        std::size_t m_K;
+        std::size_t m_X;
+    };
 
-        //! The rate at which to forget about historical correlations.
-        double m_DecayRate;
+    using TCorrelationVec = std::vector<SCorrelation>;
 
-        //! The random number generator.
-        mutable CPRNG::CXorShift1024Mult m_Rng;
+protected:
+    //! Get the most correlated variables based on the current
+    //! projections.
+    void mostCorrelated(TCorrelationVec& result) const;
 
-        //! The random projections.
-        TVectorVec m_Projections;
+    //! Generate the next projection and reinitialize related state.
+    void nextProjection();
 
-        //! The values to add in the next capture.
-        TSizeVectorUMap m_CurrentProjected;
+    //! Get the projections.
+    const TVectorVec& projections() const;
 
-        //! The projected variables' "normalised" residuals.
-        TSizeVectorPackedBitVectorPrUMap m_Projected;
+    //! Get the projected residuals.
+    const TSizeVectorPackedBitVectorPrUMap& projected() const;
 
-        //! The maximum possible metric measurement count.
-        double m_MaximumCount;
+    //! Get the current correlation collection.
+    const TCorrelationVec& correlations() const;
 
-        //! The variables' means and variances.
-        TMeanVarAccumulatorVec m_Moments;
+    //! Get the variable moments.
+    const TMeanVarAccumulatorVec& moments() const;
 
-        //! The 2 * m_Size most correlated variables.
-        TCorrelationVec m_MostCorrelated;
+private:
+    //! The number of correlations to find.
+    std::size_t m_K;
+
+    //! The rate at which to forget about historical correlations.
+    double m_DecayRate;
+
+    //! The random number generator.
+    mutable CPRNG::CXorShift1024Mult m_Rng;
+
+    //! The random projections.
+    TVectorVec m_Projections;
+
+    //! The values to add in the next capture.
+    TSizeVectorUMap m_CurrentProjected;
+
+    //! The projected variables' "normalised" residuals.
+    TSizeVectorPackedBitVectorPrUMap m_Projected;
+
+    //! The maximum possible metric measurement count.
+    double m_MaximumCount;
+
+    //! The variables' means and variances.
+    TMeanVarAccumulatorVec m_Moments;
+
+    //! The 2 * m_Size most correlated variables.
+    TCorrelationVec m_MostCorrelated;
 };
-
 }
 }
 

@@ -8,20 +8,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CFlatPrefixTreeTest : public CppUnit::TestFixture {
+public:
+    void testBuildGivenUnsortedInput();
+    void testBuildGivenSortedInputWithDuplicates();
+    void testEmptyString();
+    void testSimple();
+    void testLeafAndBranch();
+    void testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix();
+    void testMatchesFullyGivenStringThatIsSubstringOfPrefix();
+    void testRandom();
 
-class CFlatPrefixTreeTest : public CppUnit::TestFixture
-{
-    public:
-        void testBuildGivenUnsortedInput(void);
-        void testBuildGivenSortedInputWithDuplicates(void);
-        void testEmptyString(void);
-        void testSimple(void);
-        void testLeafAndBranch(void);
-        void testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix(void);
-        void testMatchesFullyGivenStringThatIsSubstringOfPrefix(void);
-        void testRandom(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CFlatPrefixTreeTest_h

@@ -8,16 +8,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegexFilterTest : public CppUnit::TestFixture
-{
-    public:
-        void testConfigure_GivenInvalidRegex(void);
-        void testApply_GivenEmptyFilter(void);
-        void testApply_GivenSingleMatchAllRegex(void);
-        void testApply_GivenSingleRegex(void);
-        void testApply_GivenMultipleRegex(void);
+class CRegexFilterTest : public CppUnit::TestFixture {
+public:
+    void testConfigure_GivenInvalidRegex();
+    void testApply_GivenEmptyFilter();
+    void testApply_GivenSingleMatchAllRegex();
+    void testApply_GivenSingleRegex();
+    void testApply_GivenMultipleRegex();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRegexFilterTest_h

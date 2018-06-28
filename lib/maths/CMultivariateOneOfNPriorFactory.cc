@@ -8,28 +8,25 @@
 
 #include <maths/CMultivariateOneOfNPrior.h>
 
-namespace ml
-{
-namespace maths
-{
+#include <boost/make_unique.hpp>
+
+namespace ml {
+namespace maths {
 
 CMultivariateOneOfNPriorFactory::TPriorPtr
 CMultivariateOneOfNPriorFactory::nonInformative(std::size_t dimension,
                                                 maths_t::EDataType dataType,
                                                 double decayRate,
-                                                const TPriorPtrVec &models)
-{
-    return TPriorPtr(new CMultivariateOneOfNPrior(dimension, models, dataType, decayRate));
+                                                const TPriorPtrVec& models) {
+    return boost::make_unique<CMultivariateOneOfNPrior>(dimension, models, dataType, decayRate);
 }
 
 bool CMultivariateOneOfNPriorFactory::restore(std::size_t dimension,
-                                              const SDistributionRestoreParams &params,
-                                              TPriorPtr &ptr,
-                                              core::CStateRestoreTraverser &traverser)
-{
-    ptr.reset(new CMultivariateOneOfNPrior(dimension, params, traverser));
+                                              const SDistributionRestoreParams& params,
+                                              TPriorPtr& ptr,
+                                              core::CStateRestoreTraverser& traverser) {
+    ptr = boost::make_unique<CMultivariateOneOfNPrior>(dimension, params, traverser);
     return true;
 }
-
 }
 }

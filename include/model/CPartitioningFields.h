@@ -15,53 +15,48 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A wrapper around the partitioning fields of a model.
 //!
 //! DESCTIPTION:\n
 //! This wraps a list of field (name, value) pairs and encapsulates
 //! constant cost access to the partition field.
-class MODEL_EXPORT CPartitioningFields
-{
-    public:
-        using TStrCRef = boost::reference_wrapper<const std::string>;
-        using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
-        using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
+class MODEL_EXPORT CPartitioningFields {
+public:
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
+    using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
 
-    public:
-        CPartitioningFields(const std::string &partitionFieldName,
-                            const std::string &partitionFieldValue);
+public:
+    CPartitioningFields(const std::string& partitionFieldName,
+                        const std::string& partitionFieldValue);
 
-        //! Append the field (name, value) pair (\p fieldName, \p fieldValue).
-        void add(const std::string &fieldName, const std::string &fieldValue);
+    //! Append the field (name, value) pair (\p fieldName, \p fieldValue).
+    void add(const std::string& fieldName, const std::string& fieldValue);
 
-        //! Get the number of partitioning fields.
-        std::size_t size(void) const;
+    //! Get the number of partitioning fields.
+    std::size_t size() const;
 
-        //! Get a read only reference to the i'th field (name, value) pair.
-        const TStrCRefStrCRefPr &operator[](std::size_t i) const;
-        //! Get the i'th field (name, value) pair.
-        TStrCRefStrCRefPr &operator[](std::size_t i);
+    //! Get a read only reference to the i'th field (name, value) pair.
+    const TStrCRefStrCRefPr& operator[](std::size_t i) const;
+    //! Get the i'th field (name, value) pair.
+    TStrCRefStrCRefPr& operator[](std::size_t i);
 
-        //! Get a read only reference to the last field (name, value) pair.
-        const TStrCRefStrCRefPr &back(void) const;
-        //! Get the last field (name, value) pair.
-        TStrCRefStrCRefPr &back(void);
+    //! Get a read only reference to the last field (name, value) pair.
+    const TStrCRefStrCRefPr& back() const;
+    //! Get the last field (name, value) pair.
+    TStrCRefStrCRefPr& back();
 
-        //! Get the partition field value.
-        const std::string &partitionFieldValue(void) const;
+    //! Get the partition field value.
+    const std::string& partitionFieldValue() const;
 
-    private:
-        //! The partitioning fields (name, value) pairs.
-        TStrCRefStrCRefPrVec m_PartitioningFields;
+private:
+    //! The partitioning fields (name, value) pairs.
+    TStrCRefStrCRefPrVec m_PartitioningFields;
 };
-
 }
 }
 
 #endif // INCLUDED_ml_model_CPartitioningFields_h
-

@@ -11,11 +11,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! RAII file deleter
@@ -35,22 +32,18 @@ namespace core
 //! to take a file descriptor/FILE pointer/stream reference
 //! and close this before attempting to delete the file.
 //!
-class CORE_EXPORT CFileDeleter : private CNonCopyable
-{
-    public:
-        //! Record the name of the file to delete
-        CFileDeleter(const std::string &fileName);
+class CORE_EXPORT CFileDeleter : private CNonCopyable {
+public:
+    //! Record the name of the file to delete
+    CFileDeleter(const std::string& fileName);
 
-        //! Attempt to remove the specified file
-        ~CFileDeleter(void);
+    //! Attempt to remove the specified file
+    ~CFileDeleter();
 
-    private:
-        std::string m_FileName;
+private:
+    std::string m_FileName;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CFileDeleter_h
-

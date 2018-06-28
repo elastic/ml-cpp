@@ -14,11 +14,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 class COutputHandler;
 }
 }
@@ -32,39 +29,36 @@ class COutputHandler;
 //! IMPLEMENTATION DECISIONS:\n
 //! Only the minimal set of required functions are implemented.
 //!
-class CMockDataProcessor : public ml::api::CDataProcessor
-{
-    public:
-        CMockDataProcessor(ml::api::COutputHandler &outputHandler);
+class CMockDataProcessor : public ml::api::CDataProcessor {
+public:
+    CMockDataProcessor(ml::api::COutputHandler& outputHandler);
 
-        //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+    //! We're going to be writing to a new output stream
+    virtual void newOutputStream();
 
-        virtual bool handleRecord(const TStrStrUMap &dataRowFields);
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
 
-        virtual void finalise(void);
+    virtual void finalise();
 
-        //! Restore previously saved state
-        virtual bool restoreState(ml::core::CDataSearcher &restoreSearcher,
-                                  ml::core_t::TTime &completeToTime);
+    //! Restore previously saved state
+    virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
+                              ml::core_t::TTime& completeToTime);
 
-        //! Persist current state
-        virtual bool persistState(ml::core::CDataAdder &persister);
+    //! Persist current state
+    virtual bool persistState(ml::core::CDataAdder& persister);
 
-        //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const;
+    //! How many records did we handle?
+    virtual uint64_t numRecordsHandled() const;
 
-    private:
-        ml::api::COutputHandler &m_OutputHandler;
+private:
+    ml::api::COutputHandler& m_OutputHandler;
 
-        //! Empty field overrides
-        TStrStrUMap                  m_FieldOverrides;
+    //! Empty field overrides
+    TStrStrUMap m_FieldOverrides;
 
-        uint64_t                     m_NumRecordsHandled;
+    uint64_t m_NumRecordsHandled;
 
-        bool                         m_WriteFieldNames;
+    bool m_WriteFieldNames;
 };
 
-
 #endif // INCLUDED_ml_api_CMockDataProcessor_h
-

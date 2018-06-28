@@ -8,16 +8,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXmlNodeWithChildrenTest : public CppUnit::TestFixture
-{
-    public:
-        void testNodeHierarchyToXml(void);
-        void testParserToNodeHierarchy(void);
-        void testPerformanceNoPool(void);
-        void testPerformanceWithPool(void);
+class CXmlNodeWithChildrenTest : public CppUnit::TestFixture {
+public:
+    void testNodeHierarchyToXml();
+    void testParserToNodeHierarchy();
+    void testPerformanceNoPool();
+    void testPerformanceWithPool();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CXmlNodeWithChildrenTest_h
-

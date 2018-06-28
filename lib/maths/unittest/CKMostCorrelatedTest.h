@@ -9,21 +9,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMostCorrelatedTest : public CppUnit::TestFixture
-{
-    public:
-        void testCorrelation(void);
-        void testNextProjection(void);
-        void testMostCorrelated(void);
-        void testRemoveVariables(void);
-        void testAccuracy(void);
-        void testStability(void);
-        void testChangingCorrelation(void);
-        void testMissingData(void);
-        void testPersistence(void);
-        void testScale(void);
+class CKMostCorrelatedTest : public CppUnit::TestFixture {
+public:
+    void testCorrelation();
+    void testNextProjection();
+    void testMostCorrelated();
+    void testRemoveVariables();
+    void testAccuracy();
+    void testStability();
+    void testChangingCorrelation();
+    void testMissingData();
+    void testPersistence();
+    void testScale();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CKMostCorrelatedTest_h

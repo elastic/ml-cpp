@@ -9,18 +9,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSplineTest : public CppUnit::TestFixture
-{
-    public:
-        void testNatural(void);
-        void testParabolicRunout(void);
-        void testPeriodic(void);
-        void testMean(void);
-        void testIllposed(void);
-        void testSlope(void);
-        void testSplineReference(void);
+class CSplineTest : public CppUnit::TestFixture {
+public:
+    void testNatural();
+    void testParabolicRunout();
+    void testPeriodic();
+    void testMean();
+    void testIllposed();
+    void testSlope();
+    void testSplineReference();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSpline_h

@@ -7,47 +7,28 @@
 
 #include <vflib/CIncrementer.h>
 
+namespace ml {
+namespace vflib {
 
-namespace ml
-{
-namespace vflib
-{
-
-
-size_t CLooper::inlinedLibraryCallLoop(CIncrementer &incrementer,
-                                       size_t count,
-                                       size_t val)
-{
-    for (size_t i = 0; i < count; ++i)
-    {
+size_t CLooper::inlinedLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
+    for (size_t i = 0; i < count; ++i) {
         val = incrementer.inlinedIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::nonVirtualLibraryCallLoop(CIncrementer &incrementer,
-                                          size_t count,
-                                          size_t val)
-{
-    for (size_t i = 0; i < count; ++i)
-    {
+size_t CLooper::nonVirtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
+    for (size_t i = 0; i < count; ++i) {
         val = incrementer.nonVirtualIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::virtualLibraryCallLoop(CIncrementer &incrementer,
-                                       size_t count,
-                                       size_t val)
-{
-    for (size_t i = 0; i < count; ++i)
-    {
+size_t CLooper::virtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
+    for (size_t i = 0; i < count; ++i) {
         val = incrementer.virtualIncrement(val);
     }
     return val;
 }
-
-
 }
 }
-

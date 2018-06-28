@@ -22,8 +22,7 @@
 using namespace ml;
 using namespace core;
 
-void CHashingTest::testUniversalHash(void)
-{
+void CHashingTest::testUniversalHash() {
     // We test the definition:
     //   "for all (x,y) in U and x != y P(h(x) = h(y)) <= 1/m"
     //
@@ -38,40 +37,34 @@ void CHashingTest::testUniversalHash(void)
     //
     // must hold for a randomly selected member of the family.
 
-    double tolerances[] = { 1.0, 1.6 };
-    uint32_t m[] = { 30, 300 };
-    uint32_t u[] = { 1000, 10000 };
+    double tolerances[] = {1.0, 1.6};
+    uint32_t m[] = {30, 300};
+    uint32_t u[] = {1000, 10000};
 
-    for (size_t i = 0; i < boost::size(m); ++i)
-    {
+    for (size_t i = 0; i < boost::size(m); ++i) {
         CHashing::CUniversalHash::TUInt32HashVec hashes;
         CHashing::CUniversalHash::generateHashes(10u, m[i], hashes);
 
         double collisionsRandom = 0.0;
         double hashedRandom = 0.0;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h)
-        {
-            LOG_DEBUG("**** Testing hash = " << hashes[h].print() << " ****");
+        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+            LOG_DEBUG(<< "**** Testing hash = " << hashes[h].print() << " ****");
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
-            for (size_t j = 0; j < boost::size(u); ++j)
-            {
+            for (size_t j = 0; j < boost::size(u); ++j) {
                 uint32_t n = u[j];
 
-                LOG_DEBUG("m = " << m[i] << ", U = [" << n << "]");
+                LOG_DEBUG(<< "m = " << m[i] << ", U = [" << n << "]");
 
                 uint32_t collisions = 0u;
 
-                for (uint32_t x = 0; x < n; ++x)
-                {
-                    for (uint32_t y = x + 1u; y < n; ++y)
-                    {
+                for (uint32_t x = 0; x < n; ++x) {
+                    for (uint32_t y = x + 1u; y < n; ++y) {
                         uint32_t hx = hash(x);
                         uint32_t hy = hash(y);
-                        if (hx == hy)
-                        {
+                        if (hx == hy) {
                             ++collisions;
                         }
                     }
@@ -80,11 +73,10 @@ void CHashingTest::testUniversalHash(void)
                 collisionsRandom += static_cast<double>(collisions);
                 hashedRandom += static_cast<double>(n * (n - 1)) / 2.0;
 
-                double pc = 2.0 * static_cast<double>(collisions)
-                            / static_cast<double>(n * (n - 1));
+                double pc = 2.0 * static_cast<double>(collisions) /
+                            static_cast<double>(n * (n - 1));
 
-                LOG_DEBUG("collisions = " << collisions
-                          << ", P(collision) = " << pc
+                LOG_DEBUG(<< "collisions = " << collisions << ", P(collision) = " << pc
                           << ", 1/m = " << (1.0 / static_cast<double>(m[i])));
 
                 // Note that the definition of universality doesn't require
@@ -94,21 +86,21 @@ void CHashingTest::testUniversalHash(void)
         }
 
         double pcRandom = collisionsRandom / hashedRandom;
-        LOG_DEBUG("random P(collision) = " << pcRandom);
+        LOG_DEBUG(<< "random P(collision) = " << pcRandom);
         CPPUNIT_ASSERT(pcRandom < 1.0 / static_cast<double>(m[i]));
     }
 
     // We test a large u and m non exhaustively by choosing sufficient
     // different numbers of pairs to hash.
 
-    typedef std::vector<uint32_t> TUInt32Vec;
-    typedef std::pair<uint32_t, uint32_t> TUInt32Pr;
-    typedef std::set<TUInt32Pr> TUInt32PrSet;
-    typedef std::map<TUInt32Pr, unsigned int> TUint32PrUIntMap;
-    typedef TUint32PrUIntMap::const_iterator TUint32PrUIntMapCItr;
+    using TUInt32Vec = std::vector<uint32_t>;
+    using TUInt32Pr = std::pair<uint32_t, uint32_t>;
+    using TUInt32PrSet = std::set<TUInt32Pr>;
+    using TUint32PrUIntMap = std::map<TUInt32Pr, unsigned int>;
+    using TUint32PrUIntMapCItr = TUint32PrUIntMap::const_iterator;
 
     {
-        LOG_DEBUG("**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
+        LOG_DEBUG(<< "**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
 
         boost::random::mt11213b generator;
         boost::random::uniform_int_distribution<uint32_t> uniform(0u, 10000000u);
@@ -123,26 +115,21 @@ void CHashingTest::testUniversalHash(void)
         double collisionsRandom = 0.0;
         double hashedRandom = 0.0;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h)
-        {
-            LOG_DEBUG("Testing hash = " << hashes[h].print());
+        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+            LOG_DEBUG(<< "Testing hash = " << hashes[h].print());
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
             uint32_t collisions = 0u;
             TUInt32PrSet uniquePairs;
 
-            for (std::size_t i = 0u; i < samples.size(); ++i)
-            {
-                for (std::size_t j = i + 1u; j < samples.size(); ++j)
-                {
-                    if (samples[i] != samples[j]
-                        && uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second)
-                    {
+            for (std::size_t i = 0u; i < samples.size(); ++i) {
+                for (std::size_t j = i + 1u; j < samples.size(); ++j) {
+                    if (samples[i] != samples[j] &&
+                        uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second) {
                         uint32_t hx = hash(samples[i]);
                         uint32_t hy = hash(samples[j]);
-                        if (hx == hy)
-                        {
+                        if (hx == hy) {
                             ++collisions;
                         }
                     }
@@ -152,11 +139,10 @@ void CHashingTest::testUniversalHash(void)
             collisionsRandom += static_cast<double>(collisions);
             hashedRandom += static_cast<double>(uniquePairs.size());
 
-            double pc = static_cast<double>(collisions)
-                        / static_cast<double>(uniquePairs.size());
+            double pc = static_cast<double>(collisions) /
+                        static_cast<double>(uniquePairs.size());
 
-            LOG_DEBUG("collisions = " << collisions
-                      << ", P(collision) = " << pc
+            LOG_DEBUG(<< "collisions = " << collisions << ", P(collision) = " << pc
                       << ", 1/m = " << (1.0 / 10000.0));
 
             // Note that the definition of universality doesn't require
@@ -166,7 +152,7 @@ void CHashingTest::testUniversalHash(void)
 
         double pcRandom = collisionsRandom / hashedRandom;
 
-        LOG_DEBUG("random P(collision) = " << pcRandom);
+        LOG_DEBUG(<< "random P(collision) = " << pcRandom);
 
         CPPUNIT_ASSERT(pcRandom < 1.008 / 10000.0);
     }
@@ -177,22 +163,19 @@ void CHashingTest::testUniversalHash(void)
     // true in the limit we use a large number of hash functions. We test
     // this approximately with some tolerance on the counts.
     {
-        LOG_DEBUG("Pairwise independence");
+        LOG_DEBUG(<< "Pairwise independence");
 
         CHashing::CUniversalHash::TUInt32HashVec hashes;
         CHashing::CUniversalHash::generateHashes(50u, 100u, hashes);
 
         TUint32PrUIntMap uniqueHashedPairs;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h)
-        {
-            LOG_DEBUG("Testing hash = " << hashes[h].print());
+        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+            LOG_DEBUG(<< "Testing hash = " << hashes[h].print());
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
-            for (uint32_t x = 0u; x < 2000; ++x)
-            {
-                for (uint32_t y = x + 1u; y < 2000; ++y)
-                {
+            for (uint32_t x = 0u; x < 2000; ++x) {
+                for (uint32_t y = x + 1u; y < 2000; ++y) {
                     uint32_t hx = hash(x);
                     uint32_t hy = hash(y);
                     ++uniqueHashedPairs[TUInt32Pr(hx, hy)];
@@ -203,56 +186,56 @@ void CHashingTest::testUniversalHash(void)
         double error = 0.0;
 
         for (TUint32PrUIntMapCItr i = uniqueHashedPairs.begin();
-             i != uniqueHashedPairs.end();
-             ++i)
-        {
-            double p = 2.0 * static_cast<double>(i->second)
-                       / 2000.0 / 1999.0
-                       / static_cast<double>(hashes.size());
+             i != uniqueHashedPairs.end(); ++i) {
+            double p = 2.0 * static_cast<double>(i->second) / 2000.0 / 1999.0 /
+                       static_cast<double>(hashes.size());
 
-            if (p > 1.0 / 10000.0)
-            {
-                LOG_DEBUG(core::CContainerPrinter::print(*i) << ", p = " << p);
+            if (p > 1.0 / 10000.0) {
+                LOG_DEBUG(<< core::CContainerPrinter::print(*i) << ", p = " << p);
                 error += p - 1 / 10000.0;
             }
             CPPUNIT_ASSERT(p < 1.6 / 10000.0);
         }
 
-        LOG_DEBUG("error = " << error);
+        LOG_DEBUG(<< "error = " << error);
         CPPUNIT_ASSERT(error < 0.03);
     }
 }
 
-void CHashingTest::testMurmurHash(void)
-{
+void CHashingTest::testMurmurHash() {
     {
         std::string key("This is the voice of the Mysterons!");
         uint32_t seed = 0xdead4321;
-        uint32_t result = CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
+        uint32_t result =
+            CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint32_t(0xEE593473), result);
     }
     {
         std::string key("We know that you can hear us, Earthmen!");
         uint32_t seed = 0xffeeeeff;
-        uint32_t result = CHashing::safeMurmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
+        uint32_t result = CHashing::safeMurmurHash32(
+            key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint32_t(0x54837c96), result);
     }
     {
         std::string key("Your message has been analysed and it has been decided to allow one member of Spectrum to meet our representative.");
         uint64_t seed = 0xaabbccddffeeeeffULL;
-        uint64_t result = CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
+        uint64_t result =
+            CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint64_t(14826751455157300659ull), result);
     }
     {
-        std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people will pay for this act of aggression.");
+        std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people "
+                        "will pay for this act of aggression.");
         uint64_t seed = 0x1324fedc9876abdeULL;
-        uint64_t result = CHashing::safeMurmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
+        uint64_t result = CHashing::safeMurmurHash64(
+            key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint64_t(7291323361835448266ull), result);
     }
 
-    typedef std::vector<std::string> TStrVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
-    typedef TSizeSizeMap::const_iterator TSizeSizeMapCItr;
+    using TStrVec = std::vector<std::string>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
+    using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
     const std::size_t stringSize = 32u;
     const std::size_t numberStrings = 500000u;
@@ -266,69 +249,60 @@ void CHashingTest::testMurmurHash(void)
     uint64_t defaultLookupTime = 0;
     uint64_t murmurInsertTime = 0;
     uint64_t murmurLookupTime = 0;
-    for (int run = 0; run < 6; ++run)
-    {
-        LOG_DEBUG("run = " << run);
+    for (int run = 0; run < 6; ++run) {
+        LOG_DEBUG(<< "run = " << run);
 
-        LOG_DEBUG("Starting throughput of boost::unordered_set with default hash");
+        LOG_DEBUG(<< "Starting throughput of boost::unordered_set with default hash");
         {
             boost::unordered_set<std::string> s;
             stopWatch.reset(true);
-            for (std::size_t i = 0u; i < testStrings.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < testStrings.size(); ++i) {
                 s.insert(testStrings[i]);
             }
             defaultInsertTime += stopWatch.stop();
             size_t total(0);
             stopWatch.reset(true);
-            for (int i = 0; i < 5; ++i)
-            {
-                for (std::size_t j = 0u; j < testStrings.size(); ++j)
-                {
+            for (int i = 0; i < 5; ++i) {
+                for (std::size_t j = 0u; j < testStrings.size(); ++j) {
                     total += s.count(testStrings[j]);
                 }
             }
             defaultLookupTime += stopWatch.stop();
             CPPUNIT_ASSERT_EQUAL(testStrings.size() * 5, total);
         }
-        LOG_DEBUG("Finished throughput of boost::unordered_set with default hash");
+        LOG_DEBUG(<< "Finished throughput of boost::unordered_set with default hash");
 
-        LOG_DEBUG("Starting throughput of boost::unordered_set with murmur hash");
+        LOG_DEBUG(<< "Starting throughput of boost::unordered_set with murmur hash");
         {
             boost::unordered_set<std::string, CHashing::CMurmurHash2String> s;
             stopWatch.reset(true);
-            for (std::size_t i = 0u; i < testStrings.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < testStrings.size(); ++i) {
                 s.insert(testStrings[i]);
             }
             murmurInsertTime += stopWatch.stop();
             size_t total(0);
             stopWatch.reset(true);
-            for (int i = 0; i < 5; ++i)
-            {
-                for (std::size_t j = 0u; j < testStrings.size(); ++j)
-                {
+            for (int i = 0; i < 5; ++i) {
+                for (std::size_t j = 0u; j < testStrings.size(); ++j) {
                     total += s.count(testStrings[j]);
                 }
             }
             murmurLookupTime += stopWatch.stop();
             CPPUNIT_ASSERT_EQUAL(testStrings.size() * 5, total);
         }
-        LOG_DEBUG("Finished throughput of boost::unordered_set with murmur hash");
+        LOG_DEBUG(<< "Finished throughput of boost::unordered_set with murmur hash");
     }
 
-    LOG_DEBUG("default insert runtime = " << defaultInsertTime
+    LOG_DEBUG(<< "default insert runtime = " << defaultInsertTime
               << "ms, murmur insert runtime = " << murmurInsertTime << "ms");
-    LOG_DEBUG("default lookup runtime = " << defaultLookupTime
+    LOG_DEBUG(<< "default lookup runtime = " << defaultLookupTime
               << "ms, murmur lookup runtime = " << murmurLookupTime << "ms");
 
     // The benefits of the murmur hash are mainly at lookup time, so just assert
     // on that, but still log a warning for slower insert time
-    if (murmurInsertTime > defaultInsertTime)
-    {
-        LOG_WARN("murmur insert runtime (" << murmurInsertTime <<
-                 "ms) was longer than default insert runtime (" <<
-                 defaultInsertTime << "ms)");
+    if (murmurInsertTime > defaultInsertTime) {
+        LOG_WARN(<< "murmur insert runtime (" << murmurInsertTime << "ms) was longer than default insert runtime ("
+                 << defaultInsertTime << "ms)");
     }
 
     // Most of the times the murmur lookup time will be faster. But it is not
@@ -339,19 +313,17 @@ void CHashingTest::testMurmurHash(void)
     // Check the number of collisions.
     TSizeSizeMap uniqueHashes;
     CHashing::CMurmurHash2String h;
-    for (std::size_t i = 0u; i < testStrings.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < testStrings.size(); ++i) {
         ++uniqueHashes[h(testStrings[i]) % 3000017];
     }
 
     std::size_t maxCollisions = 0u;
-    for (TSizeSizeMapCItr i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i)
-    {
+    for (TSizeSizeMapCItr i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
         maxCollisions = std::max(maxCollisions, i->second);
     }
 
-    LOG_DEBUG("# unique \"hash(x) mod 3000017\" = " << uniqueHashes.size());
-    LOG_DEBUG("Maximum number of collisions = " << maxCollisions);
+    LOG_DEBUG(<< "# unique \"hash(x) mod 3000017\" = " << uniqueHashes.size());
+    LOG_DEBUG(<< "Maximum number of collisions = " << maxCollisions);
 
     // The number of unique hashes varies for 32 bit and 64 bit versions of
     // this code, so this will need changing if we ever build 32 bit again.
@@ -359,15 +331,14 @@ void CHashingTest::testMurmurHash(void)
     CPPUNIT_ASSERT(maxCollisions < 7);
 }
 
-void CHashingTest::testHashCombine(void)
-{
+void CHashingTest::testHashCombine() {
     // Check we get about the same number of collisions using hashCombine
     // verses full hash of string.
 
     CHashing::CMurmurHash2String hasher;
 
-    typedef std::vector<std::string> TStrVec;
-    typedef std::set<uint64_t> TSizeSet;
+    using TStrVec = std::vector<std::string>;
+    using TSizeSet = std::set<uint64_t>;
 
     const std::size_t stringSize = 32u;
     const std::size_t numberStrings = 2000000u;
@@ -377,9 +348,8 @@ void CHashingTest::testHashCombine(void)
     TStrVec testStrings;
     TSizeSet uniqueHashes;
     TSizeSet uniqueHashCombines;
-    for (std::size_t i = 0u; i < 5u; ++i)
-    {
-        LOG_DEBUG("test " << i);
+    for (std::size_t i = 0u; i < 5u; ++i) {
+        LOG_DEBUG(<< "test " << i);
 
         // This will overwrite the previous contents of testStrings
         rng.generateWords(stringSize, numberStrings, testStrings);
@@ -387,23 +357,23 @@ void CHashingTest::testHashCombine(void)
         uniqueHashes.clear();
         uniqueHashCombines.clear();
 
-        for (std::size_t j = 0u; j < numberStrings; j += 2)
-        {
+        for (std::size_t j = 0u; j < numberStrings; j += 2) {
             uniqueHashes.insert(hasher(testStrings[j] + testStrings[j + 1]));
-            uniqueHashCombines.insert(core::CHashing::hashCombine(static_cast<uint64_t>(hasher(testStrings[j])),
-                                                                  static_cast<uint64_t>(hasher(testStrings[j + 1]))));
+            uniqueHashCombines.insert(core::CHashing::hashCombine(
+                static_cast<uint64_t>(hasher(testStrings[j])),
+                static_cast<uint64_t>(hasher(testStrings[j + 1]))));
         }
 
-        LOG_DEBUG("# unique hashes          = " << uniqueHashes.size());
-        LOG_DEBUG("# unique combined hashes = " << uniqueHashCombines.size());
+        LOG_DEBUG(<< "# unique hashes          = " << uniqueHashes.size());
+        LOG_DEBUG(<< "# unique combined hashes = " << uniqueHashCombines.size());
 
-        CPPUNIT_ASSERT(uniqueHashCombines.size()
-                       > static_cast<std::size_t>(0.999 * static_cast<double>(uniqueHashes.size())));
+        CPPUNIT_ASSERT(uniqueHashCombines.size() >
+                       static_cast<std::size_t>(
+                           0.999 * static_cast<double>(uniqueHashes.size())));
     }
 }
 
-void CHashingTest::testConstructors(void)
-{
+void CHashingTest::testConstructors() {
     {
         CHashing::CUniversalHash::CUInt32Hash hash(1, 2, 3);
         CPPUNIT_ASSERT_EQUAL(uint32_t(1), hash.m());
@@ -419,7 +389,7 @@ void CHashingTest::testConstructors(void)
         CHashing::CUniversalHash::CUInt32UnrestrictedHash hash(3, 4);
         CPPUNIT_ASSERT_EQUAL(uint32_t(3), hash.a());
         CPPUNIT_ASSERT_EQUAL(uint32_t(4), hash.b());
-        LOG_DEBUG(hash.print());
+        LOG_DEBUG(<< hash.print());
     }
     {
         CHashing::CUniversalHash::TUInt32Vec a;
@@ -431,7 +401,7 @@ void CHashingTest::testConstructors(void)
                              CContainerPrinter::print(hash.a()));
         CPPUNIT_ASSERT_EQUAL(uint32_t(5), hash.m());
         CPPUNIT_ASSERT_EQUAL(uint32_t(6), hash.b());
-        LOG_DEBUG(hash.print());
+        LOG_DEBUG(<< hash.print());
     }
     {
         CHashing::CUniversalHash::CToString c(':');
@@ -472,22 +442,16 @@ void CHashingTest::testConstructors(void)
     }
 }
 
+CppUnit::Test* CHashingTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHashingTest");
 
-CppUnit::Test *CHashingTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHashingTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CHashingTest>(
-                                   "CHashingTest::testUniversalHash",
-                                   &CHashingTest::testUniversalHash) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CHashingTest>(
-                                   "CHashingTest::testMurmurHash",
-                                   &CHashingTest::testMurmurHash) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CHashingTest>(
-                                   "CHashingTest::testHashCombine",
-                                   &CHashingTest::testHashCombine) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CHashingTest>(
-                                   "CHashingTest::testConstructors",
-                                   &CHashingTest::testConstructors) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>(
+        "CHashingTest::testUniversalHash", &CHashingTest::testUniversalHash));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>(
+        "CHashingTest::testMurmurHash", &CHashingTest::testMurmurHash));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>(
+        "CHashingTest::testHashCombine", &CHashingTest::testHashCombine));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>(
+        "CHashingTest::testConstructors", &CHashingTest::testConstructors));
     return suiteOfTests;
 }

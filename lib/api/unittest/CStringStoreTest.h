@@ -10,19 +10,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringStoreTest : public CppUnit::TestFixture
-{
-    public:
-        void testPersonStringPruning(void);
-        void testAttributeStringPruning(void);
-        void testInfluencerStringPruning(void);
+class CStringStoreTest : public CppUnit::TestFixture {
+public:
+    void testPersonStringPruning();
+    void testAttributeStringPruning();
+    void testInfluencerStringPruning();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        bool nameExists(const std::string &string);
-        bool influencerExists(const std::string &string);
-
+private:
+    bool nameExists(const std::string& string);
+    bool influencerExists(const std::string& string);
 };
 
 #endif // INCLUDED_CStringStoreTest_h

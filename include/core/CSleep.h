@@ -11,12 +11,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Functions related to sleeping
@@ -37,29 +33,25 @@ namespace core
 //! milliseconds.  The reason is that Windows can only sleep for a multiple of
 //! milliseconds, and we can't use functionality that's only available on Unix.
 //!
-class CORE_EXPORT CSleep : private CNonInstantiatable
-{
-    public:
-        //! A processing delay that has been found (by trial and error) to slow
-        //! down a thread when required, but without causing unwanted MySQL
-        //! disconnections.
-        static const uint32_t DEFAULT_PROCESSING_DELAY;
+class CORE_EXPORT CSleep : private CNonInstantiatable {
+public:
+    //! A processing delay that has been found (by trial and error) to slow
+    //! down a thread when required, but without causing unwanted MySQL
+    //! disconnections.
+    static const uint32_t DEFAULT_PROCESSING_DELAY;
 
-    public:
-        //! Sleep for the given period of time.  Be aware that the operating
-        //! system may round this up. Windows sleeps are multiples of 1/64 seconds,
-        //! i.e. multiples of 15.625 milliseconds.  Basically, don't expect this to
-        //! be ultra-accurate.
-        static void sleep(uint32_t milliseconds);
+public:
+    //! Sleep for the given period of time.  Be aware that the operating
+    //! system may round this up. Windows sleeps are multiples of 1/64 seconds,
+    //! i.e. multiples of 15.625 milliseconds.  Basically, don't expect this to
+    //! be ultra-accurate.
+    static void sleep(uint32_t milliseconds);
 
-        //! Delay processing for a period of time that has been observed to not
-        //! cause problems like database disconnections, socket overflows, etc.
-        static void delayProcessing(void);
+    //! Delay processing for a period of time that has been observed to not
+    //! cause problems like database disconnections, socket overflows, etc.
+    static void delayProcessing();
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CSleep_h
-

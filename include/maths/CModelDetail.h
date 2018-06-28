@@ -13,38 +13,28 @@
 
 #include <boost/optional.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 template<typename VECTOR>
-VECTOR CModel::marginalLikelihoodMean(const maths::CPrior &prior)
-{
+VECTOR CModel::marginalLikelihoodMean(const maths::CPrior& prior) {
     return VECTOR{prior.marginalLikelihoodMean()};
 }
 
 template<typename VECTOR>
-VECTOR CModel::marginalLikelihoodMean(const maths::CMultivariatePrior &prior)
-{
+VECTOR CModel::marginalLikelihoodMean(const maths::CMultivariatePrior& prior) {
     return prior.marginalLikelihoodMean();
 }
 
 template<typename TREND, typename VECTOR>
-boost::optional<VECTOR> CModel::predictionError(const TREND &trend,
-                                                const VECTOR &sample)
-{
+boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
     boost::optional<VECTOR> result;
     std::size_t dimension = sample.size();
-    for (std::size_t i = 0u; i < dimension; ++i)
-    {
-        if (trend[i]->initialized())
-        {
+    for (std::size_t i = 0u; i < dimension; ++i) {
+        if (trend[i]->initialized()) {
             result.reset(VECTOR(dimension, 0.0));
-            for (/**/; i < dimension; ++i)
-            {
-                if (trend[i]->initialized())
-                {
+            for (/**/; i < dimension; ++i) {
+                if (trend[i]->initialized()) {
                     (*result)[i] = sample[i];
                 }
             }
@@ -55,23 +45,19 @@ boost::optional<VECTOR> CModel::predictionError(const TREND &trend,
 
 template<typename PRIOR, typename VECTOR>
 boost::optional<VECTOR> CModel::predictionError(double propagationInterval,
-                                                const PRIOR &prior,
-                                                const VECTOR &sample)
-{
+                                                const PRIOR& prior,
+                                                const VECTOR& sample) {
     boost::optional<VECTOR> result;
-    if (prior->numberSamples() > 20.0 / propagationInterval)
-    {
+    if (prior->numberSamples() > 20.0 / propagationInterval) {
         std::size_t dimension{sample.size()};
         result.reset(sample);
         VECTOR mean(marginalLikelihoodMean<VECTOR>(*prior));
-        for (std::size_t d = 0u; d < dimension; ++d)
-        {
+        for (std::size_t d = 0u; d < dimension; ++d) {
             (*result)[d] -= mean[d];
         }
     }
     return result;
 }
-
 }
 }
 

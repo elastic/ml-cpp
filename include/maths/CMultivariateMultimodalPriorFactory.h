@@ -10,46 +10,40 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate multimodal priors.
-class MATHS_EXPORT CMultivariateMultimodalPriorFactory
-{
-    public:
-        typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
+class MATHS_EXPORT CMultivariateMultimodalPriorFactory {
+public:
+    using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
 
-    public:
-        //! Create a new non-informative multivariate normal prior.
-        static TPriorPtr nonInformative(std::size_t dimension,
-                                        maths_t::EDataType dataType,
-                                        double decayRate,
-                                        maths_t::EClusterWeightCalc weightCalc,
-                                        double minimumClusterFraction,
-                                        double minimumClusterCount,
-                                        double minimumCategoryCount,
-                                        const CMultivariatePrior &seedPrior);
+public:
+    //! Create a new non-informative multivariate normal prior.
+    static TPriorPtr nonInformative(std::size_t dimension,
+                                    maths_t::EDataType dataType,
+                                    double decayRate,
+                                    maths_t::EClusterWeightCalc weightCalc,
+                                    double minimumClusterFraction,
+                                    double minimumClusterCount,
+                                    double minimumCategoryCount,
+                                    const CMultivariatePrior& seedPrior);
 
-        //! Create reading state from its state document representation.
-        static bool restore(std::size_t dimension,
-                            const SDistributionRestoreParams &params,
-                            TPriorPtr &ptr,
-                            core::CStateRestoreTraverser &traverser);
+    //! Create reading state from its state document representation.
+    static bool restore(std::size_t dimension,
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
-
 }
 }
 

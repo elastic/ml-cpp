@@ -8,25 +8,22 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CSingleStreamDataAdderTest : public CppUnit::TestFixture {
+public:
+    void testDetectorPersistBy();
+    void testDetectorPersistOver();
+    void testDetectorPersistPartition();
+    void testDetectorPersistDc();
+    void testDetectorPersistCount();
+    void testDetectorPersistCategorization();
 
-class CSingleStreamDataAdderTest : public CppUnit::TestFixture
-{
-    public:
-        void testDetectorPersistBy(void);
-        void testDetectorPersistOver(void);
-        void testDetectorPersistPartition(void);
-        void testDetectorPersistDc(void);
-        void testDetectorPersistCount(void);
-        void testDetectorPersistCategorization(void);
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void detectorPersistHelper(const std::string &configFileName,
-                                   const std::string &inputFilename,
-                                   int latencyBuckets,
-                                   const std::string &timeFormat = std::string());
+private:
+    void detectorPersistHelper(const std::string& configFileName,
+                               const std::string& inputFilename,
+                               int latencyBuckets,
+                               const std::string& timeFormat = std::string());
 };
 
 #endif // INCLUDED_CSingleStreamDataAdderTest_h
-

@@ -71,7 +71,7 @@ CBase64Filter.cc \
 CBufferFlushTimer.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
-CCompressUtils.cc \
+CompressUtils.cc \
 CContainerPrinter.cc \
 CDataAdder.cc \
 CDataSearcher.cc \

@@ -9,14 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPersistUtilsTest : public CppUnit::TestFixture
-{
-    public:
-        void testPersistContainers(void);
-        void testPersistIterators(void);
-        void testAppend(void);
+class CPersistUtilsTest : public CppUnit::TestFixture {
+public:
+    void testPersistContainers();
+    void testPersistIterators();
+    void testAppend();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPersistUtilsTest_h

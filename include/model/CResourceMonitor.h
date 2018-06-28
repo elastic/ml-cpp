@@ -14,16 +14,13 @@
 #include <boost/unordered_map.hpp>
 
 #include <functional>
-#include <map>
 
 class CResourceMonitorTest;
 class CResourceLimitTest;
 class CAnomalyJobLimitTest;
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 class CAnomalyDetector;
 class CAnomalyDetectorModel;
@@ -33,194 +30,208 @@ class CResourcePruner;
 //!
 //! DESCRIPTION:\n
 //! Assess memory used by models and decide on further memory allocations.
-class MODEL_EXPORT CResourceMonitor
-{
-    public:
-        struct MODEL_EXPORT SResults
-        {
-            std::size_t s_Usage;
-            std::size_t s_ByFields;
-            std::size_t s_PartitionFields;
-            std::size_t s_OverFields;
-            std::size_t s_AllocationFailures;
-            model_t::EMemoryStatus s_MemoryStatus;
-            core_t::TTime s_BucketStartTime;
-        };
+class MODEL_EXPORT CResourceMonitor {
+public:
+    struct MODEL_EXPORT SResults {
+        std::size_t s_Usage;
+        std::size_t s_ByFields;
+        std::size_t s_PartitionFields;
+        std::size_t s_OverFields;
+        std::size_t s_AllocationFailures;
+        model_t::EMemoryStatus s_MemoryStatus;
+        core_t::TTime s_BucketStartTime;
+    };
 
-    public:
-        typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
-        typedef boost::unordered_map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeUMap;
-        typedef std::function<void(const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
-        typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
+public:
+    using TDetectorPtrSizePr = std::pair<CAnomalyDetector*, std::size_t>;
+    using TDetectorPtrSizeUMap = boost::unordered_map<CAnomalyDetector*, std::size_t>;
+    using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
+    using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
-        //! The minimum time between prunes
-        static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
+    //! The minimum time between prunes
+    static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
+    //! Default memory limit for resource monitor
+    static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
+    //! The initial byte limit margin to use if none is supplied
+    static const double DEFAULT_BYTE_LIMIT_MARGIN;
 
-        //! Default memory limit for resource monitor
-        static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
+public:
+    //! Default constructor
+    explicit CResourceMonitor(double byteLimitMargin = DEFAULT_BYTE_LIMIT_MARGIN);
 
-    public:
-        //! Default constructor
-        CResourceMonitor(void);
+    //! Query the resource monitor to find out if the models are
+    //! taking up too much memory and further allocations should be banned
+    bool areAllocationsAllowed() const;
 
-        //! Query the resource monitor to find out if the models are
-        //! taking up too much memory and further allocations should be banned
-        bool areAllocationsAllowed(void) const;
+    //! Query the resource monitor to found out if it's Ok to
+    //! create structures of a certain size
+    bool areAllocationsAllowed(std::size_t size) const;
 
-        //! Query the resource monitor to found out if it's Ok to
-        //! create structures of a certain size
-        bool areAllocationsAllowed(std::size_t size) const;
+    //! Return the amount of remaining space for allocations
+    std::size_t allocationLimit() const;
 
-        //! Return the amount of remaining space for allocations
-        std::size_t allocationLimit(void) const;
+    //! Tell this resource monitor about a CAnomalyDetector class -
+    //! these classes contain all the model memory and are used
+    //! to query the current overall usage
+    void registerComponent(CAnomalyDetector& detector);
 
-        //! Tell this resource monitor about a CAnomalyDetector class -
-        //! these classes contain all the model memory and are used
-        //! to query the current overall usage
-        void registerComponent(CAnomalyDetector &detector);
+    //! Tell this resource monitor that a CAnomalyDetector class is
+    //! going to be deleted.
+    void unRegisterComponent(CAnomalyDetector& detector);
 
-        //! Tell this resource monitor that a CAnomalyDetector class is
-        //! going to be deleted.
-        void unRegisterComponent(CAnomalyDetector &detector);
+    //! Set a callback used when the memory usage grows
+    void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
-        //! Set a callback used when the memory usage grows
-        void memoryUsageReporter(const TMemoryUsageReporterFunc &reporter);
+    //! Recalculate the memory usage if there is a memory limit
+    void refresh(CAnomalyDetector& detector);
 
-        //! Recalculate the memory usage if there is a memory limit
-        void refresh(CAnomalyDetector &detector);
+    //! Recalculate the memory usage regardless of whether there is a memory limit
+    void forceRefresh(CAnomalyDetector& detector);
 
-        //! Recalculate the memory usage regardless of whether there is a memory limit
-        void forceRefresh(CAnomalyDetector &detector);
+    //! Set the internal memory limit, as specified in a limits config file
+    void memoryLimit(std::size_t limitMBs);
 
-        //! Set the internal memory limit, as specified in a limits config file
-        void memoryLimit(std::size_t limitMBs);
+    //! Get the memory status
+    model_t::EMemoryStatus getMemoryStatus();
 
-        //! Get the memory status
-        model_t::EMemoryStatus getMemoryStatus();
+    //! Send a memory usage report if it's changed by more than a certain percentage
+    void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime);
 
-        //! Send a memory usage report if it's changed by more than a certain percentage
-        void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime);
+    //! Send a memory usage report
+    void sendMemoryUsageReport(core_t::TTime bucketStartTime);
 
-        //! Send a memory usage report
-        void sendMemoryUsageReport(core_t::TTime bucketStartTime);
+    //! Create a memory usage report
+    SResults createMemoryUsageReport(core_t::TTime bucketStartTime);
 
-        //! Create a memory usage report
-        SResults createMemoryUsageReport(core_t::TTime bucketStartTime);
+    //! We are being told that a class has failed to allocate memory
+    //! based on the resource limits, and we will report this to the
+    //! user when we can
+    void acceptAllocationFailureResult(core_t::TTime time);
 
-        //! We are being told that a class has failed to allocate memory
-        //! based on the resource limits, and we will report this to the
-        //! user when we can
-        void acceptAllocationFailureResult(core_t::TTime time);
+    //! We are being told that aggressive pruning has taken place
+    //! to avoid hitting the resource limit, and we should report this
+    //! to the user when we can
+    void acceptPruningResult();
 
-        //! We are being told that aggressive pruning has taken place
-        //! to avoid hitting the resource limit, and we should report this
-        //! to the user when we can
-        void acceptPruningResult(void);
+    //! Accessor for no limit flag
+    bool haveNoLimit() const;
 
-        //! Accessor for no limit flag
-        bool haveNoLimit(void) const;
+    //! Prune models where necessary
+    bool pruneIfRequired(core_t::TTime endTime);
 
-        //! Prune models where necessary
-        bool pruneIfRequired(core_t::TTime endTime);
+    //! Accounts for any extra memory to the one
+    //! reported by the components.
+    //! Used in conjunction  with clearExtraMemory()
+    //! in order to ensure enough memory remains
+    //! for model's parts that have not been fully allocated yet.
+    void addExtraMemory(std::size_t reserved);
 
-        //! Accounts for any extra memory to the one
-        //! reported by the components.
-        //! Used in conjunction  with clearExtraMemory(void)
-        //! in order to ensure enough memory remains
-        //! for model's parts that have not been fully allocated yet.
-        void addExtraMemory(std::size_t reserved);
+    //! Clears all extra memory
+    void clearExtraMemory();
 
-        //! Clears all extra memory
-        void clearExtraMemory(void);
-    private:
+    //! Decrease the margin on the memory limit.
+    //!
+    //! We start off applying a margin to the memory limit because
+    //! it is difficult to accurately estimate the long term memory
+    //! usage at this point. This is gradually decreased over time
+    //! by calling this pnce per bucket processed.
+    void decreaseMargin(core_t::TTime elapsedTime);
 
-        //! Updates the memory limit fields and the prune threshold
-        //! to the given value.
-        void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
+private:
+    //! Updates the memory limit fields and the prune threshold
+    //! to the given value.
+    void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
-        //! Update the given model and recalculate the total usage
-        void memUsage(CAnomalyDetectorModel *model);
+    //! Update the given model and recalculate the total usage
+    void memUsage(CAnomalyDetector* detector);
 
-        //! Determine if we need to send a usage report, based on
-        //! increased usage, or increased errors
-        bool needToSendReport(void);
+    //! Determine if we need to send a usage report, based on
+    //! increased usage, or increased errors
+    bool needToSendReport();
 
-        //! After a change in memory usage, check whether allocations
-        //! shoule be allowed or not
-        void updateAllowAllocations(void);
+    //! After a change in memory usage, check whether allocations
+    //! shoule be allowed or not
+    void updateAllowAllocations();
 
-        //! Returns the sum of used memory plus any extra memory
-        std::size_t totalMemory(void) const;
+    //! Get the high memory limit with margin applied.
+    std::size_t highLimit() const;
 
-    private:
-        //! The registered collection of components
-        TModelPtrSizeUMap m_Models;
+    //! Get the low memory limit with margin applied.
+    std::size_t lowLimit() const;
 
-        //! Is there enough free memory to allow creating new components
-        bool m_AllowAllocations;
+    //! Returns the sum of used memory plus any extra memory
+    std::size_t totalMemory() const;
 
-        //! The upper limit for memory usage, checked on increasing values
-        std::size_t m_ByteLimitHigh;
+private:
+    //! The registered collection of components
+    TDetectorPtrSizeUMap m_Detectors;
 
-        //! The lower limit for memory usage, checked on decreasing values
-        std::size_t m_ByteLimitLow;
+    //! Is there enough free memory to allow creating new components
+    bool m_AllowAllocations;
 
-        //! Memory usage by anomaly detectors on the most recent calculation
-        std::size_t m_CurrentAnomalyDetectorMemory;
+    //! The relative margin to apply to the byte limits.
+    double m_ByteLimitMargin;
 
-        //! Extra memory to enable accounting of soon to be allocated memory
-        std::size_t m_ExtraMemory;
+    //! The upper limit for memory usage, checked on increasing values
+    std::size_t m_ByteLimitHigh;
 
-        //! The total memory usage on the previous usage report
-        std::size_t m_PreviousTotal;
+    //! The lower limit for memory usage, checked on decreasing values
+    std::size_t m_ByteLimitLow;
 
-        //! The highest known value for total memory usage
-        std::size_t m_Peak;
+    //! Memory usage by anomaly detectors on the most recent calculation
+    std::size_t m_CurrentAnomalyDetectorMemory;
 
-        //! Callback function to fire when memory usage increases by 1%
-        TMemoryUsageReporterFunc m_MemoryUsageReporter;
+    //! Extra memory to enable accounting of soon to be allocated memory
+    std::size_t m_ExtraMemory;
 
-        //! Keep track of classes telling us about allocation failures
-        TTimeSizeMap m_AllocationFailures;
+    //! The total memory usage on the previous usage report
+    std::size_t m_PreviousTotal;
 
-        //! The time at which the last allocation failure was reported
-        core_t::TTime m_LastAllocationFailureReport;
+    //! The highest known value for total memory usage
+    std::size_t m_Peak;
 
-        //! Keep track of the model memory status
-        model_t::EMemoryStatus m_MemoryStatus;
+    //! Callback function to fire when memory usage increases by 1%
+    TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-        //! Keep track of whether pruning has started, for efficiency in most cases
-        bool m_HasPruningStarted;
+    //! Keep track of classes telling us about allocation failures
+    TTimeSizeMap m_AllocationFailures;
 
-        //! The threshold at which pruning should kick in and head
-        //! towards for the sweet spot
-        std::size_t m_PruneThreshold;
+    //! The time at which the last allocation failure was reported
+    core_t::TTime m_LastAllocationFailureReport;
 
-        //! The last time we did a full prune of all the models
-        core_t::TTime m_LastPruneTime;
+    //! Keep track of the model memory status
+    model_t::EMemoryStatus m_MemoryStatus;
 
-        //! Number of buckets to go back when pruning
-        std::size_t m_PruneWindow;
+    //! Keep track of whether pruning has started, for efficiency in most cases
+    bool m_HasPruningStarted;
 
-        //! The largest that the prune window can grow to - determined from the models
-        std::size_t m_PruneWindowMaximum;
+    //! The threshold at which pruning should kick in and head
+    //! towards for the sweet spot
+    std::size_t m_PruneThreshold;
 
-        //! The smallest that the prune window can shrink to - 4 weeks
-        std::size_t m_PruneWindowMinimum;
+    //! The last time we did a full prune of all the models
+    core_t::TTime m_LastPruneTime;
 
-        //! Don't do any sort of memory checking if this is set
-        bool m_NoLimit;
+    //! Number of buckets to go back when pruning
+    std::size_t m_PruneWindow;
 
-        //! Test friends
-        friend class ::CResourceMonitorTest;
-        friend class ::CResourceLimitTest;
-        friend class ::CAnomalyJobLimitTest;
+    //! The largest that the prune window can grow to - determined from the models
+    std::size_t m_PruneWindowMaximum;
+
+    //! The smallest that the prune window can shrink to - 4 weeks
+    std::size_t m_PruneWindowMinimum;
+
+    //! Don't do any sort of memory checking if this is set
+    bool m_NoLimit;
+
+    //! Test friends
+    friend class ::CResourceMonitorTest;
+    friend class ::CResourceLimitTest;
+    friend class ::CAnomalyJobLimitTest;
 };
-
 
 } // model
 
 } // ml
-
 
 #endif // INCLUDED_ml_model_CResourceMonitor_h

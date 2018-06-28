@@ -9,13 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticalTestsTest : public CppUnit::TestFixture
-{
-    public:
-        void testCramerVonMises(void);
-        void testPersist(void);
+class CStatisticalTestsTest : public CppUnit::TestFixture {
+public:
+    void testCramerVonMises();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CStatisticalTestsTest_h

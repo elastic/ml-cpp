@@ -9,17 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSignalTest : public CppUnit::TestFixture
-{
-    public:
-        void testFFTVersusOctave(void);
-        void testIFFTVersusOctave(void);
-        void testFFTRandomized(void);
-        void testIFFTRandomized(void);
-        void testFFTIFFTIdempotency(void);
-        void testAutocorrelations(void);
+class CSignalTest : public CppUnit::TestFixture {
+public:
+    void testFFTVersusOctave();
+    void testIFFTVersusOctave();
+    void testFFTRandomized();
+    void testIFFTRandomized();
+    void testFFTIFFTIdempotency();
+    void testAutocorrelations();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSignalTest_h

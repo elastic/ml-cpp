@@ -9,57 +9,42 @@
 #include <core/CSleep.h>
 #include <core/CTicker.h>
 
+CppUnit::Test* CTickerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTickerTest");
 
-CppUnit::Test *CTickerTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTickerTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CTickerTest>(
-                                   "CTickerTest::testTicker",
-                                   &CTickerTest::testTicker) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTickerTest>(
+        "CTickerTest::testTicker", &CTickerTest::testTicker));
 
     return suiteOfTests;
 }
 
-namespace
-{
-    class CReceiver
-    {
-        public:
-            CReceiver(void)
-                : m_Ticks(0)
-            {
-            }
+namespace {
+class CReceiver {
+public:
+    CReceiver() : m_Ticks(0) {}
 
-            void tick(void)
-            {
-                ++m_Ticks;
-            }
+    void tick() { ++m_Ticks; }
 
-            size_t ticks(void) const
-            {
-                return m_Ticks;
-            }
+    size_t ticks() const { return m_Ticks; }
 
-        private:
-            size_t m_Ticks;
-    };
+private:
+    size_t m_Ticks;
+};
 }
 
-void CTickerTest::testTicker(void)
-{
+void CTickerTest::testTicker() {
     CReceiver receiver;
 
     ml::core::CTicker<CReceiver> ticker(100, receiver);
 
-    LOG_DEBUG("About to start ticker");
+    LOG_DEBUG(<< "About to start ticker");
     CPPUNIT_ASSERT(ticker.start());
 
     ml::core::CSleep::sleep(1000);
 
     // Should receive 9 or 10 ticks
     size_t tickCount(receiver.ticks());
-    LOG_DEBUG("Received " << tickCount << " ticks");
+    LOG_DEBUG(<< "Received " << tickCount << " ticks");
 
     CPPUNIT_ASSERT(tickCount <= 10);
 
@@ -70,4 +55,3 @@ void CTickerTest::testTicker(void)
     // itself) then it's probably not too much of a cause for concern.
     CPPUNIT_ASSERT(tickCount >= 9);
 }
-

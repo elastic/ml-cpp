@@ -6,12 +6,9 @@
 
 #include <maths/CRegression.h>
 
-namespace ml
-{
-namespace maths
-{
-namespace regression_detail
-{
+namespace ml {
+namespace maths {
+namespace regression_detail {
 const double CMaxCondition<CFloatStorage>::VALUE = 1e7;
 }
 }

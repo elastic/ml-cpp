@@ -9,14 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateAnomalyDetectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testAnomalies(void);
-        void testPersist(void);
+class CEventRateAnomalyDetectorTest : public CppUnit::TestFixture {
+public:
+    void testAnomalies();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CEventRateAnomalyDetectorTest_h
-

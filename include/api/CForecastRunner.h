@@ -21,25 +21,24 @@
 #include <model/CForecastDataSink.h>
 #include <model/CResourceMonitor.h>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <condition_variable>
 #include <functional>
+#include <list>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
-#include <list>
 #include <vector>
 
 #include <stdint.h>
 
 class CForecastRunnerTest;
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Forecast Worker to create forecasts of timeseries/ml models.
@@ -60,204 +59,225 @@ namespace api
 //! pruned in the main thread.
 //! Cloning also happens beforehand as the forecast job might hang in
 //! the queue for a while
-class API_EXPORT CForecastRunner final: private core::CNonCopyable
-{
-    public:
-        //! max open forecast requests
-        //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
-        static const size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
+class API_EXPORT CForecastRunner final : private core::CNonCopyable {
+public:
+    //! max open forecast requests
+    //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
+    static const size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
 
-        //! default expiry time
-        static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
+    //! default expiry time
+    static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
-        //! max memory allowed to use for forecast models
-        static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520; // 20MB
+    //! max memory allowed to use for forecast models
+    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
 
-        //! minimum time between stat updates to prevent to many updates in a short time
-        static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000; // 3s
+    //! Note: This value measures the size in memory, not the size of the persistence,
+    //! which is likely higher and would be hard to calculate upfront
+    //! max memory allowed to use for forecast models persisting to disk
+    static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
-    private:
-        static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
-        static const std::string ERROR_NO_FORECAST_ID;
-        static const std::string ERROR_TOO_MANY_JOBS;
-        static const std::string ERROR_NO_MODELS;
-        static const std::string ERROR_NO_DATA_PROCESSED;
-        static const std::string ERROR_NO_CREATE_TIME;
-        static const std::string ERROR_BAD_MEMORY_STATUS;
-        static const std::string ERROR_MEMORY_LIMIT;
-        static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
-        static const std::string ERROR_NO_SUPPORTED_FUNCTIONS;
-        static const std::string WARNING_DURATION_LIMIT;
-        static const std::string WARNING_INVALID_EXPIRY;
-        static const std::string INFO_DEFAULT_DURATION;
-        static const std::string INFO_DEFAULT_EXPIRY;
-        static const std::string INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST;
+    //! Note: This value is lower than on X-pack side to prevent side-effects,
+    //! if you change this value also change the limit on X-pack side.
+    //! The purpose of this value is to guard the rest of the system regarding
+    //! an out of disk space
+    //! minimum disk space required for disk persistence
+    static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
 
-    public:
-        using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
-        using TOStreamConcurrentWrapperPtr = boost::shared_ptr<TOStreamConcurrentWrapper>;
+    //! minimum time between stat updates to prevent to many updates in a short time
+    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
 
-        using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
-        using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
+private:
+    static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
+    static const std::string ERROR_NO_FORECAST_ID;
+    static const std::string ERROR_TOO_MANY_JOBS;
+    static const std::string ERROR_NO_MODELS;
+    static const std::string ERROR_NO_DATA_PROCESSED;
+    static const std::string ERROR_NO_CREATE_TIME;
+    static const std::string ERROR_BAD_MEMORY_STATUS;
+    static const std::string ERROR_MEMORY_LIMIT;
+    static const std::string ERROR_MEMORY_LIMIT_DISK;
+    static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
+    static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
+    static const std::string ERROR_NO_SUPPORTED_FUNCTIONS;
+    static const std::string WARNING_DURATION_LIMIT;
+    static const std::string WARNING_INVALID_EXPIRY;
+    static const std::string INFO_DEFAULT_DURATION;
+    static const std::string INFO_DEFAULT_EXPIRY;
+    static const std::string INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST;
 
-        using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
-        using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
-        using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
+public:
+    using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
+    using TOStreamConcurrentWrapperPtr = std::shared_ptr<TOStreamConcurrentWrapper>;
 
-        using TStrUSet = boost::unordered_set<std::string>;
+    using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
+    using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
 
-    public:
+    using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
+    using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
+    using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
+    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
 
-        //! Initialize and start the forecast runner thread
-        //! \p jobId The job ID
-        //! \p strmOut The output stream to write forecast results to
-        CForecastRunner(const std::string &jobId, core::CJsonOutputStreamWrapper &strmOut, model::CResourceMonitor &resourceMonitor);
+    using TStrUSet = boost::unordered_set<std::string>;
 
-        //! Destructor, cancels all queued forecast requests, finishes a running forecast.
-        //! To finish all remaining forecasts call finishForecasts() first.
-        ~CForecastRunner();
+public:
+    //! Initialize and start the forecast runner thread
+    //! \p jobId The job ID
+    //! \p strmOut The output stream to write forecast results to
+    CForecastRunner(const std::string& jobId,
+                    core::CJsonOutputStreamWrapper& strmOut,
+                    model::CResourceMonitor& resourceMonitor);
 
-        //! Enqueue a forecast job that will execute the requested forecast
-        //!
-        //! Parses and verifies the controlMessage and creates an internal job object which
-        //! contains the required detectors (reference) as well as start and end date.
-        //! The forecast itself isn't executed but might start later depending on the workers
-        //! load.
-        //!
-        //! Validation fails if the message is invalid and/or the too many jobs are in the
-        //! queue.
-        //!
-        //! \param controlMessage The control message retrieved.
-        //! \param detectors vector of detectors (shallow copy)
-        //! \return true if the forecast request passed validation
-        bool pushForecastJob(const std::string &controlMessage,
-                             const TAnomalyDetectorPtrVec &detectors,
-                             const core_t::TTime lastResultsTime);
+    //! Destructor, cancels all queued forecast requests, finishes a running forecast.
+    //! To finish all remaining forecasts call finishForecasts() first.
+    ~CForecastRunner();
 
-        //! Blocks and waits until all queued forecasts are done
-        void finishForecasts();
+    //! Enqueue a forecast job that will execute the requested forecast
+    //!
+    //! Parses and verifies the controlMessage and creates an internal job object which
+    //! contains the required detectors (reference) as well as start and end date.
+    //! The forecast itself isn't executed but might start later depending on the workers
+    //! load.
+    //!
+    //! Validation fails if the message is invalid and/or the too many jobs are in the
+    //! queue.
+    //!
+    //! \param controlMessage The control message retrieved.
+    //! \param detectors vector of detectors (shallow copy)
+    //! \return true if the forecast request passed validation
+    bool pushForecastJob(const std::string& controlMessage,
+                         const TAnomalyDetectorPtrVec& detectors,
+                         const core_t::TTime lastResultsTime);
 
-        //! Deletes all pending forecast requests
-        void deleteAllForecastJobs();
+    //! Blocks and waits until all queued forecasts are done
+    void finishForecasts();
 
-    private:
-        struct API_EXPORT SForecast
-        {
-            SForecast();
+    //! Deletes all pending forecast requests
+    void deleteAllForecastJobs();
 
-            SForecast(SForecast &&other);
-            SForecast &operator=(SForecast &&other);
+private:
+    struct API_EXPORT SForecast {
+        SForecast();
 
-            SForecast(const SForecast &that) = delete;
-            SForecast &operator=(const SForecast &) = delete;
+        SForecast(SForecast&& other);
+        SForecast& operator=(SForecast&& other);
 
-            //! reset the struct, important to e.g. clean up reference counts
-            void reset();
+        SForecast(const SForecast& that) = delete;
+        SForecast& operator=(const SForecast&) = delete;
 
-            //! get the the end time
-            core_t::TTime forecastEnd() const;
+        //! reset the struct, important to e.g. clean up reference counts
+        void reset();
 
-            //! The forecast ID
-            std::string                 s_ForecastId;
+        //! get the the end time
+        core_t::TTime forecastEnd() const;
 
-            //! The forecast alias
-            std::string                 s_ForecastAlias;
+        //! The forecast ID
+        std::string s_ForecastId;
 
-            //! Vector of models/series selected for forecasting (cloned for forecasting)
-            TForecastResultSeriesVec    s_ForecastSeries;
+        //! The forecast alias
+        std::string s_ForecastAlias;
 
-            //! Forecast create time
-            core_t::TTime               s_CreateTime;
+        //! Vector of models/series selected for forecasting (cloned for forecasting)
+        TForecastResultSeriesVec s_ForecastSeries;
 
-            //! Forecast start time
-            core_t::TTime               s_StartTime;
+        //! Forecast create time
+        core_t::TTime s_CreateTime;
 
-            //! Forecast duration
-            core_t::TTime               s_Duration;
+        //! Forecast start time
+        core_t::TTime s_StartTime;
 
-            //! Expiration of the forecast (for automatic deletion)
-            core_t::TTime               s_ExpiryTime;
+        //! Forecast duration
+        core_t::TTime s_Duration;
 
-            //! Forecast bounds
-            double                      s_BoundsPercentile;
+        //! Expiration of the forecast (for automatic deletion)
+        core_t::TTime s_ExpiryTime;
 
-            //! total number of models
-            size_t                      s_NumberOfModels;
+        //! Forecast bounds
+        double s_BoundsPercentile;
 
-            //! total number of models able to forecast
-            size_t                      s_NumberOfForecastableModels;
+        //! total number of models
+        size_t s_NumberOfModels;
 
-            //! total memory required for this forecasting job (only the models)
-            size_t                      s_MemoryUsage;
+        //! total number of models able to forecast
+        size_t s_NumberOfForecastableModels;
 
-            //! A collection storing important messages from forecasting
-            TStrUSet                    s_Messages;
-        };
+        //! total memory required for this forecasting job (only the models)
+        size_t s_MemoryUsage;
 
-    private:
-        using TErrorFunc = std::function<void (const SForecast &forecastJob, const std::string &message)>;
+        //! A collection storing important messages from forecasting
+        TStrUSet s_Messages;
 
-    private:
-        //! The worker loop
-        void forecastWorker();
+        //! A directory to persist models on disk
+        std::string s_TemporaryFolder;
+    };
 
-        //! Check for new jobs, blocks while waiting
-        bool tryGetJob(SForecast &forecastJob);
+private:
+    using TErrorFunc =
+        std::function<void(const SForecast& forecastJob, const std::string& message)>;
 
-        //! pushes new jobs into the internal 'queue' (thread boundary)
-        bool push(SForecast &forecastJob);
+private:
+    //! The worker loop
+    void forecastWorker();
 
-        //! send a scheduled message
-        void sendScheduledMessage(const SForecast &forecastJob) const;
+    //! Check for new jobs, blocks while waiting
+    bool tryGetJob(SForecast& forecastJob);
 
-        //! send an error message
-        void sendErrorMessage(const SForecast &forecastJob, const std::string &message) const;
+    //! check for sufficient disk space
+    bool sufficientAvailableDiskSpace(const boost::filesystem::path& path);
 
-        //! send a final message
-        void sendFinalMessage(const SForecast &forecastJob, const std::string &message) const;
+    //! pushes new jobs into the internal 'queue' (thread boundary)
+    bool push(SForecast& forecastJob);
 
-        //! send a message using \p write
-        template<typename WRITE>
-        void sendMessage(WRITE write, const SForecast &forecastJob, const std::string &message) const;
+    //! send a scheduled message
+    void sendScheduledMessage(const SForecast& forecastJob) const;
 
-        //! parse and validate a forecast request and turn it into a forecast job
-        static bool parseAndValidateForecastRequest(const std::string &controlMessage,
-                                                    SForecast &forecastJob,
-                                                    const core_t::TTime lastResultsTime,
-                                                    const TErrorFunc &errorFunction = TErrorFunc());
+    //! send an error message
+    void sendErrorMessage(const SForecast& forecastJob, const std::string& message) const;
 
-    private:
-        //! This job ID
-        std::string                             m_JobId;
+    //! send a final message
+    void sendFinalMessage(const SForecast& forecastJob, const std::string& message) const;
 
-        //! the output stream to write results to
-        core::CJsonOutputStreamWrapper          &m_ConcurrentOutputStream;
+    //! send a message using \p write
+    template<typename WRITE>
+    void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
-        //! The resource monitor by reference (owned by CAnomalyJob)
-        //! note: we use the resource monitor only for checks at the moment
-        model::CResourceMonitor                 &m_ResourceMonitor;
+    //! parse and validate a forecast request and turn it into a forecast job
+    static bool
+    parseAndValidateForecastRequest(const std::string& controlMessage,
+                                    SForecast& forecastJob,
+                                    const core_t::TTime lastResultsTime,
+                                    const TErrorFunc& errorFunction = TErrorFunc());
 
-        //! thread for the worker
-        std::thread                             m_Worker;
+private:
+    //! This job ID
+    std::string m_JobId;
 
-        //! indicator for worker
-        volatile bool                           m_Shutdown;
+    //! the output stream to write results to
+    core::CJsonOutputStreamWrapper& m_ConcurrentOutputStream;
 
-        //! The 'queue' of forecast jobs to be executed
-        std::list<SForecast>                    m_ForecastJobs;
+    //! The resource monitor by reference (owned by CAnomalyJob)
+    //! note: we use the resource monitor only for checks at the moment
+    model::CResourceMonitor& m_ResourceMonitor;
 
-        //! Mutex
-        std::mutex                              m_Mutex;
+    //! thread for the worker
+    std::thread m_Worker;
 
-        //! Condition variable for the requests queue
-        std::condition_variable                 m_WorkAvailableCondition;
+    //! indicator for worker
+    volatile bool m_Shutdown;
 
-        //! Condition variable for notifications on done requests
-        std::condition_variable                 m_WorkCompleteCondition;
+    //! The 'queue' of forecast jobs to be executed
+    std::list<SForecast> m_ForecastJobs;
 
-        friend class ::CForecastRunnerTest;
+    //! Mutex
+    std::mutex m_Mutex;
+
+    //! Condition variable for the requests queue
+    std::condition_variable m_WorkAvailableCondition;
+
+    //! Condition variable for notifications on done requests
+    std::condition_variable m_WorkCompleteCondition;
+
+    friend class ::CForecastRunnerTest;
 };
-
 }
 }
 

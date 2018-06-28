@@ -8,19 +8,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CCsvInputParserTest : public CppUnit::TestFixture {
+public:
+    void testSimpleDelims();
+    void testComplexDelims();
+    void testThroughput();
+    void testDateParse();
+    void testQuoteParsing();
+    void testLineParser();
 
-class CCsvInputParserTest : public CppUnit::TestFixture
-{
-    public:
-        void testSimpleDelims(void);
-        void testComplexDelims(void);
-        void testThroughput(void);
-        void testDateParse(void);
-        void testQuoteParsing(void);
-        void testLineParser(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCsvInputParserTest_h
-

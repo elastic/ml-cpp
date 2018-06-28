@@ -9,23 +9,15 @@
 
 #include <time.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CMonotonicTime::CMonotonicTime(void)
+CMonotonicTime::CMonotonicTime()
     // Scaling factors never vary for clock_gettime()
-    : m_ScalingFactor1(0),
-      m_ScalingFactor2(0),
-      m_ScalingFactor3(0)
-{
+    : m_ScalingFactor1(0), m_ScalingFactor2(0), m_ScalingFactor3(0) {
 }
 
-uint64_t CMonotonicTime::milliseconds(void) const
-{
+uint64_t CMonotonicTime::milliseconds() const {
     struct timespec ts;
 
     int rc(-1);
@@ -44,9 +36,8 @@ uint64_t CMonotonicTime::milliseconds(void) const
     rc = ::clock_gettime(CLOCK_REALTIME, &ts);
 #endif
 
-    if (rc < 0)
-    {
-        LOG_ERROR("Failed to get reading from hi-res clock");
+    if (rc < 0) {
+        LOG_ERROR(<< "Failed to get reading from hi-res clock");
 
         // Return a very approximate time
         return ::time(0) * 1000ULL;
@@ -58,8 +49,7 @@ uint64_t CMonotonicTime::milliseconds(void) const
     return result;
 }
 
-uint64_t CMonotonicTime::nanoseconds(void) const
-{
+uint64_t CMonotonicTime::nanoseconds() const {
     struct timespec ts;
 
     int rc(-1);
@@ -73,9 +63,8 @@ uint64_t CMonotonicTime::nanoseconds(void) const
     rc = ::clock_gettime(CLOCK_REALTIME, &ts);
 #endif
 
-    if (rc < 0)
-    {
-        LOG_ERROR("Failed to get reading from hi-res clock");
+    if (rc < 0) {
+        LOG_ERROR(<< "Failed to get reading from hi-res clock");
 
         // Return a very approximate time
         return ::time(0) * 1000000000ULL;
@@ -86,8 +75,5 @@ uint64_t CMonotonicTime::nanoseconds(void) const
 
     return result;
 }
-
-
 }
 }
-

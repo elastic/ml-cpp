@@ -12,11 +12,8 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 //! \brief
 //! Processes commands received on a C++ stream.
@@ -44,44 +41,41 @@ namespace controller
 //! Only processes started by this controller may be killed; requests to
 //! kill other processes are ignored.
 //!
-class CCommandProcessor
-{
-    public:
-        typedef std::vector<std::string> TStrVec;
+class CCommandProcessor {
+public:
+    using TStrVec = std::vector<std::string>;
 
-    public:
-        //! Possible commands
-        static const std::string START;
-        static const std::string KILL;
+public:
+    //! Possible commands
+    static const std::string START;
+    static const std::string KILL;
 
-    public:
-        CCommandProcessor(const TStrVec &permittedProcessPaths);
+public:
+    CCommandProcessor(const TStrVec& permittedProcessPaths);
 
-        //! Action commands read from the supplied \p stream until end-of-file
-        //! is reached.
-        void processCommands(std::istream &stream);
+    //! Action commands read from the supplied \p stream until end-of-file
+    //! is reached.
+    void processCommands(std::istream& stream);
 
-        //! Parse and handle a single command.
-        bool handleCommand(const std::string &command);
+    //! Parse and handle a single command.
+    bool handleCommand(const std::string& command);
 
-    private:
-        //! Handle a start command.
-        //! \param tokens Tokens to the command excluding the verb.  Passed
-        //!               non-const so that this method can manipulate the
-        //!               tokens without having to copy.
-        bool handleStart(TStrVec &tokens);
+private:
+    //! Handle a start command.
+    //! \param tokens Tokens to the command excluding the verb.  Passed
+    //!               non-const so that this method can manipulate the
+    //!               tokens without having to copy.
+    bool handleStart(TStrVec& tokens);
 
-        //! Handle a kill command.
-        //! \param tokens Expected to contain one element, namely the process
-        //!               ID of the process to be killed.
-        bool handleKill(TStrVec &tokens);
+    //! Handle a kill command.
+    //! \param tokens Expected to contain one element, namely the process
+    //!               ID of the process to be killed.
+    bool handleKill(TStrVec& tokens);
 
-    private:
-        //! Used to spawn/kill the requested processes.
-        core::CDetachedProcessSpawner m_Spawner;
+private:
+    //! Used to spawn/kill the requested processes.
+    core::CDetachedProcessSpawner m_Spawner;
 };
-
-
 }
 }
 

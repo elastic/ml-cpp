@@ -8,14 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CUnameTest : public CppUnit::TestFixture {
+public:
+    void testUname();
 
-class CUnameTest : public CppUnit::TestFixture
-{
-    public:
-        void testUname(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CUnameTest_h
-

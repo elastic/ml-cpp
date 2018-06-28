@@ -8,8 +8,8 @@
 #define INCLUDED_ml_model_CFeatureData_h
 
 #include <core/CMemoryUsage.h>
-#include <core/CoreTypes.h>
 #include <core/CSmallVector.h>
+#include <core/CoreTypes.h>
 
 #include <model/CSample.h>
 #include <model/ImportExport.h>
@@ -22,27 +22,23 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Manages the indexing for the feature values in the statistics
 //! vectors passed from data gatherers to the model classes.
-class MODEL_EXPORT CFeatureDataIndexing
-{
-    public:
-        using TSizeVec = std::vector<std::size_t>;
+class MODEL_EXPORT CFeatureDataIndexing {
+public:
+    using TSizeVec = std::vector<std::size_t>;
 
-    public:
-        //! Get the indices of the actual feature value(s) in the feature
-        //! data vector.
-        static const TSizeVec &valueIndices(std::size_t dimension);
+public:
+    //! Get the indices of the actual feature value(s) in the feature
+    //! data vector.
+    static const TSizeVec& valueIndices(std::size_t dimension);
 };
 
 //! \brief The data for an event rate series feature.
-struct MODEL_EXPORT SEventRateFeatureData
-{
+struct MODEL_EXPORT SEventRateFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
@@ -53,7 +49,7 @@ struct MODEL_EXPORT SEventRateFeatureData
     SEventRateFeatureData(uint64_t count);
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(SEventRateFeatureData &other);
+    void swap(SEventRateFeatureData& other);
 
     //! Print the data for debug.
     std::string print() const;
@@ -69,8 +65,7 @@ struct MODEL_EXPORT SEventRateFeatureData
 };
 
 //! \brief The data for a metric series feature.
-struct MODEL_EXPORT SMetricFeatureData
-{
+struct MODEL_EXPORT SMetricFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TOptionalSample = boost::optional<CSample>;
     using TSampleVec = std::vector<CSample>;
@@ -81,17 +76,15 @@ struct MODEL_EXPORT SMetricFeatureData
     using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
 
     SMetricFeatureData(core_t::TTime bucketTime,
-                       const TDouble1Vec &bucketValue,
+                       const TDouble1Vec& bucketValue,
                        double bucketVarianceScale,
                        double bucketCount,
-                       TStrCRefDouble1VecDoublePrPrVecVec &influenceValues,
+                       TStrCRefDouble1VecDoublePrPrVecVec& influenceValues,
                        bool isInteger,
                        bool isNonNegative,
-                       const TSampleVec &samples);
+                       const TSampleVec& samples);
 
-    SMetricFeatureData(bool isInteger,
-                       bool isNonNegative,
-                       const TSampleVec &samples);
+    SMetricFeatureData(bool isInteger, bool isNonNegative, const TSampleVec& samples);
 
     //! Print the data for debug.
     std::string print() const;
@@ -113,7 +106,6 @@ struct MODEL_EXPORT SMetricFeatureData
     //! The samples.
     TSampleVec s_Samples;
 };
-
 }
 }
 

@@ -33,6 +33,7 @@ SRCS=\
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
 	CEqualWithToleranceTest.cc \
+	CExpandingWindowTest.cc \
 	CForecastTest.cc \
 	CGammaRateConjugateTest.cc \
 	CGramSchmidtTest.cc \
@@ -59,6 +60,7 @@ SRCS=\
 	CMultivariateMultimodalPriorTest.cc \
 	CMultivariateNormalConjugateTest.cc \
 	CMultivariateOneOfNPriorTest.cc \
+	CNaiveBayesTest.cc \
 	CNaturalBreaksClassifierTest.cc \
 	CNormalMeanPrecConjugateTest.cc \
 	COneOfNPriorTest.cc \
@@ -85,6 +87,7 @@ SRCS=\
 	CSolversTest.cc \
 	CSplineTest.cc \
 	CStatisticalTestsTest.cc \
+	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CToolsTest.cc \

@@ -14,12 +14,8 @@
 #include <pthread.h>
 #endif
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Wrapper class around pthread rw lock.
@@ -41,29 +37,25 @@ namespace core
 //!
 //! All errors are just warnings - no action taken.
 //!
-class CORE_EXPORT CReadWriteLock : private CNonCopyable
-{
-    public:
-        CReadWriteLock(void);
-        ~CReadWriteLock(void);
+class CORE_EXPORT CReadWriteLock : private CNonCopyable {
+public:
+    CReadWriteLock();
+    ~CReadWriteLock();
 
-        void readLock(void);
-        void readUnlock(void);
+    void readLock();
+    void readUnlock();
 
-        void writeLock(void);
-        void writeUnlock(void);
+    void writeLock();
+    void writeUnlock();
 
-    private:
+private:
 #ifdef Windows
-        SRWLOCK          m_ReadWriteLock;
+    SRWLOCK m_ReadWriteLock;
 #else
-        pthread_rwlock_t m_ReadWriteLock;
+    pthread_rwlock_t m_ReadWriteLock;
 #endif
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CReadWriteLock_h
-

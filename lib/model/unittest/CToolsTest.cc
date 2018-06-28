@@ -16,19 +16,15 @@
 using namespace ml;
 using namespace model;
 
-void CToolsTest::testDataGatherers(void)
-{
+void CToolsTest::testDataGatherers() {
     // TODO
 }
 
-void CToolsTest::testProbabilityAggregator(void)
-{
-    LOG_DEBUG("****** CToolsTest::testProbabilityAggregator ******");
-
+void CToolsTest::testProbabilityAggregator() {
     // Test a variety of min aggregations.
 
     {
-        LOG_DEBUG("joint");
+        LOG_DEBUG(<< "joint");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples());
@@ -40,10 +36,9 @@ void CToolsTest::testProbabilityAggregator(void)
 
         maths::CJointProbabilityOfLessLikelySamples expected;
 
-        double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
+        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             expected.add(p[0]);
             CPPUNIT_ASSERT(!actual.empty());
@@ -52,12 +47,12 @@ void CToolsTest::testProbabilityAggregator(void)
             CPPUNIT_ASSERT(actual.calculate(pi));
             double pe;
             expected.calculate(pe);
-            LOG_DEBUG("pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pe, pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("extreme");
+        LOG_DEBUG(<< "extreme");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CProbabilityOfExtremeSample());
@@ -69,10 +64,9 @@ void CToolsTest::testProbabilityAggregator(void)
 
         maths::CProbabilityOfExtremeSample expected;
 
-        double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
+        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             expected.add(p[0]);
             CPPUNIT_ASSERT(!actual.empty());
@@ -81,12 +75,12 @@ void CToolsTest::testProbabilityAggregator(void)
             CPPUNIT_ASSERT(actual.calculate(pi));
             double pe;
             expected.calculate(pe);
-            LOG_DEBUG("pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pe, pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("minimum");
+        LOG_DEBUG(<< "minimum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples());
@@ -100,10 +94,9 @@ void CToolsTest::testProbabilityAggregator(void)
         maths::CJointProbabilityOfLessLikelySamples joint;
         maths::CProbabilityOfExtremeSample extreme;
 
-        double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
+        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             joint.add(p[0]);
             extreme.add(p[0]);
@@ -114,12 +107,12 @@ void CToolsTest::testProbabilityAggregator(void)
             double pj, pe;
             joint.calculate(pj);
             extreme.calculate(pe);
-            LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pj = " << pj << " pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pj, pe), pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("sum");
+        LOG_DEBUG(<< "sum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Sum);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples(), 0.5);
@@ -133,10 +126,9 @@ void CToolsTest::testProbabilityAggregator(void)
         maths::CJointProbabilityOfLessLikelySamples joint;
         maths::CProbabilityOfExtremeSample extreme;
 
-        double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
+        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             joint.add(p[0]);
             extreme.add(p[0]);
@@ -147,19 +139,17 @@ void CToolsTest::testProbabilityAggregator(void)
             double pj, pe;
             joint.calculate(pj);
             extreme.calculate(pe);
-            LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(pj) * ::sqrt(pe), pi, 1e-10);
+            LOG_DEBUG(<< "pj = " << pj << " pe = " << pe << " pi = " << pi);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(pj) * std::sqrt(pe), pi, 1e-10);
         }
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
+CppUnit::Test* CToolsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CToolsTest>(
-                                   "CToolsTest::testProbabilityAggregator",
-                                   &CToolsTest::testProbabilityAggregator) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
+        "CToolsTest::testProbabilityAggregator", &CToolsTest::testProbabilityAggregator));
 
     return suiteOfTests;
 }

@@ -8,12 +8,9 @@
 
 #include <core/CTimeUtils.h>
 
-namespace ml
-{
-namespace api
-{
-namespace
-{
+namespace ml {
+namespace api {
+namespace {
 
 // JSON field names
 const std::string JOB_ID("job_id");
@@ -26,13 +23,11 @@ const std::string BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_c
 const std::string MEMORY_STATUS("memory_status");
 const std::string TIMESTAMP("timestamp");
 const std::string LOG_TIME("log_time");
-
 }
 
-void CModelSizeStatsJsonWriter::write(const std::string &jobId,
-                                      const model::CResourceMonitor::SResults &results,
-                                      core::CRapidJsonConcurrentLineWriter &writer)
-{
+void CModelSizeStatsJsonWriter::write(const std::string& jobId,
+                                      const model::CResourceMonitor::SResults& results,
+                                      core::CRapidJsonConcurrentLineWriter& writer) {
     writer.String(MODEL_SIZE_STATS);
     writer.StartObject();
 
@@ -73,6 +68,5 @@ void CModelSizeStatsJsonWriter::write(const std::string &jobId,
 
     writer.EndObject();
 }
-
 }
 }

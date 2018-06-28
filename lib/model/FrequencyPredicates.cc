@@ -6,24 +6,17 @@
 
 #include <model/FrequencyPredicates.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
-CPersonFrequencyGreaterThan::CPersonFrequencyGreaterThan(const CAnomalyDetectorModel &model,
-                                                         double threshold) :
-        m_Model(&model),
-        m_Threshold(threshold)
-{
+CPersonFrequencyGreaterThan::CPersonFrequencyGreaterThan(const CAnomalyDetectorModel& model,
+                                                         double threshold)
+    : m_Model(&model), m_Threshold(threshold) {
 }
 
-CAttributeFrequencyGreaterThan::CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel &model,
-                                                               double threshold) :
-        m_Model(&model),
-        m_Threshold(threshold)
-{
+CAttributeFrequencyGreaterThan::CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel& model,
+                                                               double threshold)
+    : m_Model(&model), m_Threshold(threshold) {
 }
-
 }
 }

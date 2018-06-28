@@ -12,11 +12,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! Retrieves data previously persisted to file.
@@ -33,36 +30,32 @@ namespace test
 //! class.  For data persisted by the CSingleStreamDataAdder class, use the
 //! CSingleStreamSearcher.
 //!
-class TEST_EXPORT CMultiFileSearcher : public core::CDataSearcher
-{
-    public:
-        //! File extension for persisted files.
-        static const std::string JSON_FILE_EXT;
+class TEST_EXPORT CMultiFileSearcher : public core::CDataSearcher {
+public:
+    //! File extension for persisted files.
+    static const std::string JSON_FILE_EXT;
 
-    public:
-        //! Constructor uses the pass-by-value-and-move idiom
-        CMultiFileSearcher(std::string baseFilename,
-                           std::string baseDocId,
-                           std::string fileExtension = JSON_FILE_EXT);
+public:
+    //! Constructor uses the pass-by-value-and-move idiom
+    CMultiFileSearcher(std::string baseFilename,
+                       std::string baseDocId,
+                       std::string fileExtension = JSON_FILE_EXT);
 
-        //! Load the file
-        //! \return Pointer to the input stream - may be NULL
-        virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    //! Load the file
+    //! \return Pointer to the input stream - may be NULL
+    virtual TIStreamP search(size_t currentDocNum, size_t limit);
 
-    private:
-        //! Name of the file to serialise models to
-        std::string m_BaseFilename;
+private:
+    //! Name of the file to serialise models to
+    std::string m_BaseFilename;
 
-        //! Base ID for stored documents
-        std::string m_BaseDocId;
+    //! Base ID for stored documents
+    std::string m_BaseDocId;
 
-        //! The extension for the peristed files
-        std::string m_FileExtension;
+    //! The extension for the peristed files
+    std::string m_FileExtension;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_test_CMultiFileSearcher_h
-

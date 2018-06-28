@@ -11,12 +11,10 @@
 
 #include <config/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerImpl;
 class CAutoconfigurerParams;
 class CReportWriter;
@@ -35,42 +33,39 @@ class CReportWriter;
 //!
 //! We use the pimpl idiom to isolate the internals of this library from the
 //! automatic configuration commands.
-class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor
-{
-    public:
-        CAutoconfigurer(const CAutoconfigurerParams &params,
-                        CReportWriter &reportWriter);
+class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor {
+public:
+    CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter);
 
-        //! We're going to be writing to a new output stream.
-        virtual void newOutputStream(void);
+    //! We're going to be writing to a new output stream.
+    virtual void newOutputStream();
 
-        //! Receive a single record to be processed.
-        virtual bool handleRecord(const TStrStrUMap &fieldValues);
+    //! Receive a single record to be processed.
+    virtual bool handleRecord(const TStrStrUMap& fieldValues);
 
-        //! Generate the report.
-        virtual void finalise(void);
+    //! Generate the report.
+    virtual void finalise();
 
-        //! No-op.
-        virtual bool restoreState(core::CDataSearcher &restoreSearcher,
-                                  core_t::TTime &completeToTime);
+    //! No-op.
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
-        //! No-op.
-        virtual bool persistState(core::CDataAdder &persister);
+    //! No-op.
+    virtual bool persistState(core::CDataAdder& persister);
 
-        //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const;
+    //! How many records did we handle?
+    virtual uint64_t numRecordsHandled() const;
 
-        //! Access the output handler.
-        virtual api::COutputHandler &outputHandler(void);
+    //! Access the output handler.
+    virtual api::COutputHandler& outputHandler();
 
-    private:
-        typedef boost::shared_ptr<CAutoconfigurerImpl> TImplPtr;
+private:
+    using TImplPtr = std::shared_ptr<CAutoconfigurerImpl>;
 
-    private:
-        //! The pointer to the actual implementation.
-        TImplPtr m_Impl;
+private:
+    //! The pointer to the actual implementation.
+    TImplPtr m_Impl;
 };
-
 }
 }
 

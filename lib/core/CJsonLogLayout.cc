@@ -25,16 +25,14 @@
 
 #include <stdint.h>
 
-
-namespace
-{
+namespace {
 const std::string LOGGER_NAME("logger");
 const std::string TIMESTAMP_NAME("timestamp");
 const std::string LEVEL_NAME("level");
 const std::string PID_NAME("pid");
 // Cast this to int64_t as the type varies between int32_t and uint32_t on
 // different platforms and int64_t covers both
-const int64_t     PID(static_cast<int64_t>(ml::core::CProcess::instance().id()));
+const int64_t PID(static_cast<int64_t>(ml::core::CProcess::instance().id()));
 const std::string THREAD_NAME("thread");
 const std::string MESSAGE_NAME("message");
 const std::string NDC_NAME("ndc");
@@ -54,59 +52,42 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
 
-CJsonLogLayout::CJsonLogLayout(void)
-    : m_LocationInfo(true),
-      m_Properties(false)
-{
+CJsonLogLayout::CJsonLogLayout() : m_LocationInfo(true), m_Properties(false) {
 }
 
-void CJsonLogLayout::locationInfo(bool locationInfo)
-{
+void CJsonLogLayout::locationInfo(bool locationInfo) {
     m_LocationInfo = locationInfo;
 }
 
-bool CJsonLogLayout::locationInfo(void) const
-{
+bool CJsonLogLayout::locationInfo() const {
     return m_LocationInfo;
 }
 
-void CJsonLogLayout::properties(bool properties)
-{
+void CJsonLogLayout::properties(bool properties) {
     m_Properties = properties;
 }
 
-bool CJsonLogLayout::properties(void) const
-{
+bool CJsonLogLayout::properties() const {
     return m_Properties;
 }
 
-void CJsonLogLayout::activateOptions(Pool &/*p*/)
-{
+void CJsonLogLayout::activateOptions(Pool& /*p*/) {
     // NO-OP
 }
 
-void CJsonLogLayout::setOption(const LogString &option,
-                               const LogString &value)
-{
-    if (StringHelper::equalsIgnoreCase(option,
-                                       LOG4CXX_STR("LOCATIONINFO"),
-                                       LOG4CXX_STR("locationinfo")))
-    {
+void CJsonLogLayout::setOption(const LogString& option, const LogString& value) {
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"),
+                                       LOG4CXX_STR("locationinfo"))) {
         this->locationInfo(OptionConverter::toBoolean(value, false));
     }
-    if (StringHelper::equalsIgnoreCase(option,
-                                       LOG4CXX_STR("PROPERTIES"),
-                                       LOG4CXX_STR("properties")))
-    {
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PROPERTIES"),
+                                       LOG4CXX_STR("properties"))) {
         this->properties(OptionConverter::toBoolean(value, false));
     }
 }
 
-void CJsonLogLayout::format(LogString &output,
-                            const spi::LoggingEventPtr &event,
-                            Pool &/*p*/) const
-{
-    typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
+void CJsonLogLayout::format(LogString& output, const spi::LoggingEventPtr& event, Pool& /*p*/) const {
+    using TStringBufferWriter = rapidjson::Writer<rapidjson::StringBuffer>;
     rapidjson::StringBuffer buffer;
     TStringBufferWriter writer(buffer);
 
@@ -135,27 +116,23 @@ void CJsonLogLayout::format(LogString &output,
     writer.String(message);
 
     LogString logNdc;
-    if (event->getNDC(logNdc))
-    {
+    if (event->getNDC(logNdc)) {
         writer.String(NDC_NAME);
         LOG4CXX_ENCODE_CHAR(ndc, logNdc);
         writer.String(ndc);
     }
 
-    if (m_LocationInfo)
-    {
-        const spi::LocationInfo &locInfo = event->getLocationInformation();
+    if (m_LocationInfo) {
+        const spi::LocationInfo& locInfo = event->getLocationInformation();
 
-        const std::string &className = locInfo.getClassName();
-        if (!className.empty())
-        {
+        const std::string& className = locInfo.getClassName();
+        if (!className.empty()) {
             writer.String(CLASS_NAME);
             writer.String(className);
         }
 
-        const std::string &methodName = locInfo.getMethodName();
-        if (!methodName.empty())
-        {
+        const std::string& methodName = locInfo.getMethodName();
+        if (!methodName.empty()) {
             writer.String(METHOD_NAME);
             writer.String(methodName);
         }
@@ -167,23 +144,18 @@ void CJsonLogLayout::format(LogString &output,
         writer.Int(locInfo.getLineNumber());
     }
 
-    if (m_Properties)
-    {
-        const spi::LoggingEvent::KeySet &propertySet = event->getPropertyKeySet();
-        const spi::LoggingEvent::KeySet &keySet = event->getMDCKeySet();
-        if (!(keySet.empty() && propertySet.empty()))
-        {
+    if (m_Properties) {
+        const spi::LoggingEvent::KeySet& propertySet = event->getPropertyKeySet();
+        const spi::LoggingEvent::KeySet& keySet = event->getMDCKeySet();
+        if (!(keySet.empty() && propertySet.empty())) {
             writer.String(PROPERTIES_NAME);
             writer.StartObject();
 
             for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin();
-                 i != keySet.end();
-                 ++i)
-            {
-                const LogString &key = *i;
+                 i != keySet.end(); ++i) {
+                const LogString& key = *i;
                 LogString value;
-                if (event->getMDC(key, value))
-                {
+                if (event->getMDC(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);
                     LOG4CXX_ENCODE_CHAR(val, value);
@@ -191,13 +163,10 @@ void CJsonLogLayout::format(LogString &output,
                 }
             }
             for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin();
-                 i != propertySet.end();
-                 ++i)
-            {
-                const LogString &key = *i;
+                 i != propertySet.end(); ++i) {
+                const LogString& key = *i;
                 LogString value;
-                if (event->getProperty(key, value))
-                {
+                if (event->getProperty(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);
                     LOG4CXX_ENCODE_CHAR(val, value);
@@ -215,14 +184,11 @@ void CJsonLogLayout::format(LogString &output,
     output.append(LOG4CXX_EOL);
 }
 
-bool CJsonLogLayout::ignoresThrowable(void) const
-{
+bool CJsonLogLayout::ignoresThrowable() const {
     return false;
 }
 
-std::string CJsonLogLayout::cropPath(const std::string &filename)
-{
-   boost::filesystem::path p(filename);
-   return p.filename().string();
+std::string CJsonLogLayout::cropPath(const std::string& filename) {
+    boost::filesystem::path p(filename);
+    return p.filename().string();
 }
-

@@ -7,29 +7,23 @@
 
 #include <core/CLogger.h>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 // statics
 const std::string CDataProcessor::CONTROL_FIELD_NAME(1, CONTROL_FIELD_NAME_CHAR);
 
-CDataProcessor::CDataProcessor(void)
-{
+CDataProcessor::CDataProcessor() {
 }
 
-CDataProcessor::~CDataProcessor(void)
-{
+CDataProcessor::~CDataProcessor() {
     // Most compilers put the vtable in the object file containing the
     // definition of the first non-inlined virtual function, so DON'T move this
     // empty definition to the header file!
 }
 
-std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields)
-{
-    if (dataRowFields.empty())
-    {
+std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
+    if (dataRowFields.empty()) {
         return "<EMPTY RECORD>";
     }
 
@@ -41,11 +35,8 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields)
     // values on the next line
 
     for (TStrStrUMapCItr rowIter = dataRowFields.begin();
-         rowIter != dataRowFields.end();
-         ++rowIter)
-    {
-        if (rowIter != dataRowFields.begin())
-        {
+         rowIter != dataRowFields.end(); ++rowIter) {
+        if (rowIter != dataRowFields.begin()) {
             fieldNames.push_back(',');
             fieldValues.push_back(',');
         }
@@ -58,13 +49,9 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields)
     return result.str();
 }
 
-bool CDataProcessor::periodicPersistState(CBackgroundPersister &/*persister*/)
-{
+bool CDataProcessor::periodicPersistState(CBackgroundPersister& /*persister*/) {
     // No-op
     return true;
 }
-
-
 }
 }
-

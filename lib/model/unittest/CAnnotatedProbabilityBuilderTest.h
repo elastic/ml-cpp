@@ -9,20 +9,19 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture
-{
-    public:
-        void testProbability(void);
-        void testAddAttributeProbabilityGivenIndividualCount(void);
-        void testAddAttributeProbabilityGivenPopulationCount(void);
-        void testAddAttributeProbabilityGivenIndividualRare(void);
-        void testAddAttributeProbabilityGivenPopulationRare(void);
-        void testAddAttributeProbabilityGivenPopulationFreqRare(void);
-        void testPersonFrequencyGivenIndividualCount(void);
-        void testPersonFrequencyGivenIndividualRare(void);
-        void testPersonFrequencyGivenPopulationRare(void);
+class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture {
+public:
+    void testProbability();
+    void testAddAttributeProbabilityGivenIndividualCount();
+    void testAddAttributeProbabilityGivenPopulationCount();
+    void testAddAttributeProbabilityGivenIndividualRare();
+    void testAddAttributeProbabilityGivenPopulationRare();
+    void testAddAttributeProbabilityGivenPopulationFreqRare();
+    void testPersonFrequencyGivenIndividualCount();
+    void testPersonFrequencyGivenIndividualRare();
+    void testPersonFrequencyGivenPopulationRare();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnnotatedProbabilityBuilderTest_h

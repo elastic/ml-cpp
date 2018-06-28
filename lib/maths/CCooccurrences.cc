@@ -18,62 +18,47 @@
 
 #include <boost/math/distributions/chi_squared.hpp>
 
+#include <cmath>
 #include <string>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace
-{
+namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef CVector<double> TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+using TPoint = CVector<double>;
+using TPointVec = std::vector<TPoint>;
+using TPackedBitVectorVec = std::vector<CPackedBitVector>;
 
 //! \brief Counts the (co-)occurrences of two variables.
-struct SCooccurrence
-{
-    SCooccurrence(void) :
-        s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0)
-    {}
-    SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y) :
-        s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y)
-    {}
+struct SCooccurrence {
+    SCooccurrence() : s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {}
+    SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y)
+        : s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
 
-    bool operator<(const SCooccurrence &rhs) const
-    {
-        return  s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y)
-              < rhs.s_Nxy * s_Nx * s_Ny;
+    bool operator<(const SCooccurrence& rhs) const {
+        return s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y) <
+               rhs.s_Nxy * s_Nx * s_Ny;
     }
 
     double s_Nxy, s_Nx, s_Ny;
     std::size_t s_X, s_Y;
 };
 
-typedef CBasicStatistics::COrderStatisticsHeap<SCooccurrence> TMostSignificant;
-
-//! Compute \p x * \p x.
-double pow2(double x)
-{
-    return x * x;
-}
+using TMostSignificant = CBasicStatistics::COrderStatisticsHeap<SCooccurrence>;
 
 //! Generate a random projection in the positive orthant.
 //!
 //! \param[in] dimension The dimension.
 //! \param[out] result Filled in with the projection.
-void generateProjection(std::size_t dimension, CPackedBitVector &result)
-{
-    if (dimension == 0)
-    {
+void generateProjection(std::size_t dimension, CPackedBitVector& result) {
+    if (dimension == 0) {
         return;
     }
 
@@ -94,10 +79,8 @@ void generateProjection(std::size_t dimension, CPackedBitVector &result)
 
     bool last = (uniform01[0] < 0.5);
     result.extend(last);
-    for (std::size_t i = 1; i < uniform01.size(); ++i)
-    {
-        if (uniform01[i] < TRANSITION_PROBABILITY)
-        {
+    for (std::size_t i = 1; i < uniform01.size(); ++i) {
+        if (uniform01[i] < TRANSITION_PROBABILITY) {
             last = !last;
         }
         result.extend(last);
@@ -110,19 +93,16 @@ void generateProjection(std::size_t dimension, CPackedBitVector &result)
 //! \param[in] lengths The Euclidean lengths of the indicator vectors.
 //! \param[in] mask A mask of events to consider.
 //! \param[in] result Filled in with the p projections of indicator vectors.
-void generateProjections(const TPackedBitVectorVec &indicators,
-                         const TDoubleVec &lengths,
-                         const TSizeVec &mask,
-                         TDoubleVecVec &result)
-{
+void generateProjections(const TPackedBitVectorVec& indicators,
+                         const TDoubleVec& lengths,
+                         const TSizeVec& mask,
+                         TDoubleVecVec& result) {
     std::size_t dimension = indicators[0].dimension();
-    for (std::size_t i = 0u; i < result.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < result.size(); ++i) {
         CPackedBitVector projection;
         generateProjection(dimension, projection);
         double length = projection.euclidean();
-        for (std::size_t j = 0u; j < mask.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < mask.size(); ++j) {
             std::size_t k = mask[j];
             result[i][j] = indicators[k].inner(projection) / lengths[k] / length;
         }
@@ -139,27 +119,22 @@ void generateProjections(const TPackedBitVectorVec &indicators,
 //! to this set.
 //! \param[out] mostSignificant Maybe updated to include the co-occurrence
 //! of \p x and \p y.
-void testCooccurrence(const TPackedBitVectorVec &indicators,
-                      const TDoubleVec &lengths,
+void testCooccurrence(const TPackedBitVectorVec& indicators,
+                      const TDoubleVec& lengths,
                       std::size_t x,
                       std::size_t y,
-                      TSizeSizePrUSet &added,
-                      TMostSignificant &mostSignificant)
-{
-    if (x > y)
-    {
+                      TSizeSizePrUSet& added,
+                      TMostSignificant& mostSignificant) {
+    if (x > y) {
         std::swap(x, y);
     }
-    if (added.count(std::make_pair(x, y)) == 0)
-    {
+    if (added.count(std::make_pair(x, y)) == 0) {
         double nxy = indicators[x].inner(indicators[y]);
         std::size_t count = mostSignificant.count();
         std::size_t u = mostSignificant.biggest().s_X;
         std::size_t v = mostSignificant.biggest().s_Y;
-        if (mostSignificant.add(SCooccurrence(nxy, lengths[x], lengths[y], x, y)))
-        {
-            if (mostSignificant.count() == count)
-            {
+        if (mostSignificant.add(SCooccurrence(nxy, lengths[x], lengths[y], x, y))) {
+            if (mostSignificant.count() == count) {
                 added.erase(std::make_pair(u, v));
             }
             added.insert(std::make_pair(x, y));
@@ -178,27 +153,23 @@ void testCooccurrence(const TPackedBitVectorVec &indicators,
 //! significantly co-occurring event indices.
 //! \param[out] mostSignificant Filled in with the most seed significantly
 //! co-occurring event pairs.
-void seed(const TPackedBitVectorVec &indicators,
-          const TDoubleVec &lengths,
+void seed(const TPackedBitVectorVec& indicators,
+          const TDoubleVec& lengths,
           TSizeVec mask,
-          const TDoubleVecVec &projected,
-          TSizeSizePrUSet &added,
-          TMostSignificant &mostSignificant)
-{
+          const TDoubleVecVec& projected,
+          TSizeSizePrUSet& added,
+          TMostSignificant& mostSignificant) {
     std::size_t n = mask.size();
     TDoubleVec theta(n, 0.0);
-    for (std::size_t i = 0u; i < n; ++i)
-    {
-        for (std::size_t j = 0u; j < projected.size(); ++j)
-        {
-            theta[i] += pow2(projected[j][i]);
+    for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t j = 0u; j < projected.size(); ++j) {
+            theta[i] += CTools::pow2(projected[j][i]);
         }
-        theta[i] = ::acos(::sqrt(theta[i]));
+        theta[i] = std::acos(std::sqrt(theta[i]));
     }
     COrderings::simultaneousSort(theta, mask);
-    for (std::size_t i = 1u; i < n; ++i)
-    {
-        testCooccurrence(indicators, lengths, mask[i-1], mask[i], added, mostSignificant);
+    for (std::size_t i = 1u; i < n; ++i) {
+        testCooccurrence(indicators, lengths, mask[i - 1], mask[i], added, mostSignificant);
     }
 }
 
@@ -209,17 +180,12 @@ void seed(const TPackedBitVectorVec &indicators,
 //! \param[in] i The index into \p theta for which to compute the filter.
 //! \param[in] bound The largest angularly separated event to include.
 //! \param[out] result The indices of the events in the filter.
-void computeFilter(const TSizeVec &mask,
-                   const TDoubleVec &theta,
-                   std::size_t i,
-                   double bound,
-                   TSizeVec &result)
-{
+void computeFilter(const TSizeVec& mask, const TDoubleVec& theta, std::size_t i, double bound, TSizeVec& result) {
     result.clear();
-    ptrdiff_t start = std::lower_bound(theta.begin(), theta.end(),
-                                       theta[i] - bound) - theta.begin();
-    ptrdiff_t end   = std::upper_bound(theta.begin(), theta.end(),
-                                       theta[i] + bound) - theta.begin();
+    ptrdiff_t start = std::lower_bound(theta.begin(), theta.end(), theta[i] - bound) -
+                      theta.begin();
+    ptrdiff_t end = std::upper_bound(theta.begin(), theta.end(), theta[i] + bound) -
+                    theta.begin();
     result.reserve(end - start);
     result.insert(result.end(), mask.begin() + start, mask.begin() + i);
     result.insert(result.end(), mask.begin() + i + 1, mask.begin() + end);
@@ -227,13 +193,10 @@ void computeFilter(const TSizeVec &mask,
 }
 
 //! Apply \p filter to \p result (set intersection).
-void applyFilter(const TSizeVec &filter,
-                 TSizeVec &placeholder,
-                 TSizeVec &result)
-{
+void applyFilter(const TSizeVec& filter, TSizeVec& placeholder, TSizeVec& result) {
     placeholder.clear();
-    std::set_intersection(result.begin(), result.end(),
-                          filter.begin(), filter.end(), std::back_inserter(placeholder));
+    std::set_intersection(result.begin(), result.end(), filter.begin(),
+                          filter.end(), std::back_inserter(placeholder));
     result.swap(placeholder);
 }
 
@@ -245,12 +208,11 @@ void applyFilter(const TSizeVec &filter,
 //! \param[in] p The number of projections to use.
 //! \param[in] mostSignificant Filled in with the most significant co-occurring
 //! events.
-void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators,
-                                           const TDoubleVec &lengths,
-                                           const TSizeVec &mask,
+void searchForMostSignificantCooccurrences(const TPackedBitVectorVec& indicators,
+                                           const TDoubleVec& lengths,
+                                           const TSizeVec& mask,
                                            std::size_t p,
-                                           TMostSignificant &mostSignificant)
-{
+                                           TMostSignificant& mostSignificant) {
     // This uses the fact that after projecting the values using
     // f : x -> (||p^t x|| / ||x||, ||(1 - p p^t) x|| / || x ||) the
     // Euclidean separation ||f(x) - f(y)||^2 = 2 ( 1 - x^t y / ( ||x|| ||y|| ) )
@@ -268,11 +230,9 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators
     seed(indicators, lengths, mask, thetas, added, mostSignificant);
 
     TSizeVecVec masks(p, mask);
-    for (std::size_t i = 0u; i < p; ++i)
-    {
-        for (std::size_t j = 0u; j < n; ++j)
-        {
-            thetas[i][j] = ::acos(thetas[i][j]);
+    for (std::size_t i = 0u; i < p; ++i) {
+        for (std::size_t j = 0u; j < n; ++j) {
+            thetas[i][j] = std::acos(thetas[i][j]);
         }
         COrderings::simultaneousSort(thetas[i], masks[i]);
     }
@@ -281,22 +241,20 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators
     TSizeVec filter;
     TSizeVec placeholder;
 
-    for (std::size_t i = 0u; i < n; ++i)
-    {
-        double lambda =   mostSignificant.biggest().s_Nxy
-                       / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
+    for (std::size_t i = 0u; i < n; ++i) {
+        double lambda =
+            mostSignificant.biggest().s_Nxy /
+            (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
 
-        double bound = 2.0 * ::asin(1.0 - lambda);
+        double bound = 2.0 * std::asin(1.0 - lambda);
 
         computeFilter(masks[0], thetas[0], i, bound, candidates);
-        for (std::size_t j = 1u; !candidates.empty() && j < p; ++j)
-        {
+        for (std::size_t j = 1u; !candidates.empty() && j < p; ++j) {
             computeFilter(masks[j], thetas[j], i, bound, filter);
             applyFilter(filter, placeholder, candidates);
         }
 
-        for (std::size_t j = 0u; j < candidates.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < candidates.size(); ++j) {
             testCooccurrence(indicators, lengths, mask[i], candidates[j], added, mostSignificant);
         }
     }
@@ -309,8 +267,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators
 //! \param[in] nx The count of occurrences of x.
 //! \param[in] ny The count of occurrences of y.
 //! \param[in] n The total sample size.
-double significance(double nxy, double nx, double ny, double n)
-{
+double significance(double nxy, double nx, double ny, double n) {
     // Here we test a nested composite hypothesis.
     //
     // Our null hypothesis H0 is that the probability of seeing x is independent
@@ -364,22 +321,22 @@ double significance(double nxy, double nx, double ny, double n)
     //
     // which gives us the size of the test.
 
-    if (nx == 0.0 || ny == 0.0)
-    {
+    if (nx == 0.0 || ny == 0.0) {
         return 1.0;
     }
 
     double g = (nxy * n) / (nx * ny);
 
-    if (g > 1.0)
-    {
+    if (g > 1.0) {
         double px = nx / n;
         double py = ny / n;
 
-        double lambda = n * (  -g * px * py * ::log(g)
-                             + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py))
-                             + py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px))
-                             + (1.0 - px - py + g*px*py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g*px*py)));
+        double lambda =
+            n * (-g * px * py * std::log(g) +
+                 px * (1.0 - g * py) * std::log((1.0 - py) / (1.0 - g * py)) +
+                 py * (1.0 - g * px) * std::log((1.0 - px) / (1.0 - g * px)) +
+                 (1.0 - px - py + g * px * py) *
+                     std::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
 
         boost::math::chi_squared_distribution<> chi(1.0);
 
@@ -393,51 +350,40 @@ std::string LENGTH_TAG("a");
 std::string OFFSET_TAG("b");
 std::string CURRENT_INDICATOR_TAG("c");
 std::string INDICATOR_TAG("d");
-
 }
 
-CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth) :
-        m_MaximumLength(maximumLength),
-        m_Length(0),
-        m_IndicatorWidth(indicatorWidth),
-        m_Offset(0)
-{
+CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth)
+    : m_MaximumLength(maximumLength), m_Length(0),
+      m_IndicatorWidth(indicatorWidth), m_Offset(0) {
 }
 
-bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
-{
-    do
-    {
-        const std::string &name = traverser.name();
-        if (   name == LENGTH_TAG
-            && core::CStringUtils::stringToType(traverser.value(), m_Length) == false)
-        {
-            LOG_ERROR("Invalid length in " << traverser.value());
+bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        if (name == LENGTH_TAG &&
+            core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
+            LOG_ERROR(<< "Invalid length in " << traverser.value());
             return false;
         }
-        if (   name == OFFSET_TAG
-            && core::CStringUtils::stringToType(traverser.value(), m_Offset) == false)
-        {
-            LOG_ERROR("Invalid offset in " << traverser.value());
+        if (name == OFFSET_TAG &&
+            core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
+            LOG_ERROR(<< "Invalid offset in " << traverser.value());
             return false;
         }
-        if (core::CPersistUtils::restore(CURRENT_INDICATOR_TAG, m_CurrentIndicators, traverser) == false)
-        {
-            LOG_ERROR("Invalid indicators in " << traverser.value());
+        if (core::CPersistUtils::restore(CURRENT_INDICATOR_TAG,
+                                         m_CurrentIndicators, traverser) == false) {
+            LOG_ERROR(<< "Invalid indicators in " << traverser.value());
             return false;
         }
-        if (core::CPersistUtils::restore(INDICATOR_TAG, m_Indicators, traverser) == false)
-        {
-            LOG_ERROR("Invalid indicators in " << traverser.value());
+        if (core::CPersistUtils::restore(INDICATOR_TAG, m_Indicators, traverser) == false) {
+            LOG_ERROR(<< "Invalid indicators in " << traverser.value());
             return false;
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
     return true;
 }
 
-void CCooccurrences::acceptPersistInserter(core::CStatePersistInserter &inserter) const
-{
+void CCooccurrences::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(LENGTH_TAG, m_Length);
     inserter.insertValue(OFFSET_TAG, m_Offset);
     core::CPersistUtils::persist(CURRENT_INDICATOR_TAG, m_CurrentIndicators, inserter);
@@ -446,12 +392,10 @@ void CCooccurrences::acceptPersistInserter(core::CStatePersistInserter &inserter
 
 void CCooccurrences::topNBySignificance(std::size_t X,
                                         std::size_t /*n*/,
-                                        TSizeSizePrVec &/*top*/,
-                                        TDoubleVec &/*significances*/) const
-{
-    if (X >= m_Indicators.size())
-    {
-        LOG_ERROR("Unexpected event " << X);
+                                        TSizeSizePrVec& /*top*/,
+                                        TDoubleVec& /*significances*/) const {
+    if (X >= m_Indicators.size()) {
+        LOG_ERROR(<< "Unexpected event " << X);
         return;
     }
 
@@ -459,16 +403,14 @@ void CCooccurrences::topNBySignificance(std::size_t X,
 }
 
 void CCooccurrences::topNBySignificance(std::size_t n,
-                                        TSizeSizePrVec &top,
-                                        TDoubleVec &significances) const
-{
+                                        TSizeSizePrVec& top,
+                                        TDoubleVec& significances) const {
     top.clear();
     significances.clear();
 
     std::size_t N = m_Indicators.size();
 
-    if (N == 0)
-    {
+    if (N == 0) {
         return;
     }
 
@@ -478,16 +420,15 @@ void CCooccurrences::topNBySignificance(std::size_t n,
     TSizeVec mask;
     mask.reserve(N);
 
-    for (std::size_t i = 0u; i < N; ++i)
-    {
+    for (std::size_t i = 0u; i < N; ++i) {
         lengths[i] = m_Indicators[i].euclidean();
-        if (lengths[i] > 0.0)
-        {
+        if (lengths[i] > 0.0) {
             mask.push_back(i);
         }
     }
 
-    std::size_t p = static_cast<std::size_t>(std::max(::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
+    std::size_t p = static_cast<std::size_t>(
+        std::max(std::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
 
     TMostSignificant mostSignificant(n);
     searchForMostSignificantCooccurrences(m_Indicators, lengths, mask, p, mostSignificant);
@@ -496,83 +437,68 @@ void CCooccurrences::topNBySignificance(std::size_t n,
 
     top.reserve(mostSignificant.count());
     significances.reserve(mostSignificant.count());
-    for (std::size_t i = 0u; i < mostSignificant.count(); ++i)
-    {
-        const SCooccurrence &co = mostSignificant[i];
+    for (std::size_t i = 0u; i < mostSignificant.count(); ++i) {
+        const SCooccurrence& co = mostSignificant[i];
         double nxy = static_cast<double>(co.s_Nxy);
-        double nx  = static_cast<double>(co.s_Nx);
-        double ny  = static_cast<double>(co.s_Ny);
+        double nx = static_cast<double>(co.s_Nx);
+        double ny = static_cast<double>(co.s_Ny);
         top.emplace_back(co.s_X, co.s_Y);
         significances.push_back(significance(nxy, nx, ny, static_cast<double>(dimension)));
     }
 }
 
-void CCooccurrences::addEventStreams(std::size_t n)
-{
-    if (n > m_Indicators.size())
-    {
-        core::CAllocationStrategy::resize(m_Indicators, n, CPackedBitVector(m_Length, false));
+void CCooccurrences::addEventStreams(std::size_t n) {
+    if (n > m_Indicators.size()) {
+        core::CAllocationStrategy::resize(m_Indicators, n,
+                                          CPackedBitVector(m_Length, false));
     }
 }
 
-void CCooccurrences::removeEventStreams(const TSizeVec &remove)
-{
-    for (std::size_t i = 0u; i < remove.size(); ++i)
-    {
+void CCooccurrences::removeEventStreams(const TSizeVec& remove) {
+    for (std::size_t i = 0u; i < remove.size(); ++i) {
         std::size_t X = remove[i];
-        if (X < m_Indicators.size())
-        {
+        if (X < m_Indicators.size()) {
             m_Indicators[X] = CPackedBitVector();
         }
     }
 }
 
-void CCooccurrences::recycleEventStreams(const TSizeVec &recycle)
-{
-    for (std::size_t i = 0u; i < recycle.size(); ++i)
-    {
+void CCooccurrences::recycleEventStreams(const TSizeVec& recycle) {
+    for (std::size_t i = 0u; i < recycle.size(); ++i) {
         std::size_t X = recycle[i];
-        if (X < m_Indicators.size())
-        {
+        if (X < m_Indicators.size()) {
             m_Indicators[X] = CPackedBitVector(m_Length, false);
         }
     }
 }
 
-void CCooccurrences::add(std::size_t X)
-{
-    if (X >= m_Indicators.size())
-    {
-        LOG_ERROR("Unexpected event " << X);
+void CCooccurrences::add(std::size_t X) {
+    if (X >= m_Indicators.size()) {
+        LOG_ERROR(<< "Unexpected event " << X);
         return;
     }
     m_CurrentIndicators.insert(X);
 }
 
-void CCooccurrences::capture(void)
-{
-    if (++m_Offset < m_IndicatorWidth)
-    {
+void CCooccurrences::capture() {
+    if (++m_Offset < m_IndicatorWidth) {
         return;
     }
 
     m_Offset = 0;
     m_Length = std::min(m_Length + 1, m_MaximumLength);
 
-    for (std::size_t X = 0u; X < m_Indicators.size(); ++X)
-    {
-        CPackedBitVector &indicator = m_Indicators[X];
+    for (std::size_t X = 0u; X < m_Indicators.size(); ++X) {
+        CPackedBitVector& indicator = m_Indicators[X];
         indicator.extend(m_CurrentIndicators.count(X) > 0);
-        while (indicator.dimension() > m_MaximumLength)
-        {
+        while (indicator.dimension() > m_MaximumLength) {
             indicator.contract();
         }
     }
     m_CurrentIndicators.clear();
 }
 
-uint64_t CCooccurrences::checksum(uint64_t seed) const
-{
+uint64_t CCooccurrences::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaximumLength);
     seed = CChecksum::calculate(seed, m_Length);
     seed = CChecksum::calculate(seed, m_IndicatorWidth);
@@ -581,19 +507,16 @@ uint64_t CCooccurrences::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_Indicators);
 }
 
-void CCooccurrences::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void CCooccurrences::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CCooccurrences");
     core::CMemoryDebug::dynamicSize("m_CurrentIndicators", m_CurrentIndicators, mem);
     core::CMemoryDebug::dynamicSize("m_Indicators", m_Indicators, mem);
 }
 
-std::size_t CCooccurrences::memoryUsage(void) const
-{
+std::size_t CCooccurrences::memoryUsage() const {
     std::size_t mem = core::CMemory::dynamicSize(m_CurrentIndicators);
     mem += core::CMemory::dynamicSize(m_Indicators);
     return mem;
 }
-
 }
 }

@@ -8,15 +8,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CProgNameTest : public CppUnit::TestFixture {
+public:
+    void testProgName();
+    void testProgDir();
 
-class CProgNameTest : public CppUnit::TestFixture
-{
-    public:
-        void testProgName(void);
-        void testProgDir(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProgNameTest_h
-

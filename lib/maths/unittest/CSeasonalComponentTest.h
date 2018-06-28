@@ -9,17 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSeasonalComponentTest : public CppUnit::TestFixture
-{
-    public:
-        void testNoPeriodicity(void);
-        void testConstantPeriodic(void);
-        void testTimeVaryingPeriodic(void);
-        void testVeryLowVariation(void);
-        void testVariance(void);
-        void testPersist(void);
+class CSeasonalComponentTest : public CppUnit::TestFixture {
+public:
+    void testNoPeriodicity();
+    void testConstantPeriodic();
+    void testTimeVaryingPeriodic();
+    void testVeryLowVariation();
+    void testVariance();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSeasonalComponentTest_h

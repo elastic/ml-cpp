@@ -10,10 +10,8 @@
 #include <config/CPenalty.h>
 #include <config/ImportExport.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Penalty for the case that counting functions are viewed at a
 //! bucket length which is too short relative the data rate.
@@ -24,22 +22,20 @@ namespace config
 //! not properly capture the variation in arrival times. This penalizes
 //! bucket lengths which are less than the shortest bucket length which
 //! captures the count distribution at longer bucket lengths.
-class CONFIG_EXPORT CSparseCountPenalty : public CPenalty
-{
-    public:
-        CSparseCountPenalty(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CSparseCountPenalty : public CPenalty {
+public:
+    CSparseCountPenalty(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CSparseCountPenalty *clone(void) const;
+    //! Create a copy on the heap.
+    virtual CSparseCountPenalty* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name(void) const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        //! Compute a penalty for rare detectors.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+private:
+    //! Compute a penalty for rare detectors.
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 };
-
 }
 }
 

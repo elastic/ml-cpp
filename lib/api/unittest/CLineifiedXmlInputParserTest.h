@@ -8,21 +8,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CLineifiedXmlInputParserTest : public CppUnit::TestFixture {
+public:
+    void testThroughputArbitraryConformant();
+    void testThroughputCommonConformant();
+    void testThroughputArbitraryRapid();
+    void testThroughputCommonRapid();
 
-class CLineifiedXmlInputParserTest : public CppUnit::TestFixture
-{
-    public:
-        void testThroughputArbitraryConformant(void);
-        void testThroughputCommonConformant(void);
-        void testThroughputArbitraryRapid(void);
-        void testThroughputCommonRapid(void);
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        template <typename PARSER>
-        void runTest(bool allDocsSameStructure);
+private:
+    template<typename PARSER>
+    void runTest(bool allDocsSameStructure);
 };
 
 #endif // INCLUDED_CLineifiedXmlInputParserTest_h
-

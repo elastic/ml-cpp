@@ -12,39 +12,35 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CRapidXmlParser;
 class CXmlNode;
 }
 }
 
-class CRapidXmlParserTest : public CppUnit::TestFixture
-{
-    public:
-        void testParse1(void);
-        void testParse2(void);
-        void testNavigate(void);
-        void testConvert(void);
-        void testDump(void);
-        void testParseSpeed(void);
-        void testConvertSpeed(void);
+class CRapidXmlParserTest : public CppUnit::TestFixture {
+public:
+    void testParse1();
+    void testParse2();
+    void testNavigate();
+    void testConvert();
+    void testDump();
+    void testParseSpeed();
+    void testConvertSpeed();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-        static ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP makeTestNodeHierarchy(void);
+    static ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP makeTestNodeHierarchy();
 
-    private:
-        static void testParse1(const ml::core::CRapidXmlParser &parser);
+private:
+    static void testParse1(const ml::core::CRapidXmlParser& parser);
 
-        static std::string fileToString(const std::string &fileName);
+    static std::string fileToString(const std::string& fileName);
 
-        static bool testAttribute(const ml::core::CXmlNode &node,
-                                  const std::string &key,
-                                  const std::string &expected);
+    static bool testAttribute(const ml::core::CXmlNode& node,
+                              const std::string& key,
+                              const std::string& expected);
 };
 
 #endif // INCLUDED_CRapidXmlParserTest_h
-

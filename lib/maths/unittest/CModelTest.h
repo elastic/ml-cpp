@@ -9,12 +9,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll(void);
+class CModelTest : public CppUnit::TestFixture {
+public:
+    void testAll();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDE_CModelTest_h

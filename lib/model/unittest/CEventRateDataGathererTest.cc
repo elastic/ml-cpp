@@ -6,12 +6,12 @@
 
 #include "CEventRateDataGathererTest.h"
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
 #include <maths/COrderings.h>
@@ -33,50 +33,47 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef TStrVec::const_iterator TStrVecCItr;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef SEventRateFeatureData TFeatureData;
-typedef std::pair<std::size_t, TFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, TFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
-typedef CBucketGatherer::TSizeSizePrStoredStringPtrPr TSizeSizePrStoredStringPtrPr;
-typedef CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef CBucketGatherer::TStrCPtrVec TStrCPtrVec;
+using TSizeVec = std::vector<std::size_t>;
+using TFeatureVec = std::vector<model_t::EFeature>;
+using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+using TStrVec = std::vector<std::string>;
+using TStrVecCItr = TStrVec::const_iterator;
+using TStrVecVec = std::vector<TStrVec>;
+using TFeatureData = SEventRateFeatureData;
+using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
+using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
+using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
+using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
+using TFeatureSizeSizePrFeatureDataPrVecPr =
+    std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
+using TSizeSizePrStoredStringPtrPr = CBucketGatherer::TSizeSizePrStoredStringPtrPr;
+using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
+    CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+using TTimeVec = std::vector<core_t::TTime>;
+using TStrCPtrVec = CBucketGatherer::TStrCPtrVec;
 
-namespace
-{
-
+namespace {
 
 const CSearchKey key;
 const std::string EMPTY_STRING("");
 
-std::size_t addPerson(CDataGatherer &gatherer,
-                      CResourceMonitor &resourceMonitor,
-                      const std::string &p,
-                      const std::string &v = EMPTY_STRING,
-                      std::size_t numInfluencers = 0)
-{
+std::size_t addPerson(CDataGatherer& gatherer,
+                      CResourceMonitor& resourceMonitor,
+                      const std::string& p,
+                      const std::string& v = EMPTY_STRING,
+                      std::size_t numInfluencers = 0) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     std::string i("i");
-    for (std::size_t j = 0; j < numInfluencers; ++j)
-    {
+    for (std::size_t j = 0; j < numInfluencers; ++j) {
         person.push_back(&i);
     }
-    if (!v.empty())
-    {
+    if (!v.empty()) {
         person.push_back(&v);
     }
     CEventData result;
@@ -84,11 +81,10 @@ std::size_t addPerson(CDataGatherer &gatherer,
     return *result.personId();
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person)
-{
+                const std::string& person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -98,12 +94,11 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const std::string &attribute)
-{
+                const std::string& person,
+                const std::string& attribute) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     fieldValues.push_back(&attribute);
@@ -114,13 +109,12 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const std::string &value,
-                const std::string &influencer)
-{
+                const std::string& person,
+                const std::string& value,
+                const std::string& influencer) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     fieldValues.push_back(&influencer);
@@ -132,23 +126,20 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const TStrVec &influencers,
-                const std::string &value)
-{
+                const std::string& person,
+                const TStrVec& influencers,
+                const std::string& value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
-    for (std::size_t i = 0; i < influencers.size(); ++i)
-    {
+    for (std::size_t i = 0; i < influencers.size(); ++i) {
         fieldValues.push_back(&influencers[i]);
     }
 
-    if (!value.empty())
-    {
+    if (!value.empty()) {
         fieldValues.push_back(&value);
     }
 
@@ -158,30 +149,31 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void testPersistence(const SModelParams &params,
-                     const CDataGatherer &gatherer)
-{
+void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
     // Test persistence. (We check for idempotency.)
     std::string origXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
-        gatherer.acceptPersistInserter(inserter);
+        origGatherer.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("model XML representation:\n" << origXml);
+    LOG_DEBUG(<< "gatherer XML size " << origXml.size());
+    LOG_TRACE(<< "gatherer XML representation:\n" << origXml);
 
-    // Restore the XML into a new filter
+    // Restore the XML into a new filter.
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None, params,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   TStrVec(), false, key, traverser);
+                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                   EMPTY_STRING, EMPTY_STRING, {}, key, traverser);
+
+    CPPUNIT_ASSERT_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
     // The XML representation of the new filter should be the
-    // same as the original
+    // same as the original.
     std::string newXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
@@ -189,17 +181,15 @@ void testPersistence(const SModelParams &params,
         inserter.toXml(newXml);
     }
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
-    CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), restoredGatherer.checksum());
 }
 
 void testInfluencerPerFeature(model_t::EFeature feature,
-                              const TTimeVec &data,
-                              const TStrVecVec &influencers,
-                              const TStrVec &expected,
-                              const std::string &valueField,
-                              CResourceMonitor &resourceMonitor)
-{
-    LOG_DEBUG(" *** testing " << model_t::print(feature) << " ***");
+                              const TTimeVec& data,
+                              const TStrVecVec& influencers,
+                              const TStrVec& expected,
+                              const std::string& valueField,
+                              CResourceMonitor& resourceMonitor) {
+    LOG_DEBUG(<< " *** testing " << model_t::print(feature) << " ***");
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -209,15 +199,15 @@ void testInfluencerPerFeature(model_t::EFeature feature,
     features.push_back(feature);
     TStrVec influencerFieldNames;
     influencerFieldNames.push_back("IF1");
-    CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           valueField, influencerFieldNames, false, key, features, startTime, 0);
+    CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING,
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, valueField,
+                           influencerFieldNames, key, features, startTime, 0);
     CPPUNIT_ASSERT(!gatherer.isPopulation());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, resourceMonitor, "p", valueField, 1));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                         addPerson(gatherer, resourceMonitor, "p", valueField, 1));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-    for (std::size_t i = 0u; i < features.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < features.size(); ++i) {
         CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
     }
 
@@ -235,46 +225,41 @@ void testInfluencerPerFeature(model_t::EFeature feature,
 
     CPPUNIT_ASSERT_EQUAL(startTime, gatherer.currentBucketStartTime());
     gatherer.currentBucketStartTime(200);
-    CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(200),
-                         gatherer.currentBucketStartTime());
+    CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(200), gatherer.currentBucketStartTime());
     gatherer.currentBucketStartTime(startTime);
 
     CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0, j = 0u; i < data.size(); ++i)
-    {
-        for (/**/;
-                j < 5 && data[i] >= time + bucketLength;
-                time += bucketLength, ++j, gatherer.timeNow(time))
-        {
-            LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+    for (std::size_t i = 0, j = 0u; i < data.size(); ++i) {
+        for (/**/; j < 5 && data[i] >= time + bucketLength;
+             time += bucketLength, ++j, gatherer.timeNow(time)) {
+            LOG_DEBUG(<< "Processing bucket [" << time << ", " << time + bucketLength << ")");
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
 
             CPPUNIT_ASSERT_EQUAL(feature, featureData[0].first);
-            CPPUNIT_ASSERT_EQUAL(expected[j], core::CContainerPrinter::print(featureData[0].second));
+            CPPUNIT_ASSERT_EQUAL(
+                expected[j], core::CContainerPrinter::print(featureData[0].second));
 
             testPersistence(params, gatherer);
         }
 
-        if (j < 5)
-        {
-            addArrival(gatherer, resourceMonitor, data[i], "p", influencers[i], valueField.empty() ? EMPTY_STRING : "value");
+        if (j < 5) {
+            addArrival(gatherer, resourceMonitor, data[i], "p", influencers[i],
+                       valueField.empty() ? EMPTY_STRING : "value");
         }
     }
 }
 
-
-void importCsvData(CDataGatherer &gatherer,
-                   CResourceMonitor &resourceMonitor,
-                   const std::string &filename,
-                   const TSizeVec &fields)
-{
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+void importCsvData(CDataGatherer& gatherer,
+                   CResourceMonitor& resourceMonitor,
+                   const std::string& filename,
+                   const TSizeVec& fields) {
+    using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(filename.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 
@@ -285,9 +270,8 @@ void importCsvData(CDataGatherer &gatherer,
     // read the header
     CPPUNIT_ASSERT(std::getline(*ifs, line));
 
-    while (std::getline(*ifs, line))
-    {
-        LOG_TRACE("Got string: " << line);
+    while (std::getline(*ifs, line)) {
+        LOG_TRACE(<< "Got string: " << line);
         core::CRegex::TStrVec tokens;
         regex.split(line, tokens);
 
@@ -297,8 +281,7 @@ void importCsvData(CDataGatherer &gatherer,
         CDataGatherer::TStrCPtrVec fieldValues;
         CEventData data;
         data.time(time);
-        for (std::size_t i = 0; i < fields.size(); i++)
-        {
+        for (std::size_t i = 0; i < fields.size(); i++) {
             fieldValues.push_back(&tokens[fields[i]]);
         }
         gatherer.addArrival(fieldValues, data, resourceMonitor);
@@ -308,10 +291,7 @@ void importCsvData(CDataGatherer &gatherer,
 
 } // namespace
 
-void CEventRateDataGathererTest::testLatencyPersist(void)
-{
-    LOG_DEBUG("*** testLatencyPersist ***");
-
+void CEventRateDataGathererTest::testLatencyPersist() {
     core_t::TTime bucketLength = 3600;
     core_t::TTime latency = 5 * bucketLength;
     core_t::TTime startTime = 1420192800;
@@ -323,14 +303,14 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING, "file", TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING,
+                               "file", {}, key, features, startTime, 0);
         TSizeVec fields;
         fields.push_back(2);
         fields.push_back(1);
 
-        importCsvData(gatherer, m_ResourceMonitor, "testfiles/files_users_programs.csv", fields);
+        importCsvData(gatherer, m_ResourceMonitor,
+                      "testfiles/files_users_programs.csv", fields);
 
         testPersistence(params, gatherer);
     }
@@ -341,15 +321,15 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
         influencers.push_back("user");
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING, "file", influencers,
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING,
+                               "file", influencers, key, features, startTime, 0);
         TSizeVec fields;
         fields.push_back(2);
         fields.push_back(3);
         fields.push_back(1);
 
-        importCsvData(gatherer, m_ResourceMonitor, "testfiles/files_users_programs.csv", fields);
+        importCsvData(gatherer, m_ResourceMonitor,
+                      "testfiles/files_users_programs.csv", fields);
 
         testPersistence(params, gatherer);
     }
@@ -358,13 +338,13 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         TSizeVec fields;
         fields.push_back(2);
 
-        importCsvData(gatherer, m_ResourceMonitor, "testfiles/files_users_programs.csv", fields);
+        importCsvData(gatherer, m_ResourceMonitor,
+                      "testfiles/files_users_programs.csv", fields);
 
         testPersistence(params, gatherer);
     }
@@ -374,24 +354,22 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
         TStrVec influencers;
         influencers.push_back("user");
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
-        CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "program", EMPTY_STRING, EMPTY_STRING, influencers,
-                               false, key, features,
-                               startTime, 0);
+        CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING,
+                               EMPTY_STRING, "program", EMPTY_STRING, EMPTY_STRING,
+                               influencers, key, features, startTime, 0);
         TSizeVec fields;
         fields.push_back(2);
         fields.push_back(3);
 
-        importCsvData(gatherer, m_ResourceMonitor, "testfiles/files_users_programs.csv", fields);
+        importCsvData(gatherer, m_ResourceMonitor,
+                      "testfiles/files_users_programs.csv", fields);
 
         testPersistence(params, gatherer);
     }
 }
 
-
-void CEventRateDataGathererTest::singleSeriesTests(void)
-{
-    LOG_DEBUG("*** singleSeriesTests ***");
+void CEventRateDataGathererTest::singleSeriesTests() {
+    LOG_DEBUG(<< "*** singleSeriesTests ***");
 
     // Test that the various statistics come back as we expect.
 
@@ -399,43 +377,30 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
 
-    core_t::TTime data[] =
-        {
-            1, 15, 180, 190, 400, 550, // bucket 1
-            600, 799, 1199,            // bucket 2
-            1200, 1250,                // bucket 3
-                                       // bucket 4
-            2420, 2480, 2490,          // bucket 5
-            10000                      // sentinel
-        };
+    core_t::TTime data[] = {
+        1, 15, 180, 190, 400,
+        550, // bucket 1
+        600, 799,
+        1199, // bucket 2
+        1200,
+        1250, // bucket 3
+              // bucket 4
+        2420, 2480,
+        2490, // bucket 5
+        10000 // sentinel
+    };
 
+    std::string expectedPersonCounts[] = {
+        std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
+        std::string("[(0, 0)]"), std::string("[(0, 3)]")};
 
-    std::string expectedPersonCounts[] =
-        {
-            std::string("[(0, 6)]"),
-            std::string("[(0, 3)]"),
-            std::string("[(0, 2)]"),
-            std::string("[(0, 0)]"),
-            std::string("[(0, 3)]")
-        };
+    std::string expectedPersonNonZeroCounts[] = {
+        std::string("[(0, 6)]"), std::string("[(0, 3)]"),
+        std::string("[(0, 2)]"), std::string("[]"), std::string("[(0, 3)]")};
 
-    std::string expectedPersonNonZeroCounts[] =
-        {
-            std::string("[(0, 6)]"),
-            std::string("[(0, 3)]"),
-            std::string("[(0, 2)]"),
-            std::string("[]"),
-            std::string("[(0, 3)]")
-        };
-
-    std::string expectedPersonIndicator[] =
-        {
-            std::string("[(0, 1)]"),
-            std::string("[(0, 1)]"),
-            std::string("[(0, 1)]"),
-            std::string("[]"),
-            std::string("[(0, 1)]")
-        };
+    std::string expectedPersonIndicator[] = {
+        std::string("[(0, 1)]"), std::string("[(0, 1)]"),
+        std::string("[(0, 1)]"), std::string("[]"), std::string("[(0, 1)]")};
 
     // Test the count by bucket and person and bad feature
     // (which should be ignored).
@@ -444,15 +409,13 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualMinByPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
@@ -479,27 +442,26 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
         CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + bucketLength;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + bucketLength;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
+            if (j < 5) {
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
@@ -511,36 +473,36 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + bucketLength;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + bucketLength;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonNonZeroCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson, featureData[1].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonNonZeroCounts[j],
-                                     core::CContainerPrinter::print(featureData[1].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonNonZeroCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
+                                     featureData[1].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonNonZeroCounts[j],
+                    core::CContainerPrinter::print(featureData[1].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
+            if (j < 5) {
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
@@ -551,42 +513,39 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualIndicatorOfBucketPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + bucketLength;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + bucketLength;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonIndicator[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonIndicator[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
+            if (j < 5) {
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
     }
 }
 
-void CEventRateDataGathererTest::multipleSeriesTests(void)
-{
-    LOG_DEBUG("*** multipleSeriesTests ***");
+void CEventRateDataGathererTest::multipleSeriesTests() {
+    LOG_DEBUG(<< "*** multipleSeriesTests ***");
 
     // Test that the various statistics come back as we expect
     // for multiple people.
@@ -594,33 +553,31 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
 
-    core_t::TTime data1[] =
-        {
-            1, 15, 180, 190, 400, 550, // bucket 1
-            600, 799, 1199,            // bucket 2
-            1200, 1250,                // bucket 3
-            1900,                      // bucket 4
-            2420,  2480,  2490,        // bucket 5
-            10000                      // sentinel
-        };
-    core_t::TTime data2[] =
-        {
-            1, 5, 15, 25, 180, 190, 400, 550,   // bucket 1
-            600, 605, 609, 799, 1199,           // bucket 2
-            1200, 1250, 1255, 1256, 1300, 1400, // bucket 3
-            1900, 1950,                         // bucket 4
-            2420, 2480, 2490, 2500, 2550, 2600, // bucket 5
-            10000                               // sentinel
-        };
+    core_t::TTime data1[] = {
+        1,    15,   180, 190, 400,
+        550, // bucket 1
+        600,  799,
+        1199, // bucket 2
+        1200,
+        1250, // bucket 3
+        1900, // bucket 4
+        2420, 2480,
+        2490, // bucket 5
+        10000 // sentinel
+    };
+    core_t::TTime data2[] = {
+        1,    5,    15,   25,   180,  190,  400, 550, // bucket 1
+        600,  605,  609,  799,  1199,                 // bucket 2
+        1200, 1250, 1255, 1256, 1300, 1400,           // bucket 3
+        1900, 1950,                                   // bucket 4
+        2420, 2480, 2490, 2500, 2550, 2600,           // bucket 5
+        10000                                         // sentinel
+    };
 
-    std::string expectedPersonCounts[] =
-        {
-            std::string("[(0, 6), (1, 8)]"),
-            std::string("[(0, 3), (1, 5)]"),
-            std::string("[(0, 2), (1, 6)]"),
-            std::string("[(0, 1), (1, 2)]"),
-            std::string("[(0, 3), (1, 6)]")
-        };
+    std::string expectedPersonCounts[] = {
+        std::string("[(0, 6), (1, 8)]"), std::string("[(0, 3), (1, 5)]"),
+        std::string("[(0, 2), (1, 6)]"), std::string("[(0, 1), (1, 2)]"),
+        std::string("[(0, 3), (1, 6)]")};
 
     SModelParams params(bucketLength);
 
@@ -628,47 +585,42 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0u;
-        for (;;)
-        {
-            for (/**/;
-                 j < 5 && std::min(data1[i1], data2[i2]) >= time + bucketLength;
-                 time += bucketLength, ++j)
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (;;) {
+            for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + bucketLength;
+                 time += bucketLength, ++j) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j >= 5)
-            {
+            if (j >= 5) {
                 break;
             }
 
-            if (data1[i1] < data2[i2])
-            {
-                LOG_DEBUG("Adding arrival for p1 at " << data1[i1]);
+            if (data1[i1] < data2[i2]) {
+                LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
                 addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
                 ++i1;
-            }
-            else
-            {
-                LOG_DEBUG("Adding arrival for p2 at " << data2[i2]);
+            } else {
+                LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
                 addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
                 ++i2;
             }
@@ -689,9 +641,10 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
     }
@@ -700,17 +653,15 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0u; i < 5; ++i)
-        {
+        for (std::size_t i = 0u; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
         }
         addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
@@ -721,9 +672,10 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
 
@@ -747,18 +699,16 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(2, 2), (4, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
     }
 }
 
-void CEventRateDataGathererTest::testRemovePeople(void)
-{
-    LOG_DEBUG("*** testRemovePeople ***");
-
+void CEventRateDataGathererTest::testRemovePeople() {
     // Test various combinations of removed people.
 
     const core_t::TTime startTime = 0;
@@ -773,9 +723,8 @@ void CEventRateDataGathererTest::testRemovePeople(void)
     features.push_back(model_t::E_IndividualHighCountsByBucketAndPerson);
     SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
@@ -785,12 +734,11 @@ void CEventRateDataGathererTest::testRemovePeople(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(6), addPerson(gatherer, m_ResourceMonitor, "p7"));
     CPPUNIT_ASSERT_EQUAL(std::size_t(7), addPerson(gatherer, m_ResourceMonitor, "p8"));
 
-    core_t::TTime counts[] = { 0, 3, 5, 2, 0, 5, 7, 10 };
-    for (std::size_t i = 0u; i < boost::size(counts); ++i)
-    {
-        for (core_t::TTime time = 0; time < counts[i]; ++time)
-        {
-            addArrival(gatherer, m_ResourceMonitor, startTime + time, gatherer.personName(i));
+    core_t::TTime counts[] = {0, 3, 5, 2, 0, 5, 7, 10};
+    for (std::size_t i = 0u; i < boost::size(counts); ++i) {
+        for (core_t::TTime time = 0; time < counts[i]; ++time) {
+            addArrival(gatherer, m_ResourceMonitor, startTime + time,
+                       gatherer.personName(i));
         }
     }
 
@@ -800,28 +748,33 @@ void CEventRateDataGathererTest::testRemovePeople(void)
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None, params,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                                       false, key, features,
-                                       startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
+        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
+                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                       {}, key, features, startTime, 0);
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(3),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(5),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
 
-        core_t::TTime expectedCounts[] = { 5, 2, 0, 5, 7, 10 };
-        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i)
-        {
-            for (core_t::TTime time = 0; time < expectedCounts[i]; ++time)
-            {
-                addArrival(expectedGatherer, m_ResourceMonitor, startTime + time, expectedGatherer.personName(i));
+        core_t::TTime expectedCounts[] = {5, 2, 0, 5, 7, 10};
+        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
+            for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
+                addArrival(expectedGatherer, m_ResourceMonitor,
+                           startTime + time, expectedGatherer.personName(i));
             }
         }
 
-        LOG_DEBUG("checksum          = " << gatherer.checksum());
-        LOG_DEBUG("expected checksum = " << expectedGatherer.checksum());
+        LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
+        LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
         CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
     {
@@ -831,25 +784,27 @@ void CEventRateDataGathererTest::testRemovePeople(void)
         peopleToRemove.push_back(7);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None, params,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                                       false, key, features,
-                                       startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
+                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                       {}, key, features, startTime, 0);
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
+                             addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
 
-        core_t::TTime expectedCounts[] = { 5, 5, 7 };
-        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i)
-        {
-            for (core_t::TTime time = 0; time < expectedCounts[i]; ++time)
-            {
-                addArrival(expectedGatherer, m_ResourceMonitor, startTime + time, expectedGatherer.personName(i));
+        core_t::TTime expectedCounts[] = {5, 5, 7};
+        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
+            for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
+                addArrival(expectedGatherer, m_ResourceMonitor,
+                           startTime + time, expectedGatherer.personName(i));
             }
         }
 
-        LOG_DEBUG("checksum          = " << gatherer.checksum());
-        LOG_DEBUG("expected checksum = " << expectedGatherer.checksum());
+        LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
+        LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
         CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
     {
@@ -859,13 +814,13 @@ void CEventRateDataGathererTest::testRemovePeople(void)
         peopleToRemove.push_back(6);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None, params,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                                       false, key, features,
-                                       startTime, 0);
+        CDataGatherer expectedGatherer(model_t::E_EventRate, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
+                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                       {}, key, features, startTime, 0);
 
-        LOG_DEBUG("checksum          = " << gatherer.checksum());
-        LOG_DEBUG("expected checksum = " << expectedGatherer.checksum());
+        LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
+        LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
         CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
 
@@ -873,15 +828,15 @@ void CEventRateDataGathererTest::testRemovePeople(void)
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p1"));
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p7"));
 
-    LOG_DEBUG("recycled          = " << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
-    LOG_DEBUG("expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
+    LOG_DEBUG(<< "recycled          = "
+              << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
+    LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedRecycled),
                          core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
-{
-    LOG_DEBUG("*** singleSeriesOutOfOrderFinalResultTests ***");
+void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
+    LOG_DEBUG(<< "*** singleSeriesOutOfOrderFinalResultTests ***");
 
     // Test that the various statistics come back as we expect.
 
@@ -892,43 +847,29 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data[] =
-        {
-            1, 180, 1200, 190, 400, 600, // bucket 1, 2 & 3
-            550, 799, 1199, 15,          // bucket 1 & 2
-            2490,                        // bucket 5
-                                         // bucket 4 is empty
-            2420, 2480, 1250,            // bucket 3 & 5
-            10000                        // sentinel
-        };
+    core_t::TTime data[] = {
+        1, 180, 1200, 190, 400,
+        600, // bucket 1, 2 & 3
+        550, 799, 1199,
+        15,   // bucket 1 & 2
+        2490, // bucket 5
+              // bucket 4 is empty
+        2420, 2480,
+        1250, // bucket 3 & 5
+        10000 // sentinel
+    };
 
-    std::string expectedPersonCounts[] =
-        {
-            std::string("[(0, 6)]"),
-            std::string("[(0, 3)]"),
-            std::string("[(0, 2)]"),
-            std::string("[(0, 0)]"),
-            std::string("[(0, 3)]")
-        };
+    std::string expectedPersonCounts[] = {
+        std::string("[(0, 6)]"), std::string("[(0, 3)]"), std::string("[(0, 2)]"),
+        std::string("[(0, 0)]"), std::string("[(0, 3)]")};
 
-    std::string expectedPersonNonZeroCounts[] =
-        {
-            std::string("[(0, 6)]"),
-            std::string("[(0, 3)]"),
-            std::string("[(0, 2)]"),
-            std::string("[]"),
-            std::string("[(0, 3)]")
-        };
+    std::string expectedPersonNonZeroCounts[] = {
+        std::string("[(0, 6)]"), std::string("[(0, 3)]"),
+        std::string("[(0, 2)]"), std::string("[]"), std::string("[(0, 3)]")};
 
-    std::string expectedPersonIndicator[] =
-        {
-            std::string("[(0, 1)]"),
-            std::string("[(0, 1)]"),
-            std::string("[(0, 1)]"),
-            std::string("[]"),
-            std::string("[(0, 1)]")
-        };
-
+    std::string expectedPersonIndicator[] = {
+        std::string("[(0, 1)]"), std::string("[(0, 1)]"),
+        std::string("[(0, 1)]"), std::string("[]"), std::string("[(0, 1)]")};
 
     // Test the count by bucket and person and bad feature
     // (which should be ignored).
@@ -936,34 +877,32 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         addPerson(gatherer, m_ResourceMonitor, "p");
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + latencyTime;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + latencyTime;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
-                LOG_DEBUG("Arriving = " << data[i]);
+            if (j < 5) {
+                LOG_DEBUG(<< "Arriving = " << data[i]);
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
@@ -975,36 +914,36 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + latencyTime;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + latencyTime;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonNonZeroCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson, featureData[1].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonNonZeroCounts[j],
-                                     core::CContainerPrinter::print(featureData[1].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonNonZeroCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
+                                     featureData[1].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonNonZeroCounts[j],
+                    core::CContainerPrinter::print(featureData[1].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
+            if (j < 5) {
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
@@ -1015,42 +954,39 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualIndicatorOfBucketPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i)
-        {
-            for (/**/;
-                 j < 5 && data[i] >= time + latencyTime;
-                 time += bucketLength, ++j, gatherer.timeNow(time))
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+            for (/**/; j < 5 && data[i] >= time + latencyTime;
+                 time += bucketLength, ++j, gatherer.timeNow(time)) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonIndicator[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonIndicator[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j < 5)
-            {
+            if (j < 5) {
                 addArrival(gatherer, m_ResourceMonitor, data[i], "p");
             }
         }
     }
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
-{
-    LOG_DEBUG("*** singleSeriesOutOfOrderInterimResultTests ***");
+void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests() {
+    LOG_DEBUG(<< "*** singleSeriesOutOfOrderInterimResultTests ***");
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -1058,21 +994,22 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data[] =
-        {
-            1, 1200, 600, // bucket 1, 3 & 2
-            1199, 15,     // bucket 2 & 1
-            2490,         // bucket 5
-                          // bucket 4 is empty
-            2420, 1250   // bucket 5 & 3
-        };
+    core_t::TTime data[] = {
+        1, 1200,
+        600, // bucket 1, 3 & 2
+        1199,
+        15,   // bucket 2 & 1
+        2490, // bucket 5
+              // bucket 4 is empty
+        2420,
+        1250 // bucket 5 & 3
+    };
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p");
     TFeatureSizeFeatureDataPrVecPrVec featureData;
 
@@ -1175,9 +1112,8 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
-{
-    LOG_DEBUG("*** multipleSeriesOutOfOrderFinalResultTests ***");
+void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
+    LOG_DEBUG(<< "*** multipleSeriesOutOfOrderFinalResultTests ***");
 
     // Test that the various statistics come back as we expect
     // for multiple people.
@@ -1189,79 +1125,72 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data1[] =
-        {
-            1, 15, 1200, 190, 400, 550, // bucket 1, 2 & 3
-            600, 1250, 1199,            // bucket 2 & 3
-            180, 799,                   // bucket 1 & 2
-            2480,                       // bucket 5
-            2420,  1900,  2490,         // bucket 4 & 5
-            10000                       // sentinel
-        };
-    core_t::TTime data2[] =
-        {
-            1250, 5, 15, 600, 180, 190, 400, 550,  // bucket 1, 2 & 3
-            25, 605, 609, 799, 1199,               // bucket 1 & 2
-            1200, 1, 1255, 1950, 1400,             // bucket 1, 3 & 4
-            2550, 1300, 2500,                      // bucket 3 & 5
-            2420, 2480, 2490, 1256, 1900, 2600,    // bucket 3, 4 & 5
-            10000                                  // sentinel
-        };
+    core_t::TTime data1[] = {
+        1,    15,   1200, 190, 400,
+        550, // bucket 1, 2 & 3
+        600,  1250,
+        1199, // bucket 2 & 3
+        180,
+        799,  // bucket 1 & 2
+        2480, // bucket 5
+        2420, 1900,
+        2490, // bucket 4 & 5
+        10000 // sentinel
+    };
+    core_t::TTime data2[] = {
+        1250, 5,    15,   600,  180,  190,  400, 550, // bucket 1, 2 & 3
+        25,   605,  609,  799,  1199,                 // bucket 1 & 2
+        1200, 1,    1255, 1950, 1400,                 // bucket 1, 3 & 4
+        2550, 1300, 2500,                             // bucket 3 & 5
+        2420, 2480, 2490, 1256, 1900, 2600,           // bucket 3, 4 & 5
+        10000                                         // sentinel
+    };
 
-    std::string expectedPersonCounts[] =
-        {
-            std::string("[(0, 6), (1, 8)]"),
-            std::string("[(0, 3), (1, 5)]"),
-            std::string("[(0, 2), (1, 6)]"),
-            std::string("[(0, 1), (1, 2)]"),
-            std::string("[(0, 3), (1, 6)]")
-        };
+    std::string expectedPersonCounts[] = {
+        std::string("[(0, 6), (1, 8)]"), std::string("[(0, 3), (1, 5)]"),
+        std::string("[(0, 2), (1, 6)]"), std::string("[(0, 1), (1, 2)]"),
+        std::string("[(0, 3), (1, 6)]")};
 
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0u;
-        for (;;)
-        {
-            for (/**/;
-                 j < 5 && std::min(data1[i1], data2[i2]) >= time + latencyTime;
-                 time += bucketLength, ++j)
-            {
-                LOG_DEBUG("Processing bucket [" << time << ", " << time + bucketLength << ")");
+        for (;;) {
+            for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + latencyTime;
+                 time += bucketLength, ++j) {
+                LOG_DEBUG(<< "Processing bucket [" << time << ", "
+                          << time + bucketLength << ")");
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(expectedPersonCounts[j],
-                                     core::CContainerPrinter::print(featureData[0].second));
+                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                     featureData[0].first);
+                CPPUNIT_ASSERT_EQUAL(
+                    expectedPersonCounts[j],
+                    core::CContainerPrinter::print(featureData[0].second));
 
                 testPersistence(params, gatherer);
             }
 
-            if (j >= 5)
-            {
+            if (j >= 5) {
                 break;
             }
 
-            if (data1[i1] < data2[i2])
-            {
-                LOG_DEBUG("Adding arrival for p1 at " << data1[i1]);
+            if (data1[i1] < data2[i2]) {
+                LOG_DEBUG(<< "Adding arrival for p1 at " << data1[i1]);
                 addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
                 ++i1;
-            }
-            else
-            {
-                LOG_DEBUG("Adding arrival for p2 at " << data2[i2]);
+            } else {
+                LOG_DEBUG(<< "Adding arrival for p2 at " << data2[i2]);
                 addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
                 ++i2;
             }
@@ -1281,9 +1210,10 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
     }
@@ -1292,17 +1222,15 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0u; i < 5; ++i)
-        {
+        for (std::size_t i = 0u; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
         }
         addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
@@ -1313,9 +1241,10 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
 
@@ -1338,36 +1267,32 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson, featureData[0].first);
+        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                             featureData[0].first);
         CPPUNIT_ASSERT_EQUAL(std::string("[(2, 2), (4, 3)]"),
                              core::CContainerPrinter::print(featureData[0].second));
     }
 }
 
-void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
-{
-    LOG_DEBUG("*** testArrivalBeforeLatencyWindowIsIgnored ***");
-
+void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored() {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data[] =
-        {
-            1800, // Bucket 4, thus bucket 1 values are already out of latency window
-            1    // Bucket 1
-        };
+    core_t::TTime data[] = {
+        1800, // Bucket 4, thus bucket 1 values are already out of latency window
+        1     // Bucket 1
+    };
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p");
 
     addArrival(gatherer, m_ResourceMonitor, data[0], "p");
@@ -1391,33 +1316,29 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
-{
-    LOG_DEBUG("*** testResetBucketGivenSingleSeries ***");
-
+void CEventRateDataGathererTest::testResetBucketGivenSingleSeries() {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data[] =
-        {
-            100, 300,      // Bucket 1
-            600, 800, 850, // Bucket 2
-            1200           // Bucket 3
-        };
+    core_t::TTime data[] = {
+        100,
+        300, // Bucket 1
+        600, 800,
+        850, // Bucket 2
+        1200 // Bucket 3
+    };
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p");
 
-    for (std::size_t i = 0; i < boost::size(data); ++i)
-    {
+    for (std::size_t i = 0; i < boost::size(data); ++i) {
         addArrival(gatherer, m_ResourceMonitor, data[i], "p");
     }
 
@@ -1450,35 +1371,31 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
-{
-    LOG_DEBUG("*** testResetBucketGivenMultipleSeries ***");
-
+void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries() {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
-    core_t::TTime data[] =
-        {
-            100, 300,      // Bucket 1
-            600, 800, 850, // Bucket 2
-            1200           // Bucket 3
-        };
+    core_t::TTime data[] = {
+        100,
+        300, // Bucket 1
+        600, 800,
+        850, // Bucket 2
+        1200 // Bucket 3
+    };
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p1");
     addPerson(gatherer, m_ResourceMonitor, "p2");
     addPerson(gatherer, m_ResourceMonitor, "p3");
 
-    for (std::size_t i = 0; i < boost::size(data); ++i)
-    {
+    for (std::size_t i = 0; i < boost::size(data); ++i) {
         addArrival(gatherer, m_ResourceMonitor, data[i], "p1");
         addArrival(gatherer, m_ResourceMonitor, data[i], "p2");
         addArrival(gatherer, m_ResourceMonitor, data[i], "p3");
@@ -1513,10 +1430,7 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
-{
-    LOG_DEBUG("*** testResetBucketGivenBucketNotAvailable ***");
-
+void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable() {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(1);
@@ -1526,9 +1440,8 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
     TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                           false, key, features,
-                           startTime, 0);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p");
 
     addArrival(gatherer, m_ResourceMonitor, 1200, "p");
@@ -1539,88 +1452,83 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
     CPPUNIT_ASSERT(gatherer.resetBucket(1800) == false);
 }
 
-void CEventRateDataGathererTest::testInfluencerBucketStatistics(void)
-{
-    core_t::TTime data[] =
-        {
-            1, 15, 180, 190, 400, 550, // bucket 1
-            600, 799, 1199,            // bucket 2
-            1200, 1250,                // bucket 3
-                                       // bucket 4
-            2420, 2480, 2490,          // bucket 5
-            10000                      // sentinel
-        };
+void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
+    core_t::TTime data[] = {
+        1, 15, 180, 190, 400,
+        550, // bucket 1
+        600, 799,
+        1199, // bucket 2
+        1200,
+        1250, // bucket 3
+              // bucket 4
+        2420, 2480,
+        2490, // bucket 5
+        10000 // sentinel
+    };
     TTimeVec dataVec(data, &data[15]);
 
     TStrVecVec influencers(14, TStrVec(1, "i"));
 
-    std::string expectedPersonCounts[] =
-        {
-            std::string("[(0, 6, [[(i, ([6], 1))]])]"),
-            std::string("[(0, 3, [[(i, ([3], 1))]])]"),
-            std::string("[(0, 2, [[(i, ([2], 1))]])]"),
-            std::string("[(0, 0)]"),
-            std::string("[(0, 3, [[(i, ([3], 1))]])]")
-        };
+    std::string expectedPersonCounts[] = {
+        std::string("[(0, 6, [[(i, ([6], 1))]])]"),
+        std::string("[(0, 3, [[(i, ([3], 1))]])]"),
+        std::string("[(0, 2, [[(i, ([2], 1))]])]"), std::string("[(0, 0)]"),
+        std::string("[(0, 3, [[(i, ([3], 1))]])]")};
     TStrVec expectedPersonCountsVec(&expectedPersonCounts[0], &expectedPersonCounts[5]);
 
-    std::string expectedPersonNonZeroCounts[] =
-        {
-            std::string("[(0, 6, [[(i, ([6], 1))]])]"),
-            std::string("[(0, 3, [[(i, ([3], 1))]])]"),
-            std::string("[(0, 2, [[(i, ([2], 1))]])]"),
-            std::string("[]"),
-            std::string("[(0, 3, [[(i, ([3], 1))]])]")
-        };
-    TStrVec expectedPersonNonZeroCountsVec(&expectedPersonNonZeroCounts[0], &expectedPersonNonZeroCounts[5]);
+    std::string expectedPersonNonZeroCounts[] = {
+        std::string("[(0, 6, [[(i, ([6], 1))]])]"),
+        std::string("[(0, 3, [[(i, ([3], 1))]])]"),
+        std::string("[(0, 2, [[(i, ([2], 1))]])]"), std::string("[]"),
+        std::string("[(0, 3, [[(i, ([3], 1))]])]")};
+    TStrVec expectedPersonNonZeroCountsVec(&expectedPersonNonZeroCounts[0],
+                                           &expectedPersonNonZeroCounts[5]);
 
-    std::string expectedPersonIndicator[] =
-        {
-            std::string("[(0, 1, [[(i, ([1], 1))]])]"),
-            std::string("[(0, 1, [[(i, ([1], 1))]])]"),
-            std::string("[(0, 1, [[(i, ([1], 1))]])]"),
-            std::string("[]"),
-            std::string("[(0, 1, [[(i, ([1], 1))]])]")
-        };
-    TStrVec expectedPersonIndicatorVec(&expectedPersonIndicator[0], &expectedPersonIndicator[5]);
+    std::string expectedPersonIndicator[] = {
+        std::string("[(0, 1, [[(i, ([1], 1))]])]"),
+        std::string("[(0, 1, [[(i, ([1], 1))]])]"),
+        std::string("[(0, 1, [[(i, ([1], 1))]])]"), std::string("[]"),
+        std::string("[(0, 1, [[(i, ([1], 1))]])]")};
+    TStrVec expectedPersonIndicatorVec(&expectedPersonIndicator[0],
+                                       &expectedPersonIndicator[5]);
 
     TStrVec expectedArrivalTimeVec(6, std::string("[]"));
 
-    std::string expectedInfoContent[] =
-        {
-            std::string("[(0, 13, [[(i, ([13], 1))]])]"),
-            std::string("[(0, 13, [[(i, ([13], 1))]])]"),
-            std::string("[(0, 13, [[(i, ([13], 1))]])]"),
-            std::string("[]"),
-            std::string("[(0, 13, [[(i, ([13], 1))]])]")
-        };
+    std::string expectedInfoContent[] = {
+        std::string("[(0, 13, [[(i, ([13], 1))]])]"),
+        std::string("[(0, 13, [[(i, ([13], 1))]])]"),
+        std::string("[(0, 13, [[(i, ([13], 1))]])]"), std::string("[]"),
+        std::string("[(0, 13, [[(i, ([13], 1))]])]")};
     TStrVec expectedInfoContentVec(&expectedInfoContent[0], &expectedInfoContent[5]);
 
-    testInfluencerPerFeature(model_t::E_IndividualCountByBucketAndPerson,
-                             dataVec, influencers, expectedPersonCountsVec, "", m_ResourceMonitor);
+    testInfluencerPerFeature(model_t::E_IndividualCountByBucketAndPerson, dataVec,
+                             influencers, expectedPersonCountsVec, "", m_ResourceMonitor);
 
     testInfluencerPerFeature(model_t::E_IndividualNonZeroCountByBucketAndPerson,
-                             dataVec, influencers, expectedPersonNonZeroCountsVec, "", m_ResourceMonitor);
+                             dataVec, influencers, expectedPersonNonZeroCountsVec,
+                             "", m_ResourceMonitor);
 
-    testInfluencerPerFeature(model_t::E_IndividualLowCountsByBucketAndPerson,
-                             dataVec, influencers, expectedPersonCountsVec, "", m_ResourceMonitor);
+    testInfluencerPerFeature(model_t::E_IndividualLowCountsByBucketAndPerson, dataVec,
+                             influencers, expectedPersonCountsVec, "", m_ResourceMonitor);
 
-    testInfluencerPerFeature(model_t::E_IndividualArrivalTimesByPerson,
-                             dataVec, influencers, expectedArrivalTimeVec, "", m_ResourceMonitor);
+    testInfluencerPerFeature(model_t::E_IndividualArrivalTimesByPerson, dataVec,
+                             influencers, expectedArrivalTimeVec, "", m_ResourceMonitor);
 
     testInfluencerPerFeature(model_t::E_IndividualLowNonZeroCountByBucketAndPerson,
-                             dataVec, influencers, expectedPersonNonZeroCountsVec, "", m_ResourceMonitor);
+                             dataVec, influencers, expectedPersonNonZeroCountsVec,
+                             "", m_ResourceMonitor);
 
     testInfluencerPerFeature(model_t::E_IndividualUniqueCountByBucketAndPerson,
-                             dataVec, influencers, expectedPersonIndicatorVec, "value", m_ResourceMonitor);
+                             dataVec, influencers, expectedPersonIndicatorVec,
+                             "value", m_ResourceMonitor);
 
     testInfluencerPerFeature(model_t::E_IndividualInfoContentByBucketAndPerson,
-                             dataVec, influencers, expectedInfoContentVec, "value", m_ResourceMonitor);
+                             dataVec, influencers, expectedInfoContentVec,
+                             "value", m_ResourceMonitor);
 }
 
-void CEventRateDataGathererTest::testDistinctStrings(void)
-{
-    typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+void CEventRateDataGathererTest::testDistinctStrings() {
+    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
     TSizeSizePr pair(0, 0);
 
     // Test the SUniqueStringFeatureData struct
@@ -1636,23 +1544,20 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
             CPPUNIT_ASSERT_EQUAL(std::string("0"), featureData.print());
         }
 
-        for (std::size_t i = 0; i < 100; ++i)
-        {
+        for (std::size_t i = 0; i < 100; ++i) {
             data.insert("str1", influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
             CPPUNIT_ASSERT_EQUAL(std::string("1"), featureData.print());
         }
-        for (std::size_t i = 0; i < 100; ++i)
-        {
+        for (std::size_t i = 0; i < 100; ++i) {
             data.insert("str2", influencers);
             data.insert("str3", influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
             CPPUNIT_ASSERT_EQUAL(std::string("3"), featureData.print());
         }
-        for (std::size_t i = 1; i < 100; ++i)
-        {
+        for (std::size_t i = 1; i < 100; ++i) {
             std::stringstream ss;
             ss << "str" << i;
             data.insert(ss.str(), influencers);
@@ -1680,7 +1585,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("1, [[(inf1, ([1], 1))]]"), featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("1, [[(inf1, ([1], 1))]]"),
+                                 featureData.print());
         }
 
         data.insert("str2", influencers);
@@ -1696,7 +1602,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
 
-            std::sort(featureData.s_InfluenceValues[0].begin(), featureData.s_InfluenceValues[0].end(),
+            std::sort(featureData.s_InfluenceValues[0].begin(),
+                      featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
             CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
@@ -1705,7 +1612,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
     }
 
     {
-       // Check we can add more than one influencer
+        // Check we can add more than one influencer
         CUniqueStringFeatureData data;
         TStoredStringPtrVec influencers;
         influencers.push_back(core::CStoredStringPtr());
@@ -1726,7 +1633,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"), featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"),
+                                 featureData.print());
         }
         influencers[1] = CStringStore::influencers().get("inf_v2");
 
@@ -1739,9 +1647,9 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            for (std::size_t i = 0; i < 2; i++)
-            {
-                std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
+            for (std::size_t i = 0; i < 2; i++) {
+                std::sort(featureData.s_InfluenceValues[i].begin(),
+                          featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
             CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
@@ -1757,8 +1665,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("0"),
-                                 featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("0"), featureData.print());
         }
 
         {
@@ -1776,15 +1683,16 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
             CPPUNIT_ASSERT_EQUAL(std::string("18"), featureData.print());
         }
 
-        for (std::size_t i = 1; i < 100; ++i)
-        {
+        for (std::size_t i = 1; i < 100; ++i) {
             std::stringstream ss;
             ss << "str" << i;
             data.insert(ss.str(), influencers);
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT((featureData.s_Count - 12) >= std::max(uint64_t(3), uint64_t(i)));
-            CPPUNIT_ASSERT((featureData.s_Count - 12) <= std::max(uint64_t(3), uint64_t(i)) * 3);
+            CPPUNIT_ASSERT((featureData.s_Count - 12) >=
+                           std::max(uint64_t(3), uint64_t(i)));
+            CPPUNIT_ASSERT((featureData.s_Count - 12) <=
+                           std::max(uint64_t(3), uint64_t(i)) * 3);
         }
     }
     {
@@ -1806,7 +1714,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("12, [[(inf1, ([12], 1))]]"), featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("12, [[(inf1, ([12], 1))]]"),
+                                 featureData.print());
         }
 
         data.insert("str2", influencers);
@@ -1822,7 +1731,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
 
-            std::sort(featureData.s_InfluenceValues[0].begin(), featureData.s_InfluenceValues[0].end(),
+            std::sort(featureData.s_InfluenceValues[0].begin(),
+                      featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
             CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
@@ -1851,7 +1761,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"), featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"),
+                                 featureData.print());
         }
         influencers[1] = CStringStore::influencers().get("inf_v2");
 
@@ -1864,9 +1775,9 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            for (std::size_t i = 0; i < 2; i++)
-            {
-                std::sort(featureData.s_InfluenceValues[i].begin(), featureData.s_InfluenceValues[i].end(),
+            for (std::size_t i = 0; i < 2; i++) {
+                std::sort(featureData.s_InfluenceValues[i].begin(),
+                          featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
             CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
@@ -1884,15 +1795,15 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, "P", EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "V", 
-                               TStrVec(1, "INF"), false, key, features, startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "P", EMPTY_STRING,
+                               "V", {"INF"}, key, features, startTime, 0);
 
         CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualUniqueCountByBucketAndPerson));
@@ -1906,25 +1817,27 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
         testPersistence(params, gatherer);
 
         // Add data, some of which will be out of order
-        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringOne", "inf1");
-        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringTwo", "inf2");
-        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringThree", "inf3");
-        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringFour", "inf1");
+        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p",
+                   "stringOne", "inf1");
+        addArrival(gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p",
+                   "stringTwo", "inf2");
+        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p",
+                   "stringThree", "inf3");
+        addArrival(gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p",
+                   "stringFour", "inf1");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringFive", "inf2");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringSix", "inf3");
         testPersistence(params, gatherer);
     }
 }
 
-void CEventRateDataGathererTest::testDiurnalFeatures(void)
-{
-    LOG_DEBUG("*** testDiurnalFeatures ***");
+void CEventRateDataGathererTest::testDiurnalFeatures() {
     const std::string person("p");
     const std::string attribute("a");
     const std::string emptyString("");
     {
         // Check that we can add time-of-day events and gather them correctly
-        LOG_DEBUG("Testing time_of_day by person");
+        LOG_DEBUG(<< "Testing time_of_day by person");
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
@@ -1935,15 +1848,13 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualTimeOfDayByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
 
         CPPUNIT_ASSERT(!gatherer.isPopulation());
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualTimeOfDayByBucketAndPerson));
@@ -1961,7 +1872,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person);
@@ -1970,7 +1882,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -1980,7 +1893,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person);
@@ -1989,7 +1903,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -1999,7 +1914,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person);
@@ -2008,7 +1924,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2020,7 +1937,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2030,7 +1948,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
@@ -2040,7 +1959,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
     }
     {
         // Check that we can add time-of-week events and gather them correctly
-        LOG_DEBUG("Testing time_of_week by person");
+        LOG_DEBUG(<< "Testing time_of_week by person");
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
@@ -2051,15 +1970,13 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
         TFeatureVec features;
         features.push_back(model_t::E_IndividualTimeOfWeekByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING,
+                               EMPTY_STRING, {}, key, features, startTime, 0);
 
         CPPUNIT_ASSERT(!gatherer.isPopulation());
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualTimeOfWeekByBucketAndPerson));
@@ -2077,7 +1994,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person);
@@ -2086,7 +2004,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2096,7 +2015,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person);
@@ -2105,7 +2025,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2115,7 +2036,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person);
@@ -2124,7 +2046,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2136,7 +2059,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2146,7 +2070,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
@@ -2156,7 +2081,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
     }
     {
         // Check that we can add time-of-week events and gather them correctly
-        LOG_DEBUG("Testing time_of_week over person");
+        LOG_DEBUG(<< "Testing time_of_week over person");
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
@@ -2166,16 +2091,14 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
 
         TFeatureVec features;
         features.push_back(model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute);
-        CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "att", EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+        CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None,
+                               params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               "att", EMPTY_STRING, {}, key, features, startTime, 0);
 
         CPPUNIT_ASSERT(gatherer.isPopulation());
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute));
@@ -2193,7 +2116,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person, attribute);
@@ -2202,7 +2126,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2212,7 +2137,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person, attribute);
@@ -2221,7 +2147,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2231,7 +2158,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person, attribute);
@@ -2240,7 +2168,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2252,7 +2181,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2262,7 +2192,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
@@ -2273,7 +2204,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
     }
     {
         // Check that we can add time-of-day events and gather them correctly
-        LOG_DEBUG("Testing time_of_day over person");
+        LOG_DEBUG(<< "Testing time_of_day over person");
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
@@ -2283,16 +2214,14 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
 
         TFeatureVec features;
         features.push_back(model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute);
-        CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "att", EMPTY_STRING, TStrVec(),
-                               false, key, features,
-                               startTime, 0);
+        CDataGatherer gatherer(model_t::E_PopulationEventRate, model_t::E_None,
+                               params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               "att", EMPTY_STRING, {}, key, features, startTime, 0);
 
         CPPUNIT_ASSERT(gatherer.isPopulation());
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i)
-        {
+        for (std::size_t i = 0u; i < 1; ++i) {
             CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
         }
         CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute));
@@ -2310,7 +2239,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person, attribute);
@@ -2319,7 +2249,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2329,7 +2260,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person, attribute);
@@ -2338,7 +2270,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2348,7 +2281,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
+                                 featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person, attribute);
@@ -2357,7 +2291,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2369,7 +2304,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
+                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2379,7 +2315,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
             gatherer.featureData(time, bucketLength, featureData);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200), featureData[0].second[0].second.s_Count);
+            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200),
+                                 featureData[0].second[0].second.s_Count);
         }
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
@@ -2388,54 +2325,52 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
         CPPUNIT_ASSERT_EQUAL(std::string("a"), gatherer.attributeName(0));
         testPersistence(params, gatherer);
     }
-
 }
 
-CppUnit::Test *CEventRateDataGathererTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
+CppUnit::Test* CEventRateDataGathererTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::singleSeriesTests",
-                               &CEventRateDataGathererTest::singleSeriesTests) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::multipleSeriesTests",
-                               &CEventRateDataGathererTest::multipleSeriesTests) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testRemovePeople",
-                               &CEventRateDataGathererTest::testRemovePeople) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests",
-                               &CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests",
-                               &CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests",
-                               &CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored",
-                               &CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testResetBucketGivenSingleSeries",
-                               &CEventRateDataGathererTest::testResetBucketGivenSingleSeries) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testResetBucketGivenMultipleSeries",
-                               &CEventRateDataGathererTest::testResetBucketGivenMultipleSeries) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable",
-                               &CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testInfluencerBucketStatistics",
-                               &CEventRateDataGathererTest::testInfluencerBucketStatistics) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testDistinctStrings",
-                               &CEventRateDataGathererTest::testDistinctStrings) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testLatencyPersist",
-                               &CEventRateDataGathererTest::testLatencyPersist) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateDataGathererTest>(
-                               "CEventRateDataGathererTest::testDiurnalFeatures",
-                               &CEventRateDataGathererTest::testDiurnalFeatures) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::singleSeriesTests",
+        &CEventRateDataGathererTest::singleSeriesTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::multipleSeriesTests",
+        &CEventRateDataGathererTest::multipleSeriesTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testRemovePeople",
+        &CEventRateDataGathererTest::testRemovePeople));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests",
+        &CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests",
+        &CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests",
+        &CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored",
+        &CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testResetBucketGivenSingleSeries",
+        &CEventRateDataGathererTest::testResetBucketGivenSingleSeries));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testResetBucketGivenMultipleSeries",
+        &CEventRateDataGathererTest::testResetBucketGivenMultipleSeries));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable",
+        &CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testInfluencerBucketStatistics",
+        &CEventRateDataGathererTest::testInfluencerBucketStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testDistinctStrings",
+        &CEventRateDataGathererTest::testDistinctStrings));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testLatencyPersist",
+        &CEventRateDataGathererTest::testLatencyPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
+        "CEventRateDataGathererTest::testDiurnalFeatures",
+        &CEventRateDataGathererTest::testDiurnalFeatures));
     return suiteOfTests;
 }

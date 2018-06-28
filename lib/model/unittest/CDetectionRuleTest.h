@@ -10,27 +10,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectionRuleTest : public CppUnit::TestFixture
-{
-    public:
-        void testApplyGivenCategoricalCondition(void);
-        void testApplyGivenNumericalActualCondition(void);
-        void testApplyGivenNumericalTypicalCondition(void);
-        void testApplyGivenNumericalDiffAbsCondition(void);
-        void testApplyGivenSingleSeriesModelAndConditionWithField(void);
-        void testApplyGivenNoActualValueAvailable(void);
-        void testApplyGivenDifferentSeriesAndIndividualModel(void);
-        void testApplyGivenDifferentSeriesAndPopulationModel(void);
-        void testApplyGivenMultipleConditionsWithOr(void);
-        void testApplyGivenMultipleConditionsWithAnd(void);
-        void testApplyGivenTargetFieldIsPartitionAndIndividualModel(void);
-        void testApplyGivenTimeCondition(void);
-        void testRuleActions(void);
+class CDetectionRuleTest : public CppUnit::TestFixture {
+public:
+    void testApplyGivenScope();
+    void testApplyGivenNumericalActualCondition();
+    void testApplyGivenNumericalTypicalCondition();
+    void testApplyGivenNumericalDiffAbsCondition();
+    void testApplyGivenNoActualValueAvailable();
+    void testApplyGivenDifferentSeriesAndIndividualModel();
+    void testApplyGivenDifferentSeriesAndPopulationModel();
+    void testApplyGivenMultipleConditions();
+    void testApplyGivenTimeCondition();
+    void testRuleActions();
 
-        static CppUnit::Test *suite();
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+    static CppUnit::Test* suite();
+
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 #endif // INCLUDED_CDetectionRuleTest_h
-

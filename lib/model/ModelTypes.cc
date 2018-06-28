@@ -16,41 +16,33 @@
 #include <model/CModelParams.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <boost/make_shared.hpp>
+namespace ml {
+namespace model_t {
 
-namespace ml
-{
-namespace model_t
-{
-
-namespace
-{
+namespace {
 
 //! Compute x^4.
-double pow4(double x)
-{
+double pow4(double x) {
     double x2 = x * x;
     return x2 * x2;
 }
-
 }
 
-std::string print(EModelType type)
-{
-    switch (type)
-    {
-    case E_Counting:        return "'counting'";
-    case E_EventRateOnline: return "'online event rate'";
-    case E_MetricOnline:    return "'online metric'";
+std::string print(EModelType type) {
+    switch (type) {
+    case E_Counting:
+        return "'counting'";
+    case E_EventRateOnline:
+        return "'online event rate'";
+    case E_MetricOnline:
+        return "'online metric'";
     }
     return "-";
 }
 
 MODEL_EXPORT
-std::size_t dimension(EFeature feature)
-{
-    switch (feature)
-    {
+std::size_t dimension(EFeature feature) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return 1;
 
@@ -112,11 +104,8 @@ std::size_t dimension(EFeature feature)
     return 1;
 }
 
-TDouble2Vec1Vec stripExtraStatistics(EFeature feature,
-                                     const TDouble2Vec1Vec &values)
-{
-    switch (feature)
-    {
+TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec& values) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return values;
 
@@ -142,12 +131,10 @@ TDouble2Vec1Vec stripExtraStatistics(EFeature feature,
         return values;
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
-    case E_IndividualHighVarianceByPerson:
-    {
+    case E_IndividualHighVarianceByPerson: {
         TDouble2Vec1Vec result;
         result.reserve(values.size());
-        for (const auto &value : values)
-        {
+        for (const auto& value : values) {
             result.push_back(TDouble2Vec(value.begin(), value.begin() + value.size() / 2));
         }
         return result;
@@ -175,12 +162,10 @@ TDouble2Vec1Vec stripExtraStatistics(EFeature feature,
         return values;
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
-    case E_PopulationHighVarianceByPersonAndAttribute:
-    {
+    case E_PopulationHighVarianceByPersonAndAttribute: {
         TDouble2Vec1Vec result;
         result.reserve(values.size());
-        for (const auto &value : values)
-        {
+        for (const auto& value : values) {
             result.push_back(TDouble2Vec(value.begin(), value.begin() + value.size() / 2));
         }
         return result;
@@ -194,10 +179,8 @@ TDouble2Vec1Vec stripExtraStatistics(EFeature feature,
     return values;
 }
 
-bool isCategorical(EFeature feature)
-{
-    switch (feature)
-    {
+bool isCategorical(EFeature feature) {
+    switch (feature) {
     case E_IndividualTotalBucketCountByPerson:
         return true;
     case E_IndividualCountByBucketAndPerson:
@@ -249,10 +232,8 @@ bool isCategorical(EFeature feature)
     return false;
 }
 
-bool isDiurnal(EFeature feature)
-{
-    switch (feature)
-    {
+bool isDiurnal(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
@@ -320,10 +301,8 @@ bool isDiurnal(EFeature feature)
     return false;
 }
 
-bool isLatLong(EFeature feature)
-{
-    switch (feature)
-    {
+bool isLatLong(EFeature feature) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return false;
 
@@ -385,10 +364,8 @@ bool isLatLong(EFeature feature)
     return false;
 }
 
-bool isConstant(EFeature feature)
-{
-    switch (feature)
-    {
+bool isConstant(EFeature feature) {
+    switch (feature) {
     case E_IndividualIndicatorOfBucketPerson:
         return true;
     case E_IndividualCountByBucketAndPerson:
@@ -440,61 +417,47 @@ bool isConstant(EFeature feature)
     return false;
 }
 
-bool isMeanFeature(EFeature feature)
-{
+bool isMeanFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-          && (category == E_Mean || category == E_MultivariateMean);
+    return metricCategory(feature, category) &&
+           (category == E_Mean || category == E_MultivariateMean);
 }
 
-bool isMedianFeature(EFeature feature)
-{
+bool isMedianFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-          && (category == E_Median);
+    return metricCategory(feature, category) && (category == E_Median);
 }
 
-bool isMinFeature(EFeature feature)
-{
+bool isMinFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-          && (category == E_Min || category == E_MultivariateMin);
+    return metricCategory(feature, category) &&
+           (category == E_Min || category == E_MultivariateMin);
 }
 
-bool isMaxFeature(EFeature feature)
-{
+bool isMaxFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-          && (category == E_Max || category == E_MultivariateMax);
+    return metricCategory(feature, category) &&
+           (category == E_Max || category == E_MultivariateMax);
 }
 
-bool isVarianceFeature(EFeature feature)
-{
+bool isVarianceFeature(EFeature feature) {
     EMetricCategory category;
-    return     metricCategory(feature, category)
-           && (category == E_Variance);
+    return metricCategory(feature, category) && (category == E_Variance);
 }
 
-bool isSumFeature(EFeature feature)
-{
+bool isSumFeature(EFeature feature) {
     EMetricCategory category;
     return metricCategory(feature, category) && category == E_Sum;
 }
 
-double varianceScale(EFeature feature,
-                     double sampleCount,
-                     double count)
-{
-    return    isMeanFeature(feature)
-           || isMedianFeature(feature)
-           || isVarianceFeature(feature) ?
-           (sampleCount > 0.0 && count > 0.0 ? sampleCount / count : 1.0) : 1.0;
+double varianceScale(EFeature feature, double sampleCount, double count) {
+    return isMeanFeature(feature) || isMedianFeature(feature) || isVarianceFeature(feature)
+               ? (sampleCount > 0.0 && count > 0.0 ? sampleCount / count : 1.0)
+               : 1.0;
 }
 
-bool isSampled(EFeature feature)
-{
-    switch (feature)
-    {
+bool isSampled(EFeature feature) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return false;
 
@@ -567,10 +530,8 @@ bool isSampled(EFeature feature)
     return false;
 }
 
-unsigned minimumSampleCount(EFeature feature)
-{
-    switch (feature)
-    {
+unsigned minimumSampleCount(EFeature feature) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return 1;
 
@@ -595,7 +556,7 @@ unsigned minimumSampleCount(EFeature feature)
     case E_IndividualHighMedianByPerson:
         return 1;
 
-        // Population variance needs a minimum population size
+    // Population variance needs a minimum population size
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
     case E_IndividualHighVarianceByPerson:
@@ -622,7 +583,7 @@ unsigned minimumSampleCount(EFeature feature)
     case E_PopulationSumVelocityByPersonAndAttribute:
         return 1;
 
-        // Population variance needs a minimum population size
+    // Population variance needs a minimum population size
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
     case E_PopulationHighVarianceByPersonAndAttribute:
@@ -637,10 +598,8 @@ unsigned minimumSampleCount(EFeature feature)
     return 1;
 }
 
-double offsetCountToZero(EFeature feature, double count)
-{
-    switch (feature)
-    {
+double offsetCountToZero(EFeature feature, double count) {
+    switch (feature) {
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
     case E_IndividualIndicatorOfBucketPerson:
@@ -681,18 +640,14 @@ double offsetCountToZero(EFeature feature, double count)
     return count;
 }
 
-void offsetCountToZero(EFeature feature, TDouble1Vec &count)
-{
-    for (std::size_t i = 0u; i < count.size(); ++i)
-    {
+void offsetCountToZero(EFeature feature, TDouble1Vec& count) {
+    for (std::size_t i = 0u; i < count.size(); ++i) {
         count[i] = offsetCountToZero(feature, count[i]);
     }
 }
 
-double inverseOffsetCountToZero(EFeature feature,  double count)
-{
-    switch (feature)
-    {
+double inverseOffsetCountToZero(EFeature feature, double count) {
+    switch (feature) {
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
     case E_IndividualIndicatorOfBucketPerson:
@@ -733,18 +688,14 @@ double inverseOffsetCountToZero(EFeature feature,  double count)
     return count;
 }
 
-void inverseOffsetCountToZero(EFeature feature, TDouble1Vec &count)
-{
-    for (std::size_t i = 0u; i < count.size(); ++i)
-    {
+void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
+    for (std::size_t i = 0u; i < count.size(); ++i) {
         count[i] = inverseOffsetCountToZero(feature, count[i]);
     }
 }
 
-bool countsEmptyBuckets(EFeature feature)
-{
-    switch (feature)
-    {
+bool countsEmptyBuckets(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualLowCountsByBucketAndPerson:
     case E_IndividualHighCountsByBucketAndPerson:
@@ -801,36 +752,28 @@ bool countsEmptyBuckets(EFeature feature)
     return false;
 }
 
-double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
-{
-    if (countsEmptyBuckets(feature) && cutoff > 0.0)
-    {
+double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff) {
+    if (countsEmptyBuckets(feature) && cutoff > 0.0) {
         static const double M = 1.001;
         static const double C = 0.025;
-        static const double K = ::log((M + 1.0) / (M - 1.0)) / C;
+        static const double K = std::log((M + 1.0) / (M - 1.0)) / C;
         double df = frequency - std::min(cutoff + C, 1.0);
-        if (df < -C)
-        {
+        if (df < -C) {
             return 0.0;
-        }
-        else if (df < C)
-        {
-            double fa = ::exp(K * df);
+        } else if (df < C) {
+            double fa = std::exp(K * df);
             return 0.5 * (1.0 + M * (fa - 1.0) / (fa + 1.0));
         }
     }
     return 1.0;
 }
 
-double learnRate(EFeature feature, const model::SModelParams &params)
-{
+double learnRate(EFeature feature, const model::SModelParams& params) {
     return isDiurnal(feature) || isLatLong(feature) ? 1.0 : params.s_LearnRate;
 }
 
-maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature)
-{
-    switch (feature)
-    {
+maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
@@ -957,10 +900,8 @@ maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature)
 core_t::TTime sampleTime(EFeature feature,
                          core_t::TTime bucketStartTime,
                          core_t::TTime bucketLength,
-                         core_t::TTime time)
-{
-    switch (feature)
-    {
+                         core_t::TTime time) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return bucketStartTime + bucketLength / 2;
 
@@ -1033,15 +974,13 @@ core_t::TTime sampleTime(EFeature feature,
     return bucketStartTime + bucketLength / 2;
 }
 
-TDouble1VecDouble1VecPr support(EFeature feature)
-{
+TDouble1VecDouble1VecPr support(EFeature feature) {
     static const double MIN_DOUBLE = -std::numeric_limits<double>::max();
-    static const double MAX_DOUBLE =  std::numeric_limits<double>::max();
+    static const double MAX_DOUBLE = std::numeric_limits<double>::max();
 
     std::size_t d = dimension(feature);
 
-    switch (feature)
-    {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
@@ -1061,9 +1000,11 @@ TDouble1VecDouble1VecPr support(EFeature feature)
     case E_IndividualLowInfoContentByBucketAndPerson:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_IndividualTimeOfDayByBucketAndPerson:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
 
     case E_IndividualMeanByPerson:
     case E_IndividualLowMeanByPerson:
@@ -1089,7 +1030,7 @@ TDouble1VecDouble1VecPr support(EFeature feature)
     case E_IndividualHighVarianceByPerson:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_IndividualMeanLatLongByPerson:
-        return {TDouble1Vec(d, -180.0), TDouble1Vec(d,  180.0)};
+        return {TDouble1Vec(d, -180.0), TDouble1Vec(d, 180.0)};
 
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationCountByBucketPersonAndAttribute:
@@ -1106,9 +1047,10 @@ TDouble1VecDouble1VecPr support(EFeature feature)
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
         return {TDouble1Vec(d, 0.0),
-                                       TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
+                TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
 
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationMedianByPersonAndAttribute:
@@ -1131,7 +1073,7 @@ TDouble1VecDouble1VecPr support(EFeature feature)
     case E_PopulationHighVarianceByPersonAndAttribute:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_PopulationMeanLatLongByPersonAndAttribute:
-        return {TDouble1Vec(d, -180.0), TDouble1Vec(d,  180.0)};
+        return {TDouble1Vec(d, -180.0), TDouble1Vec(d, 180.0)};
 
     CASE_PEERS_COUNT:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
@@ -1151,10 +1093,7 @@ TDouble1VecDouble1VecPr support(EFeature feature)
     return {TDouble1Vec(d, MIN_DOUBLE), TDouble1Vec(d, MAX_DOUBLE)};
 }
 
-double adjustProbability(EFeature feature,
-                         core_t::TTime elapsedTime,
-                         double probability)
-{
+double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double probability) {
     // For the time of week calculation we assume that the
     // probability of less likely samples depends on whether
     // the value belongs to a cluster that hasn't yet been
@@ -1168,8 +1107,7 @@ double adjustProbability(EFeature feature,
     // decays exponentially over time.
 
     double pNewCluster = 0.0;
-    switch (feature)
-    {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualTotalBucketCountByPerson:
@@ -1189,12 +1127,12 @@ double adjustProbability(EFeature feature,
     case E_IndividualHighInfoContentByBucketAndPerson:
         break;
     case E_IndividualTimeOfDayByBucketAndPerson:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_INDIVIDUAL_METRIC:
@@ -1214,12 +1152,12 @@ double adjustProbability(EFeature feature,
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_POPULATION_METRIC:
@@ -1237,12 +1175,12 @@ double adjustProbability(EFeature feature,
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(  static_cast<double>(elapsedTime)
-                                  / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_PEERS_METRIC:
@@ -1252,34 +1190,32 @@ double adjustProbability(EFeature feature,
     return pNewCluster + probability * (1.0 - pNewCluster);
 }
 
-TInfluenceCalculatorCPtr influenceCalculator(EFeature feature)
-{
-    switch (feature)
-    {
+TInfluenceCalculatorCPtr influenceCalculator(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualHighCountsByBucketAndPerson:
     case E_IndividualHighNonZeroCountByBucketAndPerson:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_IndividualTotalBucketCountByPerson:
     case E_IndividualIndicatorOfBucketPerson:
     case E_IndividualTimeOfDayByBucketAndPerson:
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_IndividualArrivalTimesByPerson:
     case E_IndividualLongArrivalTimesByPerson:
     case E_IndividualShortArrivalTimesByPerson:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_IndividualUniqueCountByBucketAndPerson:
     case E_IndividualHighUniqueCountByBucketAndPerson:
     case E_IndividualInfoContentByBucketAndPerson:
     case E_IndividualHighInfoContentByBucketAndPerson:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_IndividualLowCountsByBucketAndPerson:
     case E_IndividualLowNonZeroCountByBucketAndPerson:
     case E_IndividualLowUniqueCountByBucketAndPerson:
     case E_IndividualLowInfoContentByBucketAndPerson:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_IndividualMeanByPerson:
     case E_IndividualMedianByPerson:
@@ -1287,47 +1223,47 @@ TInfluenceCalculatorCPtr influenceCalculator(EFeature feature)
     case E_IndividualHighMedianByPerson:
     case E_IndividualLowMeanByPerson:
     case E_IndividualHighMeanByPerson:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
     case E_IndividualHighVarianceByPerson:
-        return boost::make_shared<model::CVarianceInfluenceCalculator>();
+        return std::make_shared<model::CVarianceInfluenceCalculator>();
     case E_IndividualMinByPerson:
     case E_IndividualMaxByPerson:
     case E_IndividualMaxVelocityByPerson:
     case E_IndividualMinVelocityByPerson:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_IndividualSumByBucketAndPerson:
     case E_IndividualHighSumByBucketAndPerson:
     case E_IndividualNonNullSumByBucketAndPerson:
     case E_IndividualHighNonNullSumByBucketAndPerson:
     case E_IndividualSumVelocityByPerson:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_IndividualLowSumByBucketAndPerson:
     case E_IndividualLowNonNullSumByBucketAndPerson:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     case E_IndividualMeanLatLongByPerson:
     case E_IndividualMeanVelocityByPerson:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
 
     case E_PopulationCountByBucketPersonAndAttribute:
     case E_PopulationHighCountsByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationIndicatorOfBucketPersonAndAttribute:
     case E_PopulationUniquePersonCountByAttribute:
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_PopulationUniqueCountByBucketPersonAndAttribute:
     case E_PopulationInfoContentByBucketPersonAndAttribute:
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
     case E_PopulationHighUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PopulationLowCountsByBucketPersonAndAttribute:
     case E_PopulationLowInfoContentByBucketPersonAndAttribute:
     case E_PopulationLowUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationMedianByPersonAndAttribute:
@@ -1335,65 +1271,63 @@ TInfluenceCalculatorCPtr influenceCalculator(EFeature feature)
     case E_PopulationHighMedianByPersonAndAttribute:
     case E_PopulationLowMeanByPersonAndAttribute:
     case E_PopulationHighMeanByPersonAndAttribute:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
     case E_PopulationHighVarianceByPersonAndAttribute:
-        return boost::make_shared<model::CVarianceInfluenceCalculator>();
+        return std::make_shared<model::CVarianceInfluenceCalculator>();
     case E_PopulationMinByPersonAndAttribute:
     case E_PopulationMaxByPersonAndAttribute:
     case E_PopulationMaxVelocityByPersonAndAttribute:
     case E_PopulationMinVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PopulationSumByBucketPersonAndAttribute:
     case E_PopulationHighSumByBucketPersonAndAttribute:
     case E_PopulationSumVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PopulationLowSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     case E_PopulationMeanLatLongByPersonAndAttribute:
     case E_PopulationMeanVelocityByPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
 
     case E_PeersCountByBucketPersonAndAttribute:
     case E_PeersHighCountsByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PeersAttributeTotalCountByPerson:
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:
-        return boost::make_shared<model::CIndicatorInfluenceCalculator>();
+        return std::make_shared<model::CIndicatorInfluenceCalculator>();
     case E_PeersUniqueCountByBucketPersonAndAttribute:
     case E_PeersInfoContentByBucketPersonAndAttribute:
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
     case E_PeersHighUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PeersLowCountsByBucketPersonAndAttribute:
     case E_PeersLowInfoContentByBucketPersonAndAttribute:
     case E_PeersLowUniqueCountByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
 
     case E_PeersMeanByPersonAndAttribute:
     case E_PeersMedianByPersonAndAttribute:
     case E_PeersLowMeanByPersonAndAttribute:
     case E_PeersHighMeanByPersonAndAttribute:
-        return boost::make_shared<model::CMeanInfluenceCalculator>();
+        return std::make_shared<model::CMeanInfluenceCalculator>();
     case E_PeersMinByPersonAndAttribute:
     case E_PeersMaxByPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityInfluenceCalculator>();
     case E_PeersSumByBucketPersonAndAttribute:
     case E_PeersHighSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
+        return std::make_shared<model::CLogProbabilityComplementInfluenceCalculator>();
     case E_PeersLowSumByBucketPersonAndAttribute:
-        return boost::make_shared<model::CInfluenceUnavailableCalculator>();
+        return std::make_shared<model::CInfluenceUnavailableCalculator>();
     }
 
     return TInfluenceCalculatorCPtr();
 }
 
-bool requiresInterimResultAdjustment(EFeature feature)
-{
-    switch (feature)
-    {
+bool requiresInterimResultAdjustment(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
     case E_IndividualHighCountsByBucketAndPerson:
@@ -1517,10 +1451,8 @@ bool requiresInterimResultAdjustment(EFeature feature)
     return false;
 }
 
-const std::string &outputFunctionName(EFeature feature)
-{
-    switch (feature)
-    {
+const std::string& outputFunctionName(EFeature feature) {
+    switch (feature) {
     // Individual event rate features
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualNonZeroCountByBucketAndPerson:
@@ -1598,14 +1530,13 @@ const std::string &outputFunctionName(EFeature feature)
         return model::CAnomalyDetector::INFO_CONTENT_NAME;
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationUniquePersonCountByAttribute:
-        LOG_ERROR("Unexpected feature " << print(feature));
+        LOG_ERROR(<< "Unexpected feature " << print(feature));
         break;
 
     // Population metric features
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationLowMeanByPersonAndAttribute:
     case E_PopulationHighMeanByPersonAndAttribute:
-    case E_PopulationMeanLatLongByPersonAndAttribute:
     case E_PopulationMeanVelocityByPersonAndAttribute:
         return model::CAnomalyDetector::MEAN_NAME;
     case E_PopulationMedianByPersonAndAttribute:
@@ -1627,6 +1558,8 @@ const std::string &outputFunctionName(EFeature feature)
     case E_PopulationHighSumByBucketPersonAndAttribute:
     case E_PopulationSumVelocityByPersonAndAttribute:
         return model::CAnomalyDetector::SUM_NAME;
+    case E_PopulationMeanLatLongByPersonAndAttribute:
+        return model::CAnomalyDetector::LAT_LONG_NAME;
 
     // Peers event rate features
     case E_PeersCountByBucketPersonAndAttribute:
@@ -1645,7 +1578,7 @@ const std::string &outputFunctionName(EFeature feature)
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
         return model::CAnomalyDetector::INFO_CONTENT_NAME;
     case E_PeersAttributeTotalCountByPerson:
-        LOG_ERROR("Unexpected feature " << print(feature));
+        LOG_ERROR(<< "Unexpected feature " << print(feature));
         break;
 
     // Peers metric features
@@ -1668,10 +1601,8 @@ const std::string &outputFunctionName(EFeature feature)
     return model::CAnomalyDetector::COUNT_NAME;
 }
 
-std::string print(EFeature feature)
-{
-    switch (feature)
-    {
+std::string print(EFeature feature) {
+    switch (feature) {
     case E_IndividualCountByBucketAndPerson:
         return "'count per bucket by person'";
     case E_IndividualNonZeroCountByBucketAndPerson:
@@ -1867,10 +1798,8 @@ std::string print(EFeature feature)
     return "-";
 }
 
-bool metricCategory(EFeature feature, EMetricCategory &result)
-{
-    switch (feature)
-    {
+bool metricCategory(EFeature feature, EMetricCategory& result) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return false;
 
@@ -1878,13 +1807,16 @@ bool metricCategory(EFeature feature, EMetricCategory &result)
     case E_IndividualLowMeanByPerson:
     case E_IndividualHighMeanByPerson:
     case E_IndividualMeanVelocityByPerson:
-        result = E_Mean; return true;
+        result = E_Mean;
+        return true;
     case E_IndividualMinByPerson:
     case E_IndividualMinVelocityByPerson:
-        result = E_Min; return true;
+        result = E_Min;
+        return true;
     case E_IndividualMaxByPerson:
     case E_IndividualMaxVelocityByPerson:
-        result = E_Max; return true;
+        result = E_Max;
+        return true;
     case E_IndividualSumByBucketAndPerson:
     case E_IndividualLowSumByBucketAndPerson:
     case E_IndividualHighSumByBucketAndPerson:
@@ -1892,17 +1824,21 @@ bool metricCategory(EFeature feature, EMetricCategory &result)
     case E_IndividualLowNonNullSumByBucketAndPerson:
     case E_IndividualHighNonNullSumByBucketAndPerson:
     case E_IndividualSumVelocityByPerson:
-        result = E_Sum; return true;
+        result = E_Sum;
+        return true;
     case E_IndividualMeanLatLongByPerson:
-        result = E_MultivariateMean; return true;
+        result = E_MultivariateMean;
+        return true;
     case E_IndividualMedianByPerson:
     case E_IndividualLowMedianByPerson:
     case E_IndividualHighMedianByPerson:
-        result = E_Median; return true;
+        result = E_Median;
+        return true;
     case E_IndividualVarianceByPerson:
     case E_IndividualLowVarianceByPerson:
     case E_IndividualHighVarianceByPerson:
-        result = E_Variance; return true;
+        result = E_Variance;
+        return true;
 
     CASE_POPULATION_COUNT:
         return false;
@@ -1911,28 +1847,35 @@ bool metricCategory(EFeature feature, EMetricCategory &result)
     case E_PopulationLowMeanByPersonAndAttribute:
     case E_PopulationHighMeanByPersonAndAttribute:
     case E_PopulationMeanVelocityByPersonAndAttribute:
-        result = E_Mean; return true;
+        result = E_Mean;
+        return true;
     case E_PopulationMinByPersonAndAttribute:
     case E_PopulationMinVelocityByPersonAndAttribute:
-        result = E_Min; return true;
+        result = E_Min;
+        return true;
     case E_PopulationMaxByPersonAndAttribute:
     case E_PopulationMaxVelocityByPersonAndAttribute:
-        result = E_Max; return true;
+        result = E_Max;
+        return true;
     case E_PopulationMeanLatLongByPersonAndAttribute:
-        result = E_MultivariateMean; return true;
+        result = E_MultivariateMean;
+        return true;
     case E_PopulationSumByBucketPersonAndAttribute:
     case E_PopulationLowSumByBucketPersonAndAttribute:
     case E_PopulationHighSumByBucketPersonAndAttribute:
     case E_PopulationSumVelocityByPersonAndAttribute:
-        result = E_Sum; return true;
+        result = E_Sum;
+        return true;
     case E_PopulationMedianByPersonAndAttribute:
     case E_PopulationLowMedianByPersonAndAttribute:
     case E_PopulationHighMedianByPersonAndAttribute:
-        result = E_Median; return true;
+        result = E_Median;
+        return true;
     case E_PopulationVarianceByPersonAndAttribute:
     case E_PopulationLowVarianceByPersonAndAttribute:
     case E_PopulationHighVarianceByPersonAndAttribute:
-        result = E_Variance; return true;
+        result = E_Variance;
+        return true;
 
     CASE_PEERS_COUNT:
         return false;
@@ -1940,55 +1883,67 @@ bool metricCategory(EFeature feature, EMetricCategory &result)
     case E_PeersMeanByPersonAndAttribute:
     case E_PeersLowMeanByPersonAndAttribute:
     case E_PeersHighMeanByPersonAndAttribute:
-        result = E_Mean; return true;
+        result = E_Mean;
+        return true;
     case E_PeersMinByPersonAndAttribute:
-        result = E_Min; return true;
+        result = E_Min;
+        return true;
     case E_PeersMaxByPersonAndAttribute:
-        result = E_Max; return true;
+        result = E_Max;
+        return true;
     case E_PeersSumByBucketPersonAndAttribute:
     case E_PeersLowSumByBucketPersonAndAttribute:
     case E_PeersHighSumByBucketPersonAndAttribute:
-        result = E_Sum; return true;
+        result = E_Sum;
+        return true;
     case E_PeersMedianByPersonAndAttribute:
-        result = E_Median; return true;
+        result = E_Median;
+        return true;
     }
 
     return false;
 }
 
-std::string print(EMetricCategory category)
-{
-    switch (category)
-    {
-    case E_Mean:             return "'mean'";
-    case E_Min:              return "'minimum'";
-    case E_Max:              return "'maximum'";
-    case E_Sum:              return "'sum'";
-    case E_MultivariateMean: return "'multivariate mean'";
-    case E_MultivariateMin:  return "'multivariate minimum'";
-    case E_MultivariateMax:  return "'multivariate maximum'";
-    case E_Median:           return "'median'";
-    case E_Variance:         return "'variance'";
+std::string print(EMetricCategory category) {
+    switch (category) {
+    case E_Mean:
+        return "'mean'";
+    case E_Min:
+        return "'minimum'";
+    case E_Max:
+        return "'maximum'";
+    case E_Sum:
+        return "'sum'";
+    case E_MultivariateMean:
+        return "'multivariate mean'";
+    case E_MultivariateMin:
+        return "'multivariate minimum'";
+    case E_MultivariateMax:
+        return "'multivariate maximum'";
+    case E_Median:
+        return "'median'";
+    case E_Variance:
+        return "'variance'";
     }
     return "-";
 }
 
-std::string print(EEventRateCategory category)
-{
-    switch (category)
-    {
-    case E_MeanArrivalTimes: return "'mean arrival times'";
-    case E_AttributePeople:  return "'attributes' people'";
-    case E_UniqueValues:     return "'unique values'";
-    case E_DiurnalTimes:     return "'time-of-day values'";
+std::string print(EEventRateCategory category) {
+    switch (category) {
+    case E_MeanArrivalTimes:
+        return "'mean arrival times'";
+    case E_AttributePeople:
+        return "'attributes' people'";
+    case E_UniqueValues:
+        return "'unique values'";
+    case E_DiurnalTimes:
+        return "'time-of-day values'";
     }
     return "-";
 }
 
-EAnalysisCategory analysisCategory(EFeature feature)
-{
-    switch (feature)
-    {
+EAnalysisCategory analysisCategory(EFeature feature) {
+    switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return E_EventRate;
 
@@ -2011,31 +1966,34 @@ EAnalysisCategory analysisCategory(EFeature feature)
     return E_EventRate;
 }
 
-std::string print(EAnalysisCategory category)
-{
-    switch (category)
-    {
-    case E_EventRate:           return "'event rate'";
-    case E_Metric:              return "'metric'";
-    case E_PopulationEventRate: return "'population event rate'";
-    case E_PopulationMetric:    return "'population metric'";
-    case E_PeersEventRate:      return "'peers event rate'";
-    case E_PeersMetric:         return "'peers metric'";
+std::string print(EAnalysisCategory category) {
+    switch (category) {
+    case E_EventRate:
+        return "'event rate'";
+    case E_Metric:
+        return "'metric'";
+    case E_PopulationEventRate:
+        return "'population event rate'";
+    case E_PopulationMetric:
+        return "'population metric'";
+    case E_PeersEventRate:
+        return "'peers event rate'";
+    case E_PeersMetric:
+        return "'peers metric'";
     }
     return "-";
 }
 
-std::string print(EMemoryStatus memoryStatus)
-{
-    switch (memoryStatus)
-    {
-    case E_MemoryStatusOk:        return "ok";
-    case E_MemoryStatusSoftLimit: return "soft_limit";
-    case E_MemoryStatusHardLimit: return "hard_limit";
+std::string print(EMemoryStatus memoryStatus) {
+    switch (memoryStatus) {
+    case E_MemoryStatusOk:
+        return "ok";
+    case E_MemoryStatusSoftLimit:
+        return "soft_limit";
+    case E_MemoryStatusHardLimit:
+        return "hard_limit";
     }
     return "-";
 }
-
 }
 }
-

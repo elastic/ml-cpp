@@ -6,8 +6,8 @@
 
 #include <model/CResourceMonitor.h>
 
-#include <core/Constants.h>
 #include <core/CStatistics.h>
+#include <core/Constants.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CDataGatherer.h>
@@ -16,84 +16,68 @@
 #include <algorithm>
 #include <limits>
 
+namespace ml {
 
-namespace ml
-{
-
-namespace model
-{
+namespace model {
 
 // Only prune once per hour
 const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
-
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
+const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
 
-CResourceMonitor::CResourceMonitor(void) : m_AllowAllocations(true),
-    m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
-    m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
-    m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
-    m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
-    m_PruneWindow(std::numeric_limits<std::size_t>::max()),
-    m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
-    m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
-    m_NoLimit(false)
-{
+CResourceMonitor::CResourceMonitor(double byteLimitMargin)
+    : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
+      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
+      m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
+      m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
+      m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
+      m_PruneWindow(std::numeric_limits<std::size_t>::max()),
+      m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
+      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()), m_NoLimit(false) {
     this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
-void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc &reporter)
-{
+void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc& reporter) {
     m_MemoryUsageReporter = reporter;
 }
 
-void CResourceMonitor::registerComponent(CAnomalyDetector &detector)
-{
-    LOG_TRACE("Registering component: " << detector.model());
-    m_Models.insert({detector.model().get(), std::size_t(0)});
+void CResourceMonitor::registerComponent(CAnomalyDetector& detector) {
+    LOG_TRACE(<< "Registering component: " << &detector);
+    m_Detectors.emplace(&detector, std::size_t(0));
 }
 
-void CResourceMonitor::unRegisterComponent(CAnomalyDetector &detector)
-{
-    auto iter = m_Models.find(detector.model().get());
-    if (iter == m_Models.end())
-    {
-        LOG_ERROR("Inconsistency - component has not been registered: " << detector.model());
+void CResourceMonitor::unRegisterComponent(CAnomalyDetector& detector) {
+    auto itr = m_Detectors.find(&detector);
+    if (itr == m_Detectors.end()) {
+        LOG_ERROR(<< "Inconsistency - component has not been registered: " << &detector);
         return;
     }
 
-    LOG_TRACE("Unregistering component: " << detector.model());
-    m_Models.erase(iter);
+    LOG_TRACE(<< "Unregistering component: " << &detector);
+    m_Detectors.erase(itr);
 }
 
-void CResourceMonitor::memoryLimit(std::size_t limitMBs)
-{
+void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
     this->updateMemoryLimitsAndPruneThreshold(limitMBs);
 
-    if (m_NoLimit)
-    {
-        LOG_INFO("Setting no model memory limit");
-    }
-    else
-    {
-        LOG_INFO("Setting model memory limit to " << limitMBs << " MB");
+    if (m_NoLimit) {
+        LOG_INFO(<< "Setting no model memory limit");
+    } else {
+        LOG_INFO(<< "Setting model memory limit to " << limitMBs << " MB");
     }
 }
 
-void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
-{
+void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs) {
     // The threshold for no limit is set such that any negative limit cast to
     // a size_t (which is unsigned) will be taken to mean no limit
-    if (limitMBs > std::numeric_limits<std::size_t>::max() / 2)
-    {
+    if (limitMBs > std::numeric_limits<std::size_t>::max() / 2) {
         m_NoLimit = true;
         // The high limit is set to around half what it could potentially be.
         // The reason is that other code will do "what if" calculations on this
         // number, such as "what would total memory usage be if we allocated 10
         // more models?", and it causes problems if these calculations overflow.
         m_ByteLimitHigh = std::numeric_limits<std::size_t>::max() / 2 + 1;
-    }
-    else
-    {
+    } else {
         // Background persist causes the memory size to double due to copying
         // the models. On top of that, after the persist is done we may not
         // be able to retrieve that memory back. Thus, we halve the requested
@@ -105,56 +89,43 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
         // persist is configured.
         m_ByteLimitHigh = static_cast<std::size_t>((limitMBs * 1024 * 1024) / 2);
     }
-    m_ByteLimitLow = m_ByteLimitHigh - 1024;
-    m_PruneThreshold = static_cast<std::size_t>(m_ByteLimitHigh / 5 * 3);
+    m_ByteLimitLow = (m_ByteLimitHigh * 49) / 50;
+    m_PruneThreshold = (m_ByteLimitHigh * 3) / 5;
 }
 
-model_t::EMemoryStatus CResourceMonitor::getMemoryStatus()
-{
+model_t::EMemoryStatus CResourceMonitor::getMemoryStatus() {
     return m_MemoryStatus;
 }
 
-void CResourceMonitor::refresh(CAnomalyDetector &detector)
-{
-    if (m_NoLimit)
-    {
+void CResourceMonitor::refresh(CAnomalyDetector& detector) {
+    if (m_NoLimit) {
         return;
     }
     this->forceRefresh(detector);
 }
 
-void CResourceMonitor::forceRefresh(CAnomalyDetector &detector)
-{
-    this->memUsage(detector.model().get());
+void CResourceMonitor::forceRefresh(CAnomalyDetector& detector) {
+    this->memUsage(&detector);
     core::CStatistics::stat(stat_t::E_MemoryUsage).set(this->totalMemory());
-    LOG_TRACE("Checking allocations: currently at " << this->totalMemory());
+    LOG_TRACE(<< "Checking allocations: currently at " << this->totalMemory());
     this->updateAllowAllocations();
 }
 
-void CResourceMonitor::updateAllowAllocations(void)
-{
+void CResourceMonitor::updateAllowAllocations() {
     std::size_t total{this->totalMemory()};
-    if (m_AllowAllocations)
-    {
-        if (total > m_ByteLimitHigh)
-        {
-            LOG_INFO("Over allocation limit. " << total <<
-                " bytes used, the limit is " << m_ByteLimitHigh);
+    if (m_AllowAllocations) {
+        if (total > this->highLimit()) {
+            LOG_INFO(<< "Over current allocation limit. " << total
+                     << " bytes used, the limit is " << this->highLimit());
             m_AllowAllocations = false;
         }
-    }
-    else
-    {
-        if (total < m_ByteLimitLow)
-        {
-            LOG_INFO("Below allocation limit, used " << total);
-            m_AllowAllocations = true;
-        }
+    } else if (total < this->lowLimit()) {
+        LOG_INFO(<< "Below allocation limit, used " << total);
+        m_AllowAllocations = true;
     }
 }
 
-bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime)
-{
+bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
     // The basic idea here is that as the memory usage goes up, we
     // prune models to bring it down again. If usage declines, we
     // relax the pruning window to let it go back up again.
@@ -162,156 +133,133 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime)
     std::size_t total{this->totalMemory()};
     bool aboveThreshold = total > m_PruneThreshold;
 
-    if (m_HasPruningStarted == false && !aboveThreshold)
-    {
-        LOG_TRACE("No pruning required. " << total << " / " << m_PruneThreshold);
+    if (m_HasPruningStarted == false && !aboveThreshold) {
+        LOG_TRACE(<< "No pruning required. " << total << " / " << m_PruneThreshold);
         return false;
     }
 
-    if (endTime < m_LastPruneTime + MINIMUM_PRUNE_FREQUENCY)
-    {
-        LOG_TRACE("Too soon since last prune to prune again");
+    if (endTime < m_LastPruneTime + MINIMUM_PRUNE_FREQUENCY) {
+        LOG_TRACE(<< "Too soon since last prune to prune again");
         return false;
     }
 
-    if (m_Models.empty())
-    {
+    if (m_Detectors.empty()) {
         return false;
     }
 
-    if (m_HasPruningStarted == false)
-    {
+    if (m_HasPruningStarted == false) {
         // The longest we'll consider keeping priors for is 1M buckets.
-        CAnomalyDetectorModel *model = m_Models.begin()->first;
-        if (model == 0)
-        {
+        CAnomalyDetector* detector = m_Detectors.begin()->first;
+        if (detector == nullptr) {
             return false;
         }
-        m_PruneWindowMaximum = model->defaultPruneWindow();
+        m_PruneWindowMaximum = detector->model()->defaultPruneWindow();
         m_PruneWindow = m_PruneWindowMaximum;
-        m_PruneWindowMinimum = model->minimumPruneWindow();
+        m_PruneWindowMinimum = detector->model()->minimumPruneWindow();
         m_HasPruningStarted = true;
         this->acceptPruningResult();
-        LOG_DEBUG("Pruning started. Window (buckets): " << m_PruneWindow);
+        LOG_DEBUG(<< "Pruning started. Window (buckets): " << m_PruneWindow);
     }
 
-    if (aboveThreshold)
-    {
+    if (aboveThreshold) {
         // Do a prune and see how much we got back
         // These are the expensive operations
         std::size_t usageAfter = 0;
-        for (auto &&model : m_Models)
-        {
-            model.first->prune(m_PruneWindow);
-            model.second = model.first->memoryUsage();
-            usageAfter  += model.second;
+        for (auto& detector : m_Detectors) {
+            const auto& model = detector.first->model();
+            model->prune(m_PruneWindow);
+            detector.second = core::CMemory::dynamicSize(detector.first);
+            usageAfter += detector.second;
         }
         m_CurrentAnomalyDetectorMemory = usageAfter;
         total = this->totalMemory();
         this->updateAllowAllocations();
     }
 
-    LOG_TRACE("Pruning models. Usage: " <<
-              total << ". Current window: " << m_PruneWindow << " buckets");
+    LOG_TRACE(<< "Pruning models. Usage: " << total
+              << ". Current window: " << m_PruneWindow << " buckets");
 
-    if (total < m_PruneThreshold)
-    {
+    if (total < m_PruneThreshold) {
         // Expand the window
-        m_PruneWindow = std::min(m_PruneWindow + std::size_t(
-            (endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
-            m_PruneWindowMaximum);
-        LOG_TRACE("Expanding window, to " << m_PruneWindow);
-    }
-    else
-    {
+        const auto& model = m_Detectors.begin()->first->model();
+        m_PruneWindow = std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
+                                                             model->bucketLength()),
+                                 m_PruneWindowMaximum);
+        LOG_TRACE(<< "Expanding window, to " << m_PruneWindow);
+    } else {
         // Shrink the window
         m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100),
                                  m_PruneWindowMinimum);
-        LOG_TRACE("Shrinking window, to " << m_PruneWindow);
+        LOG_TRACE(<< "Shrinking window, to " << m_PruneWindow);
     }
 
     m_LastPruneTime = endTime;
     return aboveThreshold;
 }
 
-bool CResourceMonitor::areAllocationsAllowed(void) const
-{
+bool CResourceMonitor::areAllocationsAllowed() const {
     return m_AllowAllocations;
 }
 
-bool CResourceMonitor::areAllocationsAllowed(std::size_t size) const
-{
-    if (m_AllowAllocations)
-    {
-        return this->totalMemory() + size < m_ByteLimitHigh;
+bool CResourceMonitor::areAllocationsAllowed(std::size_t size) const {
+    if (m_AllowAllocations) {
+        return this->totalMemory() + size < this->highLimit();
     }
     return false;
 }
 
-std::size_t CResourceMonitor::allocationLimit(void) const
-{
-    return m_ByteLimitHigh - std::min(m_ByteLimitHigh, this->totalMemory());
+std::size_t CResourceMonitor::allocationLimit() const {
+    return this->highLimit() - std::min(this->highLimit(), this->totalMemory());
 }
 
-void CResourceMonitor::memUsage(CAnomalyDetectorModel *model)
-{
-    auto iter = m_Models.find(model);
-    if (iter == m_Models.end())
-    {
-        LOG_ERROR("Inconsistency - component has not been registered: " << model);
+void CResourceMonitor::memUsage(CAnomalyDetector* detector) {
+    auto itr = m_Detectors.find(detector);
+    if (itr == m_Detectors.end()) {
+        LOG_ERROR(<< "Inconsistency - component has not been registered: " << detector);
         return;
     }
-    std::size_t modelPreviousUsage = iter->second;
-    std::size_t modelCurrentUsage = core::CMemory::dynamicSize(iter->first);
-    iter->second = modelCurrentUsage;
+    std::size_t modelPreviousUsage = itr->second;
+    std::size_t modelCurrentUsage = core::CMemory::dynamicSize(itr->first);
+    itr->second = modelCurrentUsage;
     m_CurrentAnomalyDetectorMemory += (modelCurrentUsage - modelPreviousUsage);
 }
 
-void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime)
-{
-    if (this->needToSendReport())
-    {
+void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime) {
+    if (this->needToSendReport()) {
         this->sendMemoryUsageReport(bucketStartTime);
     }
 }
 
-bool CResourceMonitor::needToSendReport(void)
-{
+bool CResourceMonitor::needToSendReport() {
     // Has the usage changed by more than 1% ?
     std::size_t total{this->totalMemory()};
-    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) > m_PreviousTotal / 100)
-    {
+    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) >
+        m_PreviousTotal / 100) {
         return true;
     }
 
-    if (!m_AllocationFailures.empty())
-    {
+    if (!m_AllocationFailures.empty()) {
         core_t::TTime lastestAllocationError = (--m_AllocationFailures.end())->first;
-        if (lastestAllocationError > m_LastAllocationFailureReport)
-        {
+        if (lastestAllocationError > m_LastAllocationFailureReport) {
             return true;
         }
     }
     return false;
 }
 
-void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime)
-{
+void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     std::size_t total{this->totalMemory()};
     m_Peak = std::max(m_Peak, total);
-    if (m_MemoryUsageReporter)
-    {
+    if (m_MemoryUsageReporter) {
         m_MemoryUsageReporter(this->createMemoryUsageReport(bucketStartTime));
-        if (!m_AllocationFailures.empty())
-        {
+        if (!m_AllocationFailures.empty()) {
             m_LastAllocationFailureReport = m_AllocationFailures.rbegin()->first;
         }
     }
     m_PreviousTotal = total;
 }
 
-CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime)
-{
+CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SResults res;
     res.s_ByFields = 0;
     res.s_OverFields = 0;
@@ -320,52 +268,63 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
     res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
-    for (const auto &model : m_Models)
-    {
+    for (const auto& detector : m_Detectors) {
         ++res.s_PartitionFields;
-        res.s_OverFields += model.first->dataGatherer().numberOverFieldValues();
-        res.s_ByFields   += model.first->dataGatherer().numberByFieldValues();
+        const auto& dataGatherer = detector.first->model()->dataGatherer();
+        res.s_OverFields += dataGatherer.numberOverFieldValues();
+        res.s_ByFields += dataGatherer.numberByFieldValues();
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
     return res;
 }
 
-void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time)
-{
+void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {
     m_MemoryStatus = model_t::E_MemoryStatusHardLimit;
     ++m_AllocationFailures[time];
 }
 
-void CResourceMonitor::acceptPruningResult(void)
-{
-    if (m_MemoryStatus == model_t::E_MemoryStatusOk)
-    {
+void CResourceMonitor::acceptPruningResult() {
+    if (m_MemoryStatus == model_t::E_MemoryStatusOk) {
         m_MemoryStatus = model_t::E_MemoryStatusSoftLimit;
     }
 }
 
-bool CResourceMonitor::haveNoLimit(void) const
-{
+bool CResourceMonitor::haveNoLimit() const {
     return m_NoLimit;
 }
 
-void CResourceMonitor::addExtraMemory(std::size_t mem)
-{
+void CResourceMonitor::addExtraMemory(std::size_t mem) {
     m_ExtraMemory += mem;
     this->updateAllowAllocations();
 }
 
-void CResourceMonitor::clearExtraMemory(void)
-{
-    if (m_ExtraMemory != 0)
-    {
+void CResourceMonitor::clearExtraMemory() {
+    if (m_ExtraMemory != 0) {
         m_ExtraMemory = 0;
         this->updateAllowAllocations();
     }
 }
 
-std::size_t CResourceMonitor::totalMemory(void) const
-{
+void CResourceMonitor::decreaseMargin(core_t::TTime elapsedTime) {
+    // We choose to increase the margin to close to 1 on the order
+    // time it takes to detect diurnal periodic components. These
+    // will be the overwhelmingly common source of additional memory
+    // so the model memory should be accurate (on average) in this
+    // time frame.
+    double scale{1.0 - static_cast<double>(elapsedTime) /
+                           static_cast<double>(core::constants::DAY)};
+    m_ByteLimitMargin = 1.0 - scale * (1.0 - m_ByteLimitMargin);
+}
+
+std::size_t CResourceMonitor::highLimit() const {
+    return static_cast<std::size_t>(m_ByteLimitMargin * static_cast<double>(m_ByteLimitHigh));
+}
+
+std::size_t CResourceMonitor::lowLimit() const {
+    return static_cast<std::size_t>(m_ByteLimitMargin * static_cast<double>(m_ByteLimitLow));
+}
+
+std::size_t CResourceMonitor::totalMemory() const {
     return m_CurrentAnomalyDetectorMemory + m_ExtraMemory +
            CStringStore::names().memoryUsage() +
            CStringStore::influencers().memoryUsage();

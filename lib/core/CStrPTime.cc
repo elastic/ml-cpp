@@ -5,22 +5,13 @@
  */
 #include <core/CStrPTime.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-char *CStrPTime::strPTime(const char *buf,
-                          const char *format,
-                          struct tm *tm)
+char* CStrPTime::strPTime(const char* buf, const char* format, struct tm* tm)
 
 {
     return ::strptime(buf, format, tm);
 }
-
-
 }
 }
-

@@ -13,18 +13,14 @@
 #include <io.h>
 #include <stdint.h>
 #endif
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #ifndef Windows
 #include <unistd.h>
 #endif
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper around OS level file functions.
@@ -50,110 +46,105 @@ namespace core
 //! On Windows, we have to explicitly request 64 bit types in the
 //! typedefs and functions in this class.
 //!
-class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
-{
-    public:
-        //! Use in place of OS level file flags - will be defined as zero on
-        //! platforms that don't support them
-        static const int APPEND;
-        static const int BINARY;
-        static const int CREAT;
-        static const int EXCL;
-        static const int NOFOLLOW;
-        static const int RDONLY;
-        static const int RDWR;
-        static const int TEXT;
-        static const int TRUNC;
-        static const int WRONLY;
-        static const int RENAMABLE;
+class CORE_EXPORT COsFileFuncs : private CNonInstantiatable {
+public:
+    //! Use in place of OS level file flags - will be defined as zero on
+    //! platforms that don't support them
+    static const int APPEND;
+    static const int BINARY;
+    static const int CREAT;
+    static const int EXCL;
+    static const int NOFOLLOW;
+    static const int RDONLY;
+    static const int RDWR;
+    static const int TEXT;
+    static const int TRUNC;
+    static const int WRONLY;
+    static const int RENAMABLE;
 
-        //! Use in place of OS level access flags - will be defined as zero on
-        //! platforms that don't support them
-        static const int EXISTS;
-        static const int READABLE;
-        static const int WRITABLE;
-        static const int EXECUTABLE;
+    //! Use in place of OS level access flags - will be defined as zero on
+    //! platforms that don't support them
+    static const int EXISTS;
+    static const int READABLE;
+    static const int WRITABLE;
+    static const int EXECUTABLE;
 
-        //! The name of the magic file that discards everything written to it
-        static const char *NULL_FILENAME;
+    //! The name of the magic file that discards everything written to it
+    static const char* const NULL_FILENAME;
 
-    public:
-        //! Signed size type (to be used instead of ssize_t)
+public:
+    //! Signed size type (to be used instead of ssize_t)
 #ifdef Windows
-        typedef int             TSignedSize;
+    using TSignedSize = int;
 #else
-        typedef ssize_t         TSignedSize;
+    using TSignedSize = ssize_t;
 #endif
 
-        //! Offset type (to be used instead of off_t)
+    //! Offset type (to be used instead of off_t)
 #ifdef Windows
-        typedef __int64         TOffset;
+    using TOffset = __int64;
 #else
-        typedef off_t           TOffset;
+    using TOffset = off_t;
 #endif
 
-        //! Mode type (to be used instead of mode_t)
+    //! Mode type (to be used instead of mode_t)
 #ifdef Windows
-        typedef int             TMode;
+    using TMode = int;
 #else
-        typedef mode_t          TMode;
+    using TMode = mode_t;
 #endif
 
-        //! Inode type (to be used instead of ino_t)
+    //! Inode type (to be used instead of ino_t)
 #ifdef Windows
-        typedef uint64_t        TIno;
+    using TIno = uint64_t;
 #else
-        typedef ino_t           TIno;
+    using TIno = ino_t;
 #endif
 
-        //! Stat buffer struct (to be used instead of struct stat)
+    //! Stat buffer struct (to be used instead of struct stat)
 #ifdef Windows
-        struct SStat
-        {
-            // Member names don't conform to the coding standards because they
-            // need to match those of struct stat
-            _dev_t         st_dev;
-            //! Replaces the _ino_t member of _stati64
-            TIno           st_ino;
-            unsigned short st_mode;
-            short          st_nlink;
-            short          st_uid;
-            short          st_gid;
-            _dev_t         st_rdev;
-            __int64        st_size;
-            __time64_t     st_atime;
-            __time64_t     st_mtime;
-            __time64_t     st_ctime;
-        };
+    struct SStat {
+        // Member names don't conform to the coding standards because they
+        // need to match those of struct stat
+        _dev_t st_dev;
+        //! Replaces the _ino_t member of _stati64
+        TIno st_ino;
+        unsigned short st_mode;
+        short st_nlink;
+        short st_uid;
+        short st_gid;
+        _dev_t st_rdev;
+        __int64 st_size;
+        __time64_t st_atime;
+        __time64_t st_mtime;
+        __time64_t st_ctime;
+    };
 
-        typedef SStat           TStat;
+    using TStat = SStat;
 #else
-        typedef struct stat     TStat;
+    using TStat = struct stat;
 #endif
 
-    public:
-        static int open(const char *path, int oflag);
-        static int open(const char *path, int oflag, TMode pmode);
-        static int dup(int fildes);
-        static int dup2(int fildes, int fildes2);
-        static TOffset lseek(int fildes, TOffset offset, int whence);
-        static TSignedSize read(int fildes, void *buf, size_t nbyte);
-        static TSignedSize write(int fildes, const void *buf, size_t nbyte);
-        static int close(int fildes);
+public:
+    static int open(const char* path, int oflag);
+    static int open(const char* path, int oflag, TMode pmode);
+    static int dup(int fildes);
+    static int dup2(int fildes, int fildes2);
+    static TOffset lseek(int fildes, TOffset offset, int whence);
+    static TSignedSize read(int fildes, void* buf, size_t nbyte);
+    static TSignedSize write(int fildes, const void* buf, size_t nbyte);
+    static int close(int fildes);
 
-        static int fstat(int fildes, TStat *buf);
-        static int stat(const char *path, TStat *buf);
-        static int lstat(const char *path, TStat *buf);
-        static int access(const char *path, int amode);
+    static int fstat(int fildes, TStat* buf);
+    static int stat(const char* path, TStat* buf);
+    static int lstat(const char* path, TStat* buf);
+    static int access(const char* path, int amode);
 
-        static char *getcwd(char *buf, size_t size);
-        static int chdir(const char *path);
-        static int mkdir(const char *path);
+    static char* getcwd(char* buf, size_t size);
+    static int chdir(const char* path);
+    static int mkdir(const char* path);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_COsFileFuncs_h
-

@@ -8,15 +8,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCalendarFeatureTest : public CppUnit::TestFixture
-{
-    public:
-        void testInitialize(void);
-        void testComparison(void);
-        void testOffset(void);
-        void testPersist(void);
+class CCalendarFeatureTest : public CppUnit::TestFixture {
+public:
+    void testInitialize();
+    void testComparison();
+    void testOffset();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCalendarFeatureTest_h

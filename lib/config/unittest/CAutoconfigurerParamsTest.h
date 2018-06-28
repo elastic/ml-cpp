@@ -9,13 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAutoconfigurerParamsTest : public CppUnit::TestFixture
-{
-    public:
-        void testDefaults(void);
-        void testInit(void);
+class CAutoconfigurerParamsTest : public CppUnit::TestFixture {
+public:
+    void testDefaults();
+    void testInit();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAutoconfigurerParamsTest_h

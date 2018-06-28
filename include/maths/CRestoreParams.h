@@ -9,44 +9,24 @@
 
 #include <core/CoreTypes.h>
 
+#include <maths/Constants.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
 #include <boost/ref.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CModelParams;
 
 //! \brief Gatherers up extra parameters supplied when restoring
-//! time series decompositions.
-struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams
-{
-    STimeSeriesDecompositionRestoreParams(double decayRate,
-                                          core_t::TTime minimumBucketLength,
-                                          std::size_t componentSize);
-
-    //! The rate at which decomposition loses information.
-    double s_DecayRate;
-
-    //! The data bucket length.
-    core_t::TTime s_MinimumBucketLength;
-
-    //! The decomposition seasonal component size.
-    std::size_t s_ComponentSize;
-};
-
-//! \brief Gatherers up extra parameters supplied when restoring
 //! distribution models.
-struct MATHS_EXPORT SDistributionRestoreParams
-{
+struct MATHS_EXPORT SDistributionRestoreParams {
     SDistributionRestoreParams(maths_t::EDataType dataType,
                                double decayRate,
-                               double minimumClusterFraction,
-                               double minimumClusterCount,
-                               double minimumCategoryCount);
+                               double minimumClusterFraction = MINIMUM_CLUSTER_SPLIT_FRACTION,
+                               double minimumClusterCount = MINIMUM_CLUSTER_SPLIT_COUNT,
+                               double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
     //! The type of data being clustered.
     maths_t::EDataType s_DataType;
@@ -66,13 +46,36 @@ struct MATHS_EXPORT SDistributionRestoreParams
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
-struct MATHS_EXPORT SModelRestoreParams
-{
+struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
+    STimeSeriesDecompositionRestoreParams(double decayRate,
+                                          core_t::TTime minimumBucketLength,
+                                          std::size_t componentSize,
+                                          const SDistributionRestoreParams& changeModelParams);
+    STimeSeriesDecompositionRestoreParams(double decayRate,
+                                          core_t::TTime minimumBucketLength,
+                                          const SDistributionRestoreParams& changeModelParams);
+
+    //! The rate at which decomposition loses information.
+    double s_DecayRate;
+
+    //! The data bucket length.
+    core_t::TTime s_MinimumBucketLength;
+
+    //! The decomposition seasonal component size.
+    std::size_t s_ComponentSize;
+
+    //! The change model distributions' restore parameters.
+    SDistributionRestoreParams s_ChangeModelParams;
+};
+
+//! \brief Gatherers up extra parameters supplied when restoring
+//! time series models.
+struct MATHS_EXPORT SModelRestoreParams {
     using TModelParamsCRef = boost::reference_wrapper<const CModelParams>;
 
-    SModelRestoreParams(const CModelParams &params,
-                        const STimeSeriesDecompositionRestoreParams &decompositionParams,
-                        const SDistributionRestoreParams &distributionParams);
+    SModelRestoreParams(const CModelParams& params,
+                        const STimeSeriesDecompositionRestoreParams& decompositionParams,
+                        const SDistributionRestoreParams& distributionParams);
 
     //! The model parameters.
     TModelParamsCRef s_Params;
@@ -80,10 +83,9 @@ struct MATHS_EXPORT SModelRestoreParams
     //! The time series decomposition restore parameters.
     STimeSeriesDecompositionRestoreParams s_DecompositionParams;
 
-    //! The time series decomposition restore parameters.
+    //! The time series residual distribution restore parameters.
     SDistributionRestoreParams s_DistributionParams;
 };
-
 }
 }
 

@@ -8,13 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHexUtilsTest : public CppUnit::TestFixture
-{
-    public:
-        void testHexOutput(void);
+class CHexUtilsTest : public CppUnit::TestFixture {
+public:
+    void testHexOutput();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CHexUtilsTest_h
-

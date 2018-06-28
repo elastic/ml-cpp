@@ -9,14 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPRNGTest : public CppUnit::TestFixture
-{
-    public:
-        void testSplitMix64(void);
-        void testXorOShiro128Plus(void);
-        void testXorShift1024Mult(void);
+class CPRNGTest : public CppUnit::TestFixture {
+public:
+    void testSplitMix64();
+    void testXorOShiro128Plus();
+    void testXorShift1024Mult();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPRNGTest_h

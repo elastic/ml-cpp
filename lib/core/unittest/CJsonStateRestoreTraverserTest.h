@@ -8,20 +8,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CJsonStateRestoreTraverserTest : public CppUnit::TestFixture {
+public:
+    void testRestore1();
+    void testRestore2();
+    void testRestore3();
+    void testRestore4();
+    void testParsingBooleanFields();
+    void testRestore1IgnoreArrays();
+    void testRestore1IgnoreArraysNested();
 
-class CJsonStateRestoreTraverserTest : public CppUnit::TestFixture
-{
-    public:
-        void testRestore1(void);
-        void testRestore2(void);
-        void testRestore3(void);
-        void testRestore4(void);
-        void testParsingBooleanFields(void);
-        void testRestore1IgnoreArrays(void);
-        void testRestore1IgnoreArraysNested(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CJsonStateRestoreTraverserTest_h
-

@@ -9,54 +9,37 @@
 
 #include <istream>
 
-
-namespace ml
-{
-namespace controller
-{
-
+namespace ml {
+namespace controller {
 
 CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
-                                                           std::istream &monitorStream)
+                                                           std::istream& monitorStream)
     : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
-      m_MonitorStream(monitorStream),
-      m_Shutdown(false)
-{
+      m_MonitorStream(monitorStream), m_Shutdown(false) {
 }
 
-void CBlockingCallCancellerThread::run(void)
-{
+void CBlockingCallCancellerThread::run() {
     char c;
-    while (m_MonitorStream >> c)
-    {
-        if (m_Shutdown)
-        {
+    while (m_MonitorStream >> c) {
+        if (m_Shutdown) {
             return;
         }
     }
 
-    if (core::CThread::cancelBlockedIo(m_PotentiallyBlockedThreadId) == false)
-    {
-        LOG_WARN("Failed to cancel blocked IO in thread " <<
-                 m_PotentiallyBlockedThreadId);
+    if (core::CThread::cancelBlockedIo(m_PotentiallyBlockedThreadId) == false) {
+        LOG_WARN(<< "Failed to cancel blocked IO in thread " << m_PotentiallyBlockedThreadId);
     }
 }
 
-void CBlockingCallCancellerThread::shutdown(void)
-{
+void CBlockingCallCancellerThread::shutdown() {
     m_Shutdown = true;
 
     // This is to wake up the stream reading in the run() method of this object.
     // If this has an effect then the assumption is that the program is exiting
     // due to a reason other than the stream this object is monitoring ending.
-    if (this->cancelBlockedIo() == false)
-    {
-        LOG_WARN("Failed to cancel blocked IO in thread " <<
-                 this->currentThreadId());
+    if (this->cancelBlockedIo() == false) {
+        LOG_WARN(<< "Failed to cancel blocked IO in thread " << this->currentThreadId());
     }
 }
-
-
 }
 }
-

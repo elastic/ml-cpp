@@ -45,4 +45,9 @@ mkdir ../distributions
 zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
 # Include only debug files
 zip -9 ../distributions/$ARTIFACT_NAME-debug-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+cd ../..
+
+if [ "x$1" = "x--test" ] ; then
+    make -j`grep -c '^processor' /proc/cpuinfo` ML_KEEP_GOING=1 test
+fi
 

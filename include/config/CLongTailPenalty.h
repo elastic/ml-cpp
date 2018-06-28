@@ -13,10 +13,8 @@
 #include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CByAndPartitionDataCountStatistics;
 class CByOverAndPartitionDataCountStatistics;
@@ -31,43 +29,39 @@ class CByOverAndPartitionDataCountStatistics;
 //! detectors will fail to detect any anomalies. As such we penalize detectors
 //! based on the proportion of count in a tail which is defined as a threshold
 //! on the difference between the by field count and the minimum count.
-class CONFIG_EXPORT CLongTailPenalty : public CPenalty
-{
-    public:
-        CLongTailPenalty(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CLongTailPenalty : public CPenalty {
+public:
+    CLongTailPenalty(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CLongTailPenalty *clone(void) const;
+    //! Create a copy on the heap.
+    virtual CLongTailPenalty* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name(void) const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
+private:
+    using TSizeUInt64UMap = boost::unordered_map<std::size_t, uint64_t>;
 
-    private:
-        //! Compute a penalty for rare detectors.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+private:
+    //! Compute a penalty for rare detectors.
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
-        //! Compute the penalty for a by field and optionally a partition.
-        void penaltyFor(const CByAndPartitionDataCountStatistics &stats,
-                        CDetectorSpecification &spec) const;
+    //! Compute the penalty for a by field and optionally a partition.
+    void penaltyFor(const CByAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
-        //! Compute the penalty for a by, over and optionally a partition field.
-        void penaltyFor(const CByOverAndPartitionDataCountStatistics &stats,
-                        CDetectorSpecification &spec) const;
+    //! Compute the penalty for a by, over and optionally a partition field.
+    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
-        //! Extract the tail and total counts from \p counts.
-        template<typename STATS, typename MAP>
-        void extractTailCounts(const MAP &counts,
-                               TSizeUInt64UMap &totals,
-                               TSizeUInt64UMap &tail) const;
+    //! Extract the tail and total counts from \p counts.
+    template<typename STATS, typename MAP>
+    void extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
 
-        //! Compute the penalty for the rare counts and total counts \p rares
-        //! and \p totals, respectively.
-        double penaltyFor(TSizeUInt64UMap &rares, TSizeUInt64UMap &totals) const;
+    //! Compute the penalty for the rare counts and total counts \p rares
+    //! and \p totals, respectively.
+    double penaltyFor(TSizeUInt64UMap& rares, TSizeUInt64UMap& totals) const;
 };
-
 }
 }
 

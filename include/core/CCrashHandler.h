@@ -9,10 +9,8 @@
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Helper class to register a crashhandler and getting better traces.
@@ -34,12 +32,10 @@ namespace core
 //!
 //! addr2line -e library normalized_address
 //! (library can be the symbol file)
-class CORE_EXPORT CCrashHandler : private CNonInstantiatable
-{
-    public:
-        static void installCrashHandler(void);
+class CORE_EXPORT CCrashHandler : private CNonInstantiatable {
+public:
+    static void installCrashHandler();
 };
-
 }
 }
 

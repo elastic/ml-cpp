@@ -8,14 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CJsonLogLayoutTest : public CppUnit::TestFixture {
+public:
+    void testPathCropping();
 
-class CJsonLogLayoutTest : public CppUnit::TestFixture
-{
-    public:
-        void testPathCropping(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CJsonLogLayoutTest_h
-

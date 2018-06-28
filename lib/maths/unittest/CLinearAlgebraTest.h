@@ -9,24 +9,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLinearAlgebraTest : public CppUnit::TestFixture
-{
-    public:
-        void testSymmetricMatrixNxN(void);
-        void testVectorNx1(void);
-        void testSymmetricMatrix(void);
-        void testVector(void);
-        void testNorms(void);
-        void testUtils(void);
-        void testScaleCovariances(void);
-        void testGaussianLogLikelihood(void);
-        void testSampleGaussian(void);
-        void testLogDeterminant(void);
-        void testProjected(void);
-        void testShims(void);
-        void testPersist(void);
+class CLinearAlgebraTest : public CppUnit::TestFixture {
+public:
+    void testSymmetricMatrixNxN();
+    void testVectorNx1();
+    void testSymmetricMatrix();
+    void testVector();
+    void testNorms();
+    void testUtils();
+    void testScaleCovariances();
+    void testGaussianLogLikelihood();
+    void testSampleGaussian();
+    void testLogDeterminant();
+    void testProjected();
+    void testShims();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLinearAlgebraTest_h

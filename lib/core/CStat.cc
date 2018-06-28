@@ -5,41 +5,32 @@
  */
 #include <core/CStat.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-CStat::CStat(void) : m_Value(uint64_t(0))
-{
+CStat::CStat() : m_Value(uint64_t(0)) {
 }
 
-void CStat::increment(void)
-{
+void CStat::increment() {
     m_Value.fetch_add(1);
 }
 
-void CStat::increment(uint64_t value)
-{
+void CStat::increment(uint64_t value) {
     m_Value.fetch_add(value);
 }
 
-void CStat::decrement(void)
-{
+void CStat::decrement() {
     m_Value.fetch_sub(1);
 }
 
-void CStat::set(uint64_t value)
-{
+void CStat::set(uint64_t value) {
     m_Value.store(value);
 }
 
-uint64_t CStat::value(void) const
-{
+uint64_t CStat::value() const {
     return m_Value;
 }
 
 } // core
 
 } // ml
-

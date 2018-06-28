@@ -13,17 +13,14 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CTimeSeriesDecompositionInterface;
 struct STimeSeriesDecompositionRestoreParams;
 
@@ -40,28 +37,31 @@ struct STimeSeriesDecompositionRestoreParams;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format makes it easier to provide backwards/forwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CTimeSeriesDecompositionStateSerialiser
-{
-    public:
-        //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
-        //! base class.
-        using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
+class MATHS_EXPORT CTimeSeriesDecompositionStateSerialiser {
+public:
+    using TDecompositionUPtr = std::unique_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionSPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
 
-    public:
-        //! Construct the appropriate CTimeSeriesDecompositionInterface
-        //! sub-class from its state document representation. Sets \p result
-        //! to NULL on failure.
-        bool operator()(const STimeSeriesDecompositionRestoreParams &params,
-                        TDecompositionPtr &result,
-                        core::CStateRestoreTraverser &traverser) const;
+public:
+    //! Construct the appropriate CTimeSeriesDecompositionInterface
+    //! sub-class from its state document representation. Sets \p result
+    //! to NULL on failure.
+    bool operator()(const STimeSeriesDecompositionRestoreParams& params,
+                    TDecompositionUPtr& result,
+                    core::CStateRestoreTraverser& traverser) const;
 
-        //! Persist state by passing information to the supplied inserter.
-        void operator()(const CTimeSeriesDecompositionInterface &decomposition,
-                        core::CStatePersistInserter &inserter) const;
+    //! Construct the appropriate CTimeSeriesDecompositionInterface
+    //! sub-class from its state document representation. Sets \p result
+    //! to NULL on failure.
+    bool operator()(const STimeSeriesDecompositionRestoreParams& params,
+                    TDecompositionSPtr& result,
+                    core::CStateRestoreTraverser& traverser) const;
+
+    //! Persist state by passing information to the supplied inserter.
+    void operator()(const CTimeSeriesDecompositionInterface& decomposition,
+                    core::CStatePersistInserter& inserter) const;
 };
-
 }
 }
 
 #endif // INCLUDED_ml_maths_CTimeSeriesDecompositionStateSerialiser_h
-

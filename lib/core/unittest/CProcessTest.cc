@@ -8,28 +8,23 @@
 #include <core/CLogger.h>
 #include <core/CProcess.h>
 
+CppUnit::Test* CProcessTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessTest");
 
-CppUnit::Test *CProcessTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProcessTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CProcessTest>(
-                                   "CProcessTest::testPids",
-                                   &CProcessTest::testPids) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessTest>(
+        "CProcessTest::testPids", &CProcessTest::testPids));
 
     return suiteOfTests;
 }
 
-void CProcessTest::testPids(void)
-{
-    ml::core::CProcess &process = ml::core::CProcess::instance();
+void CProcessTest::testPids() {
+    ml::core::CProcess& process = ml::core::CProcess::instance();
     ml::core::CProcess::TPid pid = process.id();
     ml::core::CProcess::TPid ppid = process.parentId();
 
-    LOG_DEBUG("PID = " << pid << " and parent PID = " << ppid);
+    LOG_DEBUG(<< "PID = " << pid << " and parent PID = " << ppid);
 
     CPPUNIT_ASSERT(pid != 0);
     CPPUNIT_ASSERT(ppid != 0);
     CPPUNIT_ASSERT(pid != ppid);
 }
-

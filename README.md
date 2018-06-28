@@ -16,10 +16,10 @@ be found in the main
 ## Elastic License Functionality
 
 Most files in this repository are subject to the Elastic License. The full
-license can be found in `LICENSE.txt`. Usage requires a
+license can be found in [LICENSE.txt](LICENSE.txt). Usage requires a
 [subscription](https://www.elastic.co/subscriptions). Files that are not
-subject to the Elastic License are in the `3rd_party` and `build-setup`
-directories.
+subject to the Elastic License are in the [3rd_party](3rd_party) and
+[build-setup](build-setup) directories.
 
 ## Getting Started
 
@@ -49,7 +49,7 @@ right people, please follow the guidelines below:
 
 ## Contributing
 
-Please have a look at our contributor guidelines.
+Please have a look at our [contributor guidelines](CONTRIBUTING.md).
 
 ## Setting up a build environment
 
@@ -58,6 +58,6 @@ by default, the elasticsearch build will download pre-compiled C++ artifacts.
 
 Setting up a build environment for ml-cpp native code is complex. If you are
 specifically interested in working with the ml-cpp code, then information
-regarding setting up a build environment can be found in the `build-setup`
-directory.
+regarding setting up a build environment can be found in the
+[build-setup](build-setup) directory.
 

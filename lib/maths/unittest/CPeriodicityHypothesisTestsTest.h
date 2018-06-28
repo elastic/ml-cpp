@@ -9,16 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPeriodicityHypothesisTestsTest : public CppUnit::TestFixture
-{
-    public:
-        void testNonPeriodic();
-        void testDiurnal();
-        void testNonDiurnal();
-        void testWithSparseData();
-        void testTestForPeriods();
+class CPeriodicityHypothesisTestsTest : public CppUnit::TestFixture {
+public:
+    void testNonPeriodic();
+    void testDiurnal();
+    void testNonDiurnal();
+    void testWithSparseData();
+    void testWithOutliers();
+    void testTestForPeriods();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPeriodicityHypothesisTestsTest_h

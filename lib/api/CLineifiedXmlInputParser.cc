@@ -10,25 +10,18 @@
 
 #include <sstream>
 
+namespace ml {
+namespace api {
 
-namespace ml
-{
-namespace api
-{
-
-
-CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
-                                                   std::istream &strmIn,
+CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
+                                                   std::istream& strmIn,
                                                    bool allDocsSameStructure)
-    : CLineifiedInputParser(strmIn),
-      m_Parser(parser),
-      m_AllDocsSameStructure(allDocsSameStructure)
-{
+    : CLineifiedInputParser(strmIn), m_Parser(parser),
+      m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
-bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
-{
-    TStrVec &fieldNames = this->fieldNames();
+bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
+    TStrVec& fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -38,40 +31,29 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
     TStrStrUMap recordFields;
 
     TCharPSizePr beginLenPair(this->parseLine());
-    while (beginLenPair.first != 0)
-    {
-        if (m_Parser.parseBufferInSitu(beginLenPair.first,
-                                       beginLenPair.second) == false)
-        {
-            LOG_ERROR("Failed to parse XML document");
+    while (beginLenPair.first != nullptr) {
+        if (m_Parser.parseBufferInSitu(beginLenPair.first, beginLenPair.second) == false) {
+            LOG_ERROR(<< "Failed to parse XML document");
             return false;
         }
 
-        if (m_Parser.navigateRoot() == false ||
-            m_Parser.navigateFirstChild() == false)
-        {
-            LOG_ERROR("XML document has unexpected structure");
+        if (m_Parser.navigateRoot() == false || m_Parser.navigateFirstChild() == false) {
+            LOG_ERROR(<< "XML document has unexpected structure");
             return false;
         }
 
-        if (m_AllDocsSameStructure)
-        {
-            if (this->decodeDocumentWithCommonFields(fieldNames,
-                                                     fieldValRefs,
-                                                     recordFields) == false)
-            {
-                LOG_ERROR("Failed to decode XML document");
+        if (m_AllDocsSameStructure) {
+            if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs,
+                                                     recordFields) == false) {
+                LOG_ERROR(<< "Failed to decode XML document");
                 return false;
             }
-        }
-        else
-        {
+        } else {
             this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
         }
 
-        if (readerFunc(recordFields) == false)
-        {
-            LOG_ERROR("Record handler function forced exit");
+        if (readerFunc(recordFields) == false) {
+            LOG_ERROR(<< "Record handler function forced exit");
             return false;
         }
 
@@ -81,22 +63,17 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
     return true;
 }
 
-bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldNames,
-                                                              TStrRefVec &fieldValRefs,
-                                                              TStrStrUMap &recordFields)
-{
-    if (fieldValRefs.empty())
-    {
+bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames,
+                                                              TStrRefVec& fieldValRefs,
+                                                              TStrStrUMap& recordFields) {
+    if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
 
         // Cache references to the strings in the map corresponding to each field
         // name for next time
         fieldValRefs.reserve(fieldNames.size());
-        for (TStrVecCItr iter = fieldNames.begin();
-             iter != fieldNames.end();
-             ++iter)
-        {
+        for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
             fieldValRefs.push_back(boost::ref(recordFields[*iter]));
         }
 
@@ -105,52 +82,42 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
 
     size_t i(0);
     bool more(true);
-    do
-    {
+    do {
         m_Parser.currentNodeValue(fieldValRefs[i]);
         ++i;
         more = m_Parser.navigateNext();
-    }
-    while (i < fieldValRefs.size() && more);
+    } while (i < fieldValRefs.size() && more);
 
-    if (i < fieldValRefs.size() || more)
-    {
-        while (more)
-        {
+    if (i < fieldValRefs.size() || more) {
+        while (more) {
             ++i;
             more = m_Parser.navigateNext();
         }
 
-        LOG_ERROR("Incorrect number of fields: expected "
-           << fieldValRefs.size() << ", got " << i);
+        LOG_ERROR(<< "Incorrect number of fields: expected "
+                  << fieldValRefs.size() << ", got " << i);
         return false;
     }
 
     return true;
 }
 
-void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec &fieldNames,
-                                                                 TStrStrUMap &recordFields)
-{
+void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames,
+                                                                 TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();
     recordFields.clear();
 
-    do
-    {
+    do {
         fieldNames.push_back(std::string());
-        std::string &name = fieldNames.back();
+        std::string& name = fieldNames.back();
         m_Parser.currentNodeName(name);
         m_Parser.currentNodeValue(recordFields[name]);
-    }
-    while (m_Parser.navigateNext());
+    } while (m_Parser.navigateNext());
 
     this->gotFieldNames(true);
     this->gotData(true);
 }
-
-
 }
 }
-

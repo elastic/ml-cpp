@@ -9,14 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CAnomalyDetectorModelConfigTest : public CppUnit::TestFixture {
+public:
+    void testNormal();
+    void testErrors();
 
-class CAnomalyDetectorModelConfigTest : public CppUnit::TestFixture
-{
-    public:
-        void testNormal(void);
-        void testErrors(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnomalyDetectorModelConfigTest_h

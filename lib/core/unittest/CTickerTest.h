@@ -8,12 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTickerTest : public CppUnit::TestFixture
-{
-    public:
-        void    testTicker(void);
+class CTickerTest : public CppUnit::TestFixture {
+public:
+    void testTicker();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTickerTest_h

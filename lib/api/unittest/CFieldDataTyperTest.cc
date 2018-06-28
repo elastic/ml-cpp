@@ -6,9 +6,9 @@
 
 #include "CFieldDataTyperTest.h"
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
+#include <core/CJsonOutputStreamWrapper.h>
 
 #include <model/CLimits.h>
 
@@ -26,8 +26,7 @@
 using namespace ml;
 using namespace api;
 
-namespace
-{
+namespace {
 
 //! \brief
 //! Mock object for state restore unit tests.
@@ -35,125 +34,77 @@ namespace
 //! DESCRIPTION:\n
 //! CDataSearcher that returns an empty stream.
 //!
-class CEmptySearcher : public ml::core::CDataSearcher
-{
-    public:
-        //! Do a search that results in an empty input stream.
-        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
-        {
-            return TIStreamP(new std::istringstream());
-        }
+class CEmptySearcher : public ml::core::CDataSearcher {
+public:
+    //! Do a search that results in an empty input stream.
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        return TIStreamP(new std::istringstream());
+    }
 };
 
-class CTestOutputHandler : public COutputHandler
-{
-    public:
-        CTestOutputHandler(void) : COutputHandler(), m_NewStream(false),
-            m_Finalised(false), m_Records(0)
-        {
-        }
+class CTestOutputHandler : public COutputHandler {
+public:
+    virtual void finalise() { m_Finalised = true; }
 
-        virtual ~CTestOutputHandler(void)
-        {
-        }
+    bool hasFinalised() const { return m_Finalised; }
 
-        virtual void finalise(void)
-        {
-            m_Finalised = true;
-        }
+    virtual void newOutputStream() { m_NewStream = true; }
 
-        bool hasFinalised(void) const
-        {
-            return m_Finalised;
-        }
+    bool isNewStream() const { return m_NewStream; }
 
-        virtual void newOutputStream(void)
-        {
-            m_NewStream = true;
-        }
+    virtual bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
+        return true;
+    }
 
-        bool isNewStream(void) const
-        {
-            return m_NewStream;
-        }
+    virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/,
+                          const TStrStrUMap& /*overrideDataRowFields*/) {
+        ++m_Records;
+        return true;
+    }
 
-        virtual bool fieldNames(const TStrVec &/*fieldNames*/,
-                                const TStrVec &/*extraFieldNames*/)
-        {
-            return true;
-        }
+    uint64_t getNumRows() const { return m_Records; }
 
-        virtual bool writeRow(const TStrStrUMap &/*dataRowFields*/,
-                              const TStrStrUMap &/*overrideDataRowFields*/)
-        {
-            m_Records++;
-            return true;
-        }
+private:
+    bool m_NewStream = false;
 
-        uint64_t getNumRows(void) const
-        {
-            return m_Records;
-        }
+    bool m_Finalised = false;
 
-    private:
-        TStrVec m_FieldNames;
-
-        bool m_NewStream;
-
-        bool m_Finalised;
-
-        uint64_t m_Records;
+    uint64_t m_Records = 0;
 };
 
-class CTestDataSearcher : public core::CDataSearcher
-{
-    public:
-        CTestDataSearcher(const std::string &data)
-            : m_Stream(new std::istringstream(data))
-        {
-        }
+class CTestDataSearcher : public core::CDataSearcher {
+public:
+    CTestDataSearcher(const std::string& data)
+        : m_Stream(new std::istringstream(data)) {}
 
-        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
-        {
-            return m_Stream;
-        }
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        return m_Stream;
+    }
 
-    private:
-        TIStreamP m_Stream;
+private:
+    TIStreamP m_Stream;
 };
 
-class CTestDataAdder : public core::CDataAdder
-{
-    public:
-        CTestDataAdder(void)
-            : m_Stream(new std::ostringstream)
-        {
-        }
+class CTestDataAdder : public core::CDataAdder {
+public:
+    CTestDataAdder() : m_Stream(new std::ostringstream) {}
 
-        virtual TOStreamP addStreamed(const std::string &/*index*/,
-                                      const std::string &/*id*/)
-        {
-            return m_Stream;
-        }
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+        return m_Stream;
+    }
 
-        virtual bool streamComplete(TOStreamP &/*strm*/, bool /*force*/)
-        {
-            return true;
-        }
+    virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) {
+        return true;
+    }
 
-        TOStreamP getStream(void)
-        {
-            return m_Stream;
-        }
+    TOStreamP getStream() { return m_Stream; }
 
-    private:
-        TOStreamP m_Stream;
+private:
+    TOStreamP m_Stream;
 };
-
 }
 
-void CFieldDataTyperTest::testAll(void)
-{
+void CFieldDataTyperTest::testAll() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -203,18 +154,18 @@ void CFieldDataTyperTest::testAll(void)
     {
         CTestDataAdder adder;
         typer.persistState(adder);
-        std::ostringstream &ss = dynamic_cast<std::ostringstream &>(*adder.getStream());
+        std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
 
     std::string newJson;
-    LOG_DEBUG("origJson = " << origJson);
+    LOG_DEBUG(<< "origJson = " << origJson);
     {
         model::CLimits limits2;
         CFieldConfig config2("x", "y");
         CTestOutputHandler handler2;
         std::ostringstream outputStrm2;
-        core::CJsonOutputStreamWrapper wrappedOutputStream2 (outputStrm2);
+        core::CJsonOutputStreamWrapper wrappedOutputStream2(outputStrm2);
         CJsonOutputWriter writer2("job", wrappedOutputStream2);
 
         CFieldDataTyper newTyper("job", config2, limits2, handler2, writer2);
@@ -224,14 +175,13 @@ void CFieldDataTyperTest::testAll(void)
 
         CTestDataAdder adder;
         newTyper.persistState(adder);
-        std::ostringstream &ss = dynamic_cast<std::ostringstream &>(*adder.getStream());
+        std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-void CFieldDataTyperTest::testNodeReverseSearch(void)
-{
+void CFieldDataTyperTest::testNodeReverseSearch() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -256,8 +206,8 @@ void CFieldDataTyperTest::testNodeReverseSearch(void)
         typer.finalise();
     }
 
-    const std::string &output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
 
     // Assert that the reverse search contains all expected tokens when
     // categorization is run end-to-end (obviously computation of categories and
@@ -270,8 +220,7 @@ void CFieldDataTyperTest::testNodeReverseSearch(void)
     CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
 }
 
-void CFieldDataTyperTest::testPassOnControlMessages(void)
-{
+void CFieldDataTyperTest::testPassOnControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -294,13 +243,12 @@ void CFieldDataTyperTest::testPassOnControlMessages(void)
         typer.finalise();
     }
 
-    const std::string &output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
     CPPUNIT_ASSERT_EQUAL(std::string("[]"), output);
 }
 
-void CFieldDataTyperTest::testHandleControlMessages(void)
-{
+void CFieldDataTyperTest::testHandleControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -321,14 +269,13 @@ void CFieldDataTyperTest::testHandleControlMessages(void)
         typer.finalise();
     }
 
-    const std::string &output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
     CPPUNIT_ASSERT_EQUAL(std::string::size_type(0),
                          output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
-void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void)
-{
+void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -344,25 +291,21 @@ void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void)
     CPPUNIT_ASSERT(typer.restoreState(restoreSearcher, completeToTime) == false);
 }
 
-CppUnit::Test* CFieldDataTyperTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
+CppUnit::Test* CFieldDataTyperTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
-                                   "CFieldDataTyperTest::testAll",
-                                   &CFieldDataTyperTest::testAll) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
-                                   "CFieldDataTyperTest::testNodeReverseSearch",
-                                   &CFieldDataTyperTest::testNodeReverseSearch) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
-                                   "CFieldDataTyperTest::testPassOnControlMessages",
-                                   &CFieldDataTyperTest::testPassOnControlMessages) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
-                                   "CFieldDataTyperTest::testHandleControlMessages",
-                                   &CFieldDataTyperTest::testHandleControlMessages) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
-                                   "CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
-                                   &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testNodeReverseSearch", &CFieldDataTyperTest::testNodeReverseSearch));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testPassOnControlMessages",
+        &CFieldDataTyperTest::testPassOnControlMessages));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testHandleControlMessages",
+        &CFieldDataTyperTest::testHandleControlMessages));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
+        &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState));
     return suiteOfTests;
 }
-
