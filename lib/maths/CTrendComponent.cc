@@ -411,7 +411,8 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double variance{CBasicStatistics::variance(model.s_ResidualMoments)};
         residualVariances[i] = CTools::pow2(bias) + variance;
         model.s_Regression.parameters(models[i], MAX_CONDITION);
-        model.s_Regression.covariances(n * CTools::pow2(bias) + variance, modelCovariances[i], MAX_CONDITION);
+        model.s_Regression.covariances(n * CTools::pow2(bias) + variance,
+                                       modelCovariances[i], MAX_CONDITION);
         LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
         LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited())
         LOG_TRACE(<< "variances   = " << residualVariances[i]);
