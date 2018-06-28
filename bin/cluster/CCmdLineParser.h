@@ -11,10 +11,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace cluster
-{
+namespace ml {
+namespace cluster {
 
 //! \brief Very simple command line parser.
 //!
@@ -23,28 +21,26 @@ namespace cluster
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Put in a class rather than main to allow testing.
-class CCmdLineParser
-{
-    public:
-        //! Parse the arguments and return options if appropriate.
-        static bool parse(int argc,
-                          const char * const *argv,
-                          std::string &clusterField,
-                          std::string &featureField,
-                          std::string &paramsFile,
-                          std::string &logProperties,
-                          std::string &logPipe,
-                          char &delimiter,
-                          bool &lengthEncodedInput,
-                          std::string &inputFileName,
-                          bool &isInputFileNamedPipe,
-                          std::string &outputFileName,
-                          bool &isOutputFileNamedPipe);
+class CCmdLineParser {
+public:
+    //! Parse the arguments and return options if appropriate.
+    static bool parse(int argc,
+                      const char* const* argv,
+                      std::string& clusterField,
+                      std::string& featureField,
+                      std::string& paramsFile,
+                      std::string& logProperties,
+                      std::string& logPipe,
+                      char& delimiter,
+                      bool& lengthEncodedInput,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe);
 
-    private:
-        static const std::string DESCRIPTION;
+private:
+    static const std::string DESCRIPTION;
 };
-
 }
 }
 

@@ -9,22 +9,18 @@
 
 #include <iosfwd>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief Stream utility functions.
-class CStreamUtils
-{
-    public:
-        //! boost::ini_parser doesn't like UTF-8 ini files that begin
-        //! with byte order markers.  This function advances the seek
-        //! pointer of the stream over a UTF-8 BOM, but only if one
-        //! exists.
-        static void skipUtf8Bom(std::ifstream &strm);
+class CStreamUtils {
+public:
+    //! boost::ini_parser doesn't like UTF-8 ini files that begin
+    //! with byte order markers.  This function advances the seek
+    //! pointer of the stream over a UTF-8 BOM, but only if one
+    //! exists.
+    static void skipUtf8Bom(std::ifstream& strm);
 };
-
 }
 }
 

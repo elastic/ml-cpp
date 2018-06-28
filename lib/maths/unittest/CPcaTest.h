@@ -9,14 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPcaTest : public CppUnit::TestFixture
-{
-    public:
-        void testProjectOntoPrincipleComponents(void);
-        void testSparseProjectOntoPrincipleComponents(void);
-        void testNumericRank(void);
+class CPcaTest : public CppUnit::TestFixture {
+public:
+    void testProjectOntoPrincipleComponents(void);
+    void testSparseProjectOntoPrincipleComponents(void);
+    void testNumericRank(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
 #endif // INCLUDED_CPcaTest_h

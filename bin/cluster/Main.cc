@@ -36,8 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     using TScopedDataSearcherPtr = boost::scoped_ptr<ml::core::CDataSearcher>;
     using TScopedInputParserPtr = boost::scoped_ptr<ml::api::CInputParser>;
 
@@ -47,37 +46,25 @@ int main(int argc, char **argv)
     std::string paramsFile;
     std::string logProperties;
     std::string logPipe;
-    char        delimiter('\t');
-    bool        lengthEncodedInput(false);
+    char delimiter('\t');
+    bool lengthEncodedInput(false);
     std::string inputFileName;
-    bool        isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe(false);
     std::string outputFileName;
-    bool        isOutputFileNamedPipe(false);
-    if (ml::cluster::CCmdLineParser::parse(argc, argv,
-                                           clusterField,
-                                           featureField,
-                                           paramsFile,
-                                           logProperties,
-                                           logPipe,
-                                           delimiter,
-                                           lengthEncodedInput,
-                                           inputFileName,
-                                           isInputFileNamedPipe,
-                                           outputFileName,
-                                           isOutputFileNamedPipe) == false)
-    {
+    bool isOutputFileNamedPipe(false);
+    if (ml::cluster::CCmdLineParser::parse(
+            argc, argv, clusterField, featureField, paramsFile, logProperties,
+            logPipe, delimiter, lengthEncodedInput, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
         return EXIT_FAILURE;
     }
@@ -89,45 +76,36 @@ int main(int argc, char **argv)
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
+    if (ioMgr.initIo() == false) {
         LOG_FATAL("Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
-    if (clusterField.empty())
-    {
+    if (clusterField.empty()) {
         LOG_FATAL("ML must specify the name of the field to cluster");
         return EXIT_FAILURE;
     }
 
-    if (featureField.empty())
-    {
+    if (featureField.empty()) {
         LOG_FATAL("ML must specify the name of the field identifying features");
         return EXIT_FAILURE;
     }
 
     ml::api::CClusterer::CParams params;
-    params.clusterField(clusterField)
-          .featureField(featureField);
-    if (!paramsFile.empty() && params.init(paramsFile) == false)
-    {
+    params.clusterField(clusterField).featureField(featureField);
+    if (!paramsFile.empty() && params.init(paramsFile) == false) {
         LOG_FATAL("ML clustering parameters file '" << paramsFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
     TScopedDataSearcherPtr restoreSearcher;
-    if (ioMgr.restoreStream() != 0)
-    {
+    if (ioMgr.restoreStream() != 0) {
         restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
     }
     TScopedInputParserPtr inputParser;
-    if (lengthEncodedInput)
-    {
+    if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
+    } else {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
     }
     ml::api::CClustererOutputWriter writer(ioMgr.outputStream());
@@ -145,8 +123,7 @@ int main(int argc, char **argv)
     // writer as it was constructed after it.
     writer.finalise();
 
-    if (!ioLoopSucceeded)
-    {
+    if (!ioLoopSucceeded) {
         LOG_FATAL("ML clustering failed");
         return EXIT_FAILURE;
     }

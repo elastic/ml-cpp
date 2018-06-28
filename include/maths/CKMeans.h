@@ -255,9 +255,7 @@ protected:
         const TBoundingBox& boundingBox() const { return m_BoundingBox; }
 
         //! Get the centroid.
-        const TOptionalMeanAccumulator& centroid() const {
-            return m_Centroid;
-        }
+        const TOptionalMeanAccumulator& centroid() const { return m_Centroid; }
 
         //! Combine the bounding boxes and centroids.
         void add(const CKdTreeNodeData& other) const {

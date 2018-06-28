@@ -254,16 +254,14 @@ void CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptPersistInsert
 
 template<std::size_t N, typename T>
 double CRegression::CLeastSquaresOnlineParameterProcess<N, T>::predictionVariance(double time) const {
-    if (time <= 0.0)
-    {
+    if (time <= 0.0) {
         return 0.0;
     }
 
     TVector dT;
     T dt = static_cast<T>(std::sqrt(time));
     T dTi = dt;
-    for (std::size_t i = 0u; i < N; ++i, dTi *= dt)
-    {
+    for (std::size_t i = 0u; i < N; ++i, dTi *= dt) {
         dT(i) = dTi;
     }
 

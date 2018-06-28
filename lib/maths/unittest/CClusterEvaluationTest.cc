@@ -6,11 +6,11 @@
 
 #include "CClusterEvaluationTest.h"
 
-#include <core/CLogger.h>
 #include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
 
-#include <maths/CLinearAlgebra.h>
 #include <maths/CClusterEvaluation.h>
+#include <maths/CLinearAlgebra.h>
 
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
@@ -27,8 +27,7 @@ using TMatrix3 = maths::CSymmetricMatrixNxN<double, 3>;
 using TMatrix3Vec = std::vector<TMatrix3>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void CClusterEvaluationTest::testSilhouetteExact(void)
-{
+void CClusterEvaluationTest::testSilhouetteExact(void) {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CClusterEvaluationTest::testSilhouetteExact  |");
     LOG_DEBUG("+-----------------------------------------------+");
@@ -39,10 +38,10 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
     // should be maximal for the "best" clustering.
 
     {
-        double coordinates[][3]{{ 1.1,  1.5,  1.6}, { 2.1,  1.3,  1.7},
-                                { 0.1,  1.6,  0.9}, { 1.8,  1.1,  1.4},
-                                {10.1,  9.3, 12.7}, { 8.1, 12.3,  8.7},
-                                { 8.1, 12.3,  8.7}};
+        double coordinates[][3]{{1.1, 1.5, 1.6},   {2.1, 1.3, 1.7},
+                                {0.1, 1.6, 0.9},   {1.8, 1.1, 1.4},
+                                {10.1, 9.3, 12.7}, {8.1, 12.3, 8.7},
+                                {8.1, 12.3, 8.7}};
         TVector3VecVec clusters{{TVector3(coordinates[0]), TVector3(coordinates[1]),
                                  TVector3(coordinates[2]), TVector3(coordinates[3])},
                                 {TVector3(coordinates[4]), TVector3(coordinates[5]),
@@ -54,32 +53,28 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
         LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
 
-        for (std::size_t i = 0u; i < statistics.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < statistics.size(); ++i) {
             CPPUNIT_ASSERT_EQUAL(expected[i].size(), statistics[i].size());
-            for (std::size_t j = 0u; j < statistics[i].size(); ++j)
-            {
+            for (std::size_t j = 0u; j < statistics[i].size(); ++j) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i][j], statistics[i][j], 5e-8);
             }
         }
     }
     {
-        double coordinates[][3]{{ 1.1,  1.5,  1.6}, { 2.1,  1.3,  1.7}};
+        double coordinates[][3]{{1.1, 1.5, 1.6}, {2.1, 1.3, 1.7}};
 
         TVector3VecVec clusters;
         TDoubleVecVec statistics;
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), statistics.size());
 
-        clusters.push_back({TVector3(coordinates[0]),
-                            TVector3(coordinates[1])});
+        clusters.push_back({TVector3(coordinates[0]), TVector3(coordinates[1])});
 
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
         LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), statistics.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics[0].size());
-        for (auto statistic : statistics[0])
-        {
+        for (auto statistic : statistics[0]) {
             CPPUNIT_ASSERT_EQUAL(0.0, statistic);
         }
 
@@ -89,8 +84,7 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics[0].size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), statistics[1].size());
-        for (auto statistic : statistics[0])
-        {
+        for (auto statistic : statistics[0]) {
             CPPUNIT_ASSERT_EQUAL(0.0, statistic);
         }
     }
@@ -98,14 +92,12 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
         test::CRandomNumbers rng;
 
         TDoubleVec coordinates[2];
-        rng.generateUniformSamples( 0.0,  5.0, 60, coordinates[0]);
+        rng.generateUniformSamples(0.0, 5.0, 60, coordinates[0]);
         rng.generateUniformSamples(20.0, 25.0, 90, coordinates[1]);
         TVector3Vec points;
-        for (std::size_t i = 0u; i < 2; ++i)
-        {
-            for (std::size_t j = 0u; j < coordinates[i].size(); j += 3)
-            {
-                points.emplace_back(&coordinates[i][j], &coordinates[i][j+3]);
+        for (std::size_t i = 0u; i < 2; ++i) {
+            for (std::size_t j = 0u; j < coordinates[i].size(); j += 3) {
+                points.emplace_back(&coordinates[i][j], &coordinates[i][j + 3]);
             }
         }
         TSizeVec indicator(20, 0);
@@ -113,11 +105,9 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
 
         double score = -1.0;
         std::size_t best = 100;
-        for (std::size_t t = 0u; t < 100; ++t)
-        {
+        for (std::size_t t = 0u; t < 100; ++t) {
             TVector3VecVec clusters(2);
-            for (std::size_t i = 0u; i < points.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < points.size(); ++i) {
                 clusters[indicator[i]].push_back(points[i]);
             }
 
@@ -125,20 +115,17 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
             maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
 
             TMeanAccumulator meanScore_;
-            for (const auto &clusterStatistics : statistics)
-            {
-                for (auto statistic : clusterStatistics)
-                {
+            for (const auto& clusterStatistics : statistics) {
+                for (auto statistic : clusterStatistics) {
                     CPPUNIT_ASSERT(statistic >= -1.0 && statistic <= 1.0);
                     meanScore_.add(statistic);
                 }
             }
 
             double meanScore = maths::CBasicStatistics::mean(meanScore_);
-            boost::tie(score, best) = meanScore > score ? boost::tie(meanScore, t) :
-                                                          boost::tie(score, best);
-            if (t % 10 == 0)
-            {
+            boost::tie(score, best) = meanScore > score ? boost::tie(meanScore, t)
+                                                        : boost::tie(score, best);
+            if (t % 10 == 0) {
                 LOG_DEBUG("score = " << meanScore);
             }
             rng.random_shuffle(indicator.begin(), indicator.end());
@@ -149,8 +136,7 @@ void CClusterEvaluationTest::testSilhouetteExact(void)
     }
 }
 
-void CClusterEvaluationTest::testSilhouetteApprox(void)
-{
+void CClusterEvaluationTest::testSilhouetteApprox(void) {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CClusterEvaluationTest::testSilhouetteApprox  |");
     LOG_DEBUG("+------------------------------------------------+");
@@ -158,8 +144,7 @@ void CClusterEvaluationTest::testSilhouetteApprox(void)
     test::CRandomNumbers rng;
 
     TMeanAccumulator meanErrorEstimate;
-    for (std::size_t t = 0u; t < 5; ++t)
-    {
+    for (std::size_t t = 0u; t < 5; ++t) {
         TSizeVec sizes{5500, 10000, 2500};
         TVector3Vec means;
         TMatrix3Vec covariances;
@@ -178,12 +163,10 @@ void CClusterEvaluationTest::testSilhouetteApprox(void)
 
         TMeanAccumulator meanError_;
         TMeanAccumulator errorEstimate_;
-        for (std::size_t i = 0u; i < exact.size(); ++i)
-        {
-            CPPUNIT_ASSERT_EQUAL( exact[i].size(), approx[i].size());
+        for (std::size_t i = 0u; i < exact.size(); ++i) {
+            CPPUNIT_ASSERT_EQUAL(exact[i].size(), approx[i].size());
             CPPUNIT_ASSERT_EQUAL(approx[i].size(), errors[i].size());
-            for (std::size_t j = 0u; j < exact[i].size(); ++j)
-            {
+            for (std::size_t j = 0u; j < exact[i].size(); ++j) {
                 meanError_.add(std::pow(exact[i][j] - approx[i][j], 2.0));
                 errorEstimate_.add(std::sqrt(errors[i][j]));
             }
@@ -211,40 +194,36 @@ void CClusterEvaluationTest::testSilhouetteApprox(void)
     TDoubleVecVec errors;
     maths::CClusterEvaluation::silhouetteApprox(clusters, approx, errors);
 
-    for (std::size_t p = 0; p < 50000; p += 5000)
-    {
-        for (std::size_t i = 0u; i < clusters.size(); ++i)
-        {
-            maths::CClusterEvaluation::CClusterDissimilarity<TVector3> dissimilarity(clusters[i][p]);
+    for (std::size_t p = 0; p < 50000; p += 5000) {
+        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+            maths::CClusterEvaluation::CClusterDissimilarity<TVector3> dissimilarity(
+                clusters[i][p]);
             double a{dissimilarity(clusters[i])};
             double b{std::numeric_limits<double>::max()};
-            for (std::size_t j = 0u; j < clusters.size(); ++j)
-            {
-                if (i != j)
-                {
+            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+                if (i != j) {
                     b = std::min(b, dissimilarity(clusters[j]));
                 }
             }
             double exact{(b - a) / std::max(a, b)};
             double error{std::sqrt(errors[i][p])};
-            LOG_DEBUG("exact = " << exact
-                      << ", approx = " << approx[i][p]
-                      << ", error = " << error);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(exact, approx[i][p], 3.0 * std::sqrt(errors[i][p]));
+            LOG_DEBUG("exact = " << exact << ", approx = " << approx[i][p]
+                                 << ", error = " << error);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(exact, approx[i][p],
+                                         3.0 * std::sqrt(errors[i][p]));
         }
     }
 }
 
-CppUnit::Test *CClusterEvaluationTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CClusterEvaluationTest");
+CppUnit::Test* CClusterEvaluationTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClusterEvaluationTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CClusterEvaluationTest>(
-                                   "CClusterEvaluationTest::testSilhouetteExact",
-                                   &CClusterEvaluationTest::testSilhouetteExact) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CClusterEvaluationTest>(
-                                   "CClusterEvaluationTest::testSilhouetteApprox",
-                                   &CClusterEvaluationTest::testSilhouetteApprox) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CClusterEvaluationTest>(
+        "CClusterEvaluationTest::testSilhouetteExact",
+        &CClusterEvaluationTest::testSilhouetteExact));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CClusterEvaluationTest>(
+        "CClusterEvaluationTest::testSilhouetteApprox",
+        &CClusterEvaluationTest::testSilhouetteApprox));
 
     return suiteOfTests;
 }

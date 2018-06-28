@@ -61,8 +61,7 @@ public:
 
     //! Set field names - this function has no affect it always
     //! returns true
-    virtual bool fieldNames(const TStrVec &fieldNames,
-                            const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;

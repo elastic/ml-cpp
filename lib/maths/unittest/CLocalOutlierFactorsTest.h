@@ -9,16 +9,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLocalOutlierFactorsTest : public CppUnit::TestFixture
-{
-    public:
-        void testLof(void);
-        void testDlof(void);
-        void testDistancekNN(void);
-        void testTotalDistancekNN(void);
-        void testEnsemble(void);
+class CLocalOutlierFactorsTest : public CppUnit::TestFixture {
+public:
+    void testLof(void);
+    void testDlof(void);
+    void testDistancekNN(void);
+    void testTotalDistancekNN(void);
+    void testEnsemble(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
 #endif // INCLUDED_CLocalOutlierFactorsTest_h

@@ -1039,9 +1039,7 @@ private:
         }
 
         //! Get an iterator over the statistics.
-        inline iterator begin() {
-            return m_Statistics.begin() + m_UnusedCount;
-        }
+        inline iterator begin() { return m_Statistics.begin() + m_UnusedCount; }
         //! Get an iterator over the statistics.
         inline const_iterator begin() const {
             return m_Statistics.begin() + m_UnusedCount;

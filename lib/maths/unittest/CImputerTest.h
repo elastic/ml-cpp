@@ -9,16 +9,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CImputerTest : public CppUnit::TestFixture
-{
-    public:
-        void testRandom(void);
-        void testNearestNeighbourPlain(void);
-        void testNearestNeighbourBaggedSamples(void);
-        void testNearestNeighbourBaggedAttributes(void);
-        void testNearestNeighbourRandom(void);
+class CImputerTest : public CppUnit::TestFixture {
+public:
+    void testRandom(void);
+    void testNearestNeighbourPlain(void);
+    void testNearestNeighbourBaggedSamples(void);
+    void testNearestNeighbourBaggedAttributes(void);
+    void testNearestNeighbourRandom(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
 #endif // INCLUDED_CImputerTest_h

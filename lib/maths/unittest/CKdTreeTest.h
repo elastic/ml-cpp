@@ -9,8 +9,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKdTreeTest : public CppUnit::TestFixture
-{
+class CKdTreeTest : public CppUnit::TestFixture {
 public:
     void testBuild();
     void testBuildWithMove();

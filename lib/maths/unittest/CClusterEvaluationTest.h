@@ -9,13 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CClusterEvaluationTest : public CppUnit::TestFixture
-{
-    public:
-        void testSilhouetteExact(void);
-        void testSilhouetteApprox(void);
+class CClusterEvaluationTest : public CppUnit::TestFixture {
+public:
+    void testSilhouetteExact(void);
+    void testSilhouetteApprox(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
 #endif // INCLUDED_CClusterEvaluationTest_h
