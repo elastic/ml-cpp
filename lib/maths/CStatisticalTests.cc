@@ -22,6 +22,7 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 
 namespace ml {
 namespace maths {
@@ -70,7 +71,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
     if (x < 0.0) {
         return 0.0;
     }
-    if (boost::math::isinf(x)) {
+    if (std::isinf(x)) {
         return 1.0;
     }
     try {
@@ -87,7 +88,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
     if (x < 0.0) {
         return 1.0;
     }
-    if (boost::math::isinf(x)) {
+    if (std::isinf(x)) {
         return 0.0;
     }
     try {

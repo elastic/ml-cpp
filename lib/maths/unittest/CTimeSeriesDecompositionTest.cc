@@ -190,7 +190,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.014 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.015 * totalSumValue);
     CPPUNIT_ASSERT(totalMaxResidual < 0.017 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
@@ -1864,7 +1864,7 @@ void CTimeSeriesDecompositionTest::testCalendar() {
 
             LOG_DEBUG(<< "large error count = " << largeErrorCount);
             CPPUNIT_ASSERT(++count > 4 || largeErrorCount > 15);
-            CPPUNIT_ASSERT(count < 5 || largeErrorCount <= 5);
+            CPPUNIT_ASSERT(count < 5 || largeErrorCount <= 1);
         }
     }
 }
