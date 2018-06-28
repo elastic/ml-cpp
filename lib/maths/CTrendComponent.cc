@@ -203,7 +203,7 @@ void CTrendComponent::shiftOrigin(core_t::TTime time) {
 
 void CTrendComponent::shiftSlope(core_t::TTime time, double shift) {
     // This shifts all models gradients by a fixed amount whilst keeping
-    // the prediction at the time fixed. This avoids a jump in the current
+    // the prediction at time fixed. This avoids a jump in the current
     // predicted value as a result of adjusting the gradient. Otherwise,
     // this changes by "shift" x "scaled time since the regression origin".
     if (std::fabs(shift) > 0.0) {
@@ -398,15 +398,15 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         // Note in the following we multiply the bias by the sample count
         // when estimating the regression coefficients' covariance matrix.
-        // This is because, unlike noise like component of the residual,
+        // This is because, unlike the noise like component of the residual,
         // it is overly optimistic to assume these will cancel in the
-        // estimates of the regression coefficient errors when adding
-        // multiple samples. We make the most pessimistic assumption that
-        // this is a fixed random variable and so multiply its covariance
-        // by the number of samples to undo the scaling applied in the
-        // covariance method.
+        // estimates of the regression coefficients when adding multiple
+        // samples. Instead, we make the most pessimistic assumption that
+        // this term is from a fixed random variable and so multiply its
+        // variance by the number of samples to undo the scaling applied
+        // in the regression model covariance method.
         const SModel& model{m_TrendModels[i]};
-        double n{CBasicStatistics::count(model.s_ResidualMoments)};
+        double n{model.s_Regression.count()};
         double bias{CBasicStatistics::mean(model.s_ResidualMoments)};
         double variance{CBasicStatistics::variance(model.s_ResidualMoments)};
         residualVariances[i] = CTools::pow2(bias) + variance;
