@@ -135,8 +135,8 @@ void CSeasonalComponent::shiftLevel(double shift) {
     m_Bucketing.shiftLevel(shift);
 }
 
-void CSeasonalComponent::shiftSlope(double shift) {
-    m_Bucketing.shiftSlope(shift);
+void CSeasonalComponent::shiftSlope(core_t::TTime time, double shift) {
+    m_Bucketing.shiftSlope(time, shift);
 }
 
 void CSeasonalComponent::linearScale(core_t::TTime time, double scale) {
