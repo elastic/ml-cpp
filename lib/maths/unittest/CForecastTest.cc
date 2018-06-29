@@ -192,7 +192,7 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
                8.0 * std::sin(boost::math::double_constants::two_pi * time_ / 43200.0) + noise;
     };
 
-    this->test(trend, bucketLength, 98, 9.0, 21.0, 0.04);
+    this->test(trend, bucketLength, 98, 9.0, 22.0, 0.04);
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
@@ -255,7 +255,7 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 4.0, 24.0, 0.03);
+    this->test(trend, bucketLength, 63, 4.0, 26.0, 0.03);
 }
 
 void CForecastTest::testNonNegative() {
@@ -403,7 +403,7 @@ void CForecastTest::testFinancialIndex() {
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < 49.0);
+    CPPUNIT_ASSERT(percentageOutOfBounds < 50.0);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
