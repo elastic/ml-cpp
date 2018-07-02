@@ -50,6 +50,17 @@ struct SHashFeature {
     }
 };
 
+//! \brief The statistics we need in order to be able to test for
+//! calendar features.
+struct SStats {
+    core_t::TTime s_Offset = 0;
+    unsigned int s_Repeats = 0;
+    double s_Sum = 0.0;
+    double s_Count = 0.0;
+    double s_Significance = 0.0;
+};
+using TFeatureStatsUMap = boost::unordered_map<CCalendarFeature, SStats, SHashFeature>;
+
 const std::string VERSION_6_4_TAG("6.4");
 // Version 6.4
 const std::string ERROR_QUANTILES_6_4_TAG("a");
@@ -163,16 +174,6 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 }
 
 CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
-    // The statistics we need in order to be able to test for calendar
-    // features.
-    struct SStats {
-        core_t::TTime s_Offset = 0;
-        unsigned int s_Repeats = 0;
-        double s_Sum = 0.0;
-        double s_Count = 0.0;
-        double s_Significance = 0.0;
-    };
-    using TFeatureStatsUMap = boost::unordered_map<CCalendarFeature, SStats, SHashFeature>;
     using TDoubleTimeCalendarFeatureTr = core::CTriple<double, core_t::TTime, CCalendarFeature>;
     using TMaxAccumulator = CBasicStatistics::SMax<TDoubleTimeCalendarFeatureTr>::TAccumulator;
 
