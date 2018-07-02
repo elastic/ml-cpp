@@ -32,14 +32,14 @@ public:
     //! \brief The interface for the function calculation.
     class MATHS_EXPORT CFunction {
     public:
-        virtual ~CFunction();
+        virtual ~CFunction() = default;
         virtual bool operator()(const TVector& x, double& result) const = 0;
     };
 
     //! \brief The interface for the gradient calculation.
     class MATHS_EXPORT CGradient {
     public:
-        virtual ~CGradient();
+        virtual ~CGradient() = default;
         virtual bool operator()(const TVector& x, TVector& result) const = 0;
     };
 

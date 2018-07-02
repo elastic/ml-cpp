@@ -27,11 +27,7 @@ using TMatrix3 = maths::CSymmetricMatrixNxN<double, 3>;
 using TMatrix3Vec = std::vector<TMatrix3>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void CClusterEvaluationTest::testSilhouetteExact(void) {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CClusterEvaluationTest::testSilhouetteExact  |");
-    LOG_DEBUG("+-----------------------------------------------+");
-
+void CClusterEvaluationTest::testSilhouetteExact() {
     // Test verses sklearn metrics implementation.
     // Test some corner cases, i.e. empty clusters and empty cluster.
     // Check invariants, i.e. must be in the range [-1,1] and scores
@@ -51,7 +47,7 @@ void CClusterEvaluationTest::testSilhouetteExact(void) {
 
         TDoubleVecVec statistics;
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
-        LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
+        LOG_DEBUG(<< "statistics = " << core::CContainerPrinter::print(statistics));
 
         for (std::size_t i = 0u; i < statistics.size(); ++i) {
             CPPUNIT_ASSERT_EQUAL(expected[i].size(), statistics[i].size());
@@ -71,7 +67,7 @@ void CClusterEvaluationTest::testSilhouetteExact(void) {
         clusters.push_back({TVector3(coordinates[0]), TVector3(coordinates[1])});
 
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
-        LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
+        LOG_DEBUG(<< "statistics = " << core::CContainerPrinter::print(statistics));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), statistics.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics[0].size());
         for (auto statistic : statistics[0]) {
@@ -80,7 +76,7 @@ void CClusterEvaluationTest::testSilhouetteExact(void) {
 
         clusters.push_back(TVector3Vec());
         maths::CClusterEvaluation::silhouetteExact(clusters, statistics);
-        LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
+        LOG_DEBUG(<< "statistics = " << core::CContainerPrinter::print(statistics));
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), statistics[0].size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), statistics[1].size());
@@ -126,21 +122,17 @@ void CClusterEvaluationTest::testSilhouetteExact(void) {
             boost::tie(score, best) = meanScore > score ? boost::tie(meanScore, t)
                                                         : boost::tie(score, best);
             if (t % 10 == 0) {
-                LOG_DEBUG("score = " << meanScore);
+                LOG_DEBUG(<< "score = " << meanScore);
             }
             rng.random_shuffle(indicator.begin(), indicator.end());
         }
 
-        LOG_DEBUG("best = " << best);
+        LOG_DEBUG(<< "best = " << best);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), best);
     }
 }
 
-void CClusterEvaluationTest::testSilhouetteApprox(void) {
-    LOG_DEBUG("+------------------------------------------------+");
-    LOG_DEBUG("|  CClusterEvaluationTest::testSilhouetteApprox  |");
-    LOG_DEBUG("+------------------------------------------------+");
-
+void CClusterEvaluationTest::testSilhouetteApprox() {
     test::CRandomNumbers rng;
 
     TMeanAccumulator meanErrorEstimate;
@@ -174,14 +166,14 @@ void CClusterEvaluationTest::testSilhouetteApprox(void) {
         double meanError{std::sqrt(maths::CBasicStatistics::mean(meanError_))};
         double errorEstimate{maths::CBasicStatistics::mean(errorEstimate_)};
 
-        LOG_DEBUG("error = " << meanError);
-        LOG_DEBUG("error estimate = " << errorEstimate);
+        LOG_DEBUG(<< "error = " << meanError);
+        LOG_DEBUG(<< "error estimate = " << errorEstimate);
         CPPUNIT_ASSERT(meanError < 0.005);
         CPPUNIT_ASSERT(std::fabs(meanError / errorEstimate - 1.0) < 0.6);
         meanErrorEstimate.add(std::fabs(meanError / errorEstimate - 1.0));
     }
 
-    LOG_DEBUG("mean error estimate = " << maths::CBasicStatistics::mean(meanErrorEstimate));
+    LOG_DEBUG(<< "mean error estimate = " << maths::CBasicStatistics::mean(meanErrorEstimate));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrorEstimate) < 0.35);
 
     TSizeVec sizes{55000, 140000, 65000, 70000};
@@ -207,15 +199,15 @@ void CClusterEvaluationTest::testSilhouetteApprox(void) {
             }
             double exact{(b - a) / std::max(a, b)};
             double error{std::sqrt(errors[i][p])};
-            LOG_DEBUG("exact = " << exact << ", approx = " << approx[i][p]
-                                 << ", error = " << error);
+            LOG_DEBUG(<< "exact = " << exact << ", approx = " << approx[i][p]
+                      << ", error = " << error);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(exact, approx[i][p],
                                          3.0 * std::sqrt(errors[i][p]));
         }
     }
 }
 
-CppUnit::Test* CClusterEvaluationTest::suite(void) {
+CppUnit::Test* CClusterEvaluationTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClusterEvaluationTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CClusterEvaluationTest>(

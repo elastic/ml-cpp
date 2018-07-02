@@ -667,7 +667,7 @@ void CKMeansTest::testPlusPlus() {
         4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
 
-CppUnit::Test* CKMeansTest::suite(void) {
+CppUnit::Test* CKMeansTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(

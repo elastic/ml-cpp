@@ -272,7 +272,7 @@ public:
             }
             LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
 
-            TCovariances covariances[2];
+            TCovariances covariances[]{TCovariances(N), TCovariances(N)};
             TSphericalClusterVec clusters;
             this->sphericalClusters(clusters);
             for (std::size_t i = 0; i < 2; ++i) {
@@ -777,7 +777,7 @@ public:
         }
         double Z = 0.0;
         for (auto& x : result) {
-            x.second = std::exp(p.second - lmax);
+            x.second = std::exp(x.second - lmax);
             Z += x.second;
         }
         double pmax = 0.0;

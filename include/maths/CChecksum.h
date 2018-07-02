@@ -23,7 +23,6 @@
 
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <utility>
 
 namespace ml {
@@ -36,6 +35,20 @@ class ContainerChecksum {};
 class MemberChecksumWithSeed {};
 class MemberChecksumWithoutSeed {};
 class MemberHash {};
+
+//! Auxiliary type used by has_const_iterator to test for a nested
+//! typedef.
+template<typename T, typename R = void>
+struct enable_if_type {
+    using type = R;
+};
+
+//! Auxiliary type used by has_checksum_function to test for a nested
+//! member function.
+template<typename T, T, typename R = void>
+struct enable_if_is_type {
+    using type = R;
+};
 
 //! \name Class used to select appropriate checksum implementation
 //! for containers.
@@ -53,7 +66,7 @@ struct container_selector {
     using value = BasicChecksum;
 };
 template<typename T>
-struct container_selector<T, typename std::enable_if<typename T::const_iterator>::type> {
+struct container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
     using value = ContainerChecksum;
 };
 //@}
@@ -64,7 +77,7 @@ struct container_selector<T, typename std::enable_if<typename T::const_iterator>
 //! various checksum implementations.
 //!
 //! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for nested typedef.
+//! \note Uses SFINAE to check for checksum or hash functions.
 //! \note Uses the enable_if trick to get around the restriction that
 //! "A partially specialized non-type argument expression shall not
 //! involve a template parameter of the partial specialization except
@@ -76,15 +89,15 @@ struct selector {
     using value = typename container_selector<T>::value;
 };
 template<typename T>
-struct selector<T, typename std::enable_if<std::is_same<uint64_t (T::*)(uint64_t) const, decltype(&T::checksum)>::value>::type> {
+struct selector<T, typename enable_if_is_type<uint64_t (T::*)(uint64_t) const, &T::checksum>::type> {
     using value = MemberChecksumWithSeed;
 };
 template<typename T>
-struct selector<T, typename std::enable_if<std::is_same<uint64_t (T::*)() const, decltype(&T::checksum)>::value>::type> {
+struct selector<T, typename enable_if_is_type<uint64_t (T::*)() const, &T::checksum>::type> {
     using value = MemberChecksumWithoutSeed;
 };
 template<typename T>
-struct selector<T, typename std::enable_if<std::is_same<std::size_t (T::*)() const, decltype(&T::hash)>::value>::type> {
+struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::hash>::type> {
     using value = MemberHash;
 };
 //@}

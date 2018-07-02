@@ -203,7 +203,7 @@ public:
     const CTimeSeriesDecompositionInterface& trendModel() const;
 
     //! Get the residual model.
-    const CPrior& residualModel(void) const;
+    const CPrior& residualModel() const;
     //@}
 
 private:
@@ -244,7 +244,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(void);
+    void reinitializeStateGivenNewComponent();
 
     //! Get the models for the correlations and the models of the correlated
     //! time series.
@@ -684,7 +684,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(void);
+    void reinitializeStateGivenNewComponent();
 
     //! Get the model dimension.
     std::size_t dimension() const;

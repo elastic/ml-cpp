@@ -11,13 +11,13 @@
 
 class CLocalOutlierFactorsTest : public CppUnit::TestFixture {
 public:
-    void testLof(void);
-    void testDlof(void);
-    void testDistancekNN(void);
-    void testTotalDistancekNN(void);
-    void testEnsemble(void);
+    void testLof();
+    void testDlof();
+    void testDistancekNN();
+    void testTotalDistancekNN();
+    void testEnsemble();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLocalOutlierFactorsTest_h

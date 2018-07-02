@@ -61,11 +61,7 @@ void generateWithMissingFraction(test::CRandomNumbers& rng,
 }
 }
 
-void CImputerTest::testRandom(void) {
-    LOG_DEBUG("+----------------------------+");
-    LOG_DEBUG("|  CImputerTest::testRandom  |");
-    LOG_DEBUG("+----------------------------+");
-
+void CImputerTest::testRandom() {
     // Test that the missing values are generated according to the law
     // which describes the values present for each attribute.
 
@@ -115,20 +111,16 @@ void CImputerTest::testRandom(void) {
 
         // Get the distribution significance.
         double significance{maths::CStatisticalTests::twoSampleKS(donors[i], imputed[i])};
-        LOG_DEBUG("significance = " << significance);
+        LOG_DEBUG(<< "significance = " << significance);
         CPPUNIT_ASSERT(significance > 0.05);
         meanSignificance.add(significance);
     }
 
-    LOG_DEBUG("mean significance = " << maths::CBasicStatistics::mean(meanSignificance));
+    LOG_DEBUG(<< "mean significance = " << maths::CBasicStatistics::mean(meanSignificance));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanSignificance) > 0.4);
 }
 
-void CImputerTest::testNearestNeighbourPlain(void) {
-    LOG_DEBUG("+-------------------------------------------+");
-    LOG_DEBUG("|  CImputerTest::testNearestNeighbourPlain  |");
-    LOG_DEBUG("+-------------------------------------------+");
-
+void CImputerTest::testNearestNeighbourPlain() {
     // Test we impute from nearest neighbours if on hand crafted data set.
     {
         TIntDoublePrVecVec values{
@@ -193,37 +185,28 @@ void CImputerTest::testNearestNeighbourPlain(void) {
                 for (auto k : missing[i][j]) {
                     double x{complete[k](static_cast<std::ptrdiff_t>(j))};
                     double error{::fabs(x - mean) / sd};
-                    LOG_DEBUG("error = " << error);
+                    LOG_DEBUG(<< "error = " << error);
                     CPPUNIT_ASSERT(error < 2.5);
                     meanError.add(error);
                 }
             }
         }
 
-        LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.6);
     }
 }
 
-void CImputerTest::testNearestNeighbourBaggedSamples(void) {
-    LOG_DEBUG("+---------------------------------------------------+");
-    LOG_DEBUG("|  CImputerTest::testNearestNeighbourBaggedSamples  |");
-    LOG_DEBUG("+---------------------------------------------------+");
+void CImputerTest::testNearestNeighbourBaggedSamples() {
 }
 
-void CImputerTest::testNearestNeighbourBaggedAttributes(void) {
-    LOG_DEBUG("+------------------------------------------------------+");
-    LOG_DEBUG("|  CImputerTest::testNearestNeighbourBaggedAttributes  |");
-    LOG_DEBUG("+------------------------------------------------------+");
+void CImputerTest::testNearestNeighbourBaggedAttributes() {
 }
 
-void CImputerTest::testNearestNeighbourRandom(void) {
-    LOG_DEBUG("+--------------------------------------------+");
-    LOG_DEBUG("|  CImputerTest::testNearestNeighbourRandom  |");
-    LOG_DEBUG("+--------------------------------------------+");
+void CImputerTest::testNearestNeighbourRandom() {
 }
 
-CppUnit::Test* CImputerTest::suite(void) {
+CppUnit::Test* CImputerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CImputerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CImputerTest>(

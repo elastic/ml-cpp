@@ -303,7 +303,7 @@ protected:
 
     public:
         CMethod(NEAREST_NEIGHBOURS lookup) : m_Lookup(lookup) {}
-        virtual ~CMethod(void) = default;
+        virtual ~CMethod() = default;
 
         void run(std::size_t k, TPointVec&& points, TDoubleVec& scores) {
             this->setup(points);
@@ -315,7 +315,7 @@ protected:
             this->compute(scores);
         }
 
-        const NEAREST_NEIGHBOURS& lookup(void) const { return m_Lookup; }
+        const NEAREST_NEIGHBOURS& lookup() const { return m_Lookup; }
 
         virtual void setup(const TPointVec& /*points*/) {}
 

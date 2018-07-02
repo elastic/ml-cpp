@@ -26,16 +26,12 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 
-void CPcaTest::testProjectOntoPrincipleComponents(void) {
-    LOG_DEBUG("+------------------------------------------------+");
-    LOG_DEBUG("|  CPcaTest::testProjectOntoPrincipleComponents  |");
-    LOG_DEBUG("+------------------------------------------------+");
-
+void CPcaTest::testProjectOntoPrincipleComponents() {
     using TMeanAcculator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Standard");
+    LOG_DEBUG(<< "Standard");
     {
         // Test random data are projected on to the basis vectors
         // corresponding to the largest variances.
@@ -89,13 +85,13 @@ void CPcaTest::testProjectOntoPrincipleComponents(void) {
                 meanError.add(std::sqrt(error) / expected[i].norm());
             }
 
-            LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.11);
 
             meanMeanError += meanError;
         }
 
-        LOG_DEBUG("mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
+        LOG_DEBUG(<< "mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.09);
     }
     {
@@ -103,18 +99,14 @@ void CPcaTest::testProjectOntoPrincipleComponents(void) {
     }
 }
 
-void CPcaTest::testSparseProjectOntoPrincipleComponents(void) {
-    LOG_DEBUG("+------------------------------------------------------+");
-    LOG_DEBUG("|  CPcaTest::testSparseProjectOntoPrincipleComponents  |");
-    LOG_DEBUG("+------------------------------------------------------+");
-
+void CPcaTest::testSparseProjectOntoPrincipleComponents() {
     using TDenseMatrix = maths::CDenseMatrix<double>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("Sampled Exact");
+        LOG_DEBUG(<< "Sampled Exact");
 
         // Check we get sampling loses no information when the non-zero
         // columns can fit in the same memory as the sparse representation.
@@ -173,14 +165,14 @@ void CPcaTest::testSparseProjectOntoPrincipleComponents(void) {
 
         for (std::size_t i = 0u; i < dense.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("exact       = " << dense[i].transpose());
-                LOG_DEBUG("approximate = " << projected[i].transpose());
+                LOG_DEBUG(<< "exact       = " << dense[i].transpose());
+                LOG_DEBUG(<< "approximate = " << projected[i].transpose());
             }
             CPPUNIT_ASSERT((dense[i] - projected[i]).norm() < 1e-6);
         }
     }
     {
-        LOG_DEBUG("Sampled Approximate");
+        LOG_DEBUG(<< "Sampled Approximate");
 
         // For a large sparse data matrix we test how good the low
         // rank approximation calculated using sampling verses the
@@ -236,16 +228,16 @@ void CPcaTest::testSparseProjectOntoPrincipleComponents(void) {
             }
             Eigen::JacobiSVD<TDenseMatrix> exactSvd(exactProjection);
             Eigen::JacobiSVD<TDenseMatrix> approxSvd(approxProjection);
-            LOG_DEBUG("exact = " << exactSvd.singularValues().transpose());
-            LOG_DEBUG("approx = " << approxSvd.singularValues().transpose());
+            LOG_DEBUG(<< "exact = " << exactSvd.singularValues().transpose());
+            LOG_DEBUG(<< "approx = " << approxSvd.singularValues().transpose());
             double error{
                 (approxSvd.singularValues() - exactSvd.singularValues()).norm() /
                 exactSvd.singularValues().norm()};
-            LOG_DEBUG("error = " << error);
+            LOG_DEBUG(<< "error = " << error);
             CPPUNIT_ASSERT(error < 0.15);
             meanError.add(std::log(error));
         }
-        LOG_DEBUG("mean error = " << std::exp(maths::CBasicStatistics::mean(meanError)));
+        LOG_DEBUG(<< "mean error = " << std::exp(maths::CBasicStatistics::mean(meanError)));
         CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(meanError)) < 0.05);
     }
     {
@@ -253,13 +245,10 @@ void CPcaTest::testSparseProjectOntoPrincipleComponents(void) {
     }
 }
 
-void CPcaTest::testNumericRank(void) {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CPcaTest::testNumericRank  |");
-    LOG_DEBUG("+-----------------------------+");
+void CPcaTest::testNumericRank() {
 }
 
-CppUnit::Test* CPcaTest::suite(void) {
+CppUnit::Test* CPcaTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPcaTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPcaTest>(

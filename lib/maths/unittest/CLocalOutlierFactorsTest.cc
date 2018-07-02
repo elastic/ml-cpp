@@ -83,11 +83,7 @@ void gaussianWithUniformNoise(test::CRandomNumbers& rng, TVectorVec& points) {
 }
 }
 
-void CLocalOutlierFactorsTest::testLof(void) {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CLocalOutlierFactorsTest::testLof  |");
-    LOG_DEBUG("+-------------------------------------+");
-
+void CLocalOutlierFactorsTest::testLof() {
     // Test vanilla verses sklearn.
 
     test::CRandomNumbers rng;
@@ -130,7 +126,7 @@ void CLocalOutlierFactorsTest::testLof(void) {
         std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
                        [](const TDoubleSizePr& value) { return value.second; });
         std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG("outliers = " << core::CContainerPrinter::print(outliers));
+        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
         TDoubleVec indicator(120, 1);
         for (auto outlier : outliers) {
             indicator[outlier] = -1;
@@ -139,18 +135,14 @@ void CLocalOutlierFactorsTest::testLof(void) {
     }
 }
 
-void CLocalOutlierFactorsTest::testDlof(void) {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CLocalOutlierFactorsTest::testDlof  |");
-    LOG_DEBUG("+--------------------------------------+");
-
+void CLocalOutlierFactorsTest::testDlof() {
     test::CRandomNumbers rng;
     TVectorVec points;
     gaussianWithUniformNoise(rng, points);
 
     TDoubleVec scores;
     maths::CLocalOutlierFactors::normalizedLdof(20, false, points, scores);
-    LOG_DEBUG("scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TDoubleVec ldof;
     TVectorVec neighbours;
@@ -166,18 +158,14 @@ void CLocalOutlierFactorsTest::testDlof(void) {
         ldof.push_back(maths::CBasicStatistics::mean(d) / maths::CBasicStatistics::mean(D));
     }
     CLocalOutlierFactorsInternals::normalize(ldof);
-    LOG_DEBUG("normalized ldof = " << core::CContainerPrinter::print(ldof));
+    LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0u; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-6);
     }
 }
 
-void CLocalOutlierFactorsTest::testDistancekNN(void) {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CLocalOutlierFactorsTest::testDistancekNN  |");
-    LOG_DEBUG("+---------------------------------------------+");
-
+void CLocalOutlierFactorsTest::testDistancekNN() {
     // Gaussian with uniform noise.
 
     test::CRandomNumbers rng;
@@ -186,7 +174,7 @@ void CLocalOutlierFactorsTest::testDistancekNN(void) {
 
     TDoubleVec scores;
     maths::CLocalOutlierFactors::normalizedDistancekNN(3, false, points, scores);
-    LOG_DEBUG("scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TDoubleVec distances;
     for (const auto& point : points) {
@@ -195,7 +183,7 @@ void CLocalOutlierFactorsTest::testDistancekNN(void) {
         distances.push_back(maths::las::distance(point, neighbours.back()));
     }
     CLocalOutlierFactorsInternals::normalize(distances);
-    LOG_DEBUG("normalized distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0u; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
@@ -204,11 +192,7 @@ void CLocalOutlierFactorsTest::testDistancekNN(void) {
     // Test projection.
 }
 
-void CLocalOutlierFactorsTest::testTotalDistancekNN(void) {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CLocalOutlierFactorsTest::testTotalDistancekNN  |");
-    LOG_DEBUG("+--------------------------------------------------+");
-
+void CLocalOutlierFactorsTest::testTotalDistancekNN() {
     // Gaussian with uniform noise.
 
     test::CRandomNumbers rng;
@@ -217,7 +201,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN(void) {
 
     TDoubleVec scores;
     maths::CLocalOutlierFactors::normalizedTotalDistancekNN(3, false, points, scores);
-    LOG_DEBUG("scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TDoubleVec distances;
     for (const auto& point : points) {
@@ -230,18 +214,14 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN(void) {
                             }));
     }
     CLocalOutlierFactorsInternals::normalize(distances);
-    LOG_DEBUG("normalized distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0u; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
     }
 }
 
-void CLocalOutlierFactorsTest::testEnsemble(void) {
-    LOG_DEBUG("+------------------------------------------+");
-    LOG_DEBUG("|  CLocalOutlierFactorsTest::testEnsemble  |");
-    LOG_DEBUG("+------------------------------------------+");
-
+void CLocalOutlierFactorsTest::testEnsemble() {
     test::CRandomNumbers rng;
 
     double TP{0.0}, TN{0.0}, FP{0.0}, FN{0.0};
@@ -262,7 +242,7 @@ void CLocalOutlierFactorsTest::testEnsemble(void) {
         std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
                        [](const TDoubleSizePr& value) { return value.second; });
         std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG("outliers = " << core::CContainerPrinter::print(outliers));
+        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
 
         double correct{static_cast<double>(maths::CSetTools::setIntersectSize(
             trueOutliers.begin(), trueOutliers.end(), outliers.begin(), outliers.end()))};
@@ -271,14 +251,14 @@ void CLocalOutlierFactorsTest::testEnsemble(void) {
         FP += (20.0 - correct) / 2000.0;
         FN += (20.0 - correct) / 10000.0;
     }
-    LOG_DEBUG("TP = " << TP << " TN = " << TN << " FP = " << FP << " FN = " << FN);
+    LOG_DEBUG(<< "TP = " << TP << " TN = " << TN << " FP = " << FP << " FN = " << FN);
     CPPUNIT_ASSERT(TP > 0.95);
     CPPUNIT_ASSERT(TN > 0.99);
     CPPUNIT_ASSERT(FP < 0.05);
     CPPUNIT_ASSERT(FN < 0.01);
 }
 
-CppUnit::Test* CLocalOutlierFactorsTest::suite(void) {
+CppUnit::Test* CLocalOutlierFactorsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLocalOutlierFactorsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(

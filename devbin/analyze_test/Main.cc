@@ -9,14 +9,14 @@
 
 template<typename T>
 struct STemplated {
-    void printFirst(void) { std::cout << s_First << std::endl; }
+    void printFirst() { std::cout << s_First << std::endl; }
 
     T s_First;
     std::vector<T> s_Second;
 };
 
 struct SSimple {
-    void printFirst(void) { std::cout << s_First << std::endl; }
+    void printFirst() { std::cout << s_First << std::endl; }
 
     int s_First;
     std::vector<int> s_Second;

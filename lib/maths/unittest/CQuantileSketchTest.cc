@@ -369,7 +369,7 @@ void CQuantileSketchTest::testMedian() {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.6);
 }
 
-void CQuantileSketchTest::testMad(void) {
+void CQuantileSketchTest::testMad() {
     // Check some edge cases and also accuracy verses exact values
     // some random data.
 

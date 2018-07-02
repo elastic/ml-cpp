@@ -1414,7 +1414,7 @@ void CLinearAlgebraTest::testPersist() {
     }
 }
 
-CppUnit::Test* CLinearAlgebraTest::suite(void) {
+CppUnit::Test* CLinearAlgebraTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(

@@ -59,7 +59,7 @@ bool readProperty(const char* typePropertyName,
     if (propertyName == typePropertyName) {
         typename SStripOptional<TYPE>::Type property_;
         if (!stringToType(propertyValue, property_)) {
-            LOG_ERROR("Bad value for " << propertyName << ": " << propertyValue);
+            LOG_ERROR(<< "Bad value for " << propertyName << ": " << propertyValue);
         }
         property = std::move(property_);
         return true;
@@ -80,7 +80,7 @@ bool readEnumProperty(const char* enumPropertyName,
             property = static_cast<typename SStripOptional<ENUM>::Type>(
                 index - cases.begin());
         } else {
-            LOG_ERROR("Bad value for enum " << propertyName << ": " << propertyValue);
+            LOG_ERROR(<< "Bad value for enum " << propertyName << ": " << propertyValue);
         }
         return true;
     }
@@ -111,7 +111,7 @@ CClusterer::CClusterer(const CParams& params, CClustererOutputWriter& resultWrit
     : m_Params(params), m_ResultWriter(resultWriter) {
 }
 
-void CClusterer::newOutputStream(void) {
+void CClusterer::newOutputStream() {
     m_ResultWriter.newOutputStream();
 }
 
@@ -153,8 +153,8 @@ bool CClusterer::handleRecord(const TStrStrUMap& fields) {
             if (!value.empty()) {
                 double value_;
                 if (!core::CStringUtils::stringToType(value, value_)) {
-                    LOG_ERROR("Ignoring bad value for '" << name << "'"
-                                                         << ": '" << value << "'");
+                    LOG_ERROR(<< "Ignoring bad value for '" << name << "'"
+                              << ": '" << value << "'");
                     continue;
                 }
                 featureValue.reset(value_);
@@ -163,25 +163,24 @@ bool CClusterer::handleRecord(const TStrStrUMap& fields) {
     }
 
     if (cluster && feature && featureValue) {
-        LOG_TRACE("dimensions = " << core::CContainerPrinter::print(m_DimensionNames));
+        LOG_TRACE(<< "dimensions = " << core::CContainerPrinter::print(m_DimensionNames));
         m_FeatureVectors.resize(std::max(m_FeatureVectors.size(), *cluster + 1));
         m_FeatureVectors[*cluster].emplace_back(*feature, *featureValue);
     } else {
-        LOG_ERROR("Ill-formed row missing"
-                  << (cluster ? "" : " 'entity label'") << (feature ? "" : " 'feature label'")
-                  << (featureValue ? "" : " 'feature value'") << ": "
-                  << core::CContainerPrinter::print(fields));
+        LOG_ERROR(<< "Ill-formed row missing" << (cluster ? "" : " 'entity label'")
+                  << (feature ? "" : " 'feature label'") << (featureValue ? "" : " 'feature value'")
+                  << ": " << core::CContainerPrinter::print(fields));
     }
 
     return true;
 }
 
-void CClusterer::finalise(void) {
+void CClusterer::finalise() {
     std::ptrdiff_t dimension{static_cast<std::ptrdiff_t>(m_DimensionNames.size())};
 
     for (auto& vector : m_FeatureVectors) {
         std::sort(vector.begin(), vector.end());
-        LOG_TRACE("feature vector = " << core::CContainerPrinter::print(vector));
+        LOG_TRACE(<< "feature vector = " << core::CContainerPrinter::print(vector));
     }
 
     if (m_Params.algorithm() == E_Automatic) {
@@ -208,8 +207,8 @@ void CClusterer::finalise(void) {
         maths::CImputer::EFilterAttributes filter{maths::CImputer::E_NoFiltering};
         maths::CImputer::EMethod method{maths::CImputer::E_NNBaggedAttributes};
         if (!m_Params.imputationMethod()) {
-            LOG_DEBUG("No imputation method supplied:"
-                      " using nearest neighbours with bags of attributes");
+            LOG_DEBUG(<< "No imputation method supplied:"
+                         " using nearest neighbours with bags of attributes");
         } else {
             method = *m_Params.imputationMethod();
         }
@@ -253,11 +252,11 @@ bool CClusterer::persistState(core::CDataAdder& /*persister*/) {
     return true;
 }
 
-uint64_t CClusterer::numRecordsHandled(void) const {
+uint64_t CClusterer::numRecordsHandled() const {
     return static_cast<uint64_t>(m_ToCluster.size());
 }
 
-COutputHandler& CClusterer::outputHandler(void) {
+COutputHandler& CClusterer::outputHandler() {
     return m_ResultWriter;
 }
 
@@ -270,23 +269,23 @@ bool CClusterer::handleControlMessage(const std::string& controlMessage) {
         this->finalise();
         break;
     default:
-        LOG_ERROR("Ignoring unknown control character");
+        LOG_ERROR(<< "Ignoring unknown control character");
     }
     return true;
 }
 
-void CClusterer::clear(void) {
+void CClusterer::clear() {
     m_ToCluster.clear();
     m_Dimensions.clear();
     m_DimensionNames.clear();
     m_FeatureVectors.clear();
 }
 
-void CClusterer::normalize(void) {
+void CClusterer::normalize() {
     using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
 
     if (m_Params.normalize()) {
-        LOG_DEBUG("Normalizing " << m_Dimensions.size() << " dimensions");
+        LOG_DEBUG(<< "Normalizing " << m_Dimensions.size() << " dimensions");
 
         TQuantileSketchVec quantiles(
             m_Dimensions.size(),
@@ -303,7 +302,7 @@ void CClusterer::normalize(void) {
             quantile.mad(scale);
             m_Scales.push_back(scale);
         }
-        LOG_DEBUG("Scales " << core::CContainerPrinter::print(m_Scales));
+        LOG_DEBUG(<< "Scales " << core::CContainerPrinter::print(m_Scales));
 
         for (auto& featureVector : m_FeatureVectors) {
             for (auto& feature : featureVector) {
@@ -332,8 +331,8 @@ void CClusterer::removeOutliers(TDenseVectorVec& vectors,
             for (std::size_t i = 0u; i < factors.size(); ++i) {
                 (factors[i] > cutoff ? outliers : inliers).push_back(i);
             }
-            LOG_DEBUG("Have " << inliers.size() << " inliers"
-                              << " and " << outliers.size() << " outliers");
+            LOG_DEBUG(<< "Have " << inliers.size() << " inliers"
+                      << " and " << outliers.size() << " outliers");
             removed = true;
         }
     }
@@ -346,8 +345,8 @@ void CClusterer::removeOutliers(TDenseVectorVec& vectors,
 void CClusterer::projectOntoPrincipleComponents(const TSizeVec& inliers,
                                                 TDenseVectorVec& vectors) const {
     if (m_Params.principleComponents() && !vectors.empty()) {
-        LOG_DEBUG("Projecting data onto " << *m_Params.principleComponents()
-                                          << " principle components");
+        LOG_DEBUG(<< "Projecting data onto " << *m_Params.principleComponents()
+                  << " principle components");
         maths::CPca::projectOntoPrincipleComponents(*m_Params.principleComponents(),
                                                     inliers, vectors);
     }
@@ -356,7 +355,7 @@ void CClusterer::projectOntoPrincipleComponents(const TSizeVec& inliers,
 std::size_t CClusterer::cluster(const TSizeVec& inliers,
                                 TDenseVectorVec& vectors_,
                                 TSizeVec& clusterIds) const {
-    LOG_DEBUG("Clustering...");
+    LOG_DEBUG(<< "Clustering...");
 
     clusterIds.resize(m_ToCluster.size());
 
@@ -372,19 +371,19 @@ std::size_t CClusterer::cluster(const TSizeVec& inliers,
     case E_KMeans:
         if (m_Params.numberOfClusters()) {
             std::size_t k{*m_Params.numberOfClusters()};
-            LOG_DEBUG(k << "-means");
+            LOG_DEBUG(<< k << "-means");
             result = this->kmeans(k, vectors, clusterIds);
         } else {
-            LOG_ERROR("Selected k-means but haven't set k");
+            LOG_ERROR(<< "Selected k-means but haven't set k");
         }
         break;
     case E_XMeans:
         if (m_Params.maximumNumberOfClusters()) {
             std::size_t max{*m_Params.maximumNumberOfClusters()};
-            LOG_TRACE("x-means with max clusters " << max);
+            LOG_TRACE(<< "x-means with max clusters " << max);
             result = this->xmeans(max, vectors, clusterIds);
         } else {
-            LOG_ERROR("Selected x-means but haven't selected maximum number of clusters");
+            LOG_ERROR(<< "Selected x-means but haven't selected maximum number of clusters");
         }
         break;
     case E_RandomProjectionKMeans:
@@ -427,7 +426,7 @@ std::size_t CClusterer::kmeans(std::size_t k,
             kmeans.clusters(clusters);
 
             double dispersion{TKMeans::dispersion(centres, clusters)};
-            LOG_TRACE("dispersion = " << dispersion);
+            LOG_TRACE(<< "dispersion = " << dispersion);
 
             if (minimumDispersion.add(dispersion)) {
                 for (std::size_t i = 0u; i < clusters.size(); ++i) {
@@ -616,26 +615,26 @@ void CClusterer::writeResults(const TDenseVectorVec& featureVectors,
     }
 }
 
-CClusterer::CParams::CParams(void)
+CClusterer::CParams::CParams()
     : m_Algorithm(E_Automatic), m_Normalize(false), m_TreatMissingAsZero(false),
       m_ComputeOutlierFactors(false), m_OutlierCutoff(1.0), m_Bootstrap(true) {
 }
 
 bool CClusterer::CParams::init(const std::string& configFile) {
-    LOG_DEBUG("Reading config file " << configFile);
+    LOG_DEBUG(<< "Reading config file " << configFile);
 
     boost::property_tree::ptree properties;
     try {
         std::ifstream strm(configFile.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening config file " << configFile);
+            LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
         core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, properties);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading config file " << configFile << " : " << e.what());
+        LOG_ERROR(<< "Error reading config file " << configFile << " : " << e.what());
         return false;
     }
 
@@ -754,55 +753,55 @@ CClusterer::CParams& CClusterer::CParams::agglomerativeObjective(
     return *this;
 }
 
-const std::string& CClusterer::CParams::clusterField(void) const {
+const std::string& CClusterer::CParams::clusterField() const {
     return m_ClusterField;
 }
 
-const std::string& CClusterer::CParams::featureField(void) const {
+const std::string& CClusterer::CParams::featureField() const {
     return m_FeatureField;
 }
 
-CClusterer::EAlgorithm CClusterer::CParams::algorithm(void) const {
+CClusterer::EAlgorithm CClusterer::CParams::algorithm() const {
     return m_Algorithm;
 }
 
-bool CClusterer::CParams::normalize(void) const {
+bool CClusterer::CParams::normalize() const {
     return m_Normalize;
 }
 
-bool CClusterer::CParams::treatMissingAsZero(void) const {
+bool CClusterer::CParams::treatMissingAsZero() const {
     return m_TreatMissingAsZero;
 }
 
-CClusterer::TOptionalImputationMethod CClusterer::CParams::imputationMethod(void) const {
+CClusterer::TOptionalImputationMethod CClusterer::CParams::imputationMethod() const {
     return m_ImputationMethod;
 }
 
-bool CClusterer::CParams::computeOutlierFactors(void) const {
+bool CClusterer::CParams::computeOutlierFactors() const {
     return m_ComputeOutlierFactors;
 }
 
-double CClusterer::CParams::outlierCutoff(void) const {
+double CClusterer::CParams::outlierCutoff() const {
     return m_OutlierCutoff;
 }
 
-bool CClusterer::CParams::bootstrap(void) const {
+bool CClusterer::CParams::bootstrap() const {
     return m_Bootstrap;
 }
 
-CClusterer::TOptionalSize CClusterer::CParams::numberOfClusters(void) const {
+CClusterer::TOptionalSize CClusterer::CParams::numberOfClusters() const {
     return m_NumberOfClusters;
 }
 
-CClusterer::TOptionalSize CClusterer::CParams::maximumNumberOfClusters(void) const {
+CClusterer::TOptionalSize CClusterer::CParams::maximumNumberOfClusters() const {
     return m_MaximumNumberOfClusters;
 }
 
-CClusterer::TOptionalSize CClusterer::CParams::principleComponents(void) const {
+CClusterer::TOptionalSize CClusterer::CParams::principleComponents() const {
     return m_PrincipleComponents;
 }
 
-CClusterer::TOptionalObjective CClusterer::CParams::agglomerativeObjective(void) const {
+CClusterer::TOptionalObjective CClusterer::CParams::agglomerativeObjective() const {
     return m_AgglomerativeObjective;
 }
 }

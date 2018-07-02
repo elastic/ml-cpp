@@ -26,7 +26,7 @@ public:
     CClustererOutputWriter(std::ostream& stream);
 
     //! Start building a new result.
-    void startResult(void);
+    void startResult();
     //! Add a named boolean member.
     void addMember(const std::string& name, bool value);
     //! Add a named double member.
@@ -42,7 +42,7 @@ public:
     //! Add a named mapping from \p values.
     void addMember(const std::string& name, const TStrDoubleUMap& values);
     //! Write the result which has been constructed.
-    void writeResult(void);
+    void writeResult();
 
 private:
     struct SState;

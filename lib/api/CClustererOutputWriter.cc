@@ -36,7 +36,7 @@ CClustererOutputWriter::CClustererOutputWriter(std::ostream& stream)
     : m_State(new SState(stream)) {
 }
 
-void CClustererOutputWriter::startResult(void) {
+void CClustererOutputWriter::startResult() {
     m_State->s_Result.SetObject();
 }
 
@@ -94,7 +94,7 @@ void CClustererOutputWriter::addMember(const std::string& name, const TStrDouble
     result.AddMember(rapidjson::StringRef(name), v, result.GetAllocator());
 }
 
-void CClustererOutputWriter::writeResult(void) {
+void CClustererOutputWriter::writeResult() {
     m_State->s_Result.Accept(m_State->s_Writer);
 }
 

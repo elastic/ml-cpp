@@ -11,10 +11,10 @@
 
 class CClusterEvaluationTest : public CppUnit::TestFixture {
 public:
-    void testSilhouetteExact(void);
-    void testSilhouetteApprox(void);
+    void testSilhouetteExact();
+    void testSilhouetteApprox();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CClusterEvaluationTest_h

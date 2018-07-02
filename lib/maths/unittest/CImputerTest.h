@@ -11,13 +11,13 @@
 
 class CImputerTest : public CppUnit::TestFixture {
 public:
-    void testRandom(void);
-    void testNearestNeighbourPlain(void);
-    void testNearestNeighbourBaggedSamples(void);
-    void testNearestNeighbourBaggedAttributes(void);
-    void testNearestNeighbourRandom(void);
+    void testRandom();
+    void testNearestNeighbourPlain();
+    void testNearestNeighbourBaggedSamples();
+    void testNearestNeighbourBaggedAttributes();
+    void testNearestNeighbourRandom();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CImputerTest_h

@@ -470,7 +470,7 @@ public:
         std::string print() const;
 
     private:
-        using TCovarianceAccumulator = CBasicStatistics::SSampleCovariances<T, N>;
+        using TCovarianceAccumulator = CBasicStatistics::SSampleCovariances<TVector>;
 
     private:
         //! The estimator of the Wiener process's unit time

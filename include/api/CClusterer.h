@@ -45,7 +45,7 @@ public:
     //! \brief The clustering parameters.
     class API_EXPORT CParams {
     public:
-        CParams(void);
+        CParams();
 
         bool init(const std::string& configFile);
         CParams& clusterField(const std::string& clusterField);
@@ -63,33 +63,33 @@ public:
         CParams& agglomerativeObjective(maths::CAgglomerativeClusterer::EObjective agglomerativeObjective);
 
         //! Get the field to cluster.
-        const std::string& clusterField(void) const;
+        const std::string& clusterField() const;
         //! Get the field which identifies features.
-        const std::string& featureField(void) const;
+        const std::string& featureField() const;
         //! Get the clustering algorithm to use.
-        EAlgorithm algorithm(void) const;
+        EAlgorithm algorithm() const;
         //! Check if we should normalize each coordinate separately.
-        bool normalize(void) const;
+        bool normalize() const;
         //! Check if we should treat missing values as zero.
-        bool treatMissingAsZero(void) const;
+        bool treatMissingAsZero() const;
         //! Get the imputation method if it has been set.
-        TOptionalImputationMethod imputationMethod(void) const;
+        TOptionalImputationMethod imputationMethod() const;
         //! Check whether or not to compute outlier factors.
-        bool computeOutlierFactors(void) const;
+        bool computeOutlierFactors() const;
         //! Get cutoff threshold for removing outliers.
-        double outlierCutoff(void) const;
+        double outlierCutoff() const;
         //! Check whether or not to bootstrap the clustering.
-        bool bootstrap(void) const;
+        bool bootstrap() const;
         //! Get the number of clusters to use if the algorithm allows one
         //! to choose.
-        TOptionalSize numberOfClusters(void) const;
+        TOptionalSize numberOfClusters() const;
         //! Get the maximum number of clusters to use if we're searching
         //! for the appropriate number.
-        TOptionalSize maximumNumberOfClusters(void) const;
+        TOptionalSize maximumNumberOfClusters() const;
         //! Project the data onto this number of principle components.
-        TOptionalSize principleComponents(void) const;
+        TOptionalSize principleComponents() const;
         //! Get the objective to use in agglomerative clustering.
-        TOptionalObjective agglomerativeObjective(void) const;
+        TOptionalObjective agglomerativeObjective() const;
 
     private:
         //! The field to cluster.
@@ -127,13 +127,13 @@ public:
     CClusterer(const CParams& params, CClustererOutputWriter& resultWriter);
 
     //! Change the output stream to which to write results.
-    virtual void newOutputStream(void);
+    virtual void newOutputStream();
 
     //! Receive a single labeled entity and its feature vector.
     virtual bool handleRecord(const TStrStrUMap& fields);
 
     //! Do the clustering.
-    virtual void finalise(void);
+    virtual void finalise();
 
     //! Restore the previous clustering.
     virtual bool restoreState(core::CDataSearcher& restoreSearcher,
@@ -143,10 +143,10 @@ public:
     virtual bool persistState(core::CDataAdder& persister);
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled(void) const;
+    virtual uint64_t numRecordsHandled() const;
 
     //! Access the output handler.
-    virtual COutputHandler& outputHandler(void);
+    virtual COutputHandler& outputHandler();
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -174,10 +174,10 @@ private:
     bool handleControlMessage(const std::string& controlMessage);
 
     //! Clear all state.
-    void clear(void);
+    void clear();
 
     //! Normalize each dimension separately.
-    void normalize(void);
+    void normalize();
 
     //! Remove outliers, if we've been asked to, and compute vector
     //! outlier scores.

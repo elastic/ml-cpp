@@ -65,36 +65,36 @@ int main(int argc, char** argv) {
                               outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
     if (ioMgr.initIo() == false) {
-        LOG_FATAL("Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     if (clusterField.empty()) {
-        LOG_FATAL("ML must specify the name of the field to cluster");
+        LOG_FATAL(<< "ML must specify the name of the field to cluster");
         return EXIT_FAILURE;
     }
 
     if (featureField.empty()) {
-        LOG_FATAL("ML must specify the name of the field identifying features");
+        LOG_FATAL(<< "ML must specify the name of the field identifying features");
         return EXIT_FAILURE;
     }
 
     ml::api::CClusterer::CParams params;
     params.clusterField(clusterField).featureField(featureField);
     if (!paramsFile.empty() && params.init(paramsFile) == false) {
-        LOG_FATAL("ML clustering parameters file '" << paramsFile << "' could not be loaded");
+        LOG_FATAL(<< "ML clustering parameters file '" << paramsFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -124,14 +124,14 @@ int main(int argc, char** argv) {
     writer.finalise();
 
     if (!ioLoopSucceeded) {
-        LOG_FATAL("ML clustering failed");
+        LOG_FATAL(<< "ML clustering failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("ML clustering exiting");
+    LOG_DEBUG(<< "ML clustering exiting");
 
     return EXIT_SUCCESS;
 }

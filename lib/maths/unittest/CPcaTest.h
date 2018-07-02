@@ -11,11 +11,11 @@
 
 class CPcaTest : public CppUnit::TestFixture {
 public:
-    void testProjectOntoPrincipleComponents(void);
-    void testSparseProjectOntoPrincipleComponents(void);
-    void testNumericRank(void);
+    void testProjectOntoPrincipleComponents();
+    void testSparseProjectOntoPrincipleComponents();
+    void testNumericRank();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPcaTest_h

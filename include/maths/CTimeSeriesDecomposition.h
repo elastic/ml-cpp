@@ -182,7 +182,7 @@ public:
     virtual std::size_t staticSize() const;
 
     //! Get the time shift which is being applied.
-    virtual core_t::TTime timeShift(void) const;
+    virtual core_t::TTime timeShift() const;
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
