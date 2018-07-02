@@ -357,6 +357,16 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
     return true;
 }
 
+// This implements the mapping from restored states to their best
+// equivalents; specifically:
+// SC_NEW_COMPONENTS |-> SC_NEW_COMPONENTS
+// SC_NORMAL |-> SC_NORMAL
+// SC_FORECASTING |-> SC_NORMAL
+// SC_DISABLED |-> SC_DISABLED
+// SC_ERROR |-> SC_ERROR
+// Note that we don't try and restore the periodicity test state
+// (see CTimeSeriesDecomposition::acceptRestoreTraverser) and the
+// calendar test state is unchanged.
 const TSizeSizeMap SC_STATES_UPGRADING_TO_VERSION_6_3{{0, 0}, {1, 1}, {2, 1}, {3, 2}, {4, 3}};
 
 ////////////////////////////////////////////////////////////////////////
