@@ -1321,8 +1321,8 @@ void CBasicStatisticsTest::testOrderStatistics() {
             ml::maths::CBasicStatistics::COrderStatisticsStack<TDoubleDoublePr, 2u>;
 
         TDoubleDoublePrMinAccumulator orig;
-        orig.add({1.0, 3.2});
-        orig.add({3.1, 1.2});
+        orig.add(TDoubleDoublePr{1.0, 3.2});
+        orig.add(TDoubleDoublePr{3.1, 1.2});
 
         auto toDelimited = [](const TDoubleDoublePr& value) {
             return ml::core::CStringUtils::typeToStringPrecise(
