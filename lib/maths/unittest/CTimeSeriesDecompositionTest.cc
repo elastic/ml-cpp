@@ -2051,6 +2051,8 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;
+    using TDouble3Vec = core::CSmallVector<double, 3>;
+
     auto load = [](const std::string& name, std::string& result) {
         std::ifstream file;
         file.open(name);
@@ -2125,6 +2127,13 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
                                          0.005 * expectedScale.first);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedScale.second, scale.second,
                                          0.005 * std::max(expectedScale.second, 0.4));
+        }
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
         }
     }
 
@@ -2201,6 +2210,13 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
         LOG_DEBUG(<< "Mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanValueError) < 0.06);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanScaleError) < 0.07);
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(10366200, 10366200 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
+        }
     }
 }
 

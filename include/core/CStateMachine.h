@@ -15,6 +15,7 @@
 
 #include <cstddef>
 #include <list>
+#include <map>
 #include <vector>
 
 namespace ml {
@@ -67,6 +68,7 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
     using TStrVec = std::vector<std::string>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
 public:
     //! Set the number of machines we expect the program to use.
@@ -85,7 +87,8 @@ public:
     //! \name Persistence
     //@{
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(CStateRestoreTraverser& traverser,
+                                const TSizeSizeMap& mapping = TSizeSizeMap());
 
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(CStatePersistInserter& inserter) const;
