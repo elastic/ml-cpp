@@ -160,6 +160,40 @@ double variance(const TDoubleVec& values, double& mean) {
 
 const CSearchKey KEY;
 const std::string EMPTY_STRING;
+
+void testPersistence(const SModelParams& params, const CDataGatherer& origGatherer) {
+    // Test persistence. (We check for idempotency.)
+    std::string origXml;
+    {
+        core::CRapidXmlStatePersistInserter inserter("root");
+        origGatherer.acceptPersistInserter(inserter);
+        inserter.toXml(origXml);
+    }
+
+    LOG_DEBUG(<< "gatherer XML size " << origXml.size());
+    LOG_TRACE(<< "gatherer XML representation:\n" << origXml);
+
+    // Restore the XML into a new filter
+    core::CRapidXmlParser parser;
+    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    core::CRapidXmlStateRestoreTraverser traverser(parser);
+
+    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
+                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                                   EMPTY_STRING, EMPTY_STRING, {}, KEY, traverser);
+
+    CPPUNIT_ASSERT_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
+
+    // The XML representation of the new filter should be the
+    // same as the original
+    std::string newXml;
+    {
+        core::CRapidXmlStatePersistInserter inserter("root");
+        restoredGatherer.acceptPersistInserter(inserter);
+        inserter.toXml(newXml);
+    }
+    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+}
 }
 
 void CMetricDataGathererTest::singleSeriesTests() {
@@ -175,9 +209,7 @@ void CMetricDataGathererTest::singleSeriesTests() {
     TTimeDoublePr bucket2[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2),
                                TTimeDoublePr(1199, 1.8)};
     TTimeDoublePr bucket3[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
-    TTimeDoublePr bucket4[] = {
-        TTimeDoublePr(1900, 3.5),
-    };
+    TTimeDoublePr bucket4[] = {TTimeDoublePr(1900, 3.5)};
     TTimeDoublePr bucket5[] = {TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2),
                                TTimeDoublePr(2490, 3.8)};
     {
@@ -189,9 +221,8 @@ void CMetricDataGathererTest::singleSeriesTests() {
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         SModelParams params(bucketLength);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               TStrVec(), false, KEY, features, startTime, 2u);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
@@ -229,7 +260,7 @@ void CMetricDataGathererTest::singleSeriesTests() {
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
         }
 
-        for (size_t i = 1; i < boost::size(bucket1); ++i) {
+        for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[i].first, "p",
                        bucket1[i].second);
         }
@@ -264,42 +295,12 @@ void CMetricDataGathererTest::singleSeriesTests() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
                                  core::CContainerPrinter::print(
                                      featureData[3].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "gatherer XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
 
         gatherer.timeNow(startTime + bucketLength);
-        for (size_t i = 0; i < boost::size(bucket2); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket2[i].first, "p",
-                       bucket2[i].second);
+        for (const auto& value : bucket2) {
+            addArrival(gatherer, m_ResourceMonitor, value.first, "p", value.second);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -327,36 +328,7 @@ void CMetricDataGathererTest::singleSeriesTests() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(600 [6] 1 3)]"),
                                  core::CContainerPrinter::print(
                                      featureData[3].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "model XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                ml::core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
     }
 
@@ -369,9 +341,8 @@ void CMetricDataGathererTest::singleSeriesTests() {
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         SModelParams params(bucketLength);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               TStrVec(), false, KEY, features, startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoublePrVecVec buckets;
@@ -438,9 +409,9 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, TStrVec(), false, KEY, features, startTime, 0);
+                           EMPTY_STRING, {}, KEY, features, startTime, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
 
@@ -451,9 +422,7 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     TTimeDoublePr bucket12[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2),
                                 TTimeDoublePr(1199, 1.8)};
     TTimeDoublePr bucket13[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
-    TTimeDoublePr bucket14[] = {
-        TTimeDoublePr(1900, 3.5),
-    };
+    TTimeDoublePr bucket14[] = {TTimeDoublePr(1900, 3.5)};
     TTimeDoublePr bucket15[] = {TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2),
                                 TTimeDoublePr(2490, 3.8)};
     TTimeDoublePrVecVec buckets1;
@@ -570,36 +539,7 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     CPPUNIT_ASSERT_EQUAL(
         std::string("[(2400 [21.6] 1 6)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-
-    // Test persistence. (We check for idempotency.)
-    std::string origXml;
-    {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
-        gatherer.acceptPersistInserter(inserter);
-        inserter.toXml(origXml);
-    }
-
-    LOG_DEBUG(<< "model XML representation:\n" << origXml);
-
-    // Restore the XML into a new filter
-    core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-    CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                   TStrVec(), false, KEY, traverser);
-
-    // The XML representation of the new filter should be the
-    // same as the original
-    std::string newXml;
-    {
-        core::CRapidXmlStatePersistInserter inserter("root");
-        restoredGatherer.acceptPersistInserter(inserter);
-        inserter.toXml(newXml);
-    }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    testPersistence(params, gatherer);
 
     // Remove person p1.
     TSizeVec peopleToRemove;
@@ -670,9 +610,9 @@ void CMetricDataGathererTest::testSampleCount() {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, TStrVec(), false, KEY, features, startTime, 0);
+                           EMPTY_STRING, {}, KEY, features, startTime, 0);
 
     std::size_t pid1 = addPerson("p1", gatherer, m_ResourceMonitor);
     std::size_t pid2 = addPerson("p2", gatherer, m_ResourceMonitor);
@@ -716,7 +656,6 @@ void CMetricDataGathererTest::testSampleCount() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, gatherer.effectiveSampleCount(pid2), 1.0 + 1e-5);
 
     for (std::size_t i = numberBuckets; i < 100; ++i) {
-        LOG_DEBUG(<< "Processing bucket " << i);
         gatherer.timeNow(startTime + i * bucketLength);
         addArrival(gatherer, m_ResourceMonitor,
                    startTime + i * bucketLength + 10, "p1", 1.0);
@@ -737,9 +676,9 @@ void CMetricDataGathererTest::testRemovePeople() {
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     SModelParams params(bucketLength);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, TStrVec(), false, KEY, features, startTime, 0);
+                           EMPTY_STRING, {}, KEY, features, startTime, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson("p3", gatherer, m_ResourceMonitor));
@@ -784,10 +723,10 @@ void CMetricDataGathererTest::testRemovePeople() {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None, params,
+        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       TStrVec(), false, KEY, features, startTime, 0);
+                                       {}, KEY, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0),
                              addPerson("p3", expectedGatherer, m_ResourceMonitor));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1),
@@ -823,10 +762,10 @@ void CMetricDataGathererTest::testRemovePeople() {
         peopleToRemove.push_back(7);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None, params,
+        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       TStrVec(), false, KEY, features, startTime, 0);
+                                       {}, KEY, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0),
                              addPerson("p3", expectedGatherer, m_ResourceMonitor));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1),
@@ -856,10 +795,10 @@ void CMetricDataGathererTest::testRemovePeople() {
         peopleToRemove.push_back(6);
         gatherer.recyclePeople(peopleToRemove);
 
-        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None, params,
+        CDataGatherer expectedGatherer(model_t::E_Metric, model_t::E_None,
+                                       params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                       TStrVec(), false, KEY, features, startTime, 0);
+                                       {}, KEY, features, startTime, 0);
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
@@ -891,16 +830,15 @@ void CMetricDataGathererTest::testSum() {
     SModelParams params(bucketLength);
     CDataGatherer sum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                      EMPTY_STRING, TStrVec(), false, KEY, sumFeatures, startTime, 0);
+                      {}, KEY, sumFeatures, startTime, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", sum, m_ResourceMonitor));
 
     TFeatureVec nonZeroSumFeatures;
     nonZeroSumFeatures.push_back(model_t::E_IndividualNonNullSumByBucketAndPerson);
 
-    CDataGatherer nonZeroSum(model_t::E_Metric, model_t::E_None, params,
-                             EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                             EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
-                             false, KEY, nonZeroSumFeatures, startTime, 0);
+    CDataGatherer nonZeroSum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+                             EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                             {}, KEY, nonZeroSumFeatures, startTime, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", nonZeroSum, m_ResourceMonitor));
 
     core_t::TTime bucketStart = startTime;
@@ -995,9 +933,8 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               TStrVec(), false, KEY, features, startTime, 2u);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
@@ -1034,7 +971,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
         }
 
-        for (size_t i = 1; i < boost::size(bucket1); ++i) {
+        for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[i].first, "p",
                        bucket1[i].second);
         }
@@ -1068,42 +1005,12 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(0 [7.5] 1 5)]"),
                                  core::CContainerPrinter::print(
                                      featureData[3].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "gatherer XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
 
         gatherer.timeNow(startTime + bucketLength);
-        for (size_t i = 0; i < boost::size(bucket2); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket2[i].first, "p",
-                       bucket2[i].second);
+        for (const auto& value : bucket2) {
+            addArrival(gatherer, m_ResourceMonitor, value.first, "p", value.second);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1131,36 +1038,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
                                  core::CContainerPrinter::print(
                                      featureData[3].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "model XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                ml::core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
     }
 }
@@ -1173,25 +1051,22 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    TTimeDoublePr data[] = {
-        TTimeDoublePr(1, 1.0),                            // Bucket 1
-        TTimeDoublePr(550, 2.0), TTimeDoublePr(600, 3.0), // Bucket 2
-        TTimeDoublePr(700, 4.0), TTimeDoublePr(1000, 5.0),
-        TTimeDoublePr(1200, 6.0) // Bucket 3
-    };
+    TTimeDoublePr data[] = {TTimeDoublePr(1, 1.0),    TTimeDoublePr(550, 2.0),
+                            TTimeDoublePr(600, 3.0),  TTimeDoublePr(700, 4.0),
+                            TTimeDoublePr(1000, 5.0), TTimeDoublePr(1200, 6.0)};
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, TStrVec(), false, KEY, features, startTime, 2u);
+                           EMPTY_STRING, {}, KEY, features, startTime, 2u);
     addPerson("p", gatherer, m_ResourceMonitor);
 
-    for (std::size_t i = 0; i < boost::size(data); ++i) {
-        addArrival(gatherer, m_ResourceMonitor, data[i].first, "p", data[i].second);
+    for (const auto& value : data) {
+        addArrival(gatherer, m_ResourceMonitor, value.first, "p", value.second);
     }
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1286,29 +1161,26 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    TTimeDoublePr data[] = {
-        TTimeDoublePr(1, 1.0),                            // Bucket 1
-        TTimeDoublePr(550, 2.0), TTimeDoublePr(600, 3.0), // Bucket 2
-        TTimeDoublePr(700, 4.0), TTimeDoublePr(1000, 5.0),
-        TTimeDoublePr(1200, 6.0) // Bucket 3
-    };
+    TTimeDoublePr data[] = {TTimeDoublePr(1, 1.0),    TTimeDoublePr(550, 2.0),
+                            TTimeDoublePr(600, 3.0),  TTimeDoublePr(700, 4.0),
+                            TTimeDoublePr(1000, 5.0), TTimeDoublePr(1200, 6.0)};
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, TStrVec(), false, KEY, features, startTime, 2u);
+                           EMPTY_STRING, {}, KEY, features, startTime, 2u);
     addPerson("p1", gatherer, m_ResourceMonitor);
     addPerson("p2", gatherer, m_ResourceMonitor);
     addPerson("p3", gatherer, m_ResourceMonitor);
 
-    for (std::size_t i = 0; i < boost::size(data); ++i) {
+    for (const auto& value : data) {
         for (std::size_t pid = 0; pid < gatherer.numberActivePeople(); ++pid) {
-            addArrival(gatherer, m_ResourceMonitor, data[i].first,
-                       gatherer.personName(pid), data[i].second);
+            addArrival(gatherer, m_ResourceMonitor, value.first,
+                       gatherer.personName(pid), value.second);
         }
     }
 
@@ -1591,8 +1463,8 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     TStrVec influencerNames(boost::begin(influencerNames_), boost::end(influencerNames_));
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
-                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           influencerNames, false, KEY, features, startTime, 2u);
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           influencerNames, KEY, features, startTime, 2u);
 
     addPerson("p1", gatherer, m_ResourceMonitor, influencerNames.size());
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
@@ -1614,7 +1486,7 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
                          m < data_[k].second.s_InfluenceValues.size(); ++m) {
                         for (std::size_t n = 0u;
                              n < data_[k].second.s_InfluenceValues[m].size(); ++n) {
-                            statistics.push_back(TStrDoubleDoublePrPr(
+                            statistics.emplace_back(
                                 data_[k].second.s_InfluenceValues[m][n].first,
                                 TDoubleDoublePr(
                                     data_[k]
@@ -1622,7 +1494,7 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
                                         .second.first[0],
                                     data_[k]
                                         .second.s_InfluenceValues[m][n]
-                                        .second.second)));
+                                        .second.second));
                         }
                     }
                     std::sort(statistics.begin(), statistics.end(),
@@ -1671,9 +1543,7 @@ void CMetricDataGathererTest::testMultivariate() {
                                         TTimeDoubleDoubleTuple(1199, 1.8, 1.6)};
     TTimeDoubleDoubleTuple bucket3[] = {TTimeDoubleDoubleTuple(1200, 2.1, 2.0),
                                         TTimeDoubleDoubleTuple(1250, 2.5, 2.4)};
-    TTimeDoubleDoubleTuple bucket4[] = {
-        TTimeDoubleDoubleTuple(1900, 3.5, 3.2),
-    };
+    TTimeDoubleDoubleTuple bucket4[] = {TTimeDoubleDoubleTuple(1900, 3.5, 3.2)};
     TTimeDoubleDoubleTuple bucket5[] = {TTimeDoubleDoubleTuple(2420, 3.5, 3.2),
                                         TTimeDoubleDoubleTuple(2480, 3.2, 3.0),
                                         TTimeDoubleDoubleTuple(2490, 3.8, 3.8)};
@@ -1682,10 +1552,9 @@ void CMetricDataGathererTest::testMultivariate() {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
         TStrVec influencerNames;
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
+        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, influencerNames,
-                               false, KEY, features, startTime, 2u);
+                               influencerNames, KEY, features, startTime, 2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
@@ -1713,7 +1582,7 @@ void CMetricDataGathererTest::testMultivariate() {
             CPPUNIT_ASSERT_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
         }
 
-        for (size_t i = 1; i < boost::size(bucket1); ++i) {
+        for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[i].get<0>(), "p",
                        bucket1[i].get<1>(), bucket1[i].get<2>(), DELIMITER);
         }
@@ -1734,42 +1603,13 @@ void CMetricDataGathererTest::testMultivariate() {
             CPPUNIT_ASSERT_EQUAL(
                 std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "gatherer XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
 
         gatherer.timeNow(startTime + bucketLength);
-        for (size_t i = 0; i < boost::size(bucket2); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket2[i].get<0>(), "p",
-                       bucket2[i].get<1>(), bucket2[i].get<2>(), DELIMITER);
+        for (const auto& value : bucket2) {
+            addArrival(gatherer, m_ResourceMonitor, value.get<0>(), "p",
+                       value.get<1>(), value.get<2>(), DELIMITER);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1784,42 +1624,13 @@ void CMetricDataGathererTest::testMultivariate() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
                                  core::CContainerPrinter::print(
                                      featureData[0].second[0].second.s_Samples));
-
-            // Test persistence. (We check for idempotency.)
-            std::string origXml;
-            {
-                core::CRapidXmlStatePersistInserter inserter("root");
-                gatherer.acceptPersistInserter(inserter);
-                inserter.toXml(origXml);
-            }
-
-            LOG_DEBUG(<< "model XML representation:\n" << origXml);
-
-            // Restore the XML into a new filter
-            core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-            core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-            CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                                           TStrVec(), false, KEY, traverser);
-
-            // The XML representation of the new filter should be the
-            // same as the original
-            std::string newXml;
-            {
-                ml::core::CRapidXmlStatePersistInserter inserter("root");
-                restoredGatherer.acceptPersistInserter(inserter);
-                inserter.toXml(newXml);
-            }
-            CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+            testPersistence(params, gatherer);
         }
 
         gatherer.timeNow(startTime + 2 * bucketLength);
-        for (size_t i = 0; i < boost::size(bucket3); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket3[i].get<0>(), "p",
-                       bucket3[i].get<1>(), bucket3[i].get<2>(), DELIMITER);
+        for (const auto& value : bucket3) {
+            addArrival(gatherer, m_ResourceMonitor, value.get<0>(), "p",
+                       value.get<1>(), value.get<2>(), DELIMITER);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1842,9 +1653,8 @@ void CMetricDataGathererTest::testMultivariate() {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               TStrVec(), false, KEY, features, startTime, 0);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
@@ -1938,20 +1748,15 @@ void CMetricDataGathererTest::testVarp() {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualVarianceByPerson);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               TStrVec(), false, KEY, features, startTime, 2u);
+                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                               EMPTY_STRING, {}, KEY, features, startTime, 2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor));
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
 
         {
-            values.push_back(5.0);
-            values.push_back(6.0);
-            values.push_back(3.0);
-            values.push_back(2.0);
-            values.push_back(4.0);
+            values.assign({5.0, 6.0, 3.0, 2.0, 4.0});
             addArrivals(gatherer, m_ResourceMonitor, startTime, 10, person, values);
             gatherer.sampleNow(startTime);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1969,15 +1774,7 @@ void CMetricDataGathererTest::testVarp() {
         }
         startTime += bucketLength;
         {
-            values.clear();
-            values.push_back(115.0);
-            values.push_back(116.0);
-            values.push_back(117.0);
-            values.push_back(1111.5);
-            values.push_back(22.45);
-            values.push_back(2526.55634);
-            values.push_back(55.55);
-            values.push_back(14.723);
+            values.assign({115.0, 116.0, 117.0, 1111.5, 22.45, 2526.55634, 55.55, 14.723});
             addArrivals(gatherer, m_ResourceMonitor, startTime, 100, person, values);
             gatherer.sampleNow(startTime);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1994,8 +1791,7 @@ void CMetricDataGathererTest::testVarp() {
         gatherer.sampleNow(startTime);
         startTime += bucketLength;
         {
-            values.clear();
-            values.push_back(0.0);
+            values.assign({0.0});
             addArrivals(gatherer, m_ResourceMonitor, startTime, 100, person, values);
             gatherer.sampleNow(startTime);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -2013,10 +1809,9 @@ void CMetricDataGathererTest::testVarp() {
         TStrVec influencerFieldNames;
         influencerFieldNames.push_back("i");
         influencerFieldNames.push_back("j");
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
+        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, EMPTY_STRING, influencerFieldNames,
-                               false, KEY, features, startTime, 2u);
+                               influencerFieldNames, KEY, features, startTime, 2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor,
                                                        influencerFieldNames.size()));
@@ -2052,20 +1847,7 @@ void CMetricDataGathererTest::testVarp() {
 
             CSample::TDouble1Vec v =
                 featureData[0].second[0].second.s_BucketValue->value();
-            values.clear();
-            values.push_back(5.0);
-            values.push_back(5.5);
-            values.push_back(5.9);
-            values.push_back(5.2);
-            values.push_back(5.1);
-            values.push_back(2.2);
-            values.push_back(4.9);
-            values.push_back(5.1);
-            values.push_back(5.0);
-            values.push_back(12.12);
-            values.push_back(5.2);
-            values.push_back(5.0);
-            values.push_back(1.0);
+            values.assign({5.0, 5.5, 5.9, 5.2, 5.1, 2.2, 4.9, 5.1, 5.0, 12.12, 5.2, 5.0, 1.0});
             double expectedMean = 0;
             double expectedVariance = ::variance(values, expectedMean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);

@@ -62,9 +62,8 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData,
 CDataGatherer*
 CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode, this->modelParams(),
-                             m_SummaryCountFieldName, m_PartitionFieldName,
-                             initData.s_PartitionFieldValue, m_PersonFieldName,
-                             EMPTY_STRING, EMPTY_STRING, TStrVec(), m_UseNull,
+                             m_SummaryCountFieldName, initData.s_PartitionFieldValue,
+                             m_PersonFieldName, EMPTY_STRING, EMPTY_STRING, {},
                              this->searchKey(), m_Features, initData.s_StartTime, 0);
 }
 
@@ -73,9 +72,8 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                         core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_EventRate, m_SummaryMode,
                              this->modelParams(), m_SummaryCountFieldName,
-                             m_PartitionFieldName, partitionFieldValue,
-                             m_PersonFieldName, EMPTY_STRING, EMPTY_STRING,
-                             TStrVec(), m_UseNull, this->searchKey(), traverser);
+                             partitionFieldValue, m_PersonFieldName, EMPTY_STRING,
+                             EMPTY_STRING, {}, this->searchKey(), traverser);
 }
 
 CCountingModelFactory::TPriorPtr

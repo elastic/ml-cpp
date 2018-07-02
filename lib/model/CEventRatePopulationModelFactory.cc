@@ -93,20 +93,19 @@ CDataGatherer*
 CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
                              this->modelParams(), m_SummaryCountFieldName,
-                             m_PartitionFieldName, initData.s_PartitionFieldValue,
-                             m_PersonFieldName, m_AttributeFieldName,
-                             m_ValueFieldName, m_InfluenceFieldNames, m_UseNull,
+                             initData.s_PartitionFieldValue, m_PersonFieldName,
+                             m_AttributeFieldName, m_ValueFieldName, m_InfluenceFieldNames,
                              this->searchKey(), m_Features, initData.s_StartTime, 0);
 }
 
 CDataGatherer*
 CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                                                    core::CStateRestoreTraverser& traverser) const {
-    return new CDataGatherer(
-        model_t::E_PopulationEventRate, m_SummaryMode, this->modelParams(),
-        m_SummaryCountFieldName, m_PartitionFieldName, partitionFieldValue,
-        m_PersonFieldName, m_AttributeFieldName, m_ValueFieldName,
-        m_InfluenceFieldNames, m_UseNull, this->searchKey(), traverser);
+    return new CDataGatherer(model_t::E_PopulationEventRate, m_SummaryMode,
+                             this->modelParams(), m_SummaryCountFieldName,
+                             partitionFieldValue, m_PersonFieldName,
+                             m_AttributeFieldName, m_ValueFieldName,
+                             m_InfluenceFieldNames, this->searchKey(), traverser);
 }
 
 CEventRatePopulationModelFactory::TPriorPtr
