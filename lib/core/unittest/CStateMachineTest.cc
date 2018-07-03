@@ -173,10 +173,11 @@ void CStateMachineTest::testPersist() {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     core::CStateMachine restored = core::CStateMachine::create(
-        machine[1].s_Alphabet, machine[1].s_States, machine[1].s_TransitionFunction,
+        machine[0].s_Alphabet, machine[0].s_States, machine[0].s_TransitionFunction,
         0); // initial state
-    traverser.traverseSubLevel(
-        boost::bind(&core::CStateMachine::acceptRestoreTraverser, &restored, _1));
+    traverser.traverseSubLevel([&restored](core::CStateRestoreTraverser& traverser_) {
+        return restored.acceptRestoreTraverser(traverser_);
+    });
 
     CPPUNIT_ASSERT_EQUAL(original.checksum(), restored.checksum());
     std::string newXml;
