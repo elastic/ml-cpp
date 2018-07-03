@@ -25,7 +25,7 @@ namespace core {
 namespace {
 
 // CStateMachine
-const std::string MACHINE_TAG("a");
+//const std::string MACHINE_TAG("a"); No longer used
 const std::string STATE_TAG("b");
 
 // CStateMachine::SMachine
@@ -88,17 +88,26 @@ CStateMachine CStateMachine::create(const TStrVec& alphabet,
     return result;
 }
 
-bool CStateMachine::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CStateMachine::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                           const TSizeSizeMap& mapping) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_BUILT_IN(MACHINE_TAG, m_Machine)
         RESTORE_BUILT_IN(STATE_TAG, m_State)
     } while (traverser.next());
+    if (mapping.size() > 0) {
+        auto mapped = mapping.find(m_State);
+        if (mapped != mapping.end()) {
+            m_State = mapped->second;
+        } else {
+            LOG_ERROR(<< "Bad mapping '" << core::CContainerPrinter::print(mapping)
+                      << "' state = " << m_State);
+            return false;
+        }
+    }
     return true;
 }
 
 void CStateMachine::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(MACHINE_TAG, m_Machine);
     inserter.insertValue(STATE_TAG, m_State);
 }
 
@@ -201,14 +210,15 @@ void CStateMachine::CMachineDeque::capacity(std::size_t capacity) {
     m_Capacity = capacity;
 }
 
-const CStateMachine::SMachine& CStateMachine::CMachineDeque::operator[](std::size_t pos) const {
+const CStateMachine::SMachine& CStateMachine::CMachineDeque::operator[](std::size_t pos_) const {
+    std::size_t pos{pos_};
     for (const auto& machines : m_Machines) {
         if (pos < machines.size()) {
             return machines[pos];
         }
         pos -= machines.size();
     }
-    LOG_ABORT(<< "Invalid index '" << pos << "'");
+    LOG_ABORT(<< "Invalid index '" << pos_ << "'");
 }
 
 std::size_t CStateMachine::CMachineDeque::size() const {
