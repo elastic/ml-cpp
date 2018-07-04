@@ -134,9 +134,10 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE(CALENDAR_CYCLIC_TEST_6_3_TAG,
                     traverser.traverseSubLevel(boost::bind(&CCalendarTest::acceptRestoreTraverser,
                                                            &m_CalendarCyclicTest, _1)))
-            RESTORE(COMPONENTS_6_3_TAG, traverser.traverseSubLevel(boost::bind(
-                                            &CComponents::acceptRestoreTraverser,
-                                            &m_Components, boost::cref(params), _1)))
+            RESTORE(COMPONENTS_6_3_TAG,
+                    traverser.traverseSubLevel(
+                        boost::bind(&CComponents::acceptRestoreTraverser, &m_Components,
+                                    boost::cref(params), m_LastValueTime, _1)))
         }
     } else {
         // There is no version string this is historic state.
@@ -149,9 +150,10 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE(CALENDAR_CYCLIC_TEST_OLD_TAG,
                     traverser.traverseSubLevel(boost::bind(&CCalendarTest::acceptRestoreTraverser,
                                                            &m_CalendarCyclicTest, _1)))
-            RESTORE(COMPONENTS_OLD_TAG, traverser.traverseSubLevel(boost::bind(
-                                            &CComponents::acceptRestoreTraverser,
-                                            &m_Components, boost::cref(params), _1)))
+            RESTORE(COMPONENTS_OLD_TAG,
+                    traverser.traverseSubLevel(
+                        boost::bind(&CComponents::acceptRestoreTraverser, &m_Components,
+                                    boost::cref(params), m_LastValueTime, _1)))
         } while (traverser.next());
         this->decayRate(decayRate);
     }
