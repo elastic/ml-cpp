@@ -34,6 +34,7 @@
 * Fail start up if state is missing {ml-pull}4[#4]
 * Do not log incorrect model memory limit {ml-pull}3[#3]
 * The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort {ml-pull}136[#136] (issue: {ml-issue}135[#135])
+* Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 {ml-pull}143[#143] (issue: {ml-issue}141[#141]})
 
 === Regressions
 
