@@ -333,7 +333,9 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             RESTORE(LAST_UPDATES_OLD_TAG,
                     core::CPersistUtils::fromString(traverser.value(), lastUpdates))
         } while (traverser.next());
-
+        if (lastUpdates.empty()) {
+            lastUpdates.resize(regressions.size(), UNSET_TIME);
+        }
         m_Buckets.clear();
         m_Buckets.reserve(regressions.size());
         for (std::size_t i = 0u; i < regressions.size(); ++i) {
