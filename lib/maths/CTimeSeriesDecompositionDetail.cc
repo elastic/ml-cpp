@@ -312,15 +312,15 @@ const std::string LAST_UPDATE_OLD_TAG{"j"};
 
 const double MODEL_WEIGHT_UPGRADING_TO_VERSION_6_3{48.0};
 
-bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
-                                   CTrendComponent& trend,
-                                   core::CStateRestoreTraverser& traverser) {
+bool upgradeTrendModelToVersion_6_3(const core_t::TTime bucketLength,
+                                    const core_t::TTime lastValueTime,
+                                    CTrendComponent& trend,
+                                    core::CStateRestoreTraverser& traverser) {
     using TRegression = CRegression::CLeastSquaresOnline<3, double>;
 
     TRegression regression;
     double variance{0.0};
     core_t::TTime origin{0};
-    core_t::TTime lastUpdate{0};
     do {
         const std::string& name{traverser.name()};
         RESTORE(REGRESSION_OLD_TAG,
@@ -328,7 +328,6 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
                     &TRegression::acceptRestoreTraverser, &regression, _1)))
         RESTORE_BUILT_IN(VARIANCE_OLD_TAG, variance)
         RESTORE_BUILT_IN(TIME_ORIGIN_OLD_TAG, origin)
-        RESTORE_BUILT_IN(LAST_UPDATE_OLD_TAG, lastUpdate)
     } while (traverser.next());
 
     // Generate some samples from the old trend model.
@@ -337,7 +336,8 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
                   static_cast<double>(bucketLength) / static_cast<double>(4 * WEEK)};
 
     CPRNG::CXorOShiro128Plus rng;
-    for (core_t::TTime time = lastUpdate - 4 * WEEK; time < lastUpdate; time += bucketLength) {
+    for (core_t::TTime time = lastValueTime - 4 * WEEK; time < lastValueTime;
+         time += bucketLength) {
         double time_{static_cast<double>(time - origin) / static_cast<double>(WEEK)};
         double sample{regression.predict(time_) + CSampling::normalSample(rng, 0.0, variance)};
         trend.add(time, sample, weight);
@@ -975,7 +975,9 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_UsingTrendForPrediction{other.m_UsingTrendForPrediction}, m_Watcher{nullptr} {
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
+    core_t::TTime lastValueTime,
+    core::CStateRestoreTraverser& traverser) {
     if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -1020,8 +1022,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(core::C
             RESTORE_SETUP_TEARDOWN(TREND_OLD_TAG,
                                    /**/,
                                    traverser.traverseSubLevel(boost::bind(
-                                       upgradeTrendModelToVersion6p3,
-                                       m_BucketLength, boost::ref(m_Trend), _1)),
+                                       upgradeTrendModelToVersion_6_3, m_BucketLength,
+                                       lastValueTime, boost::ref(m_Trend), _1)),
                                    m_UsingTrendForPrediction = true)
             RESTORE_SETUP_TEARDOWN(
                 SEASONAL_OLD_TAG, m_Seasonal.reset(new SSeasonal),

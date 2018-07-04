@@ -350,7 +350,8 @@ public:
         };
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(core_t::TTime lastValueTime,
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

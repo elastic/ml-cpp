@@ -278,6 +278,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         LOG_ERROR(<< "Bad confidence interval: " << confidence << "%");
         return;
     }
+    if (!this->initialized()) {
+        result.resize((endTime - startTime) / step, TDouble3Vec{0.0, 0.0, 0.0});
+        return;
+    }
 
     endTime = startTime + CIntegerTools::ceil(endTime - startTime, step);
 
