@@ -74,6 +74,7 @@ Fix corner case failing to calculate lgamma values and the correspoinding log er
 Function description for population lat_long results should be lat_long instead of mean ({pull}81[#81])
 By-fields should respect model_plot_config.terms ({pull}86[#86])
 The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort ({pull}136[#136])
+Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 ({pull}143[#143])
 
 === Regressions
 
