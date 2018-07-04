@@ -333,6 +333,8 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             RESTORE(LAST_UPDATES_OLD_TAG,
                     core::CPersistUtils::fromString(traverser.value(), lastUpdates))
         } while (traverser.next());
+        // This wasn't present in version 5.6 so needs to be default
+        // initialised if it is missing from the state object.
         if (lastUpdates.empty()) {
             lastUpdates.resize(regressions.size(), UNSET_TIME);
         }
