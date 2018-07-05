@@ -20,10 +20,10 @@
 #include <rapidjson/writer.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/unordered/unordered_set.hpp>
 
+#include <cmath>
 #include <memory>
 #include <stack>
 
@@ -163,7 +163,7 @@ public:
 
     bool Double(double d) {
         // rewrite NaN and Infinity to 0
-        if (!(boost::math::isfinite)(d)) {
+        if (std::isfinite(d) == false) {
             return TRapidJsonWriterBase::Int(0);
         }
 
@@ -352,7 +352,7 @@ public:
     //! Adds a double field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addDoubleFieldToObj(const std::string& fieldName, double value, TValue& obj) const {
-        if (!(boost::math::isfinite)(value)) {
+        if (std::isfinite(value) == false) {
             LOG_ERROR(<< "Adding " << value << " to the \"" << fieldName
                       << "\" field of a JSON document");
             // Don't return - make a best effort to add the value
@@ -486,7 +486,7 @@ private:
     //! Log a message if we're trying to add nan/infinity to a JSON array
     template<typename NUMBER>
     void checkArrayNumberFinite(NUMBER val, const std::string& fieldName, bool& considerLogging) const {
-        if (considerLogging && !(boost::math::isfinite)(val)) {
+        if (considerLogging && (std::isfinite(val) == false)) {
             LOG_ERROR(<< "Adding " << val << " to the \"" << fieldName
                       << "\" array in a JSON document");
             // Don't return - make a best effort to add the value

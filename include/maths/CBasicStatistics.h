@@ -1033,6 +1033,8 @@ private:
         using const_iterator = typename CONTAINER::const_iterator;
         using reverse_iterator = typename CONTAINER::reverse_iterator;
         using const_reverse_iterator = typename CONTAINER::const_reverse_iterator;
+        using TToString = std::function<std::string(const T&)>;
+        using TFromString = std::function<bool(const std::string&, T&)>;
 
     public:
         COrderStatisticsImpl(const CONTAINER& statistics, const LESS& less)
@@ -1044,8 +1046,20 @@ private:
         //! Initialize from a delimited string.
         bool fromDelimited(const std::string& value);
 
+        //! Initialize from a delimited string using \p fromString to initialize
+        //! values of type T from a string.
+        //!
+        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        bool fromDelimited(const std::string& value, const TFromString& fromString);
+
         //! Convert to a delimited string.
         std::string toDelimited() const;
+
+        //! Convert to a delimited string using \p toString to convert individual
+        //! values of type T to a string.
+        //!
+        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        std::string toDelimited(const TToString& toString) const;
         //@}
 
         //! \name Update

@@ -1392,7 +1392,7 @@ void CTimeSeriesModelTest::testWeights() {
             error.add(std::fabs(scale - dataScale) / dataScale);
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.21);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.18);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));

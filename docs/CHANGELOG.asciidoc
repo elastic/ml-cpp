@@ -37,6 +37,7 @@ Explicit change point detection and modelling ({pull}92[#92])
 Improve partition analysis memory usage ({pull}97[#97])
 Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
 Improve the accuracy of model memory control ({pull}122[#122])
+Improve adaption of the modelling of cyclic components to very localised features ({pull}134[#134])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])
@@ -47,6 +48,9 @@ new processes being created and macOS uses the sandbox functionality ({pull}98[#
 
 Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
 by unnecessary reference counting ({pull}108[#108])
+
+Reduce model memory by storing state for testing for predictive calendar features in a compressed format
+({pull}127[#127])
 
 === Bug Fixes
 
@@ -68,8 +72,9 @@ Fix corner case failing to calculate lgamma values and the correspoinding log er
 === Bug Fixes
 
 Function description for population lat_long results should be lat_long instead of mean ({pull}81[#81])
-
 By-fields should respect model_plot_config.terms ({pull}86[#86])
+The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort ({pull}136[#136])
+Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 ({pull}143[#143])
 
 === Regressions
 

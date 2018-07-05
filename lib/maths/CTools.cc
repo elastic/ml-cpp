@@ -32,7 +32,6 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/tools/precision.hpp>
 #include <boost/optional.hpp>
 
@@ -1373,8 +1372,8 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
     double b_ = b == POS_INF ? b : (b - mean) / s;
     double expa = a_ == NEG_INF ? 0.0 : std::exp(-a_ * a_);
     double expb = b_ == POS_INF ? 0.0 : std::exp(-b_ * b_);
-    double erfa = a_ == NEG_INF ? -1.0 : boost::math::erf(a_);
-    double erfb = b_ == POS_INF ? 1.0 : boost::math::erf(b_);
+    double erfa = a_ == NEG_INF ? -1.0 : std::erf(a_);
+    double erfb = b_ == POS_INF ? 1.0 : std::erf(b_);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
         return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
@@ -1405,8 +1404,8 @@ operator()(const lognormal& logNormal, double a, double b) const {
     double s = std::sqrt(2.0) * scale;
     double a_ = loga == NEG_INF ? NEG_INF : (loga - location) / s;
     double b_ = logb == POS_INF ? POS_INF : (logb - location) / s;
-    double erfa = loga == NEG_INF ? -1.0 : boost::math::erf((loga - c) / s);
-    double erfb = logb == POS_INF ? 1.0 : boost::math::erf((logb - c) / s);
+    double erfa = loga == NEG_INF ? -1.0 : std::erf((loga - c) / s);
+    double erfb = logb == POS_INF ? 1.0 : std::erf((logb - c) / s);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
         double expa = loga == NEG_INF ? 0.0 : std::exp(-a_ * a_);
@@ -1415,8 +1414,8 @@ operator()(const lognormal& logNormal, double a, double b) const {
                             : (expa + expb) / (expa / a + expb / b);
     }
 
-    double erfa_ = a_ == NEG_INF ? -1.0 : boost::math::erf(a_);
-    double erfb_ = b_ == POS_INF ? 1.0 : boost::math::erf(b_);
+    double erfa_ = a_ == NEG_INF ? -1.0 : std::erf(a_);
+    double erfb_ = b_ == POS_INF ? 1.0 : std::erf(b_);
     return mean * (erfb - erfa) / (erfb_ - erfa_);
 }
 
@@ -1845,7 +1844,7 @@ double CTools::differentialEntropy(const gamma& gamma_) {
 
     double shape = gamma_.shape();
     double scale = gamma_.scale();
-    return shape + std::log(scale) + boost::math::lgamma(shape) +
+    return shape + std::log(scale) + std::lgamma(shape) +
            (1 - shape) * boost::math::digamma(shape);
 }
 
@@ -1907,6 +1906,18 @@ double CTools::shiftRight(double x, double eps) {
         return x;
     }
     return (x < 0.0 ? 1.0 - eps : 1.0 + eps) * x;
+}
+
+double CTools::linearlyInterpolate(double a, double b, double fa, double fb, double x) {
+    if (x <= a) {
+        return fa;
+    }
+    if (x >= b) {
+        return fb;
+    }
+    double wa{(b - x) / (b - a)};
+    double wb{(x - a) / (b - a)};
+    return wa * fa + wb * fb;
 }
 
 double CTools::powOneMinusX(double x, double p) {

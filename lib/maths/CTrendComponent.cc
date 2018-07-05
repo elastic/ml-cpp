@@ -201,10 +201,19 @@ void CTrendComponent::shiftOrigin(core_t::TTime time) {
     }
 }
 
-void CTrendComponent::shiftSlope(double decayRate, double shift) {
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
-        double shift_{std::min(m_DefaultDecayRate * TIME_SCALES[i] / decayRate, 1.0) * shift};
-        m_TrendModels[i].s_Regression.shiftGradient(shift_);
+void CTrendComponent::shiftSlope(core_t::TTime time, double shift) {
+    // This shifts all models gradients by a fixed amount whilst keeping
+    // the prediction at time fixed. This avoids a jump in the current
+    // predicted value as a result of adjusting the gradient. Otherwise,
+    // this changes by "shift" x "scaled time since the regression origin".
+    if (std::fabs(shift) > 0.0) {
+        for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+            double modelDecayRate{m_DefaultDecayRate * TIME_SCALES[i]};
+            double shift_{std::min(modelDecayRate / m_TargetDecayRate, 1.0) * shift};
+            m_TrendModels[i].s_Regression.shiftGradient(shift_);
+            m_TrendModels[i].s_Regression.shiftOrdinate(
+                -shift_ * scaleTime(time, m_RegressionOrigin));
+        }
     }
 }
 
@@ -244,11 +253,11 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
             modelWeight(m_TargetDecayRate, m_DefaultDecayRate * TIME_SCALES[i]));
     }
 
-    // Update the models.
-
     if (m_FirstUpdate == UNSET_TIME) {
         m_RegressionOrigin = CIntegerTools::floor(time, core::constants::WEEK);
     }
+
+    // Update the models.
 
     double prediction{CBasicStatistics::mean(this->value(time, 0.0))};
 
@@ -262,8 +271,8 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
     for (auto& model : m_TrendModels) {
-        model.s_Regression.add(scaledTime, value, weight);
         model.s_ResidualMoments.add(value - model.s_Regression.predict(scaledTime, MAX_CONDITION));
+        model.s_Regression.add(scaledTime, value, weight);
     }
     m_ValueMoments.add(value);
 
@@ -393,16 +402,26 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     TMatrixVec modelCovariances(NUMBER_MODELS);
     TDoubleVec residualVariances(NUMBER_MODELS);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+        // Note in the following we multiply the bias by the sample count
+        // when estimating the regression coefficients' covariance matrix.
+        // This is because, unlike the noise like component of the residual,
+        // it is overly optimistic to assume these will cancel in the
+        // estimates of the regression coefficients when adding multiple
+        // samples. Instead, we make the most pessimistic assumption that
+        // this term is from a fixed random variable and so multiply its
+        // variance by the number of samples to undo the scaling applied
+        // in the regression model covariance method.
         const SModel& model{m_TrendModels[i]};
-        double modelResidualMean{CBasicStatistics::mean(model.s_ResidualMoments)};
-        double modelResidualVariance{CBasicStatistics::variance(model.s_ResidualMoments)};
+        double n{model.s_Regression.count()};
+        double bias{CBasicStatistics::mean(model.s_ResidualMoments)};
+        double variance{CBasicStatistics::variance(model.s_ResidualMoments)};
+        residualVariances[i] = CTools::pow2(bias) + variance;
         model.s_Regression.parameters(models[i], MAX_CONDITION);
-        model.s_Regression.covariances(modelResidualVariance, modelCovariances[i], MAX_CONDITION);
-        modelCovariances[i] /= std::max(model.s_Regression.count(), 1.0);
-        residualVariances[i] = CTools::pow2(modelResidualMean) + modelResidualVariance;
-        LOG_TRACE("params      = " << core::CContainerPrinter::print(models[i]));
-        LOG_TRACE("covariances = " << modelCovariances[i].toDelimited())
-        LOG_TRACE("variances   = " << residualVariances[i]);
+        model.s_Regression.covariances(n * CTools::pow2(bias) + variance,
+                                       modelCovariances[i], MAX_CONDITION);
+        LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
+        LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited())
+        LOG_TRACE(<< "variances   = " << residualVariances[i]);
     }
     LOG_TRACE(<< "long time variance = " << CBasicStatistics::variance(m_ValueMoments));
 

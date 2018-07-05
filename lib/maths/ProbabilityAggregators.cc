@@ -17,9 +17,10 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
+
+#include <cmath>
 
 namespace ml {
 namespace maths {
@@ -144,8 +145,8 @@ public:
         double result;
         CLogIntegrand f(m_P, m_Corrections, m_N, m_P.size(), 1u);
         CIntegration::logGaussLegendre<CIntegration::OrderThree>(f, 0, m_P[0], result);
-        result += boost::math::lgamma(static_cast<double>(m_N) + 1.0) -
-                  boost::math::lgamma(static_cast<double>(m_N - m_P.size()) + 1.0);
+        result += std::lgamma(static_cast<double>(m_N) + 1.0) -
+                  std::lgamma(static_cast<double>(m_N - m_P.size()) + 1.0);
         return result;
     }
 
@@ -496,7 +497,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
     try {
         double logx = std::log(x);
         double p = std::floor(s - 1.0);
-        double logPFactorial = boost::math::lgamma(p + 1.0);
+        double logPFactorial = std::lgamma(p + 1.0);
         double m = std::floor(std::min(x, p) + 0.5);
         double logm = std::log(m);
 
@@ -546,7 +547,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
 
         double logSum = logPFactorial - p * logx + std::max(b1, b2);
 
-        bound = (s - 1.0) * logx - x + logSum - boost::math::lgamma(s);
+        bound = (s - 1.0) * logx - x + logSum - std::lgamma(s);
 
         LOG_TRACE(<< "s = " << s << ", x = " << x << ", p = " << p
                   << ", m = " << m << ", b1 = " << b1 << ", b2 = " << b2
@@ -657,11 +658,11 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
             b1 = std::log(p + 1);
         }
 
-        double b2 = boost::math::lgamma(p + 1.0) - p * std::log(x) + x;
+        double b2 = std::lgamma(p + 1.0) - p * std::log(x) + x;
 
         double logSum = std::min(b1, b2);
 
-        bound = (s - 1.0) * std::log(x) - x + logSum - boost::math::lgamma(s);
+        bound = (s - 1.0) * std::log(x) - x + logSum - std::lgamma(s);
 
         LOG_TRACE(<< "s = " << s << ", x = " << x << ", b1 = " << b1 << ", b2 = " << b2
                   << ", log(sum) = " << logSum << ", bound = " << bound);
@@ -876,8 +877,8 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
 
     if (M > 1) {
         double logScale = static_cast<double>(M) * std::log(2.0) +
-                          boost::math::lgamma(static_cast<double>(N + 1)) -
-                          boost::math::lgamma(static_cast<double>(N - M + 1)) + logLargestCoeff;
+                          std::lgamma(static_cast<double>(N + 1)) -
+                          std::lgamma(static_cast<double>(N - M + 1)) + logLargestCoeff;
         LOG_TRACE(<< "log(scale) = " << logScale);
 
         double sum = 0.0;

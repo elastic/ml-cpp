@@ -13,6 +13,7 @@
 #include "CBootstrapClustererTest.h"
 #include "CBoundingBoxTest.h"
 #include "CCalendarComponentAdaptiveBucketingTest.h"
+#include "CCalendarCyclicTestTest.h"
 #include "CCalendarFeatureTest.h"
 #include "CCategoricalToolsTest.h"
 #include "CChecksumTest.h"
@@ -63,6 +64,7 @@
 #include "CQuantileSketchTest.h"
 #include "CRadialBasisFunctionTest.h"
 #include "CRandomProjectionClustererTest.h"
+#include "CRandomizedPeriodicityTestTest.h"
 #include "CRegressionTest.h"
 #include "CSamplingTest.h"
 #include "CSeasonalComponentAdaptiveBucketingTest.h"
@@ -78,7 +80,6 @@
 #include "CTimeSeriesModelTest.h"
 #include "CToolsTest.h"
 #include "CTrendComponentTest.h"
-#include "CTrendTestsTest.h"
 #include "CXMeansOnline1dTest.h"
 #include "CXMeansOnlineTest.h"
 #include "CXMeansTest.h"
@@ -93,8 +94,9 @@ int main(int argc, const char** argv) {
     runner.addTest(CBootstrapClustererTest::suite());
     runner.addTest(CBoundingBoxTest::suite());
     runner.addTest(CCategoricalToolsTest::suite());
-    runner.addTest(CCalendarFeatureTest::suite());
     runner.addTest(CCalendarComponentAdaptiveBucketingTest::suite());
+    runner.addTest(CCalendarCyclicTestTest::suite());
+    runner.addTest(CCalendarFeatureTest::suite());
     runner.addTest(CChecksumTest::suite());
     runner.addTest(CClustererTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
@@ -143,6 +145,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CQuantileSketchTest::suite());
     runner.addTest(CRadialBasisFunctionTest::suite());
     runner.addTest(CRandomProjectionClustererTest::suite());
+    runner.addTest(CRandomizedPeriodicityTestTest::suite());
     runner.addTest(CRegressionTest::suite());
     runner.addTest(CSamplingTest::suite());
     runner.addTest(CSeasonalComponentTest::suite());
@@ -158,7 +161,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CTimeSeriesModelTest::suite());
     runner.addTest(CToolsTest::suite());
     runner.addTest(CTrendComponentTest::suite());
-    runner.addTest(CTrendTestsTest::suite());
     runner.addTest(CXMeansTest::suite());
     runner.addTest(CXMeansOnlineTest::suite());
     runner.addTest(CXMeansOnline1dTest::suite());

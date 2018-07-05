@@ -680,6 +680,9 @@ public:
         return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
+    //! Linearly interpolate a function on the interval [\p a, \p b].
+    static double linearlyInterpolate(double a, double b, double fa, double fb, double x);
+
     //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
     //!
     //! \note It is assumed that p is integer.
@@ -695,7 +698,7 @@ public:
     static double logOneMinusX(double x);
 
     //! A wrapper around lgamma which handles corner cases if requested
-    static bool lgamma(double value, double& result, bool checkForFinite = false);
+    static bool lgamma(double value, double& result, bool checkForFinite = true);
 };
 }
 }
