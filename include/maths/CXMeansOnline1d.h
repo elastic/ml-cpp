@@ -33,12 +33,12 @@ namespace maths {
 //! \brief Encodes the distributions available to model the modes.
 class MATHS_EXPORT CAvailableModeDistributions {
 public:
-    static const std::int32_t NORMAL = 1;
-    static const std::int32_t GAMMA = 2;
-    static const std::int32_t LOG_NORMAL = 4;
-    static const std::int32_t ALL = NORMAL + GAMMA + LOG_NORMAL;
+    static const int NORMAL = 1;
+    static const int GAMMA = 2;
+    static const int LOG_NORMAL = 4;
+    static const int ALL = NORMAL + GAMMA + LOG_NORMAL;
 
-    CAvailableModeDistributions(std::int32_t value);
+    CAvailableModeDistributions(int value);
 
     //! Add the available distributions from \p rhs.
     const CAvailableModeDistributions& operator+(const CAvailableModeDistributions& rhs);
@@ -60,7 +60,7 @@ public:
 
 private:
     //! The encoding.
-    std::int32_t m_Value;
+    int m_Value;
 };
 
 //! \brief A single pass online clusterer based on the x-means

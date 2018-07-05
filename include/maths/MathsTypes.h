@@ -42,7 +42,7 @@ using TCalendarComponentVec = std::vector<maths::CCalendarComponent>;
 //!   -# ContinuousData: which indicates the takes real values.
 //!   -# MixedData: which indicates the data can be decomposed into
 //!      some combination of the other three data types.
-enum EDataType : std::int32_t {
+enum EDataType {
     E_DiscreteData,
     E_IntegerData,
     E_ContinuousData,
@@ -66,7 +66,7 @@ enum EDataType : std::int32_t {
 //!   -# WinsorisationWeight: only affects update where it basically
 //!      behaves like CountWeight except for the way it interacts
 //!      with clustering.
-enum ESampleWeightStyle : std::int32_t {
+enum ESampleWeightStyle {
     E_SampleCountWeight,
     E_SampleSeasonalVarianceScaleWeight,
     E_SampleCountVarianceScaleWeight,
@@ -393,7 +393,7 @@ bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& wei
 //! for the sample minimum or larger values for the sample maximum.
 //! Note that we normalize the one sided probabilities so they equal
 //! 1 at the distribution median.
-enum EProbabilityCalculation : std::int32_t {
+enum EProbabilityCalculation {
     E_OneSidedBelow,
     E_TwoSided,
     E_OneSidedAbove
@@ -404,7 +404,7 @@ enum EProbabilityCalculation : std::int32_t {
 //!   -# Equal: all clusters have equal weight.
 //!   -# Fraction: the weight of a cluster is proportional to the
 //!      number of points which have been assigned to the cluster.
-enum EClusterWeightCalc : std::int32_t {
+enum EClusterWeightCalc {
     E_ClustersEqualWeight,
     E_ClustersFractionWeight
 };
@@ -413,7 +413,7 @@ enum EClusterWeightCalc : std::int32_t {
 //! calculations. These provide finer grained information than
 //! a pass/fail boolean which can be used to take appropriate
 //! action in the calling context.
-enum EFloatingPointErrorStatus : std::int32_t {
+enum EFloatingPointErrorStatus {
     E_FpNoErrors = 0x0,
     E_FpOverflowed = 0x1,
     E_FpFailed = 0x2,
@@ -432,7 +432,7 @@ enum EFloatingPointErrorStatus : std::int32_t {
 //!   -# Mixed or neither is used to denote the case that some are
 //!      to left, some to the right and/or some are between the left
 //!      and rightmost modes.
-enum ETail : std::int32_t {
+enum ETail {
     E_UndeterminedTail = 0x0,
     E_LeftTail = 0x1,
     E_RightTail = 0x2,
