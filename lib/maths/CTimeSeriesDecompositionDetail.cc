@@ -46,6 +46,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -61,6 +62,7 @@ using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TTimeVec = std::vector<core_t::TTime>;
 using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
@@ -319,17 +321,17 @@ const std::string LAST_UPDATE_OLD_TAG{"j"};
 
 //////////////////////// Upgrade to Version 6.3 ////////////////////////
 
-const double MODEL_WEIGHT_UPGRADING_TO_VERSION_6p3{48.0};
+const double MODEL_WEIGHT_UPGRADING_TO_VERSION_6_3{48.0};
 
-bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
-                                   CTrendComponent& trend,
-                                   core::CStateRestoreTraverser& traverser) {
+bool upgradeTrendModelToVersion_6_3(const core_t::TTime bucketLength,
+                                    const core_t::TTime lastValueTime,
+                                    CTrendComponent& trend,
+                                    core::CStateRestoreTraverser& traverser) {
     using TRegression = CRegression::CLeastSquaresOnline<3, double>;
 
     TRegression regression;
     double variance{0.0};
     core_t::TTime origin{0};
-    core_t::TTime lastUpdate{0};
     do {
         const std::string& name{traverser.name()};
         RESTORE(REGRESSION_OLD_TAG,
@@ -337,16 +339,16 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
                     &TRegression::acceptRestoreTraverser, &regression, _1)))
         RESTORE_BUILT_IN(VARIANCE_OLD_TAG, variance)
         RESTORE_BUILT_IN(TIME_ORIGIN_OLD_TAG, origin)
-        RESTORE_BUILT_IN(LAST_UPDATE_OLD_TAG, lastUpdate)
     } while (traverser.next());
 
     // Generate some samples from the old trend model.
 
-    double weight{MODEL_WEIGHT_UPGRADING_TO_VERSION_6p3 *
+    double weight{MODEL_WEIGHT_UPGRADING_TO_VERSION_6_3 *
                   static_cast<double>(bucketLength) / static_cast<double>(4 * WEEK)};
 
     CPRNG::CXorOShiro128Plus rng;
-    for (core_t::TTime time = lastUpdate - 4 * WEEK; time < lastUpdate; time += bucketLength) {
+    for (core_t::TTime time = lastValueTime - 4 * WEEK; time < lastValueTime;
+         time += bucketLength) {
         double time_{static_cast<double>(time - origin) / static_cast<double>(WEEK)};
         double sample{regression.predict(time_) + CSampling::normalSample(rng, 0.0, variance)};
         trend.add(time, sample, weight);
@@ -354,6 +356,18 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
 
     return true;
 }
+
+// This implements the mapping from restored states to their best
+// equivalents; specifically:
+// SC_NEW_COMPONENTS |-> SC_NEW_COMPONENTS
+// SC_NORMAL |-> SC_NORMAL
+// SC_FORECASTING |-> SC_NORMAL
+// SC_DISABLED |-> SC_DISABLED
+// SC_ERROR |-> SC_ERROR
+// Note that we don't try and restore the periodicity test state
+// (see CTimeSeriesDecomposition::acceptRestoreTraverser) and the
+// calendar test state is unchanged.
+const TSizeSizeMap SC_STATES_UPGRADING_TO_VERSION_6_3{{0, 0}, {1, 1}, {2, 1}, {3, 2}, {4, 3}};
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -490,8 +504,9 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptRestoreTraverser(
     do {
         const std::string& name{traverser.name()};
         RESTORE(PERIODICITY_TEST_MACHINE_6_3_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &core::CStateMachine::acceptRestoreTraverser, &m_Machine, _1)))
+                traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                    return m_Machine.acceptRestoreTraverser(traverser_);
+                }))
         RESTORE_SETUP_TEARDOWN(
             SHORT_WINDOW_6_3_TAG, m_Windows[E_Short].reset(this->newWindow(E_Short)),
             m_Windows[E_Short] && traverser.traverseSubLevel(boost::bind(
@@ -792,8 +807,9 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
     do {
         const std::string& name{traverser.name()};
         RESTORE(CALENDAR_TEST_MACHINE_6_3_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &core::CStateMachine::acceptRestoreTraverser, &m_Machine, _1)))
+                traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                    return m_Machine.acceptRestoreTraverser(traverser_);
+                }))
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth);
         RESTORE_SETUP_TEARDOWN(
             CALENDAR_TEST_6_3_TAG,
@@ -994,13 +1010,15 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
 
 bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
     const SDistributionRestoreParams& params,
+    core_t::TTime lastValueTime,
     core::CStateRestoreTraverser& traverser) {
     if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE(COMPONENTS_MACHINE_6_3_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &core::CStateMachine::acceptRestoreTraverser, &m_Machine, _1)));
+                    traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                        return m_Machine.acceptRestoreTraverser(traverser_);
+                    }))
             RESTORE_BUILT_IN(DECAY_RATE_6_3_TAG, m_DecayRate);
             RESTORE(GAIN_CONTROLLER_6_3_TAG,
                     traverser.traverseSubLevel(boost::bind(&CGainController::acceptRestoreTraverser,
@@ -1035,13 +1053,15 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
         do {
             const std::string& name{traverser.name()};
             RESTORE(COMPONENTS_MACHINE_OLD_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &core::CStateMachine::acceptRestoreTraverser, &m_Machine, _1)));
+                    traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                        return m_Machine.acceptRestoreTraverser(
+                            traverser_, SC_STATES_UPGRADING_TO_VERSION_6_3);
+                    }))
             RESTORE_SETUP_TEARDOWN(TREND_OLD_TAG,
                                    /**/,
                                    traverser.traverseSubLevel(boost::bind(
-                                       upgradeTrendModelToVersion6p3,
-                                       m_BucketLength, boost::ref(m_Trend), _1)),
+                                       upgradeTrendModelToVersion_6_3, m_BucketLength,
+                                       lastValueTime, boost::ref(m_Trend), _1)),
                                    m_UsingTrendForPrediction = true)
             RESTORE_SETUP_TEARDOWN(
                 SEASONAL_OLD_TAG, m_Seasonal = boost::make_unique<CSeasonal>(),
@@ -1057,7 +1077,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                 /**/)
         } while (traverser.next());
 
-        m_MeanVarianceScale.add(1.0, MODEL_WEIGHT_UPGRADING_TO_VERSION_6p3);
+        m_MeanVarianceScale.add(1.0, MODEL_WEIGHT_UPGRADING_TO_VERSION_6_3);
     }
     return true;
 }
@@ -1748,7 +1768,7 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
                     windowSlopes[component.time().window()] += si;
                 } else {
                     slope += si;
-                    component.shiftSlope(-si);
+                    component.shiftSlope(time, -si);
                 }
             }
         }
@@ -1761,12 +1781,12 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
 
         for (auto& component : seasonal) {
             if (component.slopeAccurate(time) && component.time().windowed()) {
-                component.shiftSlope(-windowedSlope.signMargin());
+                component.shiftSlope(time, -windowedSlope.signMargin());
             }
         }
 
         if (slope != 0.0) {
-            m_Trend.shiftSlope(m_DecayRate, slope);
+            m_Trend.shiftSlope(time, slope);
         }
     }
 }
@@ -1951,6 +1971,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptRestoreTraver
             RESTORE_NO_ERROR(COMPONENT_6_3_TAG,
                              m_Components.emplace_back(decayRate, bucketLength, traverser))
         }
+        m_PredictionErrors.resize(m_Components.size());
     } else {
         // There is no version string this is historic state.
         do {
@@ -1958,6 +1979,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::acceptRestoreTraver
             RESTORE_NO_ERROR(COMPONENT_OLD_TAG,
                              m_Components.emplace_back(decayRate, bucketLength, traverser))
         } while (traverser.next());
+        m_PredictionErrors.resize(m_Components.size());
     }
     return true;
 }
@@ -2253,6 +2275,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::acceptRestoreTraver
             RESTORE_NO_ERROR(COMPONENT_6_3_TAG,
                              m_Components.emplace_back(decayRate, bucketLength, traverser))
         }
+        m_PredictionErrors.resize(m_Components.size());
     } else {
         // There is no version string this is historic state.
         do {
@@ -2260,6 +2283,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::acceptRestoreTraver
             RESTORE_NO_ERROR(COMPONENT_OLD_TAG,
                              m_Components.emplace_back(decayRate, bucketLength, traverser))
         } while (traverser.next());
+        m_PredictionErrors.resize(m_Components.size());
     }
     return true;
 }

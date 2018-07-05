@@ -30,7 +30,6 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
@@ -487,49 +486,51 @@ private:
 private:
     //! Compute all the constants in the integrand.
     void precompute() {
-        try {
-            double logVarianceScaleSum = 0.0;
+        double logVarianceScaleSum = 0.0;
 
-            if (maths_t::hasSeasonalVarianceScale(m_Weights) ||
-                maths_t::hasCountVarianceScale(m_Weights)) {
-                m_Scales.reserve(m_Weights.size());
-                double r = m_Rate / m_Shape;
-                double s = std::exp(-r);
-                for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
-                    double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
-                                           maths_t::countVarianceScale(m_Weights[i]);
+        if (maths_t::hasSeasonalVarianceScale(m_Weights) ||
+            maths_t::hasCountVarianceScale(m_Weights)) {
+            m_Scales.reserve(m_Weights.size());
+            double r = m_Rate / m_Shape;
+            double s = std::exp(-r);
+            for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+                double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
+                                       maths_t::countVarianceScale(m_Weights[i]);
 
-                    // Get the scale and shift of the exponentiated Gaussian.
-                    if (varianceScale == 1.0) {
-                        m_Scales.emplace_back(1.0, 0.0);
-                    } else {
-                        double t = r + std::log(s + varianceScale * (1.0 - s));
-                        m_Scales.emplace_back(t / r, 0.5 * (r - t));
-                        logVarianceScaleSum += std::log(t / r);
-                    }
+                // Get the scale and shift of the exponentiated Gaussian.
+                if (varianceScale == 1.0) {
+                    m_Scales.emplace_back(1.0, 0.0);
+                } else {
+                    double t = r + std::log(s + varianceScale * (1.0 - s));
+                    m_Scales.emplace_back(t / r, 0.5 * (r - t));
+                    logVarianceScaleSum += std::log(t / r);
                 }
             }
+        }
 
-            m_NumberSamples = 0.0;
-            double weightedNumberSamples = 0.0;
+        m_NumberSamples = 0.0;
+        double weightedNumberSamples = 0.0;
 
-            for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
-                double n = maths_t::countForUpdate(m_Weights[i]);
-                m_NumberSamples += n;
-                weightedNumberSamples +=
-                    n / (m_Scales.empty() ? 1.0 : m_Scales[i].first);
-            }
+        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+            double n = maths_t::countForUpdate(m_Weights[i]);
+            m_NumberSamples += n;
+            weightedNumberSamples += n / (m_Scales.empty() ? 1.0 : m_Scales[i].first);
+        }
 
-            double impliedShape = m_Shape + 0.5 * m_NumberSamples;
-            double impliedPrecision = m_Precision + weightedNumberSamples;
+        double impliedShape = m_Shape + 0.5 * m_NumberSamples;
+        double impliedPrecision = m_Precision + weightedNumberSamples;
 
-            m_Constant = 0.5 * (std::log(m_Precision) - std::log(impliedPrecision)) -
-                         0.5 * m_NumberSamples * LOG_2_PI - 0.5 * logVarianceScaleSum +
-                         boost::math::lgamma(impliedShape) -
-                         boost::math::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
+        m_Constant = 0.5 * (std::log(m_Precision) - std::log(impliedPrecision)) -
+                     0.5 * m_NumberSamples * LOG_2_PI -
+                     0.5 * logVarianceScaleSum + std::lgamma(impliedShape) -
+                     std::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
+
+        if (std::isnan(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point nan");
             this->addErrorStatus(maths_t::E_FpFailed);
+        } else if (std::isinf(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point overflow");
+            this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
 
@@ -1219,7 +1220,7 @@ void CLogNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSam
             double z = (xq - m_GaussianMean - scale * scale) / scale /
                        boost::math::double_constants::root_two;
 
-            double partialExpectation = mean * (1.0 + boost::math::erf(z)) / 2.0;
+            double partialExpectation = mean * (1.0 + std::erf(z)) / 2.0;
 
             double sample = static_cast<double>(numberSamples) *
                                 (partialExpectation - lastPartialExpectation) -

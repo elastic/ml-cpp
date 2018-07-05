@@ -356,40 +356,41 @@ private:
         TMeanVarAccumulator sampleMoments;
         double logVarianceScaleSum = 0.0;
 
-        try {
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double n = maths_t::countForUpdate(weights[i]);
-                double seasonalScale =
-                    std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
-                double countVarianceScale = maths_t::countVarianceScale(weights[i]);
-                double w = 1.0 / countVarianceScale;
-                m_NumberSamples += n;
-                if (seasonalScale != 1.0) {
-                    sampleMoments.add(predictionMean + (samples[i] - predictionMean) / seasonalScale,
-                                      n * w);
-                    logVarianceScaleSum += 2.0 * std::log(seasonalScale);
-                } else {
-                    sampleMoments.add(samples[i], n * w);
-                }
-                if (countVarianceScale != 1.0) {
-                    logVarianceScaleSum += std::log(countVarianceScale);
-                }
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double n = maths_t::countForUpdate(weights[i]);
+            double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
+            double countVarianceScale = maths_t::countVarianceScale(weights[i]);
+            double w = 1.0 / countVarianceScale;
+            m_NumberSamples += n;
+            if (seasonalScale != 1.0) {
+                sampleMoments.add(predictionMean + (samples[i] - predictionMean) / seasonalScale,
+                                  n * w);
+                logVarianceScaleSum += 2.0 * std::log(seasonalScale);
+            } else {
+                sampleMoments.add(samples[i], n * w);
             }
-            m_WeightedNumberSamples = CBasicStatistics::count(sampleMoments);
-            m_SampleMean = CBasicStatistics::mean(sampleMoments);
-            m_SampleSquareDeviation = (m_WeightedNumberSamples - 1.0) *
-                                      CBasicStatistics::variance(sampleMoments);
+            if (countVarianceScale != 1.0) {
+                logVarianceScaleSum += std::log(countVarianceScale);
+            }
+        }
+        m_WeightedNumberSamples = CBasicStatistics::count(sampleMoments);
+        m_SampleMean = CBasicStatistics::mean(sampleMoments);
+        m_SampleSquareDeviation = (m_WeightedNumberSamples - 1.0) *
+                                  CBasicStatistics::variance(sampleMoments);
 
-            double impliedShape = m_Shape + 0.5 * m_NumberSamples;
-            double impliedPrecision = m_Precision + m_WeightedNumberSamples;
+        double impliedShape = m_Shape + 0.5 * m_NumberSamples;
+        double impliedPrecision = m_Precision + m_WeightedNumberSamples;
 
-            m_Constant = 0.5 * (std::log(m_Precision) - std::log(impliedPrecision)) -
-                         0.5 * m_NumberSamples * LOG_2_PI - 0.5 * logVarianceScaleSum +
-                         boost::math::lgamma(impliedShape) -
-                         boost::math::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Error calculating marginal likelihood: " << e.what());
+        m_Constant = 0.5 * (std::log(m_Precision) - std::log(impliedPrecision)) -
+                     0.5 * m_NumberSamples * LOG_2_PI -
+                     0.5 * logVarianceScaleSum + std::lgamma(impliedShape) -
+                     std::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
+        if (std::isnan(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point nan");
             this->addErrorStatus(maths_t::E_FpFailed);
+        } else if (std::isinf(m_Constant)) {
+            LOG_ERROR(<< "Error calculating marginal likelihood, floating point overflow");
+            this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
 

@@ -39,8 +39,8 @@ struct SDistributionRestoreParams;
 //! scale. It also allows us to accurately estimate confidence intervals
 //! (since these can be estimated from the variation of observed values
 //! we see w.r.t. the predictions from the next longer time scale component).
-//! This produces plausible looking and this sort of mean reversion is common
-//! in many real world time series.
+//! This produces plausible looking forecasts and this sort of mean reversion
+//! is common in many real world time series.
 class MATHS_EXPORT CTrendComponent {
 public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
@@ -79,9 +79,9 @@ public:
     //! Shift the regression models' time origins to \p time.
     void shiftOrigin(core_t::TTime time);
 
-    //! Shift the slope of all regression models' whose decay rate is
-    //! greater than \p decayRate.
-    void shiftSlope(double decayRate, double shift);
+    //! Shift the slope of the regression models' keeping the prediction
+    //! at \p time fixed.
+    void shiftSlope(core_t::TTime time, double shift);
 
     //! Apply a level shift of \p value at \p time and \p value.
     void shiftLevel(core_t::TTime time, double value, double shift);

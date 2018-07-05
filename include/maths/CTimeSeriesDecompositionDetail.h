@@ -12,13 +12,13 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CCalendarComponent.h>
+#include <maths/CCalendarCyclicTest.h>
 #include <maths/CExpandingWindow.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/CTrendComponent.h>
-#include <maths/CTrendTests.h>
 #include <maths/ImportExport.h>
 
 #include <boost/ref.hpp>
@@ -374,6 +374,7 @@ public:
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core_t::TTime lastValueTime,
                                     core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.

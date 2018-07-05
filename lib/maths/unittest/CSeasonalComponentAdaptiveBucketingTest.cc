@@ -656,7 +656,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
     LOG_DEBUG(<< "slope = " << slopeBefore);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, slopeBefore, 0.25);
 
-    bucketing.shiftSlope(10.0);
+    bucketing.shiftSlope(t, 10.0);
 
     double slopeAfter = bucketing.slope();
 
