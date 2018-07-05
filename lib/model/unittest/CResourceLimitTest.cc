@@ -502,7 +502,7 @@ void CResourceLimitTest::testLargeAllocations() {
         LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
         LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-        CPPUNIT_ASSERT(model.getNewPeople() > 2400 && model.getNewPeople() < 2600);
+        CPPUNIT_ASSERT(model.getNewPeople() > 2600 && model.getNewPeople() < 3000);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
         CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
 

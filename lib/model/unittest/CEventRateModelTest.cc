@@ -768,7 +768,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
         LOG_TRACE(<< "origXml = " << origXml);
         LOG_DEBUG(<< "origXml size = " << origXml.size());
-        CPPUNIT_ASSERT(origXml.size() < 180000);
+        CPPUNIT_ASSERT(origXml.size() < 195000);
 
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
