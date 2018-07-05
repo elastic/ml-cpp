@@ -33,12 +33,12 @@ namespace maths {
 //! \brief Encodes the distributions available to model the modes.
 class MATHS_EXPORT CAvailableModeDistributions {
 public:
-    static const int NORMAL = 1;
-    static const int GAMMA = 2;
-    static const int LOG_NORMAL = 4;
-    static const int ALL = NORMAL + GAMMA + LOG_NORMAL;
+    static const std::int32_t NORMAL = 1;
+    static const std::int32_t GAMMA = 2;
+    static const std::int32_t LOG_NORMAL = 4;
+    static const std::int32_t ALL = NORMAL + GAMMA + LOG_NORMAL;
 
-    CAvailableModeDistributions(int value);
+    CAvailableModeDistributions(std::int32_t value);
 
     //! Add the available distributions from \p rhs.
     const CAvailableModeDistributions& operator+(const CAvailableModeDistributions& rhs);
@@ -60,7 +60,7 @@ public:
 
 private:
     //! The encoding.
-    int m_Value;
+    std::int32_t m_Value;
 };
 
 //! \brief A single pass online clusterer based on the x-means
@@ -427,6 +427,9 @@ private:
     //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
     maths_t::EClusterWeightCalc m_WeightCalc;
 
+    //! The distributions available to model the clusters.
+    CAvailableModeDistributions m_AvailableDistributions;
+
     //! The initial rate at which information is lost.
     CFloatStorage m_InitialDecayRate;
 
@@ -447,9 +450,6 @@ private:
 
     //! The data central confidence interval on which to Winsorise.
     CFloatStorage m_WinsorisationConfidenceInterval;
-
-    //! The distributions available to model the clusters.
-    CAvailableModeDistributions m_AvailableDistributions;
 
     //! A generator of unique cluster indices.
     CIndexGenerator m_ClusterIndexGenerator;
