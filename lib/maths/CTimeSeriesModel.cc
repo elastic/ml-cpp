@@ -142,9 +142,11 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities) {
     return probabilities[0];
 }
 
+const std::string VERSION_6_3_TAG("6.3");
+const std::string VERSION_6_4_TAG("6.4");
+
 // Models
 // Version 6.3
-const std::string VERSION_6_3_TAG("6.3");
 const std::string ID_6_3_TAG{"a"};
 const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
 const std::string IS_FORECASTABLE_6_3_TAG{"c"};
@@ -170,8 +172,11 @@ const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
 const std::string IS_FORECASTABLE_OLD_TAG{"h"};
 
 // Anomaly model
-const std::string ANOMALIES_TAG{"b"};
-const std::string ANOMALY_FEATURE_MODEL_TAG{"d"};
+// Version 6.4
+const std::string ANOMALIES_6_4_TAG{"b"};
+const std::string ANOMALY_FEATURE_MODEL_6_4_TAG{"d"};
+// Version < 6.4
+// Discarded on state upgrade because features have changed.
 // Anomaly model nested
 const std::string TAG_TAG{"a"};
 const std::string OPEN_TIME_TAG{"b"};
@@ -595,25 +600,29 @@ std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                      core::CStateRestoreTraverser& traverser) {
     m_BucketLength = boost::unwrap_ref(params.s_Params).bucketLength();
-    std::size_t index{0};
-    do {
-        const std::string& name{traverser.name()};
-        RESTORE(ANOMALIES_TAG,
-                core::CPersistUtils::restore(ANOMALIES_TAG, m_Anomalies, traverser));
-        RESTORE(ANOMALY_FEATURE_MODEL_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&TMultivariateNormalConjugate::acceptRestoreTraverser,
-                                &m_AnomalyFeatureModels[index++], _1)))
-    } while (traverser.next());
+    // We can't upgrade the state of the anomaly model.
+    if (traverser.name() == VERSION_6_4_TAG) {
+        std::size_t index{0};
+        while (traverser.next()) {
+            const std::string& name{traverser.name()};
+            RESTORE(ANOMALIES_6_4_TAG,
+                    core::CPersistUtils::restore(ANOMALIES_6_4_TAG, m_Anomalies, traverser));
+            RESTORE(ANOMALY_FEATURE_MODEL_6_4_TAG,
+                    traverser.traverseSubLevel(
+                        boost::bind(&TMultivariateNormalConjugate::acceptRestoreTraverser,
+                                    &m_AnomalyFeatureModels[index++], _1)))
+        }
+    }
     return true;
 }
 
 void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(ANOMALIES_TAG, m_Anomalies, inserter);
-    inserter.insertLevel(ANOMALY_FEATURE_MODEL_TAG,
+    inserter.insertValue(VERSION_6_4_TAG, "");
+    core::CPersistUtils::persist(ANOMALIES_6_4_TAG, m_Anomalies, inserter);
+    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_4_TAG,
                          boost::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
                                      &m_AnomalyFeatureModels[0], _1));
-    inserter.insertLevel(ANOMALY_FEATURE_MODEL_TAG,
+    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_4_TAG,
                          boost::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
                                      &m_AnomalyFeatureModels[1], _1));
 }
