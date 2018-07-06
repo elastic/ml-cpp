@@ -395,7 +395,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         CPPUNIT_ASSERT(used.s_ByFields > 450 && used.s_ByFields < 550);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
+                                     memoryLimit * 1024 * 1024 / 33); // Within 6%.
     }
 
     LOG_DEBUG(<< "**** Test partition ****");

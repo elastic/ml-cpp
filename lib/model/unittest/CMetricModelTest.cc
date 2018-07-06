@@ -1218,7 +1218,7 @@ void CMetricModelTest::testInfluence() {
             {core::make_triple(std::string{"i1"}, 0.9, 1.0),
              core::make_triple(std::string{"i2"}, 0.9, 1.0)},
             {},
-            {core::make_triple(std::string{"i1"}, 1.0, 1.0)},
+            {core::make_triple(std::string{"i1"}, 0.9, 1.0)},
             {},
             {core::make_triple(std::string{"i2"}, 1.0, 1.0)}};
         testFeature(model_t::E_IndividualSumByBucketAndPerson, values, influencers, influences);

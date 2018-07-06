@@ -729,12 +729,12 @@ bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
-        RESTORE_BUILT_IN(OFFSET_TAG, m_Offset)
+        RESTORE(OFFSET_TAG, m_Offset.fromString(traverser.value()))
         RESTORE_BUILT_IN(LIKELIHOOD_SHAPE_TAG, m_LikelihoodShape)
         RESTORE(LOG_SAMPLES_MEAN_TAG, m_LogSamplesMean.fromDelimited(traverser.value()))
         RESTORE(SAMPLE_MOMENTS_TAG, m_SampleMoments.fromDelimited(traverser.value()))
-        RESTORE_BUILT_IN(PRIOR_SHAPE_TAG, m_PriorShape)
-        RESTORE_BUILT_IN(PRIOR_RATE_TAG, m_PriorRate)
+        RESTORE(PRIOR_SHAPE_TAG, m_PriorShape.fromString(traverser.value()))
+        RESTORE(PRIOR_RATE_TAG, m_PriorRate.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
                                this->numberSamples(numberSamples))
@@ -1516,13 +1516,13 @@ std::size_t CGammaRateConjugate::staticSize() const {
 
 void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(OFFSET_TAG, m_Offset, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
     inserter.insertValue(LIKELIHOOD_SHAPE_TAG, m_LikelihoodShape,
-                         core::CIEEE754::E_SinglePrecision);
+                         core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(LOG_SAMPLES_MEAN_TAG, m_LogSamplesMean.toDelimited());
     inserter.insertValue(SAMPLE_MOMENTS_TAG, m_SampleMoments.toDelimited());
-    inserter.insertValue(PRIOR_SHAPE_TAG, m_PriorShape, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(PRIOR_RATE_TAG, m_PriorRate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(PRIOR_SHAPE_TAG, m_PriorShape.toString());
+    inserter.insertValue(PRIOR_RATE_TAG, m_PriorRate.toString());
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }

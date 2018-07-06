@@ -42,7 +42,12 @@ using TCalendarComponentVec = std::vector<maths::CCalendarComponent>;
 //!   -# ContinuousData: which indicates the takes real values.
 //!   -# MixedData: which indicates the data can be decomposed into
 //!      some combination of the other three data types.
-enum EDataType { E_DiscreteData, E_IntegerData, E_ContinuousData, E_MixedData };
+enum EDataType {
+    E_DiscreteData,
+    E_IntegerData,
+    E_ContinuousData,
+    E_MixedData
+};
 
 //! An enumeration of the types of weight which can be applied
 //! when adding samples, calculating marginal likelihood or
@@ -388,14 +393,21 @@ bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& wei
 //! for the sample minimum or larger values for the sample maximum.
 //! Note that we normalize the one sided probabilities so they equal
 //! 1 at the distribution median.
-enum EProbabilityCalculation { E_OneSidedBelow, E_TwoSided, E_OneSidedAbove };
+enum EProbabilityCalculation {
+    E_OneSidedBelow,
+    E_TwoSided,
+    E_OneSidedAbove
+};
 
 //! This controls the calculation of the cluster probabilities.
 //! There are two styles available:
 //!   -# Equal: all clusters have equal weight.
 //!   -# Fraction: the weight of a cluster is proportional to the
 //!      number of points which have been assigned to the cluster.
-enum EClusterWeightCalc { E_ClustersEqualWeight, E_ClustersFractionWeight };
+enum EClusterWeightCalc {
+    E_ClustersEqualWeight,
+    E_ClustersFractionWeight
+};
 
 //! A set of statuses which track the result of a floating point
 //! calculations. These provide finer grained information than
