@@ -135,7 +135,7 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
 CNaiveBayes::CNaiveBayes(const CNaiveBayes& other)
     : m_MinMaxLogLikelihoodToUseFeature{other.m_MinMaxLogLikelihoodToUseFeature},
       m_DecayRate{other.m_DecayRate}, m_Exemplar{other.m_Exemplar->clone()} {
-    for (const auto& class_ : m_ClassConditionalDensities) {
+    for (const auto& class_ : other.m_ClassConditionalDensities) {
         m_ClassConditionalDensities.emplace(class_.first, class_.second);
     }
 }

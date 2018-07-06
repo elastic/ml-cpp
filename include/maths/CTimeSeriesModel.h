@@ -287,9 +287,9 @@ private:
     //! The last "normal" time and median value.
     TTimeDoublePr m_CandidateChangePoint;
 
-    //! If the time series appears to be undergoing change, the contiguous
-    //! interval of unpredictable values.
-    core_t::TTime m_CurrentChangeInterval;
+    //! The sum of the log p-values of a current period of unpredictable
+    //! values.
+    double m_PossibleChangeCumulativeLogPValue;
 
     //! Used to test for changes in the time series.
     TChangeDetectorPtr m_ChangeDetector;

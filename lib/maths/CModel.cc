@@ -99,15 +99,11 @@ double CModelParams::minimumSeasonalVarianceScale() const {
     return m_MinimumSeasonalVarianceScale;
 }
 
-bool CModelParams::testForChange(core_t::TTime changeInterval) const {
-    return changeInterval >= std::max(3 * m_BucketLength, core::constants::HOUR);
-}
-
-core_t::TTime CModelParams::minimumTimeToDetectChange(void) const {
+core_t::TTime CModelParams::minimumTimeToDetectChange() const {
     return m_MinimumTimeToDetectChange;
 }
 
-core_t::TTime CModelParams::maximumTimeToTestForChange(void) const {
+core_t::TTime CModelParams::maximumTimeToTestForChange() const {
     return m_MaximumTimeToTestForChange;
 }
 

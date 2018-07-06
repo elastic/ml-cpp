@@ -65,14 +65,11 @@ public:
     //! Get the minimum seasonal variance scale.
     double minimumSeasonalVarianceScale() const;
 
-    //! Check if we should start testing for a change point in the model.
-    bool testForChange(core_t::TTime changeInterval) const;
-
     //! Get the minimum time to detect a change point in the model.
-    core_t::TTime minimumTimeToDetectChange(void) const;
+    core_t::TTime minimumTimeToDetectChange() const;
 
     //! Get the maximum time to test for a change point in the model.
-    core_t::TTime maximumTimeToTestForChange(void) const;
+    core_t::TTime maximumTimeToTestForChange() const;
 
     //! Set the probability that the bucket will be empty for the model.
     void probabilityBucketEmpty(double probability);
