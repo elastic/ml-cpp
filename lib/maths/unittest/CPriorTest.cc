@@ -96,7 +96,7 @@ void CPriorTest::testExpectation() {
         CPPUNIT_ASSERT(prior.expectation(CX(), n, mean));
         LOG_DEBUG(<< "n = " << n << ", mean = " << mean
                   << ", error = " << std::fabs(mean - trueMean));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(trueMean, mean, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(trueMean, mean, 1e-7);
     }
 
     double varianceErrors[] = {1.4,    0.1,    0.05,   0.01,  0.005,

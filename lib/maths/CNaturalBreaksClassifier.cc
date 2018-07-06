@@ -78,7 +78,7 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
+        RESTORE(DECAY_RATE_TAG, m_DecayRate.fromString(traverser.value()))
         RESTORE_BUILT_IN(SPACE_TAG, m_Space)
         RESTORE(CATEGORY_TAG, core::CPersistUtils::restore(CATEGORY_TAG, m_Categories, traverser))
         RESTORE(POINTS_TAG, core::CPersistUtils::fromString(traverser.value(), m_PointsBuffer))
@@ -88,7 +88,7 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
 }
 
 void CNaturalBreaksClassifier::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(DECAY_RATE_TAG, m_DecayRate);
+    inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
     inserter.insertValue(SPACE_TAG, m_Space);
     core::CPersistUtils::persist(CATEGORY_TAG, m_Categories, inserter);
     inserter.insertValue(POINTS_TAG, core::CPersistUtils::toString(m_PointsBuffer));

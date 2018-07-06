@@ -390,22 +390,22 @@ private:
     //! We assume that the data are described by \f$X = e^Y - u\f$, where
     //! \f$u\f$ is a constant and \f$Y\f$ is normally distributed. This
     //! allows us to model data with negative values greater than \f$-u\f$.
-    double m_Offset;
+    CFloatStorage m_Offset;
 
     //! The margin between the smallest value and the support left end.
-    double m_OffsetMargin;
+    CFloatStorage m_OffsetMargin;
 
     //! The mean of the prior conditional distribution for the mean of the
     //! exponentiated normal (conditioned on its precision).
-    double m_GaussianMean;
+    CFloatStorage m_GaussianMean;
 
     //! The precision of the prior conditional distribution for the mean
     //! of the exponentiated normal (conditioned on its precision).
-    double m_GaussianPrecision;
+    CFloatStorage m_GaussianPrecision;
 
     //! The shape of the marginal gamma distribution for the precision of the
     //! exponentiated normal.
-    double m_GammaShape;
+    CFloatStorage m_GammaShape;
 
     //! The rate of the marginal gamma distribution for the precision of the
     //! exponentiated normal.

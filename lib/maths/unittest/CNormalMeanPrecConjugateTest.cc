@@ -78,7 +78,7 @@ void CNormalMeanPrecConjugateTest::testMultipleUpdate() {
         LOG_DEBUG(<< filter1.print());
         LOG_DEBUG(<< "vs");
         LOG_DEBUG(<< filter2.print());
-        TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
+        TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-4);
         CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
     }
 
@@ -124,7 +124,7 @@ void CNormalMeanPrecConjugateTest::testPropagation() {
     // Test that propagation doesn't affect the expected values
     // of likelihood mean and precision.
 
-    const double eps = 1e-12;
+    const double eps = 1e-7;
 
     test::CRandomNumbers rng;
 
