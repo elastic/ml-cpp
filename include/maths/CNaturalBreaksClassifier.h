@@ -98,8 +98,8 @@ class MATHS_EXPORT CNaturalBreaksClassifier {
 public:
     using TSizeVec = std::vector<std::size_t>;
     using TDoubleVec = std::vector<double>;
-    using TDoubleDoublePr = std::pair<double, double>;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
+    using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
     using TDoubleTuple = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TDoubleTupleVec = std::vector<TDoubleTuple>;
     using TTuple = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
@@ -271,16 +271,6 @@ private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
 private:
-    //! Implementation called by naturalBreaks with explicit
-    //! tuple types.
-    template<typename TUPLE>
-    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories,
-                                  std::size_t n,
-                                  std::size_t p,
-                                  EObjective target,
-                                  TSizeVec& result);
-
-private:
     //! The minimum permitted size for the classifier.
     static const std::size_t MINIMUM_SPACE;
 
@@ -294,6 +284,15 @@ private:
                              double decayRate,
                              double minimumCategoryCount,
                              TTupleVec& categories);
+
+    //! Implementation called by naturalBreaks with explicit
+    //! tuple types.
+    template<typename TUPLE>
+    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories,
+                                  std::size_t n,
+                                  std::size_t p,
+                                  EObjective target,
+                                  TSizeVec& result);
 
     //! Reduce the number of tuples until we satisfy the space constraint.
     void reduce();
@@ -323,16 +322,16 @@ private:
     std::size_t m_Space;
 
     //! The rate at which the categories lose information.
-    double m_DecayRate;
+    CFloatStorage m_DecayRate;
 
     //! The minimum permitted count for a category.
-    double m_MinimumCategoryCount;
+    CFloatStorage m_MinimumCategoryCount;
 
     //! The categories we are maintaining.
     TTupleVec m_Categories;
 
     //! A buffer of the points added while the space constraint is satisfied.
-    TDoubleDoublePrVec m_PointsBuffer;
+    TFloatFloatPrVec m_PointsBuffer;
 };
 }
 }

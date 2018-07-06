@@ -169,7 +169,7 @@ void COneOfNPriorTest::testMultipleUpdate() {
     LOG_DEBUG(<< filter1.print());
     LOG_DEBUG(<< "vs");
     LOG_DEBUG(<< filter2.print());
-    TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-6);
+    TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-3);
 
     TDoubleVec weights1 = filter1.weights();
     TDoubleVec weights2 = filter2.weights();

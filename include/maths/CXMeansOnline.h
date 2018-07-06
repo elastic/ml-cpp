@@ -588,8 +588,8 @@ public:
                   const CClustererTypes::TSplitFunc& splitFunc = CClustererTypes::CDoNothing(),
                   const CClustererTypes::TMergeFunc& mergeFunc = CClustererTypes::CDoNothing())
         : CClusterer<TPoint>(splitFunc, mergeFunc), m_DataType(dataType),
-          m_InitialDecayRate(decayRate), m_DecayRate(decayRate),
-          m_HistoryLength(0.0), m_WeightCalc(weightCalc),
+          m_WeightCalc(weightCalc), m_InitialDecayRate(decayRate),
+          m_DecayRate(decayRate), m_HistoryLength(0.0),
           m_MinimumClusterFraction(minimumClusterFraction),
           m_MinimumClusterCount(minimumClusterCount),
           m_MinimumCategoryCount(minimumCategoryCount),
@@ -598,10 +598,9 @@ public:
     //! Construct by traversing a state document.
     CXMeansOnline(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser)
         : CClusterer<TPoint>(CClustererTypes::CDoNothing(), CClustererTypes::CDoNothing()),
-          m_DataType(params.s_DataType), m_InitialDecayRate(params.s_DecayRate),
-          m_DecayRate(params.s_DecayRate), m_HistoryLength(),
-          m_WeightCalc(maths_t::E_ClustersEqualWeight),
-          m_MinimumClusterFraction(), m_MinimumClusterCount(),
+          m_DataType(params.s_DataType), m_WeightCalc(maths_t::E_ClustersEqualWeight),
+          m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
+          m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
         traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
                                                this, boost::cref(params), _1));
@@ -613,9 +612,9 @@ public:
                   const CClustererTypes::TMergeFunc& mergeFunc,
                   core::CStateRestoreTraverser& traverser)
         : CClusterer<TPoint>(splitFunc, mergeFunc), m_DataType(params.s_DataType),
+          m_WeightCalc(maths_t::E_ClustersEqualWeight),
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
-          m_HistoryLength(), m_WeightCalc(maths_t::E_ClustersEqualWeight),
-          m_MinimumClusterFraction(), m_MinimumClusterCount(),
+          m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
         traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
                                                this, boost::cref(params), _1));
@@ -623,16 +622,17 @@ public:
 
     //! The x-means clusterer has value semantics.
     CXMeansOnline(const CXMeansOnline& other)
-        : CClusterer<TPoint>(other.splitFunc(), other.mergeFunc()),
-          m_Rng(other.m_Rng), m_DataType(other.m_DataType),
+        : CClusterer<TPoint>(other.splitFunc(), other.mergeFunc()), m_Rng(other.m_Rng),
+          m_DataType(other.m_DataType), m_WeightCalc(other.m_WeightCalc),
           m_InitialDecayRate(other.m_InitialDecayRate),
           m_DecayRate(other.m_DecayRate), m_HistoryLength(other.m_HistoryLength),
-          m_WeightCalc(other.m_WeightCalc),
           m_MinimumClusterFraction(other.m_MinimumClusterFraction),
           m_MinimumClusterCount(other.m_MinimumClusterCount),
           m_MinimumCategoryCount(other.m_MinimumCategoryCount),
           m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
           m_Clusters(other.m_Clusters) {}
+
+    ~CXMeansOnline() = default;
 
     //! The x-means clusterer has value semantics.
     CXMeansOnline& operator=(const CXMeansOnline& other) {
@@ -644,17 +644,15 @@ public:
     }
     //@}
 
-    virtual ~CXMeansOnline() {}
-
     //! Efficiently swap the contents of two k-means objects.
     void swap(CXMeansOnline& other) {
         this->CClusterer<TPoint>::swap(other);
         std::swap(m_Rng, other.m_Rng);
         std::swap(m_DataType, other.m_DataType);
+        std::swap(m_WeightCalc, other.m_WeightCalc);
         std::swap(m_InitialDecayRate, other.m_InitialDecayRate);
         std::swap(m_DecayRate, other.m_DecayRate);
         std::swap(m_HistoryLength, other.m_HistoryLength);
-        std::swap(m_WeightCalc, other.m_WeightCalc);
         std::swap(m_MinimumClusterFraction, other.m_MinimumClusterFraction);
         std::swap(m_MinimumClusterCount, other.m_MinimumClusterCount);
         std::swap(m_MinimumCategoryCount, other.m_MinimumCategoryCount);
@@ -675,13 +673,13 @@ public:
             inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter,
                                                           &cluster, _1));
         }
-        inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
-        inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength,
-                             core::CIEEE754::E_SinglePrecision);
+        inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
+        inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength.toString());
         inserter.insertValue(RNG_TAG, m_Rng.toString());
         inserter.insertValue(WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
-        inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction);
-        inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount);
+        inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG,
+                             m_MinimumClusterFraction.toString());
+        inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
         inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
                              boost::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
                                          &m_ClusterIndexGenerator, _1));
@@ -999,18 +997,17 @@ protected:
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
                                    this->decayRate(decayRate))
-            RESTORE_BUILT_IN(HISTORY_LENGTH_TAG, m_HistoryLength)
+            RESTORE(HISTORY_LENGTH_TAG, m_HistoryLength.fromString(traverser.value()))
             RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
             RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
                     traverser.traverseSubLevel(boost::bind(
                         &CClustererTypes::CIndexGenerator::acceptRestoreTraverser,
                         &m_ClusterIndexGenerator, _1)))
-            RESTORE_SETUP_TEARDOWN(
-                WEIGHT_CALC_TAG, int weightCalc,
-                core::CStringUtils::stringToType(traverser.value(), weightCalc),
-                m_WeightCalc = static_cast<maths_t::EClusterWeightCalc>(weightCalc))
-            RESTORE_BUILT_IN(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction)
-            RESTORE_BUILT_IN(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount)
+            RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
+            RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
+                    m_MinimumClusterFraction.fromString(traverser.value()))
+            RESTORE(MINIMUM_CLUSTER_COUNT_TAG,
+                    m_MinimumClusterCount.fromString(traverser.value()))
         } while (traverser.next());
 
         return true;
@@ -1223,26 +1220,26 @@ private:
     //! The type of data being clustered.
     maths_t::EDataType m_DataType;
 
-    //! The initial rate at which information is lost.
-    double m_InitialDecayRate;
-
-    //! The rate at which information is lost.
-    double m_DecayRate;
-
-    //! A measure of the length of history of the data clustered.
-    double m_HistoryLength;
-
     //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
     maths_t::EClusterWeightCalc m_WeightCalc;
 
+    //! The initial rate at which information is lost.
+    CFloatStorage m_InitialDecayRate;
+
+    //! The rate at which information is lost.
+    CFloatStorage m_DecayRate;
+
+    //! A measure of the length of history of the data clustered.
+    CFloatStorage m_HistoryLength;
+
     //! The minimum cluster fractional count.
-    double m_MinimumClusterFraction;
+    CFloatStorage m_MinimumClusterFraction;
 
     //! The minimum cluster count.
-    double m_MinimumClusterCount;
+    CFloatStorage m_MinimumClusterCount;
 
     //! The minimum count for a category in the sketch to cluster.
-    double m_MinimumCategoryCount;
+    CFloatStorage m_MinimumCategoryCount;
 
     //! A generator of unique cluster indices.
     CClustererTypes::CIndexGenerator m_ClusterIndexGenerator;

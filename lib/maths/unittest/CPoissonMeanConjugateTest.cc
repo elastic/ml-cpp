@@ -118,7 +118,7 @@ void CPoissonMeanConjugateTest::testPropagation() {
     // Test that propagation doesn't affect the expected values
     // of likelihood mean.
 
-    const double eps = 1e-12;
+    const double eps = 1e-7;
 
     test::CRandomNumbers rng;
 
