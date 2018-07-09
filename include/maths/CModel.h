@@ -65,6 +65,9 @@ public:
     //! Get the minimum seasonal variance scale.
     double minimumSeasonalVarianceScale() const;
 
+    //! Check if we should start testing for a change point in the model.
+    bool testForChange(core_t::TTime changeInterval) const;
+
     //! Get the minimum time to detect a change point in the model.
     core_t::TTime minimumTimeToDetectChange() const;
 

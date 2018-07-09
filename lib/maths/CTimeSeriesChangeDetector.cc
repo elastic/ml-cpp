@@ -56,21 +56,25 @@ const std::string SCALE_TAG{"m"};
 const std::string RESIDUAL_MODEL_TAG{"n"};
 const std::string LOG_INVERSE_DECISION_FUNCTION_TREND_TAG{"p"};
 const std::string TREND_MODEL_TAG{"q"};
+const std::string MAGNITUDE_TAG{"r"};
 const std::size_t EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS{4u};
 const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
+const double MAGNITUDE_THRESHOLD_STANDARD_DEVIATIONS_MULTPILIER{4.0};
 const std::size_t COUNT_TO_INITIALIZE{3u};
-const double MINIMUM_SCALE{0.1};
-const double MAXIMUM_SCALE{10.0};
+const double MINIMUM_SCALE{0.05};
+const double MAXIMUM_SCALE{20.0};
 const double WINSORISATION_DERATE{1.0};
-const double MAXIMUM_DECISION_FUNCTION{32.0};
+const double MAXIMUM_DECISION_FUNCTION{64.0};
 const double LOG_INV_MAXIMUM_DECISION_FUNCTION{-CTools::fastLog(MAXIMUM_DECISION_FUNCTION)};
 }
 
 SChangeDescription::SChangeDescription(EDescription description,
                                        double value,
+                                       double magnitude,
                                        const TDecompositionPtr& trendModel,
                                        const TPriorPtr& residualModel)
-    : s_Description{description}, s_Value{value}, s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
+    : s_Description{description}, s_Value{value}, s_Magnitude{magnitude},
+      s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
 }
 
 std::string SChangeDescription::print() const {
@@ -222,27 +226,27 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
     }
     candidates.sort();
 
-    double df{};
-
     // Note the maximum decision function value in the following is chosen
     // so that df is equal to one when each of the decision criteria are at
     // the centre of the sigmoid functions and the time range is equal to
     // "minimum time to detect". This means we'll (just) accept the change
     // if each "hard" decision criterion is individually satisfied.
-
+    double df{0.0};
     double expectedEvidence{noChangeBic - (*candidates[0].second)->expectedBic()};
     double normalizedTimeRange{
         std::max(static_cast<double>(m_TimeRange.range() - m_MinimumTimeToDetect), 0.0) /
         static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
+    double normalizedMagnitude{(*candidates[0].second)->normalizedMagnitude()};
 
     if (m_ChangeModels.size() == 2) {
         double evidence{noChangeBic - candidates[0].first};
         double x[]{evidence / m_MinimumDeltaBicToDetect,
                    evidence / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
-                   normalizedTimeRange};
+                   normalizedTimeRange, normalizedMagnitude};
         df = 0.5 * MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
              (x[1] < 0.0 ? 1.0 : CTools::logisticFunction(x[1], 0.2, 1.0)) *
-             CTools::logisticFunction(x[2], 0.2, 0.5);
+             CTools::logisticFunction(x[2], 0.2, 0.5) *
+             CTools::logisticFunction(x[3], 0.2, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
                   << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
     } else {
@@ -251,11 +255,12 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
         double x[]{evidences[0] / m_MinimumDeltaBicToDetect,
                    2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
                    evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
-                   normalizedTimeRange};
+                   normalizedTimeRange, normalizedMagnitude};
         df = MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
              CTools::logisticFunction(x[1], 0.1, 1.0) *
              (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
-             CTools::logisticFunction(x[3], 0.2, 0.5);
+             CTools::logisticFunction(x[3], 0.2, 0.5) *
+             CTools::logisticFunction(x[4], 0.2, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
                   << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
     }
@@ -279,6 +284,23 @@ void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& sa
     }
 
     ++m_SampleCount;
+
+    using TSize1Vec = core::CSmallVector<std::size_t, 1>;
+
+    TSize1Vec timeorder(samples.size());
+    std::iota(timeorder.begin(), timeorder.end(), 0);
+    std::sort(timeorder.begin(), timeorder.end(), [&samples](std::size_t lhs, std::size_t rhs) {
+        return samples[lhs].first < samples[rhs].first;
+    });
+
+    maths_t::TDoubleWeightsAry weight;
+    for (auto i : timeorder) {
+        core_t::TTime time{samples[i].first};
+        weight = weights[i];
+        maths_t::setWinsorisationWeight(winsorisation::MINIMUM_WEIGHT, weight);
+        m_TrendModel->addPoint(
+            time, CBasicStatistics::mean(m_TrendModel->value(time, 0.0)), weight);
+    }
 
     for (auto& model : m_ChangeModels) {
         model->addSamples(m_SampleCount, samples, weights);
@@ -446,6 +468,10 @@ double CUnivariateNoChangeModel::expectedBic() const {
     return this->bic();
 }
 
+double CUnivariateNoChangeModel::normalizedMagnitude() const {
+    return 0.0;
+}
+
 TOptionalChangeDescription CUnivariateNoChangeModel::change() const {
     return TOptionalChangeDescription();
 }
@@ -531,9 +557,16 @@ double CUnivariateLevelShiftModel::expectedBic() const {
     return -2.0 * this->expectedLogLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
+double CUnivariateLevelShiftModel::normalizedMagnitude() const {
+    return std::fabs(CBasicStatistics::mean(m_Shift)) /
+           MAGNITUDE_THRESHOLD_STANDARD_DEVIATIONS_MULTPILIER /
+           std::sqrt(this->trendModel().meanVariance());
+}
+
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const {
     return SChangeDescription{SChangeDescription::E_LevelShift,
                               CBasicStatistics::mean(m_Shift),
+                              std::fabs(CBasicStatistics::mean(m_Shift)),
                               this->trendModelPtr(), this->residualModelPtr()};
 }
 
@@ -619,6 +652,7 @@ bool CUnivariateLinearScaleModel::acceptRestoreTraverser(const SModelRestorePara
     do {
         const std::string name{traverser.name()};
         RESTORE(SCALE_TAG, m_Scale.fromDelimited(traverser.value()))
+        RESTORE(MAGNITUDE_TAG, m_Magnitude.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(RESIDUAL_MODEL_MODE_TAG, m_ResidualModelMode)
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
         RESTORE(RESIDUAL_MODEL_TAG,
@@ -630,6 +664,7 @@ bool CUnivariateLinearScaleModel::acceptRestoreTraverser(const SModelRestorePara
 void CUnivariateLinearScaleModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     this->CUnivariateChangeModel::acceptPersistInserter(inserter);
     inserter.insertValue(SCALE_TAG, m_Scale.toDelimited());
+    inserter.insertValue(MAGNITUDE_TAG, m_Magnitude.toDelimited());
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
     inserter.insertLevel(RESIDUAL_MODEL_TAG,
                          boost::bind<void>(CPriorStateSerialiser(),
@@ -644,10 +679,17 @@ double CUnivariateLinearScaleModel::expectedBic() const {
     return -2.0 * this->expectedLogLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
+double CUnivariateLinearScaleModel::normalizedMagnitude() const {
+    return CBasicStatistics::mean(m_Magnitude) /
+           MAGNITUDE_THRESHOLD_STANDARD_DEVIATIONS_MULTPILIER /
+           std::sqrt(this->trendModel().meanVariance());
+}
+
 CUnivariateLinearScaleModel::TOptionalChangeDescription
 CUnivariateLinearScaleModel::change() const {
     return SChangeDescription{SChangeDescription::E_LinearScale,
                               CBasicStatistics::mean(m_Scale),
+                              CBasicStatistics::mean(m_Magnitude),
                               this->trendModelPtr(), this->residualModelPtr()};
 }
 
@@ -671,6 +713,8 @@ void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
                         ? MINIMUM_SCALE
                         : CTools::truncate(scale, MINIMUM_SCALE, MAXIMUM_SCALE),
                     std::fabs(prediction));
+        m_Magnitude.add(std::fabs(CBasicStatistics::mean(m_Scale) - 1.0) * std::fabs(prediction),
+                        std::fabs(prediction));
     }
 
     if (count >= COUNT_TO_INITIALIZE) {
@@ -758,8 +802,13 @@ double CUnivariateTimeShiftModel::expectedBic() const {
     return -2.0 * this->expectedLogLikelihood();
 }
 
+double CUnivariateTimeShiftModel::normalizedMagnitude() const {
+    return 1.0;
+}
+
 TOptionalChangeDescription CUnivariateTimeShiftModel::change() const {
-    return SChangeDescription{SChangeDescription::E_TimeShift, static_cast<double>(m_Shift),
+    return SChangeDescription{SChangeDescription::E_TimeShift,
+                              static_cast<double>(m_Shift), 0.0,
                               this->trendModelPtr(), this->residualModelPtr()};
 }
 

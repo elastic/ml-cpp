@@ -49,6 +49,7 @@ struct MATHS_EXPORT SChangeDescription {
 
     SChangeDescription(EDescription decription,
                        double value,
+                       double magnitude,
                        const TDecompositionPtr& trendModel,
                        const TPriorPtr& residualModel);
 
@@ -60,6 +61,9 @@ struct MATHS_EXPORT SChangeDescription {
 
     //! The change value.
     TDouble2Vec s_Value;
+
+    //! The magnitude of the change.
+    TDouble2Vec s_Magnitude;
 
     //! The time series trend model to use after the change.
     TDecompositionPtr s_TrendModel;
@@ -204,6 +208,9 @@ public:
     //! The expected BIC of applying the change.
     virtual double expectedBic() const = 0;
 
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const = 0;
+
     //! Get a description of the change.
     virtual TOptionalChangeDescription change() const = 0;
 
@@ -294,6 +301,9 @@ public:
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
 
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
+
     //! Returns a null object.
     virtual TOptionalChangeDescription change() const;
 
@@ -333,6 +343,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Get a description of the level shift.
     virtual TOptionalChangeDescription change() const;
@@ -387,6 +400,9 @@ public:
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
 
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
+
     //! Get a description of the level shift.
     virtual TOptionalChangeDescription change() const;
 
@@ -407,6 +423,9 @@ private:
 private:
     //! The optimal shift.
     TMeanAccumulator m_Scale;
+
+    //! The mean magnitude of the change.
+    TMeanAccumulator m_Magnitude;
 
     //! The mode of the initial residual distribution model.
     double m_ResidualModelMode;
@@ -440,6 +459,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Get a description of the time shift.
     virtual TOptionalChangeDescription change() const;

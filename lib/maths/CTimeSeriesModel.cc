@@ -70,13 +70,7 @@ const double MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT{24.0};
 const std::size_t SLIDING_WINDOW_SIZE{12u};
 const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
-const double CHANGE_P_VALUE{1e-3};
-
-//! The cumulative log p-value for a suspected change.
-double changeCumulativeLogPValue(core_t::TTime bucketLength) {
-    return std::max(3.0, static_cast<double>(core::constants::HOUR / bucketLength)) *
-           CTools::fastLog(CHANGE_P_VALUE);
-}
+const double CHANGE_P_VALUE{5e-4};
 
 //! Optionally randomly sample from \p indices.
 TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus& rng,
@@ -126,7 +120,7 @@ const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
 const std::string SLIDING_WINDOW_6_3_TAG{"i"};
 const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
-const std::string POSSIBLE_CHANGE_CUMULATIVE_LOG_P_VALUE_6_3_TAG{"k"};
+const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
 const std::string CHANGE_DETECTOR_6_3_TAG{"l"};
 // Version < 6.3
 const std::string ID_OLD_TAG{"a"};
@@ -165,9 +159,8 @@ const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate fe
 
 namespace winsorisation {
 namespace {
-const double MAXIMUM_P_VALUE{1e-2};
+const double MAXIMUM_P_VALUE{1e-3};
 const double MINIMUM_P_VALUE{1e-10};
-const double MINIMUM_WEIGHT{1e-2};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
 const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
 const double LOG_MINIMUM_WEIGHT{std::log(MINIMUM_WEIGHT)};
@@ -599,8 +592,8 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams& param
                                           params.bucketLength(),
                                           params.decayRate())
                                     : nullptr),
-      m_PossibleChangeCumulativeLogPValue(0.0),
-      m_SlidingWindow(SLIDING_WINDOW_SIZE), m_Correlations(nullptr) {
+      m_CurrentChangeInterval(0), m_SlidingWindow(SLIDING_WINDOW_SIZE),
+      m_Correlations(nullptr) {
     if (controllers) {
         m_Controllers = boost::make_unique<TDecayRateController2Ary>(*controllers);
     }
@@ -1137,7 +1130,7 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_TrendModel);
     seed = CChecksum::calculate(seed, m_ResidualModel);
     seed = CChecksum::calculate(seed, m_CandidateChangePoint);
-    seed = CChecksum::calculate(seed, m_PossibleChangeCumulativeLogPValue);
+    seed = CChecksum::calculate(seed, m_CurrentChangeInterval);
     seed = CChecksum::calculate(seed, m_ChangeDetector);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
     seed = CChecksum::calculate(seed, m_SlidingWindow);
@@ -1194,8 +1187,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                 /**/)
             RESTORE(CANDIDATE_CHANGE_POINT_6_3_TAG,
                     fromDelimited(traverser.value(), m_CandidateChangePoint))
-            RESTORE_BUILT_IN(POSSIBLE_CHANGE_CUMULATIVE_LOG_P_VALUE_6_3_TAG,
-                             m_PossibleChangeCumulativeLogPValue)
+            RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
             RESTORE_SETUP_TEARDOWN(
                 CHANGE_DETECTOR_6_3_TAG,
                 m_ChangeDetector = boost::make_unique<CUnivariateTimeSeriesChangeDetector>(
@@ -1259,9 +1251,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
                          boost::bind<void>(CPriorStateSerialiser(),
                                            boost::cref(*m_ResidualModel), _1));
     inserter.insertValue(CANDIDATE_CHANGE_POINT_6_3_TAG, toDelimited(m_CandidateChangePoint));
-    inserter.insertValue(POSSIBLE_CHANGE_CUMULATIVE_LOG_P_VALUE_6_3_TAG,
-                         m_PossibleChangeCumulativeLogPValue,
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval);
     if (m_ChangeDetector != nullptr) {
         inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG,
                              boost::bind(&CUnivariateTimeSeriesChangeDetector::acceptPersistInserter,
@@ -1328,7 +1318,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
                          ? boost::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr),
       m_CandidateChangePoint(other.m_CandidateChangePoint),
-      m_PossibleChangeCumulativeLogPValue(other.m_PossibleChangeCumulativeLogPValue),
+      m_CurrentChangeInterval(other.m_CurrentChangeInterval),
       m_ChangeDetector(
           !isForForecast && other.m_ChangeDetector != nullptr
               ? boost::make_unique<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector)
@@ -1349,22 +1339,21 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
     core_t::TTime time{values[median].first};
 
     if (m_ChangeDetector == nullptr) {
-        core_t::TTime bucketLength{this->params().bucketLength()};
         core_t::TTime minimumTimeToDetect{this->params().minimumTimeToDetectChange()};
         core_t::TTime maximumTimeToTest{this->params().maximumTimeToTestForChange()};
         double weight{maths_t::winsorisationWeight(weights)};
-        if (minimumTimeToDetect < maximumTimeToTest && weight < 1.0) {
-            m_PossibleChangeCumulativeLogPValue += CTools::fastLog(
-                std::max(winsorisation::pValueFromWeight(weight), CHANGE_P_VALUE));
-            if (m_PossibleChangeCumulativeLogPValue < changeCumulativeLogPValue(bucketLength)) {
+        if (minimumTimeToDetect < maximumTimeToTest &&
+            winsorisation::pValueFromWeight(weight) <= CHANGE_P_VALUE) {
+            m_CurrentChangeInterval += this->params().bucketLength();
+            if (this->params().testForChange(m_CurrentChangeInterval)) {
                 LOG_TRACE(<< "Starting to test for change at " << time);
                 m_ChangeDetector = boost::make_unique<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest);
-                m_PossibleChangeCumulativeLogPValue = 0.0;
+                m_CurrentChangeInterval = 0;
             }
         } else {
             m_CandidateChangePoint = {time, values[median].second[0]};
-            m_PossibleChangeCumulativeLogPValue = 0.0;
+            m_CurrentChangeInterval = 0;
         }
     }
 

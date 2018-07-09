@@ -31,6 +31,9 @@ struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
 namespace winsorisation {
+//! The minimum Winsorisation weight.
+const double MINIMUM_WEIGHT{1e-2};
+
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.
 MATHS_EXPORT
@@ -287,9 +290,9 @@ private:
     //! The last "normal" time and median value.
     TTimeDoublePr m_CandidateChangePoint;
 
-    //! The sum of the log p-values of a current period of unpredictable
-    //! values.
-    double m_PossibleChangeCumulativeLogPValue;
+    //! If the time series appears to be undergoing change, the contiguous
+    //! interval of unpredictable values.
+    core_t::TTime m_CurrentChangeInterval;
 
     //! Used to test for changes in the time series.
     TChangeDetectorPtr m_ChangeDetector;
