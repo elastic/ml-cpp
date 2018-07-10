@@ -144,35 +144,47 @@ double ratio(double numerator, double denominator, double zeroDividedByZero) {
     return numerator / denominator;
 }
 
+// Functions to compute influence based on different criteria
 //! \brief Computes the value of summed statistics on the set difference.
 class CValueDifference {
 public:
     //! Features.
-    void operator()(const TDouble2Vec& v,
+    bool operator()(const TDouble2Vec& v,
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n < ni) {
+            return false;
+        }
+
         for (std::size_t i = 0u; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
         params.addBucketEmpty({n == ni});
+
+        return true;
     }
 
     //! Correlates.
-    void operator()(const TDouble2Vec& v,
+    bool operator()(const TDouble2Vec& v,
                     const TDouble2Vec& n,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n < ni) {
+            return false;
+        }
         TBool2Vec bucketEmpty(2);
         for (std::size_t i = 0u; i < v.size(); ++i) {
             bucketEmpty[i] = ((n[i] - ni[i]) == 0);
             difference[i] = v[i] - vi[i];
         }
         params.addBucketEmpty(bucketEmpty);
+
+        return true;
     }
 };
 
@@ -180,7 +192,7 @@ public:
 class CValueIntersection {
 public:
     //! Features.
-    void operator()(const TDouble2Vec& /*v*/,
+    bool operator()(const TDouble2Vec& /*v*/,
                     double /*n*/,
                     const TDouble1Vec& vi,
                     double ni,
@@ -190,21 +202,26 @@ public:
             intersection[i] = vi[i];
         }
         params.addBucketEmpty({ni == 0});
+
+        return true;
     }
 
     //! Correlates.
-    void operator()(const TDouble2Vec& /*v*/,
+    bool operator()(const TDouble2Vec& /*v*/,
                     const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& intersection) const {
+
         TBool2Vec bucketEmpty(2);
         for (std::size_t i = 0u; i < vi.size(); ++i) {
             bucketEmpty[i] = (ni[i] == 0);
             intersection[i] = vi[i];
         }
         params.addBucketEmpty(bucketEmpty);
+
+        return true;
     }
 };
 
@@ -212,12 +229,23 @@ public:
 class CMeanDifference {
 public:
     //! Features.
-    void operator()(const TDouble2Vec& v,
+    //!
+    //! \param[in] v overall mean
+    //! \param[in] n overall count
+    //! \param[in] vi mean of influencer
+    //! \param[in] ni count of influencer
+    //! \param[out] params model parameters to be updated
+    //! \param[out] difference computed mean difference
+    bool operator()(const TDouble2Vec& v,
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n <= ni) {
+            return false;
+        }
+
         for (std::size_t d = 0u; d < v.size(); ++d) {
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::accumulator(n, v[d]) -
@@ -226,15 +254,21 @@ public:
         maths_t::multiplyCountVarianceScale(TDouble2Vec(v.size(), n / (n - ni)),
                                             params.weights()[0]);
         params.addBucketEmpty({n == ni});
+
+        return true;
     }
 
     //! Correlates.
-    void operator()(const TDouble2Vec& v,
+    bool operator()(const TDouble2Vec& v,
                     const TDouble2Vec& n,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n <= ni) {
+            return false;
+        }
+
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = ((n[d] - ni[d]) == 0);
@@ -246,6 +280,8 @@ public:
             TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
             params.weights()[0]);
         params.addBucketEmpty(bucketEmpty);
+
+        return true;
     }
 };
 
@@ -253,12 +289,15 @@ public:
 class CVarianceDifference {
 public:
     //! Features.
-    void operator()(const TDouble1Vec& v,
+    bool operator()(const TDouble1Vec& v,
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n < ni) {
+            return false;
+        }
         std::size_t dimension = v.size() / 2;
         for (std::size_t d = 0u; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
@@ -268,15 +307,20 @@ public:
         maths_t::multiplyCountVarianceScale(TDouble2Vec(dimension, n / (n - ni)),
                                             params.weights()[0]);
         params.addBucketEmpty({n == ni});
+
+        return true;
     }
 
     //! Correlates.
-    void operator()(const TDouble2Vec& v,
+    bool operator()(const TDouble2Vec& v,
                     const TDouble2Vec& n,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
+        if (n < ni) {
+            return false;
+        }
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = ((n[d] - ni[d]) == 0);
@@ -288,6 +332,8 @@ public:
         maths_t::multiplyCountVarianceScale(
             TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
             params.weights()[0]);
+
+        return true;
     }
 };
 
@@ -370,8 +416,11 @@ void doComputeInfluences(model_t::EFeature feature,
     for (auto i = influencerValues.begin(); i != influencerValues.end(); ++i) {
         params.weights(weights).updateAnomalyModel(false);
 
-        computeInfluencedValue(value, count, i->second.first, i->second.second,
-                               params, influencedValue[0]);
+        if (computeInfluencedValue(value, count, i->second.first, i->second.second,
+                                   params, influencedValue[0]) == false) {
+            LOG_ERROR(<< "Failed to compute influencer value");
+            continue;
+        }
 
         double pi;
         bool conditional;
