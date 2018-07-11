@@ -1549,6 +1549,8 @@ CppUnit::Test* CMetricPopulationModelTest::suite() {
         "CMetricPopulationModelTest::testMinMaxAndMean",
         &CMetricPopulationModelTest::testMinMaxAndMean));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationModelTest>(
+        "CMetricPopulationModelTest::testVarp", &CMetricPopulationModelTest::testVarp));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationModelTest>(
         "CMetricPopulationModelTest::testComputeProbability",
         &CMetricPopulationModelTest::testComputeProbability));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationModelTest>(
