@@ -761,6 +761,11 @@ bool CProbabilityAndInfluenceCalculator::calculate(
 
     LOG_TRACE(<< "probability = " << probability);
 
+    if (m_InfluencerProbabilities.empty()) {
+        LOG_TRACE(<< "no influencers");
+        return true;
+    }
+
     double logp = std::log(probability);
 
     influences.reserve(m_InfluencerProbabilities.size());
