@@ -232,8 +232,8 @@ public:
     //!
     //! \param[in] v overall mean
     //! \param[in] n overall count
-    //! \param[in] vi mean of influencer
-    //! \param[in] ni count of influencer
+    //! \param[in] vi influencer mean
+    //! \param[in] ni influencer count
     //! \param[out] params model parameters to be updated
     //! \param[out] difference computed mean difference
     bool operator()(const TDouble2Vec& v,
@@ -289,6 +289,13 @@ public:
 class CVarianceDifference {
 public:
     //! Features.
+    //!
+    //! \param[in] v overall variance and mean
+    //! \param[in] n overall count
+    //! \param[in] vi influencer variance and mean
+    //! \param[in] ni influencer count
+    //! \param[out] params model parameters to be updated
+    //! \param[out] difference computed mean difference
     bool operator()(const TDouble1Vec& v,
                     double n,
                     const TDouble1Vec& vi,
@@ -418,7 +425,10 @@ void doComputeInfluences(model_t::EFeature feature,
 
         if (computeInfluencedValue(value, count, i->second.first, i->second.second,
                                    params, influencedValue[0]) == false) {
-            LOG_ERROR(<< "Failed to compute influencer value");
+            LOG_ERROR(<< "Failed to compute influencer value (value = " << value
+                      << " , count = " << count
+                      << " , influencer value = " << i->second.first
+                      << " , influencer count = " << i->second.second << ")");
             continue;
         }
 

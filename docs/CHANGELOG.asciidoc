@@ -59,7 +59,7 @@ Age seasonal components in proportion to the fraction of values with which they'
 Persist and restore was missing some of the trend model state ({pull}#99[#99])
 Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
 Fix corner case failing to calculate lgamma values and the correspoinding log errors ({pull}#126[#126])
-Influence count per bucket was wrong and lead to wrong influencer scoring ({pull}#150[#150])
+Influence count per bucket for metric population analyses was wrong and lead to wrong influencer scoring ({pull}#150[#150])
 
 === Regressions
 
