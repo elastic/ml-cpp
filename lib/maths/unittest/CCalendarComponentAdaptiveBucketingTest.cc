@@ -472,6 +472,18 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist() {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
+void CCalendarComponentAdaptiveBucketingTest::testName() {
+    double decayRate{0.1};
+    double minimumBucketLength{1.0};
+
+    maths::CCalendarFeature feature{maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
+    maths::CCalendarComponentAdaptiveBucketing bucketing{feature, decayRate, minimumBucketLength};
+
+    CPPUNIT_ASSERT_EQUAL(std::string("Calendar[") + std::to_string(decayRate) +
+                             "," + std::to_string(minimumBucketLength) + "]",
+                         bucketing.name());
+}
+
 CppUnit::Test* CCalendarComponentAdaptiveBucketingTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CCalendarComponentAdaptiveBucketingTest");
@@ -500,6 +512,9 @@ CppUnit::Test* CCalendarComponentAdaptiveBucketingTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
         "CCalendarComponentAdaptiveBucketingTest::testPersist",
         &CCalendarComponentAdaptiveBucketingTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(
+        "CCalendarComponentAdaptiveBucketingTest::testName",
+        &CCalendarComponentAdaptiveBucketingTest::testName));
 
     return suiteOfTests;
 }
