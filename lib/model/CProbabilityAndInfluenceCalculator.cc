@@ -761,7 +761,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(
 
     LOG_TRACE(<< "probability = " << probability);
 
-    if (m_InfluencerProbabilities.empty() == true) {
+    if (m_InfluencerProbabilities.empty()) {
         LOG_TRACE(<< "no influencers");
         return true;
     }
