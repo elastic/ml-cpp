@@ -145,7 +145,7 @@ void CTimeSeriesChangeDetectorTest::testLevelShift() {
     this->testChange(
         trends, maths::SChangeDescription::E_LevelShift,
         [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.5; },
-        5.0, 0.0, 15.0);
+        5.0, 0.0, 16.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testLinearScale() {
