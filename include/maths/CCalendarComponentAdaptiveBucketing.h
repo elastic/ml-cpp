@@ -32,7 +32,7 @@ class CSeasonalTime;
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : public CAdaptiveBucketing {
+class MATHS_EXPORT CCalendarComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using TFloatMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
     using CAdaptiveBucketing::count;
@@ -97,6 +97,9 @@ public:
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
 
+    //! Name of component
+    std::string name() const override;
+
 private:
     using TFloatMeanVarVec = std::vector<TFloatMeanVarAccumulator>;
 
@@ -110,28 +113,28 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec& endpoints);
+    void refresh(const TFloatVec& endpoints) override;
 
     //! Check if \p time is in the this component's window.
-    virtual bool inWindow(core_t::TTime time) const;
+    bool inWindow(core_t::TTime time) const override;
 
     //! Add the function value to \p bucket.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
+    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
-    virtual double offset(core_t::TTime time) const;
+    double offset(core_t::TTime time) const override;
 
     //! Get the count in \p bucket.
-    virtual double bucketCount(std::size_t bucket) const;
+    double bucketCount(std::size_t bucket) const override;
 
     //! Get the predicted value for \p bucket at \p time.
-    virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const;
+    double predict(std::size_t bucket, core_t::TTime time, double offset) const override;
 
     //! Get the variance of \p bucket.
-    virtual double variance(std::size_t bucket) const;
+    double variance(std::size_t bucket) const override;
 
     //! Split \p bucket.
-    virtual void split(std::size_t bucket);
+    void split(std::size_t bucket) override;
 
 private:
     //! The time provider.

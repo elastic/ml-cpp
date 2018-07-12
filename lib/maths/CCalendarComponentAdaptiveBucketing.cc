@@ -351,5 +351,10 @@ void CCalendarComponentAdaptiveBucketing::split(std::size_t bucket) {
     CBasicStatistics::scale(0.25, m_Values[bucket]);
     m_Values.insert(m_Values.begin() + bucket, m_Values[bucket]);
 }
+
+std::string CCalendarComponentAdaptiveBucketing::name() const {
+    return "Calendar[" + std::to_string(this->decayRate()) + "," +
+           std::to_string(this->minimumBucketLength()) + "]";
+}
 }
 }
