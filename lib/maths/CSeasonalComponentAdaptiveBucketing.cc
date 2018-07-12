@@ -573,6 +573,11 @@ void CSeasonalComponentAdaptiveBucketing::split(std::size_t bucket) {
     m_Buckets.insert(m_Buckets.begin() + bucket, m_Buckets[bucket]);
 }
 
+std::string CSeasonalComponentAdaptiveBucketing::name() const {
+    return "Seasonal[" + std::to_string(this->decayRate()) + "," +
+           std::to_string(this->minimumBucketLength()) + "]";
+}
+
 double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time) const {
     return m_Time->regressionInterval(
         std::min_element(m_Buckets.begin(), m_Buckets.end(),
