@@ -21,6 +21,7 @@ public:
     void testUnintialized();
     void testKnots();
     void testPersist();
+    void testName();
 
     static CppUnit::Test* suite();
 

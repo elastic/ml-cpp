@@ -32,7 +32,7 @@ namespace maths {
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : public CAdaptiveBucketing {
+class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
     using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
@@ -130,6 +130,9 @@ public:
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
 
+    //! Name of component
+    std::string name() const override;
+
 private:
     using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
 
@@ -163,28 +166,28 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec& endpoints);
+    void refresh(const TFloatVec& endpoints) override;
 
     //! Check if \p time is in the this component's window.
-    virtual bool inWindow(core_t::TTime time) const;
+    bool inWindow(core_t::TTime time) const override;
 
     //! Add the function value at \p time.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
+    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
-    virtual double offset(core_t::TTime time) const;
+    double offset(core_t::TTime time) const override;
 
     //! The count in \p bucket.
-    virtual double bucketCount(std::size_t bucket) const;
+    double bucketCount(std::size_t bucket) const override;
 
     //! Get the predicted value for \p bucket at \p time.
-    virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const;
+    double predict(std::size_t bucket, core_t::TTime time, double offset) const override;
 
     //! Get the variance of \p bucket.
-    virtual double variance(std::size_t bucket) const;
+    double variance(std::size_t bucket) const override;
 
     //! Split \p bucket.
-    virtual void split(std::size_t bucket);
+    void split(std::size_t bucket) override;
 
     //! Get the interval which has been observed at \p time.
     double observedInterval(core_t::TTime time) const;
