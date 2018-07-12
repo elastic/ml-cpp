@@ -130,6 +130,9 @@ public:
     TDoubleVec variances() const;
     //@}
 
+    //! Name of component
+    virtual std::string name() const = 0;
+
 protected:
     using TRestoreFunc = std::function<bool(core::CStateRestoreTraverser&)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;

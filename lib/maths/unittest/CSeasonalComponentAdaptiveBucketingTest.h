@@ -23,6 +23,7 @@ public:
     void testSlope();
     void testPersist();
     void testUpgrade();
+    void testName();
 
     static CppUnit::Test* suite();
 };
