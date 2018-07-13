@@ -70,7 +70,7 @@ const double CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION(0.8);
 const double CAnomalyDetectorModelConfig::DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS(0.2);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36u);
 const core_t::TTime
-    CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(12 * core::constants::HOUR);
+    CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(16 * core::constants::HOUR);
 const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(core::constants::DAY);
 const std::size_t CAnomalyDetectorModelConfig::BULK_FEATURE_WINDOW_LENGTH(12);

@@ -673,7 +673,9 @@ void CAdaptiveBucketing::maybeSplitBucket() {
                     CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1])};
                 m_LargeErrorCountSignificances.add({oneMinusCdf, i - 1});
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what());
+                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what()
+                          << " interval = " << interval << " period = " << period
+                          << " type = " << this->name());
             }
         }
         if (m_LargeErrorCountSignificances.count() > 0) {

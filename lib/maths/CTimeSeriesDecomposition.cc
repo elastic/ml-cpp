@@ -249,22 +249,18 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
 bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
                                            double value,
                                            const SChangeDescription& change) {
+    m_PeriodicityTest.maybeClear(time, change.s_Magnitude[0]);
+
     bool result{m_Components.usingTrendForPrediction() == false};
     m_Components.useTrendForPrediction();
 
     switch (change.s_Description) {
-    case SChangeDescription::E_LevelShift: {
-        double meanShift{std::fabs(change.s_Value[0])};
-        m_PeriodicityTest.maybeClear(time, meanShift);
+    case SChangeDescription::E_LevelShift:
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
-    }
-    case SChangeDescription::E_LinearScale: {
-        double meanShift{std::fabs(change.s_Value[0] * this->meanValue(time))};
-        m_PeriodicityTest.maybeClear(time, meanShift);
+    case SChangeDescription::E_LinearScale:
         m_Components.linearScale(time, change.s_Value[0]);
         break;
-    }
     case SChangeDescription::E_TimeShift:
         m_TimeShift += static_cast<core_t::TTime>(change.s_Value[0]);
         break;
