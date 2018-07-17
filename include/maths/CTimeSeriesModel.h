@@ -206,9 +206,6 @@ public:
 
     //! Get the sliding window mean residual model.
     const CPrior* residualMeanModel() const;
-
-    //! Get the sliding window residual contrast model.
-    const CPrior* residualContrastModel() const;
     //@}
 
 private:
@@ -275,9 +272,6 @@ private:
     //! Get the sliding window mean residual.
     TDouble1VecDoubleWeightsAry1VecPr residualMean() const;
 
-    //! Get the sliding window residual contrast.
-    TDouble1VecDoubleWeightsAry1VecPr residualContrast() const;
-
     //! Get the models for the correlations and the models of the correlated
     //! time series.
     bool correlationModels(TSize1Vec& correlated,
@@ -320,12 +314,6 @@ private:
     //! This models a feature constructed from the mean of residuals in
     //! a sliding window.
     TPriorPtr m_ResidualMeanModel;
-
-    //! A model of the contrast between recent residuals.
-    //!
-    //! This models a feature constructed by differencing the residuals
-    //! about the centre of a sliding window.
-    TPriorPtr m_ResidualContrastModel;
 
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.

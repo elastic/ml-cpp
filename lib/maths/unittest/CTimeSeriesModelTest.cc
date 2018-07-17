@@ -1317,7 +1317,7 @@ void CTimeSeriesModelTest::testProbability() {
         core_t::TTime time{0};
         for (auto sample : samples) {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++)) {
-                sample += 12.0;
+                sample += 16.0;
             }
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});

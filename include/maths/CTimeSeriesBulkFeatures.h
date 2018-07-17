@@ -34,120 +34,38 @@ namespace maths {
 //! are expected to be indicative of interesting events in time series.
 class CTimeSeriesBulkFeatures {
 public:
-    //! The mean of a collection of time series values.
+    template<typename T>
+    using TT1VecTWeightAry1VecPr =
+        std::pair<core::CSmallVector<T, 1>, core::CSmallVector<maths_t::TWeightsAry<T>, 1>>;
+
+    //! Get the mean of a collection of time series values.
     //!
     //! \tparam VECTOR This can be a floating point type or vector type.
     //! \tparam ITR It is assumed that the value type of ITR is a pair
     //! whose second type is a CBasicStatistics::SSampleCentralMoments
     //! object.
     template<typename VECTOR, typename ITR>
-    static std::pair<core::CSmallVector<VECTOR, 1>, core::CSmallVector<maths_t::TWeightsAry<VECTOR>, 1>>
-    mean(ITR begin, ITR end) {
+    static TT1VecTWeightAry1VecPr<VECTOR> mean(ITR begin, ITR end) {
         if (begin != end) {
-            using TValueType = typename std::iterator_traits<ITR>::value_type;
-            using TSecondType = typename SSecondType<TValueType>::Type;
-            using TPrecise = typename SPromoted<typename TSecondType::TValue>::Type;
-            using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TPrecise>::TAccumulator;
-
-            auto count = [](TMeanAccumulator partial, const TValueType& value) {
-                partial.add(conformable(CBasicStatistics::mean(value.second),
-                                        CBasicStatistics::count(value.second)));
-                partial.age(0.9);
-                return partial;
-            };
-            auto mean = [](TMeanAccumulator partial, const TValueType& value) {
-                partial.add(CBasicStatistics::mean(value.second));
-                partial.age(0.9);
-                return partial;
-            };
-
-            auto zero = conformable(CBasicStatistics::mean(begin->second), 0.0);
-            auto value = toVector<VECTOR>(CBasicStatistics::mean(
-                std::accumulate(begin, end, TMeanAccumulator{zero}, mean)));
-            auto weight = toVector<VECTOR>(CBasicStatistics::mean(
-                std::accumulate(begin, end, TMeanAccumulator{zero}, count)));
-
+            VECTOR value{toVector<VECTOR>(rangeMean(begin, end, 0.9))};
+            VECTOR weight{toVector<VECTOR>(rangeCount(begin, end, 0.9))};
             return {{value}, {maths_t::countWeight(weight)}};
         }
         return {{}, {}};
     }
 
-    //! The contrast between two sets in a binary partition of a collection
-    //! of univariate time series values.
-    //!
-    //! This is a signed quantity which is the minimum difference between
-    //! approximately equal partitions, \f$L\f$ and \f$R\f$, of the range
-    //! [\p begin, \p end). Specifically,
-    //!   \f$max(min_{x\in R}{x}-max_{x\in L}{x}, 0) + min(max_{x\in R}{x}-min_{x\in L}{x}, 0)\f$
-    //!
-    //! \note It is assumed that the value type of ITR is a pair whose
-    //! second type is a CBasicStatistics::SSampleCentralMoments object.
-    //!
-    //! \tparam ITR It is assumed that the value type of ITR is a pair
-    //! whose second type is a CBasicStatistics::SSampleCentralMoments
-    //! object.
-    template<typename ITR>
-    static std::pair<core::CSmallVector<double, 1>, maths_t::TDoubleWeightsAry1Vec>
-    contrast(ITR begin, ITR end) {
-        std::ptrdiff_t N{std::distance(begin, end)};
-        std::ptrdiff_t m{N / 2};
-        if (m >= 5) {
-            using TDoubleDoublePr = std::pair<double, double>;
-            using TMinAccumulator = CBasicStatistics::SMin<TDoubleDoublePr>::TAccumulator;
-            using TMaxAccumulator = CBasicStatistics::SMax<TDoubleDoublePr>::TAccumulator;
-            using TDoublePtrDiffPr = std::pair<double, std::ptrdiff_t>;
-            using TMinMaxAccumulator = CBasicStatistics::CMinMax<TDoublePtrDiffPr>;
-
-            auto minmax = [begin](TMinMaxAccumulator partial, std::ptrdiff_t index) {
-                partial.add({CBasicStatistics::mean((begin + index)->second), index});
-                return partial;
-            };
-
-            TMinAccumulator minContrast;
-            TMaxAccumulator maxContrast;
-            std::ptrdiff_t zero{0};
-            TMinMaxAccumulator lseed{std::accumulate(
-                boost::make_counting_iterator(zero),
-                boost::make_counting_iterator(m - 4), TMinMaxAccumulator{}, minmax)};
-            TMinMaxAccumulator rseed{std::accumulate(
-                boost::make_counting_iterator(m + 4),
-                boost::make_counting_iterator(N), TMinMaxAccumulator{}, minmax)};
-            for (std::ptrdiff_t split : {m - 3, m - 2, m - 1, m, m + 1, m + 2, m + 3}) {
-                auto l = std::accumulate(boost::make_counting_iterator(m - 4),
-                                         boost::make_counting_iterator(split - 1),
-                                         lseed, minmax);
-                auto r = std::accumulate(boost::make_counting_iterator(split + 1),
-                                         boost::make_counting_iterator(m + 4),
-                                         rseed, minmax);
-                if (r.max().first < l.min().first) {
-                    double weight{std::sqrt(
-                        CBasicStatistics::count((begin + l.min().second)->second) *
-                        CBasicStatistics::count((begin + r.max().second)->second))};
-                    minContrast.add({r.max().first - l.min().first, -weight});
-                    maxContrast.add({r.max().first - l.min().first, +weight});
-                } else if (r.min().first > l.max().first) {
-                    double weight{std::sqrt(
-                        CBasicStatistics::count((begin + l.max().second)->second) *
-                        CBasicStatistics::count((begin + r.min().second)->second))};
-                    minContrast.add({r.min().first - l.max().first, -weight});
-                    maxContrast.add({r.min().first - l.max().first, +weight});
-                }
-            }
-
-            if (minContrast.count() > 0 && maxContrast.count() > 0) {
-                if (-minContrast[0].first > maxContrast[0].first) {
-                    double weight{-minContrast[0].second};
-                    return {{minContrast[0].first}, {maths_t::countWeight(weight)}};
-                } else {
-                    double weight{maxContrast[0].second};
-                    return {{maxContrast[0].first}, {maths_t::countWeight(weight)}};
-                }
-            }
-        }
-        return {{}, {}};
-    }
-
 private:
+    using TDoubleDoublePr = std::pair<double, double>;
+
+    //! \name Traits for the mean and count calculation.
+    template<typename ITR>
+    struct STraits {
+        using TValueType = typename std::iterator_traits<ITR>::value_type;
+        using TSecondType = typename SSecondType<TValueType>::Type;
+        using TPrecise = typename SPromoted<typename TSecondType::TValue>::Type;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TPrecise>::TAccumulator;
+    };
+
     //! Univariate implementation returns zero.
     template<typename T>
     static double conformable(const T& /*x*/, double value) {
@@ -179,6 +97,62 @@ private:
     template<typename VECTOR, typename T>
     static VECTOR toVector(const CVector<T>& x) {
         return x.template toVector<VECTOR>();
+    }
+
+    //! Get mean count of values in [\p begin, \p end).
+    template<typename ITR>
+    static typename STraits<ITR>::TPrecise
+    rangeCount(ITR begin, ITR end, double factor = 1.0) {
+        double latest, earliest;
+        std::tie(earliest, latest) = range(begin, end);
+        double n{static_cast<double>(std::distance(begin, end))};
+        double scale{(n - 1.0) * (latest == earliest ? 1.0 : 1.0 / (latest - earliest))};
+
+        auto zero = conformable(CBasicStatistics::mean(begin->second), 0.0);
+        typename STraits<ITR>::TMeanAccumulator count{zero};
+        for (double last{earliest}; begin != end; ++begin) {
+            double dt{static_cast<double>(begin->first) - last};
+            last = static_cast<double>(begin->first);
+            count.age(std::pow(factor, scale * dt));
+            count.add(conformable(CBasicStatistics::mean(begin->second),
+                                  CBasicStatistics::count(begin->second)));
+        }
+
+        return CBasicStatistics::mean(count);
+    }
+
+    //! Get mean of values in [\p begin, \p end).
+    template<typename ITR>
+    static typename STraits<ITR>::TPrecise
+    rangeMean(ITR begin, ITR end, double factor = 1.0) {
+        double latest, earliest;
+        std::tie(earliest, latest) = range(begin, end);
+        double n{static_cast<double>(std::distance(begin, end))};
+        double scale{(n - 1.0) * (latest == earliest ? 1.0 : 1.0 / (latest - earliest))};
+
+        auto zero = conformable(CBasicStatistics::mean(begin->second), 0.0);
+        typename STraits<ITR>::TMeanAccumulator mean{zero};
+        for (double last{earliest}; begin != end; ++begin) {
+            double dt{static_cast<double>(begin->first) - last};
+            last = static_cast<double>(begin->first);
+            mean.age(std::pow(factor, scale * dt));
+            mean.add(CBasicStatistics::mean(begin->second));
+        }
+
+        return CBasicStatistics::mean(mean);
+    }
+
+    //! Compute the time range [\p begin, \p end).
+    template<typename ITR>
+    static TDoubleDoublePr range(ITR begin, ITR end) {
+        auto range =
+            std::accumulate(begin, end, CBasicStatistics::CMinMax<double>(),
+                            [](CBasicStatistics::CMinMax<double> partial,
+                               const typename STraits<ITR>::TValueType& value) {
+                                partial.add(static_cast<double>(value.first));
+                                return partial;
+                            });
+        return {range.min(), range.max()};
     }
 };
 }

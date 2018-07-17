@@ -120,68 +120,11 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
     }
 }
 
-void CTimeSeriesBulkFeaturesTest::testContrast() {
-    // Test we get the value and weight we expect.
-
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TTimeMeanAccumulatorPr = std::pair<core_t::TTime, TMeanAccumulator>;
-    using TTimeMeanAccumulatorPrVec = std::vector<TTimeMeanAccumulatorPr>;
-
-    TTimeMeanAccumulatorPrVec buf;
-
-    TDouble1Vec mean;
-    maths_t::TDoubleWeightsAry1Vec weight;
-    std::tie(mean, weight) =
-        maths::CTimeSeriesBulkFeatures::contrast(buf.begin(), buf.end());
-    LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
-    CPPUNIT_ASSERT(mean.empty());
-    CPPUNIT_ASSERT(weight.empty());
-
-    buf.emplace_back(0, maths::CBasicStatistics::accumulator(1.3, 5.0));
-    buf.emplace_back(1, maths::CBasicStatistics::accumulator(1.1, 6.0));
-    buf.emplace_back(2, maths::CBasicStatistics::accumulator(1.1, 5.1));
-    buf.emplace_back(3, maths::CBasicStatistics::accumulator(0.3, 7.0));
-    buf.emplace_back(4, maths::CBasicStatistics::accumulator(0.6, 3.0));
-    buf.emplace_back(5, maths::CBasicStatistics::accumulator(0.5, 2.0));
-    buf.emplace_back(6, maths::CBasicStatistics::accumulator(1.1, 1.0));
-    buf.emplace_back(7, maths::CBasicStatistics::accumulator(1.2, 3.0));
-    buf.emplace_back(8, maths::CBasicStatistics::accumulator(1.1, 2.0));
-    buf.emplace_back(9, maths::CBasicStatistics::accumulator(0.5, 0.0));
-
-    std::tie(mean, weight) =
-        maths::CTimeSeriesBulkFeatures::contrast(buf.begin(), buf.begin() + 9);
-    LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
-    CPPUNIT_ASSERT(mean.empty());
-    CPPUNIT_ASSERT(weight.empty());
-
-    std::tie(mean, weight) =
-        maths::CTimeSeriesBulkFeatures::contrast(buf.begin(), buf.end());
-    LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), weight.size());
-    CPPUNIT_ASSERT_EQUAL(-2.0, mean[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(std::sqrt(1.2 * 1.3), maths_t::countForUpdate(weight[0]));
-
-    std::tie(mean, weight) =
-        maths::CTimeSeriesBulkFeatures::contrast(buf.rbegin(), buf.rend());
-    LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), weight.size());
-    CPPUNIT_ASSERT_EQUAL(2.0, mean[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
-    CPPUNIT_ASSERT_EQUAL(std::sqrt(1.2 * 1.3), maths_t::countForUpdate(weight[0]));
-}
-
 CppUnit::Test* CTimeSeriesBulkFeaturesTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesBulkFeaturesTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesBulkFeaturesTest>(
         "CTimeSeriesBulkFeaturesTest::testMean", &CTimeSeriesBulkFeaturesTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesBulkFeaturesTest>(
-        "CTimeSeriesBulkFeaturesTest::testContrast", &CTimeSeriesBulkFeaturesTest::testContrast));
 
     return suiteOfTests;
 }
