@@ -759,7 +759,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         auto weight = unpack(params.priorWeights()[i]);
         samples_.push_back(samples[i].second[0]);
         weights_.push_back(weight);
-        scales_.push_back(std::sqrt(maths_t::countVarianceScale(weights_[i]) *
+        scales_.push_back(std::sqrt(maths_t::countVarianceScale(weight) *
                                     this->seasonalWeight(0.0, time)[0]));
         averageTime_.add(static_cast<double>(time), maths_t::countForUpdate(weight));
     }
@@ -2285,9 +2285,10 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     TMeanAccumulator averageTime_;
     for (auto i : valueorder) {
         core_t::TTime time{samples[i].first};
+        auto weight = unpack(params.priorWeights()[i]);
         samples_.push_back(samples[i].second);
-        weights_.push_back(unpack(params.priorWeights()[i]));
-        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weights_[i])) *
+        weights_.push_back(weight);
+        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weight)) *
                                TVector(this->seasonalWeight(0.0, time)))
                               .toVector<TDouble10Vec>());
         averageTime_.add(static_cast<double>(time));
