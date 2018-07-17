@@ -115,7 +115,8 @@ private:
             last = static_cast<double>(begin->first);
             count.age(std::pow(factor, scale * dt));
             count.add(conformable(CBasicStatistics::mean(begin->second),
-                                  CBasicStatistics::count(begin->second)));
+                                  CBasicStatistics::count(begin->second)),
+                      CBasicStatistics::count(begin->second));
         }
 
         return CBasicStatistics::mean(count);
@@ -136,7 +137,8 @@ private:
             double dt{static_cast<double>(begin->first) - last};
             last = static_cast<double>(begin->first);
             mean.age(std::pow(factor, scale * dt));
-            mean.add(CBasicStatistics::mean(begin->second));
+            mean.add(CBasicStatistics::mean(begin->second),
+                     CBasicStatistics::count(begin->second));
         }
 
         return CBasicStatistics::mean(mean);
