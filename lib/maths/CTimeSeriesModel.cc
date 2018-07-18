@@ -126,18 +126,33 @@ TCalculation2Vec expand(maths_t::EProbabilityCalculation calculation) {
 }
 
 //! Aggregate one or more feature probabilities.
-double aggregateFeatureProbabilities(const TDouble4Vec& probabilities) {
+double aggregateFeatureProbabilities(TDouble4Vec probabilities) {
     if (probabilities.size() > 1) {
-        TDouble4Vec logProbabilities;
-        for (const auto& p : probabilities) {
-            logProbabilities.push_back(CTools::fastLog(p));
+        for (auto& p : probabilities) {
+            p = CTools::fastLog(p);
         }
-        double sumLogProbabilities{std::accumulate(logProbabilities.begin(),
-                                                   logProbabilities.end(), 0.0)};
+        // We have three factors:
+        //   1) The lowest probability of any feature,
+        //   2) The (geometric) average feature probability,
+        //   3) The joint probability of all features.
+        //
+        // If the feature probabilities are all similar this is particular
+        // interesting since it implies that the time series is displaying
+        // unusual behavior in multiple ways. We recognize this by mixing
+        // in the joint probability with weight depending on the probability
+        // similarities.
+        const double MIN_PROBABILITY_WEIGHT{0.4};
+        double n{static_cast<double>(probabilities.size())};
         double minLogProbability{
-            *std::min_element(logProbabilities.begin(), logProbabilities.end())};
-        return std::exp((sumLogProbabilities + minLogProbability) /
-                        static_cast<double>(logProbabilities.size() + 1));
+            *std::min_element(probabilities.begin(), probabilities.end())};
+        double maxLogProbability{
+            *std::max_element(probabilities.begin(), probabilities.end())};
+        double sumLogProbabilities{
+            std::accumulate(probabilities.begin(), probabilities.end(), 0.0)};
+        double similarity{n * maxLogProbability / sumLogProbabilities};
+        return std::exp((MIN_PROBABILITY_WEIGHT * minLogProbability +
+                         (1.0 - MIN_PROBABILITY_WEIGHT) * (1.0 / n + similarity) * sumLogProbabilities) /
+                        (1.0 + (1.0 - MIN_PROBABILITY_WEIGHT) * similarity));
     }
     return probabilities[0];
 }
