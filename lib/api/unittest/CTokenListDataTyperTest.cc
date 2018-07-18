@@ -470,5 +470,13 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance() {
         LOG_DEBUG(<< "Pre-tokenisation test took " << preTokenisationTime << "ms");
     }
 
-    CPPUNIT_ASSERT(preTokenisationTime <= inlineTokenisationTime);
+    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
+    bool likelyInCi = (keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0');
+    if (likelyInCi) {
+        // CI is most likely running on a VM this test can fail quite often
+        // due to the VM stalling or being slowed down by noisy neighbours
+        LOG_INFO(<< "Skipping test pre-tokenised performance assertion");
+    } else {
+        CPPUNIT_ASSERT(preTokenisationTime <= inlineTokenisationTime);
+    }
 }
