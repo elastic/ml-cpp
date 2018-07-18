@@ -161,7 +161,7 @@ if [ ! -f boost.state ]; then
 
   cd boost
   echo "  Bootstrapping..."
-  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu > bootstrap.log 2>&1
+  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
 
   echo "  Configuring..."
 
