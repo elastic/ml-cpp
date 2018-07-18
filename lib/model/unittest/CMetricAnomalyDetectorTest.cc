@@ -302,7 +302,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
             double noise = std::accumulate(anomalyFactors.begin(),
                                            anomalyFactors.end(), 0.0);
             LOG_DEBUG(<< "S/N = " << (signal / noise));
-            CPPUNIT_ASSERT(signal / noise > 90.0);
+            CPPUNIT_ASSERT(signal / noise > 35.0);
         }
 
         // Find the high/low rate partition point.

@@ -57,10 +57,10 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), weight.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(4.9262, mean[0], 5e-5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(4.6252, mean[0], 5e-5);
         CPPUNIT_ASSERT_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
         CPPUNIT_ASSERT_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.64982, maths_t::countForUpdate(weight[0]), 5e-5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.807, maths_t::countForUpdate(weight[0]), 5e-5);
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -111,11 +111,10 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), weight.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), mean[0].size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), maths_t::countForUpdate(weight[0]).size());
-        double expectedMean[]{4.9262, 3.9262};
+        double expectedMean[]{4.6252, 3.6252};
         for (std::size_t i = 0; i < 2; ++i) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean[i], mean[0][i], 5e-5);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                0.64982, maths_t::countForUpdate(weight[0])[i], 5e-5);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.807, maths_t::countForUpdate(weight[0])[i], 5e-5);
         }
     }
 }
