@@ -2318,7 +2318,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     }
     TVectorMeanAccumulator next{TVector(dimension, CFloatStorage(0.0))};
     for (std::size_t i = 0; i < samples_.size(); ++i) {
-        TDouble10Vec weight{maths_t::countForUpdate(weights_[i])};
+        TDouble10Vec weight(maths_t::countForUpdate(weights_[i]));
         next.add(TVector(samples_[i]) / TVector(scales_[i]),
                  *std::min_element(weight.begin(), weight.end()));
     }
