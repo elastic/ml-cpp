@@ -249,8 +249,6 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
 bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
                                            double value,
                                            const SChangeDescription& change) {
-    m_PeriodicityTest.maybeClear(time, change.s_Magnitude[0]);
-
     bool result{m_Components.usingTrendForPrediction() == false};
     m_Components.useTrendForPrediction();
 
