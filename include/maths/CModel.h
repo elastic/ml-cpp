@@ -236,18 +236,24 @@ struct MATHS_EXPORT SModelProbabilityResult {
     using TDouble4Vec = core::CSmallVector<double, 4>;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
-    using TStrCRef4Vec = core::CSmallVector<TStrCRef, 4>;
+
+    //! \brief Wraps up a feature label and probability.
+    struct MATHS_EXPORT SFeatureProbability {
+        using TStrCRef = boost::reference_wrapper<const std::string>;
+        SFeatureProbability();
+        SFeatureProbability(const std::string& label, double probability);
+        TStrCRef s_Label;
+        double s_Probability = 1.0;
+    };
+    using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;
 
     //! The overall result probability.
     double s_Probability = 1.0;
     //! True if the probability depends on the correlation between two
     //! time series and false otherwise.
     bool s_Conditional = false;
-    //! The feature probability labels.
-    TStrCRef4Vec s_FeatureLabels;
     //! The probabilities for each individual feature.
-    TDouble4Vec s_FeatureProbabilities;
+    TFeatureProbability4Vec s_FeatureProbabilities;
     //! The tail of the current bucket probability.
     TTail2Vec s_Tail;
     //! The identifier of the time series correlated with this one which

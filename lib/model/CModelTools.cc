@@ -401,10 +401,10 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                         auto nearest = x - a < b - x ? left : right;
                         result.s_Probability = interpolate(
                             left->second.s_Probability, right->second.s_Probability);
-                        result.s_FeatureLabels = nearest->second.s_FeatureLabels;
-                        result.s_FeatureProbabilities = {
-                            interpolate(left->second.s_FeatureProbabilities[0],
-                                        right->second.s_FeatureProbabilities[0])};
+                        result.s_FeatureProbabilities.emplace_back(
+                            left->second.s_FeatureProbabilities[0].s_Label,
+                            interpolate(left->second.s_FeatureProbabilities[0].s_Probability,
+                                        right->second.s_FeatureProbabilities[0].s_Probability));
                         result.s_Tail = nearest->second.s_Tail;
                         return true;
                     }
@@ -422,7 +422,7 @@ bool CModelTools::CProbabilityCache::canInterpolate(const TDouble1Vec& modes,
     return left->second.s_Tail == right->second.s_Tail &&
            std::all_of(left - 1, right + 2,
                        [](const std::pair<double, maths::SModelProbabilityResult>& cached) {
-                           return cached.second.s_FeatureLabels.size() == 1;
+                           return cached.second.s_FeatureProbabilities.size() == 1;
                        }) &&
            std::none_of(left - 1, right + 2,
                         [](const std::pair<double, maths::SModelProbabilityResult>& cached) {

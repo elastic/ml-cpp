@@ -1031,7 +1031,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
     maths_t::TDoubleWeightsAry1Vec weights{unpack(params.weights()[0])};
 
     TDouble4Vec probabilities;
-    TStrCRef4Vec labels;
+    SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
 
     double pl, pu;
     maths_t::ETail tail;
@@ -1048,7 +1048,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         return false;
     }
     probabilities.push_back((pl + pu) / 2.0);
-    labels.push_back(boost::cref(BUCKET_FEATURE_LABEL));
+    featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, (pl + pu) / 2.0);
 
     if (m_ResidualMeanModel != nullptr && params.useBulkFeatures()) {
         double probability{1.0};
@@ -1069,7 +1069,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
             }
         }
         probabilities.push_back(probability);
-        labels.push_back(boost::cref(MEAN_FEATURE_LABEL));
+        featureProbabilities.emplace_back(MEAN_FEATURE_LABEL, probability);
     }
 
     double probability{
@@ -1086,12 +1086,11 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(params, time, probability);
         probabilities.push_back(anomalyProbability);
-        labels.push_back(boost::cref(ANOMALY_FEATURE_LABEL));
+        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
     }
 
     result.s_Probability = probability;
-    result.s_FeatureLabels = std::move(labels);
-    result.s_FeatureProbabilities = std::move(probabilities);
+    result.s_FeatureProbabilities = std::move(featureProbabilities);
     result.s_Tail = {tail};
 
     return true;
@@ -1205,7 +1204,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     double probability;
     aggregator.calculate(probability);
     TDouble4Vec probabilities{probability};
-    TStrCRef4Vec labels{boost::cref(BUCKET_FEATURE_LABEL)};
+    SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
+    featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, probability);
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{
@@ -1217,13 +1217,12 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(params, mostAnomalousTime, probability);
         probabilities.push_back(anomalyProbability);
-        labels.push_back(boost::cref(ANOMALY_FEATURE_LABEL));
+        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
     }
 
     result.s_Probability = probability;
     result.s_Conditional = conditional;
-    result.s_FeatureLabels = std::move(labels);
-    result.s_FeatureProbabilities = std::move(probabilities);
+    result.s_FeatureProbabilities = std::move(featureProbabilities);
     result.s_Tail = std::move(tail);
     result.s_MostAnomalousCorrelate = std::move(mostAnomalousCorrelate);
 
@@ -2510,8 +2509,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     }
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
-    result = SModelProbabilityResult{
-        1.0, false, {boost::cref(BUCKET_FEATURE_LABEL)}, {1.0}, tail, {}};
+    result = SModelProbabilityResult{1.0, false, {{BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};
@@ -2603,10 +2601,12 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                                  std::sqrt(marginalUpper * conditionalUpper)) /
                                 2.0);
     }
-    TStrCRef4Vec labels{probabilities.size() == 1
-                            ? TStrCRef4Vec{boost::cref(BUCKET_FEATURE_LABEL)}
-                            : TStrCRef4Vec{boost::cref(BUCKET_FEATURE_LABEL),
-                                           boost::cref(MEAN_FEATURE_LABEL)}};
+
+    TStrCRef labels[]{boost::cref(BUCKET_FEATURE_LABEL), boost::cref(MEAN_FEATURE_LABEL)};
+    SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
+    for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+        featureProbabilities.emplace_back(labels[i], probabilities[i]);
+    }
 
     double probability{aggregateFeatureProbabilities(probabilities)};
 
@@ -2622,12 +2622,11 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(params, time, probability);
         probabilities.push_back(anomalyProbability);
-        labels.push_back(boost::cref(ANOMALY_FEATURE_LABEL));
+        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
     }
 
     result.s_Probability = probability;
-    result.s_FeatureLabels = std::move(labels);
-    result.s_FeatureProbabilities = std::move(probabilities);
+    result.s_FeatureProbabilities = std::move(featureProbabilities);
     result.s_Tail = tail;
 
     return true;

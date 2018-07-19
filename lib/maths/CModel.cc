@@ -56,6 +56,7 @@ double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculatio
     return 0.0;
 }
 
+const std::string EMPTY_STRING;
 const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
                                0.57, 0.54, 0.52, 0.51};
 
@@ -279,6 +280,17 @@ CModelProbabilityParams& CModelProbabilityParams::useAnomalyModel(bool use) {
 
 bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
+}
+
+//////// SModelProbabilityResult::SFeatureProbability ////////
+
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
+    : s_Label{boost::cref(EMPTY_STRING)} {
+}
+
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability(const std::string& label,
+                                                                  double probability)
+    : s_Label{boost::cref(label)}, s_Probability{probability} {
 }
 
 //////// CModel ////////
