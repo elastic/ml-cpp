@@ -1867,8 +1867,6 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1904) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1905) != anomalyBuckets.end());
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1906) != anomalyBuckets.end());
