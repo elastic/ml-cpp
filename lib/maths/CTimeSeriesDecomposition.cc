@@ -255,13 +255,11 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
     switch (change.s_Description) {
     case SChangeDescription::E_LevelShift: {
         double meanShift{std::fabs(change.s_Value[0])};
-        m_PeriodicityTest.maybeClear(time, meanShift);
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
     }
     case SChangeDescription::E_LinearScale: {
         double meanShift{std::fabs(change.s_Value[0] * this->meanValue(time))};
-        m_PeriodicityTest.maybeClear(time, meanShift);
         m_Components.linearScale(time, change.s_Value[0]);
         break;
     }
