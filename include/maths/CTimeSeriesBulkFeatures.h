@@ -47,8 +47,8 @@ public:
     template<typename VECTOR, typename ITR>
     static TT1VecTWeightAry1VecPr<VECTOR> mean(ITR begin, ITR end) {
         if (begin != end) {
-            VECTOR value{toVector<VECTOR>(rangeMean(begin, end, 0.9))};
-            VECTOR weight{toVector<VECTOR>(rangeCount(begin, end, 0.9))};
+            VECTOR value(toVector<VECTOR>(rangeMean(begin, end, 0.9)));
+            VECTOR weight(toVector<VECTOR>(rangeCount(begin, end, 0.9)));
             return {{value}, {maths_t::countWeight(weight)}};
         }
         return {{}, {}};
