@@ -733,7 +733,8 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
         }
         return false;
     };
-    return m_Windows[test] != nullptr && (m_Windows[test]->needToCompress(time) || scheduledTest());
+    return m_Windows[test] != nullptr &&
+           (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
 CExpandingWindow*
