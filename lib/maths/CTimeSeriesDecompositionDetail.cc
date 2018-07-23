@@ -77,10 +77,6 @@ const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime WEEK{core::constants::WEEK};
 const core_t::TTime MONTH{4 * WEEK};
 
-//! Multiplier to correct for bias using MAD to estimate standard
-//! deviation (for normally distributed data).
-const double MAD_TO_SD_MULTIPLIER{1.4826};
-
 //! We scale the time used for the regression model to improve
 //! the condition of the design matrix.
 double scaleTime(core_t::TTime time, core_t::TTime origin) {
