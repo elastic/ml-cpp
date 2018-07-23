@@ -41,12 +41,17 @@ class CUnivariateChangeModel;
 //! \brief A description of a time series change.
 struct MATHS_EXPORT SChangeDescription {
     using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
 
     //! The types of change we can detect.
     enum EDescription { E_LevelShift, E_LinearScale, E_TimeShift };
 
-    SChangeDescription(EDescription decription, double value, const TPriorPtr& residualModel);
+    SChangeDescription(EDescription decription,
+                       double value,
+                       double magnitude,
+                       const TDecompositionPtr& trendModel,
+                       const TPriorPtr& residualModel);
 
     //! Get a description of this change.
     std::string print() const;
@@ -56,6 +61,12 @@ struct MATHS_EXPORT SChangeDescription {
 
     //! The change value.
     TDouble2Vec s_Value;
+
+    //! The magnitude of the change.
+    TDouble2Vec s_Magnitude;
+
+    //! The time series trend model to use after the change.
+    TDecompositionPtr s_TrendModel;
 
     //! The residual model to use after the change.
     TPriorPtr s_ResidualModel;
@@ -79,6 +90,9 @@ public:
                                         core_t::TTime minimumTimeToDetect = 12 * core::constants::HOUR,
                                         core_t::TTime maximumTimeToDetect = core::constants::DAY,
                                         double minimumDeltaBicToDetect = 14.0);
+    CUnivariateTimeSeriesChangeDetector(const CUnivariateTimeSeriesChangeDetector& other);
+    CUnivariateTimeSeriesChangeDetector&
+    operator=(const CUnivariateTimeSeriesChangeDetector&) = delete;
 
     //! Initialize by reading state from \p traverser.
     bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -121,7 +135,7 @@ public:
 
 private:
     using TChangeModel = time_series_change_detector_detail::CUnivariateChangeModel;
-    using TChangeModelPtr = std::shared_ptr<TChangeModel>;
+    using TChangeModelPtr = std::unique_ptr<TChangeModel>;
     using TChangeModelPtr5Vec = core::CSmallVector<TChangeModelPtr, 5>;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
     using TRegression = CRegression::CLeastSquaresOnline<1, double>;
@@ -150,6 +164,9 @@ private:
     //! function as a function of time.
     TRegression m_LogInvDecisionFunctionTrend;
 
+    //! The time series trend model.
+    TDecompositionPtr m_TrendModel;
+
     //! The change models.
     TChangeModelPtr5Vec m_ChangeModels;
 };
@@ -158,7 +175,7 @@ namespace time_series_change_detector_detail {
 
 //! \brief Helper interface for change detection. Implementations of
 //! this are used to model specific types of changes which can occur.
-class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable {
+class MATHS_EXPORT CUnivariateChangeModel {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
@@ -167,10 +184,16 @@ public:
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
+    using TChangeModelPtr = std::unique_ptr<CUnivariateChangeModel>;
 
 public:
     CUnivariateChangeModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel);
     virtual ~CUnivariateChangeModel() = default;
+    CUnivariateChangeModel(const CUnivariateChangeModel&) = delete;
+    CUnivariateChangeModel& operator=(const CUnivariateChangeModel&) = delete;
+
+    //! Get a copy of this change model.
+    virtual TChangeModelPtr clone(const TDecompositionPtr& trendModel) const = 0;
 
     //! Initialize by reading state from \p traverser.
     virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -184,6 +207,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const = 0;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const = 0;
 
     //! Get a description of the change.
     virtual TOptionalChangeDescription change() const = 0;
@@ -206,6 +232,10 @@ public:
     virtual uint64_t checksum(uint64_t seed) const = 0;
 
 protected:
+    CUnivariateChangeModel(const CUnivariateChangeModel& other,
+                           const TDecompositionPtr& trendModel,
+                           const TPriorPtr& residualModel);
+
     //! Restore the residual model reading state from \p traverser.
     bool restoreResidualModel(const SDistributionRestoreParams& params,
                               core::CStateRestoreTraverser& traverser);
@@ -224,13 +254,15 @@ protected:
 
     //! Get the time series trend model.
     const CTimeSeriesDecompositionInterface& trendModel() const;
+    //! Get the time series trend model member variable.
+    const TDecompositionPtr& trendModelPtr() const;
 
     //! Get the time series residual model.
     const CPrior& residualModel() const;
     //! Get the time series residual model.
     CPrior& residualModel();
     //! Get the time series residual model member variable.
-    TPriorPtr residualModelPtr() const;
+    const TPriorPtr& residualModelPtr() const;
 
 private:
     //! The likelihood of the data under this model.
@@ -250,6 +282,11 @@ private:
 class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeModel {
 public:
     CUnivariateNoChangeModel(const TDecompositionPtr& trendModel, const TPriorPtr& residualModel);
+    CUnivariateNoChangeModel(const CUnivariateNoChangeModel& other,
+                             const TDecompositionPtr& trendModel);
+
+    //! Get a copy of this change model.
+    TChangeModelPtr clone(const TDecompositionPtr& trendModel) const;
 
     //! Initialize by reading state from \p traverser.
     virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -263,6 +300,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Returns a null object.
     virtual TOptionalChangeDescription change() const;
@@ -285,6 +325,11 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
 public:
     CUnivariateLevelShiftModel(const TDecompositionPtr& trendModel,
                                const TPriorPtr& residualModel);
+    CUnivariateLevelShiftModel(const CUnivariateLevelShiftModel& other,
+                               const TDecompositionPtr& trendModel);
+
+    //! Get a copy of this change model.
+    TChangeModelPtr clone(const TDecompositionPtr& trendModel) const;
 
     //! Initialize by reading state from \p traverser.
     virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -298,6 +343,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Get a description of the level shift.
     virtual TOptionalChangeDescription change() const;
@@ -333,6 +381,11 @@ class MATHS_EXPORT CUnivariateLinearScaleModel final : public CUnivariateChangeM
 public:
     CUnivariateLinearScaleModel(const TDecompositionPtr& trendModel,
                                 const TPriorPtr& residualModel);
+    CUnivariateLinearScaleModel(const CUnivariateLinearScaleModel& other,
+                                const TDecompositionPtr& trendModel);
+
+    //! Get a copy of this change model.
+    TChangeModelPtr clone(const TDecompositionPtr& trendModel) const;
 
     //! Initialize by reading state from \p traverser.
     virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -346,6 +399,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Get a description of the level shift.
     virtual TOptionalChangeDescription change() const;
@@ -368,6 +424,9 @@ private:
     //! The optimal shift.
     TMeanAccumulator m_Scale;
 
+    //! The mean magnitude of the change.
+    TMeanAccumulator m_Magnitude;
+
     //! The mode of the initial residual distribution model.
     double m_ResidualModelMode;
 
@@ -382,6 +441,11 @@ public:
     CUnivariateTimeShiftModel(const TDecompositionPtr& trendModel,
                               const TPriorPtr& residualModel,
                               core_t::TTime shift);
+    CUnivariateTimeShiftModel(const CUnivariateTimeShiftModel& other,
+                              const TDecompositionPtr& trendModel);
+
+    //! Get a copy of this univariate change model.
+    TChangeModelPtr clone(const TDecompositionPtr& trendModel) const;
 
     //! Initialize by reading state from \p traverser.
     virtual bool acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -395,6 +459,9 @@ public:
 
     //! The expected BIC of applying the change.
     virtual double expectedBic() const;
+
+    //! Get the normalized change magnitude.
+    virtual double normalizedMagnitude() const;
 
     //! Get a description of the time shift.
     virtual TOptionalChangeDescription change() const;
