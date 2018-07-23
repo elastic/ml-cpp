@@ -2196,6 +2196,7 @@ void CTimeSeriesModelTest::testLinearScaling() {
     }
 
     // Scale by 2 / 0.3
+
     rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
     for (auto sample : samples) {
         sample = 2.0 * (12.0 + 10.0 * smoothDaily(time)) + sample;
