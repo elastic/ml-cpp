@@ -25,7 +25,7 @@ using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAcc
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TRegression = CRegression::CLeastSquaresOnline<1, double>;
 
-//! Fit a linear model to the values in [begin, end).
+//! Fit a linear model to the values in [\p begin, \p end).
 template<typename ITR>
 TRegression fitLinearModel(ITR begin, ITR end, double startTime, double dt) {
     TRegression result;
@@ -36,6 +36,7 @@ TRegression fitLinearModel(ITR begin, ITR end, double startTime, double dt) {
     return result;
 }
 
+//! Fit a periodic model of period \p period to the values [\p begin, \p end).
 template<typename ITR>
 TDoubleVec fitPeriodicModel(ITR begin, ITR end, std::size_t period) {
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
@@ -51,7 +52,8 @@ TDoubleVec fitPeriodicModel(ITR begin, ITR end, std::size_t period) {
     return result;
 }
 
-//! Re-weight the out-lying values w.r.t. predict in [begin, end).
+//! Re-weight the outlying values in [\p begin, \p end) w.r.t. the
+//! predictions from \p predict.
 template<typename ITR>
 void reweightOutliers(ITR begin,
                       ITR end,
@@ -75,7 +77,8 @@ void reweightOutliers(ITR begin,
     }
 }
 
-//! Re-weight the out-lying values in [begin, end).
+//! Re-weight the outlying values in [\p begin, \p end) w.r.t. the
+//! predictions from \p predict.
 template<typename ITR>
 void reweightOutliers(ITR begin,
                       ITR end,
@@ -97,8 +100,8 @@ void reweightOutliers(ITR begin,
     }
 }
 
-//! Compute the moments of the values in [\p begin, \p end) minus the predictions
-//! of \p model.
+//! Compute the moments of the values in [\p begin, \p end) after subtracting
+//! the predictions of \p model.
 template<typename ITR>
 TMeanVarAccumulator
 residualMoments(ITR begin, ITR end, double startTime, double dt, const TRegression& model) {
@@ -114,13 +117,12 @@ residualMoments(ITR begin, ITR end, double startTime, double dt, const TRegressi
 
 //! Compute the BIC of the linear model fit to [\p begin, \p end).
 template<typename ITR>
-double bicLinearModel(ITR begin,
-                      ITR end,
-                      double startTime,
-                      double dt,
-                      double parameters,
-                      double outlierFraction,
-                      double outlierWeight) {
+double logLikelihoodLinearModel(ITR begin,
+                                ITR end,
+                                double startTime,
+                                double dt,
+                                double outlierFraction,
+                                double outlierWeight) {
     using T = typename std::iterator_traits<ITR>::value_type;
     using TVec = std::vector<T>;
 
@@ -143,8 +145,7 @@ double bicLinearModel(ITR begin,
             return count + CBasicStatistics::count(value);
         })};
         double n{static_cast<double>(values.size()) * newCount / oldCount};
-        return n * CTools::fastLog(CBasicStatistics::variance(moments)) +
-               parameters * CTools::fastLog(n);
+        return n * CTools::fastLog(CBasicStatistics::variance(moments));
     }
 
     if (outlierFraction < 0.0 || outlierFraction >= 1.0) {
@@ -155,42 +156,45 @@ double bicLinearModel(ITR begin,
     TRegression model{fitLinearModel(begin, end, startTime, dt)};
     TMeanVarAccumulator moments{residualMoments(begin, end, startTime, dt, model)};
     double n{static_cast<double>(std::distance(begin, end))};
-    return n * CTools::fastLog(CBasicStatistics::variance(moments)) +
-           parameters * CTools::fastLog(n);
+    return n * CTools::fastLog(CBasicStatistics::maximumLikelihoodVariance(moments));
 }
 
+//! Compute the BIC of the scaled periodic model for the values in
+//! [\p begin, \p end).
 template<typename ITR>
-double bicScaledPeriodicModel(ITR begin,
-                              ITR end,
-                              std::size_t parameters,
-                              std::size_t offset,
-                              const TDoubleVec& model) {
+double logLikelihoodScaledPeriodicModel(ITR begin,
+                                        ITR end,
+                                        std::size_t offset,
+                                        const TDoubleVec& model) {
+    std::size_t period{model.size()};
+
     TMeanAccumulator projection;
-    TMeanAccumulator norm;
+    TMeanAccumulator norm2;
     for (ITR i = begin; i != end; ++i) {
         double x{CBasicStatistics::mean(*i)};
         double w{CBasicStatistics::count(*i)};
-        double p{model[offset + std::distance(begin, i)]};
+        double p{model[(offset + std::distance(begin, i)) % period]};
         projection.add(x * p, w);
-        norm.add(p * p, w);
+        norm2.add(p * p, w);
     }
-    double scale{CBasicStatistics::mean(projection) /
-                 std::sqrt(CBasicStatistics::mean(norm))};
+    double scale{CBasicStatistics::mean(projection) / CBasicStatistics::mean(norm2)};
+    LOG_TRACE(<< "  scale = " << scale);
 
     TMeanVarAccumulator moments;
     for (ITR i = begin; i != end; ++i) {
         double x{CBasicStatistics::mean(*i)};
         double w{CBasicStatistics::count(*i)};
-        double p{scale * model[offset + std::distance(begin, i)]};
+        double p{scale * model[(offset + std::distance(begin, i)) % period]};
         moments.add(x - p, w);
     }
+    LOG_TRACE("  moments = " << moments);
 
     double n{static_cast<double>(std::distance(begin, end))};
-    return n * CTools::fastLog(CBasicStatistics::variance(moments)) +
-           parameters * CTools::fastLog(n);
+    return n * CTools::fastLog(CBasicStatistics::maximumLikelihoodVariance(moments));
 }
 
-//! Remove the predictions of the piecewise linear model fit to [\p begin, \p end).
+//! Remove the predictions of the piecewise linear model with breakpoints
+//! defined by \p segmentation fit to [\p begin, \p end).
 void removePiecewiseLinearModelPredictions(TFloatMeanAccumulatorVec& values,
                                            const TSizeVec& segmentation,
                                            double outlierFraction,
@@ -232,7 +236,8 @@ void removePiecewiseLinearModelPredictions(TFloatMeanAccumulatorVec& values,
     }
 }
 
-//! Remove the predictions of the piecewise linear model fit to [\p begin, \p end).
+//! Remove the predictions of the piecewise scaled periodic model with
+//! breakpoints defined by \p segmentation fit to [\p begin, \p end).
 void removePiecewiseLinearScalingModelPredictions(TFloatMeanAccumulatorVec& values,
                                                   std::size_t period,
                                                   const TSizeVec& segmentation,
@@ -319,6 +324,8 @@ CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaling(const TFloatMeanA
                      outlierFraction, outlierWeight);
     model = fitPeriodicModel(values_.begin(), values_.end(), period);
 
+    LOG_DEBUG(<< core::CContainerPrinter::print(model));
+
     TSizeVec segmentation{0, values.size()};
     topDownPeriodicPiecewiseLinearScaling(values_.begin(), values_.end(), 0,
                                           model, bicGainToSegment, segmentation);
@@ -347,7 +354,9 @@ void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
     // maintaining a parsimonious model. We achieve the later objective by
     // doing model selection for each candidate segment using delta BIC.
 
-    if (std::distance(begin, end) >= 6) {
+    std::size_t range{static_cast<std::size_t>(std::distance(begin, end))};
+
+    if (range >= 6) {
         using TDoubleDoubleItrTr = core::CTriple<double, double, ITR>;
         using TMinAccumulator =
             CBasicStatistics::COrderStatisticsStack<TDoubleDoubleItrTr, 1>;
@@ -374,9 +383,9 @@ void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
         minResidualVariance.add(
             {variance(leftResidualMoments, rightResidualMoments), splitTime, i});
 
-        // We iterate through every possible binary split of the data into contiguous
-        // ranges looking for the split which minimizes the total variance of the values
-        // minus linear model predictions.
+        // We iterate through every possible binary split of the data into
+        // contiguous ranges looking for the split which minimizes the total
+        // variance of the values minus linear model predictions.
 
         for (/**/; i + 3 != end; ++i, splitTime += dt) {
             TRegression deltaModel{fitLinearModel(i, i + 1, splitTime, dt)};
@@ -395,9 +404,10 @@ void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
         splitTime = minResidualVariance[0].second;
         ITR split{minResidualVariance[0].third};
         double bicGain{
-            bicLinearModel(begin, end, startTime, dt, 2, outlierFraction, outlierWeight) -
-            bicLinearModel(begin, split, startTime, dt, 4, outlierFraction, outlierWeight) -
-            bicLinearModel(split, end, startTime, dt, 4, outlierFraction, outlierWeight)};
+            logLikelihoodLinearModel(begin, end, startTime, dt, outlierFraction, outlierWeight) -
+            logLikelihoodLinearModel(begin, split, startTime, dt, outlierFraction, outlierWeight) -
+            logLikelihoodLinearModel(split, end, startTime, dt, outlierFraction, outlierWeight) +
+            2.0 * CTools::fastLog(static_cast<double>(range))};
 
         if (bicGain > bicGainToSegment) {
             std::size_t splitOffset{offset + std::distance(begin, split)};
@@ -419,23 +429,26 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaling(ITR begin,
                                                                     TSizeVec& segmentation) {
     // We want to find the partition of
 
+    std::size_t range{static_cast<std::size_t>(std::distance(begin, end))};
     std::size_t period{model.size()};
 
-    if (std::distance(begin, end) >= static_cast<std::ptrdiff_t>(period)) {
+    LOG_DEBUG(<< "Considering splitting [" << offset << "," << offset + range << ")");
+
+    if (range >= period) {
         using TDoubleItrPr = std::pair<double, ITR>;
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleItrPr, 1>;
         using TMeanAccumulatorAry = boost::array<TMeanAccumulator, 3>;
 
         TMinAccumulator minResidualVariance;
 
-        auto statistics = [offset, period, &model](ITR begin_, ITR end_) {
+        auto statistics = [offset, begin, period, &model](ITR begin_, ITR end_) {
             TMeanAccumulatorAry result;
             for (ITR i = begin_; i != end_; ++i) {
                 double x{CBasicStatistics::mean(*i)};
                 double w{CBasicStatistics::count(*i)};
-                double p{model[(offset + std::distance(begin_, i)) % period]};
-                result[0].add(x * x * (1.0 + p) * (1.0 - p), w);
-                result[1].add(x * x, w);
+                double p{model[(offset + std::distance(begin, i)) % period]};
+                result[0].add(x * x, w);
+                result[1].add(x * p, w);
                 result[2].add(p * p, w);
             }
             return result;
@@ -443,12 +456,10 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaling(ITR begin,
         auto variance = [](const TMeanAccumulatorAry& l, const TMeanAccumulatorAry& r) {
             double nl{CBasicStatistics::count(l[0])};
             double nr{CBasicStatistics::count(r[0])};
-            double zl{CBasicStatistics::mean(l[2])};
-            double zr{CBasicStatistics::mean(r[2])};
-            double vl{CBasicStatistics::mean(l[0]) / zl +
-                      (1.0 - 1.0 / zl) * CBasicStatistics::mean(l[1])};
-            double vr{CBasicStatistics::mean(r[0]) / zr +
-                      (1.0 - 1.0 / zr) * CBasicStatistics::mean(r[1])};
+            double vl{CBasicStatistics::mean(l[0]) -
+                      CTools::pow2(CBasicStatistics::mean(l[1])) / CBasicStatistics::mean(l[2])};
+            double vr{CBasicStatistics::mean(r[0]) -
+                      CTools::pow2(CBasicStatistics::mean(r[1])) / CBasicStatistics::mean(r[2])};
             return (nl * vl + nr * vr) / (nl + nr);
         };
 
@@ -456,6 +467,7 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaling(ITR begin,
 
         TMeanAccumulatorAry leftStatistics{statistics(begin, i)};
         TMeanAccumulatorAry rightStatistics{statistics(i, end)};
+        minResidualVariance.add({variance(leftStatistics, rightStatistics), i});
 
         for (/**/; i + 1 != end; ++i) {
             TMeanAccumulatorAry deltaStatistics{statistics(i, i + 1)};
@@ -468,10 +480,13 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaling(ITR begin,
 
         ITR split{minResidualVariance[0].second};
         std::size_t splitOffset{offset + std::distance(begin, split)};
+        LOG_DEBUG(<< "  candidate = " << splitOffset << ", variance = " << minResidualVariance[0].first);
 
-        double bicGain{bicScaledPeriodicModel(begin, end, 0, offset, model) -
-                       bicScaledPeriodicModel(begin, split, 1, offset, model) -
-                       bicScaledPeriodicModel(split, end, 1, offset, model)};
+        double bicGain{logLikelihoodScaledPeriodicModel(begin, end, offset, model) -
+                       logLikelihoodScaledPeriodicModel(begin, split, offset, model) -
+                       logLikelihoodScaledPeriodicModel(split, end, splitOffset, model) +
+                       2.0 * CTools::fastLog(static_cast<double>(range))};
+        LOG_DEBUG(<< "  delta BIC = " << bicGain);
 
         if (bicGain > bicGainToSegment) {
             topDownPeriodicPiecewiseLinearScaling(begin, split, offset, model,
