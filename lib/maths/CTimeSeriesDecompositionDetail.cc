@@ -489,7 +489,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriod
                                                                       other.m_BucketLength} {
     // Note that m_Windows is an array.
     for (std::size_t i = 0u; !isForForecast && i < other.m_Windows.size(); ++i) {
-        if (other.m_Windows[i]) {
+        if (other.m_Windows[i] != nullptr) {
             m_Windows[i] = boost::make_unique<CExpandingWindow>(*other.m_Windows[i]);
         }
     }
@@ -524,12 +524,12 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptPersistInserter(
     inserter.insertLevel(
         PERIODICITY_TEST_MACHINE_6_3_TAG,
         boost::bind(&core::CStateMachine::acceptPersistInserter, &m_Machine, _1));
-    if (m_Windows[E_Short]) {
+    if (m_Windows[E_Short] != nullptr) {
         inserter.insertLevel(SHORT_WINDOW_6_3_TAG,
                              boost::bind(&CExpandingWindow::acceptPersistInserter,
                                          m_Windows[E_Short].get(), _1));
     }
-    if (m_Windows[E_Long]) {
+    if (m_Windows[E_Long] != nullptr) {
         inserter.insertLevel(LONG_WINDOW_6_3_TAG,
                              boost::bind(&CExpandingWindow::acceptPersistInserter,
                                          m_Windows[E_Long].get(), _1));
@@ -555,7 +555,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& m
     switch (m_Machine.state()) {
     case PT_TEST:
         for (auto& window : m_Windows) {
-            if (window) {
+            if (window != nullptr) {
                 window->add(time, value, weight);
             }
         }
@@ -609,6 +609,14 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
         LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
         this->apply(PT_RESET, message);
         break;
+    }
+}
+
+void CTimeSeriesDecompositionDetail::CPeriodicityTest::shiftTime(core_t::TTime dt) {
+    for (auto& window : m_Windows) {
+        if (window != nullptr) {
+            window->shiftTime(dt);
+        }
     }
 }
 
@@ -667,7 +675,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
         auto initialize = [this](core_t::TTime time_) {
             for (auto i : {E_Short, E_Long}) {
                 m_Windows[i].reset(this->newWindow(i));
-                if (m_Windows[i]) {
+                if (m_Windows[i] != nullptr) {
                     // Since all permitted bucket lengths are divisors
                     // of longer ones, this finds the unique rightmost
                     // time which is an integer multiple of all windows'
@@ -678,7 +686,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
                 }
             }
             for (auto& window : m_Windows) {
-                if (window) {
+                if (window != nullptr) {
                     window->initialize(time_);
                 }
             }
@@ -725,7 +733,8 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
         }
         return false;
     };
-    return m_Windows[test] && (m_Windows[test]->needToCompress(time) || scheduledTest());
+    return m_Windows[test] != nullptr &&
+           (m_Windows[test]->needToCompress(time) || scheduledTest());
 }
 
 CExpandingWindow*
