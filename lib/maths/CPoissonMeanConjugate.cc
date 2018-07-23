@@ -192,9 +192,9 @@ bool CPoissonMeanConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
-        RESTORE_BUILT_IN(OFFSET_TAG, m_Offset)
-        RESTORE_BUILT_IN(SHAPE_TAG, m_Shape)
-        RESTORE_BUILT_IN(RATE_TAG, m_Rate)
+        RESTORE(OFFSET_TAG, m_Offset.fromString(traverser.value()))
+        RESTORE(SHAPE_TAG, m_Shape.fromString(traverser.value()))
+        RESTORE(RATE_TAG, m_Rate.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
                                this->numberSamples(numberSamples))
@@ -864,9 +864,9 @@ std::size_t CPoissonMeanConjugate::staticSize() const {
 
 void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(OFFSET_TAG, m_Offset, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(SHAPE_TAG, m_Shape, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(RATE_TAG, m_Rate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(SHAPE_TAG, m_Shape.toString());
+    inserter.insertValue(RATE_TAG, m_Rate.toString());
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }

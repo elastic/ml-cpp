@@ -26,6 +26,7 @@ Improve partition analysis memory usage ({pull}97[#97])
 Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
 Improve the accuracy of model memory control ({pull}122[#122])
 Improve adaption of the modelling of cyclic components to very localised features ({pull}134[#134])
+Reduce the memory consumed by distribution models ({pull}146[#146])
 
 Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
 model state on disk ({pull}89[#89])

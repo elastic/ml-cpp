@@ -2197,7 +2197,7 @@ void CTimeSeriesModelTest::testLinearScaling() {
 
     // Scale by 2 / 0.3
     // Disabled, see https://github.com/elastic/ml-cpp/pull/159
-/*
+    /*
     rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
     for (auto sample : samples) {
         sample = 2.0 * (12.0 + 10.0 * smoothDaily(time)) + sample;

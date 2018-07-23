@@ -103,7 +103,7 @@ private:
 //! is expected to give largely order (of points processed) invariant
 //! unsupervised clustering of the data which identifies reasonably
 //! well separated clusters.
-class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
+class MATHS_EXPORT CXMeansOnline1d final : public CClusterer1d {
 public:
     class CCluster;
     using TDoubleVec = CClusterer1d::TPointPreciseVec;
@@ -374,9 +374,8 @@ public:
     CIndexGenerator& indexGenerator();
 
 private:
-    using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
-    using TMaxAccumulator =
-        CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
 private:
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -425,32 +424,32 @@ private:
     //! The type of data being clustered.
     maths_t::EDataType m_DataType;
 
+    //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
+    maths_t::EClusterWeightCalc m_WeightCalc;
+
     //! The distributions available to model the clusters.
     CAvailableModeDistributions m_AvailableDistributions;
 
     //! The initial rate at which information is lost.
-    double m_InitialDecayRate;
+    CFloatStorage m_InitialDecayRate;
 
     //! The rate at which information is lost.
-    double m_DecayRate;
+    CFloatStorage m_DecayRate;
 
     //! A measure of the length of history of the data clustered.
-    double m_HistoryLength;
-
-    //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
-    maths_t::EClusterWeightCalc m_WeightCalc;
+    CFloatStorage m_HistoryLength;
 
     //! The minimum cluster fractional count.
-    double m_MinimumClusterFraction;
+    CFloatStorage m_MinimumClusterFraction;
 
     //! The minimum cluster count.
-    double m_MinimumClusterCount;
+    CFloatStorage m_MinimumClusterCount;
 
     //! The minimum count for a category in the sketch to cluster.
-    double m_MinimumCategoryCount;
+    CFloatStorage m_MinimumCategoryCount;
 
     //! The data central confidence interval on which to Winsorise.
-    double m_WinsorisationConfidenceInterval;
+    CFloatStorage m_WinsorisationConfidenceInterval;
 
     //! A generator of unique cluster indices.
     CIndexGenerator m_ClusterIndexGenerator;
