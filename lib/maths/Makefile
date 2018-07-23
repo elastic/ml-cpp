@@ -94,6 +94,7 @@ CTimeSeriesDecompositionDetail.cc \
 CTimeSeriesDecompositionStateSerialiser.cc \
 CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
+CTimeSeriesSegmentation.cc \
 CTools.cc \
 CTrendComponent.cc \
 CXMeansOnline1d.cc \

@@ -88,6 +88,7 @@ SRCS=\
 	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
+	CTimeSeriesSegmentationTest.cc \
 	CToolsTest.cc \
 	CTrendComponentTest.cc \
 	CXMeansOnlineTest.cc \
