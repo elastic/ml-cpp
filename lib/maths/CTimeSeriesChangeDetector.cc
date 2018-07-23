@@ -73,8 +73,8 @@ SChangeDescription::SChangeDescription(EDescription description,
                                        double magnitude,
                                        const TDecompositionPtr& trendModel,
                                        const TPriorPtr& residualModel)
-    : s_Description{description},
-      s_Value(1, value), s_Magnitude{magnitude}, s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
+    : s_Description{description}, s_Value(1, value),
+      s_Magnitude(1, magnitude), s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
 }
 
 std::string SChangeDescription::print() const {
