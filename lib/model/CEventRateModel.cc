@@ -368,7 +368,8 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     pFeatures.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
     pFeatures.addAggregator(maths::CProbabilityOfExtremeSample());
 
-    bool addPersonProbability = false;
+    bool addPersonProbability{false};
+    bool skippedResults{false};
 
     for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = gatherer.feature(i);
@@ -382,6 +383,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         if (this->shouldIgnoreResult(
                 feature, result.s_ResultType, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                 model_t::sampleTime(feature, startTime, bucketLength))) {
+            skippedResults = true;
             continue;
         }
 
@@ -420,9 +422,17 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     }
 
     double p;
-    if (!pJoint.calculate(p, result.s_Influences)) {
-        LOG_ERROR(<< "Failed to compute probability");
-        return false;
+
+    if (pJoint.empty()) {
+        // This means we have skipped results for all features.
+        // We set the probability to be 1.0 here to ensure the
+        // quantiles are updated accordingly.
+        p = 1.0;
+    } else {
+        if (!pJoint.calculate(p, result.s_Influences)) {
+            LOG_ERROR(<< "Failed to compute probability");
+            return false;
+        }
     }
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
