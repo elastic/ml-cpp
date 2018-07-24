@@ -490,8 +490,11 @@ private:
     //! Add the time series identified by \p id.
     void addTimeSeries(std::size_t id, const CUnivariateTimeSeriesModel& model);
 
-    //! Remove the correlates of \p id.
+    //! Remove the time series identified by \p id.
     void removeTimeSeries(std::size_t id);
+
+    //! Clear all correlation information for time series identified \p id.
+    void clearCorrelationModels(std::size_t id);
 
     //! Add a sample for the time series identified by \p id.
     void addSamples(std::size_t id,

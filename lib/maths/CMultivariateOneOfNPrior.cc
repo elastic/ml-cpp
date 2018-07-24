@@ -23,6 +23,7 @@
 #include <maths/Constants.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/ref.hpp>
 
@@ -438,7 +439,7 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {TUnivariatePriorPtr(new COneOfNPrior(models, this->dataType(), this->decayRate())),
+    return {boost::make_unique<COneOfNPrior>(models, this->dataType(), this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -471,8 +472,8 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {TPriorPtr(new CMultivariateOneOfNPrior(2, models, this->dataType(),
-                                                   this->decayRate())),
+    return {boost::make_unique<CMultivariateOneOfNPrior>(2, models, this->dataType(),
+                                                         this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 

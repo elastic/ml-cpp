@@ -1653,7 +1653,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent() {
         m_ResidualMeanModel->setToNonInformative(0.0, m_ResidualMeanModel->decayRate());
     }
     if (m_Correlations != nullptr) {
-        m_Correlations->removeTimeSeries(m_Id);
+        m_Correlations->clearCorrelationModels(m_Id);
     }
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -2042,6 +2042,11 @@ void CTimeSeriesCorrelations::addTimeSeries(std::size_t id,
 }
 
 void CTimeSeriesCorrelations::removeTimeSeries(std::size_t id) {
+    this->clearCorrelationModels(id);
+    m_TimeSeriesModels[id] = nullptr;
+}
+
+void CTimeSeriesCorrelations::clearCorrelationModels(std::size_t id) {
     auto correlated_ = m_CorrelatedLookup.find(id);
     if (correlated_ != m_CorrelatedLookup.end()) {
         TSize1Vec& correlated{correlated_->second};
@@ -2052,7 +2057,6 @@ void CTimeSeriesCorrelations::removeTimeSeries(std::size_t id) {
         this->refreshLookup();
     }
     m_Correlations.removeVariables({id});
-    m_TimeSeriesModels[id] = nullptr;
 }
 
 void CTimeSeriesCorrelations::addSamples(std::size_t id,
