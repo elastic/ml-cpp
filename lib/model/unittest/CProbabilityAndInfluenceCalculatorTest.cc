@@ -1397,9 +1397,10 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
     maths::CMultivariateNormalConjugate<2> multivariatePrior =
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0, trend, prior);
-    maths::CMultivariateTimeSeriesModel multivariateModel(params(bucketLength),
-                                                          trend, multivariatePrior);
+    maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0,
+                                                      trend, prior, 0, false, 0);
+    maths::CMultivariateTimeSeriesModel multivariateModel(
+        params(bucketLength), trend, multivariatePrior, 0, false, 0);
 
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -1497,8 +1498,6 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                   << ", expected probability = " << std::min(pj, pe));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pe, pj), probability, 1e-10);
     }
-    // TODO fix me
-    return;
     {
         LOG_DEBUG(<< "influencing joint probability");
 
@@ -1585,7 +1584,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4, influences[0].second, 0.03);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.75, influences[0].second, 0.05);
         }
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
