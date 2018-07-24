@@ -7,13 +7,28 @@
 
 = Elasticsearch Release Notes
 
+== Elasticsearch version 6.3.2
+
+=== Bug Fixes
+
+* Fixes SIGSEGV when upgrading a job directly from 5.6.10 to 6.3. It also fixes 
+the upgrade for the trend component model, which caused large prediction errors 
+immediately after upgrading. {ml-pull}143[#143] (issue: {ml-issue}141[#141])
+
+* Fixes issues upgrading the state, which could cause the autodetect process to 
+crash. {ml-pull}140[#140] (issue: {ml-issue}136[#136])
+
+== Elasticsearch version 6.3.1
+
+No changes.
+
 == Elasticsearch version 6.3.0
 
-=== Breaking Changes
+//=== Breaking Changes
 
-=== Deprecations
+//=== Deprecations
 
-=== New Features 
+//=== New Features 
 
 === Enhancements
 
@@ -36,6 +51,6 @@
 * The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort {ml-pull}136[#136] (issue: {ml-issue}135[#135])
 * Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 {ml-pull}143[#143] (issue: {ml-issue}141[#141]})
 
-=== Regressions
+//=== Regressions
 
-=== Known Issues
+//=== Known Issues
