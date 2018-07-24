@@ -259,9 +259,12 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
     case SChangeDescription::E_LinearScale:
         m_Components.linearScale(time, change.s_Value[0]);
         break;
-    case SChangeDescription::E_TimeShift:
-        m_TimeShift += static_cast<core_t::TTime>(change.s_Value[0]);
+    case SChangeDescription::E_TimeShift: {
+        core_t::TTime dt{static_cast<core_t::TTime>(change.s_Value[0])};
+        m_PeriodicityTest.shiftTime(dt);
+        m_TimeShift += dt;
         break;
+    }
     }
 
     return result;
