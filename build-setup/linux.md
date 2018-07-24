@@ -289,7 +289,7 @@ bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
 In the resulting `boost_1_65_1` directory, run:
 
 ```
-./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu
+./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.

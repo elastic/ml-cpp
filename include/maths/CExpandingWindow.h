@@ -94,6 +94,9 @@ public:
     //! Set the start time to \p time.
     void initialize(core_t::TTime time);
 
+    //! Shift the start time by \p dt.
+    void shiftTime(core_t::TTime dt);
+
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
 

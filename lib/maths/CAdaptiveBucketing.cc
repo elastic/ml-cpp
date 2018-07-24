@@ -657,14 +657,17 @@ std::size_t CAdaptiveBucketing::memoryUsage() const {
 void CAdaptiveBucketing::maybeSplitBucket() {
     double largeErrorCount{std::accumulate(m_LargeErrorCounts.begin(),
                                            m_LargeErrorCounts.end(), 0.0)};
-    if (largeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
+    double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
+
+    if (static_cast<double>(this->size() + 1) * m_MinimumBucketLength <= period &&
+        largeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
+
         m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
 
         // We compute the right tail p-value of the count of large errors
         // in a bucket for the null hypothesis that they are uniformly
         // distributed on the total bucketed period and split if this is
         // less than a specified threshold.
-        double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
         for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
             double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
             try {
