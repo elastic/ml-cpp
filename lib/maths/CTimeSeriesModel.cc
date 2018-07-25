@@ -126,33 +126,15 @@ TCalculation2Vec expand(maths_t::EProbabilityCalculation calculation) {
 }
 
 //! Aggregate one or more feature probabilities.
-double aggregateFeatureProbabilities(TDouble4Vec probabilities) {
+double aggregateFeatureProbabilities(const TDouble4Vec& probabilities) {
     if (probabilities.size() > 1) {
-        for (auto& p : probabilities) {
-            p = CTools::fastLog(p);
+        CJointProbabilityOfLessLikelySamples pJoint;
+        for (auto p : probabilities) {
+            pJoint.add(p);
         }
-        // We have three factors:
-        //   1) The lowest probability of any feature,
-        //   2) The (geometric) average feature probability,
-        //   3) The joint probability of all features.
-        //
-        // If the feature probabilities are all similar this is particular
-        // interesting since it implies that the time series is displaying
-        // unusual behavior in multiple ways. We recognize this by mixing
-        // in the joint probability with weight depending on the probability
-        // similarities.
-        const double MIN_PROBABILITY_WEIGHT{0.4};
-        double n{static_cast<double>(probabilities.size())};
-        double minLogProbability{
-            *std::min_element(probabilities.begin(), probabilities.end())};
-        double maxLogProbability{
-            *std::max_element(probabilities.begin(), probabilities.end())};
-        double sumLogProbabilities{
-            std::accumulate(probabilities.begin(), probabilities.end(), 0.0)};
-        double similarity{n * maxLogProbability / sumLogProbabilities};
-        return std::exp((MIN_PROBABILITY_WEIGHT * minLogProbability +
-                         (1.0 - MIN_PROBABILITY_WEIGHT) * (1.0 / n + similarity) * sumLogProbabilities) /
-                        (1.0 + (1.0 - MIN_PROBABILITY_WEIGHT) * similarity));
+        double result;
+        pJoint.calculate(result);
+        return result;
     }
     return probabilities[0];
 }
@@ -534,10 +516,6 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(const CModelProbabilityPara
     auto anomaly = std::find_if(
         m_Anomalies.begin(), m_Anomalies.end(),
         [tag](const CAnomaly& anomaly_) { return anomaly_.tag() == tag; });
-    auto significance = [](double logProbability) {
-        return CTools::linearlyInterpolate(LOG_SMALL_PROBABILITY, LOG_LARGEST_ANOMALOUS_PROBABILITY,
-                                           0.5, 0.0, logProbability);
-    };
 
     if (anomaly != m_Anomalies.end() && probability < LARGEST_ANOMALOUS_PROBABILITY) {
         double pl, pu;
@@ -550,7 +528,11 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(const CModelProbabilityPara
             anomalyProbability = (pl + pu) / 2.0;
             double logAnomalyProbability{CTools::fastLog(anomalyProbability)};
             double logOverallProbability{CTools::fastLog(probability)};
-            double alpha{significance(logOverallProbability)};
+            double alpha{CTools::linearlyInterpolate(LOG_SMALL_PROBABILITY, // a
+                                                     LOG_LARGEST_ANOMALOUS_PROBABILITY, // b
+                                                     0.5, // fa
+                                                     0.0, // fb
+                                                     logOverallProbability)};
             adjustedProbability = std::exp((1.0 - alpha) * logOverallProbability +
                                            alpha * logAnomalyProbability);
             LOG_TRACE(<< " features = " << features << " p(anomaly) = " << anomalyProbability);
@@ -615,9 +597,10 @@ void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter&
                                      &m_AnomalyFeatureModels[1], _1));
 }
 
-const double CTimeSeriesAnomalyModel::LARGEST_ANOMALOUS_PROBABILITY{0.1};
+const double CTimeSeriesAnomalyModel::LARGEST_ANOMALOUS_PROBABILITY{
+    2.0 * LARGEST_SIGNIFICANT_PROBABILITY};
 const double CTimeSeriesAnomalyModel::LOG_LARGEST_ANOMALOUS_PROBABILITY{
-    CTools::fastLog(LARGEST_ANOMALOUS_PROBABILITY)};
+    std::log(LARGEST_ANOMALOUS_PROBABILITY)};
 const double CTimeSeriesAnomalyModel::LOG_SMALL_PROBABILITY{CTools::fastLog(SMALL_PROBABILITY)};
 const maths_t::TDouble10VecWeightsAry1Vec CTimeSeriesAnomalyModel::UNIT{
     maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
@@ -804,6 +787,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         m_ResidualMeanModel->addSamples(mean, meanWeight);
         m_ResidualMeanModel->propagateForwardsByTime(params.propagationInterval());
     }
+
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->propagateForwardsByTime(params.propagationInterval());
     }
@@ -1017,10 +1001,9 @@ bool CUnivariateTimeSeriesModel::probability(const CModelProbabilityParams& para
     if (value.empty()) {
         return true;
     }
-    if (value[0].size() == 1) {
-        return this->uncorrelatedProbability(params, time, value, result);
-    }
-    return this->correlatedProbability(params, time, value, result);
+    return value[0].size() == 1
+               ? this->uncorrelatedProbability(params, time, value, result)
+               : this->correlatedProbability(params, time, value, result);
 }
 
 bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbabilityParams& params,
@@ -2338,6 +2321,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         m_ResidualMeanModel->addSamples(mean, meanWeight);
         m_ResidualMeanModel->propagateForwardsByTime(params.propagationInterval());
     }
+
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->propagateForwardsByTime(params.propagationInterval());
     }
