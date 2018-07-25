@@ -259,7 +259,7 @@ private:
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const CModelProbabilityParams& params,
-                                 const TTime2Vec1Vec& time_,
+                                 const TTime2Vec1Vec& time,
                                  const TDouble2Vec1Vec& value,
                                  SModelProbabilityResult& result) const;
 

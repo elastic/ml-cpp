@@ -1125,7 +1125,9 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     }
 
     for (std::size_t i = 0; i < correlateIndices.size(); ++i) {
-        if (!value[i].empty()) {
+        if (value[i].empty()) {
+            aggregator.add(1.0, neff);
+        } else {
             std::size_t correlateIndex{correlateIndices[i]};
             std::size_t v0{variables[correlateIndex][0]};
             std::size_t v1{variables[correlateIndex][1]};
@@ -1179,8 +1181,6 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
                                       ->univariate({v1}, NOTHING_TO_CONDITION)
                                       .first;
             }
-        } else {
-            aggregator.add(1.0, neff);
         }
     }
 
