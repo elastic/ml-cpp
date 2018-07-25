@@ -751,12 +751,14 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             std::string results[2];
             for (std::size_t j = 0u; j < 2; ++j) {
-                results[j] = std::string("(") +
-                             core::CStringUtils::typeToString(probabilities[i][j].second) +
-                             "," + probabilities[i][j].third + ")";
+                results[j] =
+                    std::string("(") +
+                    core::CStringUtils::typeToString(probabilities[i][j].second) +
+                    "," + probabilities[i][j].third + ")";
             }
             std::sort(results, results + 2);
-            CPPUNIT_ASSERT_EQUAL(expectedResults[i], core::CContainerPrinter::print(results));
+            CPPUNIT_ASSERT_EQUAL(expectedResults[i],
+                                 core::CContainerPrinter::print(results));
         }
 
         // Test persist and restore with correlate models.
@@ -841,10 +843,8 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
             time += bucketLength;
         }
 
-        std::string expectedResults[][2]{{"100,", "190,"},
-                                         {"100,", "190,"},
-                                         {"160,", "190,"},
-                                         {"160,", "190,"}};
+        std::string expectedResults[][2]{
+            {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
         for (std::size_t i = 0u; i < 4; ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             TStrVec results;
