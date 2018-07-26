@@ -347,6 +347,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     pJoint.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
     pJoint.addAggregator(maths::CProbabilityOfExtremeSample());
 
+    bool skippedResults{false};
     for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
@@ -360,6 +361,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
         if (this->shouldIgnoreResult(
                 feature, result.s_ResultType, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                 model_t::sampleTime(feature, startTime, bucketLength, bucket->time()))) {
+            skippedResults = true;
             continue;
         }
 
@@ -379,13 +381,15 @@ bool CMetricModel::computeProbability(const std::size_t pid,
         }
     }
 
-    if (pJoint.empty()) {
+    double p{1.0};
+    if (skippedResults && pJoint.empty()) {
+        // This means we have skipped results for all features.
+        // We set the probability to 1.0 here to ensure the
+        // quantiles are updated accordingly.
+    } else if (pJoint.empty()) {
         LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
-    }
-
-    double p;
-    if (!pJoint.calculate(p, result.s_Influences)) {
+    } else if (!pJoint.calculate(p, result.s_Influences)) {
         LOG_ERROR(<< "Failed to compute probability");
         return false;
     }
