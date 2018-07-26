@@ -384,7 +384,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     double p{1.0};
     if (skippedResults && pJoint.empty()) {
         // This means we have skipped results for all features.
-        // We let the probability to 1.0 here to ensure the
+        // We set the probability to 1.0 here to ensure the
         // quantiles are updated accordingly.
     } else if (pJoint.empty()) {
         LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
