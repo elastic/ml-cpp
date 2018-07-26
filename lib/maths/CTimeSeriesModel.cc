@@ -1087,8 +1087,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     TSize2Vec1Vec variables;
     TMultivariatePriorCPtrSizePr1Vec correlationModels;
     TModelCPtr1Vec correlatedTimeSeriesModels;
-    if (!this->correlationModels(correlated, variables, correlationModels,
-                                 correlatedTimeSeriesModels)) {
+    if (this->correlationModels(correlated, variables, correlationModels,
+                                correlatedTimeSeriesModels) == false) {
         return false;
     }
 
@@ -1202,6 +1202,7 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
         probabilities.push_back(anomalyProbability);
         featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
     }
+    aggregator.calculate(probability);
 
     result.s_Probability = probability;
     result.s_Conditional = conditional;
