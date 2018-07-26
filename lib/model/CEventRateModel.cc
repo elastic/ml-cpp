@@ -416,23 +416,17 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         }
     }
 
-    if (pJoint.empty()) {
+    double p{1.0};
+    if (skippedResults && pJoint.empty()) {
+        // This means we have skipped results for all features.
+        // We let the probability to 1.0 here to ensure the
+        // quantiles are updated accordingly.
+    } else if (pJoint.empty()) {
         LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
-    }
-
-    double p;
-
-    if (pJoint.empty()) {
-        // This means we have skipped results for all features.
-        // We set the probability to be 1.0 here to ensure the
-        // quantiles are updated accordingly.
-        p = 1.0;
-    } else {
-        if (!pJoint.calculate(p, result.s_Influences)) {
-            LOG_ERROR(<< "Failed to compute probability");
-            return false;
-        }
+    } else if (!pJoint.calculate(p, result.s_Influences)) {
+        LOG_ERROR(<< "Failed to compute probability");
+        return false;
     }
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
