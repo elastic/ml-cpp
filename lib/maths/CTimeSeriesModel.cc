@@ -1141,7 +1141,14 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     mem->setName("CUnivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
+    // We made various memory improvements in 6.4 partly in preparation for multi-bucket
+    // analysis. This is not going to be available until 6.5; however, we will account for
+    // its memory now. The memory usage is used, for example, to allocate jobs to nodes and
+    // to decide if there is sufficient memory to create jobs. Operationally, we therefore
+    // want to avoid unnecessary changes in model memory between versions. An extra residual
+    // model is a good proxy for the amount of memory multi-bucket will consume.
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
+    core::CMemoryDebug::dynamicSize("m_ResidualModelPad", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
     core::CMemoryDebug::dynamicSize("m_ChangeDetector", m_ChangeDetector, mem);
     core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
@@ -1150,7 +1157,8 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
 std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Controllers) +
            core::CMemory::dynamicSize(m_TrendModel) +
-           core::CMemory::dynamicSize(m_ResidualModel) +
+           /*see above*/
+           2 * core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_AnomalyModel) +
            core::CMemory::dynamicSize(m_ChangeDetector) +
            core::CMemory::dynamicSize(m_SlidingWindow);
@@ -2410,7 +2418,14 @@ void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     mem->setName("CUnivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
+    // We made various memory improvements in 6.4 partly in preparation for multi-bucket
+    // analysis. This is not going to be available until 6.5; however, we will account for
+    // its memory now. The memory usage is used, for example, to allocate jobs to nodes and
+    // to decide if there is sufficient memory to create jobs. Operationally, we therefore
+    // want to avoid unnecessary changes in model memory between versions. An extra residual
+    // model is a good proxy for the amount of memory multi-bucket will consume.
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
+    core::CMemoryDebug::dynamicSize("m_ResidualModelPad", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
     core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
 }
@@ -2418,6 +2433,7 @@ void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryU
 std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Controllers) +
            core::CMemory::dynamicSize(m_TrendModel) +
+           /*see above*/
            core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_AnomalyModel) +
            core::CMemory::dynamicSize(m_SlidingWindow);
