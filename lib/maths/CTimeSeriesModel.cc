@@ -2434,7 +2434,7 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Controllers) +
            core::CMemory::dynamicSize(m_TrendModel) +
            /*see above*/
-           core::CMemory::dynamicSize(m_ResidualModel) +
+           2 * core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_AnomalyModel) +
            core::CMemory::dynamicSize(m_SlidingWindow);
 }
