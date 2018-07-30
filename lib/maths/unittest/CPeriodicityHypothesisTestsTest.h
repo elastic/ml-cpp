@@ -17,6 +17,8 @@ public:
     void testWithSparseData();
     void testWithOutliers();
     void testTestForPeriods();
+    void testWithLinearScaling();
+    void testWithPiecewiseLinearTrend();
 
     static CppUnit::Test* suite();
 };

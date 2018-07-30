@@ -42,12 +42,13 @@ template<typename ITR>
 TDoubleVec fitPeriodicModel(ITR begin,
                             ITR end,
                             std::size_t period,
-                            const std::function<double(double)>& scale = [](std::size_t) { return 1.0; }) {
+                            const std::function<double(double)>& scale =
+                                [](std::size_t) { return 1.0; }) {
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     TMeanAccumulatorVec levels(period);
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
         levels[i % period].add(CBasicStatistics::mean(*begin) / scale(i),
-                               CBasicStatistics::count(*begin));
+                               CBasicStatistics::count(*begin) * scale(i));
     }
     TDoubleVec result(period);
     for (std::size_t i = 0; i < period; ++i) {
@@ -181,17 +182,17 @@ CTimeSeriesSegmentation::topDownPiecewiseLinear(const TFloatMeanAccumulatorVec& 
                                                 double outlierWeight) {
     TSizeVec segmentation{0, values.size()};
     double dt{10.0 / static_cast<double>(values.size())};
-    topDownPiecewiseLinear(values.cbegin(), values.cend(), 0, 0.0, dt, significanceToSegment,
-                           outlierFraction, outlierWeight, segmentation);
+    fitTopDownPiecewiseLinear(values.cbegin(), values.cend(), 0, 0.0, dt, significanceToSegment,
+                              outlierFraction, outlierWeight, segmentation);
     std::sort(segmentation.begin(), segmentation.end());
     return segmentation;
 }
 
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
-CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinear(TFloatMeanAccumulatorVec values,
-                                                            const TSizeVec& segmentation,
-                                                            double outlierFraction,
-                                                            double outlierWeight) {
+CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
+                                               const TSizeVec& segmentation,
+                                               double outlierFraction,
+                                               double outlierWeight) {
     using TRegressionVec = std::vector<TRegression>;
 
     double dt{10.0 / static_cast<double>(values.size())};
@@ -235,11 +236,11 @@ CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinear(TFloatMeanAccumulato
 }
 
 CTimeSeriesSegmentation::TSizeVec
-CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(const TFloatMeanAccumulatorVec& values,
-                                                              std::size_t period,
-                                                              double significanceToSegment,
-                                                              double outlierFraction,
-                                                              double outlierWeight) {
+CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+                                                       std::size_t period,
+                                                       double significanceToSegment,
+                                                       double outlierFraction,
+                                                       double outlierWeight) {
     TFloatMeanAccumulatorVec values_(values);
     TDoubleVec model(fitPeriodicModel(values.begin(), values.end(), period));
     reweightOutliers(values_.begin(), values_.end(),
@@ -248,71 +249,43 @@ CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(const TFloatMeanAc
     model = fitPeriodicModel(values_.begin(), values_.end(), period);
 
     TSizeVec segmentation{0, values.size()};
-    topDownPeriodicPiecewiseLinearScaled(values_.cbegin(), values_.cend(), 0, model,
-                                         significanceToSegment, segmentation);
+    fitTopDownPiecewiseLinearScaledPeriodic(values_.cbegin(), values_.cend(), 0, model,
+                                            significanceToSegment, segmentation);
     std::sort(segmentation.begin(), segmentation.end());
 
     return segmentation;
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
-CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinearScaled(const TFloatMeanAccumulatorVec& values,
-                                                                  std::size_t period,
-                                                                  const TSizeVec& segmentation,
-                                                                  double outlierFraction,
-                                                                  double outlierWeight) {
+CTimeSeriesSegmentation::TDoubleVecDoubleVecPr
+CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+                                                       std::size_t period,
+                                                       const TSizeVec& segmentation,
+                                                       double outlierFraction,
+                                                       double outlierWeight) {
     TFloatMeanAccumulatorVec reweighted;
     TDoubleVec model;
-    TDoubleVec scales(segmentation.size() - 1, 1.0);
+    TDoubleVec scales;
+    piecewiseLinearScaledPeriodic(values, period, segmentation, outlierFraction,
+                                  outlierWeight, reweighted, model, scales);
+    return {model, scales};
+}
 
-    auto computeScale = [&](std::size_t begin, std::size_t end) {
-        TMeanAccumulator projection;
-        TMeanAccumulator Z;
-        for (std::size_t i = begin; i < end; ++i) {
-            double x{CBasicStatistics::mean(reweighted[i])};
-            double w{CBasicStatistics::count(reweighted[i])};
-            double p{model[i % period]};
-            projection.add(x * p, w);
-            Z.add(p * p, w);
-        }
-        return CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
-    };
-    auto scale = [&](std::size_t i) {
-        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[right - segmentation.begin() - 1];
-    };
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
+CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+                                                             std::size_t period,
+                                                             const TSizeVec& segmentation,
+                                                             double outlierFraction,
+                                                             double outlierWeight) {
+    TFloatMeanAccumulatorVec reweighted;
+    TDoubleVec model;
+    TDoubleVec scales;
+    piecewiseLinearScaledPeriodic(values, period, segmentation, outlierFraction,
+                                  outlierWeight, reweighted, model, scales);
+
     auto predict = [&](std::size_t i) {
-        return scale(i) * model[i % period];
+        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
+        return scales[right - segmentation.begin() - 1] * model[i % period];
     };
-    auto fitScaledPeriodicModel = [&]() {
-        for (std::size_t pass = 0; pass < 2; ++pass) {
-            model = fitPeriodicModel(reweighted.begin(), reweighted.end(), period, scale);
-            for (std::size_t i = 1; i < segmentation.size(); ++i) {
-                scales[i - 1] = computeScale(segmentation[i - 1], segmentation[i]);
-            }
-        }
-    };
-
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
-
-    // First pass to re-weight any large outliers.
-    model = fitPeriodicModel(values.begin(), values.end(), period);
-    reweighted.assign(values.begin(), values.end());
-    reweightOutliers(reweighted.begin(), reweighted.end(), predict, outlierFraction, outlierWeight);
-
-    // Fit the model adjusting for scales.
-    fitScaledPeriodicModel();
-    LOG_TRACE(<< "model = " << core::CContainerPrinter::print(model));
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-
-    // Re-weight outliers based on new model.
-    reweighted.assign(values.begin(), values.end());
-    if (reweightOutliers(reweighted.begin(), reweighted.end(), predict, outlierFraction, outlierWeight)) {
-        // If any re-weighting happened fine tune the model fit.
-        fitScaledPeriodicModel();
-        LOG_TRACE(<< "model = " << core::CContainerPrinter::print(model));
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-    }
 
     for (std::size_t i = 0; i != reweighted.size(); ++i) {
         if (CBasicStatistics::count(reweighted[i]) > 0.0) {
@@ -323,16 +296,37 @@ CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinearScaled(const TFloatMe
     return reweighted;
 }
 
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
+CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(TFloatMeanAccumulatorVec values,
+                                                             const TSizeVec& segmentation,
+                                                             const TDoubleVec& model,
+                                                             const TDoubleVec& scales) {
+    std::size_t period{model.size()};
+
+    auto predict = [&](std::size_t i) {
+        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
+        return scales[right - segmentation.begin() - 1] * model[i % period];
+    };
+
+    for (std::size_t i = 0; i != values.size(); ++i) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            CBasicStatistics::moment<0>(values[i]) -= predict(i);
+        }
+    }
+
+    return values;
+}
+
 template<typename ITR>
-void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
-                                                     ITR end,
-                                                     std::size_t offset,
-                                                     double startTime,
-                                                     double dt,
-                                                     double significanceToSegment,
-                                                     double outlierFraction,
-                                                     double outlierWeight,
-                                                     TSizeVec& segmentation) {
+void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
+                                                        ITR end,
+                                                        std::size_t offset,
+                                                        double startTime,
+                                                        double dt,
+                                                        double significanceToSegment,
+                                                        double outlierFraction,
+                                                        double outlierWeight,
+                                                        TSizeVec& segmentation) {
     // We want to find the partition of [begin, end) into linear models which
     // efficiently predicts the values. To this end we maximize R^2 whilst
     // maintaining a parsimonious model. We achieve the later objective by
@@ -432,8 +426,7 @@ void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
             centredResidualMoments(values.cbegin(), split, startTime, dt)};
         TMeanVarAccumulator rightMoments{
             centredResidualMoments(split, values.cend(), splitTime, dt)};
-        LOG_TRACE(<< "  total moments = " << moments
-                  << ", left moments = " << leftMoments
+        LOG_TRACE(<< "  total moments = " << moments << ", left moments = " << leftMoments
                   << ", right moments = " << rightMoments);
         double f{CBasicStatistics::variance(moments) /
                  CBasicStatistics::variance(leftMoments + rightMoments)};
@@ -441,24 +434,24 @@ void CTimeSeriesSegmentation::topDownPiecewiseLinear(ITR begin,
         LOG_TRACE(<< "  significance = " << significance);
 
         if (significance < significanceToSegment) {
-            topDownPiecewiseLinear(begin, begin + splitOffset, offset,
-                                   startTime, dt, significanceToSegment,
-                                   outlierFraction, outlierWeight, segmentation);
-            topDownPiecewiseLinear(begin + splitOffset, end, offset + splitOffset,
-                                   splitTime, dt, significanceToSegment,
-                                   outlierFraction, outlierWeight, segmentation);
+            fitTopDownPiecewiseLinear(begin, begin + splitOffset, offset, startTime,
+                                      dt, significanceToSegment, outlierFraction,
+                                      outlierWeight, segmentation);
+            fitTopDownPiecewiseLinear(begin + splitOffset, end, offset + splitOffset,
+                                      splitTime, dt, significanceToSegment,
+                                      outlierFraction, outlierWeight, segmentation);
             segmentation.push_back(offset + splitOffset);
         }
     }
 }
 
 template<typename ITR>
-void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(ITR begin,
-                                                                   ITR end,
-                                                                   std::size_t offset,
-                                                                   const TDoubleVec& model,
-                                                                   double significanceToSegment,
-                                                                   TSizeVec& segmentation) {
+void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
+                                                                      ITR end,
+                                                                      std::size_t offset,
+                                                                      const TDoubleVec& model,
+                                                                      double significanceToSegment,
+                                                                      TSizeVec& segmentation) {
     // We want to find the partition of [begin, end) into scaled periodic
     // models which efficiently predicts the values. To this end we maximize
     // R^2 whilst maintaining a parsimonious model. We achieve the later
@@ -525,8 +518,7 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(ITR begin,
         TMeanVarAccumulator leftMoments{centredResidualMoments(begin, split, offset, model)};
         TMeanVarAccumulator rightMoments{
             centredResidualMoments(split, end, splitOffset, model)};
-        LOG_TRACE(<< "  total moments = " << moments
-                  << ", left moments = " << leftMoments
+        LOG_TRACE(<< "  total moments = " << moments << ", left moments = " << leftMoments
                   << ", right moments = " << rightMoments);
         double f{CBasicStatistics::variance(moments) /
                  CBasicStatistics::variance(leftMoments + rightMoments)};
@@ -534,12 +526,72 @@ void CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(ITR begin,
         LOG_TRACE(<< "  significance = " << significance);
 
         if (significance < 0.01) {
-            topDownPeriodicPiecewiseLinearScaled(begin, split, offset, model,
-                                                 significanceToSegment, segmentation);
-            topDownPeriodicPiecewiseLinearScaled(split, end, splitOffset, model,
-                                                 significanceToSegment, segmentation);
+            fitTopDownPiecewiseLinearScaledPeriodic(
+                begin, split, offset, model, significanceToSegment, segmentation);
+            fitTopDownPiecewiseLinearScaledPeriodic(
+                split, end, splitOffset, model, significanceToSegment, segmentation);
             segmentation.push_back(splitOffset);
         }
+    }
+}
+
+void CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+                                                            std::size_t period,
+                                                            const TSizeVec& segmentation,
+                                                            double outlierFraction,
+                                                            double outlierWeight,
+                                                            TFloatMeanAccumulatorVec& reweighted,
+                                                            TDoubleVec& model,
+                                                            TDoubleVec& scales) {
+    scales.assign(segmentation.size() - 1, 1.0);
+
+    auto computeScale = [&](std::size_t begin, std::size_t end) {
+        TMeanAccumulator projection;
+        TMeanAccumulator Z;
+        for (std::size_t i = begin; i < end; ++i) {
+            double x{CBasicStatistics::mean(reweighted[i])};
+            double w{CBasicStatistics::count(reweighted[i])};
+            double p{model[i % period]};
+            projection.add(x * p, w);
+            Z.add(p * p, w);
+        }
+        return CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
+    };
+    auto scale = [&](std::size_t i) {
+        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
+        return scales[right - segmentation.begin() - 1];
+    };
+    auto predict = [&](std::size_t i) { return scale(i) * model[i % period]; };
+    auto fitScaledPeriodicModel = [&]() {
+        for (std::size_t pass = 0; pass < 2; ++pass) {
+            model = fitPeriodicModel(reweighted.begin(), reweighted.end(), period, scale);
+            for (std::size_t i = 1; i < segmentation.size(); ++i) {
+                scales[i - 1] = computeScale(segmentation[i - 1], segmentation[i]);
+            }
+        }
+    };
+
+    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+
+    // First pass to re-weight any large outliers.
+    model = fitPeriodicModel(values.begin(), values.end(), period);
+    reweighted.assign(values.begin(), values.end());
+    reweightOutliers(reweighted.begin(), reweighted.end(), predict,
+                     outlierFraction, outlierWeight);
+
+    // Fit the model adjusting for scales.
+    fitScaledPeriodicModel();
+    LOG_TRACE(<< "model = " << core::CContainerPrinter::print(model));
+    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+
+    // Re-weight outliers based on new model.
+    reweighted.assign(values.begin(), values.end());
+    if (reweightOutliers(reweighted.begin(), reweighted.end(), predict,
+                         outlierFraction, outlierWeight)) {
+        // If any re-weighting happened fine tune the model fit.
+        fitScaledPeriodicModel();
+        LOG_TRACE(<< "model = " << core::CContainerPrinter::print(model));
+        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
     }
 }
 }

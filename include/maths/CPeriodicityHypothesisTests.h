@@ -33,6 +33,7 @@ class MATHS_EXPORT CPeriodicityHypothesisTestsResult : boost::equality_comparabl
     // clang-format on
 public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
+    using TSizeVec = std::vector<std::size_t>;
 
 public:
     //! \brief Component data.
@@ -43,6 +44,7 @@ public:
                    core_t::TTime startOfPartition,
                    core_t::TTime period,
                    const TTimeTimePr& window,
+                   const TSizeVec& segmentation,
                    double precedence = 1.0);
 
         //! Check if this is equal to \p other.
@@ -63,8 +65,11 @@ public:
         core_t::TTime s_Period;
         //! The component window.
         TTimeTimePr s_Window;
-        //! The precedence to apply to this component when
-        //! deciding which to keep.
+        //! The segmentation of the window into intervals of constant
+        //! scaling.
+        TSizeVec s_Segmentation;
+        //! The precedence to apply to this component when deciding
+        //! which to keep.
         double s_Precedence;
     };
 
@@ -87,6 +92,7 @@ public:
              core_t::TTime startOfWeek,
              core_t::TTime period,
              const TTimeTimePr& window,
+             const TSizeVec& segmentation,
              double precedence = 1.0);
 
     //! Remove the component with \p description.
@@ -99,7 +105,7 @@ public:
     const TComponent5Vec& components() const;
 
     //! Get a human readable description of the result.
-    std::string print() const;
+    std::string print(bool segments = false) const;
 
 private:
     //! The periodic components.
@@ -193,6 +199,7 @@ public:
 private:
     using TDoubleVec = std::vector<double>;
     using TDoubleVec2Vec = core::CSmallVector<TDoubleVec, 2>;
+    using TSizeVec = std::vector<std::size_t>;
     using TFloatMeanAccumulatorCRng = core::CVectorRange<const TFloatMeanAccumulatorVec>;
     using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<core_t::TTime>;
 
@@ -231,10 +238,14 @@ private:
         double s_DF0;
         //! The trend for the null hypothesis.
         TDoubleVec2Vec s_T0;
+        //! The linear scales if any.
+        TDoubleVec s_Scales;
         //! The partition for the null hypothesis.
         TTimeTimePr2Vec s_Partition;
         //! The start of the repeating partition.
         core_t::TTime s_StartOfPartition;
+        //! The segmentation of the interval if any.
+        TSizeVec s_Segmentation;
     };
 
     //! \brief Manages the testing of a set of nested hypotheses.
@@ -313,11 +324,13 @@ private:
     //! Test for a daily periodic component.
     CPeriodicityHypothesisTestsResult testForDaily(const TTimeTimePr2Vec& window,
                                                    const TFloatMeanAccumulatorCRng& buckets,
+                                                   bool scaling,
                                                    STestStats& stats) const;
 
     //! Test for a weekly periodic component.
     CPeriodicityHypothesisTestsResult testForWeekly(const TTimeTimePr2Vec& window,
                                                     const TFloatMeanAccumulatorCRng& buckets,
+                                                    bool scaling,
                                                     STestStats& stats) const;
 
     //! Test for a weekday/end partition.
@@ -335,6 +348,7 @@ private:
     //! periodicity.
     CPeriodicityHypothesisTestsResult testForPeriod(const TTimeTimePr2Vec& window,
                                                     const TFloatMeanAccumulatorCRng& buckets,
+                                                    bool scaling,
                                                     STestStats& stats) const;
 
     //! Check we've seen sufficient data to test accurately.
@@ -372,6 +386,13 @@ private:
                     core_t::TTime period,
                     STestStats& stats) const;
 
+    //! Test to see if there is significant evidence for a component
+    //! with period \p period which is piecewise linearly scaled.
+    bool testPeriodWithScaling(const TTimeTimePr2Vec& windows,
+                               const TFloatMeanAccumulatorCRng& buckets,
+                               core_t::TTime period,
+                               STestStats& stats) const;
+
     //! Test to see if there is significant evidence for a repeating
     //! partition of the data into windows defined by \p partition.
     bool testPartition(const TTimeTimePr2Vec& partition,
@@ -379,6 +400,27 @@ private:
                        core_t::TTime period,
                        double correction,
                        STestStats& stats) const;
+
+    //! Run the explained variance test on an alternative hypothesis.
+    bool testVariance(const TTimeTimePr2Vec& window,
+                      const TFloatMeanAccumulatorVec& buckets,
+                      core_t::TTime period,
+                      double df1,
+                      double v1,
+                      STestStats& stats,
+                      double& R,
+                      double& meanRepeats,
+                      const TSizeVec& segmentation = TSizeVec{}) const;
+
+    //! Run the component amplitude test on the alternative hypothesis.
+    bool testAmplitude(const TTimeTimePr2Vec& window,
+                       const TFloatMeanAccumulatorVec& buckets,
+                       core_t::TTime period,
+                       double b,
+                       double v,
+                       STestStats& stats,
+                       double& R,
+                       double& meanRepeats) const;
 
 private:
     //! The minimum proportion of populated buckets for which

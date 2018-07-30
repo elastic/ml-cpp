@@ -11,8 +11,8 @@
 
 class CTimeSeriesSegmentationTest : public CppUnit::TestFixture {
 public:
-    void testTopDownPiecewiseLinear();
-    void testTopDownPeriodicPiecewiseLinearScaling();
+    void testPiecewiseLinear();
+    void testPiecewiseLinearScaledPeriodic();
 
     static CppUnit::Test* suite();
 };

@@ -27,6 +27,7 @@ using namespace ml;
 using namespace handy_typedefs;
 
 namespace {
+using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TTimeVec = std::vector<core_t::TTime>;
@@ -47,6 +48,7 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
     TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
     TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{constant, ramp, markov};
+    core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
 
@@ -62,6 +64,8 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
             LOG_DEBUG(<< "test " << test << " / 50");
         }
         for (auto window : windows) {
+            core_t::TTime endTime{startTime + window};
+
             for (auto bucketLength : bucketLengths) {
                 switch (test % 3) {
                 case 0:
@@ -76,14 +80,15 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
                 }
                 rng.generateUniformSamples(0, generators.size(), 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);
+                const auto& generator = generators[index[0]];
 
                 maths::CPeriodicityHypothesisTests hypotheses;
                 hypotheses.initialize(bucketLength, window,
                                       window / static_cast<core_t::TTime>(repeats[0]));
 
-                for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                    hypotheses.add(time, generators[index[0]](time) +
-                                             noise[(time - 10000) / bucketLength]);
+                for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+                    std::size_t bucket((time - startTime) / bucketLength);
+                    hypotheses.add(time, generator(time) + noise[bucket]);
                 }
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
@@ -113,6 +118,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TStrVec expected{"{ 'daily' }", "{ 'daily' }", "{ 'weekly' }",
                          "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }",
                          "{ 'daily' 'weekly' }"};
+        core_t::TTime startTime{10000};
 
         test::CRandomNumbers rng;
 
@@ -131,6 +137,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                 core_t::TTime window{windows[i]};
 
                 for (auto bucketLength : bucketLengths) {
+                    core_t::TTime endTime{startTime + window};
+
                     switch (test % 3) {
                     case 0:
                         rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
@@ -144,14 +152,15 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                     }
                     rng.generateUniformSamples(0, permittedGenerators[i], 1, index);
                     rng.generateUniformSamples(3, 20, 1, repeats);
+                    const auto& generator = generators[index[0]];
 
                     maths::CPeriodicityHypothesisTests hypotheses;
                     hypotheses.initialize(bucketLength, window,
                                           window / static_cast<core_t::TTime>(repeats[0]));
 
-                    for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                        hypotheses.add(time, 20.0 * generators[index[0]](time) +
-                                                 noise[(time - 10000) / bucketLength]);
+                    for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+                        std::size_t bucket((time - startTime) / bucketLength);
+                        hypotheses.add(time, 20.0 * generator(time) + noise[bucket]);
                     }
 
                     maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
@@ -327,6 +336,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
     TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{smoothDaily, spikeyDaily};
     TSizeVec permittedGenerators{2, 1};
+    core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
 
@@ -341,8 +351,8 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
         if (test % 10 == 0) {
             LOG_DEBUG(<< "test " << test << " / 100");
         }
-        for (std::size_t i = 0u; i < windows.size(); ++i) {
-            core_t::TTime window{windows[i]};
+        for (auto window : windows) {
+            core_t::TTime endTime{startTime + window};
 
             TDoubleVec scaling_;
             rng.generateUniformSamples(1.0, 5.0, 1, scaling_);
@@ -359,7 +369,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
                 maths::CPeriodicityHypothesisTestsResult expected;
                 expected.add(core::CStringUtils::typeToString(period), false, 0,
-                             period, {0, period});
+                             period, {0, period}, {});
 
                 switch (test % 3) {
                 case 0:
@@ -374,13 +384,15 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                 }
                 rng.generateUniformSamples(0, permittedGenerators[j], 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);
+                auto generator = generators[index[0]];
 
                 maths::CPeriodicityHypothesisTests hypotheses;
                 hypotheses.initialize(bucketLength, window, period);
 
-                for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                    hypotheses.add(time, 20.0 * scale(scaling, time, generators[index[0]]) +
-                                             noise[(time - 10000) / bucketLength]);
+                for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+                    std::size_t bucket((time - startTime) / bucketLength);
+                    hypotheses.add(time, 20.0 * scale(scaling, time, generator) +
+                                             noise[bucket]);
                 }
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
@@ -555,9 +567,12 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
     LOG_DEBUG(<< "Daily + Weekly");
     for (const auto& period : periods) {
         for (const auto& window : windows) {
+            core_t::TTime endTime{startTime + window};
+
             if (window < 2 * period) {
                 continue;
             }
+
             for (const auto& bucketLength : bucketLengths) {
                 core_t::TTime buckets{window / bucketLength};
                 std::size_t numberOutliers{static_cast<std::size_t>(0.12 * buckets)};
@@ -571,8 +586,7 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
                 //TDoubleVec f;
 
                 maths::TFloatMeanAccumulatorVec values(buckets);
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += bucketLength) {
+                for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
                     auto outlier = std::lower_bound(outliers.begin(), outliers.end(), bucket);
                     if (outlier != outliers.end() && *outlier == bucket) {
@@ -603,9 +617,12 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
 
     LOG_DEBUG(<< "Weekday / Weekend");
     for (const auto& window : windows) {
+        core_t::TTime endTime{startTime + window};
+
         if (window < 2 * WEEK) {
             continue;
         }
+
         for (const auto& bucketLength : bucketLengths) {
             core_t::TTime buckets{window / bucketLength};
             std::size_t numberOutliers{static_cast<std::size_t>(0.12 * buckets)};
@@ -619,7 +636,7 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
             //TDoubleVec f;
 
             maths::TFloatMeanAccumulatorVec values(buckets);
-            for (core_t::TTime time = startTime; time < startTime + window; time += bucketLength) {
+            for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                 std::size_t bucket((time - startTime) / bucketLength);
                 auto outlier = std::lower_bound(outliers.begin(), outliers.end(), bucket);
                 if (outlier != outliers.end() && *outlier == bucket) {
@@ -671,6 +688,8 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
             LOG_DEBUG(<< "test " << test << " / 100");
         }
         for (const auto& window : windows) {
+            core_t::TTime endTime{startTime + window};
+
             TDoubleVec scaling_;
             rng.generateUniformSamples(1.0, 5.0, 1, scaling_);
             double scaling{test % 2 == 0 ? scaling_[0] : 1.0 / scaling_[0]};
@@ -686,7 +705,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 
                 maths::CPeriodicityHypothesisTestsResult expected;
                 expected.add(core::CStringUtils::typeToString(period), false, 0,
-                             period, {0, period});
+                             period, {0, period}, {});
 
                 switch (test % 3) {
                 case 0:
@@ -701,16 +720,12 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 }
                 rng.generateUniformSamples(0, permittedGenerators[i], 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);
-
-                maths::CPeriodicityHypothesisTests hypotheses;
-                hypotheses.initialize(bucketLength, window, period);
+                const auto& generator = generators[index[0]];
 
                 maths::TFloatMeanAccumulatorVec values(window / bucketLength);
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += bucketLength) {
+                for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
-                    double value{20.0 * scale(scaling, time, generators[index[0]]) +
-                                 noise[bucket]};
+                    double value{20.0 * scale(scaling, time, generator) + noise[bucket]};
                     values[bucket].add(value);
                 }
 
@@ -749,6 +764,106 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
     CPPUNIT_ASSERT(TP[2] / (TP[2] + FN[2]) > 0.99);
 }
 
+void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
+    // Test the ability to correctly find diurnal periodic signals
+    // with random linear scaling events in the window.
+
+    TTimeVec windows{3 * WEEK, 4 * WEEK};
+    core_t::TTime bucketLength{HALF_HOUR};
+    std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
+    double scaleSupport[][2]{{4.0, 6.0}, {0.2, 0.4}};
+    TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly};
+    TStrVec expected{"{ 'daily' }", "{ 'daily' }", "{ 'weekly' }"};
+    core_t::TTime startTime{0};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec noise;
+    TSizeVec index;
+    TSizeVec repeats;
+
+    double TP{0.0};
+    double FN{0.0};
+
+    for (std::size_t test = 0; test < 100; ++test) {
+        if (test % 10 == 0) {
+            LOG_DEBUG(<< "test " << test << " / 100");
+        }
+
+        for (const auto& window : windows) {
+            core_t::TTime endTime{startTime + window};
+
+            TTimeVec segments;
+            TDoubleVec scales{1.0};
+            for (std::size_t i = 0; i < 2; ++i) {
+                TSizeVec segment;
+                TDoubleVec scale;
+                rng.generateUniformSamples(segmentSupport[i][0],
+                                           segmentSupport[i][1], 1, segment);
+                rng.generateUniformSamples(scaleSupport[i][0], scaleSupport[i][1], 1, scale);
+                segments.push_back(startTime + segment[0] * bucketLength);
+                scales.push_back(scale[0]);
+            }
+            segments.push_back(endTime);
+
+            auto trend = [&](core_t::TTime time) {
+                auto i = std::lower_bound(segments.begin(), segments.end(), time);
+                return 20.0 * scales[i - segments.begin()] * generators[index[0]](time);
+            };
+
+            rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+            rng.generateUniformSamples(0, 2, 1, index);
+            rng.generateUniformSamples(3, 20, 1, repeats);
+
+            maths::TFloatMeanAccumulatorVec values(window / bucketLength);
+            for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+                std::size_t bucket((time - startTime) / bucketLength);
+                double value{trend(time) + noise[bucket]};
+                values[bucket].add(value);
+            }
+
+            maths::CPeriodicityHypothesisTestsConfig config;
+            maths::CPeriodicityHypothesisTestsResult result{
+                maths::testForPeriods(config, startTime, bucketLength, values)};
+            if (result.print() != expected[index[0]]) {
+                LOG_DEBUG(<< "result = " << result.print() << " expected "
+                          << expected[index[0]]);
+            }
+
+            TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
+            FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
+        }
+    }
+
+    LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
+    CPPUNIT_ASSERT(TP / (TP + FN) > 0.99);
+
+    // Test we don't interpret a weekend (which is a scaled weekday)
+    // as a segmented pure periodic component.
+    {
+        double scale[]{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0};
+        maths::TFloatMeanAccumulatorVec values(2 * WEEK / bucketLength);
+        for (core_t::TTime time = 0; time < 2 * WEEK; time += bucketLength) {
+            values[time / bucketLength].add(
+                scale[(time % WEEK) / DAY] *
+                std::sin(boost::math::double_constants::two_pi *
+                         static_cast<double>(time) / static_cast<double>(DAY)));
+        }
+
+        maths::CPeriodicityHypothesisTestsConfig config;
+        maths::CPeriodicityHypothesisTestsResult result{
+            maths::testForPeriods(config, startTime, bucketLength, values)};
+        LOG_DEBUG(<< "result = " << result.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"),
+                             result.print());
+    }
+}
+
+void CPeriodicityHypothesisTestsTest::testWithPiecewiseLinearTrend() {
+    // Test the ability to correctly find diurnal periodic signals
+    // with a random piecewise linear trend.
+}
+
 CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
 
@@ -770,6 +885,12 @@ CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
         "CPeriodicityHypothesisTestsTest::testTestForPeriods",
         &CPeriodicityHypothesisTestsTest::testTestForPeriods));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testWithLinearScaling",
+        &CPeriodicityHypothesisTestsTest::testWithLinearScaling));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
+        "CPeriodicityHypothesisTestsTest::testWithPiecewiseLinearTrend",
+        &CPeriodicityHypothesisTestsTest::testWithPiecewiseLinearTrend));
 
     return suiteOfTests;
 }

@@ -1493,10 +1493,11 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor) {
-    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
-    using TSeasonalTimePtrVec = std::vector<TSeasonalTimePtr>;
+    using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
+    using TSeasonalTimePtrSizeVecPr = std::pair<TSeasonalTimePtr, TSizeVec>;
+    using TSeasonalTimePtrSizeVecPrVec = std::vector<TSeasonalTimePtrSizeVecPr>;
 
-    TSeasonalTimePtrVec newSeasonalTimes;
+    TSeasonalTimePtrSizeVecPrVec newComponents;
     const TSeasonalComponentVec& components{m_Seasonal->components()};
 
     for (const auto& candidate_ : result.components()) {
@@ -1506,36 +1507,62 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate_.s_Description << "'");
-            newSeasonalTimes.push_back(seasonalTime);
+            newComponents.emplace_back(std::move(seasonalTime), candidate_.s_Segmentation);
         }
     }
 
-    if (newSeasonalTimes.size() > 0) {
-        for (const auto& seasonalTime : newSeasonalTimes) {
-            m_Seasonal->removeExcludedComponents(*seasonalTime);
+    if (newComponents.size() > 0) {
+        for (const auto& component : newComponents) {
+            m_Seasonal->removeExcludedComponents(*component.first);
         }
 
-        std::sort(newSeasonalTimes.begin(), newSeasonalTimes.end(),
-                  maths::COrderings::SLess());
+        std::sort(newComponents.begin(), newComponents.end(), maths::COrderings::SLess());
 
         core_t::TTime startTime{window.startTime()};
         core_t::TTime endTime{window.endTime()};
         core_t::TTime dt{window.bucketLength()};
 
         TFloatMeanAccumulatorVec values;
-        for (const auto& seasonalTime : newSeasonalTimes) {
+        for (const auto& component : newComponents) {
+            const auto& seasonalTime = component.first;
+            const auto& segmentation = component.second;
+
+            // Extract the values, minus the prediction of existing components,
+            // ignoring any values which fall outside the window of the component
+            // to add.
             values = window.valuesMinusPrediction(predictor);
             if (seasonalTime->windowed()) {
                 core_t::TTime time{startTime + dt / 2};
                 for (auto& value : values) {
-                    if (!seasonalTime->inWindow(time)) {
+                    if (seasonalTime->inWindow(time) == false) {
                         value = TFloatMeanAccumulator{};
                     }
                     time += dt;
                 }
             }
-            double bucketLength{static_cast<double>(m_BucketLength)};
+
             core_t::TTime period{seasonalTime->period()};
+
+            if (segmentation.size() > 0) {
+                // Periodicity testing detected piecewise constant linear scaling
+                // of the underlying seasonal component. Here, we adjust all values
+                // so the scaling is constant and equal to the most recent one.
+                TDoubleVec trend;
+                TDoubleVec scales;
+                std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+                    values, period / dt, segmentation,
+                    SEASONAL_OUTLIER_FRACTION, SEASONAL_OUTLIER_WEIGHT);
+                values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+                    values, segmentation, trend, scales);
+                for (std::size_t i = 0; i < values.size(); ++i) {
+                    CBasicStatistics::moment<0>(values[i]) += trend[i % trend.size()];
+                }
+            }
+
+            // If we see multiple repeats of the component in the window we use
+            // a periodic boundary condition, which ensures that the prediction
+            // at the repeat is continuous.
+            double bucketLength{static_cast<double>(m_BucketLength)};
             auto boundaryCondition = period > seasonalTime->windowLength()
                                          ? CSplineTypes::E_Natural
                                          : CSplineTypes::E_Periodic;
@@ -1585,7 +1612,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         m_Trend.swap(trend);
     }
 
-    return newSeasonalTimes.size() > 0;
+    return newComponents.size() > 0;
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature,

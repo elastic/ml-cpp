@@ -77,7 +77,7 @@ std::size_t distance(const TSizeVec& lhs, const TSizeVec& rhs) {
 }
 }
 
-void CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear() {
+void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
 
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
@@ -90,7 +90,8 @@ void CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear() {
 
     LOG_DEBUG(<< "Basic");
     for (auto outlierFraction : {0.0, 0.1}) {
-        CDebugGenerator debug("results.m." + core::CStringUtils::typeToStringPretty(outlierFraction));
+        CDebugGenerator debug(
+            "results.m." + core::CStringUtils::typeToStringPretty(outlierFraction));
 
         values.assign(range / halfHour, TFloatMeanAccumulator{});
         TMeanVarAccumulator noiseMoments;
@@ -116,7 +117,7 @@ void CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear() {
                   << core::CContainerPrinter::print(trueSegmentation));
         LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
-        TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinear(
+        TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePiecewiseLinear(
             values, segmentation, outlierFraction, 0.1)};
         TMeanVarAccumulator residualMoments;
         for (const auto& residual : residuals) {
@@ -175,12 +176,12 @@ void CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear() {
                               static_cast<std::size_t>(3 * week / halfHour),
                               values.size()};
 
-    TSizeVec segmentation(
-        maths::CTimeSeriesSegmentation::topDownPiecewiseLinear(values, 0.01, 0.05, 0.1));
+    TSizeVec segmentation(maths::CTimeSeriesSegmentation::topDownPiecewiseLinear(
+        values, 0.01, 0.05, 0.1));
     LOG_DEBUG(<< "true segmentation = " << core::CContainerPrinter::print(trueSegmentation));
     LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
-    TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinear(
+    TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePiecewiseLinear(
         values, segmentation, 0.05, 0.1)};
 
     // Project onto inliers.
@@ -209,7 +210,7 @@ void CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear() {
                    1.4 * maths::CBasicStatistics::variance(noiseMoments));
 }
 
-void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
+void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
 
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
@@ -227,7 +228,9 @@ void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
         std::size_t j{0};
         for (auto periodic : {smoothDaily, spikeyDaily}) {
             LOG_DEBUG(<< periods[j]);
-            CDebugGenerator debug("results.m." + core::CStringUtils::typeToStringPretty(outlierFraction) + "." + periods[j++]);
+            CDebugGenerator debug("results.m." +
+                                  core::CStringUtils::typeToStringPretty(outlierFraction) +
+                                  "." + periods[j++]);
 
             values.assign(range / halfHour, TFloatMeanAccumulator{});
             TMeanVarAccumulator noiseMoments;
@@ -247,14 +250,14 @@ void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
                 0, static_cast<std::size_t>(3 * week / halfHour / 2),
                 static_cast<std::size_t>(2 * week / halfHour), values.size()};
 
-            TSizeVec segmentation(maths::CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(
+            TSizeVec segmentation(maths::CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
                 values, period, 0.01, outlierFraction));
             LOG_DEBUG(<< "true segmentation = "
                       << core::CContainerPrinter::print(trueSegmentation));
             LOG_DEBUG(<< "segmentation      = "
                       << core::CContainerPrinter::print(segmentation));
 
-            TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinearScaled(
+            TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
                 values, period, segmentation, outlierFraction, 0.1)};
             TMeanVarAccumulator residualMoments;
             for (const auto& residual : residuals) {
@@ -271,10 +274,11 @@ void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
             CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 5);
 
             // Not biased.
-            CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                                     maths::CBasicStatistics::mean(noiseMoments)) <
-                           3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                           maths::CBasicStatistics::count(noiseMoments)));
+            CPPUNIT_ASSERT(
+                std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+                          maths::CBasicStatistics::mean(noiseMoments)) <
+                3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                                maths::CBasicStatistics::count(noiseMoments)));
 
             // We've explained nearly all the variance.
             CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
@@ -312,16 +316,17 @@ void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
             }
             debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
         }
-        TSizeVec trueSegmentation{
-            0, static_cast<std::size_t>(3 * week / halfHour / 2),
-            static_cast<std::size_t>(2 * week / halfHour), values.size()};
+        TSizeVec trueSegmentation{0, static_cast<std::size_t>(3 * week / halfHour / 2),
+                                  static_cast<std::size_t>(2 * week / halfHour),
+                                  values.size()};
 
-        TSizeVec segmentation(
-            maths::CTimeSeriesSegmentation::topDownPeriodicPiecewiseLinearScaled(values, period, 0.01, 0.05, 0.01));
-        LOG_DEBUG(<< "true segmentation = " << core::CContainerPrinter::print(trueSegmentation));
+        TSizeVec segmentation(maths::CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+            values, period, 0.01, 0.05, 0.01));
+        LOG_DEBUG(<< "true segmentation = "
+                  << core::CContainerPrinter::print(trueSegmentation));
         LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
-        TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePredictionsOfPiecewiseLinearScaled(
+        TFloatMeanAccumulatorVec residuals{maths::CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
             values, period, trueSegmentation, 0.05, 0.01)};
 
         // Project onto inliers.
@@ -343,11 +348,11 @@ void CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling() {
         CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                                  maths::CBasicStatistics::mean(noiseMoments)) <
                        3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                        maths::CBasicStatistics::count(noiseMoments)));
+                                       maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
         CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
-                       2.5 * maths::CBasicStatistics::variance(noiseMoments));
+                       1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 }
 
@@ -355,11 +360,11 @@ CppUnit::Test* CTimeSeriesSegmentationTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesSegmentationTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesSegmentationTest>(
-        "CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear",
-        &CTimeSeriesSegmentationTest::testTopDownPiecewiseLinear));
+        "CTimeSeriesSegmentationTest::testPiecewiseLinear",
+        &CTimeSeriesSegmentationTest::testPiecewiseLinear));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesSegmentationTest>(
-        "CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling",
-        &CTimeSeriesSegmentationTest::testTopDownPeriodicPiecewiseLinearScaling));
+        "CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic",
+        &CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic));
 
     return suiteOfTests;
 }
