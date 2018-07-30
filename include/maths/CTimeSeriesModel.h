@@ -247,7 +247,23 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(void);
+    void reinitializeStateGivenNewComponent();
+
+    //! Compute the probability for uncorrelated series.
+    bool uncorrelatedProbability(const CModelProbabilityParams& params,
+                                 const TTime2Vec1Vec& time,
+                                 const TDouble2Vec1Vec& value,
+                                 double& probability,
+                                 TTail2Vec& tail) const;
+
+    //! Compute the probability for correlated series.
+    bool correlatedProbability(const CModelProbabilityParams& params,
+                               const TTime2Vec1Vec& time,
+                               const TDouble2Vec1Vec& value,
+                               double& probability,
+                               TTail2Vec& tail,
+                               bool& conditional,
+                               TSize1Vec& mostAnomalousCorrelate) const;
 
     //! Get the models for the correlations and the models of the correlated
     //! time series.
@@ -458,8 +474,11 @@ private:
     //! Add the time series identified by \p id.
     void addTimeSeries(std::size_t id, const CUnivariateTimeSeriesModel& model);
 
-    //! Remove the correlates of \p id.
+    //! Remove the time series identified by \p id.
     void removeTimeSeries(std::size_t id);
+
+    //! Clear all correlation information for time series identified \p id.
+    void clearCorrelationModels(std::size_t id);
 
     //! Add a sample for the time series identified by \p id.
     void addSamples(std::size_t id,

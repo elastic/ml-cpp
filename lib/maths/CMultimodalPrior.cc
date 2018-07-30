@@ -139,7 +139,7 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
                                this->numberSamples(numberSamples))
     } while (traverser.next());
 
-    if (m_Clusterer) {
+    if (m_Clusterer != nullptr) {
         // Register the split and merge callbacks.
         m_Clusterer->splitFunc(CModeSplitCallback(*this));
         m_Clusterer->mergeFunc(CModeMergeCallback(*this));
@@ -150,11 +150,13 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
 
 CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior& other)
     : CPrior(other.dataType(), other.decayRate()),
-      m_Clusterer(other.m_Clusterer->clone()),
-      m_SeedPrior(other.m_SeedPrior->clone()) {
+      m_Clusterer(other.m_Clusterer != nullptr ? other.m_Clusterer->clone() : nullptr),
+      m_SeedPrior(other.m_SeedPrior != nullptr ? other.m_SeedPrior->clone() : nullptr) {
     // Register the split and merge callbacks.
-    m_Clusterer->splitFunc(CModeSplitCallback(*this));
-    m_Clusterer->mergeFunc(CModeMergeCallback(*this));
+    if (m_Clusterer != nullptr) {
+        m_Clusterer->splitFunc(CModeSplitCallback(*this));
+        m_Clusterer->mergeFunc(CModeMergeCallback(*this));
+    }
 
     // Clone all the modes up front so we can implement strong exception safety.
     TModeVec modes;
@@ -182,10 +184,14 @@ void CMultimodalPrior::swap(CMultimodalPrior& other) {
     // The call backs for split and merge should point to the
     // appropriate priors (we don't swap the "this" pointers
     // after all). So we need to refresh them after swapping.
-    m_Clusterer->splitFunc(CModeSplitCallback(*this));
-    m_Clusterer->mergeFunc(CModeMergeCallback(*this));
-    other.m_Clusterer->splitFunc(CModeSplitCallback(other));
-    other.m_Clusterer->mergeFunc(CModeMergeCallback(other));
+    if (m_Clusterer != nullptr) {
+        m_Clusterer->splitFunc(CModeSplitCallback(*this));
+        m_Clusterer->mergeFunc(CModeMergeCallback(*this));
+    }
+    if (other.m_Clusterer != nullptr) {
+        other.m_Clusterer->splitFunc(CModeSplitCallback(other));
+        other.m_Clusterer->mergeFunc(CModeMergeCallback(other));
+    }
 
     std::swap(m_SeedPrior, other.m_SeedPrior);
     m_Modes.swap(other.m_Modes);
