@@ -34,7 +34,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_ComponentSize(CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE),
       s_MinimumTimeToDetectChange(CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE),
       s_MaximumTimeToTestForChange(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE),
-      s_BulkFeaturesWindowLength(CAnomalyDetectorModelConfig::BULK_FEATURE_WINDOW_LENGTH),
+      s_MultibucketFeaturesWindowLength(CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURE_WINDOW_LENGTH),
       s_MultivariateByFields(false),
       s_CorrelationModelsOverhead(CAnomalyDetectorModelConfig::DEFAULT_CORRELATION_MODELS_OVERHEAD),
       s_MinimumSignificantCorrelation(

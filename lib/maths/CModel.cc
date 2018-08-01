@@ -264,13 +264,13 @@ CModelProbabilityParams::TOptionalSize CModelProbabilityParams::mostAnomalousCor
     return m_MostAnomalousCorrelate;
 }
 
-CModelProbabilityParams& CModelProbabilityParams::useBulkFeatures(bool use) {
-    m_UseBulkFeatures = use;
+CModelProbabilityParams& CModelProbabilityParams::useMultibucketFeatures(bool use) {
+    m_UseMultibucketFeatures = use;
     return *this;
 }
 
-bool CModelProbabilityParams::useBulkFeatures() const {
-    return m_UseBulkFeatures;
+bool CModelProbabilityParams::useMultibucketFeatures() const {
+    return m_UseMultibucketFeatures;
 }
 
 CModelProbabilityParams& CModelProbabilityParams::useAnomalyModel(bool use) {

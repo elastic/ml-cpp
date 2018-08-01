@@ -47,7 +47,7 @@ CModelFactory::defaultFeatureModels(const TFeatureVec& features,
                                     core_t::TTime bucketLength,
                                     double minimumSeasonalVarianceScale,
                                     bool modelAnomalies,
-                                    std::size_t bulkFeaturesWindowLength) const {
+                                    std::size_t multibucketFeaturesWindowLength) const {
     auto result = m_MathsModelCache.emplace(features, TFeatureMathsModelPtrPrVec());
     if (result.second) {
         result.first->second.reserve(features.size());
@@ -58,7 +58,7 @@ CModelFactory::defaultFeatureModels(const TFeatureVec& features,
             result.first->second.emplace_back(
                 feature, this->defaultFeatureModel(
                              feature, bucketLength, minimumSeasonalVarianceScale,
-                             modelAnomalies, bulkFeaturesWindowLength));
+                             modelAnomalies, multibucketFeaturesWindowLength));
         }
     }
     return result.first->second;
@@ -69,7 +69,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
                                    core_t::TTime bucketLength,
                                    double minimumSeasonalVarianceScale,
                                    bool modelAnomalies,
-                                   std::size_t bulkFeaturesWindowLength) const {
+                                   std::size_t multibucketFeaturesWindowLength) const {
     if (model_t::isCategorical(feature)) {
         return nullptr;
     }
@@ -102,7 +102,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
         return boost::make_unique<maths::CUnivariateTimeSeriesModel>(
             params, 0 /*identifier (overridden)*/, *trend, *prior,
             controlDecayRate ? &controllers : nullptr,
-            modelAnomalies && !model_t::isConstant(feature), bulkFeaturesWindowLength);
+            modelAnomalies && !model_t::isConstant(feature), multibucketFeaturesWindowLength);
     }
 
     TMultivariatePriorUPtr prior{this->defaultMultivariatePrior(feature)};
@@ -246,8 +246,8 @@ void CModelFactory::pruneWindowScaleMaximum(double factor) {
     m_ModelParams.s_PruneWindowScaleMaximum = factor;
 }
 
-void CModelFactory::bulkFeaturesWindowLength(std::size_t length) {
-    m_ModelParams.s_BulkFeaturesWindowLength = length;
+void CModelFactory::multibucketFeaturesWindowLength(std::size_t length) {
+    m_ModelParams.s_MultibucketFeaturesWindowLength = length;
 }
 
 void CModelFactory::multivariateByFields(bool enabled) {

@@ -129,7 +129,7 @@ void CResourceLimitTest::testLimitBy() {
     {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        modelConfig.useBulkFeatures(false);
+        modelConfig.useMultibucketFeatures(false);
         CLimits limits;
         CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric, false,

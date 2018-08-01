@@ -61,7 +61,7 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
                                    this->minimumSeasonalVarianceScale(), true,
-                                   this->modelParams().s_BulkFeaturesWindowLength),
+                                   this->modelParams().s_MultibucketFeaturesWindowLength),
         this->defaultCorrelatePriors(features),
         this->defaultCorrelates(features), this->defaultCategoricalPrior(),
         influenceCalculators, this->interimBucketCorrector());
@@ -86,7 +86,7 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
     return new CEventRateModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true,
-                                   this->modelParams().s_BulkFeaturesWindowLength),
+                                   this->modelParams().s_MultibucketFeaturesWindowLength),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }

@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CTimeSeriesBulkFeaturesTest_h
-#define INCLUDED_CTimeSeriesBulkFeaturesTest_h
+#ifndef INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
+#define INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTimeSeriesBulkFeaturesTest : public CppUnit::TestFixture {
+class CTimeSeriesMultibucketFeaturesTest : public CppUnit::TestFixture {
 public:
     void testMean();
     void testContrast();
@@ -17,4 +17,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CTimeSeriesBulkFeaturesTest_h
+#endif // INCLUDED_CTimeSeriesMultibucketFeaturesTest_h

@@ -191,14 +191,14 @@ public:
                          core_t::TTime bucketLength,
                          double minimumSeasonalVarianceScale,
                          bool modelAnomalies,
-                         std::size_t bulkFeaturesWindowLength) const;
+                         std::size_t multibucketFeaturesWindowLength) const;
 
     //! Get the default model to use for \p features and \p bucketLength.
     TMathsModelPtr defaultFeatureModel(model_t::EFeature feature,
                                        core_t::TTime bucketLength,
                                        double minimumSeasonalVarianceScale,
                                        bool modelAnomalies,
-                                       std::size_t bulkFeaturesWindowLength) const;
+                                       std::size_t multibucketFeaturesWindowLength) const;
 
     //! Get the default correlate priors to use for correlated pairs of time
     //! series of \p features.
@@ -333,10 +333,10 @@ public:
     //! Set the prune window scale factor maximum
     void pruneWindowScaleMaximum(double factor);
 
-    //! Set the window length to use for bulk features.
+    //! Set the window length to use for multibucket features.
     //!
-    //! \note A length of zero disables modeling of bulk features altogether.
-    void bulkFeaturesWindowLength(std::size_t length);
+    //! \note A length of zero disables modeling of multibucket features altogether.
+    void multibucketFeaturesWindowLength(std::size_t length);
 
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.

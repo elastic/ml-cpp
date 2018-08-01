@@ -263,7 +263,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
-        modelConfig.useBulkFeatures(false);
+        modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
@@ -393,7 +393,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        modelConfig.useBulkFeatures(false);
+        modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
@@ -421,7 +421,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        modelConfig.useBulkFeatures(false);
+        modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,

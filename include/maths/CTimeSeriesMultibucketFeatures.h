@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_maths_CTimeSeriesBulkFeatures_h
-#define INCLUDED_ml_maths_CTimeSeriesBulkFeatures_h
+#ifndef INCLUDED_ml_maths_CTimeSeriesMultibucketFeatures_h
+#define INCLUDED_ml_maths_CTimeSeriesMultibucketFeatures_h
 
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
@@ -15,24 +15,20 @@
 #include <maths/CTypeConversions.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/circular_buffer.hpp>
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <numeric>
 #include <utility>
 
 namespace ml {
 namespace maths {
 
-//! \brief Defines some of bulk properties of a collection of time
-//! series values.
+//! \brief Defines features on collections of time series values.
 //!
 //! DESCRIPTION:\n
 //! The intention of these is to provide useful features for performing
-//! anomaly detection. Specifically, unusual values of bulk properties
-//! are expected to be indicative of interesting events in time series.
-class CTimeSeriesBulkFeatures {
+//! anomaly detection. Specifically, unusual values of certain properties
+//! of extended time ranges are often the most interesting events in a
+//! time series from a user's perspective.
+class CTimeSeriesMultibucketFeatures {
 public:
     template<typename T>
     using TT1VecTWeightAry1VecPr =
@@ -66,12 +62,13 @@ private:
         using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TPrecise>::TAccumulator;
     };
 
-    //! Univariate implementation returns zero.
+    //! Univariate implementation returns \p value.
     template<typename T>
     static double conformable(const T& /*x*/, double value) {
         return value;
     }
-    //! Multivariate implementation returns zero vector conformable with \p x.
+    //! Multivariate implementation returns the \p value scalar multiple
+    //! of the one vector which is conformable with \p x.
     template<typename T>
     static CVector<double> conformable(const CVector<T>& x, double value) {
         return CVector<double>(x.dimension(), value);
@@ -88,18 +85,18 @@ private:
         return x.dimension();
     }
 
-    //! Univariate implementation returns a vector containing \p x.
+    //! Univariate implementation returns \p x.
     template<typename T>
     static double toVector(const T& x) {
         return x;
     }
-    //! Multivariate implementation returns a vector containing \p x.
+    //! Multivariate implementation returns \p x as the VECTOR type.
     template<typename VECTOR, typename T>
     static VECTOR toVector(const CVector<T>& x) {
         return x.template toVector<VECTOR>();
     }
 
-    //! Get mean count of values in [\p begin, \p end).
+    //! Get mean count of the values in [\p begin, \p end).
     template<typename ITR>
     static typename STraits<ITR>::TPrecise
     rangeCount(ITR begin, ITR end, double factor = 1.0) {
@@ -122,7 +119,7 @@ private:
         return CBasicStatistics::mean(count);
     }
 
-    //! Get mean of values in [\p begin, \p end).
+    //! Get mean of the values in [\p begin, \p end).
     template<typename ITR>
     static typename STraits<ITR>::TPrecise
     rangeMean(ITR begin, ITR end, double factor = 1.0) {
@@ -144,7 +141,7 @@ private:
         return CBasicStatistics::mean(mean);
     }
 
-    //! Compute the time range [\p begin, \p end).
+    //! Compute the time range of [\p begin, \p end).
     template<typename ITR>
     static TDoubleDoublePr range(ITR begin, ITR end) {
         auto range =
@@ -160,4 +157,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_maths_CTimeSeriesBulkFeatures_h
+#endif // INCLUDED_ml_maths_CTimeSeriesMultibucketFeatures_h

@@ -200,10 +200,10 @@ public:
     //! Get the most anomalous correlate if there is one.
     TOptionalSize mostAnomalousCorrelate() const;
 
-    //! Set whether or not to use bulk features.
-    CModelProbabilityParams& useBulkFeatures(bool use);
-    //! Get whether or not to use bulk features.
-    bool useBulkFeatures() const;
+    //! Set whether or not to use multibucket features.
+    CModelProbabilityParams& useMultibucketFeatures(bool use);
+    //! Get whether or not to use multibucket features.
+    bool useMultibucketFeatures() const;
 
     //! Set whether or not to use the anomaly model.
     CModelProbabilityParams& useAnomalyModel(bool use);
@@ -225,8 +225,8 @@ private:
     TSize2Vec m_Coordinates;
     //! The most anomalous coordinate (if there is one).
     TOptionalSize m_MostAnomalousCorrelate;
-    //! Whether or not to use bulk features.
-    bool m_UseBulkFeatures = true;
+    //! Whether or not to use multibucket features.
+    bool m_UseMultibucketFeatures = true;
     //! Whether or not to use the anomaly model.
     bool m_UseAnomalyModel = true;
 };

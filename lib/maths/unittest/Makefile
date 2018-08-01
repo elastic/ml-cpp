@@ -85,10 +85,10 @@ SRCS=\
 	CSolversTest.cc \
 	CSplineTest.cc \
 	CStatisticalTestsTest.cc \
-	CTimeSeriesBulkFeaturesTest.cc \
 	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
+	CTimeSeriesMultibucketFeaturesTest.cc \
 	CToolsTest.cc \
 	CTrendComponentTest.cc \
 	CXMeansOnlineTest.cc \

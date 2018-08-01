@@ -60,8 +60,8 @@ public:
 
 public:
     //! The default length of the sliding window of residuals used to compute
-    //! bulk features.
-    static const std::size_t BULK_FEATURES_WINDOW_LENGTH;
+    //! multibucket features.
+    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
 
 public:
     //! \param[in] params The model parameters.
@@ -72,18 +72,18 @@ public:
     //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
-    //! \param[in] bulkFeaturesWindowLength The length of the sliding window
-    //! of residuals used to compute bulk features.
+    //! \param[in] multibucketFeaturesWindowLength The length of the sliding window
+    //! of residuals used to compute multibucket features.
     CUnivariateTimeSeriesModel(const CModelParams& params,
                                std::size_t id,
                                const CTimeSeriesDecompositionInterface& trendModel,
                                const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
                                bool modelAnomalies = true,
-                               std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
+                               std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
                                core::CStateRestoreTraverser& traverser,
-                               std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
+                               std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
     ~CUnivariateTimeSeriesModel();
 
     const CUnivariateTimeSeriesModel& operator=(const CUnivariateTimeSeriesModel&) = delete;
@@ -557,8 +557,8 @@ public:
 
 public:
     //! The default length of the sliding window of residuals used to compute
-    //! bulk features.
-    static const std::size_t BULK_FEATURES_WINDOW_LENGTH;
+    //! multibucket features.
+    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
 
 public:
     //! \param[in] params The model parameters.
@@ -568,18 +568,18 @@ public:
     //! and residual model.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
-    //! \param[in] bulkFeaturesWindowLength The length of the sliding window
-    //! of residuals used to compute bulk features.
+    //! \param[in] multibucketFeaturesWindowLength The length of the sliding window
+    //! of residuals used to compute multibucket features.
     CMultivariateTimeSeriesModel(const CModelParams& params,
                                  const CTimeSeriesDecompositionInterface& trendModel,
                                  const CMultivariatePrior& residualModel,
                                  const TDecayRateController2Ary* controllers = nullptr,
                                  bool modelAnomalies = true,
-                                 std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
+                                 std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
     CMultivariateTimeSeriesModel(const SModelRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser,
-                                 std::size_t bulkFeaturesWindowLength = BULK_FEATURES_WINDOW_LENGTH);
+                                 std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
     ~CMultivariateTimeSeriesModel();
 
     const CMultivariateTimeSeriesModel& operator=(const CMultivariateTimeSeriesModel&) = delete;

@@ -73,7 +73,7 @@ const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(16 * core::constants::HOUR);
 const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(core::constants::DAY);
-const std::size_t CAnomalyDetectorModelConfig::BULK_FEATURE_WINDOW_LENGTH(12);
+const std::size_t CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURE_WINDOW_LENGTH(12);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.4);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
@@ -198,9 +198,10 @@ void CAnomalyDetectorModelConfig::interimBucketCorrector(const TInterimBucketCor
     }
 }
 
-void CAnomalyDetectorModelConfig::useBulkFeatures(bool enabled) {
+void CAnomalyDetectorModelConfig::useMultibucketFeatures(bool enabled) {
     for (auto& factory : m_Factories) {
-        factory.second->bulkFeaturesWindowLength(enabled ? BULK_FEATURE_WINDOW_LENGTH : 0);
+        factory.second->multibucketFeaturesWindowLength(
+            enabled ? MULTIBUCKET_FEATURE_WINDOW_LENGTH : 0);
     }
 }
 

@@ -1181,7 +1181,7 @@ void CTimeSeriesModelTest::testProbability() {
                                 .seasonalConfidenceInterval(confidence)
                                 .addBucketEmpty({empty})
                                 .addWeights(weight)
-                                .useBulkFeatures(false);
+                                .useMultibucketFeatures(false);
                             model0.probability(params, time_, {sample}, results[0]);
                             model1.probability(params, time_, {sample}, results[1]);
                         }
@@ -1281,7 +1281,7 @@ void CTimeSeriesModelTest::testProbability() {
                                 .seasonalConfidenceInterval(confidence)
                                 .addBucketEmpty({empty})
                                 .addWeights(weight)
-                                .useBulkFeatures(false);
+                                .useMultibucketFeatures(false);
                             model0.probability(params, time_, {sample}, results[0]);
                             model1.probability(params, time_, {sample}, results[1]);
                         }
@@ -1495,7 +1495,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             sizeof(maths::CTimeSeriesDecomposition) + trend.memoryUsage() +
-            16 * maths::CUnivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
+            16 * maths::CUnivariateTimeSeriesModel::MULTIBUCKET_FEATURES_WINDOW_LENGTH +
             3 * sizeof(maths::CNormalMeanPrecConjugate) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
@@ -1532,7 +1532,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             3 * sizeof(maths::CTimeSeriesDecomposition) + 3 * trend.memoryUsage() +
-            48 * maths::CMultivariateTimeSeriesModel::BULK_FEATURES_WINDOW_LENGTH +
+            48 * maths::CMultivariateTimeSeriesModel::MULTIBUCKET_FEATURES_WINDOW_LENGTH +
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};

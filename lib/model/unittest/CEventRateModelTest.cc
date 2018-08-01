@@ -2228,7 +2228,7 @@ void CEventRateModelTest::testInterimCorrections() {
     core_t::TTime endTime(2 * 24 * bucketLength);
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
-    params.s_BulkFeaturesWindowLength = 0;
+    params.s_MultibucketFeaturesWindowLength = 0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 3);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     CCountingModel countingModel(params, m_Gatherer, m_InterimBucketCorrector);

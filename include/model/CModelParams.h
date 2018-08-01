@@ -97,9 +97,9 @@ struct MODEL_EXPORT SModelParams {
     //! The maximum time to test for a change point in a time series.
     core_t::TTime s_MaximumTimeToTestForChange;
 
-    //! The number of time buckets used to generate bulk features for anomaly
+    //! The number of time buckets used to generate multibucket features for anomaly
     //! detection.
-    std::size_t s_BulkFeaturesWindowLength;
+    std::size_t s_MultibucketFeaturesWindowLength;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool s_MultivariateByFields;

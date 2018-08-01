@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTimeSeriesBulkFeaturesTest.h"
+#include "CTimeSeriesMultibucketFeaturesTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <maths/CTimeSeriesBulkFeatures.h>
+#include <maths/CTimeSeriesMultibucketFeatures.h>
 
 #include <tuple>
 
@@ -19,7 +19,7 @@ using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
 using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
 
-void CTimeSeriesBulkFeaturesTest::testMean() {
+void CTimeSeriesMultibucketFeaturesTest::testMean() {
     // Test we get the value and weight we expect.
 
     LOG_DEBUG(<< "Univariate");
@@ -33,7 +33,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         TDouble1Vec mean;
         maths_t::TDoubleWeightsAry1Vec weight;
         std::tie(mean, weight) =
-            maths::CTimeSeriesBulkFeatures::mean<double>(buf.begin(), buf.end());
+            maths::CTimeSeriesMultibucketFeatures::mean<double>(buf.begin(), buf.end());
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT(mean.empty());
         CPPUNIT_ASSERT(weight.empty());
@@ -42,7 +42,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         buf.emplace_back(20, maths::CBasicStatistics::accumulator(0.3, 7.0));
         buf.emplace_back(30, maths::CBasicStatistics::accumulator(0.6, 3.0));
 
-        std::tie(mean, weight) = maths::CTimeSeriesBulkFeatures::mean<double>(
+        std::tie(mean, weight) = maths::CTimeSeriesMultibucketFeatures::mean<double>(
             buf.begin(), buf.begin() + 1);
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
@@ -53,7 +53,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         CPPUNIT_ASSERT_EQUAL(1.1, maths_t::countForUpdate(weight[0]));
 
         std::tie(mean, weight) =
-            maths::CTimeSeriesBulkFeatures::mean<double>(buf.begin(), buf.end());
+            maths::CTimeSeriesMultibucketFeatures::mean<double>(buf.begin(), buf.end());
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), weight.size());
@@ -74,7 +74,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
 
         TDouble10Vec1Vec mean;
         maths_t::TDouble10VecWeightsAry1Vec weight;
-        std::tie(mean, weight) = maths::CTimeSeriesBulkFeatures::mean<TDouble10Vec>(
+        std::tie(mean, weight) = maths::CTimeSeriesMultibucketFeatures::mean<TDouble10Vec>(
             buf.begin(), buf.end());
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT(mean.empty());
@@ -87,7 +87,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
         buf.emplace_back(3, maths::CBasicStatistics::accumulator(
                                 0.6, TVector(TDouble1Vec{3.0, 2.0})));
 
-        std::tie(mean, weight) = maths::CTimeSeriesBulkFeatures::mean<TDouble10Vec>(
+        std::tie(mean, weight) = maths::CTimeSeriesMultibucketFeatures::mean<TDouble10Vec>(
             buf.begin(), buf.begin() + 1);
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
@@ -104,7 +104,7 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
             std::string("[1.1, 1.1]"),
             core::CContainerPrinter::print(maths_t::countForUpdate(weight[0])));
 
-        std::tie(mean, weight) = maths::CTimeSeriesBulkFeatures::mean<TDouble10Vec>(
+        std::tie(mean, weight) = maths::CTimeSeriesMultibucketFeatures::mean<TDouble10Vec>(
             buf.begin(), buf.end());
         LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), mean.size());
@@ -119,11 +119,11 @@ void CTimeSeriesBulkFeaturesTest::testMean() {
     }
 }
 
-CppUnit::Test* CTimeSeriesBulkFeaturesTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesBulkFeaturesTest");
+CppUnit::Test* CTimeSeriesMultibucketFeaturesTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesMultibucketFeaturesTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesBulkFeaturesTest>(
-        "CTimeSeriesBulkFeaturesTest::testMean", &CTimeSeriesBulkFeaturesTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesMultibucketFeaturesTest>(
+        "CTimeSeriesMultibucketFeaturesTest::testMean", &CTimeSeriesMultibucketFeaturesTest::testMean));
 
     return suiteOfTests;
 }

@@ -116,8 +116,6 @@ bool CCmdLineParser::parse(int argc,
                         "The numer of half buckets to store before choosing which overlapping bucket has the biggest anomaly")
             ("multivariateByFields",
                         "Optional flag to enable multi-variate analysis of correlated by fields")
-            ("multipleBucketspans",  boost::program_options::value<std::string>(),
-                        "Deprecated - ignored")
             ("perPartitionNormalization",
                         "Optional flag to enable per partition normalization")
         ;

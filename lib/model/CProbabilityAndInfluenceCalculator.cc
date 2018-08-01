@@ -411,7 +411,7 @@ void doComputeInfluences(model_t::EFeature feature,
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
     computeProbabilityParams.weights(weights)
-        .useBulkFeatures(false)
+        .useMultibucketFeatures(false)
         .useAnomalyModel(false)
         .bucketEmpty({{count == 0.0}});
     maths::SModelProbabilityResult overallResult;
@@ -517,7 +517,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
     computeProbabilityParams.weights(weights)
-        .useBulkFeatures(false)
+        .useMultibucketFeatures(false)
         .useAnomalyModel(false)
         .bucketEmpty({{count[0] == 0.0, count[1] == 0.0}});
     maths::SModelProbabilityResult overallResult;
