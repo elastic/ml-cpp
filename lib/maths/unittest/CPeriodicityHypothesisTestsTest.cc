@@ -780,7 +780,6 @@ void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
 
     TDoubleVec noise;
     TSizeVec index;
-    TSizeVec repeats;
 
     double TP{0.0};
     double FN{0.0};
@@ -813,7 +812,6 @@ void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
 
             rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
             rng.generateUniformSamples(0, 2, 1, index);
-            rng.generateUniformSamples(3, 20, 1, repeats);
 
             maths::TFloatMeanAccumulatorVec values(window / bucketLength);
             for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
@@ -862,6 +860,86 @@ void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
 void CPeriodicityHypothesisTestsTest::testWithPiecewiseLinearTrend() {
     // Test the ability to correctly find diurnal periodic signals
     // with a random piecewise linear trend.
+
+    using TLinearModel = std::function<double(core_t::TTime)>;
+    using TLinearModelVec = std::vector<TLinearModel>;
+
+    TTimeVec windows{3 * WEEK, 4 * WEEK};
+    core_t::TTime bucketLength{HALF_HOUR};
+    std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
+    double slopeSupport[][2]{{0.5, 1.0}, {-1.0, -0.5}};
+    double interceptSupport[][2]{{-10.0, 5.0}, {10.0, 20.0}};
+    TGeneratorVec generators{smoothDaily, spikeyDaily};
+    TStrVec expected{"{ 'daily' }", "{ 'daily' }"};
+    core_t::TTime startTime{0};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec noise;
+    TSizeVec index;
+
+    double TP{0.0};
+    double FN{0.0};
+
+    for (std::size_t test = 0; test < 100; ++test) {
+        if (test % 10 == 0) {
+            LOG_DEBUG(<< "test " << test << " / 100");
+        }
+
+        for (const auto& window : windows) {
+            core_t::TTime endTime{startTime + window};
+
+            TTimeVec segments;
+            TLinearModelVec models{[](core_t::TTime) { return 0.0; }};
+            for (std::size_t i = 0; i < 2; ++i) {
+                TSizeVec segment;
+                TDoubleVec slope;
+                TDoubleVec intercept;
+                rng.generateUniformSamples(segmentSupport[i][0],
+                                           segmentSupport[i][1], 1, segment);
+                rng.generateUniformSamples(slopeSupport[i][0], slopeSupport[i][1], 1, slope);
+                rng.generateUniformSamples(interceptSupport[i][0],
+                                           interceptSupport[i][1], 1, intercept);
+                segments.push_back(startTime + segment[0] * bucketLength);
+                models.push_back([startTime, slope, intercept](core_t::TTime time) {
+                    return slope[0] * static_cast<double>(time - startTime) /
+                               static_cast<double>(DAY) +
+                           intercept[0];
+                });
+            }
+            segments.push_back(endTime);
+
+            auto trend = [&](core_t::TTime time) {
+                auto i = std::lower_bound(segments.begin(), segments.end(), time);
+                return 2.0 * (models[i - segments.begin()](time) +
+                              5.0 * generators[index[0]](time));
+            };
+
+            rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+            rng.generateUniformSamples(0, 2, 1, index);
+
+            maths::TFloatMeanAccumulatorVec values(window / bucketLength);
+            for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+                std::size_t bucket((time - startTime) / bucketLength);
+                double value{trend(time) + noise[bucket]};
+                values[bucket].add(value);
+            }
+
+            maths::CPeriodicityHypothesisTestsConfig config;
+            maths::CPeriodicityHypothesisTestsResult result{
+                maths::testForPeriods(config, startTime, bucketLength, values)};
+            if (result.print() != expected[index[0]]) {
+                LOG_DEBUG(<< "result = " << result.print() << " expected "
+                          << expected[index[0]]);
+            }
+
+            TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
+            FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
+        }
+    }
+
+    LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
+    CPPUNIT_ASSERT(TP / (TP + FN) > 0.8);
 }
 
 CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {

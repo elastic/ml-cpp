@@ -27,10 +27,8 @@ class CSeasonalTime;
 
 //! \brief Represents the result of running the periodicity
 //! hypothesis tests.
-// clang-format off
-class MATHS_EXPORT CPeriodicityHypothesisTestsResult : boost::equality_comparable<CPeriodicityHypothesisTestsResult,
-                                                       boost::addable<CPeriodicityHypothesisTestsResult> > {
-    // clang-format on
+class MATHS_EXPORT CPeriodicityHypothesisTestsResult
+    : boost::equality_comparable<CPeriodicityHypothesisTestsResult> {
 public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TSizeVec = std::vector<std::size_t>;
@@ -38,7 +36,7 @@ public:
 public:
     //! \brief Component data.
     struct MATHS_EXPORT SComponent {
-        SComponent();
+        SComponent() = default;
         SComponent(const std::string& description,
                    bool diurnal,
                    core_t::TTime startOfPartition,
@@ -58,11 +56,11 @@ public:
         //! An identifier for the component used by the test.
         std::string s_Description;
         //! True if this is a diurnal component false otherwise.
-        bool s_Diurnal;
+        bool s_Diurnal = false;
         //! The start of the partition.
-        core_t::TTime s_StartOfPartition;
+        core_t::TTime s_StartOfPartition = 0;
         //! The period of the component.
-        core_t::TTime s_Period;
+        core_t::TTime s_Period = 0;
         //! The component window.
         TTimeTimePr s_Window;
         //! The segmentation of the window into intervals of constant
@@ -70,7 +68,7 @@ public:
         TSizeVec s_Segmentation;
         //! The precedence to apply to this component when deciding
         //! which to keep.
-        double s_Precedence;
+        double s_Precedence = 0.0;
     };
 
     using TComponent5Vec = core::CSmallVector<SComponent, 5>;
@@ -78,13 +76,6 @@ public:
 public:
     //! Check if this is equal to \p other.
     bool operator==(const CPeriodicityHypothesisTestsResult& other) const;
-
-    //! Sets to the union of the periodic components present.
-    //!
-    //! \warning This only makes sense if the this and the
-    //! other result share the start of the partition time.
-    const CPeriodicityHypothesisTestsResult&
-    operator+=(const CPeriodicityHypothesisTestsResult& other);
 
     //! Add a component.
     void add(const std::string& description,
@@ -98,6 +89,12 @@ public:
     //! Remove the component with \p description.
     void remove(const std::string& description);
 
+    //! Set if this is a piecewise linear trend.
+    void piecewiseLinearTrend(bool value);
+
+    //! Check if this is a piecewise linear trend.
+    bool piecewiseLinearTrend() const;
+
     //! Check if there are any periodic components.
     bool periodic() const;
 
@@ -108,6 +105,9 @@ public:
     std::string print(bool segments = false) const;
 
 private:
+    //! If true then the hypothesis used a piecewise linear trend.
+    bool m_PiecewiseLinearTrend = false;
+
     //! The periodic components.
     TComponent5Vec m_Components;
 };
@@ -278,6 +278,10 @@ private:
         CNestedHypotheses& addNested(TTestFunc test);
         //! Test the hypotheses.
         CPeriodicityHypothesisTestsResult test(STestStats& stats) const;
+        //! Set if the hypothesis uses a piecewise linear trend.
+        void trendSegments(std::size_t segments);
+        //! Check if the hypothesis uses a piecewise linear trend.
+        std::size_t trendSegments() const;
 
     private:
         using THypothesisVec = std::vector<CNestedHypotheses>;
@@ -285,6 +289,8 @@ private:
     private:
         //! The test.
         TTestFunc m_Test;
+        //! True if the hypothesis used a piecewise linear trend.
+        std::size_t m_TrendSegments;
         //! If true always test the nested hypotheses.
         bool m_AlwaysTestNested;
         //! The nested hypotheses to test.

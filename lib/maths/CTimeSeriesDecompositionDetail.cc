@@ -32,6 +32,7 @@
 #include <maths/CSetTools.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
+#include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
@@ -1540,6 +1541,10 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                     time += dt;
                 }
             }
+            if (result.piecewiseLinearTrend()) {
+                values = CTimeSeriesSegmentation::removePiecewiseLinear(
+                    values, CTimeSeriesSegmentation::piecewiseLinear(values));
+            }
 
             core_t::TTime period{seasonalTime->period()};
 
@@ -1555,7 +1560,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
                     values, segmentation, trend, scales);
                 for (std::size_t i = 0; i < values.size(); ++i) {
-                    CBasicStatistics::moment<0>(values[i]) += trend[i % trend.size()];
+                    CBasicStatistics::moment<0>(values[i]) +=
+                        scales[scales.size() - 1] * trend[i % trend.size()];
                 }
             }
 
@@ -1600,6 +1606,10 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
         CTrendComponent candidate{m_Trend.defaultDecayRate()};
         values = window.valuesMinusPrediction(predictor);
+        if (result.piecewiseLinearTrend()) {
+            values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
+                values, CTimeSeriesSegmentation::piecewiseLinear(values));
+        }
         this->fit(startTime, dt, values, candidate);
         this->reweightOutliers(startTime, dt,
                                [&candidate](core_t::TTime time) {
