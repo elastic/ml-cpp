@@ -747,8 +747,8 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    CPPUNIT_ASSERT(totalSumResidual < 0.053 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.07 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.059 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.074 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.02 * totalSumValue);
 }
 
