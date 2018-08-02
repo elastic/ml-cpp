@@ -941,10 +941,10 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
+    test::CRandomNumbers rng;
+
     LOG_DEBUG(<< "Synthetic");
     {
-        test::CRandomNumbers rng;
-
         double w1 = 0.2;
         double location1 = 0.1;
         double squareScale1 = 0.2;
@@ -1046,6 +1046,33 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(median) < i90.second);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(-111.0, i90.first, 0.5);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(158952.0, i90.second, 0.5);
+    }
+
+    LOG_DEBUG(<< "Non-unit count weight");
+    {
+        // The confidence interval should be independent of the sample
+        // count weight.
+
+        TDoubleVec modes[2];
+        rng.generateNormalSamples(10.0, 2.0, 50, modes[0]);
+        rng.generateNormalSamples(20.0, 2.0, 50, modes[1]);
+        TDoubleVec samples(modes[0].begin(), modes[0].end());
+        samples.insert(samples.end(), modes[1].begin(), modes[1].end());
+
+        CMultimodalPrior filter(makePrior());
+        filter.addSamples(samples);
+
+        CPPUNIT_ASSERT_EQUAL(std::size_t(2), filter.numberModes());
+
+        TDoubleDoublePr interval{filter.marginalLikelihoodConfidenceInterval(
+            90.0, maths_t::countWeight(1.0))};
+        TDoubleDoublePr weightedInterval{filter.marginalLikelihoodConfidenceInterval(
+            90.0, maths_t::countWeight(0.3))};
+        LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(interval));
+        LOG_DEBUG(<< "weightedInterval = "
+                  << core::CContainerPrinter::print(weightedInterval));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(interval),
+                             core::CContainerPrinter::print(weightedInterval));
     }
 }
 

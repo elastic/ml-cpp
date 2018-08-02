@@ -2504,8 +2504,8 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
 
     SAnnotatedProbability annotatedProbability;
-    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability));
+    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength,
+                                             partitioningFields, 1, annotatedProbability));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(annotatedProbability.s_Probability, 1.0, 0.00001);
 }
 
