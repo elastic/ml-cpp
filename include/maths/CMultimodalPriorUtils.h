@@ -206,8 +206,8 @@ public:
             return support;
         }
 
-        double p1 = std::log((1.0 - percentage) / 2.0);
-        double p2 = std::log((1.0 + percentage) / 2.0);
+        double p1 = maths_t::count(weights) * std::log((1.0 - percentage) / 2.0);
+        double p2 = maths_t::count(weights) * std::log((1.0 + percentage) / 2.0);
 
         CLogCdf<PRIOR> fl(CLogCdf<PRIOR>::E_Lower, prior, weights);
         CLogCdf<PRIOR> fu(CLogCdf<PRIOR>::E_Upper, prior, weights);
