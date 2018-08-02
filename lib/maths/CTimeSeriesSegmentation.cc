@@ -610,7 +610,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledPeriodic(
     };
     auto scale = [&](std::size_t i) {
         auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[right - segmentation.begin() - 1];
+        return scales[(right - segmentation.begin()) - 1];
     };
     auto predict = [&](std::size_t i) { return scale(i) * model[i % period]; };
     auto fitScaledPeriodicModel = [&]() {

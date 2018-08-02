@@ -1555,8 +1555,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 TDoubleVec trend;
                 TDoubleVec scales;
                 std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-                    values, period / dt, segmentation,
-                    SEASONAL_OUTLIER_FRACTION, SEASONAL_OUTLIER_WEIGHT);
+                    values, period / dt, segmentation);
                 values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
                     values, segmentation, trend, scales);
                 for (std::size_t i = 0; i < values.size(); ++i) {

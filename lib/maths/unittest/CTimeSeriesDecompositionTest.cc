@@ -1547,7 +1547,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
                           2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
 
         TTimeVec times;
-        TDoubleVec trends[2]{{}, {8 * DAY / FIVE_MINS}};
+        TDoubleVec trends[2]{TDoubleVec{}, TDoubleVec(8 * DAY / FIVE_MINS, 0.0)};
         for (core_t::TTime time = 0; time < length; time += FIVE_MINS) {
             times.push_back(time);
             trends[0].push_back(periodic[(time / FIVE_MINS) % 12]);
@@ -1558,7 +1558,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
         rng.generateNormalSamples(0.0, 1.0, trends[1].size(), noise);
 
         core_t::TTime startTesting[]{3 * HOUR, 16 * DAY};
-        TDoubleVec thresholds[]{TDoubleVec{0.08, 0.08}, TDoubleVec{0.16, 0.1}};
+        TDoubleVec thresholds[]{TDoubleVec{0.08, 0.08}, TDoubleVec{0.18, 0.15}};
 
         for (std::size_t t = 0u; t < 2; ++t) {
             maths::CTimeSeriesDecomposition decomposition(0.01, FIVE_MINS);
