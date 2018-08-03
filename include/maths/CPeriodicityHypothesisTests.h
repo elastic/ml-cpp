@@ -211,6 +211,8 @@ private:
         //! Check if the null hypothesis is good enough to not need an
         //! alternative.
         bool nullHypothesisGoodEnough() const;
+        //! The number of segments in the trend.
+        double s_TrendSegments;
         //! True if a known periodic component is tested.
         bool s_HasPeriod;
         //! True if a known repeating partition is tested.

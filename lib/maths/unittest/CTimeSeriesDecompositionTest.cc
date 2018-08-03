@@ -747,9 +747,9 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    CPPUNIT_ASSERT(totalSumResidual < 0.059 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.074 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.02 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.06 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.076 * totalMaxValue);
+    CPPUNIT_ASSERT(totalPercentileError < 0.022 * totalSumValue);
 }
 
 void CTimeSeriesDecompositionTest::testVarianceScale() {
@@ -1947,7 +1947,7 @@ void CTimeSeriesDecompositionTest::testComponentLifecycle() {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.026, 0.012, 0.074};
+    double bounds[]{0.01, 0.017, 0.012, 0.036};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
