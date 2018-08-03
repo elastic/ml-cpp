@@ -369,30 +369,32 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
 
         for (auto pass : {0, 1}) {
             LOG_TRACE(<< "  pass = " << pass);
-            ITR i = values.cbegin() + 3;
-            double splitTime{startTime +
-                             static_cast<double>(std::distance(values.cbegin(), i)) * dt};
+
+            int step{3};
+            ITR i = values.cbegin();
             minResidualVariance = TMinAccumulator{};
-
-            TRegression leftModel{fitLinearModel(values.cbegin(), i, startTime, dt)};
+            double splitTime{startTime};
+            TRegression leftModel;
             TRegression rightModel{fitLinearModel(i, values.cend(), splitTime, dt)};
-            TMeanVarAccumulator leftResidualMoments{
-                residualMoments(values.cbegin(), i, startTime, dt, leftModel)};
-            TMeanVarAccumulator rightResidualMoments{
-                residualMoments(i, values.cend(), splitTime, dt, rightModel)};
-            minResidualVariance.add(
-                {variance(leftResidualMoments, rightResidualMoments), splitTime, i});
 
-            for (/**/; i + 3 != values.cend(); ++i, splitTime += dt) {
-                TRegression deltaModel{fitLinearModel(i, i + 1, splitTime, dt)};
+            auto varianceAfterStep = [&](int s) {
+                TRegression deltaModel{fitLinearModel(i, i + s, splitTime, dt)};
+                return variance(residualMoments(values.cbegin(), i + s, startTime,
+                                                dt, leftModel + deltaModel),
+                                residualMoments(i + s, values.cend(), splitTime + s * dt,
+                                                dt, rightModel - deltaModel));
+            };
+
+            for (/**/; i + step < values.cend(); i += step, splitTime += step * dt) {
+                if (minResidualVariance.add({varianceAfterStep(step),
+                                             splitTime + step * dt, i + step})) {
+                    for (int s = 1; s < step; ++s) {
+                        minResidualVariance.add({varianceAfterStep(s), splitTime + s * dt, i + s});
+                    }
+                }
+                TRegression deltaModel{fitLinearModel(i, i + step, splitTime, dt)};
                 leftModel += deltaModel;
                 rightModel -= deltaModel;
-                leftResidualMoments = residualMoments(values.cbegin(), i + 1,
-                                                      startTime, dt, leftModel);
-                rightResidualMoments = residualMoments(i + 1, values.cend(),
-                                                       splitTime, dt, rightModel);
-                minResidualVariance.add({variance(leftResidualMoments, rightResidualMoments),
-                                         splitTime + dt, i + 1});
             }
 
             if (outlierFraction < 0.0 || outlierFraction >= 1.0) {
