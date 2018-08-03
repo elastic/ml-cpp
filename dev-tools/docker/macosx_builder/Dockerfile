@@ -15,6 +15,9 @@ COPY . /ml-cpp/
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE macosx
 
+# Pass through any version qualifier (default none)
+ARG VERSION_QUALIFIER=
+
 # Pass through whether this is a snapshot build (default yes if not specified)
 ARG SNAPSHOT=yes
 
