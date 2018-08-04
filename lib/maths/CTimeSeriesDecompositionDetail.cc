@@ -70,6 +70,8 @@ using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 using TTimeTimePrVec = std::vector<TTimeTimePr>;
 using TTimeTimePrDoubleFMap = boost::container::flat_map<TTimeTimePr, double>;
 using TTimeTimePrSizeFMap = boost::container::flat_map<TTimeTimePr, std::size_t>;
+using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TComponent5Vec = CPeriodicityHypothesisTestsResult::TComponent5Vec;
 using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
 using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
@@ -480,7 +482,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayR
           PT_ALPHABET,
           PT_STATES,
           PT_TRANSITION_FUNCTION,
-          bucketLength > LONG_BUCKET_LENGTHS.back() ? PT_NOT_TESTING : PT_INITIAL)},
+          bucketLength > LONGEST_BUCKET_LENGTH ? PT_NOT_TESTING : PT_INITIAL)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength} {
 }
 
@@ -596,6 +598,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
                 core_t::TTime bucketLength{window->bucketLength()};
                 CPeriodicityHypothesisTestsResult result{
                     testForPeriods(config, start, bucketLength, values)};
+                result.remove([i](const CPeriodicityHypothesisTestsResult::SComponent& component) {
+                    return i == E_Long && component.s_Period <= WEEK;
+                });
                 if (result.periodic()) {
                     this->mediator()->forward(SDetectedSeasonal{
                         time, lastTime, result, *window, predictor});
@@ -716,10 +721,10 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     // when we first detect short periodic components for longer
     // bucket lengths otherwise.
     auto scheduledTest = [&]() {
-        if (test != E_Long || m_Windows[E_Short] == nullptr) {
+        if (test == E_Short) {
             core_t::TTime length{time - m_Windows[test]->startTime()};
-            for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-                if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
+            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK, 3 * WEEK}) {
+                if (length >= schedule && length < schedule + m_BucketLength) {
                     return true;
                 }
             }
@@ -734,32 +739,44 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool def
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    auto newWindow = [this, deflate](const TTimeVec& bucketLengths) {
-        if (m_BucketLength <= bucketLengths.back()) {
-            std::ptrdiff_t a{std::lower_bound(bucketLengths.begin(),
-                                              bucketLengths.end(), m_BucketLength) -
-                             bucketLengths.begin()};
-            std::size_t b{bucketLengths.size()};
-            TTimeCRng bucketLengths_(bucketLengths, a, b);
-            return new CExpandingWindow(m_BucketLength, bucketLengths_, 336,
-                                        m_DecayRate, deflate);
+    static const core_t::TTime TARGET_SIZE{336};
+    static const TTimeVec SHORT{1,    5,    10,   30,    60,    300,  600,
+                                1800, 3600, 7200, 21600, 43200, 86400};
+    static const TTimeVec LONG{7200,  21600,  43200,
+                               86400, 172800, LONGEST_BUCKET_LENGTH};
+
+    auto newWindow = [&](const TTimeVec& buckets, core_t::TTime maxLength) {
+        if (m_BucketLength <= buckets.back()) {
+            // Find the next longer permitted bucket length.
+            auto a = std::lower_bound(buckets.begin(), buckets.end(), m_BucketLength);
+            // Compute the window length in buckets which doesn't exceed
+            // the maximum length.
+            // and is great than the minimum number of buckets to test.
+            core_t::TTime size{
+                std::min(TARGET_SIZE, maxLength / buckets[a - buckets.begin()])};
+            // Find the longest bucket length such that the window length
+            // doesn't exceed the maximum length.
+            auto b = std::find_if(a + 1, buckets.end(), [&](core_t::TTime l) {
+                return size * l > maxLength;
+            });
+            return new CExpandingWindow(
+                m_BucketLength,
+                TTimeCRng(buckets, a - buckets.begin(), b - buckets.begin()),
+                size, m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };
 
     switch (test) {
     case E_Short:
-        return newWindow(SHORT_BUCKET_LENGTHS);
+        return newWindow(SHORT, 7200 * TARGET_SIZE);
     case E_Long:
-        return newWindow(LONG_BUCKET_LENGTHS);
+        return newWindow(LONG, LONGEST_BUCKET_LENGTH * TARGET_SIZE);
     }
     return nullptr;
 }
 
-const TTimeVec CTimeSeriesDecompositionDetail::CPeriodicityTest::SHORT_BUCKET_LENGTHS{
-    1, 5, 10, 30, 60, 300, 600, 1800, 3600};
-const TTimeVec CTimeSeriesDecompositionDetail::CPeriodicityTest::LONG_BUCKET_LENGTHS{
-    7200, 21600, 43200, 86400, 172800, 345600};
+const core_t::TTime CTimeSeriesDecompositionDetail::CPeriodicityTest::LONGEST_BUCKET_LENGTH{345600};
 
 //////// CCalendarCyclic ////////
 
@@ -1542,6 +1559,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 }
             }
             if (result.piecewiseLinearTrend()) {
+                LOG_TRACE(<< "Piecewise linear trend");
                 values = CTimeSeriesSegmentation::removePiecewiseLinear(
                     values, CTimeSeriesSegmentation::piecewiseLinear(values));
             }
@@ -1552,10 +1570,13 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 // Periodicity testing detected piecewise constant linear scaling
                 // of the underlying seasonal component. Here, we adjust all values
                 // so the scaling is constant and equal to the most recent one.
+                LOG_TRACE(<< "Piecewise constant linear scaling");
                 TDoubleVec trend;
                 TDoubleVec scales;
                 std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
                     values, period / dt, segmentation);
+                LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
+                LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
                 values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
                     values, segmentation, trend, scales);
                 for (std::size_t i = 0; i < values.size(); ++i) {
@@ -1603,6 +1624,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             m_GainController.age(ageFactor(m_DecayRate, m_BucketLength));
         }
 
+        // Resetting the trend is bad from a forecast perspective so we avoid
+        // it if the amplitude of the seasonal components we've added are small.
         CTrendComponent candidate{m_Trend.defaultDecayRate()};
         values = window.valuesMinusPrediction(predictor);
         if (result.piecewiseLinearTrend()) {

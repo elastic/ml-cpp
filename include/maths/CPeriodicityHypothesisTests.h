@@ -15,6 +15,7 @@
 #include <maths/ImportExport.h>
 
 #include <boost/operators.hpp>
+#include <boost/optional.hpp>
 
 #include <functional>
 #include <string>
@@ -33,7 +34,6 @@ public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TSizeVec = std::vector<std::size_t>;
 
-public:
     //! \brief Component data.
     struct MATHS_EXPORT SComponent {
         SComponent() = default;
@@ -72,6 +72,7 @@ public:
     };
 
     using TComponent5Vec = core::CSmallVector<SComponent, 5>;
+    using TRemoveCondition = std::function<bool(const SComponent&)>;
 
 public:
     //! Check if this is equal to \p other.
@@ -87,7 +88,7 @@ public:
              double precedence = 1.0);
 
     //! Remove the component with \p description.
-    void remove(const std::string& description);
+    void remove(const TRemoveCondition& condition);
 
     //! Set if this is a piecewise linear trend.
     void piecewiseLinearTrend(bool value);
@@ -419,6 +420,7 @@ private:
                       STestStats& stats,
                       double& R,
                       double& meanRepeats,
+                      double& pVariance,
                       const TSizeVec& segmentation = TSizeVec{}) const;
 
     //! Run the component amplitude test on the alternative hypothesis.
@@ -427,9 +429,10 @@ private:
                        core_t::TTime period,
                        double b,
                        double v,
-                       STestStats& stats,
-                       double& R,
-                       double& meanRepeats) const;
+                       double R,
+                       double meanRepeats,
+                       double pVariance,
+                       STestStats& stats) const;
 
 private:
     //! The minimum proportion of populated buckets for which
@@ -459,16 +462,13 @@ private:
     TFloatMeanAccumulatorVec m_BucketValues;
 };
 
-using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-
 //! Test for periodic components in \p values.
 MATHS_EXPORT
 CPeriodicityHypothesisTestsResult
 testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
                core_t::TTime startTime,
                core_t::TTime bucketLength,
-               const TFloatMeanAccumulatorVec& values);
+               const std::vector<CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator>& values);
 }
 }
 

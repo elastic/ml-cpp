@@ -246,7 +246,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
         df = 0.5 * MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
              (x[1] < 0.0 ? 1.0 : CTools::logisticFunction(x[1], 0.2, 1.0)) *
              CTools::logisticFunction(x[2], 0.2, 0.5) *
-             CTools::logisticFunction(x[3], 0.2, 1.0);
+             CTools::logisticFunction(x[3], 0.1, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
                   << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
     } else {
@@ -260,7 +260,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
              CTools::logisticFunction(x[1], 0.1, 1.0) *
              (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
              CTools::logisticFunction(x[3], 0.2, 0.5) *
-             CTools::logisticFunction(x[4], 0.2, 1.0);
+             CTools::logisticFunction(x[4], 0.1, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
                   << ") = " << df << " | x = " << core::CContainerPrinter::print(x));
     }

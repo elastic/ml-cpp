@@ -53,6 +53,8 @@ using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
+using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 using TTimeTimePr2Vec = core::CSmallVector<TTimeTimePr, 2>;
 using TTimeTimePrMeanVarAccumulatorPr = std::pair<TTimeTimePr, TMeanVarAccumulator>;
@@ -509,14 +511,9 @@ void CPeriodicityHypothesisTestsResult::add(const std::string& description,
                               window, segmentation, precedence);
 }
 
-void CPeriodicityHypothesisTestsResult::remove(const std::string& description) {
-    auto i = std::find_if(m_Components.begin(), m_Components.end(),
-                          [&description](const SComponent& component) {
-                              return component.s_Description == description;
-                          });
-    if (i != m_Components.end()) {
-        m_Components.erase(i);
-    }
+void CPeriodicityHypothesisTestsResult::remove(const TRemoveCondition& condition) {
+    m_Components.erase(std::remove_if(m_Components.begin(), m_Components.end(), condition),
+                       m_Components.end());
 }
 
 bool CPeriodicityHypothesisTestsResult::periodic() const {
@@ -1314,7 +1311,9 @@ CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulator
         stats.s_Partition = partition;
         this->hypothesis({DAY, DAY}, buckets, stats);
         core_t::TTime startOfWeek{stats.s_StartOfPartition};
-        result.remove(DIURNAL_COMPONENT_NAMES[E_Day]);
+        result.remove([](const CPeriodicityHypothesisTestsResult::SComponent& component) {
+            return component.s_Period == DAY;
+        });
         result.add(DIURNAL_COMPONENT_NAMES[E_WeekendDay], true, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendDay) % 2],
                    DIURNAL_WINDOWS[static_cast<int>(E_WeekendDay) / 2], {}, HIGH_PRIORITY);
@@ -1678,8 +1677,11 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
 
     double R;
     double meanRepeats;
-    return this->testVariance(window, values, period_, df1, v1, stats, R, meanRepeats) ||
-           this->testAmplitude(window, values, period_, b, v, stats, R, meanRepeats);
+    double pVariance;
+    return this->testVariance(window, values, period_, df1, v1, stats, R,
+                              meanRepeats, pVariance) ||
+           this->testAmplitude(window, values, period_, b, v, R, meanRepeats,
+                               pVariance, stats);
 }
 
 bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& windows,
@@ -1810,8 +1812,9 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
 
     double R;
     double meanRepeats;
+    double pVariance;
     return this->testVariance({{0, length(windows)}}, values, period_, df1, v1,
-                              stats, R, meanRepeats, segmentation);
+                              stats, R, meanRepeats, pVariance, segmentation);
 }
 
 bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition,
@@ -2047,14 +2050,14 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
     double meanRepeats{calculateMeanRepeats({{0, windowLength}}, repeat)};
-    double trendSegmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
+    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
     p *= CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
          (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
                   : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-         CTools::logisticFunction(trendSegmentsPerRepeat, 0.3, 0.0, -1.0);
+         CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
     LOG_TRACE(<< "  p(partition) = " << p);
 
-    if (p >= 0.03125) {
+    if (p >= 1.0) {
         stats.s_StartOfPartition = startOfPartition;
         stats.s_R0 = R;
         return true;
@@ -2071,6 +2074,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
                                                STestStats& stats,
                                                double& R,
                                                double& meanRepeats,
+                                               double& pVariance,
                                                const TSizeVec& segmentation) const {
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
 
@@ -2113,19 +2117,18 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
     double relativeMeanRepeats{meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE};
-    double trendSegmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
-    double scaleSegmentsPerRepeat{
-        (std::max(static_cast<double>(segmentation.size()), 1.0) - 1.0) / meanRepeats};
-    double pVariance{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-                     CTools::logisticFunction(R / stats.s_Rt, 0.15, 1.0) *
-                     (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                              : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-                     CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0) *
-                     CTools::logisticFunction(trendSegmentsPerRepeat, 0.3, 0.0, -1.0) *
-                     CTools::logisticFunction(scaleSegmentsPerRepeat, 0.3, 0.0, -1.0)};
+    double segmentsPerRepeat{(stats.s_TrendSegments +
+                              std::max(static_cast<double>(segmentation.size()), 1.0) - 2.0) /
+                             meanRepeats};
+    pVariance = CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
+                CTools::logisticFunction(R / stats.s_Rt, 0.15, 1.0) *
+                (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
+                         : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
+                CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0) *
+                CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
     LOG_TRACE(<< "  p(variance) = " << pVariance);
 
-    if (pVariance >= 0.015625) {
+    if (pVariance >= 1.0) {
         stats.s_R0 = R;
         stats.s_Segmentation = segmentation;
         return true;
@@ -2138,9 +2141,10 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
                                                 core_t::TTime period_,
                                                 double b,
                                                 double v,
-                                                STestStats& stats,
-                                                double& R,
-                                                double& meanRepeats) const {
+                                                double R,
+                                                double meanRepeats,
+                                                double pVariance,
+                                                STestStats& stats) const {
     core_t::TTime windowLength{length(window)};
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
 
@@ -2175,17 +2179,19 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
 
     // Trade off the test significance and the mean number of repeats
     // we've observed.
-    double relativeLogSignificance{CTools::fastLog(1.0 - std::pow(1.0 - F1, b)) /
+    double relativeLogSignificance{CTools::fastLog(CTools::oneMinusPowOneMinusX(F1, b)) /
                                    LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
     double relativeMeanRepeats{
-        meanRepeats / static_cast<double>(2 * MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
-    double trendSegmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
+        meanRepeats / static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
+    double minusLogPVariance{-CTools::fastLog(pVariance)};
+    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
     double pAmplitude{CTools::logisticFunction(relativeLogSignificance, 0.2, 1.0) *
                       CTools::logisticFunction(relativeMeanRepeats, 0.5, 1.0) *
-                      CTools::logisticFunction(trendSegmentsPerRepeat, 0.3, 0.0, -1.0)};
+                      CTools::logisticFunction(minusLogPVariance, 2.0, 0.0, -1.0) *
+                      CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.0625};
     LOG_TRACE(<< "  p(amplitude) = " << pAmplitude);
 
-    if (pAmplitude >= 0.125) {
+    if (pAmplitude >= 1.0) {
         stats.s_R0 = R;
         return true;
     }
@@ -2247,11 +2253,12 @@ CPeriodicityHypothesisTests::CNestedHypotheses::test(STestStats& stats) const {
         for (const auto& child : m_Nested) {
             CPeriodicityHypothesisTestsResult childResult{child.test(stats)};
             if (result != childResult) {
+                childResult.piecewiseLinearTrend(m_TrendSegments > 1);
                 return childResult;
             }
         }
     }
-
+    result.piecewiseLinearTrend(m_TrendSegments > 1);
     return result;
 }
 
@@ -2336,13 +2343,13 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
     }
 
     // Sort by decreasing cyclic autocorrelation.
-    TSizeVec candidatePeriods(15);
+    TSizeVec candidatePeriods(candidates.count());
     std::transform(
         candidates.begin(), candidates.end(), candidatePeriods.begin(),
         [](const TDoubleSizePr& candidate_) { return candidate_.second; });
     candidates.clear();
     for (const auto period : candidatePeriods) {
-        TFloatMeanAccumulatorCRng window(values, 0, period * (values.size() / period));
+        TFloatMeanAccumulatorCRng window(values, 0, period * (n / period));
         candidates.add({CSignal::autocorrelation(period, window), period});
     }
     candidates.sort();
@@ -2369,6 +2376,7 @@ testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
                core_t::TTime startTime,
                core_t::TTime bucketLength,
                const TFloatMeanAccumulatorVec& values) {
+
     // Find the single periodic component which explains the
     // most cyclic autocorrelation.
     std::size_t period_{mostSignificantPeriodicComponent(values)};

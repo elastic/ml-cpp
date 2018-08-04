@@ -34,6 +34,9 @@ using TTimeVec = std::vector<core_t::TTime>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TStrVec = std::vector<std::string>;
+using TFloatMeanAccumulator =
+    maths::CBasicStatistics::SSampleMean<maths::CFloatStorage>::TAccumulator;
+using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 const core_t::TTime TEN_MINS{600};
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
@@ -585,7 +588,7 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
                 //file.open("results.m");
                 //TDoubleVec f;
 
-                maths::TFloatMeanAccumulatorVec values(buckets);
+                TFloatMeanAccumulatorVec values(buckets);
                 for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
                     auto outlier = std::lower_bound(outliers.begin(), outliers.end(), bucket);
@@ -635,7 +638,7 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
             //file.open("results.m");
             //TDoubleVec f;
 
-            maths::TFloatMeanAccumulatorVec values(buckets);
+            TFloatMeanAccumulatorVec values(buckets);
             for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                 std::size_t bucket((time - startTime) / bucketLength);
                 auto outlier = std::lower_bound(outliers.begin(), outliers.end(), bucket);
@@ -722,7 +725,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 rng.generateUniformSamples(3, 20, 1, repeats);
                 const auto& generator = generators[index[0]];
 
-                maths::TFloatMeanAccumulatorVec values(window / bucketLength);
+                TFloatMeanAccumulatorVec values(window / bucketLength);
                 for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
                     double value{20.0 * scale(scaling, time, generator) + noise[bucket]};
@@ -813,7 +816,7 @@ void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
             rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
             rng.generateUniformSamples(0, 2, 1, index);
 
-            maths::TFloatMeanAccumulatorVec values(window / bucketLength);
+            TFloatMeanAccumulatorVec values(window / bucketLength);
             for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                 std::size_t bucket((time - startTime) / bucketLength);
                 double value{trend(time) + noise[bucket]};
@@ -840,7 +843,7 @@ void CPeriodicityHypothesisTestsTest::testWithLinearScaling() {
     // as a segmented pure periodic component.
     {
         double scale[]{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0};
-        maths::TFloatMeanAccumulatorVec values(2 * WEEK / bucketLength);
+        TFloatMeanAccumulatorVec values(2 * WEEK / bucketLength);
         for (core_t::TTime time = 0; time < 2 * WEEK; time += bucketLength) {
             values[time / bucketLength].add(
                 scale[(time % WEEK) / DAY] *
@@ -918,7 +921,7 @@ void CPeriodicityHypothesisTestsTest::testWithPiecewiseLinearTrend() {
             rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
             rng.generateUniformSamples(0, 2, 1, index);
 
-            maths::TFloatMeanAccumulatorVec values(window / bucketLength);
+            TFloatMeanAccumulatorVec values(window / bucketLength);
             for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                 std::size_t bucket((time - startTime) / bucketLength);
                 double value{trend(time) + noise[bucket]};

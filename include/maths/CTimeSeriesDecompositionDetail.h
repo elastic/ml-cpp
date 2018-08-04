@@ -232,11 +232,9 @@ public:
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
     private:
-        //! The bucket lengths to use to test for short period components.
-        static const TTimeVec SHORT_BUCKET_LENGTHS;
-
-        //! The bucket lengths to use to test for long period components.
-        static const TTimeVec LONG_BUCKET_LENGTHS;
+        //! The longest bucket length at which we'll test for periodic
+        //! components.
+        static const core_t::TTime LONGEST_BUCKET_LENGTH;
 
     private:
         //! Handle \p symbol.
@@ -454,6 +452,7 @@ public:
         using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
         using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
         //! \brief Manages the setting of the error gain when updating
         //! the components with a value.
