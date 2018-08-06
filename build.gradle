@@ -8,7 +8,7 @@ import org.gradle.util.DistributionLocator
 import static org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 // TODO: change default qualifier from alpha1 to empty string once release manager is updated
-String versionQualifier = System.getProperty("version.qualifier", "alpha1")
+String versionQualifier = System.getProperty("build.version_qualifier", "alpha1")
 boolean isSnapshot = "true".equals(System.getProperty("build.snapshot", "true"))
 
 boolean isWindows = OperatingSystem.current().isWindows()
