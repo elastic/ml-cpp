@@ -213,6 +213,9 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
+        //! Shift the start of the tests' expanding windows by \p dt.
+        void shiftTime(core_t::TTime dt);
+
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);

@@ -856,9 +856,6 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 }
 
 void CEventRateModelTest::testOnlineCorrelatedTrend() {
-    // FIXME
-    return;
-
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
@@ -901,8 +898,8 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
     std::size_t anomalyBuckets[] = {1950, 2400, 2700, b};
     double anomalies[][4] = {
         {-23.9, 19.7, 0.0, 0.0}, {0.0, 0.0, 36.4, 36.4}, {-28.7, 30.4, 36.4, 36.4}};
-    TMinAccumulator probabilities[4] = {TMinAccumulator(2), TMinAccumulator(2),
-                                        TMinAccumulator(2), TMinAccumulator(2)};
+    TMinAccumulator probabilities[4] = {TMinAccumulator(3), TMinAccumulator(3),
+                                        TMinAccumulator(3), TMinAccumulator(3)};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.0002;
@@ -916,8 +913,10 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
-        LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
-                  << time + bucketLength << ")");
+        if (i % 10 == 0) {
+            LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
+                      << time + bucketLength << ")");
+        }
 
         std::size_t hour1 = static_cast<std::size_t>((time / 3600) % 24);
         std::size_t hour2 = (hour1 + 1) % 24;
@@ -959,18 +958,21 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
         time += bucketLength;
     }
 
-    std::string expected[] = {"[(1950,p2), (2700,p2)]", "[(1950,p1), (2700,p1)]",
-                              "[(2400,p4), (2700,p4)]", "[(2400,p3), (2700,p3)]"};
-    for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
-        LOG_DEBUG(<< probabilities[i].print());
-        std::string actual[2];
-        for (std::size_t j = 0u; j < 2; ++j) {
-            actual[j] = std::string("(") +
-                        core::CStringUtils::typeToString(probabilities[i][j].second) +
-                        "," + probabilities[i][j].third + ")";
+    std::string expectedResults[][2]{{"1950,p2", "2700,p2"},
+                                     {"1950,p1", "2700,p1"},
+                                     {"2400,p4", "2700,p4"},
+                                     {"2400,p3", "2700,p3"}};
+    for (std::size_t i = 0u; i < 4; ++i) {
+        LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+        TStrVec results;
+        for (const auto& result : probabilities[i]) {
+            results.push_back(core::CStringUtils::typeToString(result.second) +
+                              "," + result.third);
         }
-        std::sort(actual, actual + 2);
-        CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
+        for (const auto& expectedResult : expectedResults[i]) {
+            CPPUNIT_ASSERT(std::find(results.begin(), results.end(),
+                                     expectedResult) != results.end());
+        }
     }
 }
 
@@ -2503,7 +2505,8 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
 
     SAnnotatedProbability annotatedProbability;
     CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability) == false);
+                                             1, annotatedProbability));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(annotatedProbability.s_Probability, 1.0, 0.00001);
 }
 
 void CEventRateModelTest::testDecayRateControl() {
@@ -2579,7 +2582,7 @@ void CEventRateModelTest::testDecayRateControl() {
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
+            maths::CBasicStatistics::mean(meanPredictionError), 0.01);
     }
 
     LOG_DEBUG(<< "*** Test linear scaling ***");
