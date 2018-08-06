@@ -731,7 +731,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     auto scheduledTest = [&]() {
         if (test == E_Short) {
             core_t::TTime length{time - m_Windows[test]->startTime()};
-            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK, 3 * WEEK}) {
+            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
                 if (length >= schedule && length < schedule + m_BucketLength) {
                     return true;
                 }
