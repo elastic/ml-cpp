@@ -44,6 +44,9 @@ String artifactClassifier = (isWindows ? "windows-x86_64" : ((isMacOsX || cppCro
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
 project.ext.make = (isMacOsX || isWindows) ? "gnumake" : (isLinux ? "make" : "gmake")
 project.ext.numCpus = Runtime.runtime.availableProcessors()
+project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
+                                'VERSION_QUALIFIER': versionQualifier,
+                                'SNAPSHOT': (isSnapshot ? 'yes' : 'no') ]
 
 configurations.all {
   // check for updates every build
@@ -51,9 +54,7 @@ configurations.all {
 }
 
 task clean(type: Exec) {
-  environment 'CPP_CROSS_COMPILE', cppCrossCompile
-  environment 'VERSION_QUALIFIER', versionQualifier
-  environment 'SNAPSHOT', isSnapshot ? 'yes' : 'no'
+  environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && rm -rf build && ' + make + ' clean'
   workingDir "${projectDir}"
@@ -63,18 +64,14 @@ task compile(type: Exec) {
   // Only do this fully parallelised compile without linking step on a quad core
   // machine or better - with fewer cores it's not worth it
   enabled numCpus >= 4
-  environment 'CPP_CROSS_COMPILE', cppCrossCompile
-  environment 'VERSION_QUALIFIER', versionQualifier
-  environment 'SNAPSHOT', isSnapshot ? 'yes' : 'no'
+  environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' objcompile'
   workingDir "${projectDir}"
 }
 
 task make(type: Exec) {
-  environment 'CPP_CROSS_COMPILE', cppCrossCompile
-  environment 'VERSION_QUALIFIER', versionQualifier
-  environment 'SNAPSHOT', isSnapshot ? 'yes' : 'no'
+  environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus
   workingDir "${projectDir}"
@@ -82,9 +79,7 @@ task make(type: Exec) {
 }
 
 task strip(type: Exec) {
-  environment 'CPP_CROSS_COMPILE', cppCrossCompile
-  environment 'VERSION_QUALIFIER', versionQualifier
-  environment 'SNAPSHOT', isSnapshot ? 'yes' : 'no'
+  environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && dev-tools/strip_binaries.sh'
   workingDir "${projectDir}"
@@ -173,9 +168,7 @@ artifacts {
 }
 
 task test(type: Exec) {
-  environment 'CPP_CROSS_COMPILE', cppCrossCompile
-  environment 'VERSION_QUALIFIER', versionQualifier
-  environment 'SNAPSHOT', isSnapshot ? 'yes' : 'no'
+  environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' test'
   workingDir "${projectDir}"
