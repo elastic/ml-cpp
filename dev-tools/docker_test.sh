@@ -41,6 +41,12 @@ if [ -z "$PLATFORMS" ] ; then
     usage
 fi
 
+# Default to alpha1 qualifier
+# TODO: remove this once release manager is updated
+if [ -z "$VERSION_QUALIFIER" ] ; then
+    VERSION_QUALIFIER=alpha1
+fi
+
 # Default to a snapshot build
 if [ -z "$SNAPSHOT" ] ; then
     SNAPSHOT=yes
@@ -67,7 +73,7 @@ do
     DOCKERFILE="$TOOLS_DIR/docker/${PLATFORM}_tester/Dockerfile"
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
-    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
+    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid

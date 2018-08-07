@@ -16,7 +16,10 @@ CLEAN_CMDS=$(RM) CBuildInfo.cc
 BUILD_YEAR=$(shell date '+%Y')
 USER_NAME_CMD=id | awk -F')' '{ print $$1 }' | awk -F'(' '{ print $$2 }'
 USER_NAME=$(shell $(USER_NAME_CMD))
-PRODUCT_VERSION=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo)
+PRODUCT_VERSION:=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo)
+ifneq ($(VERSION_QUALIFIER),)
+PRODUCT_VERSION:=$(PRODUCT_VERSION)-$(VERSION_QUALIFIER)
+endif
 ifeq ($(SNAPSHOT),yes)
 PRODUCT_VERSION:=$(PRODUCT_VERSION)-SNAPSHOT
 endif

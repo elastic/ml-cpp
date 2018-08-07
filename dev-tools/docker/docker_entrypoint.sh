@@ -32,6 +32,9 @@ dev-tools/strip_binaries.sh
 
 # Get the version number
 PRODUCT_VERSION=`cat "$CPP_SRC_HOME/gradle.properties" | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
+if [ -n "$VERSION_QUALIFIER" ] ; then
+    PRODUCT_VERSION="$PRODUCT_VERSION-$VERSION_QUALIFIER"
+fi
 if [ "$SNAPSHOT" = yes ] ; then
     PRODUCT_VERSION="$PRODUCT_VERSION-SNAPSHOT"
 fi

@@ -6,12 +6,17 @@ import org.gradle.util.DistributionLocator
 
 import static org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
-boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
+// TODO: change default qualifier from alpha1 to empty string once release manager is updated
+String versionQualifier = System.getProperty("build.version_qualifier", "alpha1")
+boolean isSnapshot = "true".equals(System.getProperty("build.snapshot", "true"))
 
 allprojects {
   group = 'org.elasticsearch.ml'
   version = elasticsearchVersion
-  if (snapshot) {
+  if (versionQualifier != "") {
+    version += '-' + versionQualifier
+  }
+  if (isSnapshot) {
     version += '-SNAPSHOT'
   }
 }
