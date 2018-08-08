@@ -126,9 +126,9 @@ TCalculation2Vec expand(maths_t::EProbabilityCalculation calculation) {
 }
 
 //! Aggregate one or more feature probabilities.
-double aggregateFeatureProbabilities(const TDouble4Vec& probabilities) {
+double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double correlation) {
     if (probabilities.size() > 1) {
-        CJointProbabilityOfLessLikelySamples pJoint;
+        CJointProbabilityOfLessLikelySamples pJoint{correlation};
         for (auto p : probabilities) {
             pJoint.add(p);
         }
@@ -1034,6 +1034,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
     probabilities.push_back((pl + pu) / 2.0);
     featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, (pl + pu) / 2.0);
 
+    double correlation{0.0};
     if (m_ResidualMeanModel != nullptr && params.useMultibucketFeatures()) {
         double probability{1.0};
         TDouble1Vec mean;
@@ -1051,15 +1052,17 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
                 }
                 probability = std::min(probability, (pl + pu) / 2.0);
             }
+            correlation = 1.0 / CTimeSeriesMultibucketFeatures::meanEffectiveWindowLength(
+                                    m_RecentResiduals.size());
         }
         probabilities.push_back(probability);
         featureProbabilities.emplace_back(MEAN_FEATURE_LABEL, probability);
     }
 
-    double probability{
-        correctForEmptyBucket(calculation, value[0], params.bucketEmpty()[0][0],
-                              this->params().probabilityBucketEmpty(),
-                              aggregateFeatureProbabilities(probabilities))};
+    double probability{correctForEmptyBucket(
+        calculation, value[0], params.bucketEmpty()[0][0],
+        this->params().probabilityBucketEmpty(),
+        aggregateFeatureProbabilities(probabilities, correlation))};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{
@@ -2536,6 +2539,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     TJointProbability2Vec jointProbabilities(
         m_ResidualMeanModel != nullptr && params.useMultibucketFeatures() ? 2 : 1);
 
+    double correlation{0.0};
     for (std::size_t i = 0u; i < coordinates.size(); ++i) {
         maths_t::EProbabilityCalculation calculation = params.calculation(i);
         TSize10Vec coordinate{coordinates[i]};
@@ -2571,6 +2575,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                     pu[1][0] = std::min(pu[1][0], pui[1][0]);
                 }
                 update(calculation, pl, pu, jointProbabilities[1]);
+                correlation = 1.0 / CTimeSeriesMultibucketFeatures::meanEffectiveWindowLength(
+                                        m_RecentResiduals.size());
             }
         }
     }
@@ -2598,7 +2604,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         featureProbabilities.emplace_back(labels[i], probabilities[i]);
     }
 
-    double probability{aggregateFeatureProbabilities(probabilities)};
+    double probability{aggregateFeatureProbabilities(probabilities, correlation)};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{0.0};

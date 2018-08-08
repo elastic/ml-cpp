@@ -30,6 +30,9 @@ namespace maths {
 //! time series from a user's perspective.
 class CTimeSeriesMultibucketFeatures {
 public:
+    //! The geometric weight applied the window.
+    constexpr static const double WINDOW_GEOMETRIC_WEIGHT = 0.9;
+
     template<typename T>
     using TT1VecTWeightAry1VecPr =
         std::pair<core::CSmallVector<T, 1>, core::CSmallVector<maths_t::TWeightsAry<T>, 1>>;
@@ -43,11 +46,21 @@ public:
     template<typename VECTOR, typename ITR>
     static TT1VecTWeightAry1VecPr<VECTOR> mean(ITR begin, ITR end) {
         if (begin != end) {
-            VECTOR value(toVector<VECTOR>(rangeMean(begin, end, 0.9)));
-            VECTOR weight(toVector<VECTOR>(rangeCount(begin, end, 0.9)));
+            VECTOR value(toVector<VECTOR>(rangeMean(begin, end, WINDOW_GEOMETRIC_WEIGHT)));
+            VECTOR weight(toVector<VECTOR>(rangeCount(begin, end, WINDOW_GEOMETRIC_WEIGHT)));
             return {{value}, {maths_t::countWeight(weight)}};
         }
         return {{}, {}};
+    }
+
+    //! Compute the effective "length" of the window used to compute the
+    //! mean feature.
+    static double meanEffectiveWindowLength(std::size_t windowLength) {
+        // This is just the sum of the geometric series with fixed ratio
+        // WINDOW_GEOMETRIC_WEIGHT used to weight the samples in the window
+        // mean feature calculation.
+        return (1.0 - std::pow(WINDOW_GEOMETRIC_WEIGHT, static_cast<double>(windowLength))) /
+               (1.0 - WINDOW_GEOMETRIC_WEIGHT);
     }
 
 private:
