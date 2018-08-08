@@ -12,6 +12,9 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Copy the current Git repository into the container
 COPY . /ml-cpp/
 
+# Pass through any version qualifier (default none)
+ARG VERSION_QUALIFIER=
+
 # Pass through whether this is a snapshot build (default yes if not specified)
 ARG SNAPSHOT=yes
 

@@ -2,8 +2,11 @@
 
 ML_USER=`id | awk -F')' '{ print $1 }' | awk -F'(' '{ print $2 }'`
 ML_VERSION_STR=`cat $CPP_SRC_HOME/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo`
+if [ -n "$VERSION_QUALIFIER" ] ; then
+    ML_VERSION_STR="$ML_VERSION_STR-$VERSION_QUALIFIER"
+fi
 if [ "$SNAPSHOT" != no ] ; then
-    ML_VERSION_STR="$ML_VERSION_STR"-SNAPSHOT
+    ML_VERSION_STR="$ML_VERSION_STR-SNAPSHOT"
 fi
 ML_VERSION=`echo $ML_VERSION_STR | sed 's/-.*//' | tr '.' ','`
 ML_BUILD_STR="Build "`git rev-parse --short=14 HEAD`
