@@ -24,6 +24,9 @@ public:
     void testDetectorEqualizing();
     void testShouldWritePartition();
 
+    void setUp();
+    void tearDown();
+
     static CppUnit::Test* suite();
 };
 

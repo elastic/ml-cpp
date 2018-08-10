@@ -124,16 +124,30 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        ? 0.0
                        : maths::CTools::anomalyScore(node.probability());
 
+    // Construct a unique identifier for the current partition. This will be used to store the maximum scores per
+    // partition
+    const std::string partitionName = (node.s_Spec.s_PartitionFieldName)
+                                          ? *(node.s_Spec.s_PartitionFieldName)
+                                          : "";
+    const std::string partitionValue = (node.s_Spec.s_PartitionFieldValue)
+                                           ? *(node.s_Spec.s_PartitionFieldValue)
+                                           : "";
+    const std::string personName =
+        (node.s_Spec.s_PersonFieldName) ? *(node.s_Spec.s_PersonFieldName) : "";
+    const std::string personValue =
+        (node.s_Spec.s_PersonFieldValue) ? *(node.s_Spec.s_PersonFieldValue) : "";
+
     switch (m_Job) {
     case E_Update:
         for (std::size_t i = 0u; i < normalizers.size(); ++i) {
-            m_HasLastUpdateCausedBigChange |=
-                normalizers[i]->s_Normalizer->updateQuantiles(score);
+            m_HasLastUpdateCausedBigChange |= normalizers[i]->s_Normalizer->updateQuantiles(
+                score, partitionName, partitionValue, personName, personValue);
         }
         break;
     case E_Normalize:
         // Normalize with the lowest suitable normalizer.
-        if (!normalizers[0]->s_Normalizer->normalize(score)) {
+        if (!normalizers[0]->s_Normalizer->normalize(
+                score, partitionName, partitionValue, personName, personValue)) {
             LOG_ERROR(<< "Failed to normalize " << score << " for "
                       << node.s_Spec.print());
         }

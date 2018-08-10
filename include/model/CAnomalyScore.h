@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_model_CAnomalyScore_h
 #define INCLUDED_ml_model_CAnomalyScore_h
 
+#include <core/CCompressedDictionary.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
@@ -15,6 +16,7 @@
 #include <model/ImportExport.h>
 
 #include <boost/optional.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <memory>
@@ -24,6 +26,7 @@
 
 #include <stdint.h>
 
+class CAnomalyScoreTest;
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -112,11 +115,23 @@ public:
         //!
         //! \param[in,out] scores The raw scores to normalize.
         //! Filled in with the normalized scores.
-        bool normalize(TDoubleVec& scores) const;
+        //! \param[in] partitionName The name of a partition attribute. Empty if no partitioning.
+        //! \param[in] partitionValue The name of an individual partition.
+        //! \param[in] personName The name of the person field attribute
+        //! \param[in] personValue The name of an individual person
+        bool normalize(TDoubleVec& scores,
+                       const std::string& partitionName,
+                       const std::string& partitionValue,
+                       const std::string& personName,
+                       const std::string& personValue) const;
 
         //! As above but taking a single pre-aggregated \p score instead
         //! of a vector of scores to be aggregated.
-        bool normalize(double& score) const;
+        bool normalize(double& score,
+                       const std::string& partitionName,
+                       const std::string& partitionValue,
+                       const std::string& personName,
+                       const std::string& personValue) const;
 
         //! Estimate the quantile range including the \p score.
         //!
@@ -129,11 +144,19 @@ public:
         //! Updates the quantile summaries with the total of
         //! \p scores.
         //! \return true if a big change occurred, otherwise false
-        bool updateQuantiles(const TDoubleVec& scores);
+        bool updateQuantiles(const TDoubleVec& scores,
+                             const std::string& partitionName,
+                             const std::string& partitionValue,
+                             const std::string& personName,
+                             const std::string& personValue);
 
         //! Updates the quantile summaries with \p score.
         //! \return true if a big change occurred, otherwise false
-        bool updateQuantiles(double score);
+        bool updateQuantiles(double score,
+                             const std::string& partitionName,
+                             const std::string& partitionValue,
+                             const std::string& personName,
+                             const std::string& personValue);
 
         //! Age the maximum score and quantile summary.
         void propagateForwardByTime(double time);
@@ -172,6 +195,12 @@ public:
         using TMaxValueAccumulator =
             maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>;
 
+        using TDictionary = core::CCompressedDictionary<1>;
+        using TWord = TDictionary::CWord;
+        using TWordVec = std::vector<TWord>;
+        using TWordMaxValueAccumulatorUMap =
+            TDictionary::CWordUMap<TMaxValueAccumulator>::Type;
+
     private:
         //! Used to convert raw scores in to integers so that we
         //! can use the q-digest.
@@ -199,6 +228,19 @@ public:
         //! Extract the raw score from a discrete score.
         double rawScore(uint32_t discreteScore) const;
 
+        //! Restore a collection of maximum score values.
+        bool restoreMaximumScores(core::CStateRestoreTraverser& traverser);
+
+        //! Persist a collection of maximum score values.
+        void persistMaximumScores(core::CStatePersistInserter& inserter) const;
+
+        //! Retrieve the maximum score for a partition
+        bool getMaxScore(const std::string& partitionName,
+                         const std::string& partitionValue,
+                         const std::string& personName,
+                         const std::string& personValue,
+                         double& maxScore) const;
+
     private:
         //! The percentile defining the largest noise score.
         double m_NoisePercentile;
@@ -215,8 +257,14 @@ public:
         //! HIGH_PERCENTILE percentile raw score.
         uint64_t m_HighPercentileCount;
 
-        //! The maximum score ever received.
+        //! The dictionary to use to associate partitions to their maximum scores
+        TDictionary m_Dictionary;
+
+        //! BWC: The maximum score ever received
         TMaxValueAccumulator m_MaxScore;
+
+        //! The set of maximum scores ever received for partitions.
+        TWordMaxValueAccumulatorUMap m_MaxScores;
 
         //! The factor used to scale the quantile scores to convert
         //! values per bucket length to values in absolute time. We
@@ -235,6 +283,9 @@ public:
         double m_DecayRate;
         //! The time to when we next age the quantiles.
         double m_TimeToQuantileDecay;
+
+    private:
+        friend class ::CAnomalyScoreTest;
     };
 
     using TNormalizerP = std::shared_ptr<CNormalizer>;

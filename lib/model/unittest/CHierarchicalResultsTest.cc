@@ -1609,7 +1609,11 @@ void CHierarchicalResultsTest::testNormalizer() {
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
                                : maths::CTools::anomalyScore(probability);
-            itr->second->updateQuantiles(score);
+            itr->second->updateQuantiles(
+                score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue);
         }
         for (std::size_t j = 0u; j < extract.leafNodes().size(); ++j) {
             std::string key = 'l' + *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName +
@@ -1623,7 +1627,11 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.leafNodes()[j]->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(itr->second->normalize(score));
+                CPPUNIT_ASSERT(itr->second->normalize(
+                    score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1651,7 +1659,11 @@ void CHierarchicalResultsTest::testNormalizer() {
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
                                : maths::CTools::anomalyScore(probability);
-            itr->second->updateQuantiles(score);
+            itr->second->updateQuantiles(
+                score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue);
         }
         for (std::size_t j = 0u; j < extract.personNodes().size(); ++j) {
             std::string key = 'p' + *extract.personNodes()[j]->s_Spec.s_PartitionFieldName +
@@ -1665,7 +1677,11 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.personNodes()[j]->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(itr->second->normalize(score));
+                CPPUNIT_ASSERT(itr->second->normalize(
+                    score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1692,7 +1708,11 @@ void CHierarchicalResultsTest::testNormalizer() {
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
                                : maths::CTools::anomalyScore(probability);
-            itr->second->updateQuantiles(score);
+            itr->second->updateQuantiles(
+                score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue);
         }
         for (std::size_t j = 0u; j < extract.partitionNodes().size(); ++j) {
             std::string key = 'n' + *extract.partitionNodes()[j]->s_Spec.s_PartitionFieldName;
@@ -1705,7 +1725,11 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.partitionNodes()[j]->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(itr->second->normalize(score));
+                CPPUNIT_ASSERT(itr->second->normalize(
+                    score, *extract.leafNodes()[j]->s_Spec.s_PartitionFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PartitionFieldValue,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldName,
+                    *extract.leafNodes()[j]->s_Spec.s_PersonFieldValue));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1723,8 +1747,8 @@ void CHierarchicalResultsTest::testNormalizer() {
                            ? 0.0
                            : maths::CTools::anomalyScore(probability);
 
-        expectedNormalizers.find(std::string("r"))->second->updateQuantiles(score);
-        expectedNormalizers.find(std::string("r"))->second->normalize(score);
+        expectedNormalizers.find(std::string("r"))->second->updateQuantiles(score, "", "", "", "");
+        expectedNormalizers.find(std::string("r"))->second->normalize(score, "", "", "bucket_time", "");
         LOG_DEBUG(<< "* root *");
         LOG_DEBUG(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
         LOG_DEBUG(<< "normalized         = " << score);
@@ -1991,4 +2015,14 @@ CppUnit::Test* CHierarchicalResultsTest::suite() {
         &CHierarchicalResultsTest::testShouldWritePartition));
 
     return suiteOfTests;
+}
+
+void CHierarchicalResultsTest::setUp() {
+    // Enable trace level logging for these unit tests
+    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
+}
+
+void CHierarchicalResultsTest::tearDown() {
+    // Revert to debug level logging for any subsequent unit tests
+    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
 }
