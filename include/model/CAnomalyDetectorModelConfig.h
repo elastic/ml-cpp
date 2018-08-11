@@ -164,7 +164,7 @@ public:
 
     //! The default number of time buckets used to generate multibucket features
     //! for anomaly detection.
-    static const std::size_t MULTIBUCKET_FEATURE_WINDOW_LENGTH;
+    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
 
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are

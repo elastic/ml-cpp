@@ -11,8 +11,8 @@
 
 class CTimeSeriesMultibucketFeaturesTest : public CppUnit::TestFixture {
 public:
-    void testMean();
-    void testContrast();
+    void testUnivariateMean();
+    void testMultivariateMean();
 
     static CppUnit::Test* suite();
 };
