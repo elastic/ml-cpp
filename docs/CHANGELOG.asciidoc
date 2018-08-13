@@ -21,6 +21,24 @@
 
 === Known Issues
 
+== Elasticsearch 6.5.0
+
+=== Breaking Changes
+
+=== Deprecations
+
+=== New Features
+
+=== Enhancements
+
+Increased independence of anomaly scores across partitions ({pull}182[182])  
+
+=== Bug Fixes
+
+=== Regressions
+
+=== Known Issues
+
 == Elasticsearch version 6.4.0
 
 === New Features
