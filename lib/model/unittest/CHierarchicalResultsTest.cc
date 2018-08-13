@@ -2016,13 +2016,3 @@ CppUnit::Test* CHierarchicalResultsTest::suite() {
 
     return suiteOfTests;
 }
-
-void CHierarchicalResultsTest::setUp() {
-    // Enable trace level logging for these unit tests
-    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
-}
-
-void CHierarchicalResultsTest::tearDown() {
-    // Revert to debug level logging for any subsequent unit tests
-    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
-}
