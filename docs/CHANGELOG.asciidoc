@@ -40,7 +40,7 @@
 
 === New Features
 
-* Detectors now support custom rules that enable the user to improve machine learning results by providing some domain-specific knowledge in the form of rule. ({ml-pull}119[#119])
+* Detectors now support {stack-ov}/ml-rules.html[custom rules] that enable the user to improve machine learning results by providing some domain-specific knowledge in the form of rule. ({ml-pull}119[#119])
 
 === Enhancements
 
