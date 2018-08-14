@@ -85,16 +85,6 @@ wrong and lead to incorrect influencer scoring ({ml-pull}153[#153], {ml-pull}150
 * Corrects the model bounds and typical value calculation for time series models 
 which use a multimodal distribution. This issue could cause "Unable to bracket 
 left percentile =..." errors to appear in the logs. ({ml-pull}178[#178], {ml-pull}176[#176])
-* Fixes a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 ({ml-pull}144[#144], {ml-pull}143[#143])
-* Fixes issues upgrading the state, which could cause the autodetect process to crash.
-({ml-pull}139[#139], {ml-issue}136[#136](issue: {ml-issue}135[#135]))
-* Fixes by fields such that they respect `model_plot_config.terms` ({ml-pull}86[#86] (issue: {ml-issue}30004[#30004]))
-* Function description for population lat_long results should be lat_long 
-instead of mean ({ml-pull}81[#81] (issue: {ml-issue}80[#80]))
-* Checks accesses are in bounds when clearing recycled models
-({ml-pull}79[#79] (issue: {ml-issue}76[#76]))
-* Fixes error causing overestimation of effective history length
-({ml-pull}66[#66] (issue: {ml-issue}57[#57]))
 
 //=== Regressions
 
