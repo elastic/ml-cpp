@@ -1,67 +1,104 @@
 // Use these for links to issue and pulls. Note issues and pulls redirect one to
 // each other on Github, so don't worry too much on using the right prefix.
-// :issue: https://github.com/elastic/elasticsearch/issues/
-// :pull: https://github.com/elastic/elasticsearch/pull/
+//:issue:           https://github.com/elastic/elasticsearch/issues/
+//:ml-issue:        https://github.com/elastic/ml-cpp/issues/
+//:pull:            https://github.com/elastic/elasticsearch/pull/
+//:ml-pull:         https://github.com/elastic/ml-cpp/pull/
 
 = Elasticsearch Release Notes
 
+////
+// To add a release, copy and paste the following text,  uncomment the relevant
+// sections, and add a link to the new section in the list of releases at the
+// top of the page. Note that release subheads must be floated and sections
+// cannot be empty.
+// TEMPLATE:
+
+// [[release-notes-n.n.n]]
+// == {es} n.n.n
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+//=== Enhancements
+
+//=== Bug Fixes
+
+//=== Regressions
+
+//=== Known Issues
+////
+
 == Elasticsearch version 6.4.0
 
-=== Breaking Changes
+//=== Breaking Changes
 
-=== Deprecations
+//=== Deprecations
 
 === New Features
 
-Detectors now support rules that allow the user to improve the results by providing some domain specific
-knowledge in the form of rule. ({pull}119[#119])
+* Detectors now support {stack-ov}/ml-rules.html[custom rules] that enable the user to improve machine learning results by providing some domain-specific knowledge in the form of rule. ({ml-pull}119[#119])
 
 === Enhancements
 
-Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
-Improve robustness w.r.t. outliers of detection and initialisation of seasonal components ({pull}90[#90])
-Improve behavior when there are abrupt changes in the seasonal components present in a time series ({pull}91[#91])
-Explicit change point detection and modelling ({pull}92[#92])
-Improve partition analysis memory usage ({pull}97[#97])
-Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
-Improve the accuracy of model memory control ({pull}122[#122])
-Improve adaption of the modelling of cyclic components to very localised features ({pull}134[#134])
-Reduce the memory consumed by distribution models ({pull}146[#146])
-
-Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
-model state on disk ({pull}89[#89])
-
-Secure the ML processes by preventing system calls such as fork and exec. The Linux implemenation uses
-Seccomp BPF to intercept system calls and is available in kernels since 3.5. On Windows Job Objects prevent
-new processes being created and macOS uses the sandbox functionality ({pull}98[#98])
-
-Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
-by unnecessary reference counting ({pull}108[#108])
-
-Reduce model memory by storing state for testing for predictive calendar features in a compressed format
-({pull}127[#127])
+* Improves and uses periodic boundary condition for seasonal component modeling ({ml-pull}84[#84])
+* Improves robustness with respect to outliers in detection and initialization of seasonal components ({ml-pull}90[#90] (issue: {ml-issue}87[#87]))
+* Improves behavior when there are abrupt changes in the seasonal components present in a time series ({ml-pull}91[#91] (issue: {ml-issue}6[#6]))
+* Adds explicit change point detection and modeling ({ml-pull}92[#92])
+* Improves partition analysis memory usage ({ml-pull}97[#97])
+* Reduces model memory by storing state for periodicity testing in a compressed format ({ml-pull}104[#104],{ml-pull}100[#100])
+* Improves the accuracy of model memory control
+({ml-pull}125[#125], {ml-issue}122[#122])
+* Improves adaption of the modeling of cyclic components to very localized features
+({ml-pull}138[#138], {ml-pull}134[#134])
+* Reduces the memory consumed by distribution models ({ml-pull}162[#162], {ml-pull}146[#146])
+* Forecasting of large machine learning jobs is now supported by temporarily storing
+model state on disk ({ml-pull}89[#89])
+* Secures the machine learning processes by preventing system calls such as fork 
+and exec. The Linux implementation uses Seccomp BPF (secure computing with 
+Berkeley Packet Filters) to intercept system calls and is available in kernels 
+since 3.5. On Windows, Job Objects prevent new processes being created and macOS 
+uses the sandbox functionality ({ml-pull}106[#106], {ml-pull}98[#98])
+* Fixes a bug that caused underestimation of the memory used by shared pointers. 
+Also reduces the memory consumed by unnecessary reference counting ({ml-pull}121[#121], {ml-pull}108, {ml-pull}115[#115])
+* Reduces model memory by storing the state for testing predictive calendar 
+features in a compressed format ({ml-pull}137[#137], {ml-pull}127[#127])
+* Always combine duplicate samples when updating population models ({ml-pull}74[#74])
+* Speeds up trend model component prediction ({ml-pull}73[#73])
+* Encodes distribution model weight style by offset in a fixed size weight array
+({ml-pull}54[#54])
 
 === Bug Fixes
 
-Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
-Persist and restore was missing some of the trend model state ({pull}#99[#99])
-Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
-Fix corner case failing to calculate lgamma values and the correspoinding log errors ({pull}#126[#126])
-Influence count per bucket for metric population analyses was wrong and lead to wrong influencer scoring ({pull}#150[#150])
-Fix a possible SIGSEGV for jobs with multivariate by fields enabled which would lead to the job failing ({pull}#170[#170])
+* Ages seasonal components in proportion to the fraction of values with which they're updated ({ml-pull}88[#88] (issue: {ml-issue}87[#87]))
+* Fixes persist and restore, which were missing some of the trend model state. 
+({ml-pull}103[#103], {ml-pull}99[#99])
+* Stops zero variance data from generating a log error in the forecast confidence interval calculation ({ml-pull}120[#120], {ml-pull}107[#107])
+* Fixes corner case which was failing to calculate lgamma values and fixes the 
+corresponding log errors ({ml-pull}131[#131], {ml-pull}126[#126])
+* Fixes influence count per bucket for metric population analyses, which was 
+wrong and lead to incorrect influencer scoring ({ml-pull}153[#153], {ml-pull}150[#150])
+* Fixes a possible SIGSEGV for jobs with multivariate by fields enabled, which caused the jobs to fail ({ml-pull}174[#174], {ml-pull}170[#170])
+* Corrects the model bounds and typical value calculation for time series models 
+which use a multimodal distribution. This issue could cause "Unable to bracket 
+left percentile =..." errors to appear in the logs. ({ml-pull}178[#178], {ml-pull}176[#176])
 
-Correct the model bounds and typical value calculation for time series models which use a multimodal distribution.
-This issue could cause "Unable to bracket left percentile =..." errors to appear in the logs. ({pull}#176[#176])
+//=== Regressions
 
-=== Regressions
-
-=== Known Issues
+//=== Known Issues
 
 == Elasticsearch version 6.3.0
 
-=== New Features
+//=== Breaking Changes
 
-=== Enhancements
+//=== Deprecations
+
+//=== New Features
+
+//=== Enhancements
 
 === Bug Fixes
 
@@ -70,6 +107,6 @@ By-fields should respect model_plot_config.terms ({pull}86[#86])
 The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort ({pull}136[#136])
 Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 ({pull}143[#143])
 
-=== Regressions
+//=== Regressions
 
-=== Known Issues
+//=== Known Issues
