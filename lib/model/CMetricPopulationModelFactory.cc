@@ -44,7 +44,7 @@ CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone() const {
 CAnomalyDetectorModel*
 CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -59,7 +59,7 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
     return new CMetricPopulationModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
-                                   this->minimumSeasonalVarianceScale(), false, 0),
+                                   this->minimumSeasonalVarianceScale(), false),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector());
 }
@@ -68,7 +68,7 @@ CAnomalyDetectorModel*
 CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData,
                                          core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -82,7 +82,8 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
 
     return new CMetricPopulationModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false, 0),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), false),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }

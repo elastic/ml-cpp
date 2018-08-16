@@ -318,7 +318,6 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
 
     TMeanAccumulator prediction_;
-    TMeanVarAccumulator predictionMoments;
 
     TDoubleVec weights(this->factors(std::abs(time - m_LastUpdate)));
     double Z{0.0};
@@ -328,21 +327,16 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
     }
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         if (weights[i] > MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION * Z) {
-            const SModel& model{m_TrendModels[i]};
-            prediction_.add(model.s_Regression.predict(scaledTime, MAX_CONDITION),
+            prediction_.add(m_TrendModels[i].s_Regression.predict(scaledTime, MAX_CONDITION),
                             weights[i]);
-            predictionMoments += CBasicStatistics::accumulator(
-                weights[i], CBasicStatistics::mean(model.s_ResidualMoments),
-                CBasicStatistics::maximumLikelihoodVariance(model.s_ResidualMoments));
         }
     }
 
     double prediction{a * CBasicStatistics::mean(prediction_) +
                       b * CBasicStatistics::mean(m_ValueMoments)};
-    double predictionVariance{CBasicStatistics::variance(predictionMoments)};
 
-    if (confidence > 0.0 && predictionVariance > 0.0) {
-        double variance{a * predictionVariance / std::max(this->count(), 1.0) +
+    if (confidence > 0.0 && m_PredictionErrorVariance > 0.0) {
+        double variance{a * m_PredictionErrorVariance / std::max(this->count(), 1.0) +
                         b * CBasicStatistics::variance(m_ValueMoments) /
                             std::max(CBasicStatistics::count(m_ValueMoments), 1.0)};
         if (auto interval = confidenceInterval(prediction, variance, confidence)) {

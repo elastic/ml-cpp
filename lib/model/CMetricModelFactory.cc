@@ -44,7 +44,7 @@ CMetricModelFactory* CMetricModelFactory::clone() const {
 CAnomalyDetectorModel*
 CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -59,8 +59,7 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
     return new CMetricModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
-                                   this->minimumSeasonalVarianceScale(), true,
-                                   this->modelParams().s_MultibucketFeaturesWindowLength),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector());
 }
@@ -69,7 +68,7 @@ CAnomalyDetectorModel*
 CMetricModelFactory::makeModel(const SModelInitializationData& initData,
                                core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -83,8 +82,8 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData,
 
     return new CMetricModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true,
-                                   this->modelParams().s_MultibucketFeaturesWindowLength),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }

@@ -26,6 +26,8 @@ class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
 class CUnivariateTimeSeriesChangeDetector;
+template<typename>
+class CTimeSeriesMultibucketFeature;
 struct SChangeDescription;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
@@ -57,11 +59,7 @@ public:
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
-
-public:
-    //! The default length of the sliding window of residuals used to compute
-    //! multibucket features.
-    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
+    using TMultibucketFeature = CTimeSeriesMultibucketFeature<double>;
 
 public:
     //! \param[in] params The model parameters.
@@ -70,20 +68,18 @@ public:
     //! \param[in] residualModel The prior for the time series residual model.
     //! \param[in] controllers Optional decay rate controllers for the trend
     //! and residual model.
+    //! \param[in] multibucketFeature The multi-bucket feature to analyse if any.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
-    //! \param[in] multibucketFeaturesWindowLength The length of the sliding window
-    //! of residuals used to compute multibucket features.
     CUnivariateTimeSeriesModel(const CModelParams& params,
                                std::size_t id,
                                const CTimeSeriesDecompositionInterface& trendModel,
                                const CPrior& residualModel,
                                const TDecayRateController2Ary* controllers = nullptr,
-                               bool modelAnomalies = true,
-                               std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
+                               const TMultibucketFeature* multibucketFeature = nullptr,
+                               bool modelAnomalies = true);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
-                               core::CStateRestoreTraverser& traverser,
-                               std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
+                               core::CStateRestoreTraverser& traverser);
     ~CUnivariateTimeSeriesModel();
 
     const CUnivariateTimeSeriesModel& operator=(const CUnivariateTimeSeriesModel&) = delete;
@@ -203,9 +199,6 @@ public:
 
     //! Get the residual model.
     const CPrior& residualModel() const;
-
-    //! Get the sliding window mean residual model.
-    const CPrior* residualMeanModel() const;
     //@}
 
 private:
@@ -215,9 +208,7 @@ private:
     using TDouble1VecDoubleWeightsAry1VecPr =
         std::pair<TDouble1Vec, maths_t::TDoubleWeightsAry1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
-    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeFloatMeanAccumulatorPr>;
+    using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
@@ -269,9 +260,6 @@ private:
                                const TDouble2Vec1Vec& value,
                                SModelProbabilityResult& result) const;
 
-    //! Get the sliding window mean residual.
-    TDouble1VecDoubleWeightsAry1VecPr residualMean() const;
-
     //! Get the models for the correlations and the models of the correlated
     //! time series.
     bool correlationModels(TSize1Vec& correlated,
@@ -301,19 +289,16 @@ private:
     //! \note This can be temporarily be shared with the change detector.
     TDecompositionPtr m_TrendModel;
 
-    //! A sliding window of the most recent prediction residuals.
-    TTimeFloatMeanAccumulatorPrCBuf m_RecentResiduals;
-
     //! The time series' residual model.
     //!
     //! \note This can be temporarily be shared with the change detector.
     TPriorPtr m_ResidualModel;
 
-    //! A model of the mean of the recent residuals.
-    //!
-    //! This models a feature constructed from the mean of residuals in
-    //! a sliding window.
-    TPriorPtr m_ResidualMeanModel;
+    //! The multi-bucket feature to use.
+    TMultibucketFeaturePtr m_MultibucketFeature;
+
+    //! A model of the multi-bucket feature.
+    TPriorPtr m_MultibucketFeatureModel;
 
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.
@@ -554,11 +539,7 @@ public:
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
-
-public:
-    //! The default length of the sliding window of residuals used to compute
-    //! multibucket features.
-    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
+    using TMultibucketFeature = CTimeSeriesMultibucketFeature<TDouble10Vec>;
 
 public:
     //! \param[in] params The model parameters.
@@ -566,20 +547,18 @@ public:
     //! \param[in] residualModel The prior for the time series residual model.
     //! \param[in] controllers Optional decay rate controllers for the trend
     //! and residual model.
+    //! \param[in] multibucketFeature The multi-bucket feature to analyse if any.
     //! \param[in] modelAnomalies If true we use a separate model to capture
     //! the characteristics of anomalous time periods.
-    //! \param[in] multibucketFeaturesWindowLength The length of the sliding window
-    //! of residuals used to compute multibucket features.
     CMultivariateTimeSeriesModel(const CModelParams& params,
                                  const CTimeSeriesDecompositionInterface& trendModel,
                                  const CMultivariatePrior& residualModel,
                                  const TDecayRateController2Ary* controllers = nullptr,
-                                 bool modelAnomalies = true,
-                                 std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
+                                 const TMultibucketFeature* multibucketFeature = nullptr,
+                                 bool modelAnomalies = true);
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
     CMultivariateTimeSeriesModel(const SModelRestoreParams& params,
-                                 core::CStateRestoreTraverser& traverser,
-                                 std::size_t multibucketFeaturesWindowLength = MULTIBUCKET_FEATURES_WINDOW_LENGTH);
+                                 core::CStateRestoreTraverser& traverser);
     ~CMultivariateTimeSeriesModel();
 
     const CMultivariateTimeSeriesModel& operator=(const CMultivariateTimeSeriesModel&) = delete;
@@ -696,9 +675,6 @@ public:
 
     //! Get the residual model.
     const CMultivariatePrior& residualModel() const;
-
-    //! Get the sliding window mean residual model.
-    const CMultivariatePrior* residualMeanModel() const;
     //@}
 
 private:
@@ -711,6 +687,7 @@ private:
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TTimeVectorMeanAccumulatorPr = std::pair<core_t::TTime, TVectorMeanAccumulator>;
     using TTimeVectorMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeVectorMeanAccumulatorPr>;
+    using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
     using TAnomalyModelPtr = std::unique_ptr<CTimeSeriesAnomalyModel>;
@@ -735,9 +712,6 @@ private:
     //! decomposition.
     void reinitializeStateGivenNewComponent();
 
-    //! Get the sliding window mean residual.
-    TDouble10Vec1VecDouble10VecWeightsAry1VecPr residualMean() const;
-
     //! Get the model dimension.
     std::size_t dimension() const;
 
@@ -755,17 +729,14 @@ private:
     //! The time series trend decomposition.
     TDecompositionPtr10Vec m_TrendModel;
 
-    //! A sliding window of the most recent prediction residuals.
-    TTimeVectorMeanAccumulatorPrCBuf m_RecentResiduals;
-
     //! The time series' residual model.
     TMultivariatePriorPtr m_ResidualModel;
 
-    //! A model of the mean of the recent residuals.
-    //!
-    //! This models a feature constructed from the mean of residuals in
-    //! a sliding window.
-    TMultivariatePriorPtr m_ResidualMeanModel;
+    //! The multi-bucket feature to use.
+    TMultibucketFeaturePtr m_MultibucketFeature;
+
+    //! A model of the multi-bucket feature.
+    TMultivariatePriorPtr m_MultibucketFeatureModel;
 
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.

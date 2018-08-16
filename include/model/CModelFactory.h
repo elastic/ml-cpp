@@ -186,19 +186,16 @@ public:
     //! \name Defaults
     //@{
     //! Get the default models to use for \p features and \p bucketLength.
-    const TFeatureMathsModelPtrPrVec&
-    defaultFeatureModels(const TFeatureVec& features,
-                         core_t::TTime bucketLength,
-                         double minimumSeasonalVarianceScale,
-                         bool modelAnomalies,
-                         std::size_t multibucketFeaturesWindowLength) const;
+    const TFeatureMathsModelPtrPrVec& defaultFeatureModels(const TFeatureVec& features,
+                                                           core_t::TTime bucketLength,
+                                                           double minimumSeasonalVarianceScale,
+                                                           bool modelAnomalies) const;
 
     //! Get the default model to use for \p features and \p bucketLength.
     TMathsModelPtr defaultFeatureModel(model_t::EFeature feature,
                                        core_t::TTime bucketLength,
                                        double minimumSeasonalVarianceScale,
-                                       bool modelAnomalies,
-                                       std::size_t multibucketFeaturesWindowLength) const;
+                                       bool modelAnomalies) const;
 
     //! Get the default correlate priors to use for correlated pairs of time
     //! series of \p features.

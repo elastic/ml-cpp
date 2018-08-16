@@ -290,7 +290,7 @@ void CEventRateModelTest::testOnlineCountSample() {
     CPPUNIT_ASSERT(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
-        model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true, 12)};
+        model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true)};
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
@@ -384,7 +384,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
     CPPUNIT_ASSERT(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
-        model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true, 12)};
+        model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true)};
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 

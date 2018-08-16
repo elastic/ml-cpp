@@ -306,11 +306,11 @@ void CMetricModelTest::testSample() {
             std::size_t numberSamples = 0;
 
             TMathsModelPtr expectedMeanModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true, 12);
+                model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true);
             TMathsModelPtr expectedMinModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMinByPerson, bucketLength, 0.4, true, 12);
+                model_t::E_IndividualMinByPerson, bucketLength, 0.4, true);
             TMathsModelPtr expectedMaxModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMaxByPerson, bucketLength, 0.4, true, 12);
+                model_t::E_IndividualMaxByPerson, bucketLength, 0.4, true);
 
             std::size_t j = 0;
             core_t::TTime time = startTime;

@@ -1397,10 +1397,10 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
     maths::CMultivariateNormalConjugate<2> multivariatePrior =
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0,
-                                                      trend, prior, 0, false, 0);
+    maths::CUnivariateTimeSeriesModel univariateModel(
+        params(bucketLength), 0, trend, prior, nullptr, nullptr, false);
     maths::CMultivariateTimeSeriesModel multivariateModel(
-        params(bucketLength), trend, multivariatePrior, 0, false, 0);
+        params(bucketLength), trend, multivariatePrior, nullptr, nullptr, false);
 
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 1.0, 50, samples);

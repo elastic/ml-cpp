@@ -24,6 +24,7 @@
 #include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTimeSeriesDecompositionStub.h>
 #include <maths/CTimeSeriesModel.h>
+#include <maths/CTimeSeriesMultibucketFeatures.h>
 #include <maths/CXMeansOnline1d.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -46,8 +47,7 @@ const CModelFactory::TFeatureMathsModelPtrPrVec&
 CModelFactory::defaultFeatureModels(const TFeatureVec& features,
                                     core_t::TTime bucketLength,
                                     double minimumSeasonalVarianceScale,
-                                    bool modelAnomalies,
-                                    std::size_t multibucketFeaturesWindowLength) const {
+                                    bool modelAnomalies) const {
     auto result = m_MathsModelCache.emplace(features, TFeatureMathsModelPtrPrVec());
     if (result.second) {
         result.first->second.reserve(features.size());
@@ -56,9 +56,8 @@ CModelFactory::defaultFeatureModels(const TFeatureVec& features,
                 continue;
             }
             result.first->second.emplace_back(
-                feature, this->defaultFeatureModel(
-                             feature, bucketLength, minimumSeasonalVarianceScale,
-                             modelAnomalies, multibucketFeaturesWindowLength));
+                feature, this->defaultFeatureModel(feature, bucketLength, minimumSeasonalVarianceScale,
+                                                   modelAnomalies));
         }
     }
     return result.first->second;
@@ -68,8 +67,7 @@ CModelFactory::TMathsModelPtr
 CModelFactory::defaultFeatureModel(model_t::EFeature feature,
                                    core_t::TTime bucketLength,
                                    double minimumSeasonalVarianceScale,
-                                   bool modelAnomalies,
-                                   std::size_t multibucketFeaturesWindowLength) const {
+                                   bool modelAnomalies) const {
     if (model_t::isCategorical(feature)) {
         return nullptr;
     }
@@ -99,16 +97,20 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
 
     if (dimension == 1) {
         TPriorPtr prior{this->defaultPrior(feature)};
+        model_t::TUnivariateMultibucketFeaturePtr multibucketFeature{model_t::univariateMultibucketFeature(
+            feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
         return boost::make_unique<maths::CUnivariateTimeSeriesModel>(
             params, 0 /*identifier (overridden)*/, *trend, *prior,
-            controlDecayRate ? &controllers : nullptr,
-            modelAnomalies && !model_t::isConstant(feature), multibucketFeaturesWindowLength);
+            controlDecayRate ? &controllers : nullptr, multibucketFeature.get(),
+            modelAnomalies && model_t::isConstant(feature) == false);
     }
 
     TMultivariatePriorUPtr prior{this->defaultMultivariatePrior(feature)};
+    model_t::TMultivariateMultibucketFeaturePtr multibucketFeature{model_t::multivariateMultibucketFeature(
+        feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
     return boost::make_unique<maths::CMultivariateTimeSeriesModel>(
         params, *trend, *prior, controlDecayRate ? &controllers : nullptr,
-        modelAnomalies && !model_t::isConstant(feature));
+        multibucketFeature.get(), modelAnomalies && model_t::isConstant(feature) == false);
 }
 
 const CModelFactory::TFeatureMultivariatePriorSPtrPrVec&

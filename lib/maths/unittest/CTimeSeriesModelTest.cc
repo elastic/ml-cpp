@@ -1106,6 +1106,7 @@ void CTimeSeriesModelTest::testProbability() {
                                                  maths::CTimeSeriesDecompositionStub{},
                                                  univariateNormal(),
                                                  nullptr, // no decay rate control
+                                                 nullptr, // no multi-bucket
                                                  false};
         maths::CUnivariateTimeSeriesModel model1{
             modelParams(bucketLength),
@@ -1113,6 +1114,7 @@ void CTimeSeriesModelTest::testProbability() {
             maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
             univariateNormal(),
             nullptr, // no decay rate control
+            nullptr, // no multi-bucket
             false};
 
         TDoubleVec samples;
@@ -1198,13 +1200,19 @@ void CTimeSeriesModelTest::testProbability() {
 
     LOG_DEBUG(<< "Multivariate");
     {
-        maths::CMultivariateTimeSeriesModel model0{
-            modelParams(bucketLength), maths::CTimeSeriesDecompositionStub{},
-            multivariateNormal(), 0, false};
+        maths::CMultivariateTimeSeriesModel model0{modelParams(bucketLength),
+                                                   maths::CTimeSeriesDecompositionStub{},
+                                                   multivariateNormal(),
+                                                   nullptr,
+                                                   nullptr,
+                                                   false};
         maths::CMultivariateTimeSeriesModel model1{
             modelParams(bucketLength),
             maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
-            multivariateNormal(), nullptr, false};
+            multivariateNormal(),
+            nullptr,
+            nullptr,
+            false};
 
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(
@@ -1495,7 +1503,6 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             sizeof(maths::CTimeSeriesDecomposition) + trend.memoryUsage() +
-            16 * maths::CUnivariateTimeSeriesModel::MULTIBUCKET_FEATURES_WINDOW_LENGTH +
             3 * sizeof(maths::CNormalMeanPrecConjugate) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
@@ -1532,7 +1539,6 @@ void CTimeSeriesModelTest::testMemoryUsage() {
 
         std::size_t expectedSize{
             3 * sizeof(maths::CTimeSeriesDecomposition) + 3 * trend.memoryUsage() +
-            48 * maths::CMultivariateTimeSeriesModel::MULTIBUCKET_FEATURES_WINDOW_LENGTH +
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
@@ -1579,7 +1585,7 @@ void CTimeSeriesModelTest::testPersist() {
         LOG_TRACE(<< "model XML representation:\n" << origXml);
         LOG_DEBUG(<< "model XML size: " << origXml.size());
 
-        // Restore the XML into a new filter
+        // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
@@ -1625,7 +1631,7 @@ void CTimeSeriesModelTest::testPersist() {
         LOG_TRACE(<< "model XML representation:\n" << origXml);
         LOG_DEBUG(<< "model XML size: " << origXml.size());
 
-        // Restore the XML into a new filter
+        // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
@@ -1872,8 +1878,6 @@ void CTimeSeriesModelTest::testAnomalyModel() {
                                  1906) != anomalyBuckets.end());
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1907) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1908) != anomalyBuckets.end());
 
         //file << "v = " << core::CContainerPrinter::print(samples) << ";\n";
         //file << "s = " << core::CContainerPrinter::print(scores) << ";\n";
@@ -1938,10 +1942,6 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1904) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1905) != anomalyBuckets.end());
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1906) != anomalyBuckets.end());
         CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),

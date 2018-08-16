@@ -45,7 +45,7 @@ CEventRateModelFactory* CEventRateModelFactory::clone() const {
 CAnomalyDetectorModel*
 CEventRateModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -60,8 +60,7 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
     return new CEventRateModel(
         this->modelParams(), dataGatherer,
         this->defaultFeatureModels(features, dataGatherer->bucketLength(),
-                                   this->minimumSeasonalVarianceScale(), true,
-                                   this->modelParams().s_MultibucketFeaturesWindowLength),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features),
         this->defaultCorrelates(features), this->defaultCategoricalPrior(),
         influenceCalculators, this->interimBucketCorrector());
@@ -71,7 +70,7 @@ CAnomalyDetectorModel*
 CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
                                   core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer) {
+    if (dataGatherer == nullptr) {
         LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
@@ -85,8 +84,8 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
 
     return new CEventRateModel(
         this->modelParams(), dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true,
-                                   this->modelParams().s_MultibucketFeaturesWindowLength),
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(),
+                                   this->minimumSeasonalVarianceScale(), true),
         this->defaultCorrelatePriors(features), this->defaultCorrelates(features),
         influenceCalculators, this->interimBucketCorrector(), traverser);
 }
