@@ -89,7 +89,6 @@ int main(int argc, char** argv) {
     std::size_t bucketResultsDelay(0);
     bool multivariateByFields(false);
     std::string multipleBucketspans;
-    bool perPartitionNormalization(false);
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
@@ -97,10 +96,9 @@ int main(int argc, char** argv) {
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage,
-            bucketResultsDelay, multivariateByFields, multipleBucketspans,
-            perPartitionNormalization, clauseTokens) == false) {
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage, bucketResultsDelay,
+            multivariateByFields, multipleBucketspans, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 
@@ -148,7 +146,6 @@ int main(int argc, char** argv) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             bucketSpan, summaryMode, summaryCountFieldName, latency,
             bucketResultsDelay, multivariateByFields, multipleBucketspans);
-    modelConfig.perPartitionNormalization(perPartitionNormalization);
     modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
         fieldConfig.detectionRules()));
     modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
