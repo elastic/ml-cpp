@@ -247,6 +247,13 @@ struct MATHS_EXPORT SModelProbabilityResult {
     };
     using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;
 
+    SModelProbabilityResult() = default;
+    SModelProbabilityResult(double probability,
+                            bool conditional,
+                            const TFeatureProbability4Vec& featureProbabilities,
+                            const TTail2Vec& tail,
+                            const TSize1Vec& mostAnomalousCorrelate);
+
     //! The overall result probability.
     double s_Probability = 1.0;
     //! True if the probability depends on the correlation between two

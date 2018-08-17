@@ -162,7 +162,7 @@ public:
     virtual double correlationWithBucketValue() const {
         // This follows from the weighting applied to values in the
         // window and linearity of expectation.
-        double r{WINDOW_GEOMETRIC_WEIGHT * WINDOW_GEOMETRIC_WEIGHT};
+        double r{0.81};
         double length{static_cast<double>(m_SlidingWindow.size())};
         return length == 0.0 ? 0.0 : std::sqrt((1.0 - r) / (1.0 - std::pow(r, length)));
     }
@@ -250,8 +250,6 @@ private:
     using TTimeFloatMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeFloatMeanAccumulatorPr>;
 
 private:
-    //! The geometric weight applied to the window.
-    constexpr static const double WINDOW_GEOMETRIC_WEIGHT = 0.9;
     //! The state tags.
     static const std::string CAPACITY_TAG;
     static const std::string SLIDING_WINDOW_TAG;
@@ -295,7 +293,7 @@ private:
         for (double last{earliest}; i != m_SlidingWindow.end(); ++i) {
             double dt{static_cast<double>(i->first) - last};
             last = static_cast<double>(i->first);
-            mean.age(std::pow(WINDOW_GEOMETRIC_WEIGHT, scale * dt));
+            mean.age(std::pow(0.9, scale * dt));
             mean.add(value(i->second), weight(i->second));
         }
         return this->toVector(CBasicStatistics::mean(mean));
@@ -319,9 +317,9 @@ private:
 };
 
 template<typename T>
-const std::string CTimeSeriesMultibucketMean<T>::CAPACITY_TAG{"a"};
+const std::string CTimeSeriesMultibucketMean<T>::CAPACITY_TAG("a");
 template<typename T>
-const std::string CTimeSeriesMultibucketMean<T>::SLIDING_WINDOW_TAG{"b"};
+const std::string CTimeSeriesMultibucketMean<T>::SLIDING_WINDOW_TAG("b");
 }
 }
 

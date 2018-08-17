@@ -282,7 +282,17 @@ bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
 }
 
-//////// SModelProbabilityResult::SFeatureProbability ////////
+//////// SModelProbabilityResult ////////
+
+SModelProbabilityResult::SModelProbabilityResult(double probability,
+                                                 bool conditional,
+                                                 const TFeatureProbability4Vec& featureProbabilities,
+                                                 const TTail2Vec& tail,
+                                                 const TSize1Vec& mostAnomalousCorrelate)
+    : s_Probability{probability}, s_Conditional{conditional},
+      s_FeatureProbabilities(featureProbabilities), s_Tail(tail),
+      s_MostAnomalousCorrelate(mostAnomalousCorrelate) {
+}
 
 SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
     : s_Label{boost::cref(EMPTY_STRING)} {
