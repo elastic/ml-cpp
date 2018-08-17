@@ -28,6 +28,7 @@ using namespace test;
 namespace {
 
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 class CGammaKernel {
 public:
@@ -139,41 +140,30 @@ private:
 }
 
 void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
-    // Test case that overflows boost incomplete gamma function.
-
-    {
-        CJointProbabilityOfLessLikelySamples jointProbability;
-        jointProbability.add(0.999999, 0.001);
-        jointProbability.add(1.0, 1900.0);
-        double probability;
-        jointProbability.calculate(probability);
-        LOG_DEBUG(<< "probability = " << probability);
-        CPPUNIT_ASSERT_EQUAL(1.0, probability);
-    }
-
-    // The idea of this test is to check that the probabilities
-    // of seeing lower likelihood products for multiple independent
-    // normal samples are correctly predicted. We also test the
-    // invariant of average probability.
 
     CRandomNumbers rng;
 
-    {
-        const unsigned int numberSamples = 20000u;
+    const unsigned int numberSamples = 20000u;
+    const double percentiles[] = {0.02, 0.1, 0.3, 0.5};
 
-        const double percentiles[] = {0.02, 0.1, 0.3, 0.5};
+    LOG_DEBUG(<< "*** Test independent ***");
+    {
+        // The idea of this test is to check that the probabilities
+        // of seeing lower likelihood products for multiple independent
+        // normal samples are correctly predicted. We also test the
+        // invariant of average probability.
 
         TDoubleVec samples1;
         rng.generateNormalSamples(1.0, 3.0, numberSamples, samples1);
-        boost::math::normal_distribution<> normal1(1.0, std::sqrt(3.0));
+        boost::math::normal normal1(1.0, std::sqrt(3.0));
 
         TDoubleVec samples2;
         rng.generateNormalSamples(10.0, 15.0, numberSamples, samples2);
-        boost::math::normal_distribution<> normal2(10.0, std::sqrt(15.0));
+        boost::math::normal normal2(10.0, std::sqrt(15.0));
 
         TDoubleVec samples3;
         rng.generateNormalSamples(0.0, 1.0, numberSamples, samples3);
-        boost::math::normal_distribution<> normal3(0.0, std::sqrt(1.0));
+        boost::math::normal normal3(0.0, std::sqrt(1.0));
 
         double totalExpectedCount = 0.0;
         double totalCount = 0.0;
@@ -235,32 +225,89 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
         CPPUNIT_ASSERT(totalError < 0.01);
     }
 
+    LOG_DEBUG(<< "*** Test correlated ***");
     {
-        TDoubleVec probabilities;
-        rng.generateUniformSamples(0.0, 1.0, 100u, probabilities);
-        std::fill_n(std::back_inserter(probabilities), 5u, 1e-4);
-        CJointProbabilityOfLessLikelySamples expectedJointProbability;
-        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
-            expectedJointProbability.add(probabilities[i]);
+        // As above, but with correlated samples.
 
-            double p;
-            CPPUNIT_ASSERT(expectedJointProbability.averageProbability(p));
+        TDoubleVecVec samples;
+        rng.generateMultivariateNormalSamples(
+            {8.0, 1.0, 5.0}, {{1.0, 0.1, 0.1}, {0.1, 1.0, 0.1}, {0.1, 0.1, 1.0}},
+            numberSamples, samples);
+        boost::math::normal normal1(8.0, 1.0);
+        boost::math::normal normal2(1.0, 1.0);
+        boost::math::normal normal3(5.0, 1.0);
 
-            CJointProbabilityOfLessLikelySamples jointProbability;
-            jointProbability.add(p, static_cast<double>(i + 1));
+        double totalExpectedCount = 0.0;
+        double totalCount = 0.0;
 
-            double expectedProbability;
-            CPPUNIT_ASSERT(expectedJointProbability.calculate(expectedProbability));
+        for (size_t i = 0; i < boost::size(percentiles); ++i) {
+            for (size_t j = 0; j < boost::size(percentiles); ++j) {
+                for (size_t k = 0; k < boost::size(percentiles); ++k) {
+                    LOG_DEBUG(<< "percentile1 = " << percentiles[i]
+                              << ", percentile2 = " << percentiles[j]
+                              << ", percentile3 = " << percentiles[k]);
 
-            double probability;
-            CPPUNIT_ASSERT(jointProbability.calculate(probability));
+                    double probabilities[] = {2.0 * percentiles[i], 2.0 * percentiles[j],
+                                              2.0 * percentiles[k]};
 
-            LOG_DEBUG(<< "probability = " << probability
-                      << ", expectedProbability = " << expectedProbability);
+                    CJointProbabilityOfLessLikelySamples jointProbability;
+                    for (size_t l = 0; l < boost::size(probabilities); ++l) {
+                        LOG_DEBUG(<< "probability = " << probabilities[l]);
+                        jointProbability.add(probabilities[l]);
+                    }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability,
-                                         1e-5 * expectedProbability);
+                    double expectedCount;
+                    CPPUNIT_ASSERT(jointProbability.calculate(expectedCount));
+                    expectedCount *= static_cast<double>(numberSamples);
+
+                    double count = 0.0;
+
+                    double quantile1 = boost::math::quantile(normal1, percentiles[i]);
+                    double quantile2 = boost::math::quantile(normal2, percentiles[j]);
+                    double quantile3 = boost::math::quantile(normal3, percentiles[k]);
+                    double likelihood = CTools::safePdf(normal1, quantile1) *
+                                        CTools::safePdf(normal2, quantile2) *
+                                        CTools::safePdf(normal3, quantile3);
+
+                    for (unsigned int sample = 0; sample < numberSamples; ++sample) {
+                        double sampleLikelihood =
+                            CTools::safePdf(normal1, samples[sample][0]) *
+                            CTools::safePdf(normal2, samples[sample][1]) *
+                            CTools::safePdf(normal3, samples[sample][2]);
+                        if (sampleLikelihood < likelihood) {
+                            count += 1.0;
+                        }
+                    }
+
+                    LOG_DEBUG(<< "count = " << count << ", expectedCount = " << expectedCount);
+
+                    double error = std::fabs(count - expectedCount) /
+                                   std::max(count, expectedCount);
+                    CPPUNIT_ASSERT(error < 0.2);
+
+                    totalExpectedCount += expectedCount;
+                    totalCount += count;
+                }
+            }
         }
+
+        double totalError = std::fabs(totalCount - totalExpectedCount) /
+                            std::max(totalCount, totalExpectedCount);
+        LOG_DEBUG(<< "totalError = " << totalError);
+        CPPUNIT_ASSERT(totalError < 0.01);
+    }
+
+    LOG_DEBUG(<< "*** Test overflow ***");
+    {
+        // Test case that overflows boost incomplete gamma function.
+
+        CJointProbabilityOfLessLikelySamples jointProbability;
+        jointProbability.add(0.999999, 0.001);
+        jointProbability.add(1.0, 1900.0);
+        double probability;
+        jointProbability.calculate(probability);
+        LOG_DEBUG(<< "probability = " << probability);
+        CPPUNIT_ASSERT_EQUAL(1.0, probability);
     }
 }
 
@@ -282,7 +329,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
         }
 
         double s = jointProbability.numberSamples() / 2.0;
-        double x = jointProbability.distance() / 2.0;
+        double x = jointProbability.mahalanobis() / 2.0;
 
         double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
         LOG_DEBUG(<< "log(p) = " << logP);
@@ -327,7 +374,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
                     ++count;
 
                     double s = jointProbability.numberSamples() / 2.0;
-                    double x = jointProbability.distance() / 2.0;
+                    double x = jointProbability.mahalanobis() / 2.0;
                     LOG_DEBUG(<< "s = " << s << ", x = " << x);
 
                     double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
@@ -348,7 +395,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
                     error += (upperBound - lowerBound) / std::fabs(upperBound);
                 } else if (jointProbability.numberSamples() > 1.0) {
                     double s = jointProbability.numberSamples() / 2.0;
-                    double x = jointProbability.distance() / 2.0;
+                    double x = jointProbability.mahalanobis() / 2.0;
 
                     double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
 

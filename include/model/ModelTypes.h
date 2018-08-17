@@ -31,6 +31,8 @@ namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
+template<typename>
+class CTimeSeriesMultibucketFeature;
 }
 namespace model {
 class CInfluenceCalculator;
@@ -41,9 +43,14 @@ namespace model_t {
 
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble10Vec = core::CSmallVector<double, 10>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
+using TUnivariateMultibucketFeaturePtr =
+    std::unique_ptr<maths::CTimeSeriesMultibucketFeature<double>>;
+using TMultivariateMultibucketFeaturePtr =
+    std::unique_ptr<maths::CTimeSeriesMultibucketFeature<TDouble10Vec>>;
 
 //! The types of model available.
 //!
@@ -541,6 +548,18 @@ TDouble1VecDouble1VecPr support(EFeature feature);
 //! Get the adjusted probability for \p feature.
 MODEL_EXPORT
 double adjustProbability(model_t::EFeature feature, core_t::TTime elapsedTime, double probability);
+
+//! Get the multi-bucket feature used for modeling the univariate
+//! \p feature.
+MODEL_EXPORT
+TUnivariateMultibucketFeaturePtr
+univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength);
+
+//! Get the multi-bucket feature used for modeling the univariate
+//! \p feature.
+MODEL_EXPORT
+TMultivariateMultibucketFeaturePtr
+multivariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength);
 
 //! Get the influence calculator for \p feature.
 MODEL_EXPORT

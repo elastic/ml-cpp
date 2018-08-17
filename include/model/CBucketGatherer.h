@@ -390,7 +390,7 @@ public:
     bool hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, std::size_t cid) const;
 
     //! Create samples if possible for the bucket pointed out by \p time.
-    virtual void sample(core_t::TTime time);
+    virtual void sample(core_t::TTime time) = 0;
 
 private:
     //! Resize the necessary data structures so they can hold values
@@ -444,24 +444,12 @@ private:
     //! bucketing interval.
     TSizeSizePrUInt64UMapQueue m_PersonAttributeCounts;
 
-    //! The counts for longer bucketing intervals.
-    // TODO This is not queued so can't handle out of order data.
-    TTimeSizeSizePrUInt64UMapMap m_MultiBucketPersonAttributeCounts;
-
     //! A set per bucket that contains a (pid,cid) pair if at least
     //! one explicit null record has been seen.
     TSizeSizePrUSetQueue m_PersonAttributeExplicitNulls;
 
-    //! The explicit nulls for longer bucketing intervals.
-    // TODO This is not queued so can't handle out of order data.
-    TTimeSizeSizePrUSetMap m_MultiBucketPersonAttributeExplicitNulls;
-
     //! The influencing field value counts per person and/or attribute.
     TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue m_InfluencerCounts;
-
-    //! The influencing field value counts for longer bucketing intervals.
-    // TODO This is not queued so can't handle out of order data.
-    TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap m_MultiBucketInfluencerCounts;
 };
 }
 }

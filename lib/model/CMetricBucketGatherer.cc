@@ -1358,8 +1358,6 @@ void CMetricBucketGatherer::sample(core_t::TTime time) {
               boost::bind<void>(SDoSample(), _1, _2, time, boost::cref(*this),
                                 boost::ref(*m_DataGatherer.sampleCounts())));
     }
-    // Merge smallest bucket into longer buckets, if they exist
-    this->CBucketGatherer::sample(time);
 }
 
 void CMetricBucketGatherer::featureData(core_t::TTime time,

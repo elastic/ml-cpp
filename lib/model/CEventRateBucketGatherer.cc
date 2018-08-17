@@ -1034,9 +1034,8 @@ void CEventRateBucketGatherer::releaseMemory(core_t::TTime /*samplingCutoffTime*
     // Nothing to release
 }
 
-void CEventRateBucketGatherer::sample(core_t::TTime time) {
-    // Merge smallest bucket into longer buckets, if they exist
-    this->CBucketGatherer::sample(time);
+void CEventRateBucketGatherer::sample(core_t::TTime /*time*/) {
+    // Nothing to sample
 }
 
 void CEventRateBucketGatherer::featureData(core_t::TTime time,
