@@ -38,7 +38,11 @@ template<typename ITR>
 TRegression fitLinearModel(ITR begin, ITR end, double startTime, double dt) {
     TRegression result;
     for (double time = startTime + dt / 2.0; begin != end; ++begin) {
-        result.add(time, CBasicStatistics::mean(*begin), CBasicStatistics::count(*begin));
+        double x{CBasicStatistics::mean(*begin)};
+        double w{CBasicStatistics::count(*begin)};
+        if (w > 0.0) {
+            result.add(time, x, w);
+        }
         time += dt;
     }
     return result;
@@ -53,8 +57,11 @@ TDoubleVec fitPeriodicModel(ITR begin,
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     TMeanAccumulatorVec levels(period);
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
-        levels[i % period].add(CBasicStatistics::mean(*begin) / scale(i),
-                               CBasicStatistics::count(*begin) * scale(i));
+        double x{CBasicStatistics::mean(*begin) / scale(i)};
+        double w{CBasicStatistics::count(*begin) * scale(i)};
+        if (w > 0.0) {
+            levels[i % period].add(x, w);
+        }
     }
     TDoubleVec result(period);
     for (std::size_t i = 0; i < period; ++i) {
@@ -134,9 +141,10 @@ residualMoments(ITR begin, ITR end, double startTime, double dt, const TRegressi
     TRegression::TArray params;
     model.parameters(params);
     for (double time = startTime + dt / 2.0; begin != end; ++begin, time += dt) {
-        if (CBasicStatistics::count(*begin) > 0.0) {
-            moments.add(CBasicStatistics::mean(*begin) - CRegression::predict(params, time),
-                        CBasicStatistics::count(*begin));
+        double w{CBasicStatistics::count(*begin)};
+        if (w > 0.0) {
+            double x{CBasicStatistics::mean(*begin) - CRegression::predict(params, time)};
+            moments.add(x, w);
         }
     }
     return moments;
@@ -176,8 +184,10 @@ centredResidualMoments(ITR begin, ITR end, std::size_t offset, const TDoubleVec&
         double x{CBasicStatistics::mean(*i)};
         double w{CBasicStatistics::count(*i)};
         double p{model[(offset + std::distance(begin, i)) % period]};
-        projection.add(x * p, w);
-        norm2.add(p * p, w);
+        if (w > 0.0) {
+            projection.add(x * p, w);
+            norm2.add(p * p, w);
+        }
     }
     double scale{CBasicStatistics::mean(projection) / CBasicStatistics::mean(norm2)};
     LOG_TRACE(<< "  scale = " << scale);
@@ -187,7 +197,9 @@ centredResidualMoments(ITR begin, ITR end, std::size_t offset, const TDoubleVec&
         double x{CBasicStatistics::mean(*i)};
         double w{CBasicStatistics::count(*i)};
         double p{scale * model[(offset + std::distance(begin, i)) % period]};
-        moments.add(x - p, w);
+        if (w > 0.0) {
+            moments.add(x - p, w);
+        }
     }
     CBasicStatistics::moment<0>(moments) = 0.0;
     LOG_TRACE("  moments = " << moments);
@@ -626,10 +638,13 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledPeriodic(
             double x{CBasicStatistics::mean(reweighted[i])};
             double w{CBasicStatistics::count(reweighted[i])};
             double p{model[i % period]};
-            projection.add(x * p, w);
-            Z.add(p * p, w);
+            if (w > 0.0) {
+                projection.add(x * p, w);
+                Z.add(p * p, w);
+            }
         }
-        return CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
+        return CBasicStatistics::mean(Z) == 0.0 ?
+               0.0 : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
     };
     auto scale = [&](std::size_t i) {
         auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
