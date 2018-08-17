@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
     bool memoryUsage(false);
     std::size_t bucketResultsDelay(0);
     bool multivariateByFields(false);
-    std::string multipleBucketspans;
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
@@ -98,7 +97,7 @@ int main(int argc, char** argv) {
             maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
             isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage, bucketResultsDelay,
-            multivariateByFields, multipleBucketspans, clauseTokens) == false) {
+            multivariateByFields, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 
@@ -145,7 +144,7 @@ int main(int argc, char** argv) {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             bucketSpan, summaryMode, summaryCountFieldName, latency,
-            bucketResultsDelay, multivariateByFields, multipleBucketspans);
+            bucketResultsDelay, multivariateByFields);
     modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
         fieldConfig.detectionRules()));
     modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(

@@ -28,5 +28,20 @@
 
 //=== Regressions
 
-//=== Known Issues
-////
+ == {es} version 6.5.0
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+=== Enhancements
+
+Perform anomaly detection on features derived from multiple bucket values to improve robustness
+of detection with respect to misconfigured bucket lengths and improve detection of long lasting
+anomalies. (See {pull}175[#175].)
+
+//=== Bug Fixes
+
+//=== Regressions

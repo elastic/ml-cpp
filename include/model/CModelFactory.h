@@ -308,7 +308,7 @@ public:
     //! CModelConfig this is ensured for you.
     void interimBucketCorrector(const TInterimBucketCorrectorWPtr& interimBucketCorrector);
 
-    //! \name Customization by mlmodel.conf
+    //! \name Customization
     //@{
     //! Set the learn rate used for initializing models.
     void learnRate(double learnRate);
@@ -329,6 +329,11 @@ public:
 
     //! Set the prune window scale factor maximum
     void pruneWindowScaleMaximum(double factor);
+
+    //! Set the window length to use for multibucket features.
+    //!
+    //! \note A length of zero disables modeling of multibucket features altogether.
+    void multibucketFeaturesWindowLength(std::size_t length);
 
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.
@@ -369,11 +374,6 @@ protected:
     using TOptionalSearchKey = boost::optional<CSearchKey>;
 
 protected:
-    //! Efficiently swap the contents of this and other.
-    //!
-    //! \note This only swaps the state held on this base class.
-    void swap(CModelFactory& other);
-
     //! Get the singleton interim bucket correction calculator.
     TInterimBucketCorrectorPtr interimBucketCorrector() const;
 

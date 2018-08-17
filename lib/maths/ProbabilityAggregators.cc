@@ -29,24 +29,22 @@ namespace {
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
 
-//! Compute the deviation corresponding to a probability of less likely
-//! samples \p p.
+//! Compute the normal distribution Z-score corresponding to a probability
+//! of less likely samples \p p.
 //!
 //! This function takes the probability of less likely event for a sample
-//! \f$x(i)\f$, \f$P(R(i))\f$, which it converts to a deviation \f$z(i)\f$
+//! \f$x(i)\f$, \f$P(R(i))\f$, which it converts to a Z-score \f$z(i)\f$
 //! using the relation:
 //! <pre class="fragment">
 //!   \f$\displaystyle \frac{1 + erf(-z(i))}{2} = \frac{P(R(i))}{2}\f$
 //! </pre>
 //!
-//! Note we work with this version since we square \f$z\f$ anyway and it
-//! avoids loss of precision which we'd get when subtracting \f$P(R(i))\f$
-//! from 1. See CJointProbabilityOfLessLikelySamples::calculate for details
-//! of how the \f$z(i)\f$ are used to compute the joint probability.
-bool deviation(double p, double& result) {
+//! Note we work with this version since it avoids loss of precision which
+//! we'd get when subtracting \f$P(R(i))\f$ from 1.
+bool zScore(double p, double& result) {
     try {
-        boost::math::normal_distribution<> normal(0.0, 1.0);
-        result = CTools::pow2(boost::math::quantile(normal, p / 2.0));
+        boost::math::normal normal(0.0, 1.0);
+        result = -boost::math::quantile(normal, p / 2.0);
         return true;
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Unable to compute quantile: " << e.what() << ", probability = " << p);
@@ -170,69 +168,47 @@ const char DELIMITER(':');
 
 //////// CJointProbabilityOfLessLikelySample Implementation ////////
 
-CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples()
-    : m_Distance(0.0), m_NumberSamples(0.0) {
-}
-
-bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string& value) {
-    core::CPersistUtils::CBuiltinFromString converter(DELIMITER);
-
-    TDoubleDoublePr distanceAndNumberSamples;
-    if (converter(value, distanceAndNumberSamples)) {
-        m_Distance = distanceAndNumberSamples.first;
-        m_NumberSamples = distanceAndNumberSamples.second;
-        return true;
-    }
-
-    double onlySample;
-    if (converter(value, onlySample)) {
-        m_OnlyProbability.reset(onlySample);
-        return true;
-    }
-
-    LOG_ERROR(<< "Failed to initialize joint probability from " << value);
-
-    return false;
-}
-
-std::string CJointProbabilityOfLessLikelySamples::toDelimited() const {
-    core::CPersistUtils::CBuiltinToString converter(DELIMITER);
-    if (m_OnlyProbability) {
-        return converter(*m_OnlyProbability);
-    }
-    TDoubleDoublePr distanceAndNumberSamples(m_Distance, m_NumberSamples);
-    return converter(distanceAndNumberSamples);
+CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples(double correlation)
+    : m_Correlation{correlation} {
 }
 
 const CJointProbabilityOfLessLikelySamples& CJointProbabilityOfLessLikelySamples::
 operator+=(const CJointProbabilityOfLessLikelySamples& other) {
     if (m_NumberSamples == 0.0) {
         m_OnlyProbability = other.m_OnlyProbability;
+        m_SumZScores = other.m_SumZScores;
+        m_SumZScoresSquared = other.m_SumZScoresSquared;
     } else if (other.m_NumberSamples == 0.0) {
         // Nothing to do.
     } else if (m_OnlyProbability && other.m_OnlyProbability) {
-        double d;
-        if (deviation(*m_OnlyProbability, d)) {
-            m_Distance += d;
+        double z;
+        if (zScore(*m_OnlyProbability, z)) {
+            m_SumZScores += z;
+            m_SumZScoresSquared += z * z;
         }
-        if (deviation(*other.m_OnlyProbability, d)) {
-            m_Distance += d;
+        if (zScore(*other.m_OnlyProbability, z)) {
+            m_SumZScores += z;
+            m_SumZScoresSquared += z * z;
         }
         m_OnlyProbability.reset();
     } else if (m_OnlyProbability) {
-        double d;
-        if (deviation(*m_OnlyProbability, d)) {
-            m_Distance += d;
+        double z;
+        if (zScore(*m_OnlyProbability, z)) {
+            m_SumZScores += z;
+            m_SumZScoresSquared += z * z;
         }
-        m_Distance += other.m_Distance;
+        m_SumZScores += other.m_SumZScores;
+        m_SumZScoresSquared += other.m_SumZScoresSquared;
         m_OnlyProbability.reset();
     } else if (other.m_OnlyProbability) {
-        double d;
-        if (deviation(*other.m_OnlyProbability, d)) {
-            m_Distance += d;
+        double z;
+        if (zScore(*other.m_OnlyProbability, z)) {
+            m_SumZScores += z;
+            m_SumZScoresSquared += z * z;
         }
     } else {
-        m_Distance += other.m_Distance;
+        m_SumZScores += other.m_SumZScores;
+        m_SumZScoresSquared += other.m_SumZScoresSquared;
     }
     m_NumberSamples += other.m_NumberSamples;
     return *this;
@@ -251,13 +227,15 @@ void CJointProbabilityOfLessLikelySamples::add(double probability, double weight
         return;
     }
 
-    double d;
-    if (m_OnlyProbability && deviation(*m_OnlyProbability, d)) {
-        m_Distance += d;
+    double z;
+    if (m_OnlyProbability && zScore(*m_OnlyProbability, z)) {
+        m_SumZScores += z;
+        m_SumZScoresSquared += z * z;
         m_OnlyProbability.reset();
     }
-    if (deviation(probability, d)) {
-        m_Distance += d * weight;
+    if (zScore(probability, z)) {
+        m_SumZScores += z * weight;
+        m_SumZScoresSquared += z * z * weight;
         m_NumberSamples += weight;
     }
 }
@@ -274,7 +252,7 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double& result) const {
     // We use a small positive threshold on the distance because of overflow
     // in the method boost uses to compute the incomplete gamma function. The
     // result will be very close to one in this case anyway.
-    if (m_NumberSamples == 0.0 || m_Distance / m_NumberSamples < 1e-8) {
+    if (m_NumberSamples == 0.0 || m_SumZScoresSquared / m_NumberSamples < 1e-8) {
         return true;
     }
 
@@ -294,51 +272,20 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double& result) const {
     //   g(.) is the gamma function.
 
     try {
-        result = boost::math::gamma_q(m_NumberSamples / 2.0, m_Distance / 2.0);
+        result = boost::math::gamma_q(m_NumberSamples / 2.0, this->mahalanobis() / 2.0);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Unable to compute probability: " << e.what() << ", m_NumberSamples = "
-                  << m_NumberSamples << ", m_Distance = " << m_Distance);
+        LOG_ERROR(<< "Unable to compute probability: " << e.what()
+                  << ", m_NumberSamples = " << m_NumberSamples << ", sum Z-scores = " << m_SumZScores
+                  << ", sum Z-scores^2 = " << m_SumZScoresSquared << ", correlation = "
+                  << m_Correlation << ", Mahalanobis = " << this->mahalanobis());
         return false;
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
         LOG_ERROR(<< "Invalid joint probability = " << result << ", m_NumberSamples = "
-                  << m_NumberSamples << ", m_Distance = " << m_Distance);
-    }
-
-    result = CTools::truncate(result, 0.0, 1.0);
-
-    return true;
-}
-
-bool CJointProbabilityOfLessLikelySamples::averageProbability(double& result) const {
-    result = 1.0;
-
-    // This is defined as one for the case there are no samples.
-    if (m_OnlyProbability) {
-        result = CTools::truncate(*m_OnlyProbability, 0.0, 1.0);
-        return true;
-    }
-    if (m_NumberSamples == 0.0 || m_Distance == 0.0) {
-        return true;
-    }
-
-    // This is the constant probability p s.t. if we added n lots of p we'd
-    // get the same joint probability and is a measurement of the typical
-    // probability in a set of independent samples.
-
-    try {
-        boost::math::normal_distribution<> normal(0.0, 1.0);
-        result = 2.0 * boost::math::cdf(normal, -std::sqrt(m_Distance / m_NumberSamples));
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Unable to compute probability: " << e.what() << ", m_NumberSamples = "
-                  << m_NumberSamples << ", m_Distance = " << m_Distance);
-        return false;
-    }
-
-    if (!(result >= 0.0 && result <= 1.0)) {
-        LOG_ERROR(<< "Invalid average probability = " << result << ", m_NumberSamples = "
-                  << m_NumberSamples << ", m_Distance = " << m_Distance);
+                  << m_NumberSamples << ", sum Z-scores = " << m_SumZScores
+                  << ", sum Z-scores^2 = " << m_SumZScoresSquared << ", correlation = "
+                  << m_Correlation << ", Mahalanobis = " << this->mahalanobis());
     }
 
     result = CTools::truncate(result, 0.0, 1.0);
@@ -351,8 +298,10 @@ CJointProbabilityOfLessLikelySamples::onlyProbability() const {
     return m_OnlyProbability;
 }
 
-double CJointProbabilityOfLessLikelySamples::distance() const {
-    return m_Distance;
+double CJointProbabilityOfLessLikelySamples::mahalanobis() const {
+    return (m_SumZScoresSquared - m_Correlation * CTools::pow2(m_SumZScores) /
+                                      (m_NumberSamples * m_Correlation + 1.0 - m_Correlation)) /
+           (1.0 - m_Correlation);
 }
 
 double CJointProbabilityOfLessLikelySamples::numberSamples() const {
@@ -361,12 +310,13 @@ double CJointProbabilityOfLessLikelySamples::numberSamples() const {
 
 uint64_t CJointProbabilityOfLessLikelySamples::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_OnlyProbability);
-    seed = CChecksum::calculate(seed, m_Distance);
+    seed = CChecksum::calculate(seed, m_SumZScores);
+    seed = CChecksum::calculate(seed, m_SumZScoresSquared);
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
 std::ostream& CJointProbabilityOfLessLikelySamples::print(std::ostream& o) const {
-    return o << '(' << m_NumberSamples << ", " << m_Distance << ')';
+    return o << '(' << m_NumberSamples << ", " << m_SumZScores << ')';
 }
 
 std::ostream& operator<<(std::ostream& o,
@@ -405,7 +355,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
         result = std::min(std::log(*this->onlyProbability()), 0.0);
         return true;
     }
-    if (this->numberSamples() == 0.0 || this->distance() == 0.0) {
+    if (this->numberSamples() == 0.0 || this->mahalanobis() == 0.0) {
         return true;
     }
 
@@ -490,7 +440,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
         std::log(0.1 * boost::numeric::bounds<double>::highest());
 
     double s = this->numberSamples() / 2.0;
-    double x = this->distance() / 2.0;
+    double x = this->mahalanobis() / 2.0;
 
     double bound = boost::numeric::bounds<double>::lowest();
 
@@ -571,7 +521,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
         result = std::min(std::log(*this->onlyProbability()), 0.0);
         return true;
     }
-    if (this->numberSamples() == 0.0 || this->distance() == 0.0) {
+    if (this->numberSamples() == 0.0 || this->mahalanobis() == 0.0) {
         return true;
     }
 
@@ -635,7 +585,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
         std::log(0.10 * boost::numeric::bounds<double>::highest());
 
     double s = this->numberSamples() / 2.0;
-    double x = this->distance() / 2.0;
+    double x = this->mahalanobis() / 2.0;
 
     double bound = 0.0;
 
