@@ -27,15 +27,16 @@ namespace maths {
 //! collection of samples.
 //!
 //! DESCRIPTION:\n
-//! This assumes that the samples are jointly normal and independent
+//! This assumes that the samples are jointly normal with fixed
+//! correlation between 0.0 and 1.0, supplied to the constructor,
 //! and computes the probability of seeing a more extreme event:
 //! <pre class="fragment">
 //!   \f$P(\{(s_1, ..., s_n)\ |\ L(s_1, ..., s_n) \leq \prod_{i}\frac{P_i}{2}\})\f$
 //! </pre>
 //!
-//! where \f$P(i)\f$ are the probabilities supplied to the add function.
-//! Note that because it receives probabilities, which it interprets as
-//! from a standard Gaussian, these can in fact be computed from any
+//! Here \f$P(i)\f$ are the probabilities supplied to the add function.
+//! Note that because it supplied the probabilities, which it interprets
+//! as from a standard Gaussian, these can in fact be computed from any
 //! distribution.
 //!
 //! It is possible to supply a weight with each probability. This can
@@ -57,13 +58,8 @@ public:
     };
 
 public:
-    CJointProbabilityOfLessLikelySamples();
-
-    //! Initialize from \p value if possible.
-    bool fromDelimited(const std::string& value);
-
-    //! Convert to a delimited string.
-    std::string toDelimited() const;
+    CJointProbabilityOfLessLikelySamples() = default;
+    CJointProbabilityOfLessLikelySamples(double correlation);
 
     //! Combine two joint probability calculators.
     const CJointProbabilityOfLessLikelySamples&
@@ -76,15 +72,11 @@ public:
     //! than those added so far.
     bool calculate(double& result) const;
 
-    //! Compute the average probability of less likely samples
-    //! added so far.
-    bool averageProbability(double& result) const;
-
     //! Get the first probability.
     TOptionalDouble onlyProbability() const;
 
-    //! Get the total deviation of all samples added.
-    double distance() const;
+    //! Get the effective Mahalanobis of the probabilities added.
+    double mahalanobis() const;
 
     //! Get the count of all samples added.
     double numberSamples() const;
@@ -97,8 +89,10 @@ public:
 
 private:
     TOptionalDouble m_OnlyProbability;
-    double m_Distance;
-    double m_NumberSamples;
+    double m_Correlation = 0.0;
+    double m_SumZScores = 0.0;
+    double m_SumZScoresSquared = 0.0;
+    double m_NumberSamples = 0.0;
 };
 
 MATHS_EXPORT

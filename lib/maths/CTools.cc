@@ -1915,9 +1915,7 @@ double CTools::linearlyInterpolate(double a, double b, double fa, double fb, dou
     if (x >= b) {
         return fb;
     }
-    double wa{(b - x) / (b - a)};
-    double wb{(x - a) / (b - a)};
-    return wa * fa + wb * fb;
+    return ((b - x) * fa + (x - a) * fb) / (b - a);
 }
 
 double CTools::powOneMinusX(double x, double p) {

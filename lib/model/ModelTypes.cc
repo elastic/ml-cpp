@@ -11,6 +11,7 @@
 #include <maths/CMultivariatePrior.h>
 #include <maths/CPrior.h>
 #include <maths/CTimeSeriesDecomposition.h>
+#include <maths/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CModelParams.h>
@@ -18,9 +19,7 @@
 
 namespace ml {
 namespace model_t {
-
 namespace {
-
 //! Compute x^4.
 double pow4(double x) {
     double x2 = x * x;
@@ -1188,6 +1187,73 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     }
 
     return pNewCluster + probability * (1.0 - pNewCluster);
+}
+
+TUnivariateMultibucketFeaturePtr
+univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength) {
+    if (windowLength > 0) {
+        switch (feature) {
+        case E_IndividualCountByBucketAndPerson:
+        case E_IndividualNonZeroCountByBucketAndPerson:
+        case E_IndividualLowCountsByBucketAndPerson:
+        case E_IndividualHighCountsByBucketAndPerson:
+        case E_IndividualArrivalTimesByPerson:
+        case E_IndividualLongArrivalTimesByPerson:
+        case E_IndividualShortArrivalTimesByPerson:
+        case E_IndividualLowNonZeroCountByBucketAndPerson:
+        case E_IndividualHighNonZeroCountByBucketAndPerson:
+        case E_IndividualUniqueCountByBucketAndPerson:
+        case E_IndividualLowUniqueCountByBucketAndPerson:
+        case E_IndividualHighUniqueCountByBucketAndPerson:
+        case E_IndividualInfoContentByBucketAndPerson:
+        case E_IndividualLowInfoContentByBucketAndPerson:
+        case E_IndividualHighInfoContentByBucketAndPerson:
+            return boost::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+        case E_IndividualTotalBucketCountByPerson:
+        case E_IndividualIndicatorOfBucketPerson:
+        case E_IndividualTimeOfDayByBucketAndPerson:
+        case E_IndividualTimeOfWeekByBucketAndPerson:
+            break;
+
+        case E_IndividualMeanByPerson:
+        case E_IndividualMedianByPerson:
+        case E_IndividualLowMedianByPerson:
+        case E_IndividualHighMedianByPerson:
+        case E_IndividualLowMeanByPerson:
+        case E_IndividualHighMeanByPerson:
+        case E_IndividualVarianceByPerson:
+        case E_IndividualHighVarianceByPerson:
+        case E_IndividualLowVarianceByPerson:
+        case E_IndividualSumByBucketAndPerson:
+        case E_IndividualLowSumByBucketAndPerson:
+        case E_IndividualHighSumByBucketAndPerson:
+        case E_IndividualNonNullSumByBucketAndPerson:
+        case E_IndividualLowNonNullSumByBucketAndPerson:
+        case E_IndividualHighNonNullSumByBucketAndPerson:
+        case E_IndividualMeanVelocityByPerson:
+        case E_IndividualSumVelocityByPerson:
+        case E_IndividualMinByPerson:
+        case E_IndividualMinVelocityByPerson:
+        case E_IndividualMaxByPerson:
+        case E_IndividualMaxVelocityByPerson:
+            return boost::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+        case E_IndividualMeanLatLongByPerson:
+            break;
+
+        CASE_POPULATION_COUNT:
+        CASE_POPULATION_METRIC:
+        CASE_PEERS_COUNT:
+        CASE_PEERS_METRIC:
+            break;
+        }
+    }
+
+    return {};
+}
+
+TMultivariateMultibucketFeaturePtr
+multivariateMultibucketFeature(model_t::EFeature /*feature*/, std::size_t /*windowLength*/) {
+    return {};
 }
 
 TInfluenceCalculatorCPtr influenceCalculator(EFeature feature) {

@@ -77,6 +77,7 @@
 #include "CTimeSeriesChangeDetectorTest.h"
 #include "CTimeSeriesDecompositionTest.h"
 #include "CTimeSeriesModelTest.h"
+#include "CTimeSeriesMultibucketFeaturesTest.h"
 #include "CTimeSeriesSegmentationTest.h"
 #include "CToolsTest.h"
 #include "CTrendComponentTest.h"
@@ -158,6 +159,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CTimeSeriesChangeDetectorTest::suite());
     runner.addTest(CTimeSeriesDecompositionTest::suite());
     runner.addTest(CTimeSeriesModelTest::suite());
+    runner.addTest(CTimeSeriesMultibucketFeaturesTest::suite());
     runner.addTest(CTimeSeriesSegmentationTest::suite());
     runner.addTest(CToolsTest::suite());
     runner.addTest(CTrendComponentTest::suite());

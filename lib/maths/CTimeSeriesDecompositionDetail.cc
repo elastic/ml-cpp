@@ -660,7 +660,8 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
             TExpandingWindowPtr window(this->newWindow(i, false));
             // The 0.3 is a rule-of-thumb estimate of the worst case
             // compression ratio we achieve on the test state.
-            result += 0.3 * core::CMemory::dynamicSize(window);
+            result += static_cast<std::size_t>(
+                0.3 * static_cast<double>(core::CMemory::dynamicSize(window)));
         }
     }
     return result;
