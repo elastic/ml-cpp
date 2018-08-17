@@ -215,11 +215,8 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
     : m_DataGatherer(other.m_DataGatherer),
       m_EarliestTime(other.m_EarliestTime), m_BucketStart(other.m_BucketStart),
       m_PersonAttributeCounts(other.m_PersonAttributeCounts),
-      m_MultiBucketPersonAttributeCounts(other.m_MultiBucketPersonAttributeCounts),
       m_PersonAttributeExplicitNulls(other.m_PersonAttributeExplicitNulls),
-      m_MultiBucketPersonAttributeExplicitNulls(other.m_MultiBucketPersonAttributeExplicitNulls),
-      m_InfluencerCounts(other.m_InfluencerCounts),
-      m_MultiBucketInfluencerCounts(other.m_MultiBucketInfluencerCounts) {
+      m_InfluencerCounts(other.m_InfluencerCounts) {
     if (!isForPersistence) {
         LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
@@ -324,13 +321,6 @@ void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
         m_PersonAttributeCounts.push(TSizeSizePrUInt64UMap(1), newBucketStart);
         m_PersonAttributeExplicitNulls.push(TSizeSizePrUSet(1), newBucketStart);
         m_InfluencerCounts.push(TSizeSizePrStoredStringPtrPrUInt64UMapVec(), newBucketStart);
-        for (auto bucketLength : m_DataGatherer.params().s_MultipleBucketLengths) {
-            if (newBucketStart % bucketLength == 0) {
-                m_MultiBucketPersonAttributeCounts[bucketLength].clear();
-                m_MultiBucketPersonAttributeExplicitNulls[bucketLength].clear();
-                m_MultiBucketInfluencerCounts[bucketLength].clear();
-            }
-        }
         m_BucketStart = newBucketStart;
     }
 }
@@ -348,33 +338,6 @@ void CBucketGatherer::skipSampleNow(core_t::TTime sampleBucketStart) {
         sampleBucketStart +
         (m_DataGatherer.params().s_LatencyBuckets + 1) * this->bucketLength() - 1;
     this->hiddenTimeNow(timeNow, true);
-}
-
-void CBucketGatherer::sample(core_t::TTime time) {
-    // Merge the current bucket's statistics into multiple bucket statistics.
-    for (auto bucketLength : m_DataGatherer.params().s_MultipleBucketLengths) {
-        auto& multipleBucketPersonAttributeCounts =
-            m_MultiBucketPersonAttributeCounts[bucketLength];
-        for (const auto& count : m_PersonAttributeCounts.get(time)) {
-            multipleBucketPersonAttributeCounts[count.first] += count.second;
-        }
-
-        auto& multipleBucketPersonAttributeExplicitNulls =
-            m_MultiBucketPersonAttributeExplicitNulls[bucketLength];
-        for (const auto& nulls : m_PersonAttributeExplicitNulls.get(time)) {
-            multipleBucketPersonAttributeExplicitNulls.insert(nulls);
-        }
-
-        const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts =
-            m_InfluencerCounts.get(time);
-        auto& multiBucketInfluencerCounts = m_MultiBucketInfluencerCounts[bucketLength];
-        multiBucketInfluencerCounts.resize(influencerCounts.size());
-        for (std::size_t i = 0u; i < influencerCounts.size(); ++i) {
-            for (const auto& count : influencerCounts[i]) {
-                multiBucketInfluencerCounts[i][count.first] += count.second;
-            }
-        }
-    }
 }
 
 void CBucketGatherer::personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& result) const {
@@ -473,12 +436,11 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime& startTime, core_t::TTim
     //   4) The start time is greater than or equal to the start time
     //      of the last sampled bucket
 
-    if (!maths::CIntegerTools::aligned(startTime, this->bucketLength())) {
+    if (!maths::CIntegerTools::aligned(startTime - m_BucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Sample start time " << startTime << " is not bucket aligned");
-        LOG_ERROR(<< "However, my bucketStart time is " << m_BucketStart);
         return false;
     }
-    if (!maths::CIntegerTools::aligned(endTime, this->bucketLength())) {
+    if (!maths::CIntegerTools::aligned(endTime - m_BucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Sample end time " << endTime << " is not bucket aligned");
         return false;
     }

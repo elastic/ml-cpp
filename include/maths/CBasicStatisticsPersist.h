@@ -48,6 +48,16 @@ template<typename T, std::size_t N>
 bool stringToType(const std::string& str, CSymmetricMatrixNxN<T, N>& value) {
     return value.fromDelimited(str);
 }
+//! Function to do conversion from string to a vector.
+template<typename T>
+bool stringToType(const std::string& str, CVector<T>& value) {
+    return value.fromDelimited(str);
+}
+//! Function to do conversion from string to a symmetric matrix.
+template<typename T>
+bool stringToType(const std::string& str, CSymmetricMatrix<T>& value) {
+    return value.fromDelimited(str);
+}
 
 //! Function to do conversion to a string.
 template<typename T>
@@ -70,6 +80,16 @@ inline std::string typeToString(const CVectorNx1<T, N>& value) {
 //! Function to do conversion to a string from a symmetric matrix.
 template<typename T, std::size_t N>
 inline std::string typeToString(const CSymmetricMatrixNxN<T, N>& value) {
+    return value.toDelimited();
+}
+//! Function to do conversion to a string from a vector.
+template<typename T>
+inline std::string typeToString(const CVector<T>& value) {
+    return value.toDelimited();
+}
+//! Function to do conversion to a string from a symmetric matrix.
+template<typename T>
+inline std::string typeToString(const CSymmetricMatrix<T>& value) {
     return value.toDelimited();
 }
 }

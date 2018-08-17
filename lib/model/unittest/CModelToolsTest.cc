@@ -163,19 +163,17 @@ void CModelToolsTest::testProbabilityCache() {
     // Test the error introduced by caching the probability and that we
     // don't get any errors in the tailness we calculate for the value.
 
-    using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
     using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
-    using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     core_t::TTime bucketLength{1800};
 
     maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
     maths::CUnivariateTimeSeriesModel model{
-        params(bucketLength), 0, trend, multimodal(), nullptr, false};
+        params(bucketLength), 0, trend, multimodal(), nullptr, nullptr, false};
     test::CRandomNumbers rng;
 
     core_t::TTime time_{0};
@@ -230,28 +228,23 @@ void CModelToolsTest::testProbabilityCache() {
                 .seasonalConfidenceInterval(0.0)
                 .addBucketEmpty({false})
                 .addWeights(weights[0]);
-            double expectedProbability;
-            TTail2Vec expectedTail;
-            bool conditional;
-            TSize1Vec mostAnomalousCorrelate;
-            model.probability(params, time, sample, expectedProbability,
-                              expectedTail, conditional, mostAnomalousCorrelate);
+            maths::SModelProbabilityResult expectedResult;
+            model.probability(params, time, sample, expectedResult);
 
-            double probability;
-            TTail2Vec tail;
-            if (cache.lookup(feature, id, sample, probability, tail,
-                             conditional, mostAnomalousCorrelate)) {
+            maths::SModelProbabilityResult result;
+            if (cache.lookup(feature, id, sample, result)) {
                 ++hits;
-                error.add(std::fabs(probability - expectedProbability) / expectedProbability);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability,
-                                             0.05 * expectedProbability);
-                CPPUNIT_ASSERT_EQUAL(expectedTail[0], tail[0]);
-                CPPUNIT_ASSERT_EQUAL(false, conditional);
-                CPPUNIT_ASSERT(mostAnomalousCorrelate.empty());
+                error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
+                          expectedResult.s_Probability);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult.s_Probability,
+                                             result.s_Probability,
+                                             0.05 * expectedResult.s_Probability);
+                CPPUNIT_ASSERT_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
+                CPPUNIT_ASSERT_EQUAL(false, result.s_Conditional);
+                CPPUNIT_ASSERT(result.s_MostAnomalousCorrelate.empty());
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature, id, sample, expectedProbability,
-                                     expectedTail, false, mostAnomalousCorrelate);
+                cache.addProbability(feature, id, sample, expectedResult);
             }
         }
 
@@ -272,24 +265,18 @@ void CModelToolsTest::testProbabilityCache() {
                 .seasonalConfidenceInterval(0.0)
                 .addBucketEmpty({false})
                 .addWeights(weights[0]);
-            double expectedProbability;
-            TTail2Vec expectedTail;
-            bool conditional;
-            TSize1Vec mostAnomalousCorrelate;
-            model.probability(params, time, sample, expectedProbability,
-                              expectedTail, conditional, mostAnomalousCorrelate);
-            LOG_DEBUG(<< "probability = " << expectedProbability << ", tail = " << expectedTail);
+            maths::SModelProbabilityResult expectedResult;
+            model.probability(params, time, sample, expectedResult);
+            LOG_DEBUG(<< "probability = " << expectedResult.s_Probability
+                      << ", tail = " << expectedResult.s_Tail);
 
-            double probability;
-            TTail2Vec tail;
-            if (cache.lookup(feature, id, sample, probability, tail,
-                             conditional, mostAnomalousCorrelate)) {
+            maths::SModelProbabilityResult result;
+            if (cache.lookup(feature, id, sample, result)) {
                 // Shouldn't have any cache hits.
                 CPPUNIT_ASSERT(false);
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature, id, sample, expectedProbability,
-                                     expectedTail, false, mostAnomalousCorrelate);
+                cache.addProbability(feature, id, sample, expectedResult);
             }
         }
     }

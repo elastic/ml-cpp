@@ -64,13 +64,8 @@ struct MODEL_EXPORT SModelParams {
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;
 
-    //! The bucketLength to use for the models
-    core_t::TTime s_BucketLength;
-
-    //! The delimiter used for separating components of a multivariate
-    //! feature.
-    std::string s_MultivariateComponentDelimiter;
-
+    //! \name Time Series Model Parameters
+    //@{
     //! The rate at which the model learns per bucket.
     double s_LearnRate;
 
@@ -102,6 +97,31 @@ struct MODEL_EXPORT SModelParams {
     //! The maximum time to test for a change point in a time series.
     core_t::TTime s_MaximumTimeToTestForChange;
 
+    //! The number of time buckets used to generate multibucket features for anomaly
+    //! detection.
+    std::size_t s_MultibucketFeaturesWindowLength;
+
+    //! Should multivariate analysis of correlated 'by' fields be performed?
+    bool s_MultivariateByFields;
+
+    //! The maximum overhead as a multiple of the base number of priors for
+    //! modeling correlations.
+    double s_CorrelationModelsOverhead;
+
+    //! The minimum Pearson correlation coefficient at which a correlate will
+    //! be modeled.
+    double s_MinimumSignificantCorrelation;
+    //@}
+
+    //! \name Data Gatherering
+    //@{
+    //! The bucketLength to use for the models
+    core_t::TTime s_BucketLength;
+
+    //! The delimiter used for separating components of a multivariate
+    //! feature.
+    std::string s_MultivariateComponentDelimiter;
+
     //! Controls whether to exclude heavy hitters.
     model_t::EExcludeFrequent s_ExcludeFrequent;
 
@@ -114,10 +134,6 @@ struct MODEL_EXPORT SModelParams {
     //! The maximum number of times we'll update a metric model in a bucket.
     double s_MaximumUpdatesPerBucket;
 
-    //! The minimum value for the influence for which an influencing field
-    //! value is judged to have any influence on a feature value.
-    double s_InfluenceCutoff;
-
     //! The number of buckets that are within the latency window.
     std::size_t s_LatencyBuckets;
 
@@ -127,6 +143,12 @@ struct MODEL_EXPORT SModelParams {
     //! The factor that determines how much the sample queue grows.
     double s_SampleQueueGrowthFactor;
 
+    //! The time window during which samples are accepted.
+    core_t::TTime s_SamplingAgeCutoff;
+    //@}
+
+    //! \name Model Life-Cycle Management
+    //@{
     //! The scale factor of the decayRate that determines the minimum size
     //! of the sliding prune window for purging older entries from the model
     double s_PruneWindowScaleMinimum;
@@ -134,29 +156,25 @@ struct MODEL_EXPORT SModelParams {
     //! The scale factor of the decayRate that determines the maximum size
     //! of the sliding prune window for purging older entries from the model
     double s_PruneWindowScaleMaximum;
+    //@}
 
-    //! The maximum overhead as a multiple of the base number of priors for
-    //! modeling correlations.
-    double s_CorrelationModelsOverhead;
-
-    //! Should multivariate analysis of correlated 'by' fields be performed?
-    bool s_MultivariateByFields;
-
-    //! The minimum Pearson correlation coefficient at which a correlate will
-    //! be modeled.
-    double s_MinimumSignificantCorrelation;
-
+    //! \name Rules
+    //@{
     //! The detection rules for a detector.
     TDetectionRuleVecCRef s_DetectionRules;
 
     //! Scheduled events
     TStrDetectionRulePrVecCRef s_ScheduledEvents;
+    //@}
+
+    //! \name Results
+    //@{
+    //! The minimum value for the influence for which an influencing field
+    //! value is judged to have any influence on a feature value.
+    double s_InfluenceCutoff;
 
     //! The number of buckets to delay finalizing out-of-phase buckets.
     std::size_t s_BucketResultsDelay;
-
-    //! The collection of multiple bucket lengths (if any)
-    TTimeVec s_MultipleBucketLengths;
 
     //! The minimum data size to trigger fuzzy de-duplication of samples to add
     //! to population models.
@@ -164,9 +182,7 @@ struct MODEL_EXPORT SModelParams {
 
     //! If true then cache the results of the probability calculation.
     bool s_CacheProbabilities;
-
-    //! The time window during which samples are accepted.
-    core_t::TTime s_SamplingAgeCutoff;
+    //@}
 };
 }
 }

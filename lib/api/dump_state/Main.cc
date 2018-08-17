@@ -186,7 +186,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     std::string jobId("foo");
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, 0, false, "");
+            bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, 0, false);
 
     ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
                                  boost::bind(&reportPersistComplete, _1),
