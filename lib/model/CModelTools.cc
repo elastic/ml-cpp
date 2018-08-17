@@ -340,78 +340,73 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
 void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     std::size_t id,
                                                     const TDouble2Vec1Vec& value,
-                                                    double probability,
-                                                    const TTail2Vec& tail,
-                                                    bool conditional,
-                                                    const TSize1Vec& mostAnomalousCorrelate) {
+                                                    const maths::SModelProbabilityResult& result) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
-        m_Caches[{feature, id}].s_Probabilities.emplace(
-            value[0][0], SProbability{probability, tail, conditional, mostAnomalousCorrelate});
+        m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0], result);
     }
 }
 
 bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                             std::size_t id,
                                             const TDouble2Vec1Vec& value,
-                                            double& probability,
-                                            TTail2Vec& tail,
-                                            bool& conditional,
-                                            TSize1Vec& mostAnomalousCorrelate) const {
+                                            maths::SModelProbabilityResult& result) const {
     // The idea of this cache is to:
     //   1. Check that the requested value x is in a region where the
     //      probability as a function of value is monotonic
     //   2. Check that the difference in the probability at the end
     //      points of the interval [a, b] including x is less than the
-    //      required tolerance, hence by 1 that using the interpolated
-    //      value won't introduce an error greater than the tolerance.
+    //      required tolerance, so by 1 using the interpolated value
+    //      won't introduce an error greater than the tolerance.
     //
     // To achieve 1 we note that the function is monotonic on an interval
     // [a, b] if we can verify it doesn't contain more than one stationary
-    // points and the gradients satisfy P'(a) * P'(b) > 0.
+    // point and the gradients satisfy P'(a) * P'(b) > 0.
+
+    result = maths::SModelProbabilityResult{};
 
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         auto pos = m_Caches.find({feature, id});
         if (pos != m_Caches.end()) {
             double x{value[0][0]};
             const TDouble1Vec& modes{pos->second.s_Modes};
-            const TDoubleProbabilityFMap& probabilities{pos->second.s_Probabilities};
-            auto right = probabilities.lower_bound(x);
+            const TDoubleProbabilityFMap& cache{pos->second.s_Probabilities};
+            auto right = cache.lower_bound(x);
 
-            if (right != probabilities.end() && right->first == x) {
-                probability = right->second.s_Probability;
-                tail = right->second.s_Tail;
-                conditional = right->second.s_Conditional;
-                mostAnomalousCorrelate = right->second.s_MostAnomalousCorrelate;
+            if (right != cache.end() && right->first == x) {
+                result = right->second;
                 return true;
-            } else if (right != probabilities.end() &&
-                       right + 1 != probabilities.end() &&
-                       right != probabilities.begin() &&
-                       right - 1 != probabilities.begin() &&
-                       right - 2 != probabilities.begin()) {
+            } else if (cache.size() >= 4 && right < cache.end() - 2 &&
+                       right > cache.begin() + 1) {
                 auto left = right - 1;
-                double v[]{(left - 1)->first, left->first, right->first,
-                           (right + 1)->first};
-                auto beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
-                auto endModes = std::lower_bound(modes.begin(), modes.end(), v[3]);
-                LOG_TRACE(<< "v = " << core::CContainerPrinter::print(v));
+                if (this->canInterpolate(modes, left, right)) {
+                    double probabilities[]{(left - 1)->second.s_Probability,
+                                           (left)->second.s_Probability,
+                                           (right)->second.s_Probability,
+                                           (right + 1)->second.s_Probability};
+                    double tolerance{m_MaximumError *
+                                     std::min(probabilities[1], probabilities[2])};
+                    LOG_TRACE(<< "p = " << core::CContainerPrinter::print(probabilities));
 
-                if (beginModes == endModes &&
-                    left->second.s_Tail == right->second.s_Tail) {
-                    double p[]{(left - 1)->second.s_Probability,
-                               (left)->second.s_Probability, (right)->second.s_Probability,
-                               (right + 1)->second.s_Probability};
-                    LOG_TRACE(<< "p(v) = " << core::CContainerPrinter::print(p));
+                    if ((std::is_sorted(std::begin(probabilities), std::end(probabilities)) ||
+                         std::is_sorted(std::begin(probabilities), std::end(probabilities),
+                                        std::greater<double>())) &&
+                        std::fabs(probabilities[2] - probabilities[1]) <= tolerance) {
 
-                    if (std::is_sorted(p, p + 4, std::less<double>()) ||
-                        std::is_sorted(p, p + 4, std::greater<double>())) {
-                        auto nearest = x - v[1] < v[2] - x ? left : right;
-                        probability = (p[2] * (x - v[1]) + p[1] * (v[2] - x)) /
-                                      (v[2] - v[1]);
-                        tail = nearest->second.s_Tail;
-                        conditional = nearest->second.s_Conditional;
-                        mostAnomalousCorrelate = nearest->second.s_MostAnomalousCorrelate;
-                        return std::fabs(p[2] - p[1]) <=
-                               m_MaximumError * std::min(p[1], p[2]);
+                        double a{left->first};
+                        double b{right->first};
+                        auto interpolate = [a, b, x](double pa, double pb) {
+                            return (pa * (b - x) + pb * (x - a)) / (b - a);
+                        };
+
+                        auto nearest = x - a < b - x ? left : right;
+                        result.s_Probability = interpolate(
+                            left->second.s_Probability, right->second.s_Probability);
+                        result.s_FeatureProbabilities.emplace_back(
+                            left->second.s_FeatureProbabilities[0].s_Label,
+                            interpolate(left->second.s_FeatureProbabilities[0].s_Probability,
+                                        right->second.s_FeatureProbabilities[0].s_Probability));
+                        result.s_Tail = nearest->second.s_Tail;
+                        return true;
                     }
                 }
             }
@@ -419,6 +414,22 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
     }
 
     return false;
+}
+
+bool CModelTools::CProbabilityCache::canInterpolate(const TDouble1Vec& modes,
+                                                    TDoubleProbabilityFMapCItr left,
+                                                    TDoubleProbabilityFMapCItr right) const {
+    return left->second.s_Tail == right->second.s_Tail &&
+           std::all_of(left - 1, right + 2,
+                       [](const std::pair<double, maths::SModelProbabilityResult>& cached) {
+                           return cached.second.s_FeatureProbabilities.size() == 1;
+                       }) &&
+           std::none_of(left - 1, right + 2,
+                        [](const std::pair<double, maths::SModelProbabilityResult>& cached) {
+                            return cached.second.s_Conditional;
+                        }) &&
+           (std::lower_bound(modes.begin(), modes.end(), (left - 1)->first) ==
+            std::lower_bound(modes.begin(), modes.end(), (right + 1)->first));
 }
 }
 }

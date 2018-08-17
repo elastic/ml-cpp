@@ -122,17 +122,17 @@ void computeProbability(core_t::TTime time,
                         maths_t::EProbabilityCalculation calculation,
                         const TDouble2Vec& sample,
                         const maths::CModel& model,
-                        double& probablity,
+                        double& probability,
                         TTail2Vec& tail) {
     maths_t::TDouble2VecWeightsAry weight(
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
     maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation).addBucketEmpty(TBool2Vec{false}).addWeights(weight);
-    bool conditional;
-    TSize1Vec mostAnomalousCorrelate;
-    model.probability(params, {{time}}, {sample}, probablity, tail, conditional,
-                      mostAnomalousCorrelate);
+    maths::SModelProbabilityResult result;
+    model.probability(params, {{time}}, {sample}, result);
+    probability = result.s_Probability;
+    tail = std::move(result.s_Tail);
 }
 
 const std::string I("I");
@@ -1397,9 +1397,10 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
     maths::CMultivariateNormalConjugate<2> multivariatePrior =
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0, trend, prior);
-    maths::CMultivariateTimeSeriesModel multivariateModel(params(bucketLength),
-                                                          trend, multivariatePrior);
+    maths::CUnivariateTimeSeriesModel univariateModel(
+        params(bucketLength), 0, trend, prior, nullptr, nullptr, false);
+    maths::CMultivariateTimeSeriesModel multivariateModel(
+        params(bucketLength), trend, multivariatePrior, nullptr, nullptr, false);
 
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -1521,7 +1522,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, influences[0].second, 0.03);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.95, influences[0].second, 0.06);
         }
     }
     {
@@ -1583,7 +1584,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.7, influences[0].second, 0.03);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.75, influences[0].second, 0.05);
         }
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;

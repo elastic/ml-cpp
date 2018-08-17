@@ -56,6 +56,7 @@ double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculatio
     return 0.0;
 }
 
+const std::string EMPTY_STRING;
 const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
                                0.57, 0.54, 0.52, 0.51};
 
@@ -65,6 +66,8 @@ CModelParams stubParameters() {
         0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY};
 }
 }
+
+//////// CModelParams ////////
 
 CModelParams::CModelParams(core_t::TTime bucketLength,
                            double learnRate,
@@ -119,10 +122,7 @@ double CModelParams::probabilityBucketEmpty() const {
     return m_ProbabilityBucketEmpty;
 }
 
-CModelAddSamplesParams::CModelAddSamplesParams()
-    : m_Type(maths_t::E_MixedData), m_IsNonNegative(false),
-      m_PropagationInterval(1.0), m_TrendWeights(nullptr), m_PriorWeights(nullptr) {
-}
+//////// CModelAddSamplesParams ////////
 
 CModelAddSamplesParams& CModelAddSamplesParams::integer(bool integer) {
     m_Type = integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData;
@@ -173,9 +173,10 @@ CModelAddSamplesParams::priorWeights() const {
     return *m_PriorWeights;
 }
 
+//////// CModelProbabilityParams ////////
+
 CModelProbabilityParams::CModelProbabilityParams()
-    : m_Tag(0), m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL),
-      m_UpdateAnomalyModel(true) {
+    : m_SeasonalConfidenceInterval{DEFAULT_SEASONAL_CONFIDENCE_INTERVAL} {
 }
 
 CModelProbabilityParams& CModelProbabilityParams::tag(std::size_t tag) {
@@ -212,6 +213,11 @@ double CModelProbabilityParams::seasonalConfidenceInterval() const {
 
 CModelProbabilityParams& CModelProbabilityParams::addBucketEmpty(const TBool2Vec& empty) {
     m_BucketEmpty.push_back(empty);
+    return *this;
+}
+
+CModelProbabilityParams& CModelProbabilityParams::bucketEmpty(const TBool2Vec1Vec& empty) {
+    m_BucketEmpty = empty;
     return *this;
 }
 
@@ -258,14 +264,36 @@ CModelProbabilityParams::TOptionalSize CModelProbabilityParams::mostAnomalousCor
     return m_MostAnomalousCorrelate;
 }
 
-CModelProbabilityParams& CModelProbabilityParams::updateAnomalyModel(bool update) {
-    m_UpdateAnomalyModel = update;
+CModelProbabilityParams& CModelProbabilityParams::useMultibucketFeatures(bool use) {
+    m_UseMultibucketFeatures = use;
     return *this;
 }
 
-bool CModelProbabilityParams::updateAnomalyModel() const {
-    return m_UpdateAnomalyModel;
+bool CModelProbabilityParams::useMultibucketFeatures() const {
+    return m_UseMultibucketFeatures;
 }
+
+CModelProbabilityParams& CModelProbabilityParams::useAnomalyModel(bool use) {
+    m_UseAnomalyModel = use;
+    return *this;
+}
+
+bool CModelProbabilityParams::useAnomalyModel() const {
+    return m_UseAnomalyModel;
+}
+
+//////// SModelProbabilityResult::SFeatureProbability ////////
+
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
+    : s_Label{boost::cref(EMPTY_STRING)} {
+}
+
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability(const std::string& label,
+                                                                  double probability)
+    : s_Label{boost::cref(label)}, s_Probability{probability} {
+}
+
+//////// CModel ////////
 
 CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs) {
     switch (lhs) {
@@ -338,6 +366,8 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
     double pState = probabilityEmptyBucket[0] * probabilityEmptyBucket[1];
     return pState + (1.0 - pState) * probability;
 }
+
+//////// CModelStub ////////
 
 CModelStub::CModelStub() : CModel(stubParameters()) {
 }
@@ -427,14 +457,8 @@ bool CModelStub::forecast(core_t::TTime /*startTime*/,
 bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
                              const TTime2Vec1Vec& /*time*/,
                              const TDouble2Vec1Vec& /*value*/,
-                             double& probability,
-                             TTail2Vec& tail,
-                             bool& conditional,
-                             TSize1Vec& mostAnomalousCorrelate) const {
-    probability = 1.0;
-    tail.clear();
-    conditional = false;
-    mostAnomalousCorrelate.clear();
+                             SModelProbabilityResult& result) const {
+    result = SModelProbabilityResult{};
     return true;
 }
 

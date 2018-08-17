@@ -173,12 +173,11 @@ void importData(ml::core_t::TTime firstTime,
 }
 
 void CEventRateAnomalyDetectorTest::testAnomalies() {
-
-    // We have 10 instances of correlated 503s and unusual SQL statements
-    // and one significant drop in status 200s, which are the principal
+    // We have 10 instances of correlated 503s and rare SQL statements
+    // and one extended drop in status 200s, which are the principal
     // anomalies to find in this data set.
-    static const double HIGH_ANOMALY_SCORE(0.004);
-    static const size_t EXPECTED_ANOMALOUS_HOURS(11);
+    static const double HIGH_ANOMALY_SCORE(0.0019);
+    static const size_t EXPECTED_ANOMALOUS_HOURS(10);
 
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
