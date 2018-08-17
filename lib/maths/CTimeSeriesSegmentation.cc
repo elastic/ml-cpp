@@ -25,6 +25,13 @@ using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulat
 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TRegression = CRegression::CLeastSquaresOnline<1, double>;
+using TDoubleDoubleFunc = std::function<double(double)>;
+using TDoubleSizeFunc = std::function<double(std::size_t)>;
+
+//! Returns 1.0.
+double unit(std::size_t) {
+    return 1.0;
+}
 
 //! Fit a linear model to the values in [\p begin, \p end).
 template<typename ITR>
@@ -42,8 +49,7 @@ template<typename ITR>
 TDoubleVec fitPeriodicModel(ITR begin,
                             ITR end,
                             std::size_t period,
-                            const std::function<double(double)>& scale =
-                                [](std::size_t) { return 1.0; }) {
+                            const TDoubleSizeFunc& scale) {
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     TMeanAccumulatorVec levels(period);
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
@@ -64,7 +70,7 @@ bool reweightOutliers(ITR begin,
                       ITR end,
                       double startTime,
                       double dt,
-                      const std::function<double(double)>& predict,
+                      const TDoubleDoubleFunc& predict,
                       double fraction,
                       double weight) {
     using TDoublePtrPr = std::pair<double, typename std::iterator_traits<ITR>::value_type*>;
@@ -94,7 +100,7 @@ bool reweightOutliers(ITR begin,
 template<typename ITR>
 bool reweightOutliers(ITR begin,
                       ITR end,
-                      const std::function<double(std::size_t)>& predict,
+                      const TDoubleSizeFunc& predict,
                       double fraction,
                       double weight) {
     using TDoublePtrPr = std::pair<double, typename std::iterator_traits<ITR>::value_type*>;
@@ -253,11 +259,11 @@ CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(const TFloatMeanAccumulat
                                                        double outlierFraction,
                                                        double outlierWeight) {
     TFloatMeanAccumulatorVec values_(values);
-    TDoubleVec model(fitPeriodicModel(values.begin(), values.end(), period));
+    TDoubleVec model(fitPeriodicModel(values.begin(), values.end(), period, unit));
     reweightOutliers(values_.begin(), values_.end(),
                      [&model](std::size_t i) { return model[i % model.size()]; },
                      outlierFraction, outlierWeight);
-    model = fitPeriodicModel(values_.begin(), values_.end(), period);
+    model = fitPeriodicModel(values_.begin(), values_.end(), period, unit);
 
     TSizeVec segmentation{0, values.size()};
     fitTopDownPiecewiseLinearScaledPeriodic(values_.cbegin(), values_.cend(), 0, model,
@@ -447,7 +453,8 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
         double f{CBasicStatistics::variance(moments) /
                  (CBasicStatistics::variance(leftMoments + rightMoments) +
                   MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(CBasicStatistics::mean(mean)))};
-        double significance{CStatisticalTests::rightTailFTest(f, range - 3, range - 5)};
+        double significance{CStatisticalTests::rightTailFTest(
+            f, static_cast<double>(range - 3), static_cast<double>(range - 5))};
         LOG_TRACE(<< "  significance = " << significance);
 
         if (significance < significanceToSegment) {
@@ -472,7 +479,7 @@ CTimeSeriesSegmentation::fitPiecewiseLinear(TFloatMeanAccumulatorVec& values,
     double dt{10.0 / static_cast<double>(values.size())};
 
     TDoubleVec segmentEndTimes(segmentation.size() - 1,
-                               static_cast<double>(values.size() * dt));
+                               static_cast<double>(values.size()) * dt);
     TRegressionVec models(segmentation.size() - 1);
 
     auto predict = [&segmentEndTimes, &models](double time) {
@@ -587,7 +594,8 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
                   << ", right moments = " << rightMoments);
         double f{CBasicStatistics::variance(moments) /
                  CBasicStatistics::variance(leftMoments + rightMoments)};
-        double significance{CStatisticalTests::rightTailFTest(f, range - 1, range - 3)};
+        double significance{CStatisticalTests::rightTailFTest(
+            f, static_cast<double>(range - 1), static_cast<double>(range - 3))};
         LOG_TRACE(<< "  significance = " << significance);
 
         if (significance < 0.01) {
@@ -627,7 +635,10 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledPeriodic(
         auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
         return scales[(right - segmentation.begin()) - 1];
     };
-    auto predict = [&](std::size_t i) { return scale(i) * model[i % period]; };
+    auto predict = [&](std::size_t i) {
+        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
+        return scales[(right - segmentation.begin()) - 1] * model[i % period];
+    };
     auto fitScaledPeriodicModel = [&]() {
         for (std::size_t pass = 0; pass < 2; ++pass) {
             model = fitPeriodicModel(reweighted.begin(), reweighted.end(), period, scale);
@@ -640,7 +651,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledPeriodic(
     LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
 
     // First pass to re-weight any large outliers.
-    model = fitPeriodicModel(values.begin(), values.end(), period);
+    model = fitPeriodicModel(values.begin(), values.end(), period, unit);
     reweighted.assign(values.begin(), values.end());
     reweightOutliers(reweighted.begin(), reweighted.end(), predict,
                      outlierFraction, outlierWeight);

@@ -17,7 +17,7 @@ namespace ml {
 namespace maths {
 
 //! \brief Utility functionality to perform segmentation of a time series.
-class CTimeSeriesSegmentation {
+class MATHS_EXPORT CTimeSeriesSegmentation {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecDoubleVecPr = std::pair<TDoubleVec, TDoubleVec>;
