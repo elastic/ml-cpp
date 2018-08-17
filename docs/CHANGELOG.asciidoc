@@ -1,106 +1,47 @@
 // Use these for links to issue and pulls. Note issues and pulls redirect one to
 // each other on Github, so don't worry too much on using the right prefix.
-// :issue: https://github.com/elastic/elasticsearch/issues/
-// :pull: https://github.com/elastic/elasticsearch/pull/
+//:issue:           https://github.com/elastic/elasticsearch/issues/
+//:ml-issue:        https://github.com/elastic/ml-cpp/issues/
+//:pull:            https://github.com/elastic/elasticsearch/pull/
+//:ml-pull:         https://github.com/elastic/ml-cpp/pull/
 
 = Elasticsearch Release Notes
 
-== Elasticsearch 7.0.0
+////
+// To add a release, copy and paste the following text,  uncomment the relevant
+// sections, and add a link to the new section in the list of releases at the
+// top of the page. Note that release subheads must be floated and sections
+// cannot be empty.
+// TEMPLATE:
 
-=== Breaking Changes
+// == {es} version n.n.n
 
-=== Deprecations
+//=== Breaking Changes
 
-=== New Features
+//=== Deprecations
+
+//=== New Features
+
+//=== Enhancements
+
+//=== Bug Fixes
+
+//=== Regressions
+
+ == {es} version 6.5.0
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
 
 === Enhancements
 
-=== Bug Fixes
-
-=== Regressions
-
-=== Known Issues
-
-== Elasticsearch 6.5.0
-
-=== Breaking Changes
-
-=== Deprecations
-
-=== New Features
-
-=== Enhancements
 Perform anomaly detection on features derived from multiple bucket values to improve robustness
 of detection with respect to misconfigured bucket lengths and improve detection of long lasting
-anomalies. ({pull}175[#175])
+anomalies. (See {pull}175[#175].)
 
-=== Bug Fixes
+//=== Bug Fixes
 
-=== Regressions
-
-=== Known Issues
-
-== Elasticsearch version 6.4.0
-
-=== New Features
-
-Detectors now support rules that allow the user to improve the results by providing some domain specific
-knowledge in the form of rule. ({pull}119[#119])
-
-=== Enhancements
-
-Improve and use periodic boundary condition for seasonal component modeling ({pull}84[#84])
-Improve robustness w.r.t. outliers of detection and initialisation of seasonal components ({pull}90[#90])
-Improve behavior when there are abrupt changes in the seasonal components present in a time series ({pull}91[#91])
-Explicit change point detection and modelling ({pull}92[#92])
-Improve partition analysis memory usage ({pull}97[#97])
-Reduce model memory by storing state for periodicity testing in a compressed format ({pull}100[#100])
-Improve the accuracy of model memory control ({pull}122[#122])
-Improve adaption of the modelling of cyclic components to very localised features ({pull}134[#134])
-Reduce the memory consumed by distribution models ({pull}146[#146])
-
-Forecasting of Machine Learning job time series is now supported for large jobs by temporarily storing
-model state on disk ({pull}89[#89])
-
-Secure the ML processes by preventing system calls such as fork and exec. The Linux implemenation uses
-Seccomp BPF to intercept system calls and is available in kernels since 3.5. On Windows Job Objects prevent
-new processes being created and macOS uses the sandbox functionality ({pull}98[#98])
-
-Fix a bug causing us to under estimate the memory used by shared pointers and reduce the memory consumed
-by unnecessary reference counting ({pull}108[#108])
-
-Reduce model memory by storing state for testing for predictive calendar features in a compressed format
-({pull}127[#127])
-
-=== Bug Fixes
-
-Age seasonal components in proportion to the fraction of values with which they're updated ({pull}88[#88])
-Persist and restore was missing some of the trend model state ({pull}#99[#99])
-Stop zero variance data generating a log error in the forecast confidence interval calculation ({pull}#107[#107])
-Fix corner case failing to calculate lgamma values and the correspoinding log errors ({pull}#126[#126])
-Influence count per bucket for metric population analyses was wrong and lead to wrong influencer scoring ({pull}#150[#150])
-Fix a possible SIGSEGV for jobs with multivariate by fields enabled which would lead to the job failing ({pull}#170[#170])
-
-Correct the model bounds and typical value calculation for time series models which use a multimodal distribution.
-This issue could cause "Unable to bracket left percentile =..." errors to appear in the logs. ({pull}#176[#176])
-
-=== Regressions
-
-=== Known Issues
-
-== Elasticsearch version 6.3.0
-
-=== New Features
-
-=== Enhancements
-
-=== Bug Fixes
-
-Function description for population lat_long results should be lat_long instead of mean ({pull}81[#81])
-By-fields should respect model_plot_config.terms ({pull}86[#86])
-The trend decomposition state wasn't being correctly upgraded potentially causing the autodetect process to abort ({pull}136[#136])
-Fix a SIGSEGV in the autodetect process when jump upgrading from 5.6 to 6.3 ({pull}143[#143])
-
-=== Regressions
-
-=== Known Issues
+//=== Regressions
