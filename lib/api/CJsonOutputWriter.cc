@@ -70,7 +70,6 @@ const std::string EXAMPLES("examples");
 const std::string BUCKET_SPAN("bucket_span");
 const std::string PROCESSING_TIME("processing_time_ms");
 const std::string TIME_INFLUENCER("bucket_time");
-const std::string PARTITION_SCORES("partition_scores");
 const std::string SCHEDULED_EVENTS("scheduled_events");
 const std::string QUANTILES("quantiles");
 
@@ -187,14 +186,6 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
         newDoc = m_Writer.makeStorableDoc();
         this->addPopulationCauseFields(results, newDoc);
         m_NestedDocs.push_back(newDoc);
-
-        return true;
-    }
-
-    if (results.s_ResultType == CHierarchicalResultsWriter::E_PartitionResult) {
-        TDocumentWeakPtr partitionDoc = m_Writer.makeStorableDoc();
-        this->addPartitionScores(results, partitionDoc);
-        bucketData.s_PartitionScoreDocuments.push_back(partitionDoc);
 
         return true;
     }
@@ -513,26 +504,6 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         m_Writer.EndArray();
     }
 
-    if (!bucketData.s_PartitionScoreDocuments.empty()) {
-        // Write the array of partition-anonaly score pairs
-        m_Writer.String(PARTITION_SCORES);
-        m_Writer.StartArray();
-        for (TDocumentWeakPtrVecItr partitionScoresIter =
-                 bucketData.s_PartitionScoreDocuments.begin();
-             partitionScoresIter != bucketData.s_PartitionScoreDocuments.end();
-             ++partitionScoresIter) {
-            TDocumentWeakPtr weakDoc = *partitionScoresIter;
-            TDocumentPtr docPtr = weakDoc.lock();
-            if (!docPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
-                continue;
-            }
-
-            m_Writer.write(*docPtr);
-        }
-        m_Writer.EndArray();
-    }
-
     m_Writer.String(PROCESSING_TIME);
     m_Writer.Uint64(bucketProcessingTime);
 
@@ -814,24 +785,6 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
                 INFLUENCER_FIELD_VALUE, *node.s_Spec.s_PersonFieldValue, *docPtr, true);
         }
     }
-}
-
-void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
-                                           TDocumentWeakPtr weakDoc) {
-    TDocumentPtr docPtr = weakDoc.lock();
-    if (!docPtr) {
-        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
-        return;
-    }
-
-    m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
-    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
-                                     results.s_PartitionFieldName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
-                                     results.s_PartitionFieldValue, *docPtr, true);
-    m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE,
-                                 results.s_NormalizedAnomalyScore, *docPtr);
-    m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
 }
 
 void CJsonOutputWriter::limitNumberRecords(size_t count) {

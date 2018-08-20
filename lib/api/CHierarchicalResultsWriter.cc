@@ -126,7 +126,6 @@ void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults& result
     } else {
         this->writePopulationResult(results, node);
         this->writeIndividualResult(results, node);
-        this->writePartitionResult(results, node);
         this->writeSimpleCountResult(node);
     }
 }
@@ -252,34 +251,6 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
         model_t::outputFunctionName(feature), node.s_AnnotatedProbability.s_BaselineBucketCount,
         node.s_AnnotatedProbability.s_CurrentBucketCount,
         attributeProbability.s_BaselineBucketMean, attributeProbability.s_CurrentBucketValue,
-        node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
-        *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
-        node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
-        node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST));
-}
-
-void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchicalResults& results,
-                                                      const TNode& node) {
-    if (!m_ModelConfig.perPartitionNormalization() || this->isSimpleCount(node) ||
-        this->isPopulation(node) || !this->isPartition(node) ||
-        !this->shouldWriteResult(m_Limits, results, node, false)) {
-        return;
-    }
-
-    model_t::EFeature feature =
-        node.s_AnnotatedProbability.s_AttributeProbabilities.empty()
-            ? model_t::E_IndividualCountByBucketAndPerson
-            : node.s_AnnotatedProbability.s_AttributeProbabilities[0].s_Feature;
-
-    TDouble1Vec emptyDoubleVec;
-
-    m_ResultWriterFunc(TResults(
-        E_PartitionResult, *node.s_Spec.s_PartitionFieldName,
-        *node.s_Spec.s_PartitionFieldValue, *node.s_Spec.s_ByFieldName,
-        *node.s_Spec.s_PersonFieldValue, EMPTY_STRING, node.s_BucketStartTime,
-        *node.s_Spec.s_FunctionName, model_t::outputFunctionName(feature),
-        node.s_AnnotatedProbability.s_BaselineBucketCount,
-        node.s_AnnotatedProbability.s_CurrentBucketCount, emptyDoubleVec, emptyDoubleVec,
         node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),

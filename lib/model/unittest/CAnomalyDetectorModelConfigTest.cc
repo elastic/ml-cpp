@@ -116,7 +116,6 @@ void CAnomalyDetectorModelConfigTest::testNormal() {
         CPPUNIT_ASSERT_EQUAL(
             std::string("[(0, 0), (70, 1.5), (85, 1.6), (90, 1.7), (95, 2), (97, 10), (98, 20), (99.5, 50), (100, 100)]"),
             core::CContainerPrinter::print(config.normalizedScoreKnotPoints()));
-        CPPUNIT_ASSERT_EQUAL(false, config.perPartitionNormalization());
     }
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
@@ -140,7 +139,6 @@ void CAnomalyDetectorModelConfigTest::testNormal() {
             config.factory(1, function_t::E_PopulationRare).get()));
         CPPUNIT_ASSERT(dynamic_cast<const CCountingModelFactory*>(
             config.factory(CSearchKey::simpleCountKey()).get()));
-        CPPUNIT_ASSERT_EQUAL(false, config.perPartitionNormalization());
     }
 }
 

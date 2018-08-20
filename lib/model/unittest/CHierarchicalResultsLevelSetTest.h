@@ -10,7 +10,7 @@
 
 class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture {
 public:
-    void testElementsWithPerPartitionNormalisation();
+    void testElements();
 
     static CppUnit::Test* suite();
 };

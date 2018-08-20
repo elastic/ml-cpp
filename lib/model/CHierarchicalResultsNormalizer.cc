@@ -110,8 +110,7 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                                            bool pivot) {
     CNormalizerFactory factory(m_ModelConfig);
     TNormalizerPtrVec normalizers;
-    this->elements(node, pivot, factory, normalizers,
-                   m_ModelConfig.perPartitionNormalization());
+    this->elements(node, pivot, factory, normalizers);
 
     if (normalizers.empty()) {
         return;

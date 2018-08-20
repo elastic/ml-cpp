@@ -162,9 +162,6 @@ public:
         // when the number to write is limited
         double s_LowestBucketInfluencerScore;
 
-        //! Partition scores
-        TDocumentWeakPtrVec s_PartitionScoreDocuments;
-
         //! scheduled event descriptions
         TStr1Vec s_ScheduledEventDescriptions;
     };
@@ -303,10 +300,6 @@ private:
     //! Write the influence results.
     void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
                        TDocumentWeakPtr weakDoc);
-
-    //! Write partition score & probability
-    void addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
-                            TDocumentWeakPtr weakDoc);
 
 private:
     //! The job ID
