@@ -418,12 +418,6 @@ public:
     const TDoubleDoublePrVec& normalizedScoreKnotPoints() const;
     //@}
 
-    //! Check if we should create one normalizer per partition field value.
-    bool perPartitionNormalization() const;
-
-    //! Set whether we should create one normalizer per partition field value.
-    void perPartitionNormalization(bool value);
-
     //! Sets the reference to the detection rules map
     void detectionRules(TIntDetectionRuleVecUMapCRef detectionRules);
 
@@ -494,9 +488,6 @@ private:
     //! and the normalized anomaly score with these knot points.
     //! \see DEFAULT_NORMALIZED_SCORE_KNOT_POINTS for details.
     TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
-
-    //! If true then create one normalizer per partition field value.
-    bool m_PerPartitionNormalisation;
     //@}
 
     //! A reference to the map containing detection rules per

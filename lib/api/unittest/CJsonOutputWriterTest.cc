@@ -72,8 +72,6 @@ CppUnit::Test* CJsonOutputWriterTest::suite() {
         "CJsonOutputWriterTest::testPersistNormalizer",
         &CJsonOutputWriterTest::testPersistNormalizer));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testPartitionScores", &CJsonOutputWriterTest::testPartitionScores));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
         "CJsonOutputWriterTest::testReportMemoryUsage",
         &CJsonOutputWriterTest::testReportMemoryUsage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
@@ -1546,78 +1544,6 @@ void CJsonOutputWriterTest::testPersistNormalizer() {
                          std::string(quantileState["job_id"].GetString()));
     CPPUNIT_ASSERT(quantileState.HasMember("quantile_state"));
     CPPUNIT_ASSERT(quantileState.HasMember("timestamp"));
-}
-
-void CJsonOutputWriterTest::testPartitionScores() {
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig();
-
-    std::ostringstream sstream;
-    {
-        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
-        ml::api::CJsonOutputWriter writer("job", outputStream);
-
-        std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-
-        std::string partitionFieldName("part1");
-
-        for (int i = 0; i < 4; ++i) {
-            // For the first iteration use an empty string for the value
-            std::string partitionFieldValue;
-            if (i > 0) {
-                partitionFieldValue = 'p' + ml::core::CStringUtils::typeToString(i);
-            }
-            ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_PartitionResult,
-                partitionFieldName, partitionFieldValue, emptyString,
-                emptyString, emptyString, 1, emptyString, emptyString, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 0.0,
-                double(i), // normalised anomaly score
-                0.1, emptyString, influences, false, true, 1, 100, EMPTY_STRING_LIST);
-
-            writer.acceptResult(result);
-        }
-
-        writer.endOutputBatch(false, 1ul);
-    }
-
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
-
-    LOG_DEBUG(<< sstream.str());
-
-    const rapidjson::Value& bucketWrapper = doc[rapidjson::SizeType(0)];
-    CPPUNIT_ASSERT(bucketWrapper.HasMember("bucket"));
-    const rapidjson::Value& bucket = bucketWrapper["bucket"];
-    CPPUNIT_ASSERT(bucket.HasMember("partition_scores"));
-    const rapidjson::Value& partitionScores = bucket["partition_scores"];
-
-    CPPUNIT_ASSERT(partitionScores.IsArray());
-    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(4), partitionScores.Size());
-
-    for (rapidjson::SizeType i = 0; i < partitionScores.Size(); ++i) {
-        const rapidjson::Value& pDoc = partitionScores[i];
-        CPPUNIT_ASSERT(pDoc.IsObject());
-        CPPUNIT_ASSERT(pDoc.HasMember("probability"));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, pDoc["probability"].GetDouble(), 0.01);
-        CPPUNIT_ASSERT(pDoc.HasMember("record_score"));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(double(i), pDoc["record_score"].GetDouble(), 0.01);
-        CPPUNIT_ASSERT(pDoc.HasMember("initial_record_score"));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(double(i),
-                                     pDoc["initial_record_score"].GetDouble(), 0.01);
-
-        CPPUNIT_ASSERT(pDoc.HasMember("partition_field_name"));
-        CPPUNIT_ASSERT_EQUAL(std::string("part1"),
-                             std::string(pDoc["partition_field_name"].GetString()));
-        std::string fieldValue;
-        if (i > 0) {
-            fieldValue = 'p' + ml::core::CStringUtils::typeToString(i);
-        }
-        CPPUNIT_ASSERT(pDoc.HasMember("partition_field_value"));
-        CPPUNIT_ASSERT_EQUAL(
-            fieldValue, std::string(pDoc["partition_field_value"].GetString()));
-    }
 }
 
 void CJsonOutputWriterTest::testReportMemoryUsage() {
