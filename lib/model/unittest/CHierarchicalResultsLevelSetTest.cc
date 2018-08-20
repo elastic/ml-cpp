@@ -17,8 +17,8 @@ CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
-        "CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation",
-        &CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation));
+        "CHierarchicalResultsLevelSetTest::testElements",
+        &CHierarchicalResultsLevelSetTest::testElements));
 
     return suiteOfTests;
 }
@@ -66,7 +66,7 @@ void print(const TestNode* node) {
     std::cout << "'" << node->s_Name << "'" << std::endl;
 }
 
-void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation() {
+void CHierarchicalResultsLevelSetTest::testElements() {
     // This is intentionally NOT an empty string from the string store, but
     // instead a completely separate empty string, such that its pointer will be
     // different to other empty string pointers.  (In general, if you need
@@ -102,35 +102,9 @@ void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation
 
     std::vector<TestNode*> result;
 
-    // without per partition normalization
-    {
-        CConcreteHierarchicalResultsLevelSet levelSet(root);
-        levelSet.elements(node, false, CTestNodeFactory(), result, false);
-        std::for_each(result.begin(), result.end(), print);
-        CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("pA"), result[0]->s_Name);
-    }
-
-    // with per partition normalization
-    {
-        CConcreteHierarchicalResultsLevelSet levelSet(root);
-        levelSet.elements(node, false, CTestNodeFactory(), result, true);
-
-        CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("pAv1"), result[0]->s_Name);
-
-        ml::model::hierarchical_results_detail::SResultSpec specB;
-        specB.s_PartitionFieldName = PARTITION_B;
-        specB.s_PartitionFieldValue = PARTITION_VALUE_1;
-
-        CConcreteHierarchicalResultsLevelSet::TNode nodeB(specB, emptyAnnotatedProb);
-        nodeB.s_Parent = &parent;
-        nodeB.s_Children.push_back(&child);
-
-        levelSet.elements(nodeB, false, CTestNodeFactory(), result, true);
-
-        std::for_each(result.begin(), result.end(), print);
-        CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("pBv1"), result[0]->s_Name);
-    }
+    CConcreteHierarchicalResultsLevelSet levelSet(root);
+    levelSet.elements(node, false, CTestNodeFactory(), result);
+    std::for_each(result.begin(), result.end(), print);
+    CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
+    CPPUNIT_ASSERT_EQUAL(std::string("pA"), result[0]->s_Name);
 }

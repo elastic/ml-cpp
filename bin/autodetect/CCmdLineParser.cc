@@ -52,7 +52,6 @@ bool CCmdLineParser::parse(int argc,
                            bool& memoryUsage,
                            std::size_t& bucketResultsDelay,
                            bool& multivariateByFields,
-                           bool& perPartitionNormalization,
                            TStrVec& clauseTokens) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -116,8 +115,6 @@ bool CCmdLineParser::parse(int argc,
                         "The numer of half buckets to store before choosing which overlapping bucket has the biggest anomaly")
             ("multivariateByFields",
                         "Optional flag to enable multi-variate analysis of correlated by fields")
-            ("perPartitionNormalization",
-                        "Optional flag to enable per partition normalization")
         ;
         // clang-format on
 
@@ -230,9 +227,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("multivariateByFields") > 0) {
             multivariateByFields = true;
-        }
-        if (vm.count("perPartitionNormalization") > 0) {
-            perPartitionNormalization = true;
         }
 
         boost::program_options::collect_unrecognized(

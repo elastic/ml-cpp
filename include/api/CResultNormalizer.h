@@ -93,15 +93,6 @@ private:
                          std::string& valueFieldName,
                          double& probability);
 
-    bool parseDataFields(const TStrStrUMap& dataRowFields,
-                         std::string& level,
-                         std::string& partition,
-                         std::string& partitionValue,
-                         std::string& person,
-                         std::string& function,
-                         std::string& valueFieldName,
-                         double& probability);
-
     template<typename T>
     bool parseDataField(const TStrStrUMap& dataRowFields,
                         const std::string& fieldName,

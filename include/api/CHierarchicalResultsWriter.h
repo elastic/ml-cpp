@@ -51,12 +51,7 @@ public:
     using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 public:
-    enum EResultType {
-        E_SimpleCountResult,
-        E_PopulationResult,
-        E_PartitionResult,
-        E_Result
-    };
+    enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };
     //! Type which wraps up the results of anomaly detection.
     struct API_EXPORT SResults {
         //! Construct for population results
@@ -167,9 +162,6 @@ private:
     //! Write out the pivot (influencer) result if \p node is a
     //! pivot.
     void writePivotResult(const model::CHierarchicalResults& results, const TNode& node);
-
-    //! Write partition result if \p node is a partition level result
-    void writePartitionResult(const model::CHierarchicalResults& results, const TNode& node);
 
     //! Write out a simple count result if \p node is simple
     //! count.
