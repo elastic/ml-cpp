@@ -73,8 +73,9 @@ const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(16 * core::constants::HOUR);
 const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(core::constants::DAY);
+const std::size_t CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURES_WINDOW_LENGTH(12);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
-const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.5);
+const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.4);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM(4.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_CORRELATION_MODELS_OVERHEAD(3.0);
@@ -104,8 +105,7 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
                                            const std::string& summaryCountFieldName,
                                            core_t::TTime latency,
                                            std::size_t bucketResultsDelay,
-                                           bool multivariateByFields,
-                                           const std::string& multipleBucketLengths) {
+                                           bool multivariateByFields) {
     bucketLength = detail::validateBucketLength(bucketLength);
 
     double learnRate = DEFAULT_LEARN_RATE * bucketNormalizationFactor(bucketLength);
@@ -117,8 +117,6 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
     params.s_ExcludeFrequent = model_t::E_XF_None;
     params.configureLatency(latency, bucketLength);
     params.s_BucketResultsDelay = bucketResultsDelay;
-    params.s_MultipleBucketLengths = CAnomalyDetectorModelConfig::multipleBucketLengths(
-        bucketLength, multipleBucketLengths);
 
     TInterimBucketCorrectorPtr interimBucketCorrector =
         std::make_shared<CInterimBucketCorrector>(bucketLength);
@@ -173,8 +171,7 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
       m_NoiseMultiplier(DEFAULT_NOISE_MULTIPLIER),
       m_NormalizedScoreKnotPoints(boost::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
                                   boost::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
-      m_PerPartitionNormalisation(false), m_DetectionRules(EMPTY_RULES_MAP),
-      m_ScheduledEvents(EMPTY_EVENTS) {
+      m_DetectionRules(EMPTY_RULES_MAP), m_ScheduledEvents(EMPTY_EVENTS) {
     for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
         for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
             m_AggregationStyleParams[i][j] = DEFAULT_AGGREGATION_STYLE_PARAMS[i][j];
@@ -193,34 +190,17 @@ void CAnomalyDetectorModelConfig::bucketResultsDelay(std::size_t delay) {
     m_BucketResultsDelay = delay;
 }
 
-CAnomalyDetectorModelConfig::TTimeVec
-CAnomalyDetectorModelConfig::multipleBucketLengths(core_t::TTime bucketLength,
-                                                   const std::string& multipleBucketLengths) {
-    TStrVec multiBucketTokens;
-    core::CRegex regex;
-    regex.init(",");
-    regex.split(multipleBucketLengths, multiBucketTokens);
-    TTimeVec multiBuckets;
-    for (TStrVecCItr itr = multiBucketTokens.begin();
-         itr != multiBucketTokens.end(); ++itr) {
-        core_t::TTime t = 0;
-        if (core::CStringUtils::stringToType(*itr, t)) {
-            if ((t <= bucketLength) || (t % bucketLength != 0)) {
-                LOG_ERROR(<< "MultipleBucketLength " << t
-                          << " must be a multiple of " << bucketLength);
-                return TTimeVec();
-            }
-            multiBuckets.push_back(t);
-        }
-    }
-    std::sort(multiBuckets.begin(), multiBuckets.end());
-    return multiBuckets;
-}
-
 void CAnomalyDetectorModelConfig::interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector) {
     m_InterimBucketCorrector = interimBucketCorrector;
     for (auto& factory : m_Factories) {
         factory.second->interimBucketCorrector(m_InterimBucketCorrector);
+    }
+}
+
+void CAnomalyDetectorModelConfig::useMultibucketFeatures(bool enabled) {
+    for (auto& factory : m_Factories) {
+        factory.second->multibucketFeaturesWindowLength(
+            enabled ? MULTIBUCKET_FEATURES_WINDOW_LENGTH : 0);
     }
 }
 
@@ -732,14 +712,6 @@ CAnomalyDetectorModelConfig::normalizedScoreKnotPoints() const {
     return m_NormalizedScoreKnotPoints;
 }
 
-bool CAnomalyDetectorModelConfig::perPartitionNormalization() const {
-    return m_PerPartitionNormalisation;
-}
-
-void CAnomalyDetectorModelConfig::perPartitionNormalization(bool value) {
-    m_PerPartitionNormalisation = value;
-}
-
 void CAnomalyDetectorModelConfig::detectionRules(TIntDetectionRuleVecUMapCRef detectionRules) {
     m_DetectionRules = detectionRules;
 }
@@ -769,7 +741,6 @@ const std::string MAXIMUM_ANOMALOUS_PROBABILITY_PROPERTY("maximumanomalousprobab
 const std::string NOISE_PERCENTILE_PROPERTY("noisepercentile");
 const std::string NOISE_MULTIPLIER_PROPERTY("noisemultiplier");
 const std::string NORMALIZED_SCORE_KNOT_POINTS("normalizedscoreknotpoints");
-const std::string PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalization");
 }
 
 bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptree& propertyTree) {
@@ -1007,8 +978,6 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
             points.emplace_back(100.0, 100.0);
             this->normalizedScoreKnotPoints(points);
-        } else if (propName == PER_PARTITION_NORMALIZATION_PROPERTY) {
-
         } else {
             LOG_WARN(<< "Ignoring unknown property " << propName);
         }

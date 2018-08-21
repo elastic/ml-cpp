@@ -43,8 +43,7 @@ public:
                       bool& isOutputFileNamedPipe,
                       std::string& quantilesState,
                       bool& deleteStateFiles,
-                      bool& writeCsv,
-                      bool& perPartitionNormalization);
+                      bool& writeCsv);
 
 private:
     static const std::string DESCRIPTION;

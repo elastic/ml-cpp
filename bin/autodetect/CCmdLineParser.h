@@ -64,8 +64,6 @@ public:
                       bool& memoryUsage,
                       std::size_t& bucketResultsDelay,
                       bool& multivariateByFields,
-                      std::string& multipleBucketspans,
-                      bool& perPartitionNormalization,
                       TStrVec& clauseTokens);
 
 private:

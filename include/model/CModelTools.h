@@ -11,6 +11,7 @@
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
 
+#include <maths/CModel.h>
 #include <maths/CMultivariatePrior.h>
 #include <maths/COrderings.h>
 #include <maths/CPRNG.h>
@@ -226,58 +227,30 @@ public:
         //!
         //! \param[in] id The unique model identifier.
         //! \param[in] value The value.
-        //! \param[in] probability The result of running the probability
-        //! calculation for \p value.
-        //! \param[in] tail The tail of \p value.
-        //! \param[in] conditional True if the probability depends on the
-        //! correlation structure and false otherwise.
-        //! \param[in] mostAnomalousCorrelate The identifier of the most
-        //! anomalous correlate (or empty if there isn't one).
+        //! \param[in] result The result of a model probability calculation.
         void addProbability(model_t::EFeature feature,
                             std::size_t id,
                             const TDouble2Vec1Vec& value,
-                            double probability,
-                            const TTail2Vec& tail,
-                            bool conditional,
-                            const TSize1Vec& mostAnomalousCorrelate);
+                            const maths::SModelProbabilityResult& result);
 
         //! Try to lookup the probability of \p value in cache.
         //!
         //! \param[in] id The unique model identifier.
         //! \param[in] value The value.
-        //! \param[out] probability An estimate of the probability
-        //! corresponding to \p likelihood.
-        //! \param[out] tail The tail of \p value.
-        //! \param[out] conditional True if the probability depends on the
-        //! correlation structure and false otherwise.
-        //! \param[out] mostAnomalousCorrelate The identifier of the most
-        //! anomalous correlate (or empty if there isn't one).
+        //! \param[out] result An estimate of the result of the model
+        //! probability calculation if it is available.
         //! \return True if the probability can be estimated within an
         //! acceptable error and false otherwise.
         bool lookup(model_t::EFeature feature,
                     std::size_t id,
                     const TDouble2Vec1Vec& value,
-                    double& probability,
-                    TTail2Vec& tail,
-                    bool& conditional,
-                    TSize1Vec& mostAnomalousCorrelate) const;
+                    maths::SModelProbabilityResult& result) const;
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
-
-        //! \brief A cache of the result of a probability calculation.
-        struct MODEL_EXPORT SProbability {
-            //! The value's probability.
-            double s_Probability;
-            //! The tail the value is in.
-            TTail2Vec s_Tail;
-            //! True if the probability depends on correlation structure.
-            bool s_Conditional;
-            //! The pairwise correlation with lowest probability.
-            TSize1Vec s_MostAnomalousCorrelate;
-        };
-
-        using TDoubleProbabilityFMap = boost::container::flat_map<double, SProbability>;
+        using TDoubleProbabilityFMap =
+            boost::container::flat_map<double, maths::SModelProbabilityResult>;
+        using TDoubleProbabilityFMapCItr = TDoubleProbabilityFMap::const_iterator;
 
         //! \brief A cache of all the results of a probability calculation
         //! for a specific model.
@@ -293,6 +266,12 @@ public:
         using TFeatureSizePr = std::pair<model_t::EFeature, std::size_t>;
         using TFeatureSizePrProbabilityCacheUMap =
             boost::unordered_map<TFeatureSizePr, SProbabilityCache>;
+
+    private:
+        //! Check if we can interpolate the probability on [\p left, \p right].
+        bool canInterpolate(const TDouble1Vec& modes,
+                            TDoubleProbabilityFMapCItr left,
+                            TDoubleProbabilityFMapCItr right) const;
 
     private:
         //! The maximum relative error we'll tolerate in the probability.

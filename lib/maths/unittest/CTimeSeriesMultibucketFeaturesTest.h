@@ -3,16 +3,18 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CHierarchicalResultsLevelSetTest_h
-#define INCLUDED_CHierarchicalResultsLevelSetTest_h
+
+#ifndef INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
+#define INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture {
+class CTimeSeriesMultibucketFeaturesTest : public CppUnit::TestFixture {
 public:
-    void testElements();
+    void testUnivariateMean();
+    void testMultivariateMean();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CHierarchicalResultsLevelSetTest_h
+#endif // INCLUDED_CTimeSeriesMultibucketFeaturesTest_h

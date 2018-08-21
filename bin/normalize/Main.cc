@@ -54,12 +54,10 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles(false);
     bool writeCsv(false);
-    bool perPartitionNormalization(false);
     if (ml::normalize::CCmdLineParser::parse(
-            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
-            lengthEncodedInput, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, quantilesStateFile,
-            deleteStateFiles, writeCsv, perPartitionNormalization) == false) {
+            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan, lengthEncodedInput,
+            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            quantilesStateFile, deleteStateFiles, writeCsv) == false) {
         return EXIT_FAILURE;
     }
 
@@ -93,7 +91,6 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
-    modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;

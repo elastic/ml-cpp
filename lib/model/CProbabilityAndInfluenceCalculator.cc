@@ -162,8 +162,7 @@ public:
         for (std::size_t i = 0u; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
-        params.addBucketEmpty({n == ni});
-
+        params.bucketEmpty({{n == ni}});
         return true;
     }
 
@@ -178,12 +177,11 @@ public:
             return false;
         }
         TBool2Vec bucketEmpty(2);
-        for (std::size_t i = 0u; i < v.size(); ++i) {
-            bucketEmpty[i] = ((n[i] - ni[i]) == 0);
-            difference[i] = v[i] - vi[i];
+        for (std::size_t d = 0u; d < 2; ++d) {
+            bucketEmpty[d] = (n[d] == ni[d]);
+            difference[d] = v[d] - vi[d];
         }
-        params.addBucketEmpty(bucketEmpty);
-
+        params.bucketEmpty({bucketEmpty});
         return true;
     }
 };
@@ -201,8 +199,7 @@ public:
         for (std::size_t i = 0u; i < vi.size(); ++i) {
             intersection[i] = vi[i];
         }
-        params.addBucketEmpty({ni == 0});
-
+        params.bucketEmpty({{ni == 0}});
         return true;
     }
 
@@ -215,12 +212,11 @@ public:
                     TDouble2Vec& intersection) const {
 
         TBool2Vec bucketEmpty(2);
-        for (std::size_t i = 0u; i < vi.size(); ++i) {
-            bucketEmpty[i] = (ni[i] == 0);
-            intersection[i] = vi[i];
+        for (std::size_t d = 0u; d < 2; ++d) {
+            bucketEmpty[d] = (ni[d] == 0);
+            intersection[d] = vi[d];
         }
-        params.addBucketEmpty(bucketEmpty);
-
+        params.bucketEmpty({bucketEmpty});
         return true;
     }
 };
@@ -246,14 +242,15 @@ public:
             return false;
         }
 
-        for (std::size_t d = 0u; d < v.size(); ++d) {
+        std::size_t dimension = v.size();
+        for (std::size_t d = 0u; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::accumulator(n, v[d]) -
                 maths::CBasicStatistics::accumulator(ni, vi[d]));
         }
-        maths_t::multiplyCountVarianceScale(TDouble2Vec(v.size(), n / (n - ni)),
-                                            params.weights()[0]);
-        params.addBucketEmpty({n == ni});
+        TDouble2Vec scale(dimension, n / (n - ni));
+        maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
+        params.bucketEmpty({{n == ni}});
 
         return true;
     }
@@ -271,15 +268,14 @@ public:
 
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = ((n[d] - ni[d]) == 0);
+            bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::accumulator(n[d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni[d], vi[d]));
         }
-        maths_t::multiplyCountVarianceScale(
-            TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
-            params.weights()[0]);
-        params.addBucketEmpty(bucketEmpty);
+        TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
+        maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
+        params.bucketEmpty({bucketEmpty});
 
         return true;
     }
@@ -296,7 +292,7 @@ public:
     //! \param[in] ni influencer count
     //! \param[out] params model parameters to be updated
     //! \param[out] difference computed mean difference
-    bool operator()(const TDouble1Vec& v,
+    bool operator()(const TDouble2Vec& v,
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
@@ -305,15 +301,16 @@ public:
         if (n < ni) {
             return false;
         }
+
         std::size_t dimension = v.size() / 2;
         for (std::size_t d = 0u; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::accumulator(n, v[dimension + d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni, vi[dimension + d], vi[d]));
         }
-        maths_t::multiplyCountVarianceScale(TDouble2Vec(dimension, n / (n - ni)),
-                                            params.weights()[0]);
-        params.addBucketEmpty({n == ni});
+        TDouble2Vec scale(dimension, n / (n - ni));
+        maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
+        params.bucketEmpty({{n == ni}});
 
         return true;
     }
@@ -328,17 +325,17 @@ public:
         if (n < ni) {
             return false;
         }
+
         TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = ((n[d] - ni[d]) == 0);
+            bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::accumulator(n[d], v[2 + d], v[d]) -
                 maths::CBasicStatistics::accumulator(ni[d], vi[2 + d], vi[d]));
         }
-        params.addBucketEmpty(bucketEmpty);
-        maths_t::multiplyCountVarianceScale(
-            TDouble2Vec{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])},
-            params.weights()[0]);
+        params.bucketEmpty({bucketEmpty});
+        TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
+        maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
 
         return true;
     }
@@ -356,9 +353,8 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
                                   TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     result.reserve(influencerValues.size());
     for (const auto& influencerValue : influencerValues) {
-        result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                influencerName, canonical(influencerValue.first)),
-                            1.0);
+        result.emplace_back(
+            std::make_pair(influencerName, canonical(influencerValue.first)), 1.0);
     }
 }
 
@@ -366,16 +362,16 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
 //! get the statistics and \p computeInfluence to compute the influences
 //! from the corresponding probabilities.
 //!
-//! \param[in] computeInfluencedValue The function to compute the
-//! influenced feature value for which to compute the probability.
+//! \param[in] computeInfluencedParamsAndValue The function to compute
+//! the influenced feature value for which to compute the probability.
 //! \param[in] computeInfluence The function to compute influence.
 //! \param[in] model The model to use to compute the probability.
 //! \param[in] elapsedTime The time elapsed since the model was created.
-//! \param[in] params The parameters need to compute the probability.
+//! \param[in] computeProbabilityParams The parameters need to compute
+//! the probability.
 //! \param[in] time The time of \p value.
 //! \param[in] value The influenced feature value.
 //! \param[in] count The measurement count in \p value.
-//! \param[in] probability The probability of \p value.
 //! \param[in] influencerName The name of the influencer field.
 //! \param[in] influencerValues The feature values for the intersection
 //! of the records in \p value with distinct values of \p influenceName.
@@ -385,46 +381,65 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
 //! \param[out] result Filled in with the influences of \p value.
 template<typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
 void doComputeInfluences(model_t::EFeature feature,
-                         COMPUTE_INFLUENCED_VALUE computeInfluencedValue,
+                         COMPUTE_INFLUENCED_VALUE computeInfluencedParamsAndValue,
                          COMPUTE_INFLUENCE computeInfluence,
                          const maths::CModel& model,
                          core_t::TTime elapsedTime,
-                         maths::CModelProbabilityParams& params,
+                         maths::CModelProbabilityParams& computeProbabilityParams,
                          const TTime2Vec1Vec& time,
                          const TDouble2Vec& value,
                          double count,
-                         double probability,
                          const core::CStoredStringPtr& influencerName,
                          const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
                          double cutoff,
                          bool includeCutoff,
                          TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+    auto description = [&influencerName](const std::string& v) {
+        return std::make_pair(influencerName, canonical(v));
+    };
+
     if (influencerValues.size() == 1) {
-        result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                influencerName, canonical(influencerValues[0].first)),
-                            1.0);
+        result.emplace_back(description(influencerValues[0].first), 1.0);
         return;
     }
-    if (probability == 1.0) {
+
+    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
+        double p{r.s_Probability};
+        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+        return model_t::adjustProbability(feature, elapsedTime, p);
+    };
+
+    maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
+    computeProbabilityParams.weights(weights)
+        .useMultibucketFeatures(false)
+        .useAnomalyModel(false)
+        .bucketEmpty({{count == 0.0}});
+    maths::SModelProbabilityResult overallResult;
+    model.probability(computeProbabilityParams, time,
+                      model_t::stripExtraStatistics(feature, {value}), overallResult);
+    double overallProbability{probability(overallResult)};
+
+    if (overallProbability == 1.0) {
         doComputeIndicatorInfluences(influencerName, influencerValues, result);
         return;
     }
 
-    std::size_t dimension = model_t::dimension(feature);
     result.reserve(influencerValues.size());
 
+    double logOverallProbability{maths::CTools::fastLog(overallProbability)};
+
     // Declared outside the loop to minimize the number of times they are created.
+    std::size_t dimension = model_t::dimension(feature);
     TDouble2Vec1Vec influencedValue{TDouble2Vec(dimension)};
-    TTail2Vec tail;
-    TSize1Vec mostAnomalousCorrelate;
+    maths::SModelProbabilityResult influenceResult;
 
-    double logp = maths::CTools::fastLog(probability);
-    maths_t::TDouble2VecWeightsAry1Vec weights(params.weights());
     for (auto i = influencerValues.begin(); i != influencerValues.end(); ++i) {
-        params.weights(weights).updateAnomalyModel(false);
-
-        if (computeInfluencedValue(value, count, i->second.first, i->second.second,
-                                   params, influencedValue[0]) == false) {
+        const auto& influenceValue = i->second.first;
+        const auto& influenceCount = i->second.second;
+        computeProbabilityParams.weights(weights);
+        if (computeInfluencedParamsAndValue(value, count, influenceValue,
+                                            influenceCount, computeProbabilityParams,
+                                            influencedValue[0]) == false) {
             LOG_ERROR(<< "Failed to compute influencer value (value = " << value
                       << " , count = " << count
                       << " , influencer value = " << i->second.first
@@ -432,49 +447,37 @@ void doComputeInfluences(model_t::EFeature feature,
             continue;
         }
 
-        double pi;
-        bool conditional;
-        if (!model.probability(params, time, influencedValue, pi, tail,
-                               conditional, mostAnomalousCorrelate)) {
+        if (model.probability(computeProbabilityParams, time, influencedValue,
+                              influenceResult) == false) {
             LOG_ERROR(<< "Failed to compute P(" << influencedValue[0]
                       << " | influencer = " << core::CContainerPrinter::print(*i) << ")");
             continue;
         }
-        pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
-        pi = model_t::adjustProbability(feature, elapsedTime, pi);
 
-        double influence = computeInfluence(logp, maths::CTools::fastLog(pi));
+        double influenceProbability{probability(influenceResult)};
+        double logInfluenceProbability{maths::CTools::fastLog(influenceProbability)};
+        double influence{computeInfluence(logOverallProbability, logInfluenceProbability)};
 
-        LOG_TRACE(<< "log(p) = " << logp
-                  << ", tail = " << core::CContainerPrinter::print(tail)
+        LOG_TRACE(<< "log(p) = " << logOverallProbability
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << std::log(pi)
-                  << ", weight = " << core::CContainerPrinter::print(params.weights())
-                  << ", influence = " << influence
+                  << ", log(p(i)) = " << logInfluenceProbability << ", weight = "
+                  << core::CContainerPrinter::print(weights) << ", influence = " << influence
                   << ", influencer field value = " << i->first.get());
 
         if (dimension == 1 && influence >= cutoff) {
-            result.emplace_back(
-                TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)), influence);
+            result.emplace_back(description(i->first), influence);
         } else if (dimension == 1) {
             if (includeCutoff) {
-                result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                        influencerName, canonical(i->first)),
-                                    influence);
+                result.emplace_back(description(i->first), influence);
                 for (++i; i != influencerValues.end(); ++i) {
-                    result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                            influencerName, canonical(i->first)),
-                                        0.5 * influence);
+                    result.emplace_back(description(i->first), 0.5 * influence);
                 }
             }
             break;
         } else if (influence >= cutoff) {
-            result.emplace_back(
-                TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)), influence);
+            result.emplace_back(description(i->first), influence);
         } else if (includeCutoff) {
-            result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                    influencerName, canonical(i->first)),
-                                0.5 * influence);
+            result.emplace_back(description(i->first), 0.5 * influence);
         }
     }
 }
@@ -489,67 +492,78 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
                                   COMPUTE_INFLUENCE computeInfluence,
                                   const maths::CModel& model,
                                   core_t::TTime elapsedTime,
-                                  maths::CModelProbabilityParams& params,
+                                  maths::CModelProbabilityParams& computeProbabilityParams,
                                   const TTime2Vec& time,
                                   const TDouble2Vec& value,
                                   const TDouble2Vec& count,
-                                  double probability,
                                   const core::CStoredStringPtr& influencerName,
                                   const TStrCRefDouble1VecDouble1VecPrPrVec& influencerValues,
                                   double cutoff,
                                   bool includeCutoff,
                                   TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+    auto description = [&influencerName](const std::string& v) {
+        return std::make_pair(influencerName, canonical(v));
+    };
+    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
+        double p{r.s_Probability};
+        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+        return model_t::adjustProbability(feature, elapsedTime, p);
+    };
+
     if (influencerValues.size() == 1) {
-        result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                influencerName, canonical(influencerValues[0].first)),
-                            1.0);
+        result.emplace_back(description(influencerValues[0].first), 1.0);
         return;
     }
-    if (probability == 1.0) {
+
+    maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
+    computeProbabilityParams.weights(weights)
+        .useMultibucketFeatures(false)
+        .useAnomalyModel(false)
+        .bucketEmpty({{count[0] == 0.0, count[1] == 0.0}});
+    maths::SModelProbabilityResult overallResult;
+    model.probability(computeProbabilityParams, {time},
+                      model_t::stripExtraStatistics(feature, {value}), overallResult);
+    double overallProbability{probability(overallResult)};
+
+    if (overallProbability == 1.0) {
         doComputeIndicatorInfluences(influencerName, influencerValues, result);
         return;
     }
 
     result.reserve(influencerValues.size());
 
+    double logOverallProbability{maths::CTools::fastLog(overallProbability)};
+
     // Declared outside the loop to minimize the number of times they are created.
     TDouble2Vec1Vec influencedValue{TDouble2Vec(2)};
-    TTail2Vec tail;
-    TSize1Vec mostAnomalousCorrelate;
+    maths::SModelProbabilityResult influenceResult;
 
-    double logp = std::log(probability);
-    maths_t::TDouble2VecWeightsAry1Vec weights(params.weights());
-    for (const auto& influence_ : influencerValues) {
-        params.weights(weights).updateAnomalyModel(false);
+    for (const auto& i : influencerValues) {
+        const auto& influenceValue = i.second.first;
+        const auto& influenceCount = i.second.second;
+        computeProbabilityParams.weights(weights);
+        computeInfluencedValue(value, count, influenceValue, influenceCount,
+                               computeProbabilityParams, influencedValue[0]);
 
-        computeInfluencedValue(value, count, influence_.second.first,
-                               influence_.second.second, params, influencedValue[0]);
-
-        double pi;
-        bool conditional;
-        if (!model.probability(params, TTime2Vec1Vec{time}, influencedValue, pi,
-                               tail, conditional, mostAnomalousCorrelate)) {
-            LOG_ERROR(<< "Failed to compute P("
-                      << core::CContainerPrinter::print(influencedValue) << " | influencer = "
-                      << core::CContainerPrinter::print(influence_) << ")");
+        if (model.probability(computeProbabilityParams, {time}, influencedValue,
+                              influenceResult) == false) {
+            LOG_ERROR(<< "Failed to compute P(" << core::CContainerPrinter::print(influencedValue)
+                      << " | influencer = " << core::CContainerPrinter::print(i) << ")");
             continue;
         }
-        pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
-        pi = model_t::adjustProbability(feature, elapsedTime, pi);
 
-        double influence = computeInfluence(logp, std::log(pi));
+        double influenceProbability{probability(influenceResult)};
+        double logInfluenceProbability{maths::CTools::fastLog(influenceProbability)};
+        double influence{computeInfluence(logOverallProbability, logInfluenceProbability)};
 
-        LOG_TRACE(<< "log(p) = " << logp
+        LOG_TRACE(<< "log(p) = " << logOverallProbability
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << std::log(pi) << ", weight(i) = "
-                  << core::CContainerPrinter::print(params.weights())
-                  << ", influence = " << influence
-                  << ", influencer field value = " << influence_.first.get());
+                  << ", log(p(i)) = " << logInfluenceProbability << ", weight = "
+                  << core::CContainerPrinter::print(weights) << ", influence = " << influence
+                  << ", influencer field value = " << i.first.get());
 
         if (includeCutoff || influence >= cutoff) {
-            result.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                    influencerName, canonical(influence_.first)),
-                                influence);
+            result.emplace_back(description(i.first), influence);
         }
     }
 }
@@ -667,7 +681,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
                                                         std::size_t id,
                                                         const maths::CModel& model,
                                                         core_t::TTime elapsedTime,
-                                                        const maths::CModelProbabilityParams& params,
+                                                        const maths::CModelProbabilityParams& computeProbabilityParams,
                                                         const TTime2Vec1Vec& time,
                                                         const TDouble2Vec1Vec& values_,
                                                         double& probability,
@@ -680,37 +694,41 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     }
 
     // Check the cache.
-    if (!model_t::isConstant(feature) && m_ProbabilityCache) {
+    if (model_t::isConstant(feature) == false && m_ProbabilityCache) {
         TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
-        model.detrend(time, params.seasonalConfidenceInterval(), values);
-        bool conditional;
-        if (m_ProbabilityCache->lookup(feature, id, values, probability, tail,
-                                       conditional, mostAnomalousCorrelate)) {
-            m_Probability.add(probability, weight);
-            type.set(conditional ? model_t::CResultType::E_Conditional
-                                 : model_t::CResultType::E_Unconditional);
+        model.detrend(time, computeProbabilityParams.seasonalConfidenceInterval(), values);
+        maths::SModelProbabilityResult cached;
+        if (m_ProbabilityCache->lookup(feature, id, values, cached)) {
+            probability = cached.s_Probability;
+            tail = std::move(cached.s_Tail);
+            type.set(cached.s_Conditional ? model_t::CResultType::E_Conditional
+                                          : model_t::CResultType::E_Unconditional);
+            mostAnomalousCorrelate = std::move(cached.s_MostAnomalousCorrelate);
+            m_Probability.add(cached.s_Probability, weight);
             return true;
         }
     }
 
-    // The accuracy from the cache isn't good enough so fall back
-    // to calculating.
+    // Either there isn't a cache or the accuracy isn't good enough
+    // so fall back to calculating.
     TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
-    bool conditional;
-    if (model.probability(params, time, values, probability, tail, conditional,
-                          mostAnomalousCorrelate)) {
-        if (!model_t::isConstant(feature)) {
+    maths::SModelProbabilityResult result;
+    if (model.probability(computeProbabilityParams, time, values, result)) {
+        if (model_t::isConstant(feature) == false) {
+            probability = result.s_Probability;
             probability = model_t::adjustProbability(feature, elapsedTime, probability);
+            tail = std::move(result.s_Tail);
+            type.set(result.s_Conditional ? model_t::CResultType::E_Conditional
+                                          : model_t::CResultType::E_Unconditional);
+            mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
             m_Probability.add(probability, weight);
-            type.set(conditional ? model_t::CResultType::E_Conditional
-                                 : model_t::CResultType::E_Unconditional);
             if (m_ProbabilityCache) {
                 m_ProbabilityCache->addModes(feature, id, model);
-                m_ProbabilityCache->addProbability(feature, id, values,
-                                                   probability, tail, conditional,
-                                                   mostAnomalousCorrelate);
+                m_ProbabilityCache->addProbability(feature, id, values, result);
             }
         } else {
+            probability = result.s_Probability;
+            tail = std::move(result.s_Tail);
             type.set(model_t::CResultType::E_Unconditional);
             mostAnomalousCorrelate.clear();
         }
@@ -760,9 +778,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_InfluenceCalculator->computeInfluences(params);
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
-        m_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                      params.s_InfluencerName, canonical(*influencerValue)),
-                                  1.0);
+        m_Influences.emplace_back(
+            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
@@ -800,9 +817,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_InfluenceCalculator->computeInfluences(params);
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
-        m_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(
-                                      params.s_InfluencerName, canonical(*influencerValue)),
-                                  1.0);
+        m_Influences.emplace_back(
+            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
@@ -858,7 +874,8 @@ void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feat
                 .first->second;
         if (!model_t::isConstant(feature)) {
             double probability = std::exp(influence.second * logp);
-            LOG_TRACE(<< "Adding = " << influence.first.second.get() << " " << probability);
+            LOG_TRACE(<< "Adding '" << *influence.first.second << "', probability = "
+                      << probability << ", influence = " << influence.second);
             aggregator.add(probability, weight);
         }
     }
@@ -931,20 +948,20 @@ void CIndicatorInfluenceCalculator::computeInfluences(TCorrelateParams& params) 
 void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
+    maths::CModelProbabilityParams computeProbabilityParams;
     for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
         if (params.s_Tail[i] == maths_t::E_RightTail) {
-            params_.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(i);
+            computeProbabilityParams.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(i);
         }
     }
 
-    if (params_.calculations() > 0) {
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
-        TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
+        TStrCRefDouble1VecDoublePrPrVec& influencerValues{params.s_InfluencerValues};
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(),
                       CDecreasingValueInfluence(params.s_Tail[0]));
@@ -953,11 +970,10 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& pa
                   << core::CContainerPrinter::print(influencerValues));
 
         doComputeInfluences(params.s_Feature, CValueDifference(), complementInfluence,
-                            *params.s_Model, params.s_ElapsedTime, params_,
+                            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
                             params.s_Time, params.s_Value[0], params.s_Count,
-                            params.s_Probability, params.s_InfluencerName,
-                            params.s_InfluencerValues, params.s_Cutoff,
-                            params.s_IncludeCutoff, params.s_Influences);
+                            params.s_InfluencerName, params.s_InfluencerValues,
+                            params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
 
@@ -965,9 +981,9 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
     params.s_Influences.clear();
 
     if (params.s_Tail[0] == maths_t::E_RightTail) {
-        std::size_t correlate = params.s_MostAnomalousCorrelate[0];
-        maths::CModelProbabilityParams params_;
-        params_.addCalculation(maths_t::E_OneSidedAbove)
+        std::size_t correlate{params.s_MostAnomalousCorrelate[0]};
+        maths::CModelProbabilityParams computeProbabilityParams;
+        computeProbabilityParams.addCalculation(maths_t::E_OneSidedAbove)
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
@@ -975,10 +991,10 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
         LOG_TRACE(<< "influencerValues = "
                   << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(
-            params.s_Feature, CValueDifference(), complementInfluence, *params.s_Model,
-            params.s_ElapsedTime, params_, params.s_Times[correlate],
-            params.s_Values[correlate], params.s_Counts[correlate],
-            params.s_Probability, params.s_InfluencerName, params.s_InfluencerValues,
+            params.s_Feature, CValueDifference(), complementInfluence,
+            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
+            params.s_Times[correlate], params.s_Values[correlate],
+            params.s_Counts[correlate], params.s_InfluencerName, params.s_InfluencerValues,
             params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
@@ -1010,18 +1026,18 @@ void addCoordinate(maths_t::ETail tail,
 void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
+    maths::CModelProbabilityParams computeProbabilityParams;
     for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
-        addCoordinate(params.s_Tail[i], i, params_);
+        addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
-    if (params_.calculations() > 0) {
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
-        TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
+        TStrCRefDouble1VecDoublePrPrVec& influencerValues{params.s_InfluencerValues};
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(),
                       CDecreasingValueInfluence(params.s_Tail[0]));
@@ -1029,24 +1045,24 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) cons
         LOG_TRACE(<< "influencerValues = "
                   << core::CContainerPrinter::print(influencerValues));
 
-        doComputeInfluences(params.s_Feature, CValueIntersection(), intersectionInfluence,
-                            *params.s_Model, params.s_ElapsedTime, params_,
+        doComputeInfluences(params.s_Feature, CValueIntersection(),
+                            intersectionInfluence, *params.s_Model,
+                            params.s_ElapsedTime, computeProbabilityParams,
                             params.s_Time, params.s_Value[0], params.s_Count,
-                            params.s_Probability, params.s_InfluencerName,
-                            params.s_InfluencerValues, params.s_Cutoff,
-                            params.s_IncludeCutoff, params.s_Influences);
+                            params.s_InfluencerName, params.s_InfluencerValues,
+                            params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
 
 void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
-    addCoordinate(params.s_Tail[0], 0, params_);
+    maths::CModelProbabilityParams computeProbabilityParams;
+    addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
-    if (params_.calculations() > 0) {
-        std::size_t correlate = params.s_MostAnomalousCorrelate[0];
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        std::size_t correlate{params.s_MostAnomalousCorrelate[0]};
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
@@ -1055,9 +1071,9 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& par
                   << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(
             params.s_Feature, CValueDifference(), intersectionInfluence,
-            *params.s_Model, params.s_ElapsedTime, params_, params.s_Times[correlate],
-            params.s_Values[correlate], params.s_Counts[correlate],
-            params.s_Probability, params.s_InfluencerName, params.s_InfluencerValues,
+            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
+            params.s_Times[correlate], params.s_Values[correlate],
+            params.s_Counts[correlate], params.s_InfluencerName, params.s_InfluencerValues,
             params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
@@ -1067,18 +1083,18 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& par
 void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
+    maths::CModelProbabilityParams computeProbabilityParams;
     for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
-        addCoordinate(params.s_Tail[i], i, params_);
+        addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
-    if (params_.calculations() > 0) {
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
-        TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
+        TStrCRefDouble1VecDoublePrPrVec& influencerValues{params.s_InfluencerValues};
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(),
                       CDecreasingMeanInfluence(params.s_Tail[0],
@@ -1087,23 +1103,22 @@ void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
         LOG_TRACE(<< "influencerValues = "
                   << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeInfluences(params.s_Feature, CMeanDifference(), complementInfluence,
-                            *params.s_Model, params.s_ElapsedTime, params_,
+                            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
                             params.s_Time, params.s_Value[0], params.s_Count,
-                            params.s_Probability, params.s_InfluencerName,
-                            params.s_InfluencerValues, params.s_Cutoff,
-                            params.s_IncludeCutoff, params.s_Influences);
+                            params.s_InfluencerName, params.s_InfluencerValues,
+                            params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
 
 void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
-    addCoordinate(params.s_Tail[0], 0, params_);
+    maths::CModelProbabilityParams computeProbabilityParams;
+    addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
-    if (params_.calculations() > 0) {
-        std::size_t correlate = params.s_MostAnomalousCorrelate[0];
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        std::size_t correlate{params.s_MostAnomalousCorrelate[0]};
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
@@ -1111,10 +1126,10 @@ void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const
         LOG_TRACE(<< "influencerValues = "
                   << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(
-            params.s_Feature, CMeanDifference(), complementInfluence, *params.s_Model,
-            params.s_ElapsedTime, params_, params.s_Times[correlate],
-            params.s_Values[correlate], params.s_Counts[correlate],
-            params.s_Probability, params.s_InfluencerName, params.s_InfluencerValues,
+            params.s_Feature, CMeanDifference(), complementInfluence,
+            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
+            params.s_Times[correlate], params.s_Values[correlate],
+            params.s_Counts[correlate], params.s_InfluencerName, params.s_InfluencerValues,
             params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
@@ -1124,18 +1139,18 @@ void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const
 void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
+    maths::CModelProbabilityParams computeProbabilityParams;
     for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
-        addCoordinate(params.s_Tail[i], i, params_);
+        addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
-    if (params_.calculations() > 0) {
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[0]);
 
-        TStrCRefDouble1VecDoublePrPrVec& influencerValues = params.s_InfluencerValues;
+        TStrCRefDouble1VecDoublePrPrVec& influencerValues{params.s_InfluencerValues};
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(),
                       CDecreasingVarianceInfluence(
@@ -1145,23 +1160,22 @@ void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
                   << core::CContainerPrinter::print(influencerValues));
 
         doComputeInfluences(params.s_Feature, CVarianceDifference(), complementInfluence,
-                            *params.s_Model, params.s_ElapsedTime, params_,
+                            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
                             params.s_Time, params.s_Value[0], params.s_Count,
-                            params.s_Probability, params.s_InfluencerName,
-                            params.s_InfluencerValues, params.s_Cutoff,
-                            params.s_IncludeCutoff, params.s_Influences);
+                            params.s_InfluencerName, params.s_InfluencerValues,
+                            params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
 
 void CVarianceInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams params_;
-    addCoordinate(params.s_Tail[0], 0, params_);
+    maths::CModelProbabilityParams computeProbabilityParams;
+    addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
-    if (params_.calculations() > 0) {
-        std::size_t correlate = params.s_MostAnomalousCorrelate[0];
-        params_
+    if (computeProbabilityParams.calculations() > 0) {
+        std::size_t correlate{params.s_MostAnomalousCorrelate[0]};
+        computeProbabilityParams
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
@@ -1170,9 +1184,9 @@ void CVarianceInfluenceCalculator::computeInfluences(TCorrelateParams& params) c
                   << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(
             params.s_Feature, CVarianceDifference(), complementInfluence,
-            *params.s_Model, params.s_ElapsedTime, params_, params.s_Times[correlate],
-            params.s_Values[correlate], params.s_Counts[correlate],
-            params.s_Probability, params.s_InfluencerName, params.s_InfluencerValues,
+            *params.s_Model, params.s_ElapsedTime, computeProbabilityParams,
+            params.s_Times[correlate], params.s_Values[correlate],
+            params.s_Counts[correlate], params.s_InfluencerName, params.s_InfluencerValues,
             params.s_Cutoff, params.s_IncludeCutoff, params.s_Influences);
     }
 }
