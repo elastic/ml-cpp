@@ -596,9 +596,6 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
 
     double oldMaxScore(maxScore.count() == 0 ? 0.0 : maxScore[0]);
 
-    // BWC: Maintain both per-partition and 'global' max scores for the normalizer.
-    // This is necessary as a fallback as there is a possibility that after upgrade we encounter new partition
-    // identifiers when performing renormalization
     maxScore.add(score);
 
     LOG_TRACE(<< "updateQuantiles: partitionId = \""
