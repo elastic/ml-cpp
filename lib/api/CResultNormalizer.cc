@@ -78,13 +78,13 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     double probability(0.0);
 
     // As of version 6.5 the 'personValue' field is required for (re)normalization to succeed.
-    // In the case of renormalization the 'personValue' field must be included in the set of 
+    // In the case of renormalization the 'personValue' field must be included in the set of
     // parameters sent from the Java side ML plugin to Elasticsearch.
     // In production the version of the native code application and the java application it is communicating directly
     // with will always match so supporting BWC with versions prior to 6.5 is not necessary.
     bool isNormalizable = this->parseDataFields(dataRowFields, level, partition,
-                                         partitionValue, person, personValue,
-                                         function, valueFieldName, probability);
+                                                partitionValue, person, personValue,
+                                                function, valueFieldName, probability);
 
     LOG_TRACE(<< "level='" << level << "', partition='" << partition << "', partitionValue='"
               << partitionValue << "', person='" << person << "', personValue='"

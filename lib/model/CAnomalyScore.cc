@@ -428,10 +428,10 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
 
     double maxScore{0.0};
     bool hasValidMaxScore = this->maxScore(partitionName, partitionValue,
-                                              personName, personValue, maxScore);
+                                           personName, personValue, maxScore);
     if (hasValidMaxScore == false) {
         LOG_TRACE(<< "normalize: Maximum score NOT found for partitionId = "
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue));
+                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue));
         normalizedScores[2] = m_MaximumNormalizedScore;
     } else {
         LOG_TRACE(<< "normalize: Maximum score FOUND for partitionId = "
@@ -473,15 +473,16 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
 }
 
 bool CAnomalyScore::CNormalizer::maxScore(const std::string& partitionName,
-                                             const std::string& partitionValue,
-                                             const std::string& personName,
-                                             const std::string& personValue,
-                                             double& maxScore) const {
+                                          const std::string& partitionValue,
+                                          const std::string& personName,
+                                          const std::string& personValue,
+                                          double& maxScore) const {
     // The influencer named 'bucket_time' corresponds to the root level normalizer for which we have keyed the maximum
     // score on a blank personName
     const std::string person = (personName == TIME_INFLUENCER) ? "" : personName;
 
-    auto itr = m_MaxScores.find(m_Dictionary.word(partitionName, partitionValue, person, personValue));
+    auto itr = m_MaxScores.find(
+        m_Dictionary.word(partitionName, partitionValue, person, personValue));
     if (itr == m_MaxScores.end()) {
         return false;
     }
@@ -605,7 +606,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
     if (maxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
         bigChange = true;
         LOG_TRACE(<< "Big change in normalizer - max score updated from "
-                 << oldMaxScore << " to " << maxScore[0]);
+                  << oldMaxScore << " to " << maxScore[0]);
     }
     uint32_t discreteScore = this->discreteScore(score);
     LOG_TRACE(<< "score = " << score << ", discreteScore = " << discreteScore
@@ -804,15 +805,9 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
 
     // We know how to upgrade between versions 1, 2 and 3.
     static const double HIGH_SCORE_UPGRADE_FACTOR[][3] = {
-        {1.0, 0.3, 0.3},
-        {1.0 / 0.3, 1.0, 1.0},
-        {1.0 / 0.3, 1.0, 1.0}
-    };
+        {1.0, 0.3, 0.3}, {1.0 / 0.3, 1.0, 1.0}, {1.0 / 0.3, 1.0, 1.0}};
     static const double Q_DIGEST_UPGRADE_FACTOR[][3] = {
-        {1.0, 3.0, 30.0},
-        {1.0 / 3.0, 1.0, 10.0},
-        {1.0 / 30.0, 1.0 / 10.0, 1.0}
-    };
+        {1.0, 3.0, 30.0}, {1.0 / 3.0, 1.0, 10.0}, {1.0 / 30.0, 1.0 / 10.0, 1.0}};
 
     std::size_t i, j;
     if (!core::CStringUtils::stringToType(loadedVersion, i) ||
