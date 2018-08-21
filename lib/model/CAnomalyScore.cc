@@ -865,7 +865,6 @@ void CAnomalyScore::CNormalizer::clear() {
 void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(HIGH_PERCENTILE_SCORE_TAG, m_HighPercentileScore);
     inserter.insertValue(HIGH_PERCENTILE_COUNT_TAG, m_HighPercentileCount);
-    inserter.insertValue(MAX_SCORE_TAG, m_MaxScore.toDelimited());
     inserter.insertLevel(RAW_SCORE_QUANTILE_SUMMARY,
                          boost::bind(&maths::CQDigest::acceptPersistInserter,
                                      &m_RawScoreQuantileSummary, _1));
