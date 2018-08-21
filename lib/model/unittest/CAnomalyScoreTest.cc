@@ -720,7 +720,7 @@ void CAnomalyScoreTest::testJsonConversion() {
         // Check that all required fields are present in the persisted state
         CPPUNIT_ASSERT(stateDoc.HasMember("a"));
         CPPUNIT_ASSERT(stateDoc.HasMember("b"));
-        CPPUNIT_ASSERT(stateDoc.HasMember("c"));
+        // Field 'c' - m_MaxScore - removed in version > 6.5
         CPPUNIT_ASSERT(stateDoc.HasMember("d"));
         CPPUNIT_ASSERT(stateDoc.HasMember("e"));
         CPPUNIT_ASSERT(stateDoc.HasMember("f"));
@@ -730,27 +730,17 @@ void CAnomalyScoreTest::testJsonConversion() {
         CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("a"));
         CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("b"));
 
-        rapidjson::Value& normalizerMaxScoreDoc = stateDoc["c"];
         rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"];
 
-        rapidjson::StringBuffer buffer1;
-        rapidjson::Writer<rapidjson::StringBuffer> writer1(buffer1);
-        normalizerMaxScoreDoc.Accept(writer1);
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        partitionMaxScoreDoc.Accept(writer);
 
-        rapidjson::StringBuffer buffer2;
-        rapidjson::Writer<rapidjson::StringBuffer> writer2(buffer2);
-        partitionMaxScoreDoc.Accept(writer2);
-
-        std::string normalizerMaxScoreStr(buffer1.GetString());
-        std::string partitionMaxScoreStr(buffer2.GetString());
-        normalizerMaxScoreStr.erase(std::remove(normalizerMaxScoreStr.begin(),
-                                                normalizerMaxScoreStr.end(), '\n'),
-                                    normalizerMaxScoreStr.end());
+        std::string partitionMaxScoreStr(buffer.GetString());
         partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
         CPPUNIT_ASSERT_EQUAL(std::string("\"2368.526\""), partitionMaxScoreStr);
-        CPPUNIT_ASSERT_EQUAL(std::string("\"\""), normalizerMaxScoreStr);
     }
 
     rapidjson::StringBuffer buffer;

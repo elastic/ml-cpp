@@ -188,6 +188,9 @@ private:
     //! Get the persistence cue for a leaf normalizer.
     static std::string leafCue(const TWord& word);
 
+    //! Safely dereference a stored string pointer, returning an empty string if null
+    static const std::string& dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr);
+
 private:
     //! The jobs that the normalizer will perform when invoked
     //! can be: update, normalize or update + normalize.

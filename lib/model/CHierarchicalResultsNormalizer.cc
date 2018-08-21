@@ -125,16 +125,10 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
 
     // Construct a unique identifier for the current partition. This will be used to store the maximum scores per
     // partition
-    const std::string partitionName = (node.s_Spec.s_PartitionFieldName)
-                                          ? *(node.s_Spec.s_PartitionFieldName)
-                                          : "";
-    const std::string partitionValue = (node.s_Spec.s_PartitionFieldValue)
-                                           ? *(node.s_Spec.s_PartitionFieldValue)
-                                           : "";
-    const std::string personName =
-        (node.s_Spec.s_PersonFieldName) ? *(node.s_Spec.s_PersonFieldName) : "";
-    const std::string personValue =
-        (node.s_Spec.s_PersonFieldValue) ? *(node.s_Spec.s_PersonFieldValue) : "";
+    const std::string& partitionName = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName);
+    const std::string& partitionValue = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldValue);
+    const std::string& personName = dereferenceOrEmpty(node.s_Spec.s_PersonFieldName);
+    const std::string& personValue = dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue);
 
     switch (m_Job) {
     case E_Update:
@@ -424,6 +418,11 @@ std::string CHierarchicalResultsNormalizer::personCue(const TWord& word) {
 
 std::string CHierarchicalResultsNormalizer::leafCue(const TWord& word) {
     return LEAF_CUE_PREFIX + core::CStringUtils::typeToString(word.hash64());
+}
+
+const std::string&
+CHierarchicalResultsNormalizer::dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr) {
+    return stringPtr ? *stringPtr : EMPTY_STRING;
 }
 }
 }
