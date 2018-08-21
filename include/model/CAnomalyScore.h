@@ -228,18 +228,12 @@ public:
         //! Extract the raw score from a discrete score.
         double rawScore(uint32_t discreteScore) const;
 
-        //! Restore a collection of maximum score values.
-        bool restoreMaximumScores(core::CStateRestoreTraverser& traverser);
-
-        //! Persist a collection of maximum score values.
-        void persistMaximumScores(core::CStatePersistInserter& inserter) const;
-
         //! Retrieve the maximum score for a partition
-        bool getMaxScore(const std::string& partitionName,
-                         const std::string& partitionValue,
-                         const std::string& personName,
-                         const std::string& personValue,
-                         double& maxScore) const;
+        bool maxScore(const std::string& partitionName,
+                      const std::string& partitionValue,
+                      const std::string& personName,
+                      const std::string& personValue,
+                      double& maxScore) const;
 
     private:
         //! The percentile defining the largest noise score.

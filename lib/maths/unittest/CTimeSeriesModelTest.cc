@@ -1103,7 +1103,7 @@ void CTimeSeriesModelTest::testProbability() {
     {
         maths::CUnivariateTimeSeriesModel model0{
             modelParams(bucketLength), 1, maths::CTimeSeriesDecompositionStub{},
-            univariateNormal(),        0, false};
+            univariateNormal(),        nullptr, false};
         maths::CUnivariateTimeSeriesModel model1{
             modelParams(bucketLength),
             1,
@@ -1203,7 +1203,7 @@ void CTimeSeriesModelTest::testProbability() {
     {
         maths::CMultivariateTimeSeriesModel model0{
             modelParams(bucketLength), maths::CTimeSeriesDecompositionStub{},
-            multivariateNormal(), 0, false};
+            multivariateNormal(), nullptr, false};
         maths::CMultivariateTimeSeriesModel model1{
             modelParams(bucketLength),
             maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},

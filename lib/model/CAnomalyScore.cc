@@ -10,6 +10,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>
@@ -72,11 +73,8 @@ const std::string RAW_SCORE_QUANTILE_SUMMARY("d");
 const std::string RAW_SCORE_HIGH_QUANTILE_SUMMARY("e");
 const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
 
+// Since version >= 6.5
 const std::string MAX_SCORES_PER_PARTITION_TAG("g");
-
-//! Nested maximum scores tags.
-const std::string PARTITION_WORD_TAG("a");
-const std::string PATITION_MAX_SCORE_TAG("b");
 
 const std::string EMPTY_STRING;
 
@@ -339,9 +337,9 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
     // normalized score range and high percentiles map to a large
     // normalized score range. Finally to ensure 3) we
     // use a ceiling which is linear interpolation between a raw
-    // score of zero and the maximum ever raw score. To achieve 4),
-    // we cap the maximum score such that probabilities near the
-    // cutoff don't generate large normalized scores.
+    // score of zero and the maximum ever raw score for the partition.
+    // To achieve 4), we cap the maximum score such that probabilities
+    // near the  cutoff don't generate large normalized scores.
 
     // Compute the noise ceiling. Note that since the scores are
     // logarithms (base e) the difference corresponds to the scaled,
@@ -428,28 +426,29 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
               << ", upperBound = " << upperBound << ", lowerPercentile = " << lowerPercentile
               << ", upperPercentile = " << upperPercentile);
 
-    double maxScore;
-    bool hasValidMaxScore = this->getMaxScore(partitionName, partitionValue,
+    double maxScore{0.0};
+    bool hasValidMaxScore = this->maxScore(partitionName, partitionValue,
                                               personName, personValue, maxScore);
     if (hasValidMaxScore == false) {
-        LOG_ERROR(<< "normalize: No usable maximum score available. Normalization not possible.");
-        return false;
+        LOG_TRACE(<< "normalize: Maximum score NOT found for partitionId = "
+              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue));
+        normalizedScores[2] = m_MaximumNormalizedScore;
+    } else {
+        LOG_TRACE(<< "normalize: Maximum score FOUND for partitionId = "
+                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
+                  << ". " << maxScore);
+
+        // Compute the maximum score ceiling
+        double ratio = score / maxScore;
+        double curves[] = {0.0 + 1.5 * ratio, 0.5 + 0.5 * ratio};
+        normalizedScores[2] = m_MaximumNormalizedScore *
+                              (*std::min_element(curves, curves + 2));
+        LOG_TRACE(<< "normalizedScores[2] = " << normalizedScores[2] << ", score = " << score
+                  << ", maxScore = " << maxScore << ", ratio = \"" << ratio << "\""
+                  << ", partitionId = \""
+                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
+                  << "\"");
     }
-
-    LOG_TRACE(<< "normalize: Maximum score FOUND for partitionId = "
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-              << ". " << maxScore);
-
-    // Compute the maximum score ceiling
-    double ratio = score / maxScore;
-    double curves[] = {0.0 + 1.5 * ratio, 0.5 + 0.5 * ratio};
-    normalizedScores[2] = m_MaximumNormalizedScore *
-                          (*std::min_element(curves, curves + 2));
-    LOG_TRACE(<< "normalizedScores[2] = " << normalizedScores[2] << ", score = " << score
-              << ", maxScore = " << maxScore << ", ratio = \"" << ratio << "\""
-              << ", partitionId = \""
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-              << "\"");
 
     // Logarithmically interpolate the maximum score between the
     // largest significant and small probability.
@@ -473,42 +472,23 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
     return true;
 }
 
-bool CAnomalyScore::CNormalizer::getMaxScore(const std::string& partitionName,
+bool CAnomalyScore::CNormalizer::maxScore(const std::string& partitionName,
                                              const std::string& partitionValue,
                                              const std::string& personName,
                                              const std::string& personValue,
                                              double& maxScore) const {
     // The influencer named 'bucket_time' corresponds to the root level normalizer for which we have keyed the maximum
-    // score  on a blank personName
+    // score on a blank personName
     const std::string person = (personName == TIME_INFLUENCER) ? "" : personName;
 
-    const TMaxValueAccumulator* maxScorePtr =
-        [this, &partitionName, &partitionValue, &person,
-         &personValue]() -> const TMaxValueAccumulator* {
-        auto itr = m_MaxScores.find(
-            m_Dictionary.word(partitionName, partitionValue, person, personValue));
-        if (itr != m_MaxScores.end()) {
-            return &itr->second;
-        } else {
-            // Even though migration should have occurred in updateQuantiles prior to this method being called
-            // it is possible that new partitions are encountered not yet mapped in  m_MaxScores
-            // In which case fall back to the old style m_MaxScore
-            if (m_MaxScore.count() != 0) {
-                LOG_INFO(<< "normalize: Maximum score NOT found for partition identified by = "
-                         << (partitionName + "_" + partitionValue + "_" + person + "_" + personValue)
-                         << ". Using 'global' m_MaxScore " << m_MaxScore[0] << " instead.");
-                return &m_MaxScore;
-            }
-        }
-        return nullptr;
-    }();
-
-    if (maxScorePtr == nullptr) {
+    auto itr = m_MaxScores.find(m_Dictionary.word(partitionName, partitionValue, person, personValue));
+    if (itr == m_MaxScores.end()) {
         return false;
     }
-
-    maxScore = (*maxScorePtr)[0];
-
+    maxScore = itr->second[0];
+    if (maxScore == 0.0) {
+        return false;
+    }
     return true;
 }
 
@@ -620,7 +600,6 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
     // This is necessary as a fallback as there is a possibility that after upgrade we encounter new partition
     // identifiers when performing renormalization
     maxScore.add(score);
-    m_MaxScore.add(score);
 
     LOG_TRACE(<< "updateQuantiles: partitionId = \""
               << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
@@ -628,7 +607,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
               << ", maxScore[0] = " << maxScore[0]);
     if (maxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
         bigChange = true;
-        LOG_INFO(<< "Big change in normalizer - max score updated from "
+        LOG_TRACE(<< "Big change in normalizer - max score updated from "
                  << oldMaxScore << " to " << maxScore[0]);
     }
     uint32_t discreteScore = this->discreteScore(score);
@@ -787,7 +766,6 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     for (auto& element : m_MaxScores) {
         element.second.age(alpha);
     }
-    m_MaxScore.age(alpha);
 
     // Quantiles age at a much slower rate than everything else so that
     // we can accurately estimate high quantiles. We achieve this by only
@@ -828,15 +806,15 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
     }
 
     // We know how to upgrade between versions 1, 2 and 3.
-    static const double HIGH_SCORE_UPGRADE_FACTOR[][4] = {
+    static const double HIGH_SCORE_UPGRADE_FACTOR[][3] = {
         {1.0, 0.3, 0.3},
         {1.0 / 0.3, 1.0, 1.0},
-        {1.0 / 0.3, 1.0, 1.0},
+        {1.0 / 0.3, 1.0, 1.0}
     };
-    static const double Q_DIGEST_UPGRADE_FACTOR[][4] = {
+    static const double Q_DIGEST_UPGRADE_FACTOR[][3] = {
         {1.0, 3.0, 30.0},
         {1.0 / 3.0, 1.0, 10.0},
-        {1.0 / 30.0, 1.0 / 10.0, 1.0},
+        {1.0 / 30.0, 1.0 / 10.0, 1.0}
     };
 
     std::size_t i, j;
@@ -857,7 +835,6 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
              << " and Q digest min/max values by " << qDigestUpgradeFactor);
 
     // For the maximum score aging is equivalent to scaling.
-    m_MaxScore.age(highScoreUpgradeFactor);
     for (auto& element : m_MaxScores) {
         element.second.age(highScoreUpgradeFactor);
     }
@@ -879,7 +856,6 @@ void CAnomalyScore::CNormalizer::clear() {
     m_HighPercentileScore = std::numeric_limits<uint32_t>::max();
     m_HighPercentileCount = 0ull;
 
-    m_MaxScore.clear();
     for (auto& element : m_MaxScores) {
         element.second.clear();
     }
@@ -901,9 +877,7 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
                                      &m_RawScoreHighQuantileSummary, _1));
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
 
-    inserter.insertLevel(
-        MAX_SCORES_PER_PARTITION_TAG,
-        boost::bind(&CAnomalyScore::CNormalizer::persistMaximumScores, this, _1));
+    core::CPersistUtils::persist(MAX_SCORES_PER_PARTITION_TAG, m_MaxScores, inserter);
 }
 
 bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -921,10 +895,6 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
         RESTORE(HIGH_PERCENTILE_COUNT_TAG,
                 core::CStringUtils::stringToType(traverser.value(), m_HighPercentileCount));
 
-        // For BWC continue to restore the old-style job-scope maximum score if present
-        // It will be migrated and persisted using the new per-partition sceme (quantile state > 3)
-        RESTORE_NO_ERROR(MAX_SCORE_TAG, m_MaxScore.fromDelimited(traverser.value()));
-
         RESTORE(RAW_SCORE_QUANTILE_SUMMARY,
                 traverser.traverseSubLevel(boost::bind(&maths::CQDigest::acceptRestoreTraverser,
                                                        &m_RawScoreQuantileSummary, _1)));
@@ -933,39 +903,10 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
                     boost::bind(&maths::CQDigest::acceptRestoreTraverser,
                                 &m_RawScoreHighQuantileSummary, _1)));
 
-        RESTORE(MAX_SCORES_PER_PARTITION_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CAnomalyScore::CNormalizer::restoreMaximumScores, this, _1)));
+        core::CPersistUtils::restore(MAX_SCORES_PER_PARTITION_TAG, m_MaxScores, traverser);
+
     } while (traverser.next());
 
-    return true;
-}
-
-void CAnomalyScore::CNormalizer::persistMaximumScores(core::CStatePersistInserter& inserter) const {
-    if (!m_MaxScores.empty()) {
-        // Order the map keys to ensure consistent persistence
-        TWordVec keys;
-        keys.reserve(m_MaxScores.size());
-        for (const auto& value : m_MaxScores) {
-            keys.push_back(value.first);
-        }
-        std::sort(keys.begin(), keys.end());
-
-        for (const auto& key : keys) {
-            inserter.insertValue(PARTITION_WORD_TAG, key.toDelimited());
-            inserter.insertValue(PATITION_MAX_SCORE_TAG, m_MaxScores.at(key).toDelimited());
-        }
-    }
-}
-
-bool CAnomalyScore::CNormalizer::restoreMaximumScores(core::CStateRestoreTraverser& traverser) {
-    TWord word;
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(PARTITION_WORD_TAG, word.fromDelimited(traverser.value()));
-        RESTORE(PATITION_MAX_SCORE_TAG,
-                m_MaxScores[word].fromDelimited(traverser.value()));
-    } while (traverser.next());
     return true;
 }
 
@@ -976,10 +917,7 @@ uint64_t CAnomalyScore::CNormalizer::checksum() const {
     seed = maths::CChecksum::calculate(seed, m_MaximumNormalizedScore);
     seed = maths::CChecksum::calculate(seed, m_HighPercentileScore);
     seed = maths::CChecksum::calculate(seed, m_HighPercentileCount);
-    seed = maths::CChecksum::calculate(seed, m_MaxScore);
-    for (auto& element : m_MaxScores) {
-        seed = maths::CChecksum::calculate(seed, element.second);
-    }
+    seed = maths::CChecksum::calculate(seed, m_MaxScores);
     seed = maths::CChecksum::calculate(seed, m_BucketNormalizationFactor);
     seed = maths::CChecksum::calculate(seed, m_RawScoreQuantileSummary);
     seed = maths::CChecksum::calculate(seed, m_RawScoreHighQuantileSummary);

@@ -77,8 +77,12 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     std::string valueFieldName;
     double probability(0.0);
 
-    // 6.5+
-    bool isValidRecord = parseDataFields(dataRowFields, level, partition,
+    // As of version 6.5 the 'personValue' field is required for (re)normalization to succeed.
+    // In the case of renormalization the 'personValue' field must be included in the set of 
+    // parameters sent from the Java side ML plugin to Elasticsearch.
+    // In production the version of the native code application and the java application it is communicating directly
+    // with will always match so supporting BWC with versions prior to 6.5 is not necessary.
+    bool isNormalizable = this->parseDataFields(dataRowFields, level, partition,
                                          partitionValue, person, personValue,
                                          function, valueFieldName, probability);
 
@@ -87,7 +91,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
               << personValue << "', function='" << function << "', value='"
               << valueFieldName << "', probability='" << probability << "'");
 
-    if (isValidRecord) {
+    if (isNormalizable) {
         const model::CAnomalyScore::CNormalizer* levelNormalizer = nullptr;
         double score = probability > m_ModelConfig.maximumAnomalousProbability()
                            ? 0.0

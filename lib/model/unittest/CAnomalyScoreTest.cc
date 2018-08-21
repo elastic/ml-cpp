@@ -634,10 +634,10 @@ void CAnomalyScoreTest::testNormalizerGetMaxScore() {
     }
 
     double maxScoreAAL;
-    CPPUNIT_ASSERT(normalizer.getMaxScore("", "", "airline", "AAL", maxScoreAAL));
+    CPPUNIT_ASSERT(normalizer.maxScore("", "", "airline", "AAL", maxScoreAAL));
 
     double maxScoreKLM;
-    CPPUNIT_ASSERT(normalizer.getMaxScore("", "", "airline", "KLM", maxScoreKLM));
+    CPPUNIT_ASSERT(normalizer.maxScore("", "", "airline", "KLM", maxScoreKLM));
 
     LOG_DEBUG(<< "maxScoreAAL = " << maxScoreAAL);
     LOG_DEBUG(<< "maxScoreKLM = " << maxScoreKLM);
@@ -649,15 +649,6 @@ void CAnomalyScoreTest::testNormalizerGetMaxScore() {
     // (and hence different from one another)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expecteMaxScoreAAL, maxScoreAAL, 5e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expecteMaxScoreKLM, maxScoreKLM, 5e-5);
-
-    // The normalizer tracks the overall maximum score across all partitions
-    // It is returned in cases where a partition-wis max score  can not be identified
-    double maxScoreNormalizer;
-    CPPUNIT_ASSERT(normalizer.getMaxScore("", "", "", "", maxScoreNormalizer));
-
-    LOG_DEBUG(<< "maxScoreNormalizer = " << maxScoreNormalizer);
-
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(maxScoreNormalizer, maxScoreAAL, 5e-5);
 }
 
 void CAnomalyScoreTest::testJsonConversion() {
@@ -734,13 +725,13 @@ void CAnomalyScoreTest::testJsonConversion() {
         CPPUNIT_ASSERT(stateDoc.HasMember("e"));
         CPPUNIT_ASSERT(stateDoc.HasMember("f"));
         CPPUNIT_ASSERT(stateDoc.HasMember("g"));
+        CPPUNIT_ASSERT(stateDoc["g"].HasMember("d"));
         CPPUNIT_ASSERT(stateDoc["g"].HasMember("a"));
-        CPPUNIT_ASSERT(stateDoc["g"].HasMember("b"));
+        CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("a"));
+        CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("b"));
 
-        // Check that, in the case of a single partition, the max score for the partition is the same as that for the
-        // normalizer as a whole (backwards compatibility check)
         rapidjson::Value& normalizerMaxScoreDoc = stateDoc["c"];
-        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["b"];
+        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"];
 
         rapidjson::StringBuffer buffer1;
         rapidjson::Writer<rapidjson::StringBuffer> writer1(buffer1);
@@ -758,7 +749,8 @@ void CAnomalyScoreTest::testJsonConversion() {
         partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
-        CPPUNIT_ASSERT_EQUAL(normalizerMaxScoreStr, partitionMaxScoreStr);
+        CPPUNIT_ASSERT_EQUAL(std::string("\"2368.526\""), partitionMaxScoreStr);
+        CPPUNIT_ASSERT_EQUAL(std::string("\"\""), normalizerMaxScoreStr);
     }
 
     rapidjson::StringBuffer buffer;

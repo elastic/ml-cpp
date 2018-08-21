@@ -43,6 +43,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
     ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
 
     CPPUNIT_ASSERT(normalizer.initNormalizer("testfiles/new_quantilesState.json"));
+    LOG_INFO(<< "normalizer initialized");
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
@@ -284,7 +285,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
         CPPUNIT_ASSERT_EQUAL(std::string("EGF"),
                              std::string(doc["partition_field_value"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("leaf"), std::string(doc["level"].GetString()));
-        CPPUNIT_ASSERT_EQUAL(std::string("8.178799"),
+        CPPUNIT_ASSERT_EQUAL(std::string("8.178497"),
                              std::string(doc["normalized_score"].GetString()));
     }
     {
@@ -304,7 +305,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
         CPPUNIT_ASSERT_EQUAL(std::string("KLM"),
                              std::string(doc["partition_field_value"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("leaf"), std::string(doc["level"].GetString()));
-        CPPUNIT_ASSERT_EQUAL(std::string("25.34194"),
+        CPPUNIT_ASSERT_EQUAL(std::string("25.34066"),
                              std::string(doc["normalized_score"].GetString()));
     }
     {
@@ -499,7 +500,7 @@ void CResultNormalizerTest::testInitNormalizer() {
         CPPUNIT_ASSERT_EQUAL(std::string(""),
                              std::string(doc["partition_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("root"), std::string(doc["level"].GetString()));
-        CPPUNIT_ASSERT_EQUAL(std::string("31.20283"),
+        CPPUNIT_ASSERT_EQUAL(std::string("53.72631"),
                              std::string(doc["normalized_score"].GetString()));
     }
     {
