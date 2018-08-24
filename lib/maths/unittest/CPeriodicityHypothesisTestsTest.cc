@@ -86,7 +86,7 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
                 const auto& generator = generators[index[0]];
 
                 maths::CPeriodicityHypothesisTests hypotheses;
-                hypotheses.initialize(bucketLength, window,
+                hypotheses.initialize(0 /*startTime*/, bucketLength, window,
                                       window / static_cast<core_t::TTime>(repeats[0]));
 
                 for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
@@ -158,7 +158,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                     const auto& generator = generators[index[0]];
 
                     maths::CPeriodicityHypothesisTests hypotheses;
-                    hypotheses.initialize(bucketLength, window,
+                    hypotheses.initialize(0 /*startTime*/, bucketLength, window,
                                           window / static_cast<core_t::TTime>(repeats[0]));
 
                     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
@@ -201,8 +201,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TTimeVec windows{4 * DAY, 14 * DAY};
 
         maths::CPeriodicityHypothesisTests hypotheses[2];
-        hypotheses[0].initialize(HOUR, windows[0], DAY);
-        hypotheses[1].initialize(HOUR, windows[1], DAY);
+        hypotheses[0].initialize(0 /*startTime*/, HOUR, windows[0], DAY);
+        hypotheses[1].initialize(0 /*startTime*/, HOUR, windows[1], DAY);
 
         for (std::size_t i = 0u; i < timeseries.size(); ++i) {
             core_t::TTime time{timeseries[i].first};
@@ -212,7 +212,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                         hypotheses[j].test()};
                     CPPUNIT_ASSERT_EQUAL(std::string("{ 'daily' }"), result.print());
                     hypotheses[j] = maths::CPeriodicityHypothesisTests();
-                    hypotheses[j].initialize(HOUR, windows[j], DAY);
+                    hypotheses[j].initialize(0 /*startTime*/, HOUR, windows[j], DAY);
                     lastTests[j] += windows[j];
                 }
                 hypotheses[j].add(time, timeseries[i].second);
@@ -240,7 +240,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         core_t::TTime window{14 * DAY};
 
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HOUR, window, DAY);
+        hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
 
         for (std::size_t i = 0u; i < timeseries.size(); ++i) {
             core_t::TTime time{timeseries[i].first};
@@ -250,7 +250,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                 CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
                                result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
-                hypotheses.initialize(HOUR, window, DAY);
+                hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
             }
             hypotheses.add(time, timeseries[i].second);
@@ -278,7 +278,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         core_t::TTime window{14 * DAY};
 
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HOUR, window, DAY);
+        hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
 
         for (std::size_t i = 0u; i < timeseries.size(); ++i) {
             core_t::TTime time{timeseries[i].first};
@@ -286,7 +286,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 CPPUNIT_ASSERT_EQUAL(std::string("{ }"), result.print());
                 hypotheses = maths::CPeriodicityHypothesisTests();
-                hypotheses.initialize(HOUR, window, DAY);
+                hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
             }
             hypotheses.add(time, timeseries[i].second);
@@ -314,7 +314,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         core_t::TTime window{14 * DAY};
 
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HOUR, window, DAY);
+        hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
 
         for (std::size_t i = 0u; i < timeseries.size(); ++i) {
             core_t::TTime time{timeseries[i].first};
@@ -324,7 +324,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                 CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
                                result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
-                hypotheses.initialize(HOUR, window, DAY);
+                hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
             }
             hypotheses.add(time, timeseries[i].second);
@@ -371,8 +371,8 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(core::CStringUtils::typeToString(period), false, 0,
-                             period, {0, period}, {});
+                expected.add(core::CStringUtils::typeToString(period), false,
+                             false, 0, period, {0, period});
 
                 switch (test % 3) {
                 case 0:
@@ -390,7 +390,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                 auto generator = generators[index[0]];
 
                 maths::CPeriodicityHypothesisTests hypotheses;
-                hypotheses.initialize(bucketLength, window, period);
+                hypotheses.initialize(0 /*startTime*/, bucketLength, window, period);
 
                 for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
@@ -422,7 +422,7 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
     LOG_DEBUG(<< "Daily Periodic");
     {
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HALF_HOUR, WEEK, DAY);
+        hypotheses.initialize(0 /*startTime*/, HALF_HOUR, WEEK, DAY);
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 7; ++t) {
@@ -448,7 +448,7 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
     LOG_DEBUG(<< "Daily Not Periodic");
     {
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HALF_HOUR, WEEK, DAY);
+        hypotheses.initialize(0 /*startTime*/, HALF_HOUR, WEEK, DAY);
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 7; ++t) {
@@ -475,7 +475,7 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
     LOG_DEBUG(<< "Weekly");
     {
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HOUR, 2 * WEEK, WEEK);
+        hypotheses.initialize(0 /*startTime*/, HOUR, 2 * WEEK, WEEK);
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 4; ++t) {
@@ -514,7 +514,7 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
     LOG_DEBUG(<< "Weekly Not Periodic");
     {
         maths::CPeriodicityHypothesisTests hypotheses;
-        hypotheses.initialize(HOUR, 4 * WEEK, WEEK);
+        hypotheses.initialize(0 /*startTime*/, HOUR, 4 * WEEK, WEEK);
 
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 4; ++t) {
@@ -707,8 +707,8 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(core::CStringUtils::typeToString(period), false, 0,
-                             period, {0, period}, {});
+                expected.add(core::CStringUtils::typeToString(period), false,
+                             false, 0, period, {0, period});
 
                 switch (test % 3) {
                 case 0:

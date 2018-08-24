@@ -177,7 +177,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     // and one extended drop in status 200s, which are the principal
     // anomalies to find in this data set.
     static const double HIGH_ANOMALY_SCORE(0.0019);
-    static const size_t EXPECTED_ANOMALOUS_HOURS(10);
+    static const size_t EXPECTED_ANOMALOUS_HOURS(11);
 
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);

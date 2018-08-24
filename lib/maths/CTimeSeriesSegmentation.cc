@@ -50,10 +50,8 @@ TRegression fitLinearModel(ITR begin, ITR end, double startTime, double dt) {
 
 //! Fit a periodic model of period \p period to the values [\p begin, \p end).
 template<typename ITR>
-TDoubleVec fitPeriodicModel(ITR begin,
-                            ITR end,
-                            std::size_t period,
-                            const TDoubleSizeFunc& scale) {
+TDoubleVec
+fitPeriodicModel(ITR begin, ITR end, std::size_t period, const TDoubleSizeFunc& scale) {
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     TMeanAccumulatorVec levels(period);
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
@@ -105,11 +103,7 @@ bool reweightOutliers(ITR begin,
 //! Re-weight the outlying values in [\p begin, \p end) w.r.t. the
 //! predictions from \p predict.
 template<typename ITR>
-bool reweightOutliers(ITR begin,
-                      ITR end,
-                      const TDoubleSizeFunc& predict,
-                      double fraction,
-                      double weight) {
+bool reweightOutliers(ITR begin, ITR end, const TDoubleSizeFunc& predict, double fraction, double weight) {
     using TDoublePtrPr = std::pair<double, typename std::iterator_traits<ITR>::value_type*>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<TDoublePtrPr, std::greater<TDoublePtrPr>>;
@@ -202,7 +196,7 @@ centredResidualMoments(ITR begin, ITR end, std::size_t offset, const TDoubleVec&
         }
     }
     CBasicStatistics::moment<0>(moments) = 0.0;
-    LOG_TRACE("  moments = " << moments);
+    LOG_TRACE(<< "  moments = " << moments);
 
     return moments;
 }
@@ -255,8 +249,8 @@ CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(TFloatMeanAccumula
     LOG_TRACE(<< "steps = " << core::CContainerPrinter::print(steps));
     std::partial_sum(steps.rbegin(), steps.rend(), steps.rbegin());
     for (std::size_t i = segmentation.size() - 1; i > 0; --i) {
-        LOG_TRACE("Shifting [" << segmentation[i - 1] << "," << segmentation[i]
-                               << ") by " << steps[i - 1]);
+        LOG_TRACE(<< "Shifting [" << segmentation[i - 1] << ","
+                  << segmentation[i] << ") by " << steps[i - 1]);
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
             CBasicStatistics::moment<0>(values[j]) -= steps[i - 1];
         }
@@ -643,8 +637,9 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledPeriodic(
                 Z.add(p * p, w);
             }
         }
-        return CBasicStatistics::mean(Z) == 0.0 ?
-               0.0 : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
+        return CBasicStatistics::mean(Z) == 0.0
+                   ? 0.0
+                   : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
     };
     auto scale = [&](std::size_t i) {
         auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);

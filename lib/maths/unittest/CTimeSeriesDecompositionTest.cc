@@ -469,88 +469,89 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
 void CTimeSeriesDecompositionTest::testWeekend() {
     double weights[] = {0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    TTimeVec times;
-    TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
-        double weight = weights[(time / DAY) % 7];
-        double daily = 100.0 * std::sin(boost::math::double_constants::two_pi *
-                                        static_cast<double>(time) /
-                                        static_cast<double>(DAY));
-        times.push_back(time);
-        trend.push_back(weight * daily);
-    }
-
-    test::CRandomNumbers rng;
-    TDoubleVec noise;
-    rng.generateNormalSamples(0.0, 20.0, times.size(), noise);
-
-    maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
-    CDebugGenerator debug;
-
-    double totalSumResidual = 0.0;
-    double totalMaxResidual = 0.0;
-    double totalSumValue = 0.0;
-    double totalMaxValue = 0.0;
-    double totalPercentileError = 0.0;
-
-    core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i) {
-        core_t::TTime time = times[i];
-        double value = trend[i] + noise[i];
-
-        decomposition.addPoint(time, value);
-        debug.addValue(time, value);
-
-        if (time >= lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
-
-            double sumResidual = 0.0;
-            double maxResidual = 0.0;
-            double sumValue = 0.0;
-            double maxValue = 0.0;
-            double percentileError = 0.0;
-
-            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR) {
-                TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-                double residual = std::fabs(trend[t / HALF_HOUR] - mean(prediction));
-                sumResidual += residual;
-                maxResidual = std::max(maxResidual, residual);
-                sumValue += std::fabs(trend[t / HALF_HOUR]);
-                maxValue = std::max(maxValue, std::fabs(trend[t / HALF_HOUR]));
-                percentileError +=
-                    std::max(std::max(prediction.first - trend[t / HALF_HOUR],
-                                      trend[t / HALF_HOUR] - prediction.second),
-                             0.0);
-                debug.addPrediction(t, mean(prediction), residual);
-            }
-
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
-
-            if (time >= 3 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.07 * sumValue);
-                CPPUNIT_ASSERT(maxResidual < 0.17 * maxValue);
-                CPPUNIT_ASSERT(percentileError < 0.03 * sumValue);
-
-                totalSumResidual += sumResidual;
-                totalMaxResidual += maxResidual;
-                totalSumValue += sumValue;
-                totalMaxValue += maxValue;
-                totalPercentileError += percentileError;
-            }
-
-            lastWeek += WEEK;
+    for (auto offset : {0 * DAY, 5 * DAY}) {
+        TTimeVec times;
+        TDoubleVec trend;
+        for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
+            double weight = weights[(time / DAY) % 7];
+            double daily = 100.0 * std::sin(boost::math::double_constants::two_pi *
+                                            static_cast<double>(time) /
+                                            static_cast<double>(DAY));
+            times.push_back(time + offset);
+            trend.push_back(weight * daily);
         }
+
+        test::CRandomNumbers rng;
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 20.0, times.size(), noise);
+
+        maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
+        CDebugGenerator debug;
+
+        double totalSumResidual = 0.0;
+        double totalMaxResidual = 0.0;
+        double totalSumValue = 0.0;
+        double totalMaxValue = 0.0;
+        double totalPercentileError = 0.0;
+
+        core_t::TTime lastWeek = offset;
+        for (std::size_t i = 0u; i < times.size(); ++i) {
+            core_t::TTime time = times[i];
+            double value = trend[i] + noise[i];
+
+            decomposition.addPoint(time, value);
+            debug.addValue(time, value);
+
+            if (time >= lastWeek + WEEK) {
+                LOG_DEBUG(<< "Processing week");
+
+                double sumResidual = 0.0;
+                double maxResidual = 0.0;
+                double sumValue = 0.0;
+                double maxValue = 0.0;
+                double percentileError = 0.0;
+
+                for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR) {
+                    TDoubleDoublePr prediction = decomposition.value(t, 70.0);
+                    double actual = trend[(t - offset) / HALF_HOUR];
+                    double residual = std::fabs(actual - mean(prediction));
+                    sumResidual += residual;
+                    maxResidual = std::max(maxResidual, residual);
+                    sumValue += std::fabs(actual);
+                    maxValue = std::max(maxValue, std::fabs(actual));
+                    percentileError += std::max(
+                        std::max(prediction.first - actual, actual - prediction.second), 0.0);
+                    debug.addPrediction(t, mean(prediction), residual);
+                }
+
+                LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+                LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+                LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+
+                if (time >= 3 * WEEK) {
+                    CPPUNIT_ASSERT(sumResidual < 0.07 * sumValue);
+                    CPPUNIT_ASSERT(maxResidual < 0.17 * maxValue);
+                    CPPUNIT_ASSERT(percentileError < 0.03 * sumValue);
+
+                    totalSumResidual += sumResidual;
+                    totalMaxResidual += maxResidual;
+                    totalSumValue += sumValue;
+                    totalMaxValue += maxValue;
+                    totalPercentileError += percentileError;
+                }
+
+                lastWeek += WEEK;
+            }
+        }
+
+        LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
+        LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
+        LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
+
+        CPPUNIT_ASSERT(totalSumResidual < 0.022 * totalSumValue);
+        CPPUNIT_ASSERT(totalMaxResidual < 0.055 * totalMaxValue);
+        CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
     }
-
-    LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
-    LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
-    LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-
-    CPPUNIT_ASSERT(totalSumResidual < 0.02 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.04 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
 void CTimeSeriesDecompositionTest::testSinglePeriodicity() {
@@ -1216,9 +1217,9 @@ void CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.17 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.47 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.07 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.2 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.43 * totalMaxValue);
+    CPPUNIT_ASSERT(totalPercentileError < 0.06 * totalSumValue);
 }
 
 void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
@@ -1581,8 +1582,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
                     double maxValue = 0.0;
 
                     for (std::size_t j = i - 12; j < i; ++j) {
-                        TDoubleDoublePr prediction =
-                            decomposition.value(times[j], 70.0);
+                        TDoubleDoublePr prediction = decomposition.value(times[j], 70.0);
                         double residual = std::fabs(trend[j] - mean(prediction));
                         sumResidual += residual;
                         maxResidual = std::max(maxResidual, residual);
@@ -1608,10 +1608,8 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
             }
         }
 
-        LOG_DEBUG(<< "total 'sum residual' / 'sum value' = "
-                  << totalSumResidual / totalSumValue);
-        LOG_DEBUG(<< "total 'max residual' / 'max value' = "
-                  << totalMaxResidual / totalMaxValue);
+        LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
+        LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
         CPPUNIT_ASSERT(totalSumResidual / totalSumValue < 0.14);
         CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.12);

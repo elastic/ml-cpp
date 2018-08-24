@@ -502,13 +502,13 @@ bool CPeriodicityHypothesisTestsResult::piecewiseLinearTrend() const {
 
 void CPeriodicityHypothesisTestsResult::add(const std::string& description,
                                             bool diurnal,
+                                            bool piecewiseScaled,
                                             core_t::TTime startOfPartition,
                                             core_t::TTime period,
                                             const TTimeTimePr& window,
-                                            const TSizeVec& segmentation,
                                             double precedence) {
-    m_Components.emplace_back(description, diurnal, startOfPartition, period,
-                              window, segmentation, precedence);
+    m_Components.emplace_back(description, diurnal, piecewiseScaled,
+                              startOfPartition, period, window, precedence);
 }
 
 void CPeriodicityHypothesisTestsResult::remove(const TRemoveCondition& condition) {
@@ -525,13 +525,10 @@ CPeriodicityHypothesisTestsResult::components() const {
     return m_Components;
 }
 
-std::string CPeriodicityHypothesisTestsResult::print(bool segments) const {
+std::string CPeriodicityHypothesisTestsResult::print() const {
     std::string result("{");
     for (const auto& component : m_Components) {
         result += " '" + component.s_Description + "'";
-        if (segments && component.s_Segmentation.size() > 0) {
-            result += '/' + core::CContainerPrinter::print(component.s_Segmentation);
-        }
     }
     result += " }";
     return result;
@@ -539,14 +536,14 @@ std::string CPeriodicityHypothesisTestsResult::print(bool segments) const {
 
 CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& description,
                                                           bool diurnal,
+                                                          bool piecewiseScaled,
                                                           core_t::TTime startOfPartition,
                                                           core_t::TTime period,
                                                           const TTimeTimePr& window,
-                                                          const TSizeVec& segmentation,
                                                           double precedence)
     : s_Description(description), s_Diurnal(diurnal),
-      s_StartOfPartition(startOfPartition), s_Period(period), s_Window(window),
-      s_Segmentation(segmentation), s_Precedence(precedence) {
+      s_PiecewiseScaled(piecewiseScaled), s_StartOfPartition(startOfPartition),
+      s_Period(period), s_Window(window), s_Precedence(precedence) {
 }
 
 bool CPeriodicityHypothesisTestsResult::SComponent::operator==(const SComponent& other) const {
@@ -606,20 +603,19 @@ core_t::TTime CPeriodicityHypothesisTestsConfig::startOfWeek() const {
     return m_StartOfWeek;
 }
 
-CPeriodicityHypothesisTests::CPeriodicityHypothesisTests()
-    : m_BucketLength(0), m_WindowLength(0), m_Period(0) {
-}
 CPeriodicityHypothesisTests::CPeriodicityHypothesisTests(const CPeriodicityHypothesisTestsConfig& config)
-    : m_Config(config), m_BucketLength(0), m_WindowLength(0), m_Period(0) {
+    : m_Config(config) {
 }
 
 bool CPeriodicityHypothesisTests::initialized() const {
     return m_BucketValues.size() > 0;
 }
 
-void CPeriodicityHypothesisTests::initialize(core_t::TTime bucketLength,
+void CPeriodicityHypothesisTests::initialize(core_t::TTime startTime,
+                                             core_t::TTime bucketLength,
                                              core_t::TTime windowLength,
                                              core_t::TTime period) {
+    m_StartTime = startTime;
     m_BucketLength = bucketLength;
     m_WindowLength = windowLength;
     m_BucketValues.resize(static_cast<std::size_t>(windowLength / m_BucketLength));
@@ -1170,7 +1166,7 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
                     SEASONAL_SIGNIFICANT_AUTOCORRELATION[E_HighThreshold]);
                 stats.s_R0 = stats.s_Rt;
             }
-            LOG_TRACE(<< resultForHypothesis.print(true)
+            LOG_TRACE(<< resultForHypothesis.print()
                       << (hypothesis.trendSegments() > 1 ? " piecewise linear trend" : ""));
             summaries.push_back(SHypothesisSummary{
                 stats.s_V0, stats.s_R0, stats.s_B - stats.s_DF0, stats.s_Vt,
@@ -1241,14 +1237,10 @@ CPeriodicityHypothesisTests::testForDaily(const TTimeTimePr2Vec& windows,
         stats.s_StartOfPartition = 0;
         stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
         this->hypothesis({DAY}, buckets, stats);
-        TSizeVec segmentation;
-        if (stats.s_Segmentation.size() > 0) {
-            segmentation = stats.s_Segmentation;
-            segmentation.back() = m_BucketValues.size();
-        }
-        result.add(DIURNAL_COMPONENT_NAMES[E_Day], true, 0,
+        result.add(DIURNAL_COMPONENT_NAMES[E_Day], true /*diurnal*/,
+                   stats.s_Segmentation.size() > 0, 0 /*startOfWeek*/,
                    DIURNAL_PERIODS[static_cast<int>(E_Day) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_Day) / 2], segmentation);
+                   DIURNAL_WINDOWS[static_cast<int>(E_Day) / 2]);
     }
 
     return result;
@@ -1275,14 +1267,10 @@ CPeriodicityHypothesisTests::testForWeekly(const TTimeTimePr2Vec& windows,
         stats.s_StartOfPartition = 0;
         stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
         this->hypothesis({WEEK}, buckets, stats);
-        TSizeVec segmentation;
-        if (stats.s_Segmentation.size() > 0) {
-            segmentation = stats.s_Segmentation;
-            segmentation.back() = m_BucketValues.size();
-        }
-        result.add(DIURNAL_COMPONENT_NAMES[E_Week], true, 0,
+        result.add(DIURNAL_COMPONENT_NAMES[E_Week], true /*diurnal*/,
+                   stats.s_Segmentation.size() > 0, 0 /*startOfWeek*/,
                    DIURNAL_PERIODS[static_cast<int>(E_Week) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_Week) / 2], segmentation);
+                   DIURNAL_WINDOWS[static_cast<int>(E_Week) / 2]);
     }
 
     return result;
@@ -1314,12 +1302,14 @@ CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulator
         result.remove([](const CPeriodicityHypothesisTestsResult::SComponent& component) {
             return component.s_Period == DAY;
         });
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendDay], true, startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendDay], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendDay) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendDay) / 2], {}, HIGH_PRIORITY);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayDay], true, startOfWeek,
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendDay) / 2], HIGH_PRIORITY);
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayDay], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayDay) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayDay) / 2], {}, HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayDay) / 2], HIGH_PRIORITY);
     }
 
     return result;
@@ -1344,12 +1334,14 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGive
         this->testForWeekly(windows, buckets, false, stats)};
     if (resultForWeekly != result) {
         // Note that testForWeekly sets up the hypothesis for us.
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true, startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], {}, HIGH_PRIORITY);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true, startOfWeek,
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], HIGH_PRIORITY);
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], {}, HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], HIGH_PRIORITY);
         return result;
     }
 
@@ -1364,9 +1356,10 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGive
         stats.s_StartOfPartition = startOfWeek;
         stats.s_Partition = partition;
         this->hypothesis({DAY, WEEK}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true, startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekdayWeek], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekdayWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], {}, HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekdayWeek) / 2], HIGH_PRIORITY);
         return result;
     }
 
@@ -1377,9 +1370,10 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGive
         stats.s_StartOfPartition = startOfWeek;
         stats.s_Partition = partition;
         this->hypothesis({WEEK, DAY}, buckets, stats);
-        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true, startOfWeek,
+        result.add(DIURNAL_COMPONENT_NAMES[E_WeekendWeek], true /*diurnal*/,
+                   false /*piecewiseConstant*/, startOfWeek,
                    DIURNAL_PERIODS[static_cast<int>(E_WeekendWeek) % 2],
-                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], {}, HIGH_PRIORITY);
+                   DIURNAL_WINDOWS[static_cast<int>(E_WeekendWeek) / 2], HIGH_PRIORITY);
     }
 
     return result;
@@ -1407,13 +1401,9 @@ CPeriodicityHypothesisTests::testForPeriod(const TTimeTimePr2Vec& windows,
             stats.s_StartOfPartition = 0;
             stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
             this->hypothesis({m_Period}, buckets, stats);
-            TSizeVec segmentation;
-            if (stats.s_Segmentation.size() > 0) {
-                segmentation = stats.s_Segmentation;
-                segmentation.back() = m_BucketValues.size();
-            }
-            result.add(core::CStringUtils::typeToString(m_Period), false, 0,
-                       m_Period, {0, m_Period}, segmentation);
+            result.add(core::CStringUtils::typeToString(m_Period),
+                       false /*diurnal*/, stats.s_Segmentation.size() > 0,
+                       0 /*startOfWeek*/, m_Period, {0, m_Period});
         }
     }
 
@@ -1981,7 +1971,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return false;
     }
 
-    startOfPartition = best[0].second;
+    startOfPartition = (m_StartTime + best[0].second) % repeat;
     double v1{varianceAtPercentile(correction * minimum[0].first, df1,
                                    50.0 + CONFIDENCE_INTERVAL / 2.0)};
     LOG_TRACE(<< "  start of partition = " << startOfPartition);
@@ -2380,15 +2370,15 @@ testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
     // Find the single periodic component which explains the
     // most cyclic autocorrelation.
     std::size_t period_{mostSignificantPeriodicComponent(values)};
-    core_t::TTime window{static_cast<core_t::TTime>(values.size()) * bucketLength};
+    core_t::TTime windowLength{static_cast<core_t::TTime>(values.size()) * bucketLength};
     core_t::TTime period{static_cast<core_t::TTime>(period_) * bucketLength};
-    LOG_TRACE(<< "bucket length = " << bucketLength << ", window = " << window
+    LOG_TRACE(<< "bucket length = " << bucketLength << ", windowLength = " << windowLength
               << ", periods to test = " << period << ", # values = " << values.size());
 
     // Set up the hypothesis tests.
     CPeriodicityHypothesisTests test{config};
-    test.initialize(bucketLength, window, period);
-    core_t::TTime time{startTime + bucketLength / 2};
+    test.initialize(startTime, bucketLength, windowLength, period);
+    core_t::TTime time{bucketLength / 2};
     for (const auto& value : values) {
         test.add(time, CBasicStatistics::mean(value), CBasicStatistics::count(value));
         time += bucketLength;

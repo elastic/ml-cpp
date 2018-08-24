@@ -39,10 +39,10 @@ public:
         SComponent() = default;
         SComponent(const std::string& description,
                    bool diurnal,
+                   bool piecewiseScaled,
                    core_t::TTime startOfPartition,
                    core_t::TTime period,
                    const TTimeTimePr& window,
-                   const TSizeVec& segmentation,
                    double precedence = 1.0);
 
         //! Check if this is equal to \p other.
@@ -57,15 +57,15 @@ public:
         std::string s_Description;
         //! True if this is a diurnal component false otherwise.
         bool s_Diurnal = false;
+        //! The segmentation of the window into intervals of constant
+        //! scaling.
+        bool s_PiecewiseScaled = false;
         //! The start of the partition.
         core_t::TTime s_StartOfPartition = 0;
         //! The period of the component.
         core_t::TTime s_Period = 0;
         //! The component window.
         TTimeTimePr s_Window;
-        //! The segmentation of the window into intervals of constant
-        //! scaling.
-        TSizeVec s_Segmentation;
         //! The precedence to apply to this component when deciding
         //! which to keep.
         double s_Precedence = 0.0;
@@ -81,10 +81,10 @@ public:
     //! Add a component.
     void add(const std::string& description,
              bool diurnal,
+             bool piecewiseScaled,
              core_t::TTime startOfWeek,
              core_t::TTime period,
              const TTimeTimePr& window,
-             const TSizeVec& segmentation,
              double precedence = 1.0);
 
     //! Remove the component with \p description.
@@ -103,7 +103,7 @@ public:
     const TComponent5Vec& components() const;
 
     //! Get a human readable description of the result.
-    std::string print(bool segments = false) const;
+    std::string print() const;
 
 private:
     //! If true then the hypothesis used a piecewise linear trend.
@@ -181,14 +181,17 @@ public:
     using TComponent = CPeriodicityHypothesisTestsResult::SComponent;
 
 public:
-    CPeriodicityHypothesisTests();
+    CPeriodicityHypothesisTests() = default;
     explicit CPeriodicityHypothesisTests(const CPeriodicityHypothesisTestsConfig& config);
 
     //! Check if the test is initialized.
     bool initialized() const;
 
     //! Initialize the bucket values.
-    void initialize(core_t::TTime bucketLength, core_t::TTime window, core_t::TTime period);
+    void initialize(core_t::TTime startTime,
+                    core_t::TTime bucketLength,
+                    core_t::TTime window,
+                    core_t::TTime period);
 
     //! Add \p value at \p time.
     void add(core_t::TTime time, double value, double weight = 1.0);
@@ -446,14 +449,17 @@ private:
     //! Configures the tests to run.
     CPeriodicityHypothesisTestsConfig m_Config;
 
+    //! The start time of the window.
+    core_t::TTime m_StartTime = 0;
+
     //! The bucketing interval.
-    core_t::TTime m_BucketLength;
+    core_t::TTime m_BucketLength = 0;
 
     //! The window length for which to maintain bucket values.
-    core_t::TTime m_WindowLength;
+    core_t::TTime m_WindowLength = 0;
 
     //! The specified period to test.
-    core_t::TTime m_Period;
+    core_t::TTime m_Period = 0;
 
     //! The time range of values added to the test.
     TMinMaxAccumulator m_TimeRange;

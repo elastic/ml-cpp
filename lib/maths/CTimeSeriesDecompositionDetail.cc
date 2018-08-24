@@ -1522,10 +1522,11 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     const CExpandingWindow& window,
     const TPredictor& predictor) {
     using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
-    using TSeasonalTimePtrSizeVecPr = std::pair<TSeasonalTimePtr, TSizeVec>;
-    using TSeasonalTimePtrSizeVecPrVec = std::vector<TSeasonalTimePtrSizeVecPr>;
+    using TSeasonalTimePtrBoolPr = std::pair<TSeasonalTimePtr, bool>;
+    using TSeasonalTimePtrBoolPrVec = std::vector<TSeasonalTimePtrBoolPr>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-    TSeasonalTimePtrSizeVecPrVec newComponents;
+    TSeasonalTimePtrBoolPrVec newComponents;
     const TSeasonalComponentVec& components{m_Seasonal->components()};
 
     for (const auto& candidate_ : result.components()) {
@@ -1535,7 +1536,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate_.s_Description << "'");
-            newComponents.emplace_back(std::move(seasonalTime), candidate_.s_Segmentation);
+            newComponents.emplace_back(std::move(seasonalTime), candidate_.s_PiecewiseScaled);
         }
     }
 
@@ -1553,7 +1554,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         TFloatMeanAccumulatorVec values;
         for (const auto& component : newComponents) {
             const auto& seasonalTime = component.first;
-            const auto& segmentation = component.second;
 
             // Extract the values, minus the prediction of existing components,
             // ignoring any values which fall outside the window of the component
@@ -1576,22 +1576,42 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
             core_t::TTime period{seasonalTime->period()};
 
-            if (segmentation.size() > 0) {
+            if (component.second) {
                 // Periodicity testing detected piecewise constant linear scaling
                 // of the underlying seasonal component. Here, we adjust all values
-                // so the scaling is constant and equal to the most recent one.
+                // so the scaling is constant and equal to the average scaling for
+                // the last populated period.
                 LOG_TRACE(<< "Piecewise constant linear scaling");
                 TDoubleVec trend;
                 TDoubleVec scales;
+                std::size_t period_{static_cast<std::size_t>(period / dt)};
+                TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+                    values, period_));
                 std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-                    values, period / dt, segmentation);
+                    values, period_, segmentation);
                 LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
                 LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+                LOG_TRACE(<< "segmentation = "
+                          << core::CContainerPrinter::print(segmentation));
                 values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
                     values, segmentation, trend, scales);
+                TMeanAccumulator scale;
+                for (std::size_t i = scales.size();
+                     i > 0 && CBasicStatistics::count(scale) < static_cast<double>(period_);
+                     --i) {
+                    for (std::size_t j = segmentation[i - 1];
+                         j < segmentation[i] && CBasicStatistics::count(scale) <
+                                                    static_cast<double>(period_);
+                         ++j) {
+                        if (CBasicStatistics::count(values[j]) > 0) {
+                            scale.add(scales[i - 1]);
+                        }
+                    }
+                }
+                LOG_TRACE(<< "scale = " << CBasicStatistics::mean(scale));
                 for (std::size_t i = 0; i < values.size(); ++i) {
                     CBasicStatistics::moment<0>(values[i]) +=
-                        scales[scales.size() - 1] * trend[i % trend.size()];
+                        CBasicStatistics::mean(scale) * trend[i % trend.size()];
                 }
             }
 
