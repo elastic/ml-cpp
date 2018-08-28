@@ -635,6 +635,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                 params.s_Values[i][2 * j + 0] = bucket0->value()[j];
                 params.s_Values[i][2 * j + 1] = bucket1->value()[j];
             }
+            params.s_Counts[i] = TDouble2Vec{bucket0->count(), bucket1->count()};
             scale[variables[0]] = bucket0->varianceScale();
             scale[variables[1]] = bucket1->varianceScale();
             maths_t::setCountVarianceScale(scale, weight);
