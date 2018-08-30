@@ -108,14 +108,11 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_ScheduledEventDescriptions(scheduledEventDescriptions) {
 }
 
-CHierarchicalResultsWriter::CHierarchicalResultsWriter(
-    const model::CLimits& limits,
-    const model::CAnomalyDetectorModelConfig& modelConfig,
-    const TResultWriterFunc& resultWriterFunc,
-    const TPivotWriterFunc& pivotWriterFunc)
-    : m_Limits(limits), m_ModelConfig(modelConfig),
-      m_ResultWriterFunc(resultWriterFunc), m_PivotWriterFunc(pivotWriterFunc),
-      m_BucketTime(0) {
+CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits& limits,
+                                                       const TResultWriterFunc& resultWriterFunc,
+                                                       const TPivotWriterFunc& pivotWriterFunc)
+    : m_Limits(limits), m_ResultWriterFunc(resultWriterFunc),
+      m_PivotWriterFunc(pivotWriterFunc), m_BucketTime(0) {
 }
 
 void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults& results,
