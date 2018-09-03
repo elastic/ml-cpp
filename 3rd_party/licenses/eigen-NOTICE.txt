@@ -1,0 +1,2 @@
+A copy of the Eigen source code may be obtained from
+http://bitbucket.org/eigen/eigen/get/3.2.5.zip
