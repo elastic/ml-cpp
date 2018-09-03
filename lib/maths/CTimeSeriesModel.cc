@@ -170,14 +170,14 @@ const std::string IS_FORECASTABLE_OLD_TAG{"h"};
 
 // Anomaly model
 // Version >= 6.5
-const std::string ANOMALY_6_5_TAG{"b"};
-const std::string ANOMALY_FEATURE_MODEL_6_5_TAG{"d"};
+const std::string ANOMALY_6_5_TAG{"e"};
+const std::string ANOMALY_FEATURE_MODEL_6_5_TAG{"f"};
 // Version < 6.5
 // Discarded on state upgrade because features have changed.
-// Anomaly model nested
-const std::string OPEN_TIME_TAG{"a"};
-const std::string SUM_PREDICTION_ERROR_TAG{"b"};
-const std::string MEAN_ABS_PREDICTION_ERROR_TAG{"c"};
+// Anomaly only restored for 6.5 state.
+const std::string OPEN_TIME_6_5_TAG{"a"};
+const std::string SUM_PREDICTION_ERROR_6_5_TAG{"b"};
+const std::string MEAN_ABS_PREDICTION_ERROR_6_5_TAG{"c"};
 
 // Correlations
 const std::string K_MOST_CORRELATED_TAG{"a"};
@@ -380,9 +380,9 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
             do {
                 const std::string& name{traverser.name()};
-                RESTORE_BUILT_IN(OPEN_TIME_TAG, m_OpenTime)
-                RESTORE_BUILT_IN(SUM_PREDICTION_ERROR_TAG, m_SumPredictionError)
-                RESTORE(MEAN_ABS_PREDICTION_ERROR_TAG,
+                RESTORE_BUILT_IN(OPEN_TIME_6_5_TAG, m_OpenTime)
+                RESTORE_BUILT_IN(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError)
+                RESTORE(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                         m_MeanAbsPredictionError.fromDelimited(traverser.value()))
             } while (traverser.next());
             return true;
@@ -390,10 +390,10 @@ private:
 
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-            inserter.insertValue(OPEN_TIME_TAG, m_OpenTime);
-            inserter.insertValue(SUM_PREDICTION_ERROR_TAG, m_SumPredictionError,
+            inserter.insertValue(OPEN_TIME_6_5_TAG, m_OpenTime);
+            inserter.insertValue(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError,
                                  core::CIEEE754::E_SinglePrecision);
-            inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_TAG,
+            inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                                  m_MeanAbsPredictionError.toDelimited());
         }
 
@@ -510,10 +510,10 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(core_t::TTime time,
         //   2) For small bucket probabilities we take the geometric mean
         //      (which corresponds to a weight equal to 0.5),
         //   3) For fixed anomaly probability the derivative of the weight
-        //      w.r.t. the minus log bucket probability is negative and
+        //      w.r.t. minus log the bucket probability is negative and
         //      approaches 0.0 at the "anomaly" cutoff probability, and
         //   4) For fixed bucket probability the derivative of the weight
-        //      w.r.t. the minus log anomaly probability is positive.
+        //      w.r.t. minus log the anomaly probability is positive.
         // Note that condition 1) means we won't fall into the case that
         // a small perturbation in input data can lead to a large change in
         // results, condition 2) means that we will always correct anomalous
