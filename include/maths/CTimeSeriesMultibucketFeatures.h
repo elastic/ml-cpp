@@ -204,6 +204,7 @@ public:
 
     //! Compute a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const {
+        seed = CChecksum::calculate(seed, m_SlidingWindow.capacity());
         return CChecksum::calculate(seed, m_SlidingWindow);
     }
 
@@ -236,7 +237,7 @@ public:
 
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(CAPACITY_TAG, m_SlidingWindow.size());
+        inserter.insertValue(CAPACITY_TAG, m_SlidingWindow.capacity());
         core::CPersistUtils::persist(SLIDING_WINDOW_TAG, m_SlidingWindow, inserter);
     }
 
