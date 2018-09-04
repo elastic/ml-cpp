@@ -179,15 +179,6 @@ CModelProbabilityParams::CModelProbabilityParams()
     : m_SeasonalConfidenceInterval{DEFAULT_SEASONAL_CONFIDENCE_INTERVAL} {
 }
 
-CModelProbabilityParams& CModelProbabilityParams::tag(std::size_t tag) {
-    m_Tag = tag;
-    return *this;
-}
-
-std::size_t CModelProbabilityParams::tag() const {
-    return m_Tag;
-}
-
 CModelProbabilityParams&
 CModelProbabilityParams::addCalculation(maths_t::EProbabilityCalculation calculation) {
     m_Calculations.push_back(calculation);

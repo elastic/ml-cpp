@@ -173,10 +173,10 @@ void importData(ml::core_t::TTime firstTime,
 }
 
 void CEventRateAnomalyDetectorTest::testAnomalies() {
-    // We have 10 instances of correlated 503s and rare SQL statements
+    // We have 11 instances of correlated 503s and rare SQL statements
     // and one extended drop in status 200s, which are the principal
     // anomalies to find in this data set.
-    static const double HIGH_ANOMALY_SCORE(0.0019);
+    static const double HIGH_ANOMALY_SCORE(0.002);
     static const size_t EXPECTED_ANOMALOUS_HOURS(11);
 
     static const ml::core_t::TTime FIRST_TIME(1346713620);
@@ -226,8 +226,8 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         }
     }
     LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(10), detected503);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(10), detectedMySQL);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detected503);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detectedMySQL);
 }
 
 void CEventRateAnomalyDetectorTest::testPersist() {

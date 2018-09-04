@@ -2303,7 +2303,6 @@ double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations,
 //! Find the single periodic component which explains the most
 //! cyclic autocorrelation.
 std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
-    using TSizeVec = std::vector<std::size_t>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;

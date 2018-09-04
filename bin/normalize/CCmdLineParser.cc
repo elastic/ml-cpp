@@ -30,8 +30,7 @@ bool CCmdLineParser::parse(int argc,
                            bool& isOutputFileNamedPipe,
                            std::string& quantilesState,
                            bool& deleteStateFiles,
-                           bool& writeCsv,
-                           bool& perPartitionNormalization) {
+                           bool& writeCsv) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -60,8 +59,6 @@ bool CCmdLineParser::parse(int argc,
                         "If this flag is set then delete the normalizer state files once they have been read")
             ("writeCsv",
                         "Write the results in CSV format (default is lineified JSON)")
-            ("perPartitionNormalization",
-                        "Optional flag to enable per partition normalization")
         ;
         // clang-format on
 
@@ -113,9 +110,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("writeCsv") > 0) {
             writeCsv = true;
-        }
-        if (vm.count("perPartitionNormalization") > 0) {
-            perPartitionNormalization = true;
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

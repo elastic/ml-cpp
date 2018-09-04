@@ -41,11 +41,7 @@ if [ -z "$PLATFORMS" ] ; then
     usage
 fi
 
-# Default to alpha1 qualifier
-# TODO: remove this once release manager is updated
-if [ -z "$VERSION_QUALIFIER" ] ; then
-    VERSION_QUALIFIER=alpha1
-fi
+# Default to no version qualifier
 
 # Default to a snapshot build
 if [ -z "$SNAPSHOT" ] ; then

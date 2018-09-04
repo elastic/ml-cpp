@@ -488,8 +488,8 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayR
 
 CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriodicityTest& other,
                                                                    bool isForForecast)
-    : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate}, m_BucketLength{
-                                                                      other.m_BucketLength} {
+    : CHandler(), m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
+      m_BucketLength{other.m_BucketLength} {
     // Note that m_Windows is an array.
     for (std::size_t i = 0u; !isForForecast && i < other.m_Windows.size(); ++i) {
         if (other.m_Windows[i] != nullptr) {
@@ -801,7 +801,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
 
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest& other,
                                                              bool isForForecast)
-    : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
+    : CHandler(), m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
                                                  ? boost::make_unique<CCalendarCyclicTest>(
                                                        *other.m_Test)
@@ -1001,7 +1001,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate,
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
-    : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
+    : CHandler(), m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_BucketLength{other.m_BucketLength}, m_GainController{other.m_GainController},
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize}, m_Trend{other.m_Trend},
