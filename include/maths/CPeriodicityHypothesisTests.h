@@ -15,7 +15,6 @@
 #include <maths/ImportExport.h>
 
 #include <boost/operators.hpp>
-#include <boost/optional.hpp>
 
 #include <functional>
 #include <string>
