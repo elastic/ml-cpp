@@ -200,24 +200,26 @@ void CTimeSeriesMultibucketFeaturesTest::testUnivariateMean() {
                                  0.015 * feature.correlationWithBucketValue());
 
     // Check persist and restore is idempotent.
+    for (auto i : {0, 1}) {
+        std::string xml;
+        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+        feature.acceptPersistInserter(inserter);
+        inserter.toXml(xml);
+        LOG_TRACE(<< i << ") model XML representation:\n" << xml);
+        LOG_DEBUG(<< i << ") model XML size: " << xml.size());
 
-    std::string xml;
-    ml::core::CRapidXmlStatePersistInserter inserter{"root"};
-    feature.acceptPersistInserter(inserter);
-    inserter.toXml(xml);
-    LOG_TRACE(<< "model XML representation:\n" << xml);
-    LOG_DEBUG(<< "model XML size: " << xml.size());
+        // Restore the XML into a new feature and assert checksums.
 
-    // Restore the XML into a new feature and assert checksums.
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
-
-    TMultibucketMean restored{3};
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(
-        boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
-    CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
+        TMultibucketMean restored{3};
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
+        CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
+        feature.clear();
+    }
 }
 
 void CTimeSeriesMultibucketFeaturesTest::testMultivariateMean() {
@@ -362,24 +364,26 @@ void CTimeSeriesMultibucketFeaturesTest::testMultivariateMean() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.54, maths_t::countForUpdate(weight[0])[1], 5e-5);
 
     // Check persist and restore is idempotent.
+    for (auto i : {0, 1}) {
+        std::string xml;
+        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
+        feature.acceptPersistInserter(inserter);
+        inserter.toXml(xml);
+        LOG_TRACE(<< i << ") model XML representation:\n" << xml);
+        LOG_DEBUG(<< i << ") model XML size: " << xml.size());
 
-    std::string xml;
-    ml::core::CRapidXmlStatePersistInserter inserter{"root"};
-    feature.acceptPersistInserter(inserter);
-    inserter.toXml(xml);
-    LOG_TRACE(<< "model XML representation:\n" << xml);
-    LOG_DEBUG(<< "model XML size: " << xml.size());
+        // Restore the XML into a new feature and assert checksums.
 
-    // Restore the XML into a new feature and assert checksums.
+        TMultibucketMean restored{3};
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
 
-    TMultibucketMean restored{3};
-    core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
-
-    core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(
-        boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
-    CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
+        CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
+        feature.clear();
+    }
 }
 
 CppUnit::Test* CTimeSeriesMultibucketFeaturesTest::suite() {
