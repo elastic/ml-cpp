@@ -656,7 +656,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
     LOG_DEBUG(<< "slope = " << slopeBefore);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, slopeBefore, 0.25);
 
-    bucketing.shiftSlope(10.0);
+    bucketing.shiftSlope(t, 10.0);
 
     double slopeAfter = bucketing.slope();
 
@@ -786,6 +786,18 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
                          core::CContainerPrinter::print(restoredVariances));
 }
 
+void CSeasonalComponentAdaptiveBucketingTest::testName() {
+    double decayRate{0.1};
+    double minimumBucketLength{1.0};
+
+    maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
+    maths::CSeasonalComponentAdaptiveBucketing bucketing(time, decayRate, minimumBucketLength);
+
+    CPPUNIT_ASSERT_EQUAL(std::string("Seasonal[") + std::to_string(decayRate) +
+                             "," + std::to_string(minimumBucketLength) + "]",
+                         bucketing.name());
+}
+
 CppUnit::Test* CSeasonalComponentAdaptiveBucketingTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CSeasonalComponentAdaptiveBucketingTest");
@@ -826,6 +838,9 @@ CppUnit::Test* CSeasonalComponentAdaptiveBucketingTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentAdaptiveBucketingTest>(
         "CSeasonalComponentAdaptiveBucketingTest::testUpgrade",
         &CSeasonalComponentAdaptiveBucketingTest::testUpgrade));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentAdaptiveBucketingTest>(
+        "CSeasonalComponentAdaptiveBucketingTest::testName",
+        &CSeasonalComponentAdaptiveBucketingTest::testName));
 
     return suiteOfTests;
 }

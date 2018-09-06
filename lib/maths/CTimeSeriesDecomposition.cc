@@ -134,9 +134,10 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE(CALENDAR_CYCLIC_TEST_6_3_TAG,
                     traverser.traverseSubLevel(boost::bind(&CCalendarTest::acceptRestoreTraverser,
                                                            &m_CalendarCyclicTest, _1)))
-            RESTORE(COMPONENTS_6_3_TAG, traverser.traverseSubLevel(boost::bind(
-                                            &CComponents::acceptRestoreTraverser,
-                                            &m_Components, boost::cref(params), _1)))
+            RESTORE(COMPONENTS_6_3_TAG,
+                    traverser.traverseSubLevel(
+                        boost::bind(&CComponents::acceptRestoreTraverser, &m_Components,
+                                    boost::cref(params), m_LastValueTime, _1)))
         }
     } else {
         // There is no version string this is historic state.
@@ -149,9 +150,10 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE(CALENDAR_CYCLIC_TEST_OLD_TAG,
                     traverser.traverseSubLevel(boost::bind(&CCalendarTest::acceptRestoreTraverser,
                                                            &m_CalendarCyclicTest, _1)))
-            RESTORE(COMPONENTS_OLD_TAG, traverser.traverseSubLevel(boost::bind(
-                                            &CComponents::acceptRestoreTraverser,
-                                            &m_Components, boost::cref(params), _1)))
+            RESTORE(COMPONENTS_OLD_TAG,
+                    traverser.traverseSubLevel(
+                        boost::bind(&CComponents::acceptRestoreTraverser, &m_Components,
+                                    boost::cref(params), m_LastValueTime, _1)))
         } while (traverser.next());
         this->decayRate(decayRate);
     }
@@ -251,21 +253,18 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
     m_Components.useTrendForPrediction();
 
     switch (change.s_Description) {
-    case SChangeDescription::E_LevelShift: {
-        double meanShift{std::fabs(change.s_Value[0])};
-        m_PeriodicityTest.maybeClear(time, meanShift);
+    case SChangeDescription::E_LevelShift:
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
-    }
-    case SChangeDescription::E_LinearScale: {
-        double meanShift{std::fabs(change.s_Value[0] * this->meanValue(time))};
-        m_PeriodicityTest.maybeClear(time, meanShift);
+    case SChangeDescription::E_LinearScale:
         m_Components.linearScale(time, change.s_Value[0]);
         break;
-    }
-    case SChangeDescription::E_TimeShift:
-        m_TimeShift += static_cast<core_t::TTime>(change.s_Value[0]);
+    case SChangeDescription::E_TimeShift: {
+        core_t::TTime dt{static_cast<core_t::TTime>(change.s_Value[0])};
+        m_PeriodicityTest.shiftTime(dt);
+        m_TimeShift += dt;
         break;
+    }
     }
 
     return result;

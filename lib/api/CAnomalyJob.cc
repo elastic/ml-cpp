@@ -703,7 +703,7 @@ void CAnomalyJob::writeOutResults(bool interim,
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 
         api::CHierarchicalResultsWriter writer(
-            m_Limits, m_ModelConfig,
+            m_Limits,
             boost::bind(&CJsonOutputWriter::acceptResult, &m_JsonOutputWriter, _1),
             boost::bind(&CJsonOutputWriter::acceptInfluencer,
                         &m_JsonOutputWriter, _1, _2, _3));

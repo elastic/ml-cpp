@@ -48,6 +48,16 @@ template<typename T, std::size_t N>
 bool stringToType(const std::string& str, CSymmetricMatrixNxN<T, N>& value) {
     return value.fromDelimited(str);
 }
+//! Function to do conversion from string to a vector.
+template<typename T>
+bool stringToType(const std::string& str, CVector<T>& value) {
+    return value.fromDelimited(str);
+}
+//! Function to do conversion from string to a symmetric matrix.
+template<typename T>
+bool stringToType(const std::string& str, CSymmetricMatrix<T>& value) {
+    return value.fromDelimited(str);
+}
 
 //! Function to do conversion to a string.
 template<typename T>
@@ -70,6 +80,16 @@ inline std::string typeToString(const CVectorNx1<T, N>& value) {
 //! Function to do conversion to a string from a symmetric matrix.
 template<typename T, std::size_t N>
 inline std::string typeToString(const CSymmetricMatrixNxN<T, N>& value) {
+    return value.toDelimited();
+}
+//! Function to do conversion to a string from a vector.
+template<typename T>
+inline std::string typeToString(const CVector<T>& value) {
+    return value.toDelimited();
+}
+//! Function to do conversion to a string from a symmetric matrix.
+template<typename T>
+inline std::string typeToString(const CSymmetricMatrix<T>& value) {
     return value.toDelimited();
 }
 }
@@ -207,6 +227,15 @@ uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
 
 template<typename T, typename CONTAINER, typename LESS>
 bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(const std::string& value) {
+    return this->fromDelimited(value, [](const std::string& value_, T& result) {
+        return basic_statistics_detail::stringToType(value_, result);
+    });
+}
+
+template<typename T, typename CONTAINER, typename LESS>
+bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
+    const std::string& value,
+    const TFromString& fromString) {
     this->clear();
 
     if (value.empty()) {
@@ -217,7 +246,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 
     std::size_t delimPos{value.find(INTERNAL_DELIMITER)};
     if (delimPos == std::string::npos) {
-        if (basic_statistics_detail::stringToType(value, statistic) == false) {
+        if (fromString(value, statistic) == false) {
             LOG_ERROR(<< "Invalid statistic in '" << value << "'");
             return false;
         }
@@ -227,11 +256,11 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 
     m_UnusedCount = m_Statistics.size();
 
-    std::string statistic_;
-    statistic_.reserve(15);
-    statistic_.assign(value, 0, delimPos);
-    if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
-        LOG_ERROR(<< "Invalid statistic '" << statistic_ << "' in '" << value << "'");
+    std::string token;
+    token.reserve(15);
+    token.assign(value, 0, delimPos);
+    if (fromString(token, statistic) == false) {
+        LOG_ERROR(<< "Invalid statistic '" << token << "' in '" << value << "'");
         return false;
     }
     m_Statistics[--m_UnusedCount] = statistic;
@@ -239,9 +268,9 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
     while (delimPos != value.size()) {
         std::size_t nextDelimPos{
             std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
-        statistic_.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
-        if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
-            LOG_ERROR(<< "Invalid statistic '" << statistic_ << "' in '" << value << "'");
+        token.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
+        if (fromString(token, statistic) == false) {
+            LOG_ERROR(<< "Invalid statistic '" << token << "' in '" << value << "'");
             return false;
         }
         m_Statistics[--m_UnusedCount] = statistic;
@@ -253,14 +282,22 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 
 template<typename T, typename CONTAINER, typename LESS>
 std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
+    return this->toDelimited([](const T& value_) {
+        return basic_statistics_detail::typeToString(value_);
+    });
+}
+
+template<typename T, typename CONTAINER, typename LESS>
+std::string
+CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(const TToString& toString) const {
     if (this->count() == 0) {
         return std::string{};
     }
     std::size_t i{m_Statistics.size()};
-    std::string result{basic_statistics_detail::typeToString(m_Statistics[i - 1])};
+    std::string result{toString(m_Statistics[i - 1])};
     for (--i; i > m_UnusedCount; --i) {
         result += INTERNAL_DELIMITER;
-        result += basic_statistics_detail::typeToString(m_Statistics[i - 1]);
+        result += toString(m_Statistics[i - 1]);
     }
     return result;
 }

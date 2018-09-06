@@ -162,6 +162,10 @@ public:
     //! The default maximum time to test for a change point in a time series.
     static const core_t::TTime DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE;
 
+    //! The default number of time buckets used to generate multibucket features
+    //! for anomaly detection.
+    static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
+
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are
     //! computed on a fixed number of measurements rather than a fixed
@@ -236,16 +240,12 @@ public:
     //! to sit on before giving a definitive result.
     //! \param[in] multivariateByFields Should multivariate analysis of
     //! correlated 'by' fields be performed?
-    //! \param[in] multipleBucketLengths If specified, set multiple bucket
-    //! lengths to be analysed (CSV string of time values)
-    static CAnomalyDetectorModelConfig
-    defaultConfig(core_t::TTime bucketLength,
-                  model_t::ESummaryMode summaryMode,
-                  const std::string& summaryCountFieldName,
-                  core_t::TTime latency,
-                  std::size_t bucketResultsDelay,
-                  bool multivariateByFields,
-                  const std::string& multipleBucketLengths);
+    static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
+                                                     model_t::ESummaryMode summaryMode,
+                                                     const std::string& summaryCountFieldName,
+                                                     core_t::TTime latency,
+                                                     std::size_t bucketResultsDelay,
+                                                     bool multivariateByFields);
 
     //! Overload using defaults.
     static CAnomalyDetectorModelConfig
@@ -254,7 +254,7 @@ public:
                   const std::string& summaryCountFieldName = "") {
         return defaultConfig(bucketLength, summaryMode, summaryCountFieldName,
                              DEFAULT_LATENCY_BUCKETS * bucketLength,
-                             DEFAULT_BUCKET_RESULTS_DELAY, false, "");
+                             DEFAULT_BUCKET_RESULTS_DELAY, false);
     }
 
     //! Get the factor to normalize all bucket lengths to the default
@@ -265,11 +265,6 @@ public:
     //! the model decay rate \p modelDecayRate.
     static double trendDecayRate(double modelDecayRate, core_t::TTime bucketLength);
 
-    //! Parse and verify the multiple bucket lengths - these should all be
-    //! multiples of the standard bucket length.
-    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength,
-                                          const std::string& multipleBucketLengths);
-
 public:
     CAnomalyDetectorModelConfig();
 
@@ -277,9 +272,10 @@ public:
     void bucketLength(core_t::TTime length);
     //! Set the number of buckets to delay finalizing out-of-phase buckets.
     void bucketResultsDelay(std::size_t delay);
-
     //! Set the single interim bucket correction calculator.
     void interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector);
+    //! Set whether to model multibucket features.
+    void useMultibucketFeatures(bool enabled);
     //! Set whether multivariate analysis of correlated 'by' fields should
     //! be performed.
     void multivariateByFields(bool enabled);
@@ -310,13 +306,6 @@ public:
 
     //! Populate the parameters from a property tree.
     bool init(const boost::property_tree::ptree& propTree);
-
-    //! Configure modelPlotConfig params from file
-    bool configureModelPlot(const std::string& modelPlotConfigFile);
-
-    //! Configure modelPlotConfig params from a property tree
-    //! expected to contain two properties: 'boundsPercentile' and 'terms'
-    bool configureModelPlot(const boost::property_tree::ptree& propTree);
 
     //! Get the factory for new models.
     //!
@@ -350,7 +339,6 @@ public:
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);
-
     //! Get the rate at which the models lose information.
     double decayRate() const;
 
@@ -370,14 +358,20 @@ public:
     //! Get the bucket result delay window.
     std::size_t bucketResultsDelay() const;
 
-    //! Get the multiple bucket lengths.
-    const TTimeVec& multipleBucketLengths() const;
-
     //! Get the single interim bucket correction calculator.
     const CInterimBucketCorrector& interimBucketCorrector() const;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool multivariateByFields() const;
+
+    //! \name Model Plot
+    //@{
+    //! Configure modelPlotConfig params from file
+    bool configureModelPlot(const std::string& modelPlotConfigFile);
+
+    //! Configure modelPlotConfig params from a property tree
+    //! expected to contain two properties: 'boundsPercentile' and 'terms'
+    bool configureModelPlot(const boost::property_tree::ptree& propTree);
 
     //! Set the central confidence interval for the model debug plot
     //! to \p percentage.
@@ -423,12 +417,6 @@ public:
     //! Get the normalized anomaly score knot points.
     const TDoubleDoublePrVec& normalizedScoreKnotPoints() const;
     //@}
-
-    //! Check if we should create one normalizer per partition field value.
-    bool perPartitionNormalization() const;
-
-    //! Set whether we should create one normalizer per partition field value.
-    void perPartitionNormalization(bool value);
 
     //! Sets the reference to the detection rules map
     void detectionRules(TIntDetectionRuleVecUMapCRef detectionRules);
@@ -500,9 +488,6 @@ private:
     //! and the normalized anomaly score with these knot points.
     //! \see DEFAULT_NORMALIZED_SCORE_KNOT_POINTS for details.
     TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
-
-    //! If true then create one normalizer per partition field value.
-    bool m_PerPartitionNormalisation;
     //@}
 
     //! A reference to the map containing detection rules per

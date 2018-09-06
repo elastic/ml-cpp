@@ -32,11 +32,12 @@ namespace maths {
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucketing {
+class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
     using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
     using TRegression = CRegression::CLeastSquaresOnline<1, CFloatStorage>;
+    using CAdaptiveBucketing::count;
 
 public:
     CSeasonalComponentAdaptiveBucketing();
@@ -59,9 +60,6 @@ public:
     //! Efficiently swap the contents of two bucketing objects.
     void swap(CSeasonalComponentAdaptiveBucketing& other);
 
-    //! Check if the bucketing has been initialized.
-    bool initialized() const;
-
     //! Create a new uniform bucketing with \p n buckets.
     //!
     //! \param[in] n The number of buckets.
@@ -79,9 +77,6 @@ public:
                        core_t::TTime endTime,
                        const TFloatMeanAccumulatorVec& values);
 
-    //! Get the number of buckets.
-    std::size_t size() const;
-
     //! Clear the contents of this bucketing and recover any
     //! allocated memory.
     void clear();
@@ -92,8 +87,9 @@ public:
     //! Shift the regressions' ordinates by \p shift.
     void shiftLevel(double shift);
 
-    //! Shift the regressions' gradients by \p shift.
-    void shiftSlope(double shift);
+    //! Shift the regressions' gradients by \p shift keeping the prediction
+    //! at \p time fixed.
+    void shiftSlope(core_t::TTime time, double shift);
 
     //! Linearly scale the regressions by \p scale.
     void linearScale(double scale);
@@ -107,48 +103,17 @@ public:
     //! this is the less influence it has on the bucket.
     void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
-    //! Get the time provider.
-    const CSeasonalTime& time() const;
-
-    //! Set the rate at which the bucketing loses information.
-    void decayRate(double value);
-
-    //! Get the rate at which the bucketing loses information.
-    double decayRate() const;
-
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time, bool meanRevert = false);
 
-    //! Get the minimum permitted bucket length.
-    double minimumBucketLength() const;
+    //! Get the time provider.
+    const CSeasonalTime& time() const;
 
-    //! Refine the bucket end points to minimize the maximum averaging
-    //! error in any bucket.
-    //!
-    //! \param[in] time The time at which to refine.
-    void refine(core_t::TTime time);
-
-    //! The count in the bucket containing \p time.
+    //! Get the count in the bucket containing \p time.
     double count(core_t::TTime time) const;
 
     //! Get the regression to use at \p time.
     const TRegression* regression(core_t::TTime time) const;
-
-    //! Get a set of knot points and knot point values to use for
-    //! interpolating the bucket values.
-    //!
-    //! \param[in] time The time at which to get the knot points.
-    //! \param[in] boundary Controls the style of start and end knots.
-    //! \param[out] knots Filled in with the knot points to interpolate.
-    //! \param[out] values Filled in with the values at \p knots.
-    //! \param[out] variances Filled in with the variances at \p knots.
-    //! \return True if there are sufficient knot points to interpolate
-    //! and false otherwise.
-    bool knots(core_t::TTime time,
-               CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec& knots,
-               TDoubleVec& values,
-               TDoubleVec& variances) const;
 
     //! Get the common slope of the bucket regression models.
     double slope() const;
@@ -165,20 +130,8 @@ public:
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
 
-    //! \name Test Functions
-    //@{
-    //! Get the bucket end points.
-    const TFloatVec& endpoints() const;
-
-    //! Get the total count of in the bucketing.
-    double count() const;
-
-    //! Get the bucket regression predictions at \p time.
-    TDoubleVec values(core_t::TTime time) const;
-
-    //! Get the bucket variances.
-    TDoubleVec variances() const;
-    //@}
+    //! Name of component
+    std::string name() const override;
 
 private:
     using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
@@ -213,25 +166,28 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec& endpoints);
+    void refresh(const TFloatVec& endpoints) override;
 
     //! Check if \p time is in the this component's window.
-    virtual bool inWindow(core_t::TTime time) const;
+    bool inWindow(core_t::TTime time) const override;
 
     //! Add the function value at \p time.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
+    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
-    virtual double offset(core_t::TTime time) const;
+    double offset(core_t::TTime time) const override;
 
     //! The count in \p bucket.
-    virtual double count(std::size_t bucket) const;
+    double bucketCount(std::size_t bucket) const override;
 
-    //! Get the predicted value for the \p bucket at \p time.
-    virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const;
+    //! Get the predicted value for \p bucket at \p time.
+    double predict(std::size_t bucket, core_t::TTime time, double offset) const override;
 
     //! Get the variance of \p bucket.
-    virtual double variance(std::size_t bucket) const;
+    double variance(std::size_t bucket) const override;
+
+    //! Split \p bucket.
+    void split(std::size_t bucket) override;
 
     //! Get the interval which has been observed at \p time.
     double observedInterval(core_t::TTime time) const;

@@ -120,6 +120,10 @@ void CExpandingWindow::initialize(core_t::TTime time) {
     m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
 }
 
+void CExpandingWindow::shiftTime(core_t::TTime dt) {
+    m_StartTime += dt;
+}
+
 void CExpandingWindow::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);

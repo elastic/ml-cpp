@@ -50,6 +50,9 @@ public:
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled() const;
 
+    //! Access the output handler
+    virtual ml::api::COutputHandler& outputHandler();
+
 private:
     ml::api::COutputHandler& m_OutputHandler;
 

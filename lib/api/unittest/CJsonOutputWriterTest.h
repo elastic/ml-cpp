@@ -22,7 +22,6 @@ public:
     void testWriteInfluencers();
     void testWriteInfluencersWithLimit();
     void testPersistNormalizer();
-    void testPartitionScores();
     void testReportMemoryUsage();
     void testWriteScheduledEvent();
     void testThroughputWithScopedAllocator();

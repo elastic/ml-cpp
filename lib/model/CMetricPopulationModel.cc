@@ -943,9 +943,8 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
         this->currentBucketInterimCorrections().emplace(
             CCorrectionKey(feature, pid, cid), correction);
     }
-    params.s_Count = 1.0;
+    params.s_Count = bucket->count();
     params.s_ComputeProbabilityParams
-        .tag(pid) // new line
         .addCalculation(model_t::probabilityCalculation(feature))
         .addBucketEmpty({false})
         .addWeights(weights);

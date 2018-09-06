@@ -1908,6 +1908,16 @@ double CTools::shiftRight(double x, double eps) {
     return (x < 0.0 ? 1.0 - eps : 1.0 + eps) * x;
 }
 
+double CTools::linearlyInterpolate(double a, double b, double fa, double fb, double x) {
+    if (x <= a) {
+        return fa;
+    }
+    if (x >= b) {
+        return fb;
+    }
+    return ((b - x) * fa + (x - a) * fb) / (b - a);
+}
+
 double CTools::powOneMinusX(double x, double p) {
     // For large p,
     //   (1 - x) ^ p ~= exp(-p * x).

@@ -497,7 +497,7 @@ void CEventRateModelTest::testOnlineRare() {
     }
 
     LOG_TRACE(<< "origXml = " << origXml);
-    LOG_DEBUG(<< "size = " << origXml.size());
+    LOG_DEBUG(<< "origXml size = " << origXml.size());
     CPPUNIT_ASSERT(origXml.size() < 22000);
 
     // Restore the XML into a new filter
@@ -674,7 +674,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
     test::CRandomNumbers rng;
 
-    const std::size_t b = 200;
+    const std::size_t numberBuckets = 200;
     const double means_[] = {20.0, 25.0, 100.0, 800.0};
     const double covariances_[][4] = {{3.0, 2.5, 0.0, 0.0},
                                       {2.5, 4.0, 0.0, 0.0},
@@ -687,7 +687,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
     }
     TDoubleVecVec samples;
-    rng.generateMultivariateNormalSamples(means, covariances, b, samples);
+    rng.generateMultivariateNormalSamples(means, covariances, numberBuckets, samples);
 
     {
         SModelParams params(bucketLength);
@@ -702,16 +702,16 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 
         LOG_DEBUG(<< "Test correlation anomalies");
 
-        std::size_t anomalyBuckets[] = {100, 160, 190, b};
-        double anomalies[][4] = {{-5.73, 4.29, 0.0, 0.0},
-                                 {0.0, 0.0, 89.99, 15.38},
-                                 {-7.73, 5.59, 52.99, 9.03}};
+        std::size_t anomalyBuckets[]{100, 160, 190, numberBuckets};
+        double anomalies[][4]{{-5.73, 4.29, 0.0, 0.0},
+                              {0.0, 0.0, 89.99, 15.38},
+                              {-7.73, 5.59, 52.99, 9.03}};
 
-        TMinAccumulator probabilities[4] = {TMinAccumulator(2), TMinAccumulator(2),
-                                            TMinAccumulator(2), TMinAccumulator(2)};
+        TMinAccumulator probabilities[4]{TMinAccumulator(2), TMinAccumulator(2),
+                                         TMinAccumulator(2), TMinAccumulator(2)};
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
@@ -737,7 +737,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
                     p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
-                    !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                    p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -745,17 +745,20 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
             time += bucketLength;
         }
 
-        std::string expected[] = {"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
-                                  "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
+        std::string expectedResults[]{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
+                                      "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
         for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
-            std::string actual[2];
+            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            std::string results[2];
             for (std::size_t j = 0u; j < 2; ++j) {
-                actual[j] = std::string("(") +
-                            core::CStringUtils::typeToString(probabilities[i][j].second) +
-                            "," + probabilities[i][j].third + ")";
+                results[j] =
+                    std::string("(") +
+                    core::CStringUtils::typeToString(probabilities[i][j].second) +
+                    "," + probabilities[i][j].third + ")";
             }
-            std::sort(actual, actual + 2);
-            CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
+            std::sort(results, results + 2);
+            CPPUNIT_ASSERT_EQUAL(expectedResults[i],
+                                 core::CContainerPrinter::print(results));
         }
 
         // Test persist and restore with correlate models.
@@ -767,8 +770,8 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         }
 
         LOG_TRACE(<< "origXml = " << origXml);
-        LOG_DEBUG(<< "size = " << origXml.size());
-        CPPUNIT_ASSERT(origXml.size() < 151000);
+        LOG_DEBUG(<< "origXml size = " << origXml.size());
+        CPPUNIT_ASSERT(origXml.size() < 195000);
 
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -796,16 +799,16 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
         CPPUNIT_ASSERT(model);
 
-        std::size_t anomalyBuckets[] = {100, 160, 190, b};
-        double anomalies[][4] = {{11.07, 14.19, 0.0, 0.0},
-                                 {0.0, 0.0, -66.9, 399.95},
-                                 {11.07, 14.19, -48.15, 329.95}};
+        std::size_t anomalyBuckets[]{100, 160, 190, numberBuckets};
+        double anomalies[][4]{{11.07, 14.19, 0.0, 0.0},
+                              {0.0, 0.0, -66.9, 399.95},
+                              {11.07, 14.19, -48.15, 329.95}};
 
-        TMinAccumulator probabilities[4] = {TMinAccumulator(2), TMinAccumulator(2),
-                                            TMinAccumulator(2), TMinAccumulator(2)};
+        TMinAccumulator probabilities[]{TMinAccumulator(3), TMinAccumulator(3),
+                                        TMinAccumulator(3), TMinAccumulator(3)};
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
@@ -832,7 +835,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
                     p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
-                    !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                    p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -840,25 +843,24 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
             time += bucketLength;
         }
 
-        std::string expected[] = {"[(100,), (190,)]", "[(100,), (190,)]",
-                                  "[(160,), (190,)]", "[(160,), (190,)]"};
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
-            std::string actual[2];
-            for (std::size_t j = 0u; j < 2; ++j) {
-                actual[j] = std::string("(") +
-                            core::CStringUtils::typeToString(probabilities[i][j].second) +
-                            "," + probabilities[i][j].third + ")";
+        std::string expectedResults[][2]{
+            {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
+        for (std::size_t i = 0u; i < 4; ++i) {
+            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            TStrVec results;
+            for (const auto& result : probabilities[i]) {
+                results.push_back(core::CStringUtils::typeToString(result.second) +
+                                  "," + result.third);
             }
-            std::sort(actual, actual + 2);
-            CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
+            for (const auto& expectedResult : expectedResults[i]) {
+                CPPUNIT_ASSERT(std::find(results.begin(), results.end(),
+                                         expectedResult) != results.end());
+            }
         }
     }
 }
 
 void CEventRateModelTest::testOnlineCorrelatedTrend() {
-    // FIXME
-    return;
-
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
@@ -871,7 +873,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
     test::CRandomNumbers rng;
     rng.discard(200000);
 
-    const std::size_t b = 2880;
+    const std::size_t numberBuckets = 2880;
     const double means_[] = {20.0, 25.0, 50.0, 100.0};
     const double covariances_[][4] = {{30.0, 20.0, 0.0, 0.0},
                                       {20.0, 40.0, 0.0, 0.0},
@@ -896,13 +898,13 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
         covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
     }
     TDoubleVecVec samples;
-    rng.generateMultivariateNormalSamples(means, covariances, b, samples);
+    rng.generateMultivariateNormalSamples(means, covariances, numberBuckets, samples);
 
-    std::size_t anomalyBuckets[] = {1950, 2400, 2700, b};
+    std::size_t anomalyBuckets[] = {1950, 2400, 2700, numberBuckets};
     double anomalies[][4] = {
         {-23.9, 19.7, 0.0, 0.0}, {0.0, 0.0, 36.4, 36.4}, {-28.7, 30.4, 36.4, 36.4}};
-    TMinAccumulator probabilities[4] = {TMinAccumulator(2), TMinAccumulator(2),
-                                        TMinAccumulator(2), TMinAccumulator(2)};
+    TMinAccumulator probabilities[4] = {TMinAccumulator(3), TMinAccumulator(3),
+                                        TMinAccumulator(3), TMinAccumulator(3)};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.0002;
@@ -915,9 +917,11 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
     CPPUNIT_ASSERT(model);
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
-        LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
-                  << time + bucketLength << ")");
+    for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
+        if (i % 10 == 0) {
+            LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
+                      << time + bucketLength << ")");
+        }
 
         std::size_t hour1 = static_cast<std::size_t>((time / 3600) % 24);
         std::size_t hour2 = (hour1 + 1) % 24;
@@ -951,7 +955,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
             std::string correlated;
             if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
                 p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
-                !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
             probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -959,18 +963,21 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
         time += bucketLength;
     }
 
-    std::string expected[] = {"[(1950,p2), (2700,p2)]", "[(1950,p1), (2700,p1)]",
-                              "[(2400,p4), (2700,p4)]", "[(2400,p3), (2700,p3)]"};
-    for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
-        LOG_DEBUG(<< probabilities[i].print());
-        std::string actual[2];
-        for (std::size_t j = 0u; j < 2; ++j) {
-            actual[j] = std::string("(") +
-                        core::CStringUtils::typeToString(probabilities[i][j].second) +
-                        "," + probabilities[i][j].third + ")";
+    std::string expectedResults[][2]{{"1950,p2", "2700,p2"},
+                                     {"1950,p1", "2700,p1"},
+                                     {"2400,p4", "2700,p4"},
+                                     {"2400,p3", "2700,p3"}};
+    for (std::size_t i = 0u; i < 4; ++i) {
+        LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+        TStrVec results;
+        for (const auto& result : probabilities[i]) {
+            results.push_back(core::CStringUtils::typeToString(result.second) +
+                              "," + result.third);
         }
-        std::sort(actual, actual + 2);
-        CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
+        for (const auto& expectedResult : expectedResults[i]) {
+            CPPUNIT_ASSERT(std::find(results.begin(), results.end(),
+                                     expectedResult) != results.end());
+        }
     }
 }
 
@@ -1398,16 +1405,16 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be shared by the two influencers, and as the anomaly
-        // is about twice the regular count, each influencer contributes a lot to
-        // the anomaly
+        // We expect equal influence since the influencers share the count.
+        // Also the count would be fairly normal if either influencer were
+        // removed so their influence is high.
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.8);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.75);
     }
     {
-        // Test single influence name, two influence values, less anomalousness for each
+        // Test single influence name, two influence values, low influence
         SModelParams params(bucketLength);
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
@@ -1461,15 +1468,14 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be shared by the two influencers, and as the anomaly
-        // is about twice the regular count, each influencer contributes to
-        // the anomaly, but less than the previous test as each the results would
-        // be anomalous even without the contribution from the influencer
+        // We expect equal influence since the influencers share the count.
+        // However, the bucket is still significantly anomalous omitting
+        // the records from either influencer so their influence is smaller.
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.5);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.6);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.4);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.5);
     }
     {
         // Test single influence name, two asymmetric influence values
@@ -1530,7 +1536,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
         // The influence should be dominated by the first influencer, and the
-        // _extra influencer should be dropped by the cutoff threshold
+        // _extra influencers should be dropped by the cutoff threshold
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), lastInfluencersResult.size());
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.99);
     }
@@ -1597,8 +1603,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
-        // The influence should be dominated by the first influencer for both fields, and the
-        // _extra influencers should be dropped by the cutoff threshold
+        // The influence should be dominated by the first influencer for both fields,
+        // and the _extra influencers should be dropped by the cutoff threshold
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
         CPPUNIT_ASSERT_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
@@ -2222,6 +2228,7 @@ void CEventRateModelTest::testInterimCorrections() {
     core_t::TTime endTime(2 * 24 * bucketLength);
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
+    params.s_MultibucketFeaturesWindowLength = 0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 3);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     CCountingModel countingModel(params, m_Gatherer, m_InterimBucketCorrector);
@@ -2502,8 +2509,9 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
 
     SAnnotatedProbability annotatedProbability;
-    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability) == false);
+    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength,
+                                             partitioningFields, 1, annotatedProbability));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(annotatedProbability.s_Probability, 1.0, 0.00001);
 }
 
 void CEventRateModelTest::testDecayRateControl() {
@@ -2579,7 +2587,7 @@ void CEventRateModelTest::testDecayRateControl() {
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
+            maths::CBasicStatistics::mean(meanPredictionError), 0.01);
     }
 
     LOG_DEBUG(<< "*** Test linear scaling ***");

@@ -935,7 +935,6 @@ private:
 
 public:
     using TArray = T[N];
-    using TVec = std::vector<T>;
     using TBoostArray = boost::array<T, N>;
     using TConstIterator = typename TBoostArray::const_iterator;
 
@@ -957,21 +956,24 @@ public:
     }
 
     //! Construct from a boost array.
-    explicit CVectorNx1(const boost::array<T, N>& a) {
+    template<typename U>
+    explicit CVectorNx1(const boost::array<U, N>& a) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = a[i];
         }
     }
 
     //! Construct from a vector.
-    explicit CVectorNx1(const TVec& v) {
+    template<typename U>
+    explicit CVectorNx1(const std::vector<U>& v) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = v[i];
         }
     }
 
     //! Construct from a vector.
-    explicit CVectorNx1(const core::CSmallVectorBase<T>& v) {
+    template<typename U>
+    explicit CVectorNx1(const core::CSmallVectorBase<U>& v) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = v[i];
         }
@@ -1251,10 +1253,14 @@ public:
     }
 
     //! Construct from a vector.
-    explicit CVector(const TArray& v) { TBase::m_X = v; }
+    template<typename U>
+    explicit CVector(const std::vector<U>& v) {
+        TBase::m_X = v;
+    }
 
     //! Construct from a vector.
-    explicit CVector(const core::CSmallVectorBase<T>& v) {
+    template<typename U>
+    explicit CVector(const core::CSmallVectorBase<U>& v) {
         TBase::m_X.assign(v.begin(), v.end());
     }
 

@@ -20,9 +20,10 @@ CAgglomerativeClusterer.cc \
 CAssignment.cc \
 CBasicStatistics.cc \
 CBjkstUniqueValues.cc \
-CCalendarFeature.cc \
+CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
+CCalendarFeature.cc \
 CCategoricalTools.cc \
 CClusterer.cc \
 CClustererStateSerialiser.cc \
@@ -79,6 +80,7 @@ CProbabilityCalibrator.cc \
 CQDigest.cc \
 CQuantileSketch.cc \
 CRadialBasisFunction.cc \
+CRandomizedPeriodicityTest.cc \
 CRegression.cc \
 CRestoreParams.cc \
 CSampling.cc \
@@ -94,9 +96,9 @@ CTimeSeriesDecompositionDetail.cc \
 CTimeSeriesDecompositionStateSerialiser.cc \
 CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
+CTimeSeriesMultibucketFeatureSerialiser.cc \
 CTools.cc \
 CTrendComponent.cc \
-CTrendTests.cc \
 CXMeansOnline1d.cc \
 CXMeansOnlineFactory.cc \
 MathsTypes.cc \

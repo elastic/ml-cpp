@@ -190,7 +190,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.014 * totalSumValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.015 * totalSumValue);
     CPPUNIT_ASSERT(totalMaxResidual < 0.017 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
@@ -748,7 +748,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     CPPUNIT_ASSERT(totalSumResidual < 0.053 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.071 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.07 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.02 * totalSumValue);
 }
 
@@ -1864,7 +1864,7 @@ void CTimeSeriesDecompositionTest::testCalendar() {
 
             LOG_DEBUG(<< "large error count = " << largeErrorCount);
             CPPUNIT_ASSERT(++count > 4 || largeErrorCount > 15);
-            CPPUNIT_ASSERT(count < 5 || largeErrorCount <= 5);
+            CPPUNIT_ASSERT(count < 5 || largeErrorCount <= 1);
         }
     }
 }
@@ -1947,7 +1947,7 @@ void CTimeSeriesDecompositionTest::testComponentLifecycle() {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.017, 0.012, 0.072};
+    double bounds[]{0.01, 0.026, 0.012, 0.074};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2051,6 +2051,8 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;
+    using TDouble3Vec = core::CSmallVector<double, 3>;
+
     auto load = [](const std::string& name, std::string& result) {
         std::ifstream file;
         file.open(name);
@@ -2072,6 +2074,7 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
         0.1, HALF_HOUR, maths::SDistributionRestoreParams{maths_t::E_ContinuousData, 0.1}};
     std::string empty;
 
+    LOG_DEBUG(<< "**** From 6.2 ****");
     LOG_DEBUG(<< "*** Seasonal and Calendar Components ***");
     {
         std::string xml;
@@ -2125,6 +2128,13 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
                                          0.005 * expectedScale.first);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedScale.second, scale.second,
                                          0.005 * std::max(expectedScale.second, 0.4));
+        }
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
         }
     }
 
@@ -2201,6 +2211,80 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
         LOG_DEBUG(<< "Mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanValueError) < 0.06);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanScaleError) < 0.07);
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(10366200, 10366200 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
+        }
+    }
+
+    LOG_DEBUG(<< "**** From 5.6 ****");
+    LOG_DEBUG(<< "*** Seasonal and Calendar Components ***");
+    {
+        std::string xml;
+        load("testfiles/CTimeSeriesDecomposition.5.6.seasonal.state.xml", xml);
+        LOG_DEBUG(<< "Saved state size = " << xml.size());
+
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+
+        maths::CTimeSeriesDecomposition decomposition(params, traverser);
+
+        // Check that the decay rates match and the values and variances
+        // predictions match the values obtained from 6.2.
+
+        CPPUNIT_ASSERT_EQUAL(0.01, decomposition.decayRate());
+
+        double meanValue{decomposition.meanValue(18316800)};
+        double meanVariance{decomposition.meanVariance()};
+        LOG_DEBUG(<< "restored mean value    = " << meanValue);
+        LOG_DEBUG(<< "restored mean variance = " << meanVariance);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(9.91269, meanValue, 0.005);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(3.99723, meanVariance, 0.5);
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
+        }
+    }
+
+    LOG_DEBUG(<< "*** Trend and Seasonal Components ***");
+    {
+        std::string xml;
+        load("testfiles/CTimeSeriesDecomposition.5.6.trend_and_seasonal.state.xml", xml);
+        LOG_DEBUG(<< "Saved state size = " << xml.size());
+
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+
+        maths::CTimeSeriesDecomposition decomposition(params, traverser);
+
+        // Check that the decay rates match and the values and variances
+        // predictions are close to the values obtained from 6.2. We can't
+        // update the state exactly in this case so the tolerances in this
+        // test are significantly larger.
+
+        CPPUNIT_ASSERT_EQUAL(0.024, decomposition.decayRate());
+
+        double meanValue{decomposition.meanValue(10366200)};
+        double meanVariance{decomposition.meanVariance()};
+        LOG_DEBUG(<< "restored mean value    = " << meanValue);
+        LOG_DEBUG(<< "restored mean variance = " << meanVariance);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(96.5607, meanValue, 4.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(631.094, meanVariance, 7.0);
+
+        // Check some basic operations on the upgraded model.
+        decomposition.forecast(10366200, 10366200 + WEEK, HALF_HOUR, 90.0, 1.0,
+                               [](core_t::TTime, const TDouble3Vec&) {});
+        for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
+            decomposition.addPoint(time, 10.0);
+        }
     }
 }
 

@@ -110,22 +110,11 @@ public:
         }
         return true;
     }
-    closest.sort();
-    if (std::find(filtered.begin(), filtered.end(), closest[0].second) ==
-        filtered.end()) {
-        LOG_DEBUG(<< "filtered = " << core::CContainerPrinter::print(filtered));
-        LOG_DEBUG(<< "closest  = " << closest.print());
-        CPPUNIT_ASSERT(false);
-    }
-    if (filtered.size() > 1) {
-        m_NumberAdmitted += filtered.size();
-    }
-    return true;
-}
 
-private : TPointVec m_Centres;
-mutable TCentreFilter m_CentreFilter;
-std::size_t& m_NumberAdmitted;
+private:
+    TPointVec m_Centres;
+    mutable TCentreFilter m_CentreFilter;
+    std::size_t& m_NumberAdmitted;
 };
 
 template<typename POINT>

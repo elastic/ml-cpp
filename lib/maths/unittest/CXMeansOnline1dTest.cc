@@ -82,7 +82,7 @@ void CXMeansOnline1dTest::testCluster() {
     LOG_DEBUG(<< "expected centre = " << expectedCentre);
     LOG_DEBUG(<< "expected spread = " << expectedSpread);
     CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.count());
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 1e-10);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 5e-7);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
     CPPUNIT_ASSERT_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
     CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
@@ -93,7 +93,7 @@ void CXMeansOnline1dTest::testCluster() {
     LOG_DEBUG(<< "count  = " << cluster.count());
     LOG_DEBUG(<< "weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
     CPPUNIT_ASSERT(cluster.count() < expectedCount);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 1e-10);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 5e-7);
     CPPUNIT_ASSERT(cluster.spread() > expectedSpread);
     CPPUNIT_ASSERT_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
     CPPUNIT_ASSERT(cluster.weight(maths_t::E_ClustersFractionWeight) < expectedCount);

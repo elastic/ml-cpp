@@ -23,8 +23,9 @@ SRCS=\
 	CBjkstUniqueValuesTest.cc \
 	CBootstrapClustererTest.cc \
 	CBoundingBoxTest.cc \
-	CCalendarFeatureTest.cc \
 	CCalendarComponentAdaptiveBucketingTest.cc \
+	CCalendarCyclicTestTest.cc \
+	CCalendarFeatureTest.cc \
 	CCategoricalToolsTest.cc \
 	CChecksumTest.cc \
 	CClustererTest.cc \
@@ -78,6 +79,7 @@ SRCS=\
 	CQuantileSketchTest.cc \
 	CRegressionTest.cc \
 	CRadialBasisFunctionTest.cc \
+	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \
 	CSamplingTest.cc \
 	CSeasonalComponentTest.cc \
@@ -90,9 +92,9 @@ SRCS=\
 	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
+	CTimeSeriesMultibucketFeaturesTest.cc \
 	CToolsTest.cc \
 	CTrendComponentTest.cc \
-	CTrendTestsTest.cc \
 	CXMeansOnlineTest.cc \
 	CXMeansOnline1dTest.cc \
 	CXMeansTest.cc \

@@ -51,12 +51,7 @@ public:
     using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 public:
-    enum EResultType {
-        E_SimpleCountResult,
-        E_PopulationResult,
-        E_PartitionResult,
-        E_Result
-    };
+    enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };
     //! Type which wraps up the results of anomaly detection.
     struct API_EXPORT SResults {
         //! Construct for population results
@@ -148,7 +143,6 @@ public:
 
 public:
     CHierarchicalResultsWriter(const model::CLimits& limits,
-                               const model::CAnomalyDetectorModelConfig& modelConfig,
                                const TResultWriterFunc& resultWriter,
                                const TPivotWriterFunc& pivotsWriterFunc);
 
@@ -168,9 +162,6 @@ private:
     //! pivot.
     void writePivotResult(const model::CHierarchicalResults& results, const TNode& node);
 
-    //! Write partition result if \p node is a partition level result
-    void writePartitionResult(const model::CHierarchicalResults& results, const TNode& node);
-
     //! Write out a simple count result if \p node is simple
     //! count.
     void writeSimpleCountResult(const TNode& node);
@@ -184,9 +175,6 @@ private:
 private:
     //! The various limits.
     const model::CLimits& m_Limits;
-
-    //! Config options
-    const model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! The results writer.
     TResultWriterFunc m_ResultWriterFunc;

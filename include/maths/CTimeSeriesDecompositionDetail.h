@@ -12,13 +12,13 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CCalendarComponent.h>
+#include <maths/CCalendarCyclicTest.h>
 #include <maths/CExpandingWindow.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/CTrendComponent.h>
-#include <maths/CTrendTests.h>
 #include <maths/ImportExport.h>
 
 #include <boost/ref.hpp>
@@ -213,16 +213,8 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
-        //! Clear the test if the shift is large compared to the median
-        //! absolute deviation in the window.
-        //!
-        //! There is no point in continuing to use the historical window
-        //! if the signal has changed significantly w.r.t. the possible
-        //! magnitude of any seasonal component. Çonversely, if we detect
-        //! a small change we don't want to throw a lot of history: since,
-        //! depending on the false positive rate, we may never accumulate
-        //! enough history to detect long seasonal components.
-        void maybeClear(core_t::TTime time, double shift);
+        //! Shift the start of the tests' expanding windows by \p dt.
+        void shiftTime(core_t::TTime dt);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
@@ -374,6 +366,7 @@ public:
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core_t::TTime lastValueTime,
                                     core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.

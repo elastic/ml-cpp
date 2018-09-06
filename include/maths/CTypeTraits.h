@@ -10,7 +10,7 @@
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/type_traits/is_floating_point.hpp>
+#include <type_traits>
 
 namespace ml {
 namespace maths {
@@ -81,26 +81,10 @@ struct SPromoted<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = CAnnotatedVector<typename SPromoted<VECTOR>::Type, ANNOTATION>;
 };
 
-namespace type_conversion_detail {
-
-//! \brief Chooses between T and U based on the checks for
-//! integral and floating point types.
-template<typename T, typename U, bool FLOATING_POINT>
-struct SSelector {
-    using Type = U;
-};
-template<typename T, typename U>
-struct SSelector<T, U, true> {
-    using Type = T;
-};
-
-} // type_conversion_detail::
-
 //! \brief Defines a suitable floating point type.
 template<typename T, typename U>
 struct SFloatingPoint {
-    using Type =
-        typename type_conversion_detail::SSelector<T, U, boost::is_floating_point<T>::value>::Type;
+    using Type = typename std::conditional<std::is_floating_point<T>::value, T, U>::type;
 };
 
 //! \brief Defines CVectorNx1 on a suitable floating point type.
@@ -284,6 +268,26 @@ struct SStripped {
 template<typename VECTOR, typename ANNOTATION>
 struct SStripped<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = VECTOR;
+};
+
+//! \brief Get the type of the first element of a pair.
+template<typename PAIR>
+struct SFirstType {};
+
+//! \brief Get the type of the first element of a pair.
+template<typename U, typename V>
+struct SFirstType<std::pair<U, V>> {
+    using Type = U;
+};
+
+//! \brief Get the type of the first element of a pair.
+template<typename PAIR>
+struct SSecondType {};
+
+//! \brief Get the type of the first element of a pair.
+template<typename U, typename V>
+struct SSecondType<std::pair<U, V>> {
+    using Type = V;
 };
 }
 }

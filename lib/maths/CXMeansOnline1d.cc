@@ -653,9 +653,9 @@ CXMeansOnline1d::CXMeansOnline1d(maths_t::EDataType dataType,
                                  const TSplitFunc& splitFunc,
                                  const TMergeFunc& mergeFunc)
     : CClusterer1d(splitFunc, mergeFunc), m_DataType(dataType),
-      m_AvailableDistributions(availableDistributions),
-      m_InitialDecayRate(decayRate), m_DecayRate(decayRate), m_HistoryLength(0.0),
-      m_WeightCalc(weightCalc), m_MinimumClusterFraction(minimumClusterFraction),
+      m_WeightCalc(weightCalc), m_AvailableDistributions(availableDistributions),
+      m_InitialDecayRate(decayRate), m_DecayRate(decayRate),
+      m_HistoryLength(0.0), m_MinimumClusterFraction(minimumClusterFraction),
       m_MinimumClusterCount(minimumClusterCount),
       m_MinimumCategoryCount(minimumCategoryCount),
       m_WinsorisationConfidenceInterval(winsorisationConfidenceInterval),
@@ -665,10 +665,10 @@ CXMeansOnline1d::CXMeansOnline1d(maths_t::EDataType dataType,
 CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser)
     : CClusterer1d(CDoNothing(), CDoNothing()), m_DataType(params.s_DataType),
+      m_WeightCalc(maths_t::E_ClustersEqualWeight),
       m_AvailableDistributions(CAvailableModeDistributions::ALL),
       m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
-      m_HistoryLength(), m_WeightCalc(maths_t::E_ClustersEqualWeight),
-      m_MinimumClusterFraction(), m_MinimumClusterCount(),
+      m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
       m_MinimumCategoryCount(params.s_MinimumCategoryCount),
       m_WinsorisationConfidenceInterval() {
     traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
@@ -680,10 +680,10 @@ CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
                                  const TMergeFunc& mergeFunc,
                                  core::CStateRestoreTraverser& traverser)
     : CClusterer1d(splitFunc, mergeFunc), m_DataType(params.s_DataType),
+      m_WeightCalc(maths_t::E_ClustersEqualWeight),
       m_AvailableDistributions(CAvailableModeDistributions::ALL),
       m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
-      m_HistoryLength(), m_WeightCalc(maths_t::E_ClustersEqualWeight),
-      m_MinimumClusterFraction(), m_MinimumClusterCount(),
+      m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
       m_MinimumCategoryCount(params.s_MinimumCategoryCount),
       m_WinsorisationConfidenceInterval() {
     traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
@@ -691,10 +691,11 @@ CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
 }
 
 CXMeansOnline1d::CXMeansOnline1d(const CXMeansOnline1d& other)
-    : CClusterer1d(other.splitFunc(), other.mergeFunc()), m_DataType(other.m_DataType),
+    : CClusterer1d(other.splitFunc(), other.mergeFunc()),
+      m_DataType(other.m_DataType), m_WeightCalc(other.m_WeightCalc),
       m_AvailableDistributions(other.m_AvailableDistributions),
-      m_InitialDecayRate(other.m_InitialDecayRate), m_DecayRate(other.m_DecayRate),
-      m_HistoryLength(other.m_HistoryLength), m_WeightCalc(other.m_WeightCalc),
+      m_InitialDecayRate(other.m_InitialDecayRate),
+      m_DecayRate(other.m_DecayRate), m_HistoryLength(other.m_HistoryLength),
       m_MinimumClusterFraction(other.m_MinimumClusterFraction),
       m_MinimumClusterCount(other.m_MinimumClusterCount),
       m_MinimumCategoryCount(other.m_MinimumCategoryCount),
@@ -715,15 +716,15 @@ CXMeansOnline1d& CXMeansOnline1d::operator=(const CXMeansOnline1d& other) {
 void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     this->CClusterer1d::swap(other);
     std::swap(m_DataType, other.m_DataType);
-    std::swap(m_AvailableDistributions, other.m_AvailableDistributions);
+    std::swap(m_WeightCalc, other.m_WeightCalc);
     std::swap(m_InitialDecayRate, other.m_InitialDecayRate);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_HistoryLength, other.m_HistoryLength);
-    std::swap(m_WeightCalc, other.m_WeightCalc);
     std::swap(m_MinimumClusterFraction, other.m_MinimumClusterFraction);
     std::swap(m_MinimumClusterCount, other.m_MinimumClusterCount);
     std::swap(m_MinimumCategoryCount, other.m_MinimumCategoryCount);
     std::swap(m_WinsorisationConfidenceInterval, other.m_WinsorisationConfidenceInterval);
+    std::swap(m_AvailableDistributions, other.m_AvailableDistributions);
     std::swap(m_ClusterIndexGenerator, other.m_ClusterIndexGenerator);
     std::swap(m_Smallest, other.m_Smallest);
     std::swap(m_Largest, other.m_Largest);
@@ -745,9 +746,10 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserte
     inserter.insertValue(SMALLEST_TAG, m_Smallest.toDelimited());
     inserter.insertValue(LARGEST_TAG, m_Largest.toDelimited());
     inserter.insertValue(WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
-    inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction);
-    inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount);
-    inserter.insertValue(WINSORISATION_CONFIDENCE_INTERVAL_TAG, m_WinsorisationConfidenceInterval);
+    inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction.toString());
+    inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
+    inserter.insertValue(WINSORISATION_CONFIDENCE_INTERVAL_TAG,
+                         m_WinsorisationConfidenceInterval.toString());
     inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
                          boost::bind(&CIndexGenerator::acceptPersistInserter,
                                      &m_ClusterIndexGenerator, _1));
@@ -1109,19 +1111,19 @@ bool CXMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
-        RESTORE_BUILT_IN(HISTORY_LENGTH_TAG, m_HistoryLength);
+        RESTORE(HISTORY_LENGTH_TAG, m_HistoryLength.fromString(traverser.value()));
         RESTORE(SMALLEST_TAG, m_Smallest.fromDelimited(traverser.value()))
         RESTORE(LARGEST_TAG, m_Largest.fromDelimited(traverser.value()))
         RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
                 traverser.traverseSubLevel(boost::bind(&CIndexGenerator::acceptRestoreTraverser,
                                                        &m_ClusterIndexGenerator, _1)))
-        RESTORE_SETUP_TEARDOWN(
-            WEIGHT_CALC_TAG, int weightCalc,
-            core::CStringUtils::stringToType(traverser.value(), weightCalc),
-            m_WeightCalc = static_cast<maths_t::EClusterWeightCalc>(weightCalc))
-        RESTORE_BUILT_IN(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction)
-        RESTORE_BUILT_IN(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount)
-        RESTORE_BUILT_IN(WINSORISATION_CONFIDENCE_INTERVAL_TAG, m_WinsorisationConfidenceInterval)
+        RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
+        RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
+                m_MinimumClusterFraction.fromString(traverser.value()))
+        RESTORE(MINIMUM_CLUSTER_COUNT_TAG,
+                m_MinimumClusterCount.fromString(traverser.value()))
+        RESTORE(WINSORISATION_CONFIDENCE_INTERVAL_TAG,
+                m_WinsorisationConfidenceInterval.fromString(traverser.value()))
     } while (traverser.next());
 
     return true;

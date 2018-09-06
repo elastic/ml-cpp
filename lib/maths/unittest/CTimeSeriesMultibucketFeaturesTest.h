@@ -4,18 +4,17 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CTrendTestsTest_h
-#define INCLUDED_CTrendTestsTest_h
+#ifndef INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
+#define INCLUDED_CTimeSeriesMultibucketFeaturesTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTrendTestsTest : public CppUnit::TestFixture {
+class CTimeSeriesMultibucketFeaturesTest : public CppUnit::TestFixture {
 public:
-    void testRandomizedPeriodicity();
-    void testCalendarCyclic();
-    void testPersist();
+    void testUnivariateMean();
+    void testMultivariateMean();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CTrendTestsTest_h
+#endif // INCLUDED_CTimeSeriesMultibucketFeaturesTest_h

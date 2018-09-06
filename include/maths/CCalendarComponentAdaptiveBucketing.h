@@ -32,9 +32,10 @@ class CSeasonalTime;
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucketing {
+class MATHS_EXPORT CCalendarComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using TFloatMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
+    using CAdaptiveBucketing::count;
 
 public:
     CCalendarComponentAdaptiveBucketing();
@@ -52,16 +53,10 @@ public:
     //! Efficiently swap the contents of two bucketing objects.
     void swap(CCalendarComponentAdaptiveBucketing& other);
 
-    //! Check if the bucketing has been initialized.
-    bool initialized() const;
-
     //! Create a new uniform bucketing with \p n buckets.
     //!
     //! \param[in] n The number of buckets.
     bool initialize(std::size_t n);
-
-    //! Get the number of buckets.
-    std::size_t size() const;
 
     //! Clear the contents of this bucketing and recover any
     //! allocated memory.
@@ -78,26 +73,11 @@ public:
     //! this is the less influence it has on the bucket.
     void add(core_t::TTime time, double value, double weight = 1.0);
 
-    //! Get the calendar feature.
-    CCalendarFeature feature() const;
-
-    //! Set the rate at which the bucketing loses information.
-    void decayRate(double value);
-
-    //! Get the rate at which the bucketing loses information.
-    double decayRate() const;
-
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
 
-    //! Get the minimum permitted bucket length.
-    double minimumBucketLength() const;
-
-    //! Refine the bucket end points to minimize the maximum averaging
-    //! error in any bucket.
-    //!
-    //! \param[in] time The time at which to refine.
-    void refine(core_t::TTime time);
+    //! Get the calendar feature.
+    CCalendarFeature feature() const;
 
     //! The count in the bucket containing \p time.
     double count(core_t::TTime time) const;
@@ -108,22 +88,6 @@ public:
     //! Get the value at \p time.
     const TFloatMeanVarAccumulator* value(core_t::TTime time) const;
 
-    //! Get a set of knot points and knot point values to use for
-    //! interpolating the bucket values.
-    //!
-    //! \param[in] time The time at which to get the knot points.
-    //! \param[in] boundary Controls the style of start and end knots.
-    //! \param[out] knots Filled in with the knot points to interpolate.
-    //! \param[out] values Filled in with the values at \p knots.
-    //! \param[out] variances Filled in with the variances at \p knots.
-    //! \return True if there are sufficient knot points to interpolate
-    //! and false otherwise.
-    bool knots(core_t::TTime time,
-               CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec& knots,
-               TDoubleVec& values,
-               TDoubleVec& variances) const;
-
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed = 0) const;
 
@@ -133,20 +97,8 @@ public:
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
 
-    //! \name Test Functions
-    //@{
-    //! Get the bucket end points.
-    const TFloatVec& endpoints() const;
-
-    //! Get the total count of in the bucketing.
-    double count() const;
-
-    //! Get the bucket regressions.
-    TDoubleVec values(core_t::TTime time) const;
-
-    //! Get the bucket variances.
-    TDoubleVec variances() const;
-    //@}
+    //! Name of component
+    std::string name() const override;
 
 private:
     using TFloatMeanVarVec = std::vector<TFloatMeanVarAccumulator>;
@@ -161,25 +113,28 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec& endpoints);
+    void refresh(const TFloatVec& endpoints) override;
 
     //! Check if \p time is in the this component's window.
-    virtual bool inWindow(core_t::TTime time) const;
+    bool inWindow(core_t::TTime time) const override;
 
     //! Add the function value to \p bucket.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
+    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
-    virtual double offset(core_t::TTime time) const;
+    double offset(core_t::TTime time) const override;
 
-    //! The count in \p bucket.
-    virtual double count(std::size_t bucket) const;
+    //! Get the count in \p bucket.
+    double bucketCount(std::size_t bucket) const override;
 
-    //! Get the predicted value for the \p bucket at \p time.
-    virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const;
+    //! Get the predicted value for \p bucket at \p time.
+    double predict(std::size_t bucket, core_t::TTime time, double offset) const override;
 
     //! Get the variance of \p bucket.
-    virtual double variance(std::size_t bucket) const;
+    double variance(std::size_t bucket) const override;
+
+    //! Split \p bucket.
+    void split(std::size_t bucket) override;
 
 private:
     //! The time provider.
