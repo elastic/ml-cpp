@@ -254,6 +254,9 @@ public:
         //! The dictionary to use to associate partitions to their maximum scores
         TDictionary m_Dictionary;
 
+        //! BWC: The maximum score ever received
+        TMaxValueAccumulator m_MaxScore;
+
         //! The set of maximum scores ever received for partitions.
         TWordMaxValueAccumulatorUMap m_MaxScores;
 

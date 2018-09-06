@@ -599,6 +599,9 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
 
     maxScore.add(score);
 
+    // BWC with versions < 6.5
+    m_MaxScore.add(score);
+
     LOG_TRACE(<< "updateQuantiles: partitionId = \""
               << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
               << "\", oldMaxScore = " << oldMaxScore << ", score = " << score
@@ -860,6 +863,7 @@ void CAnomalyScore::CNormalizer::clear() {
 void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(HIGH_PERCENTILE_SCORE_TAG, m_HighPercentileScore);
     inserter.insertValue(HIGH_PERCENTILE_COUNT_TAG, m_HighPercentileCount);
+    inserter.insertValue(MAX_SCORE_TAG, m_MaxScore.toDelimited());
     inserter.insertLevel(RAW_SCORE_QUANTILE_SUMMARY,
                          boost::bind(&maths::CQDigest::acceptPersistInserter,
                                      &m_RawScoreQuantileSummary, _1));
@@ -885,6 +889,9 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
                 static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()))));
         RESTORE(HIGH_PERCENTILE_COUNT_TAG,
                 core::CStringUtils::stringToType(traverser.value(), m_HighPercentileCount));
+
+        // For BWC continue to restore the old-style job-scope maximum score if present
+        RESTORE_NO_ERROR(MAX_SCORE_TAG, m_MaxScore.fromDelimited(traverser.value()));
 
         RESTORE(RAW_SCORE_QUANTILE_SUMMARY,
                 traverser.traverseSubLevel(boost::bind(&maths::CQDigest::acceptRestoreTraverser,

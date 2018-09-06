@@ -720,7 +720,7 @@ void CAnomalyScoreTest::testJsonConversion() {
         // Check that all required fields are present in the persisted state
         CPPUNIT_ASSERT(stateDoc.HasMember("a"));
         CPPUNIT_ASSERT(stateDoc.HasMember("b"));
-        // Field 'c' - m_MaxScore - removed in version > 6.5
+        CPPUNIT_ASSERT(stateDoc.HasMember("c")); // BWC with version < 6.5
         CPPUNIT_ASSERT(stateDoc.HasMember("d"));
         CPPUNIT_ASSERT(stateDoc.HasMember("e"));
         CPPUNIT_ASSERT(stateDoc.HasMember("f"));
