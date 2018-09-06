@@ -1888,7 +1888,7 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         //file << "plot([1:length(s)], s, 'r');\n";
     }
 
-    LOG_DEBUG("Multivariate");
+    LOG_DEBUG(<< "Multivariate");
     {
         TSizeVec anomalies;
         rng.generateUniformSamples(0, length, 30, anomalies);
@@ -1987,7 +1987,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Univariate: Piecwise Constant");
+    LOG_DEBUG(<< "Univariate: Piecwise Constant");
     {
         core_t::TTime bucketLength{600};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
@@ -2052,11 +2052,11 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
-        LOG_DEBUG("% out-of-bounds = " << percentageOutOfBounds);
+        LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
         CPPUNIT_ASSERT(percentageOutOfBounds < 1.0);
     }
 
-    LOG_DEBUG("Univariate: Saw Tooth");
+    LOG_DEBUG(<< "Univariate: Saw Tooth");
     {
         core_t::TTime bucketLength{1800};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
@@ -2124,7 +2124,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
-        LOG_DEBUG("% out-of-bounds = " << percentageOutOfBounds);
+        LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
         CPPUNIT_ASSERT(percentageOutOfBounds < 5.0);
     }
 }

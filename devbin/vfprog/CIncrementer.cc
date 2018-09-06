@@ -8,7 +8,7 @@
 namespace ml {
 namespace vfprog {
 
-CIncrementer::~CIncrementer(void) {
+CIncrementer::~CIncrementer() {
 }
 
 size_t CIncrementer::nonVirtualIncrement(size_t val) {

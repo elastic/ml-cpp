@@ -21,7 +21,7 @@ CppUnit::Test* CBuildInfoTest::suite() {
     return suiteOfTests;
 }
 
-void CBuildInfoTest::testFullInfo(void) {
+void CBuildInfoTest::testFullInfo() {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
     LOG_DEBUG(<< fullInfo);
 
