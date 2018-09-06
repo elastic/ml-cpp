@@ -1303,15 +1303,13 @@ public:
 
         //! Create a member function template so this class works with CPersistUtils::restore
         template<typename... Args>
-        auto fromDelimited(Args&&... args)
-            -> decltype(TImpl::fromDelimited(std::forward<Args>(args)...)) {
+        bool fromDelimited(Args&&... args) {
             return this->TImpl::fromDelimited(std::forward<Args>(args)...);
         }
 
         //! Create a member function template  so this class works with CPersistUtils::persist
         template<typename... Args>
-        auto toDelimited(Args&&... args) const
-            -> decltype(TImpl::toDelimited(std::forward<Args>(args)...)) {
+        std::string toDelimited(Args&&... args) const {
             return this->TImpl::toDelimited(std::forward<Args>(args)...);
         }
     };
@@ -1394,15 +1392,13 @@ public:
 
         //! Create a member function template so this class works with CPersistUtils::restore
         template<typename... Args>
-        auto fromDelimited(Args&&... args)
-            -> decltype(TImpl::fromDelimited(std::forward<Args>(args)...)) {
+        bool fromDelimited(Args&&... args) {
             return this->TImpl::fromDelimited(std::forward<Args>(args)...);
         }
 
         //! Create a member function template  so this class works with CPersistUtils::persist
         template<typename... Args>
-        auto toDelimited(Args&&... args) const
-            -> decltype(TImpl::toDelimited(std::forward<Args>(args)...)) {
+        std::string toDelimited(Args&&... args) const {
             return this->TImpl::toDelimited(std::forward<Args>(args)...);
         }
     };
