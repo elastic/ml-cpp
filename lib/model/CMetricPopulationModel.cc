@@ -945,7 +945,6 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     }
     params.s_Count = bucket->count();
     params.s_ComputeProbabilityParams
-        .tag(pid) // new line
         .addCalculation(model_t::probabilityCalculation(feature))
         .addBucketEmpty({false})
         .addWeights(weights);

@@ -157,11 +157,6 @@ public:
 public:
     CModelProbabilityParams();
 
-    //! Set the tag for the entity for which to compute the probability.
-    CModelProbabilityParams& tag(std::size_t tag);
-    //! Get the tag for the entity for which to compute the probability.
-    std::size_t tag() const;
-
     //! Add a coordinate's calculation style.
     CModelProbabilityParams& addCalculation(maths_t::EProbabilityCalculation calculation);
     //! Get the number of calculations.
@@ -211,8 +206,6 @@ public:
     bool useAnomalyModel() const;
 
 private:
-    //! The entity tag (if relevant otherwise 0).
-    std::size_t m_Tag = 0;
     //! The coordinates' probability calculations.
     TProbabilityCalculation2Vec m_Calculations;
     //! The confidence interval to use when detrending.
