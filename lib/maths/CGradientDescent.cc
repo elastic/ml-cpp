@@ -82,7 +82,7 @@ CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFu
 bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
                                                              TVector& result) const {
     if (las::dimension(x) != las::dimension(result)) {
-        LOG_ERROR("Dimension mismatch");
+        LOG_ERROR(<< "Dimension mismatch");
         return false;
     }
 

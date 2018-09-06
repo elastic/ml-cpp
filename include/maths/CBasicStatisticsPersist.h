@@ -172,7 +172,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     std::size_t dimension{0u};
     std::size_t pos{str.find_first_of(CLinearAlgebra::DELIMITER)};
     if (!core::CStringUtils::stringToType(str.substr(0, pos), dimension)) {
-        LOG_ERROR("Failed to extract dimension from " << str.substr(0, pos));
+        LOG_ERROR(<< "Failed to extract dimension from " << str.substr(0, pos));
         return false;
     }
     str = str.substr(pos + 1);

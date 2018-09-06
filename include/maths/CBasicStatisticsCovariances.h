@@ -81,7 +81,7 @@ struct SCovariancesLedoitWolf {
             bn += norm / d / z;
         }
         bn = std::min(bn, dn);
-        LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
+        LOG_TRACE(<< "m = " << mn << ", d = " << dn << ", b = " << bn);
 
         covariances.s_Covariances *= std::max((TCoordinate(1) - bn / dn), 0.0);
         for (std::size_t i = 0u; i < dimension; ++i) {

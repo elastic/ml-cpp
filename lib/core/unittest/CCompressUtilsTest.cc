@@ -179,12 +179,12 @@ void CCompressUtilsTest::testTriviallyCopyableTypeVector() {
     CPPUNIT_ASSERT(compressed.empty());
 
     std::vector<double> input{1.3, 272083891.1, 1.3902e-26, 1.3, 0.0};
-    LOG_DEBUG("Input size = " << input.size() * sizeof(double));
+    LOG_DEBUG(<< "Input size = " << input.size() * sizeof(double));
 
     CPPUNIT_ASSERT(compressor.addVector(input));
 
     compressor.data(true, compressed);
-    LOG_DEBUG("Compressed size = " << compressed.size());
+    LOG_DEBUG(<< "Compressed size = " << compressed.size());
     CPPUNIT_ASSERT(compressed.size() < input.size() * sizeof(double));
 
     ml::core::CInflator decompressor(false);

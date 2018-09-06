@@ -187,12 +187,12 @@ private:
         using TSizeVec = std::vector<std::size_t>;
 
         if (result.empty()) {
-            LOG_ERROR("Asked for no bags");
+            LOG_ERROR(<< "Asked for no bags");
             return;
         }
 
         std::size_t n{numberPoints(clusters)};
-        LOG_TRACE("# points = " << n);
+        LOG_TRACE(<< "# points = " << n);
         TDoubleVec weights;
         weights.reserve(clusters.size());
         std::for_each(clusters.begin(), clusters.end(),
@@ -202,7 +202,7 @@ private:
                       });
         TSizeVec samples;
         CSampling::weightedSample(numberSamples(clusters), weights, samples);
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
         TDoubleVec uniform;
         uniform.reserve(largest(clusters));
 
@@ -211,7 +211,7 @@ private:
             bag.resize(clusters.size());
             for (std::size_t i = 0u; i < clusters.size(); ++i) {
                 std::size_t ni{clusters[i].size()};
-                LOG_TRACE("# cluster points = " << ni);
+                LOG_TRACE(<< "# cluster points = " << ni);
                 if (ni > 0) {
                     bag[i].reserve(ni);
                     uniform.assign(ni, 1.0 / static_cast<double>(ni));

@@ -52,7 +52,7 @@ void CPca::projectOntoPrincipleComponents(std::size_t numberComponents_,
     // Project.
     std::ptrdiff_t numberComponents{static_cast<std::ptrdiff_t>(numberComponents_)};
     Eigen::JacobiSVD<TDenseMatrix> svd(matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    LOG_TRACE("singularValues = " << svd.singularValues().transpose());
+    LOG_TRACE(<< "singularValues = " << svd.singularValues().transpose());
     for (auto&& vector : data) {
         vector = svd.matrixV().leftCols(numberComponents).transpose() * (mean + vector);
     }
@@ -89,7 +89,7 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
         return;
     }
 
-    LOG_TRACE("numberSamples = " << numberSamples << " / " << support.size() * dimension);
+    LOG_TRACE(<< "numberSamples = " << numberSamples << " / " << support.size() * dimension);
 
     projected.reserve(data.size());
 
@@ -121,7 +121,7 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
     for (std::size_t i = 0u; i < mean_.size(); ++i) {
         mean(i) = CBasicStatistics::mean(mean_[i]);
     }
-    LOG_TRACE("mean = " << mean.transpose());
+    LOG_TRACE(<< "mean = " << mean.transpose());
 
     // Compute the # columns to sample and the probability with which
     // to sample them. Because we sample columns without replacement
@@ -150,8 +150,8 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
                           return p > 0.05 / static_cast<double>(dimension);
                       }),
         static_cast<std::ptrdiff_t>(numberComponents + 2))};
-    LOG_TRACE("# columns = " << numberColumns);
-    LOG_TRACE("probabilities = " << core::CContainerPrinter::print(columnProbabilities));
+    LOG_TRACE(<< "# columns = " << numberColumns);
+    LOG_TRACE(<< "probabilities = " << core::CContainerPrinter::print(columnProbabilities));
 
     if (numberColumns == dimension) {
         columns.resize(dimension);
@@ -171,15 +171,15 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
             weight = std::sqrt((weight - 1.0) / 50.0);
         });
     }
-    LOG_TRACE("columns = " << core::CContainerPrinter::print(columns));
-    LOG_TRACE("weights = " << core::CContainerPrinter::print(columnWeights));
+    LOG_TRACE(<< "columns = " << core::CContainerPrinter::print(columns));
+    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(columnWeights));
 
     // Sample rows.
 
     TSizeVec rows;
     TDoubleVec rowProbabilities(support.size());
     std::size_t numberRows{std::max(numberSamples / numberColumns, std::size_t(1))};
-    LOG_TRACE("# rows = " << std::min(numberRows, data.size()));
+    LOG_TRACE(<< "# rows = " << std::min(numberRows, data.size()));
 
     if (numberRows >= support.size()) {
         rows.resize(support.size());
@@ -200,8 +200,8 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
         TDoubleVec probabilities(rowProbabilities);
         CSampling::categoricalSampleWithReplacement(rng, probabilities, numberRows, rows);
     }
-    LOG_TRACE("rows = " << core::CContainerPrinter::print(rows));
-    LOG_TRACE("probabilities = " << core::CContainerPrinter::print(rowProbabilities));
+    LOG_TRACE(<< "rows = " << core::CContainerPrinter::print(rows));
+    LOG_TRACE(<< "probabilities = " << core::CContainerPrinter::print(rowProbabilities));
 
     TDenseVector sampledWeights(columns.size());
     TDenseVector sampledMean(columns.size());
@@ -209,8 +209,8 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
         sampledWeights(i) = columnWeights[columns[i]];
         sampledMean(i) = mean(columns[i]);
     }
-    LOG_TRACE("sampledWeights = " << sampledWeights.transpose());
-    LOG_TRACE("sampledMean = " << sampledMean.transpose());
+    LOG_TRACE(<< "sampledWeights = " << sampledWeights.transpose());
+    LOG_TRACE(<< "sampledMean = " << sampledMean.transpose());
 
     TDenseMatrix matrix(rows.size(), columns.size());
     for (std::size_t i = 0u; i < rows.size(); ++i) {
@@ -221,7 +221,7 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
 
     // Project.
     Eigen::JacobiSVD<TDenseMatrix> svd(matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    LOG_TRACE("singularValues = " << svd.singularValues().transpose());
+    LOG_TRACE(<< "singularValues = " << svd.singularValues().transpose());
     for (const auto& vector : data) {
         projected.push_back(svd.matrixV().leftCols(numberComponents).transpose() *
                             toDense(columns, vector));

@@ -611,7 +611,7 @@ protected:
                 scores.assign(scores.size(), 0.0);
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to normalise scores: " << e.what());
+            LOG_ERROR(<< "Failed to normalise scores: " << e.what());
         }
     }
 

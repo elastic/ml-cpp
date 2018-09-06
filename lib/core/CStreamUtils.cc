@@ -20,7 +20,7 @@ void CStreamUtils::skipUtf8Bom(std::ifstream& strm) {
     std::ios_base::iostate origState(strm.rdstate());
     // The 3 bytes 0xEF, 0xBB, 0xBF form a UTF-8 byte order marker (BOM)
     if (strm.get() == 0xEF && strm.get() == 0xBB && strm.get() == 0xBF) {
-        LOG_DEBUG("Skipping UTF-8 BOM");
+        LOG_DEBUG(<< "Skipping UTF-8 BOM");
         return;
     }
     // Set the stream state back to how it was originally so subsequent
