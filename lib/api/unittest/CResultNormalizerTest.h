@@ -10,6 +10,7 @@
 
 class CResultNormalizerTest : public CppUnit::TestFixture {
 public:
+    void testInitNormalizerPartitioned();
     void testInitNormalizer();
 
     static CppUnit::Test* suite();
