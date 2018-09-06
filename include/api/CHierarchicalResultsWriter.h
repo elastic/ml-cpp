@@ -143,7 +143,6 @@ public:
 
 public:
     CHierarchicalResultsWriter(const model::CLimits& limits,
-                               const model::CAnomalyDetectorModelConfig& modelConfig,
                                const TResultWriterFunc& resultWriter,
                                const TPivotWriterFunc& pivotsWriterFunc);
 
@@ -176,9 +175,6 @@ private:
 private:
     //! The various limits.
     const model::CLimits& m_Limits;
-
-    //! Config options
-    const model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! The results writer.
     TResultWriterFunc m_ResultWriterFunc;
