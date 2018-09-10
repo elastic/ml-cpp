@@ -95,7 +95,7 @@ void CModelToolsTest::testFuzzyDeduplicate() {
         }
     };
 
-    LOG_DEBUG("Duplicates");
+    LOG_DEBUG(<< "Duplicates");
     {
         model::CModelTools::CFuzzyDeduplicate duplicates;
         TTimeVec times{300, 300, 300, 900, 300, 300, 300};
