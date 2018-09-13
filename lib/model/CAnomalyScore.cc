@@ -595,18 +595,20 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
     TMaxValueAccumulator& maxScore =
         m_MaxScores[m_Dictionary.word(partitionName, partitionValue, personName, personValue)];
 
-    double oldMaxScore(maxScore.count() == 0 ? 0.0 : maxScore[0]);
+    double oldMaxScore(m_MaxScore.count() == 0 ? 0.0 : m_MaxScore[0]);
 
     maxScore.add(score);
+    m_MaxScore.add(score);
 
     LOG_TRACE(<< "updateQuantiles: partitionId = \""
               << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
               << "\", oldMaxScore = " << oldMaxScore << ", score = " << score
               << ", maxScore[0] = " << maxScore[0]);
-    if (maxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
+
+    if (m_MaxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
         bigChange = true;
-        LOG_TRACE(<< "Big change in normalizer - max score updated from "
-                  << oldMaxScore << " to " << maxScore[0]);
+        LOG_TRACE(<< "Big change in normalizer - Global max score updated from "
+                  << oldMaxScore << " to " << m_MaxScore[0]);
     }
     uint32_t discreteScore = this->discreteScore(score);
     LOG_TRACE(<< "score = " << score << ", discreteScore = " << discreteScore
@@ -765,6 +767,8 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
         element.second.age(alpha);
     }
 
+    m_MaxScore.age(alpha);
+
     // Quantiles age at a much slower rate than everything else so that
     // we can accurately estimate high quantiles. We achieve this by only
     // aging them a certain fraction of the time.
@@ -830,6 +834,7 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
     for (auto& element : m_MaxScores) {
         element.second.age(highScoreUpgradeFactor);
     }
+    m_MaxScore(highScoreUpgradeFactor);
 
     if (m_RawScoreQuantileSummary.scale(qDigestUpgradeFactor) == false) {
         LOG_ERROR(<< "Failed to scale raw score quantiles");
@@ -851,6 +856,7 @@ void CAnomalyScore::CNormalizer::clear() {
     for (auto& element : m_MaxScores) {
         element.second.clear();
     }
+    m_MaxScore.clear();
 
     m_RawScoreQuantileSummary.clear();
     m_RawScoreHighQuantileSummary.clear();
