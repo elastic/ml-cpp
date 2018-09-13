@@ -424,6 +424,15 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
             m_PeriodicPersister->startBackgroundPersistIfAppropriate();
         }
     }
+
+    if (m_Normalizer.hasLastUpdateCausedBigChange() ||
+        (m_MaxQuantileInterval > 0 &&
+         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
+        m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
+        if (m_Normalizer.hasLastUpdateCausedBigChange()) {
+            m_Normalizer.resetBigChange();
+        }
+    }
 }
 
 void CAnomalyJob::skipTime(const std::string& time_) {
@@ -1274,11 +1283,6 @@ void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
     results.bottomUpBreadthFirst(m_Normalizer);
     results.pivotsBottomUpBreadthFirst(m_Normalizer);
 
-    if ((isInterim == false && m_Normalizer.hasLastUpdateCausedBigChange()) ||
-        (m_MaxQuantileInterval > 0 &&
-         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
-        m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
-    }
 }
 
 void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, core_t::TTime end) {
