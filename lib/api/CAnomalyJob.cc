@@ -405,6 +405,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
             maths::CIntegerTools::floor(time, effectiveBucketLength) - latency);
     }
 
+    m_Normalizer.resetBigChange();
+
     for (core_t::TTime lastBucketEndTime = m_LastFinalisedBucketEndTime;
          lastBucketEndTime + bucketLength + latency <= time;
          lastBucketEndTime += effectiveBucketLength) {
@@ -419,6 +421,12 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
         if (m_PeriodicPersister != nullptr) {
             m_PeriodicPersister->startBackgroundPersistIfAppropriate();
         }
+    }
+
+    if (m_Normalizer.hasLastUpdateCausedBigChange() ||
+        (m_MaxQuantileInterval > 0 &&
+         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
+        m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
     }
 }
 
@@ -1254,8 +1262,6 @@ void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim,
 
 void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
                                               model::CHierarchicalResults& results) {
-    m_Normalizer.resetBigChange();
-
     // The normalizers are NOT updated with interim results, in other
     // words interim results are normalized with respect to previous
     // final results.
@@ -1269,12 +1275,6 @@ void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
     m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_Normalize);
     results.bottomUpBreadthFirst(m_Normalizer);
     results.pivotsBottomUpBreadthFirst(m_Normalizer);
-
-    if ((isInterim == false && m_Normalizer.hasLastUpdateCausedBigChange()) ||
-        (m_MaxQuantileInterval > 0 &&
-         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
-        m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
-    }
 }
 
 void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, core_t::TTime end) {
