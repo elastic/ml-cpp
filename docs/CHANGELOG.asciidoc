@@ -44,6 +44,8 @@ anomalies. (See {pull}175[#175].)
 
 Increased independence of anomaly scores across partitions ({pull}182[182])  
 
+Fix cause of "Bad density value..." log errors whilst forecasting. ({pull}207[207])
+
 //=== Bug Fixes
 
 //=== Regressions
