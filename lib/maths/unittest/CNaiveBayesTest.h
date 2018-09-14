@@ -12,6 +12,7 @@
 class CNaiveBayesTest : public CppUnit::TestFixture {
 public:
     void testClassification();
+    void testUninitialized();
     void testPropagationByTime();
     void testMemoryUsage();
     void testPersist();
