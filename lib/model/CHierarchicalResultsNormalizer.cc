@@ -123,16 +123,24 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        ? 0.0
                        : maths::CTools::anomalyScore(node.probability());
 
+    // Construct a unique identifier for the current partition. This will be used to store the maximum scores per
+    // partition
+    const std::string& partitionName = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName);
+    const std::string& partitionValue = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldValue);
+    const std::string& personName = dereferenceOrEmpty(node.s_Spec.s_PersonFieldName);
+    const std::string& personValue = dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue);
+
     switch (m_Job) {
     case E_Update:
         for (std::size_t i = 0u; i < normalizers.size(); ++i) {
-            m_HasLastUpdateCausedBigChange |=
-                normalizers[i]->s_Normalizer->updateQuantiles(score);
+            m_HasLastUpdateCausedBigChange |= normalizers[i]->s_Normalizer->updateQuantiles(
+                score, partitionName, partitionValue, personName, personValue);
         }
         break;
     case E_Normalize:
         // Normalize with the lowest suitable normalizer.
-        if (!normalizers[0]->s_Normalizer->normalize(score)) {
+        if (!normalizers[0]->s_Normalizer->normalize(
+                score, partitionName, partitionValue, personName, personValue)) {
             LOG_ERROR(<< "Failed to normalize " << score << " for "
                       << node.s_Spec.print());
         }
@@ -410,6 +418,11 @@ std::string CHierarchicalResultsNormalizer::personCue(const TWord& word) {
 
 std::string CHierarchicalResultsNormalizer::leafCue(const TWord& word) {
     return LEAF_CUE_PREFIX + core::CStringUtils::typeToString(word.hash64());
+}
+
+const std::string&
+CHierarchicalResultsNormalizer::dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr) {
+    return stringPtr ? *stringPtr : EMPTY_STRING;
 }
 }
 }

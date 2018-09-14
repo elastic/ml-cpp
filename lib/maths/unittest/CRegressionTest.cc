@@ -340,8 +340,8 @@ void CRegressionTest::testLinearScale() {
     TDoubleArray4 params2;
     regression.parameters(params2);
 
-    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
-    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+    LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     for (std::size_t i = 0u; i < 4; ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1 * params1[i], params2[i], 1e-6);
@@ -351,8 +351,8 @@ void CRegressionTest::testLinearScale() {
 
     regression.parameters(params2);
 
-    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
-    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+    LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     for (std::size_t i = 0u; i < 4; ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 * params1[i], params2[i], 1e-6);

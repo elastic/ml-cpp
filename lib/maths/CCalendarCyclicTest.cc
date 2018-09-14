@@ -308,18 +308,18 @@ bool CCalendarCyclicTest::SErrorStats::fromDelimited(const std::string& str_) {
     std::string str{str_};
     std::size_t delimiter{str.find(DELIMITER)};
     if (core::CStringUtils::stringToType(str.substr(0, delimiter), s_Count) == false) {
-        LOG_ERROR("Failed to parse '" << str_ << "'");
+        LOG_ERROR(<< "Failed to parse '" << str_ << "'");
         return false;
     }
     str = str.substr(delimiter + 1);
     delimiter = str.find(DELIMITER);
     if (core::CStringUtils::stringToType(str.substr(0, delimiter), s_LargeErrorCount) == false) {
-        LOG_ERROR("Failed to parse '" << str_ << "'");
+        LOG_ERROR(<< "Failed to parse '" << str_ << "'");
         return false;
     }
     str = str.substr(delimiter + 1);
     if (s_LargeErrorSum.fromString(str) == false) {
-        LOG_ERROR("Failed to parse '" << str_ << "'");
+        LOG_ERROR(<< "Failed to parse '" << str_ << "'");
         return false;
     }
     return true;

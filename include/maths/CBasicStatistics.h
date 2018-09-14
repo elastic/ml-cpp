@@ -1300,6 +1300,20 @@ public:
         uint64_t checksum(uint64_t seed = 0) const {
             return this->TImpl::checksum(seed);
         }
+
+        //! Create a member function template so this class works with CPersistUtils::restore
+        template<typename... Args>
+        auto fromDelimited(Args&&... args)
+            -> decltype(TImpl::fromDelimited(std::forward<Args>(args)...)) {
+            return this->TImpl::fromDelimited(std::forward<Args>(args)...);
+        }
+
+        //! Create a member function template  so this class works with CPersistUtils::persist
+        template<typename... Args>
+        auto toDelimited(Args&&... args) const
+            -> decltype(TImpl::toDelimited(std::forward<Args>(args)...)) {
+            return this->TImpl::toDelimited(std::forward<Args>(args)...);
+        }
     };
 
     //! \brief A heap based accumulator class for order statistics.
@@ -1376,6 +1390,20 @@ public:
         //! Create a member function so this class works with CChecksum.
         uint64_t checksum(uint64_t seed = 0) const {
             return this->TImpl::checksum(seed);
+        }
+
+        //! Create a member function template so this class works with CPersistUtils::restore
+        template<typename... Args>
+        auto fromDelimited(Args&&... args)
+            -> decltype(TImpl::fromDelimited(std::forward<Args>(args)...)) {
+            return this->TImpl::fromDelimited(std::forward<Args>(args)...);
+        }
+
+        //! Create a member function template  so this class works with CPersistUtils::persist
+        template<typename... Args>
+        auto toDelimited(Args&&... args) const
+            -> decltype(TImpl::toDelimited(std::forward<Args>(args)...)) {
+            return this->TImpl::toDelimited(std::forward<Args>(args)...);
         }
     };
 

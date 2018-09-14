@@ -51,6 +51,7 @@ public:
     static const std::string PARTITION_FIELD_NAME;
     static const std::string PARTITION_FIELD_VALUE;
     static const std::string PERSON_FIELD_NAME;
+    static const std::string PERSON_FIELD_VALUE;
     static const std::string FUNCTION_NAME;
     static const std::string VALUE_FIELD_NAME;
     static const std::string PROBABILITY_NAME;
@@ -88,7 +89,9 @@ private:
     bool parseDataFields(const TStrStrUMap& dataRowFields,
                          std::string& level,
                          std::string& partition,
+                         std::string& partitionValue,
                          std::string& person,
+                         std::string& personValue,
                          std::string& function,
                          std::string& valueFieldName,
                          double& probability);

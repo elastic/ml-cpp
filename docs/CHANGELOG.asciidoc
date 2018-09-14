@@ -42,6 +42,8 @@ Perform anomaly detection on features derived from multiple bucket values to imp
 of detection with respect to misconfigured bucket lengths and improve detection of long lasting
 anomalies. (See {pull}175[#175].)
 
+Increased independence of anomaly scores across partitions ({pull}182[182])  
+
 //=== Bug Fixes
 
 //=== Regressions

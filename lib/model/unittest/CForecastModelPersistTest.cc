@@ -160,7 +160,7 @@ void CForecastModelPersistTest::testPersistAndRestoreEmpty() {
     std::remove(persistedModels.c_str());
 }
 
-CppUnit::Test* CForecastModelPersistTest::suite(void) {
+CppUnit::Test* CForecastModelPersistTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastModelPersistTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastModelPersistTest>(

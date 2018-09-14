@@ -70,7 +70,7 @@ double CNaiveBayesFeatureDensityFromPrior::logValue(const TDouble1Vec& x) const 
     double result;
     if (m_Prior->jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
-        LOG_ERROR("Bad density value at " << x << " for " << m_Prior->print());
+        LOG_ERROR(<< "Bad density value at " << x << " for " << m_Prior->print());
         return boost::numeric::bounds<double>::lowest();
     }
     return result;
@@ -81,7 +81,7 @@ double CNaiveBayesFeatureDensityFromPrior::logMaximumValue() const {
     if (m_Prior->jointLogMarginalLikelihood({m_Prior->marginalLikelihoodMode()},
                                             maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
-        LOG_ERROR("Bad density value for " << m_Prior->print());
+        LOG_ERROR(<< "Bad density value for " << m_Prior->print());
         return boost::numeric::bounds<double>::lowest();
     }
     return result;
@@ -235,7 +235,7 @@ void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& 
     if (updateCount) {
         class_.count() += 1.0;
     } else {
-        LOG_TRACE("Ignoring empty feature vector");
+        LOG_TRACE(<< "Ignoring empty feature vector");
     }
 }
 
@@ -278,7 +278,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
         return {};
     }
     if (m_ClassConditionalDensities.empty()) {
-        LOG_ERROR("Trying to compute class probabilities without supplying training data");
+        LOG_ERROR(<< "Trying to compute class probabilities without supplying training data");
         return {};
     }
 
@@ -365,7 +365,7 @@ bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
     if (class_ != m_ClassConditionalDensities.end() &&
         class_->second.conditionalDensities().size() > 0 &&
         class_->second.conditionalDensities().size() != x.size()) {
-        LOG_ERROR("Unexpected feature vector: " << core::CContainerPrinter::print(x));
+        LOG_ERROR(<< "Unexpected feature vector: " << core::CContainerPrinter::print(x));
         return false;
     }
     return true;
