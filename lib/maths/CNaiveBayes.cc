@@ -23,6 +23,7 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 
+#include <algorithm>
 #include <numeric>
 #include <string>
 
@@ -39,6 +40,10 @@ const std::string CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f"};
 
 CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior(const CPrior& prior)
     : m_Prior(prior.clone()) {
+}
+
+bool CNaiveBayesFeatureDensityFromPrior::improper() const {
+    return m_Prior->isNonInformative();
 }
 
 void CNaiveBayesFeatureDensityFromPrior::add(const TDouble1Vec& x) {
@@ -203,7 +208,12 @@ void CNaiveBayes::swap(CNaiveBayes& other) {
 }
 
 bool CNaiveBayes::initialized() const {
-    return m_ClassConditionalDensities.size() > 0;
+    return m_ClassConditionalDensities.size() > 0 &&
+           std::all_of(m_ClassConditionalDensities.begin(),
+                       m_ClassConditionalDensities.end(),
+                       [](const std::pair<std::size_t, CClass>& class_) {
+                           return class_.second.initialized();
+                       });
 }
 
 void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
@@ -410,6 +420,12 @@ void CNaiveBayes::CClass::acceptPersistInserter(core::CStatePersistInserter& ins
         }
         // Add other implementations' persist code here.
     }
+}
+
+bool CNaiveBayes::CClass::initialized() const {
+    return std::none_of(
+        m_ConditionalDensities.begin(), m_ConditionalDensities.end(),
+        [](const TFeatureDensityPtr& density) { return density->improper(); });
 }
 
 double CNaiveBayes::CClass::count() const {
