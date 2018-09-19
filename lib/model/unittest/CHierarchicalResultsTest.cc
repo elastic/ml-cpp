@@ -1589,9 +1589,8 @@ void CHierarchicalResultsTest::testNormalizer() {
         TDoubleVec expectedNormalized;
 
         auto findOrInsertExpectedNormalizer =
-            [&expectedNormalizers,
-             &modelConfig](std::string key,
-                           const model::CHierarchicalResultsVisitor::TNode* node) {
+            [&expectedNormalizers, &modelConfig](
+                std::string key, const model::CHierarchicalResultsVisitor::TNode* node) {
                 const std::string& partitionFieldName = *node->s_Spec.s_PartitionFieldName;
                 const std::string& personFieldName =
                     key == "n" ? EMPTY_STRING : *node->s_Spec.s_PersonFieldName;
