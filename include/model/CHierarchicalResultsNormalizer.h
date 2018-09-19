@@ -146,13 +146,6 @@ public:
     const CAnomalyScore::CNormalizer*
     partitionNormalizer(const std::string& partitionFieldName) const;
 
-    //! Get a person normalizer.
-    //!
-    //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer*
-    personNormalizer(const std::string& partitionFieldName,
-                     const std::string& personFieldName) const;
-
     //! Get a leaf normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
@@ -163,6 +156,22 @@ public:
                    const std::string& valueFieldName) const;
 
 private:
+    //! \brief Creates new normalizer instances.
+    class CNormalizerFactory {
+    public:
+        CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig);
+        TNormalizer make(const TNode& node, bool pivot) const;
+
+    private:
+        const CAnomalyDetectorModelConfig& m_ModelConfig;
+    };
+
+private:
+    //! Check if there is one such node for each member of any
+    //! population analysis.
+    static bool isMemberOfPopulation(const TNode& node,
+                                     std::function<bool(const TNode&)> test = nullptr);
+
     //! Get the normalizer corresponding to \p cue if they exist
     //! and return NULL if it doesn't have an appropriate prefix.
     //! Also, extract the hash value.

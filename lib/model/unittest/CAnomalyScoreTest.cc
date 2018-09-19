@@ -229,8 +229,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles() {
     TDoubleMSet scores;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         scores.insert(samples[i]);
-        TDoubleVec sample(1u, samples[i]);
-        normalizer.updateQuantiles(sample, "", "", "bucket_time", "");
+        normalizer.updateQuantiles(samples[i], "", "", "bucket_time", "");
 
         TDoubleMSetItr itr = scores.upper_bound(samples[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
@@ -298,10 +297,9 @@ void CAnomalyScoreTest::testNormalizeScoresQuantilesMultiplePartitions() {
     TDoubleMSet scores;
     for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
         scores.insert(samplesAAL[i]);
-        TDoubleVec sample(1u, samplesAAL[i]);
-        normalizer.updateQuantiles(sample, "airline", "AAL", "", "");
-        normalizer.updateQuantiles(sample, "airline", "KLM", "", "");
-        normalizer.updateQuantiles(sample, "airline", "JAL", "", "");
+        normalizer.updateQuantiles(samplesAAL[i], "airline", "AAL", "", "");
+        normalizer.updateQuantiles(samplesAAL[i], "airline", "KLM", "", "");
+        normalizer.updateQuantiles(samplesAAL[i], "airline", "JAL", "", "");
 
         TDoubleMSetItr itr = scores.upper_bound(samplesAAL[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
@@ -665,9 +663,10 @@ void CAnomalyScoreTest::testJsonConversion() {
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     model::CAnomalyScore::CNormalizer origNormalizer(config);
-    origNormalizer.updateQuantiles(samples, "", "", "", "");
-    origNormalizer.normalize(samples, "", "", "bucket_time", "");
-
+    for (auto& sample : samples) {
+        origNormalizer.updateQuantiles(sample, "", "", "", "");
+        origNormalizer.normalize(sample, "", "", "bucket_time", "");
+    }
     std::ostringstream ss;
     {
         core::CJsonStatePersistInserter inserter(ss);

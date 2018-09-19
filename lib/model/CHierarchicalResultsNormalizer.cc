@@ -25,35 +25,6 @@ namespace ml {
 namespace model {
 
 namespace {
-
-//! \brief Creates new normalizer instances.
-class CNormalizerFactory {
-public:
-    using TNormalizer = CHierarchicalResultsNormalizer::TNormalizer;
-
-    CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig)
-        : m_ModelConfig(modelConfig) {}
-
-    TNormalizer make(const std::string& name1,
-                     const std::string& name2,
-                     const std::string& name3,
-                     const std::string& name4) const {
-        return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
-    }
-
-    TNormalizer make(const std::string& name1, const std::string& name2) const {
-        return make(name1 + ' ' + name2);
-    }
-
-    TNormalizer make(const std::string& name) const {
-        return TNormalizer(name, std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig));
-    }
-
-private:
-    //! The model configuration file.
-    const CAnomalyDetectorModelConfig& m_ModelConfig;
-};
-
 // The bucket cue is "sysChange" for historical reasons.  Do NOT tidy this up
 // unless you fully understand the implications.  In particular existing
 // persisted quantiles will all need to be regenerated.
@@ -108,12 +79,19 @@ void CHierarchicalResultsNormalizer::resetBigChange() {
 void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results*/,
                                            const TNode& node,
                                            bool pivot) {
-    CNormalizerFactory factory(m_ModelConfig);
     TNormalizerPtrVec normalizers;
-    this->elements(node, pivot, factory, normalizers);
+    this->elements(node, pivot, CNormalizerFactory{m_ModelConfig}, normalizers);
 
     if (normalizers.empty()) {
         return;
+    }
+
+    // We need to reset this flag if the normalizer is to be used
+    // for results for members of a population analysis.
+    if (isMemberOfPopulation(node)) {
+        for (auto& normalizer : normalizers) {
+            normalizer->s_Normalizer->isForMembersOfPopulation(true);
+        }
     }
 
     // This has to use the deviation of the probability rather than
@@ -123,24 +101,22 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        ? 0.0
                        : maths::CTools::anomalyScore(node.probability());
 
-    // Construct a unique identifier for the current partition. This will be used to store the maximum scores per
-    // partition
-    const std::string& partitionName = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName);
-    const std::string& partitionValue = dereferenceOrEmpty(node.s_Spec.s_PartitionFieldValue);
-    const std::string& personName = dereferenceOrEmpty(node.s_Spec.s_PersonFieldName);
-    const std::string& personValue = dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue);
+    CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
+        dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName),
+        dereferenceOrEmpty(node.s_Spec.s_PartitionFieldValue),
+        dereferenceOrEmpty(node.s_Spec.s_PersonFieldName),
+        dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue)};
 
     switch (m_Job) {
     case E_Update:
         for (std::size_t i = 0u; i < normalizers.size(); ++i) {
-            m_HasLastUpdateCausedBigChange |= normalizers[i]->s_Normalizer->updateQuantiles(
-                score, partitionName, partitionValue, personName, personValue);
+            m_HasLastUpdateCausedBigChange |=
+                normalizers[i]->s_Normalizer->updateQuantiles(scope, score);
         }
         break;
     case E_Normalize:
         // Normalize with the lowest suitable normalizer.
-        if (!normalizers[0]->s_Normalizer->normalize(
-                score, partitionName, partitionValue, personName, personValue)) {
+        if (normalizers[0]->s_Normalizer->normalize(scope, score) == false) {
             LOG_ERROR(<< "Failed to normalize " << score << " for "
                       << node.s_Spec.print());
         }
@@ -296,8 +272,7 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream& inputStream) {
 
                 std::string quantileDesc(traverser.value());
 
-                std::shared_ptr<CAnomalyScore::CNormalizer> normalizer =
-                    std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig);
+                auto normalizer = std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig);
                 normalizerVec->emplace_back(TWord(hashArray),
                                             TNormalizer(quantileDesc, normalizer));
                 if (CAnomalyScore::normalizerFromJson(traverser, *normalizer) == false) {
@@ -342,13 +317,6 @@ CHierarchicalResultsNormalizer::partitionNormalizer(const std::string& partition
 }
 
 const CAnomalyScore::CNormalizer*
-CHierarchicalResultsNormalizer::personNormalizer(const std::string& partitionFieldName,
-                                                 const std::string& personFieldName) const {
-    const TNormalizer* normalizer = this->personElement(partitionFieldName, personFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
-}
-
-const CAnomalyScore::CNormalizer*
 CHierarchicalResultsNormalizer::leafNormalizer(const std::string& partitionFieldName,
                                                const std::string& personFieldName,
                                                const std::string& functionName,
@@ -356,6 +324,39 @@ CHierarchicalResultsNormalizer::leafNormalizer(const std::string& partitionField
     const TNormalizer* normalizer = this->leafElement(
         partitionFieldName, personFieldName, functionName, valueFieldName);
     return normalizer ? normalizer->s_Normalizer.get() : nullptr;
+}
+
+bool CHierarchicalResultsNormalizer::isMemberOfPopulation(const TNode& node,
+                                                          std::function<bool(const TNode&)> test) {
+    if (isPopulation(node)) {
+        return true;
+    }
+
+    // Check whether node has a distinct person field name and value
+    // and if it does whether these match any of its descendant results
+    // which are from a population analysis. Note that test is only null
+    // the first time this function is invoked for the node under test.
+    // So the person field name and value in the lambda are set to the
+    // values for this node.
+
+    if (test == nullptr) {
+        const std::string& personName = *node.s_Spec.s_PersonFieldName;
+        const std::string& personValue = *node.s_Spec.s_PersonFieldValue;
+        if (personName.empty() || personValue.empty()) {
+            return false;
+        }
+        test = [&personName, &personValue](const TNode& child) {
+            return isPopulation(child) && *child.s_Spec.s_PersonFieldName == personName &&
+                   *child.s_Spec.s_PersonFieldValue == personValue;
+        };
+    }
+
+    for (const auto& child : node.s_Children) {
+        if (test(*child) || (isLeaf(*child) == false && isMemberOfPopulation(*child))) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool CHierarchicalResultsNormalizer::parseCue(const std::string& cue,
@@ -423,6 +424,17 @@ std::string CHierarchicalResultsNormalizer::leafCue(const TWord& word) {
 const std::string&
 CHierarchicalResultsNormalizer::dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr) {
     return stringPtr ? *stringPtr : EMPTY_STRING;
+}
+
+CHierarchicalResultsNormalizer::CNormalizerFactory::CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig)
+    : m_ModelConfig{modelConfig} {
+}
+
+CHierarchicalResultsNormalizer::TNormalizer
+CHierarchicalResultsNormalizer::CNormalizerFactory::make(const TNode& node, bool) const {
+    return {*node.s_Spec.s_PartitionFieldName + ' ' + *node.s_Spec.s_PersonFieldName +
+                ' ' + *node.s_Spec.s_FunctionName + ' ' + *node.s_Spec.s_ValueFieldName,
+            std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig)};
 }
 }
 }

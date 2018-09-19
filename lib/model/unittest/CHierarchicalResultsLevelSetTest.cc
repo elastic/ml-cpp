@@ -13,6 +13,43 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
+namespace {
+struct STestNode {
+    STestNode(const std::string& name) : s_Name(name) {}
+
+    std::string s_Name;
+};
+
+class CConcreteHierarchicalResultsLevelSet
+    : public ml::model::CHierarchicalResultsLevelSet<STestNode> {
+public:
+    class CFactory {
+    public:
+        CFactory() {}
+
+        STestNode make(bool pivot, const ml::model::CHierarchicalResults::TNode& node) const {
+            return STestNode(node.s_Spec.s_PartitionFieldName);
+        }
+    };
+
+public:
+    CConcreteHierarchicalResultsLevelSet(const STestNode& root)
+        : ml::model::CHierarchicalResultsLevelSet<STestNode>(root) {}
+
+    //! Visit a node.
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& /*node*/,
+                       bool /*pivot*/) {}
+
+    // make public
+    using ml::model::CHierarchicalResultsLevelSet<STestNode>::elements;
+};
+
+void print(const STestNode* node) {
+    std::cout << "'" << node->s_Name << "'" << std::endl;
+}
+}
+
 CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
@@ -21,49 +58,6 @@ CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
         &CHierarchicalResultsLevelSetTest::testElements));
 
     return suiteOfTests;
-}
-
-struct TestNode {
-    TestNode(const std::string& name) : s_Name(name) {}
-
-    std::string s_Name;
-};
-
-class CTestNodeFactory {
-public:
-    CTestNodeFactory() {}
-
-    TestNode make(const std::string& name1,
-                  const std::string& name2,
-                  const std::string& name3,
-                  const std::string& name4) const {
-        return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
-    }
-
-    TestNode make(const std::string& name1, const std::string& name2) const {
-        return make(name1 + ' ' + name2);
-    }
-
-    TestNode make(const std::string& name) const { return TestNode(name); }
-};
-
-class CConcreteHierarchicalResultsLevelSet
-    : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
-public:
-    CConcreteHierarchicalResultsLevelSet(const TestNode& root)
-        : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
-
-    //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
-                       const TNode& /*node*/,
-                       bool /*pivot*/) {}
-
-    // make public
-    using ml::model::CHierarchicalResultsLevelSet<TestNode>::elements;
-};
-
-void print(const TestNode* node) {
-    std::cout << "'" << node->s_Name << "'" << std::endl;
 }
 
 void CHierarchicalResultsLevelSetTest::testElements() {
@@ -85,7 +79,7 @@ void CHierarchicalResultsLevelSetTest::testElements() {
     ml::core::CStoredStringPtr PARTITION_VALUE_3 =
         ml::model::CStringStore::names().get("v3");
 
-    TestNode root("root");
+    STestNode root("root");
 
     ml::model::hierarchical_results_detail::SResultSpec spec;
     spec.s_PartitionFieldName = PARTITION_A;
@@ -100,10 +94,10 @@ void CHierarchicalResultsLevelSetTest::testElements() {
     node.s_Parent = &parent;
     node.s_Children.push_back(&child);
 
-    std::vector<TestNode*> result;
+    std::vector<STestNode*> result;
 
     CConcreteHierarchicalResultsLevelSet levelSet(root);
-    levelSet.elements(node, false, CTestNodeFactory(), result);
+    levelSet.elements(node, false, CConcreteHierarchicalResultsLevelSet::CFactory(), result);
     std::for_each(result.begin(), result.end(), print);
     CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
     CPPUNIT_ASSERT_EQUAL(std::string("pA"), result[0]->s_Name);

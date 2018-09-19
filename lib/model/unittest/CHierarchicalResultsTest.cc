@@ -298,19 +298,20 @@ public:
 
     class CFactory {
     public:
-        SNodeProbabilities make(const std::string& name1,
-                                const std::string& name2,
-                                const std::string& name3,
-                                const std::string& name4) const {
-            return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
-        }
-
-        SNodeProbabilities make(const std::string& name1, const std::string& name2) const {
-            return make(name1 + ' ' + name2);
-        }
-
-        SNodeProbabilities make(const std::string& name) const {
-            return SNodeProbabilities(name);
+        SNodeProbabilities
+        make(bool pivot, const model::CHierarchicalResults::TNode& node) const {
+            if (pivot) {
+                return SNodeProbabilities(node.s_Spec.s_PersonFieldName);
+            } else if (CProbabilityGatherer::isLeaf(node)) {
+                return SNodeProbabilities(*node.s_Spec.s_PartitionFieldName +
+                                          ' ' + *node.s_Spec.s_PersonFieldName +
+                                          ' ' + *node.s_Spec.s_FunctionName +
+                                          ' ' + *node.s_Spec.s_ValueFieldName);
+            } else if (CProbabilityGatherer::isPerson(node)) {
+                return SNodeProbabilities(*node.s_Spec.s_PartitionFieldName +
+                                          ' ' + *node.s_Spec.s_PersonFieldName);
+            }
+            return SNodeProbabilities(node.s_Spec.s_PartitionFieldName);
         }
     };
 
