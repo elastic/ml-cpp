@@ -116,7 +116,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
                     partitionName, partitionValue, personName, personValue};
                 if (levelNormalizer->normalize(scope, score) == false) {
                     LOG_ERROR(<< "Failed to normalize score " << score << " at level \""
-                              << level << "\" using scope \"" << scope.print() << "\"");
+                              << level << "\" using scope " << scope.print());
                 }
             }
         } else {

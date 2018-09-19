@@ -629,7 +629,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         results.bottomUpBreadthFirst(populator);
         results.pivotsBottomUpBreadthFirst(populator);
 
-        this->updateQuantilesAndNormalize(false, results);
+        this->updateNormalizerAndNormalizeResults(false, results);
     }
 
     core_t::TTime resultsTime =
@@ -682,7 +682,7 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
         results.bottomUpBreadthFirst(populator);
         results.pivotsBottomUpBreadthFirst(populator);
 
-        this->updateQuantilesAndNormalize(true, results);
+        this->updateNormalizerAndNormalizeResults(true, results);
     }
 
     // For the case where there are out-of-phase buckets, and there is a gap for an
@@ -1264,19 +1264,23 @@ void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim,
     results.pivotsBottomUpBreadthFirst(m_Aggregator);
 }
 
-void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
-                                              model::CHierarchicalResults& results) {
+void CAnomalyJob::updateNormalizerAndNormalizeResults(bool isInterim,
+                                                      model::CHierarchicalResults& results) {
+    m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_RefreshSettings);
+    results.bottomUpBreadthFirst(m_Normalizer);
+    results.pivotsBottomUpBreadthFirst(m_Normalizer);
+
     // The normalizers are NOT updated with interim results, in other
     // words interim results are normalized with respect to previous
     // final results.
     if (isInterim == false) {
         m_Normalizer.propagateForwardByTime(1.0);
-        m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_Update);
+        m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_UpdateQuantiles);
         results.bottomUpBreadthFirst(m_Normalizer);
         results.pivotsBottomUpBreadthFirst(m_Normalizer);
     }
 
-    m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_Normalize);
+    m_Normalizer.setJob(model::CHierarchicalResultsNormalizer::E_NormalizeScores);
     results.bottomUpBreadthFirst(m_Normalizer);
     results.pivotsBottomUpBreadthFirst(m_Normalizer);
 }

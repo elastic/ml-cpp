@@ -90,7 +90,12 @@ public:
 
     //! Enumeration of the possible jobs that the normalizer can
     //! perform when invoked.
-    enum EJob { E_Update, E_Normalize, E_NoOp };
+    enum EJob {
+        E_RefreshSettings,
+        E_UpdateQuantiles,
+        E_NormalizeScores,
+        E_NoOp
+    };
 
     //! Enumeration of possible outcomes of restoring from XML.
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };

@@ -97,6 +97,7 @@ public:
     //! based on historic values percentiles.
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
+        using TOptionalBool = boost::optional<bool>;
         using TMaxValueAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
@@ -113,7 +114,7 @@ public:
                                const std::string& personFieldValue);
 
             //! Get the maximum score map key for the scope.
-            TWord key(bool isPopulationAnalysis, const TDictionary& dictionary) const;
+            TWord key(TOptionalBool isPopulationAnalysis, const TDictionary& dictionary) const;
 
             //! Get a human readable description of the scope.
             std::string print() const;
@@ -154,9 +155,10 @@ public:
         //! Age the maximum score and quantile summary.
         void propagateForwardByTime(double time);
 
-        //! Set whether the normalizer is to be applied to results for
-        //! individual members of a population analysis.
-        void isForMembersOfPopulation(bool value);
+        //! Update whether the normalizer is to be applied to results for
+        //! individual members of a population analysis based on whether
+        //! a particular result is for a member of a population.
+        void isForMembersOfPopulation(bool resultIsForMemberOfPopulation);
 
         //! Report whether it would be possible to upgrade one version
         //! of the quantiles to another.
@@ -236,7 +238,7 @@ public:
 
         //! True if this normalizer applies to results for individual
         //! members of a population analysis.
-        bool m_IsForMembersOfPopulation = false;
+        TOptionalBool m_IsForMembersOfPopulation;
         //! The dictionary to use to associate partitions to their maximum scores
         TDictionary m_Dictionary;
         //! The set of maximum scores ever received for partitions.

@@ -88,11 +88,6 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
 
     // We need to reset this flag if the normalizer is to be used
     // for results for members of a population analysis.
-    if (isMemberOfPopulation(node)) {
-        for (auto& normalizer : normalizers) {
-            normalizer->s_Normalizer->isForMembersOfPopulation(true);
-        }
-    }
 
     // This has to use the deviation of the probability rather than
     // the anomaly score stored on the bucket because the later is
@@ -108,13 +103,18 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
         dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue)};
 
     switch (m_Job) {
-    case E_Update:
-        for (std::size_t i = 0u; i < normalizers.size(); ++i) {
-            m_HasLastUpdateCausedBigChange |=
-                normalizers[i]->s_Normalizer->updateQuantiles(scope, score);
+    case E_RefreshSettings:
+        for (auto& normalizer : normalizers) {
+            normalizer->s_Normalizer->isForMembersOfPopulation(isMemberOfPopulation(node));
         }
         break;
-    case E_Normalize:
+    case E_UpdateQuantiles:
+        for (auto& normalizer : normalizers) {
+            m_HasLastUpdateCausedBigChange |=
+                normalizer->s_Normalizer->updateQuantiles(scope, score);
+        }
+        break;
+    case E_NormalizeScores:
         // Normalize with the lowest suitable normalizer.
         if (normalizers[0]->s_Normalizer->normalize(scope, score) == false) {
             LOG_ERROR(<< "Failed to normalize " << score << " for "
