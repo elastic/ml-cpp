@@ -259,8 +259,7 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig& confi
 }
 
 bool CAnomalyScore::CNormalizer::canNormalize() const {
-    return m_IsForMembersOfPopulation != boost::none &&
-           m_RawScoreQuantileSummary.n() > 0;
+    return m_RawScoreQuantileSummary.n() > 0;
 }
 
 bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
