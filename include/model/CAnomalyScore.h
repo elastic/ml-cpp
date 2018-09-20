@@ -47,11 +47,6 @@ class CLimits;
 class MODEL_EXPORT CAnomalyScore {
 public:
     using TDoubleVec = std::vector<double>;
-    using TDoubleVecItr = TDoubleVec::iterator;
-    using TDoubleVecCItr = TDoubleVec::const_iterator;
-    using TOptionalDouble = boost::optional<double>;
-    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TStrVec = std::vector<std::string>;
 
     //! Attributes for a persisted normalizer
     static const std::string MLCUE_ATTRIBUTE;
@@ -102,36 +97,48 @@ public:
     //! based on historic values percentiles.
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
-        explicit CNormalizer(const CAnomalyDetectorModelConfig& config);
+        using TOptionalBool = boost::optional<bool>;
+        using TMaxValueAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
+        using TDictionary = core::CCompressedDictionary<1>;
+        using TWord = TDictionary::CWord;
+        using TWordMaxValueAccumulatorUMap =
+            TDictionary::CWordUMap<TMaxValueAccumulator>::Type;
+
+        //! \brief Defines a maximum raw score scope. In particular, we
+        //! maintain a maximum score for each distinct scope.
+        class MODEL_EXPORT CMaximumScoreScope {
+        public:
+            CMaximumScoreScope(const std::string& partitionFieldName,
+                               const std::string& partitionFieldValue,
+                               const std::string& personFieldName,
+                               const std::string& personFieldValue);
+
+            //! Get the maximum score map key for the scope.
+            TWord key(TOptionalBool isPopulationAnalysis, const TDictionary& dictionary) const;
+
+            //! Get a human readable description of the scope.
+            std::string print() const;
+
+        private:
+            using TStrCRef = boost::reference_wrapper<const std::string>;
+
+        private:
+            TStrCRef m_PartitionFieldName;
+            TStrCRef m_PartitionFieldValue;
+            TStrCRef m_PersonFieldName;
+            TStrCRef m_PersonFieldValue;
+        };
+
+    public:
+        CNormalizer(const CAnomalyDetectorModelConfig& config);
 
         //! Does this normalizer have enough information to normalize
         //! anomaly scores?
         bool canNormalize() const;
 
-        //! This normalizes the aggregate scores, i.e. the sum
-        //! of \p scores, and scales all the scores by a constant
-        //! s.t. they sum to the normalized score. The normalized
-        //! score is in the range [0, 100].
-        //!
-        //! \param[in,out] scores The raw scores to normalize.
-        //! Filled in with the normalized scores.
-        //! \param[in] partitionName The name of a partition attribute. Empty if no partitioning.
-        //! \param[in] partitionValue The name of an individual partition.
-        //! \param[in] personName The name of the person field attribute
-        //! \param[in] personValue The name of an individual person
-        bool normalize(TDoubleVec& scores,
-                       const std::string& partitionName,
-                       const std::string& partitionValue,
-                       const std::string& personName,
-                       const std::string& personValue) const;
-
         //! As above but taking a single pre-aggregated \p score instead
         //! of a vector of scores to be aggregated.
-        bool normalize(double& score,
-                       const std::string& partitionName,
-                       const std::string& partitionValue,
-                       const std::string& personName,
-                       const std::string& personValue) const;
+        bool normalize(const CMaximumScoreScope& scope, double& score) const;
 
         //! Estimate the quantile range including the \p score.
         //!
@@ -141,25 +148,17 @@ public:
         //! \param[out] upperBound The quantile upper bound of \p score.
         void quantile(double score, double confidence, double& lowerBound, double& upperBound) const;
 
-        //! Updates the quantile summaries with the total of
-        //! \p scores.
-        //! \return true if a big change occurred, otherwise false
-        bool updateQuantiles(const TDoubleVec& scores,
-                             const std::string& partitionName,
-                             const std::string& partitionValue,
-                             const std::string& personName,
-                             const std::string& personValue);
-
         //! Updates the quantile summaries with \p score.
         //! \return true if a big change occurred, otherwise false
-        bool updateQuantiles(double score,
-                             const std::string& partitionName,
-                             const std::string& partitionValue,
-                             const std::string& personName,
-                             const std::string& personValue);
+        bool updateQuantiles(const CMaximumScoreScope& scope, double score);
 
         //! Age the maximum score and quantile summary.
         void propagateForwardByTime(double time);
+
+        //! Update whether the normalizer is to be applied to results for
+        //! individual members of a population analysis based on whether
+        //! a particular result is for a member of a population.
+        void isForMembersOfPopulation(bool resultIsForMemberOfPopulation);
 
         //! Report whether it would be possible to upgrade one version
         //! of the quantiles to another.
@@ -190,16 +189,6 @@ public:
     private:
         using TDoubleDoublePr = std::pair<double, double>;
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-        using TDoubleDoublePrVecCItr = TDoubleDoublePrVec::const_iterator;
-        using TGreaterDouble = std::greater<double>;
-        using TMaxValueAccumulator =
-            maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>;
-
-        using TDictionary = core::CCompressedDictionary<1>;
-        using TWord = TDictionary::CWord;
-        using TWordVec = std::vector<TWord>;
-        using TWordMaxValueAccumulatorUMap =
-            TDictionary::CWordUMap<TMaxValueAccumulator>::Type;
 
     private:
         //! Used to convert raw scores in to integers so that we
@@ -229,11 +218,7 @@ public:
         double rawScore(uint32_t discreteScore) const;
 
         //! Retrieve the maximum score for a partition
-        bool maxScore(const std::string& partitionName,
-                      const std::string& partitionValue,
-                      const std::string& personName,
-                      const std::string& personValue,
-                      double& maxScore) const;
+        bool maxScore(const CMaximumScoreScope& scope, double& maxScore) const;
 
     private:
         //! The percentile defining the largest noise score.
@@ -243,17 +228,19 @@ public:
         //! The normalized anomaly score knot points.
         TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
         //! The maximum possible normalized score.
-        double m_MaximumNormalizedScore;
+        double m_MaximumNormalizedScore = 100.0;
 
         //! The approximate HIGH_PERCENTILE percentile raw score.
         uint32_t m_HighPercentileScore;
         //! The number of scores less than the approximate
         //! HIGH_PERCENTILE percentile raw score.
-        uint64_t m_HighPercentileCount;
+        uint64_t m_HighPercentileCount = 0;
 
+        //! True if this normalizer applies to results for individual
+        //! members of a population analysis.
+        TOptionalBool m_IsForMembersOfPopulation;
         //! The dictionary to use to associate partitions to their maximum scores
         TDictionary m_Dictionary;
-
         //! The set of maximum scores ever received for partitions.
         TWordMaxValueAccumulatorUMap m_MaxScores;
 

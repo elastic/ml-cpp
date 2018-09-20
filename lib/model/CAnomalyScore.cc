@@ -75,6 +75,7 @@ const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
 
 // Since version >= 6.5
 const std::string MAX_SCORES_PER_PARTITION_TAG("g");
+const std::string IS_FOR_MEMBERS_OF_POPULATION_TAG("h");
 
 const std::string EMPTY_STRING;
 
@@ -246,9 +247,7 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig& confi
     : m_NoisePercentile(config.noisePercentile()),
       m_NoiseMultiplier(config.noiseMultiplier()),
       m_NormalizedScoreKnotPoints(config.normalizedScoreKnotPoints()),
-      m_MaximumNormalizedScore(100.0),
       m_HighPercentileScore(std::numeric_limits<uint32_t>::max()),
-      m_HighPercentileCount(0ull),
       m_BucketNormalizationFactor(config.bucketNormalizationFactor()),
       m_RawScoreQuantileSummary(201, config.decayRate()),
       m_RawScoreHighQuantileSummary(201, config.decayRate()),
@@ -263,39 +262,8 @@ bool CAnomalyScore::CNormalizer::canNormalize() const {
     return m_RawScoreQuantileSummary.n() > 0;
 }
 
-bool CAnomalyScore::CNormalizer::normalize(TDoubleVec& scores,
-                                           const std::string& partitionName,
-                                           const std::string& partitionValue,
-                                           const std::string& personName,
-                                           const std::string& personValue) const {
-
-    double origScore(std::accumulate(scores.begin(), scores.end(), 0.0));
-    double normalizedScore(origScore);
-
-    if (this->normalize(normalizedScore, partitionName, partitionValue,
-                        personName, personValue) == false) {
-        // Error will have been logged by the called method
-        return false;
-    }
-
-    if (normalizedScore == origScore) {
-        // Nothing to do.
-        return true;
-    }
-
-    // Normalize the individual scores.
-    for (TDoubleVecItr scoreItr = scores.begin(); scoreItr != scores.end(); ++scoreItr) {
-        *scoreItr *= normalizedScore / origScore;
-    }
-
-    return true;
-}
-
-bool CAnomalyScore::CNormalizer::normalize(double& score,
-                                           const std::string& partitionName,
-                                           const std::string& partitionValue,
-                                           const std::string& personName,
-                                           const std::string& personValue) const {
+bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
+                                           double& score) const {
 
     if (score == 0.0) {
         // Nothing to do.
@@ -355,9 +323,9 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
     // to the score.
     uint32_t noiseScore;
     m_RawScoreQuantileSummary.quantile(m_NoisePercentile / 100.0, noiseScore);
-    TDoubleDoublePrVecCItr knotPoint = std::lower_bound(
-        m_NormalizedScoreKnotPoints.begin(), m_NormalizedScoreKnotPoints.end(),
-        TDoubleDoublePr(m_NoisePercentile, 0.0));
+    auto knotPoint = std::lower_bound(m_NormalizedScoreKnotPoints.begin(),
+                                      m_NormalizedScoreKnotPoints.end(),
+                                      TDoubleDoublePr(m_NoisePercentile, 0.0));
     double signalStrength =
         m_NoiseMultiplier * 10.0 / DISCRETIZATION_FACTOR *
         (static_cast<double>(discreteScore) - static_cast<double>(noiseScore));
@@ -427,16 +395,12 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
               << ", upperPercentile = " << upperPercentile);
 
     double maxScore{0.0};
-    bool hasValidMaxScore = this->maxScore(partitionName, partitionValue,
-                                           personName, personValue, maxScore);
+    bool hasValidMaxScore = this->maxScore(scope, maxScore);
     if (hasValidMaxScore == false) {
-        LOG_TRACE(<< "normalize: Maximum score NOT found for partitionId = "
-                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue));
-        normalizedScores[2] = m_MaximumNormalizedScore;
+        LOG_TRACE(<< "normalize: Not using maximum score for scope = " << scope.print());
     } else {
-        LOG_TRACE(<< "normalize: Maximum score FOUND for partitionId = "
-                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-                  << ". " << maxScore);
+        LOG_TRACE(<< "normalize: Maximum score = " << maxScore
+                  << " for scope = " << scope.print());
 
         // Compute the maximum score ceiling
         double ratio = score / maxScore;
@@ -445,9 +409,7 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
                               (*std::min_element(curves, curves + 2));
         LOG_TRACE(<< "normalizedScores[2] = " << normalizedScores[2] << ", score = " << score
                   << ", maxScore = " << maxScore << ", ratio = \"" << ratio << "\""
-                  << ", partitionId = \""
-                  << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-                  << "\"");
+                  << ", scope = " << scope.print());
     }
 
     // Logarithmically interpolate the maximum score between the
@@ -465,31 +427,8 @@ bool CAnomalyScore::CNormalizer::normalize(double& score,
     score = std::min(*std::min_element(boost::begin(normalizedScores),
                                        boost::end(normalizedScores)),
                      m_MaximumNormalizedScore);
-    LOG_TRACE(<< "normalizedScore = " << score << ", partitionId = \""
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-              << "\"");
+    LOG_TRACE(<< "normalizedScore = " << score << ", scope = " << scope.print());
 
-    return true;
-}
-
-bool CAnomalyScore::CNormalizer::maxScore(const std::string& partitionName,
-                                          const std::string& partitionValue,
-                                          const std::string& personName,
-                                          const std::string& personValue,
-                                          double& maxScore) const {
-    // The influencer named 'bucket_time' corresponds to the root level normalizer for which we have keyed the maximum
-    // score on a blank personName
-    const std::string person = (personName == TIME_INFLUENCER) ? "" : personName;
-
-    auto itr = m_MaxScores.find(
-        m_Dictionary.word(partitionName, partitionValue, person, personValue));
-    if (itr == m_MaxScores.end()) {
-        return false;
-    }
-    maxScore = itr->second[0];
-    if (maxScore == 0.0) {
-        return false;
-    }
     return true;
 }
 
@@ -573,36 +512,21 @@ void CAnomalyScore::CNormalizer::quantile(double score,
               << ", f = " << f);
 }
 
-bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec& scores,
-                                                 const std::string& partitionName,
-                                                 const std::string& partitionValue,
-                                                 const std::string& personName,
-                                                 const std::string& personValue) {
-    return this->updateQuantiles(std::accumulate(scores.begin(), scores.end(), 0.0),
-                                 partitionName, partitionValue, personName, personValue);
-}
-
-bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
-                                                 const std::string& partitionName,
-                                                 const std::string& partitionValue,
-                                                 const std::string& personName,
-                                                 const std::string& personValue) {
+bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope, double score) {
     using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
     using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
     bool bigChange(false);
 
     TMaxValueAccumulator& maxScore =
-        m_MaxScores[m_Dictionary.word(partitionName, partitionValue, personName, personValue)];
+        m_MaxScores[scope.key(m_IsForMembersOfPopulation, m_Dictionary)];
 
     double oldMaxScore(maxScore.count() == 0 ? 0.0 : maxScore[0]);
 
     maxScore.add(score);
 
-    LOG_TRACE(<< "updateQuantiles: partitionId = \""
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-              << "\", oldMaxScore = " << oldMaxScore << ", score = " << score
-              << ", maxScore[0] = " << maxScore[0]);
+    LOG_TRACE(<< "updateQuantiles: scope = " << scope.print() << ", oldMaxScore = " << oldMaxScore
+              << ", score = " << score << ", maxScore[0] = " << maxScore[0]);
     if (maxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
         bigChange = true;
         LOG_TRACE(<< "Big change in normalizer - max score updated from "
@@ -610,9 +534,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
     }
     uint32_t discreteScore = this->discreteScore(score);
     LOG_TRACE(<< "score = " << score << ", discreteScore = " << discreteScore
-              << ", maxScore = " << maxScore[0] << ", partitionId = \""
-              << (partitionName + "_" + partitionValue + "_" + personName + "_" + personValue)
-              << "\"");
+              << ", maxScore = " << maxScore[0] << ", scope = " << scope.print());
 
     uint64_t n = m_RawScoreQuantileSummary.n();
     uint64_t k = m_RawScoreQuantileSummary.k();
@@ -655,8 +577,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score,
                       << ", c(H) = " << m_HighPercentileCount << ", percentile = "
                       << 100.0 * static_cast<double>(m_HighPercentileCount) /
                              static_cast<double>(n)
-                      << "%"
-                      << ", desired c(H) = " << highPercentileCount);
+                      << "%, desired c(H) = " << highPercentileCount);
 
             // Populate the high quantile summary.
             for (/**/; i < L.size(); ++i) {
@@ -786,6 +707,14 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     }
 }
 
+void CAnomalyScore::CNormalizer::isForMembersOfPopulation(bool resultIsForMemberOfPopulation) {
+    if (m_IsForMembersOfPopulation == boost::none) {
+        m_IsForMembersOfPopulation.reset(resultIsForMemberOfPopulation);
+    } else {
+        m_IsForMembersOfPopulation = *m_IsForMembersOfPopulation || resultIsForMemberOfPopulation;
+    }
+}
+
 bool CAnomalyScore::CNormalizer::isUpgradable(const std::string& fromVersion,
                                               const std::string& toVersion) {
     // Any changes to this method need to be reflected in the upgrade() method
@@ -848,6 +777,7 @@ void CAnomalyScore::CNormalizer::clear() {
     m_HighPercentileScore = std::numeric_limits<uint32_t>::max();
     m_HighPercentileCount = 0ull;
 
+    m_IsForMembersOfPopulation.reset();
     for (auto& element : m_MaxScores) {
         element.second.clear();
     }
@@ -867,7 +797,10 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
                          boost::bind(&maths::CQDigest::acceptPersistInserter,
                                      &m_RawScoreHighQuantileSummary, _1));
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
-
+    if (m_IsForMembersOfPopulation != boost::none) {
+        inserter.insertValue(IS_FOR_MEMBERS_OF_POPULATION_TAG,
+                             *m_IsForMembersOfPopulation ? 1 : 0);
+    }
     core::CPersistUtils::persist(MAX_SCORES_PER_PARTITION_TAG, m_MaxScores, inserter);
 }
 
@@ -893,7 +826,9 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
                 traverser.traverseSubLevel(
                     boost::bind(&maths::CQDigest::acceptRestoreTraverser,
                                 &m_RawScoreHighQuantileSummary, _1)));
-
+        RESTORE_SETUP_TEARDOWN(IS_FOR_MEMBERS_OF_POPULATION_TAG, int value,
+                               core::CStringUtils::stringToType(traverser.value(), value),
+                               m_IsForMembersOfPopulation.reset(value == 1))
         core::CPersistUtils::restore(MAX_SCORES_PER_PARTITION_TAG, m_MaxScores, traverser);
 
     } while (traverser.next());
@@ -908,6 +843,7 @@ uint64_t CAnomalyScore::CNormalizer::checksum() const {
     seed = maths::CChecksum::calculate(seed, m_MaximumNormalizedScore);
     seed = maths::CChecksum::calculate(seed, m_HighPercentileScore);
     seed = maths::CChecksum::calculate(seed, m_HighPercentileCount);
+    seed = maths::CChecksum::calculate(seed, m_IsForMembersOfPopulation);
     seed = maths::CChecksum::calculate(seed, m_MaxScores);
     seed = maths::CChecksum::calculate(seed, m_BucketNormalizationFactor);
     seed = maths::CChecksum::calculate(seed, m_RawScoreQuantileSummary);
@@ -924,10 +860,54 @@ double CAnomalyScore::CNormalizer::rawScore(uint32_t discreteScore) const {
     return static_cast<double>(discreteScore) / DISCRETIZATION_FACTOR;
 }
 
+bool CAnomalyScore::CNormalizer::maxScore(const CMaximumScoreScope& scope,
+                                          double& maxScore) const {
+    auto itr = m_MaxScores.find(scope.key(m_IsForMembersOfPopulation, m_Dictionary));
+    if (itr == m_MaxScores.end()) {
+        return false;
+    }
+    maxScore = itr->second[0];
+    return maxScore != 0.0;
+}
+
 const double CAnomalyScore::CNormalizer::DISCRETIZATION_FACTOR = 1000.0;
 const double CAnomalyScore::CNormalizer::HIGH_PERCENTILE = 90.0;
 const double CAnomalyScore::CNormalizer::QUANTILE_DECAY_TIME = 20.0;
 const double CAnomalyScore::CNormalizer::BIG_CHANGE_FACTOR = 1.1;
+
+CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
+    const std::string& partitionFieldName,
+    const std::string& partitionFieldValue,
+    const std::string& personFieldName,
+    const std::string& personFieldValue)
+    : m_PartitionFieldName{partitionFieldName}, m_PartitionFieldValue{partitionFieldValue},
+      m_PersonFieldName{personFieldName}, m_PersonFieldValue{personFieldValue} {
+}
+
+CAnomalyScore::CNormalizer::TWord
+CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAnalysis,
+                                                    const TDictionary& dictionary) const {
+    if (isPopulationAnalysis == boost::none) {
+        LOG_ERROR("Using normalizer without refreshing settings");
+
+    } else if (*isPopulationAnalysis) {
+        return TWord{};
+    }
+
+    // The influencer named 'bucket_time' corresponds to the root level
+    // normalizer for which we have keyed the maximum score on a blank
+    // personName.
+    const std::string& personFieldName =
+        (m_PersonFieldName.get() == TIME_INFLUENCER) ? EMPTY_STRING : m_PersonFieldName;
+
+    return dictionary.word(m_PartitionFieldName, m_PartitionFieldValue,
+                           personFieldName, m_PersonFieldValue);
+}
+
+std::string CAnomalyScore::CNormalizer::CMaximumScoreScope::print() const {
+    return "\"" + m_PartitionFieldName.get() + "_" + m_PartitionFieldValue.get() +
+           "_" + m_PersonFieldName.get() + "_" + m_PersonFieldValue.get() + "\"";
+}
 
 // We use short field names to reduce the state size
 namespace {

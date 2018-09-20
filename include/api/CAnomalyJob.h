@@ -322,7 +322,8 @@ private:
     void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results);
 
     //! Update quantiles if not interim and normalize.
-    void updateQuantilesAndNormalize(bool isInterim, model::CHierarchicalResults& results);
+    void updateNormalizerAndNormalizeResults(bool isInterim,
+                                             model::CHierarchicalResults& results);
 
     //! Outputs results for the buckets that are within the specified range.
     //! The range includes the start but does not include the end.

@@ -88,9 +88,9 @@ public:
 private:
     bool parseDataFields(const TStrStrUMap& dataRowFields,
                          std::string& level,
-                         std::string& partition,
+                         std::string& partitionName,
                          std::string& partitionValue,
-                         std::string& person,
+                         std::string& personName,
                          std::string& personValue,
                          std::string& function,
                          std::string& valueFieldName,
