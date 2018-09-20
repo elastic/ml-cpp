@@ -69,9 +69,9 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     }
 
     std::string level;
-    std::string partition;
+    std::string partitionName;
     std::string partitionValue;
-    std::string person;
+    std::string personName;
     std::string personValue;
     std::string function;
     std::string valueFieldName;
@@ -82,13 +82,13 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     // parameters sent from the Java side ML plugin to Elasticsearch.
     // In production the version of the native code application and the java application it is communicating directly
     // with will always match so supporting BWC with versions prior to 6.5 is not necessary.
-    bool isNormalizable = this->parseDataFields(dataRowFields, level, partition,
-                                                partitionValue, person, personValue,
-                                                function, valueFieldName, probability);
+    bool isNormalizable = this->parseDataFields(
+        dataRowFields, level, partitionName, partitionValue, personName,
+        personValue, function, valueFieldName, probability);
 
-    LOG_TRACE(<< "level='" << level << "', partition='" << partition << "', partitionValue='"
-              << partitionValue << "', person='" << person << "', personValue='"
-              << personValue << "', function='" << function << "', value='"
+    LOG_TRACE(<< "level='" << level << "', partitionName='" << partitionName << "', partitionValue='"
+              << partitionValue << "', personName='" << personName << "', personValue='"
+              << personValue << "', function='" << function << "', valueFieldName='"
               << valueFieldName << "', probability='" << probability << "'");
 
     if (isNormalizable) {
@@ -99,32 +99,30 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
         } else if (level == LEAF_LEVEL) {
-            levelNormalizer = m_Normalizer.leafNormalizer(partition, person,
-                                                          function, valueFieldName);
+            levelNormalizer = m_Normalizer.leafNormalizer(
+                partitionName, personName, function, valueFieldName);
         } else if (level == PARTITION_LEVEL) {
-            levelNormalizer = m_Normalizer.partitionNormalizer(partition);
+            levelNormalizer = m_Normalizer.partitionNormalizer(partitionName);
         } else if (level == BUCKET_INFLUENCER_LEVEL) {
-            levelNormalizer = m_Normalizer.influencerBucketNormalizer(person);
+            levelNormalizer = m_Normalizer.influencerBucketNormalizer(personName);
         } else if (level == INFLUENCER_LEVEL) {
-            levelNormalizer = m_Normalizer.influencerNormalizer(person);
+            levelNormalizer = m_Normalizer.influencerNormalizer(personName);
         } else {
             LOG_ERROR(<< "Unexpected   : " << level);
         }
         if (levelNormalizer != nullptr) {
             if (levelNormalizer->canNormalize()) {
-                if (levelNormalizer->normalize(score, partition, partitionValue,
-                                               person, personValue) == false) {
-                    LOG_ERROR(<< "Failed to normalize score " << score
-                              << " at level \"" << level << "\" using partitionId \""
-                              << (partition + "_" + partitionValue + "_" + person + "_" + personValue)
-                              << "\"");
+                model::CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
+                    partitionName, partitionValue, personName, personValue};
+                if (levelNormalizer->normalize(scope, score) == false) {
+                    LOG_ERROR(<< "Failed to normalize score " << score << " at level \""
+                              << level << "\" using scope " << scope.print());
                 }
             }
         } else {
-            LOG_ERROR(<< "No normalizer available"
-                         " at level '"
-                      << level << "' with partition field name '" << partition
-                      << "' and person field name '" << person << "'");
+            LOG_ERROR(<< "No normalizer available at level '" << level
+                      << "' with partition field name '" << partitionName
+                      << "' and person field name '" << personName << "'");
         }
 
         m_OutputFieldNormalizedScore =
@@ -143,17 +141,17 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
 
 bool CResultNormalizer::parseDataFields(const TStrStrUMap& dataRowFields,
                                         std::string& level,
-                                        std::string& partition,
+                                        std::string& partitionName,
                                         std::string& partitionValue,
-                                        std::string& person,
+                                        std::string& personName,
                                         std::string& personValue,
                                         std::string& function,
                                         std::string& valueFieldName,
                                         double& probability) {
     return this->parseDataField(dataRowFields, LEVEL, level) &&
-           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partitionName) &&
            this->parseDataField(dataRowFields, PARTITION_FIELD_VALUE, partitionValue) &&
-           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, personName) &&
            this->parseDataField(dataRowFields, PERSON_FIELD_VALUE, personValue) &&
            this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
            this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
