@@ -68,14 +68,16 @@ double scoreToProbability(double score) {
 // We use short field names to reduce the state size
 const std::string HIGH_PERCENTILE_SCORE_TAG("a");
 const std::string HIGH_PERCENTILE_COUNT_TAG("b");
-const std::string MAX_SCORE_TAG("c");
+//const std::string MAX_SCORE_TAG("c"); Used in versions < 6.5
 const std::string RAW_SCORE_QUANTILE_SUMMARY("d");
 const std::string RAW_SCORE_HIGH_QUANTILE_SUMMARY("e");
 const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
-
 // Since version >= 6.5
 const std::string MAX_SCORES_PER_PARTITION_TAG("g");
 const std::string IS_FOR_MEMBERS_OF_POPULATION_TAG("h");
+// Nested
+const std::string MAX_SCORE_TAG("a");
+const std::string TIME_SINCE_LAST_SCORE_TAG("b");
 
 const std::string EMPTY_STRING;
 
@@ -518,23 +520,22 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
 
     bool bigChange(false);
 
-    TMaxValueAccumulator& maxScore =
-        m_MaxScores[scope.key(m_IsForMembersOfPopulation, m_Dictionary)];
+    CMaxScore& maxScore = m_MaxScores[scope.key(m_IsForMembersOfPopulation, m_Dictionary)];
 
-    double oldMaxScore(maxScore.count() == 0 ? 0.0 : maxScore[0]);
+    double oldMaxScore(maxScore.score());
 
     maxScore.add(score);
 
     LOG_TRACE(<< "updateQuantiles: scope = " << scope.print() << ", oldMaxScore = " << oldMaxScore
-              << ", score = " << score << ", maxScore[0] = " << maxScore[0]);
-    if (maxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
+              << ", score = " << score << ", maxScore[0] = " << maxScore.score());
+    if (maxScore.score() > BIG_CHANGE_FACTOR * oldMaxScore) {
         bigChange = true;
         LOG_TRACE(<< "Big change in normalizer - max score updated from "
-                  << oldMaxScore << " to " << maxScore[0]);
+                  << oldMaxScore << " to " << maxScore.score());
     }
     uint32_t discreteScore = this->discreteScore(score);
     LOG_TRACE(<< "score = " << score << ", discreteScore = " << discreteScore
-              << ", maxScore = " << maxScore[0] << ", scope = " << scope.print());
+              << ", maxScore = " << maxScore.score() << ", scope = " << scope.print());
 
     uint64_t n = m_RawScoreQuantileSummary.n();
     uint64_t k = m_RawScoreQuantileSummary.k();
@@ -682,8 +683,11 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     }
 
     double alpha = std::exp(-2.0 * m_DecayRate * time);
-    for (auto& element : m_MaxScores) {
-        element.second.age(alpha);
+    for (auto i = m_MaxScores.begin();
+         i != m_MaxScores.end();
+         i->second.forget(time) ? i = m_MaxScores.erase(i) : ++i) {
+
+        i->second.age(alpha);
     }
 
     // Quantiles age at a much slower rate than everything else so that
@@ -776,12 +780,8 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
 void CAnomalyScore::CNormalizer::clear() {
     m_HighPercentileScore = std::numeric_limits<uint32_t>::max();
     m_HighPercentileCount = 0ull;
-
     m_IsForMembersOfPopulation.reset();
-    for (auto& element : m_MaxScores) {
-        element.second.clear();
-    }
-
+    m_MaxScores.clear();
     m_RawScoreQuantileSummary.clear();
     m_RawScoreHighQuantileSummary.clear();
     m_TimeToQuantileDecay = QUANTILE_DECAY_TIME;
@@ -866,14 +866,9 @@ bool CAnomalyScore::CNormalizer::maxScore(const CMaximumScoreScope& scope,
     if (itr == m_MaxScores.end()) {
         return false;
     }
-    maxScore = itr->second[0];
+    maxScore = itr->second.score();
     return maxScore != 0.0;
 }
-
-const double CAnomalyScore::CNormalizer::DISCRETIZATION_FACTOR = 1000.0;
-const double CAnomalyScore::CNormalizer::HIGH_PERCENTILE = 90.0;
-const double CAnomalyScore::CNormalizer::QUANTILE_DECAY_TIME = 20.0;
-const double CAnomalyScore::CNormalizer::BIG_CHANGE_FACTOR = 1.1;
 
 CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
     const std::string& partitionFieldName,
@@ -907,6 +902,45 @@ CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAn
 std::string CAnomalyScore::CNormalizer::CMaximumScoreScope::print() const {
     return "\"" + m_PartitionFieldName.get() + "_" + m_PartitionFieldValue.get() +
            "_" + m_PersonFieldName.get() + "_" + m_PersonFieldValue.get() + "\"";
+}
+
+void CAnomalyScore::CNormalizer::CMaxScore::add(double score) {
+    m_Score.add(score);
+    m_TimeSinceLastScore = 0.0;
+}
+
+double CAnomalyScore::CNormalizer::CMaxScore::score() const {
+    return m_Score.count() == 0 ? 0.0 : m_Score[0];
+}
+
+void CAnomalyScore::CNormalizer::CMaxScore::age(double alpha) {
+    m_Score.age(alpha);
+}
+
+bool CAnomalyScore::CNormalizer::CMaxScore::forget(double time) {
+    m_TimeSinceLastScore += time;
+    return m_TimeSinceLastScore > FORGET_MAX_SCORE_INTERVAL;
+}
+
+void CAnomalyScore::CNormalizer::CMaxScore::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(MAX_SCORE_TAG, m_Score.toDelimited());
+    inserter.insertValue(TIME_SINCE_LAST_SCORE_TAG,
+                         m_TimeSinceLastScore,
+                         core::CIEEE754::E_SinglePrecision);
+}
+
+bool CAnomalyScore::CNormalizer::CMaxScore::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name{traverser.name()};
+        RESTORE(MAX_SCORE_TAG, m_Score.fromDelimited(traverser.value()))
+        RESTORE_BUILT_IN(TIME_SINCE_LAST_SCORE_TAG, m_TimeSinceLastScore)
+    } while (traverser.next());
+    return true;
+}
+
+uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
+    uint64_t seed = maths::CChecksum::calculate(0, m_Score);
+    return maths::CChecksum::calculate(seed, m_TimeSinceLastScore);
 }
 
 // We use short field names to reduce the state size
