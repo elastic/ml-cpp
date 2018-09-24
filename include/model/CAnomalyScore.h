@@ -219,26 +219,26 @@ public:
     private:
         //! Used to convert raw scores in to integers so that we
         //! can use the q-digest.
-        constexpr static const double DISCRETIZATION_FACTOR = 1000.0;
+        constexpr static double DISCRETIZATION_FACTOR = 1000.0;
 
         //! We maintain a separate digest for the scores greater
         //! than some high percentile (specified by this constant).
         //! This is because we want the highest resolution in the
         //! scores for the extreme (high quantile) raw scores.
-        constexpr static const double HIGH_PERCENTILE = 90.0;
+        constexpr static double HIGH_PERCENTILE = 90.0;
 
         //! The time between aging quantiles. These age at a slower
         //! rate which we achieve by only aging them after a certain
         //! period has elapsed.
-        constexpr static const double QUANTILE_DECAY_TIME = 20.0;
+        constexpr static double QUANTILE_DECAY_TIME = 20.0;
 
         //! The number of "buckets" we'll remember maximum scores
         //! for without receiving a new value.
-        constexpr static const double FORGET_MAX_SCORE_INTERVAL = 50.0;
+        constexpr static double FORGET_MAX_SCORE_INTERVAL = 50.0;
 
         //! The increase in maximum score that will be considered a
         //! big change when updating the quantiles.
-        constexpr static const double BIG_CHANGE_FACTOR = 1.1;
+        constexpr static double BIG_CHANGE_FACTOR = 1.1;
 
     private:
         //! Compute the discrete score from a raw score.
