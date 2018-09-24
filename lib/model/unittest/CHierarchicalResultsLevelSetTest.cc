@@ -53,17 +53,18 @@ public:
     using ml::model::CHierarchicalResultsLevelSet<STestNode>::elements;
 };
 
-auto makeRoot() {
+CConcreteHierarchicalResultsLevelSet::TNode makeRoot() {
     ml::model::hierarchical_results_detail::SResultSpec spec;
     ml::model::SAnnotatedProbability prob;
     return CConcreteHierarchicalResultsLevelSet::TNode{spec, prob};
 }
 
-auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              ml::core::CStoredStringPtr partitionName,
-              ml::core::CStoredStringPtr partitionValue,
-              ml::core::CStoredStringPtr personName,
-              ml::core::CStoredStringPtr personValue) {
+std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>
+makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
+         ml::core::CStoredStringPtr partitionName,
+         ml::core::CStoredStringPtr partitionValue,
+         ml::core::CStoredStringPtr personName,
+         ml::core::CStoredStringPtr personValue) {
     ml::model::hierarchical_results_detail::SResultSpec spec;
     spec.s_PartitionFieldName = partitionName;
     spec.s_PartitionFieldValue = partitionValue;
@@ -76,9 +77,10 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
     return node;
 }
 
-auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              ml::core::CStoredStringPtr partitionName,
-              ml::core::CStoredStringPtr partitionValue) {
+std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>
+makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
+         ml::core::CStoredStringPtr partitionName,
+         ml::core::CStoredStringPtr partitionValue) {
     return makeNode(parent, partitionName, partitionValue,
                     ml::model::CStringStore::names().getEmpty(),
                     ml::model::CStringStore::names().getEmpty());
