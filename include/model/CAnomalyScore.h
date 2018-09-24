@@ -173,7 +173,7 @@ public:
 
         //! \name Serialization
         //@{
-        //! Persist state by passing information to the supplied inserter
+        //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Initialize reading state from \p traverser.
@@ -203,6 +203,7 @@ public:
 
             //! Persist state by passing information to \p inserter.
             void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
             //! Initialize reading state from \p traverser.
             bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
