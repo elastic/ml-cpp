@@ -742,7 +742,7 @@ void CAnomalyScoreTest::testJsonConversion() {
         CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("a"));
         CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("b"));
 
-        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"];
+        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"]["a"];
 
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
