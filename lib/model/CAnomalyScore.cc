@@ -68,13 +68,14 @@ double scoreToProbability(double score) {
 // We use short field names to reduce the state size
 const std::string HIGH_PERCENTILE_SCORE_TAG("a");
 const std::string HIGH_PERCENTILE_COUNT_TAG("b");
+//const std::string MAX_SCORE_TAG("c"); Used in versions < 6.5
 const std::string RAW_SCORE_QUANTILE_SUMMARY("d");
 const std::string RAW_SCORE_HIGH_QUANTILE_SUMMARY("e");
 const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
-
 // Since version >= 6.5
 const std::string MAX_SCORES_PER_PARTITION_TAG("g");
 const std::string IS_FOR_MEMBERS_OF_POPULATION_TAG("h");
+// Nested
 const std::string MAX_SCORE_TAG("a");
 const std::string TIME_SINCE_LAST_SCORE_TAG("b");
 
