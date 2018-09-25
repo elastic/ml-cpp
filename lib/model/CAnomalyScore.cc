@@ -683,8 +683,7 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     }
 
     double alpha = std::exp(-2.0 * m_DecayRate * time);
-    for (auto i = m_MaxScores.begin();
-         i != m_MaxScores.end();
+    for (auto i = m_MaxScores.begin(); i != m_MaxScores.end();
          i->second.forget(time) ? i = m_MaxScores.erase(i) : ++i) {
 
         i->second.age(alpha);
@@ -924,8 +923,7 @@ bool CAnomalyScore::CNormalizer::CMaxScore::forget(double time) {
 
 void CAnomalyScore::CNormalizer::CMaxScore::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAX_SCORE_TAG, m_Score.toDelimited());
-    inserter.insertValue(TIME_SINCE_LAST_SCORE_TAG,
-                         m_TimeSinceLastScore,
+    inserter.insertValue(TIME_SINCE_LAST_SCORE_TAG, m_TimeSinceLastScore,
                          core::CIEEE754::E_SinglePrecision);
 }
 
