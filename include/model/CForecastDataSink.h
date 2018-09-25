@@ -42,18 +42,23 @@ public:
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TStrUMap = boost::unordered_set<std::string>;
 
-    //! Wrapper for 1 timeseries model, its feature and by Field
+    //! \brief Wrapper for a single time series model, its first and last
+    //! data times and the corresponding feature and by field value.
     struct MODEL_EXPORT SForecastModelWrapper {
         SForecastModelWrapper(model_t::EFeature feature,
+                              const std::string& byFieldValue,
                               TMathsModelPtr&& forecastModel,
-                              const std::string& byFieldValue);
+                              core_t::TTime firstDataTime,
+                              core_t::TTime lastDataTime);
 
-        SForecastModelWrapper(SForecastModelWrapper&& other);
+        SForecastModelWrapper(SForecastModelWrapper&& other) = default;
 
         SForecastModelWrapper(const SForecastModelWrapper& that) = delete;
         SForecastModelWrapper& operator=(const SForecastModelWrapper&) = delete;
 
         model_t::EFeature s_Feature;
+        core_t::TTime s_FirstDataTime;
+        core_t::TTime s_LastDataTime;
         TMathsModelPtr s_ForecastModel;
         std::string s_ByFieldValue;
     };
@@ -62,7 +67,7 @@ public:
     struct MODEL_EXPORT SForecastResultSeries {
         SForecastResultSeries(const SModelParams& modelParams);
 
-        SForecastResultSeries(SForecastResultSeries&& other);
+        SForecastResultSeries(SForecastResultSeries&& other) = default;
 
         SForecastResultSeries(const SForecastResultSeries& that) = delete;
         SForecastResultSeries& operator=(const SForecastResultSeries&) = delete;

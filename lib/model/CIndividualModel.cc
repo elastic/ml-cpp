@@ -333,6 +333,14 @@ std::size_t CIndividualModel::staticSize() const {
     return sizeof(*this);
 }
 
+const CIndividualModel::TTimeVec& CIndividualModel::firstBucketTimes() const {
+    return m_FirstBucketTimes;
+}
+
+const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes() const {
+    return m_LastBucketTimes;
+}
+
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(),
                          core::CIEEE754::E_SinglePrecision);
@@ -579,14 +587,6 @@ void CIndividualModel::correctBaselineForInterim(model_t::EFeature feature,
             result -= correction->second;
         }
     }
-}
-
-const CIndividualModel::TTimeVec& CIndividualModel::firstBucketTimes() const {
-    return m_FirstBucketTimes;
-}
-
-const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes() const {
-    return m_LastBucketTimes;
 }
 
 double CIndividualModel::derate(std::size_t pid, core_t::TTime time) const {

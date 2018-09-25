@@ -35,6 +35,7 @@ class CMetricPopulationModel;
 //! models for visualization purposes.
 class MODEL_EXPORT CModelDetailsView {
 public:
+    using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TFeatureVec = std::vector<model_t::EFeature>;
     using TStrSet = std::set<std::string>;
 
@@ -60,7 +61,10 @@ public:
                    const TStrSet& terms,
                    CModelPlotData& modelPlotData) const;
 
-    //! Get the feature prior for the specified by field \p byFieldId.
+    //! Get the time interval from the first to last data point of \p byFieldId.
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const = 0;
+
+    //! Get the time series model for \p feature and \p byFieldId.
     virtual const maths::CModel* model(model_t::EFeature feature,
                                        std::size_t byFieldId) const = 0;
 
@@ -110,7 +114,10 @@ class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView {
 public:
     CEventRateModelDetailsView(const CEventRateModel& model);
 
-    //! Get the feature model for the specified by field id.
+    //! Get the time interval from the first to last data point of \p byFieldId.
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+
+    //! Get the time series model for \p feature and \p byFieldId.
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
@@ -131,7 +138,10 @@ class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsVi
 public:
     CEventRatePopulationModelDetailsView(const CEventRatePopulationModel& model);
 
-    //! Get the feature model for the specified by field id.
+    //! Get the time interval from the first to last data point of \p byFieldId.
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+
+    //! Get the time series model for \p feature and \p byFieldId.
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
@@ -152,7 +162,10 @@ class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView {
 public:
     CMetricModelDetailsView(const CMetricModel& model);
 
-    //! Get the feature model for the specified by field id.
+    //! Get the time interval from the first to last data point of \p byFieldId.
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+
+    //! Get the time series model for \p feature and \p byFieldId.
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
@@ -173,7 +186,10 @@ class MODEL_EXPORT CMetricPopulationModelDetailsView : public CModelDetailsView 
 public:
     CMetricPopulationModelDetailsView(const CMetricPopulationModel& model);
 
-    //! Get the feature model for the specified by field id.
+    //! Get the time interval from the first to last data point of \p byFieldId.
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+
+    //! Get the time series model for \p feature and \p byFieldId.
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:

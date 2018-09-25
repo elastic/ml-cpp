@@ -56,31 +56,17 @@ const std::string CForecastDataSink::STATUS("forecast_status");
 using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
+                                                                const std::string& byFieldValue,
                                                                 TMathsModelPtr&& forecastModel,
-                                                                const std::string& byFieldValue)
-    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)),
-      s_ByFieldValue(byFieldValue) {
-}
-
-CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
-    : s_Feature(other.s_Feature), s_ForecastModel(std::move(other.s_ForecastModel)),
-      s_ByFieldValue(std::move(other.s_ByFieldValue)) {
+                                                                core_t::TTime firstDataTime,
+                                                                core_t::TTime lastDataTime)
+    : s_Feature(feature), s_FirstDataTime(firstDataTime), s_LastDataTime(lastDataTime),
+      s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(const SModelParams& modelParams)
     : s_ModelParams(modelParams), s_DetectorIndex(), s_ToForecastPersisted(),
       s_ByFieldName(), s_MinimumSeasonalVarianceScale(0.0) {
-}
-
-CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries&& other)
-    : s_ModelParams(std::move(other.s_ModelParams)),
-      s_DetectorIndex(other.s_DetectorIndex),
-      s_ToForecast(std::move(other.s_ToForecast)),
-      s_ToForecastPersisted(std::move(other.s_ToForecastPersisted)),
-      s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
-      s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
-      s_ByFieldName(std::move(other.s_ByFieldName)),
-      s_MinimumSeasonalVarianceScale(other.s_MinimumSeasonalVarianceScale) {
 }
 
 CForecastDataSink::CForecastDataSink(const std::string& jobId,

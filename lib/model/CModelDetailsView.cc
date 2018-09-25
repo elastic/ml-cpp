@@ -199,6 +199,11 @@ CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel& mo
     : m_Model(&model) {
 }
 
+CEventRateModelDetailsView::TTimeTimePr
+CEventRateModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
+    return {m_Model->firstBucketTimes()[byFieldId], m_Model->lastBucketTimes()[byFieldId]};
+}
+
 const maths::CModel* CEventRateModelDetailsView::model(model_t::EFeature feature,
                                                        std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
@@ -220,6 +225,12 @@ CEventRatePopulationModelDetailsView::CEventRatePopulationModelDetailsView(const
     : m_Model(&model) {
 }
 
+CEventRatePopulationModelDetailsView::TTimeTimePr
+CEventRatePopulationModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
+    return {m_Model->attributeFirstBucketTimes()[byFieldId],
+            m_Model->attributeLastBucketTimes()[byFieldId]};
+}
+
 const maths::CModel* CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
                                                                  std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
@@ -239,6 +250,11 @@ double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeatur
 
 CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel& model)
     : m_Model(&model) {
+}
+
+CMetricModelDetailsView::TTimeTimePr
+CMetricModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
+    return {m_Model->firstBucketTimes()[byFieldId], m_Model->lastBucketTimes()[byFieldId]};
 }
 
 const maths::CModel* CMetricModelDetailsView::model(model_t::EFeature feature,
@@ -266,6 +282,12 @@ double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
 
 CMetricPopulationModelDetailsView::CMetricPopulationModelDetailsView(const CMetricPopulationModel& model)
     : m_Model(&model) {
+}
+
+CMetricPopulationModelDetailsView::TTimeTimePr
+CMetricPopulationModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
+    return {m_Model->attributeFirstBucketTimes()[byFieldId],
+            m_Model->attributeLastBucketTimes()[byFieldId]};
 }
 
 const maths::CModel* CMetricPopulationModelDetailsView::model(model_t::EFeature feature,

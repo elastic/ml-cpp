@@ -371,10 +371,23 @@ public:
     //! Forecast the time series and get its \p confidenceInterval
     //! percentage confidence interval between \p startTime and
     //! \p endTime.
+    //!
     //! Data is pushed to the given \p forecastPushDataPointFunc
+    //!
+    //! \param[in] firstDataTime The first time data was added to the model.
+    //! \param[in] lastDataTime The last time data was added to the model.
+    //! \param[in] startTime The start time of the forecast.
+    //! \param[in] endTime The start time of the forecast.
+    //! \param[in] confidenceInterval The forecast confidence interval.
+    //! \param[in] minimum The minimum permitted forecast value.
+    //! \param[in] maximum The minimum permitted forecast value.
+    //! \param[out] messageOut Filled in with any message generated
+    //! generated whilst forecasting.
     //! \return true if forecast completed, false otherwise, in
     //! which case \p[out] messageOut is set.
-    virtual bool forecast(core_t::TTime startTime,
+    virtual bool forecast(core_t::TTime firstDataTime,
+                          core_t::TTime lastDataTime,
+                          core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
                           const TDouble2Vec& minimum,
@@ -519,7 +532,9 @@ public:
                                                const TDouble2VecWeightsAry& weights) const;
 
     //! Returns empty.
-    virtual bool forecast(core_t::TTime startTime,
+    virtual bool forecast(core_t::TTime firstDataTime,
+                          core_t::TTime lastDataTime,
+                          core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
                           const TDouble2Vec& minimum,

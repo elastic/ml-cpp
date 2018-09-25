@@ -167,6 +167,12 @@ public:
     //! Get the non-estimated value of the the memory used by this model.
     virtual std::size_t computeMemoryUsage() const = 0;
 
+    //! Get the first time each person was seen.
+    const TTimeVec& firstBucketTimes() const;
+
+    //! Get the last time each persion was seen
+    const TTimeVec& lastBucketTimes() const;
+
 protected:
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
@@ -258,12 +264,6 @@ protected:
                                    const TSizeDoublePr1Vec& correlated,
                                    const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
                                    TDouble1Vec& baseline) const;
-
-    //! Get the first time each person was seen.
-    const TTimeVec& firstBucketTimes() const;
-
-    //! Get the last time each persion was seen
-    const TTimeVec& lastBucketTimes() const;
 
     //! Get the amount by which to derate the initial decay rate
     //! and the minimum Winsorisation weight for \p pid at \p time.

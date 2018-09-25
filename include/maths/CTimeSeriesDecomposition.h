@@ -122,7 +122,7 @@ public:
     //! Get the mean value of the time series in the vicinity of \p time.
     virtual double meanValue(core_t::TTime time) const;
 
-    //! Get the value of the time series at \p time.
+    //! Get the predicted value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the prediction
@@ -132,6 +132,9 @@ public:
                                            double confidence = 0.0,
                                            int components = E_All,
                                            bool smooth = true) const;
+
+    //! Get the maximum interval for which the time series can be forecast.
+    virtual core_t::TTime maximumForecastInterval() const;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!

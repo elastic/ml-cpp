@@ -528,8 +528,12 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
                     const maths::CModel* model = view->model(feature, pid);
+                    core_t::TTime firstDataTime;
+                    core_t::TTime lastDataTime;
+                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                     if (model != nullptr && model->isForecastPossible()) {
-                        persister.addModel(model, feature, m_DataGatherer->personName(pid));
+                        persister.addModel(model, firstDataTime, lastDataTime, feature,
+                                           m_DataGatherer->personName(pid));
                     }
                 }
             }
@@ -543,11 +547,14 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
                     const maths::CModel* model = view->model(feature, pid);
+                    core_t::TTime firstDataTime;
+                    core_t::TTime lastDataTime;
+                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                     if (model != nullptr && model->isForecastPossible()) {
                         series.s_ToForecast.emplace_back(
-                            feature,
+                            feature, m_DataGatherer->personName(pid),
                             CForecastDataSink::TMathsModelPtr(model->cloneForForecast()),
-                            m_DataGatherer->personName(pid));
+                            firstDataTime, lastDataTime);
                     }
                 }
             }

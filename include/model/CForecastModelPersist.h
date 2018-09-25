@@ -46,25 +46,21 @@ public:
     public:
         explicit CPersist(const std::string& temporaryPath);
 
-        //! add a model to the persistence
+        //! add a model to persist
         void addModel(const maths::CModel* model,
+                      core_t::TTime firstDataTime,
+                      core_t::TTime lastDataTime,
                       const model_t::EFeature feature,
                       const std::string& byFieldValue);
 
-        //! close the outputStream
+        //! close the output file stream
         std::string finalizePersistAndGetFile();
 
     private:
-        static void persistOneModel(core::CStatePersistInserter& inserter,
-                                    const maths::CModel* model,
-                                    const model_t::EFeature feature,
-                                    const std::string& byFieldValue);
-
-    private:
-        //! the filename where to persist to
+        //! the filename to which persist
         boost::filesystem::path m_FileName;
 
-        //! the actual file where it models are persisted to
+        //! the actual file where the models are persisted
         std::ofstream m_OutStream;
 
         //! number of models persisted
@@ -73,20 +69,16 @@ public:
 
     class MODEL_EXPORT CRestore final {
     public:
-        explicit CRestore(const SModelParams& modelParams,
-                          double minimumSeasonalVarianceScale,
-                          const std::string& fileName);
+        CRestore(const SModelParams& modelParams,
+                 double minimumSeasonalVarianceScale,
+                 const std::string& fileName);
 
-        //! add a model to the persistence
-        bool nextModel(TMathsModelPtr& model, model_t::EFeature& feature, std::string& byFieldValue);
-
-    private:
-        static bool restoreOneModel(core::CStateRestoreTraverser& traverser,
-                                    SModelParams modelParams,
-                                    double minimumSeasonalVarianceScale,
-                                    TMathsModelPtr& model,
-                                    model_t::EFeature& feature,
-                                    std::string& byFieldValue);
+        //! restore a single model
+        bool nextModel(TMathsModelPtr& model,
+                       core_t::TTime& firstDataTime,
+                       core_t::TTime& lastDataTime,
+                       model_t::EFeature& feature,
+                       std::string& byFieldValue);
 
     private:
         //! model parameters required in order to restore the model
@@ -95,10 +87,10 @@ public:
         //! minimum seasonal variance scale specific to the model
         double m_MinimumSeasonalVarianceScale;
 
-        //! the actual file where it models are persisted to
+        //! the actual file where the models are persisted
         std::ifstream m_InStream;
 
-        //! the persist inserter
+        //! the model state restorer
         core::CJsonStateRestoreTraverser m_RestoreTraverser;
     }; // class CRestore
 };     // class CForecastModelPersist

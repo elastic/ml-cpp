@@ -178,6 +178,12 @@ public:
     //! Get the frequency of the attribute identified by \p cid.
     virtual double attributeFrequency(std::size_t cid) const;
 
+    //! Get the first time each attribute was seen.
+    const TTimeVec& attributeFirstBucketTimes() const;
+
+    //! Get the last time each attribute was seen.
+    const TTimeVec& attributeLastBucketTimes() const;
+
     //! Get the weight for \p feature and the person identified by
     //! \p pid based on their sample rate.
     double sampleRateWeight(std::size_t pid, std::size_t cid) const;
@@ -259,11 +265,6 @@ protected:
                       const PERSON_FILTER& personFilter,
                       const ATTRIBUTE_FILTER& attributeFilter,
                       T& data) const;
-
-    //! Get the first time each attribute was seen.
-    const TTimeVec& attributeFirstBucketTimes() const;
-    //! Get the last time each attribute was seen.
-    const TTimeVec& attributeLastBucketTimes() const;
 
     //! Get the people and attributes to remove if any.
     void peopleAndAttributesToRemove(core_t::TTime time,

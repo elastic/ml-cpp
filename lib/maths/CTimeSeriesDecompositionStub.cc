@@ -59,6 +59,10 @@ maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*tim
     return {0.0, 0.0};
 }
 
+core_t::TTime CTimeSeriesDecompositionStub::maximumForecastInterval() const {
+    return 0;
+}
+
 void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
                                             core_t::TTime /*endTime*/,
                                             core_t::TTime /*step*/,

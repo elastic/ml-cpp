@@ -254,6 +254,14 @@ double CPopulationModel::attributeFrequency(std::size_t cid) const {
                              static_cast<double>(active);
 }
 
+const CPopulationModel::TTimeVec& CPopulationModel::attributeFirstBucketTimes() const {
+    return m_AttributeFirstBucketTimes;
+}
+
+const CPopulationModel::TTimeVec& CPopulationModel::attributeLastBucketTimes() const {
+    return m_AttributeLastBucketTimes;
+}
+
 double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) const {
     if (cid >= m_PersonAttributeBucketCounts.size() ||
         cid >= m_DistinctPersonCounts.size()) {
@@ -498,14 +506,6 @@ double CPopulationModel::propagationTime(std::size_t cid, core_t::TTime time) co
                          1.0 - static_cast<double>(time - m_AttributeFirstBucketTimes[cid]) /
                                    static_cast<double>(3 * core::constants::WEEK),
                          0.0, 1.0);
-}
-
-const CPopulationModel::TTimeVec& CPopulationModel::attributeFirstBucketTimes() const {
-    return m_AttributeFirstBucketTimes;
-}
-
-const CPopulationModel::TTimeVec& CPopulationModel::attributeLastBucketTimes() const {
-    return m_AttributeLastBucketTimes;
 }
 
 void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
