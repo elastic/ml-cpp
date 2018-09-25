@@ -419,8 +419,8 @@ void CForecastTest::testTruncation() {
             maths_t::E_ContinuousData, DECAY_RATE);
         maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{
             decayRateControllers()};
-        maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend,
-                                                prior, &controllers);
+        maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG,
+                                                trend, prior, &controllers);
 
         for (core_t::TTime time = 0; time < dataEndTime; time += bucketLength) {
             maths::CModelAddSamplesParams params;
@@ -433,8 +433,7 @@ void CForecastTest::testTruncation() {
 
         TErrorBarVec prediction;
         std::string m1;
-        model.forecast(0, dataEndTime, dataEndTime,
-                       dataEndTime + 2 * core::constants::DAY,
+        model.forecast(0, dataEndTime, dataEndTime, dataEndTime + 2 * core::constants::DAY,
                        90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
                        boost::bind(&mockSink, _1, boost::ref(prediction)), m1);
         LOG_DEBUG(<< m1);
@@ -447,8 +446,8 @@ void CForecastTest::testTruncation() {
         prediction.clear();
         std::string m2;
         model.forecast(0, dataEndTime, dataEndTime + 30 * core::constants::DAY,
-                       dataEndTime + 40 * core::constants::DAY,
-                       90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+                       dataEndTime + 40 * core::constants::DAY, 90.0,
+                       MINIMUM_VALUE, MAXIMUM_VALUE,
                        boost::bind(&mockSink, _1, boost::ref(prediction)), m2);
         LOG_DEBUG(<< m2);
         CPPUNIT_ASSERT(m2.empty() == false);
