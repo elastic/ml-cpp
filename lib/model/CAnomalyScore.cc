@@ -876,6 +876,12 @@ bool CAnomalyScore::CNormalizer::maxScore(const CMaximumScoreScope& scope,
     return maxScore != 0.0;
 }
 
+const double CAnomalyScore::CNormalizer::DISCRETIZATION_FACTOR = 1000.0;
+const double CAnomalyScore::CNormalizer::HIGH_PERCENTILE = 90.0;
+const double CAnomalyScore::CNormalizer::QUANTILE_DECAY_TIME = 20.0;
+const double CAnomalyScore::CNormalizer::FORGET_MAX_SCORE_INTERVAL = 50.0;
+const double CAnomalyScore::CNormalizer::BIG_CHANGE_FACTOR = 1.1;
+
 CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
     const std::string& partitionFieldName,
     const std::string& partitionFieldValue,
