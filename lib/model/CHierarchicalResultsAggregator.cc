@@ -48,18 +48,7 @@ using TStoredStringPtrStoredStringPtrPrDoublePrVec =
 //! \brief Creates new detector equalizers.
 class CDetectorEqualizerFactory {
 public:
-    CDetectorEqualizer make(const std::string& /*name1*/,
-                            const std::string& /*name2*/,
-                            const std::string& /*name3*/,
-                            const std::string& /*name4*/) const {
-        return CDetectorEqualizer();
-    }
-
-    CDetectorEqualizer make(const std::string& /*name1*/, const std::string& /*name2*/) const {
-        return CDetectorEqualizer();
-    }
-
-    CDetectorEqualizer make(const std::string& /*name*/) const {
+    CDetectorEqualizer make(const CHierarchicalResults::TNode&, bool) const {
         return CDetectorEqualizer();
     }
 };
@@ -403,9 +392,8 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode& node,
     using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 
     if (probability < CDetectorEqualizer::largestProbabilityToCorrect()) {
-        CDetectorEqualizerFactory factory;
         TDetectorEqualizerPtrVec equalizers;
-        this->elements(node, pivot, factory, equalizers);
+        this->elements(node, pivot, CDetectorEqualizerFactory{}, equalizers);
         TMaxAccumulator corrected;
         for (auto& equalizer : equalizers) {
             switch (m_Job) {

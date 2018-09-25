@@ -43,7 +43,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
     ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
 
     CPPUNIT_ASSERT(normalizer.initNormalizer("testfiles/new_quantilesState.json"));
-    LOG_INFO(<< "normalizer initialized");
+    LOG_DEBUG(<< "normalizer initialized");
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
