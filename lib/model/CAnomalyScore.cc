@@ -68,7 +68,7 @@ double scoreToProbability(double score) {
 // We use short field names to reduce the state size
 const std::string HIGH_PERCENTILE_SCORE_TAG("a");
 const std::string HIGH_PERCENTILE_COUNT_TAG("b");
-//const std::string MAX_SCORE_TAG("c"); Used in versions < 6.5
+const std::string MAX_SCORE_TAG("c");
 const std::string RAW_SCORE_QUANTILE_SUMMARY("d");
 const std::string RAW_SCORE_HIGH_QUANTILE_SUMMARY("e");
 const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
@@ -76,7 +76,7 @@ const std::string TIME_TO_QUANTILE_DECAY_TAG("f");
 const std::string MAX_SCORES_PER_PARTITION_TAG("g");
 const std::string IS_FOR_MEMBERS_OF_POPULATION_TAG("h");
 // Nested
-const std::string MAX_SCORE_TAG("a");
+const std::string SCOPED_MAX_SCORE_TAG("a");
 const std::string TIME_SINCE_LAST_SCORE_TAG("b");
 
 const std::string EMPTY_STRING;
@@ -935,7 +935,7 @@ bool CAnomalyScore::CNormalizer::CMaxScore::forget(double time) {
 }
 
 void CAnomalyScore::CNormalizer::CMaxScore::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(MAX_SCORE_TAG, m_Score.toDelimited());
+    inserter.insertValue(SCOPED_MAX_SCORE_TAG, m_Score.toDelimited());
     inserter.insertValue(TIME_SINCE_LAST_SCORE_TAG, m_TimeSinceLastScore,
                          core::CIEEE754::E_SinglePrecision);
 }
@@ -943,7 +943,7 @@ void CAnomalyScore::CNormalizer::CMaxScore::acceptPersistInserter(core::CStatePe
 bool CAnomalyScore::CNormalizer::CMaxScore::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(MAX_SCORE_TAG, m_Score.fromDelimited(traverser.value()))
+        RESTORE(SCOPED_MAX_SCORE_TAG, m_Score.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(TIME_SINCE_LAST_SCORE_TAG, m_TimeSinceLastScore)
     } while (traverser.next());
     return true;
