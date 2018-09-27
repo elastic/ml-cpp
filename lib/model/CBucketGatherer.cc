@@ -196,7 +196,9 @@ struct SInfluencerCountsPersister {
 const std::string CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG("a");
 const std::string CBucketGatherer::METRIC_BUCKET_GATHERER_TAG("b");
 
-CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime)
+CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer,
+                                 core_t::TTime startTime,
+                                 std::size_t numberInfluencers)
     : m_DataGatherer(dataGatherer), m_EarliestTime(startTime), m_BucketStart(startTime),
       m_PersonAttributeCounts(dataGatherer.params().s_LatencyBuckets,
                               dataGatherer.params().s_BucketLength,
@@ -208,7 +210,8 @@ CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime star
                                      TSizeSizePrUSet(1)),
       m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                          dataGatherer.params().s_BucketLength,
-                         startTime) {
+                         startTime,
+                         TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluencers)) {
 }
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
@@ -270,17 +273,21 @@ bool CBucketGatherer::addEventData(CEventData& data) {
             bucketCounts[pidCid] += count;
         }
 
-        const CEventData::TOptionalStrVec influences = data.influences();
-        TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts =
-            m_InfluencerCounts.get(time);
-        influencerCounts.resize(influences.size());
-        TStoredStringPtrVec canonicalInfluences(influences.size());
+        const CEventData::TOptionalStrVec& influences = data.influences();
+        auto& influencerCounts = m_InfluencerCounts.get(time);
+        if (influences.size() != influencerCounts.size()) {
+            LOG_ERROR(<< "Unexpected influences: "
+                      << core::CContainerPrinter::print(influences) << " expected "
+                      << core::CContainerPrinter::print(this->beginInfluencers(),
+                                                        this->endInfluencers()));
+            return false;
+        }
 
+        TStoredStringPtrVec canonicalInfluences(influencerCounts.size());
         for (std::size_t i = 0u; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
-                const core::CStoredStringPtr& inf =
-                    CStringStore::influencers().get(*influence);
+                const auto& inf = CStringStore::influencers().get(*influence);
                 canonicalInfluences[i] = inf;
                 if (count > 0) {
                     influencerCounts[i]
@@ -317,10 +324,12 @@ void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
         // the gatherers may finalise the earliest bucket within
         // the latency window, thus we push a new count bucket only
         // after startNewBucket has been called.
+        std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
         this->startNewBucket(newBucketStart, skipUpdates);
         m_PersonAttributeCounts.push(TSizeSizePrUInt64UMap(1), newBucketStart);
         m_PersonAttributeExplicitNulls.push(TSizeSizePrUSet(1), newBucketStart);
-        m_InfluencerCounts.push(TSizeSizePrStoredStringPtrPrUInt64UMapVec(), newBucketStart);
+        m_InfluencerCounts.push(TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluences),
+                                newBucketStart);
         m_BucketStart = newBucketStart;
     }
 }
@@ -575,9 +584,11 @@ bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     }
 
     LOG_TRACE(<< "Resetting bucket starting at " << bucketStart);
+    std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
     m_PersonAttributeCounts.get(bucketStart).clear();
     m_PersonAttributeExplicitNulls.get(bucketStart).clear();
-    m_InfluencerCounts.get(bucketStart).clear();
+    m_InfluencerCounts.get(bucketStart) =
+        TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluences);
     return true;
 }
 

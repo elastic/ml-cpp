@@ -142,9 +142,11 @@ public:
     //! Create a new data series gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] startTime The start of the time interval
+    //! \param[in] startTime The start of the time interval for which
+    //! to gather data.
+    //! \param[in] numberInfluencers The number of result influencers
     //! for which to gather data.
-    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime);
+    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime, std::size_t numberInfluencers);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
