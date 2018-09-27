@@ -101,8 +101,6 @@ public:
         using TMaxValueAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
-        using TWordMaxValueAccumulatorUMap =
-            TDictionary::CWordUMap<TMaxValueAccumulator>::Type;
 
         //! \brief Defines a maximum raw score scope. In particular, we
         //! maintain a maximum score for each distinct scope.
@@ -175,20 +173,48 @@ public:
 
         //! \name Serialization
         //@{
-        //! Persist state by passing information to the supplied inserter
+        //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Create from a state document.
+        //! Initialize reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         //@}
 
-    public:
         //! Get a checksum of the object.
         uint64_t checksum() const;
 
     private:
         using TDoubleDoublePr = std::pair<double, double>;
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        //! \brief Wraps a maximum score.
+        class CMaxScore {
+        public:
+            //! Update with \p score.
+            void add(double score);
+
+            //! Get the score.
+            double score() const;
+
+            //! Age the score.
+            void age(double alpha);
+
+            //! Check if we should delete this score given elapsed \p time.
+            bool forget(double time);
+
+            //! Persist state by passing information to \p inserter.
+            void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+            //! Initialize reading state from \p traverser.
+            bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+            //! Get a checksum of the object.
+            uint64_t checksum() const;
+
+        private:
+            TMaxValueAccumulator m_Score;
+            double m_TimeSinceLastScore;
+        };
+        using TWordMaxScoreUMap = TDictionary::CWordUMap<CMaxScore>::Type;
 
     private:
         //! Used to convert raw scores in to integers so that we
@@ -205,6 +231,10 @@ public:
         //! rate which we achieve by only aging them after a certain
         //! period has elapsed.
         static const double QUANTILE_DECAY_TIME;
+
+        //! The number of "buckets" we'll remember maximum scores
+        //! for without receiving a new value.
+        static const double FORGET_MAX_SCORE_INTERVAL;
 
         //! The increase in maximum score that will be considered a
         //! big change when updating the quantiles.
@@ -246,7 +276,7 @@ public:
         TMaxValueAccumulator m_MaxScore;
 
         //! The set of maximum scores ever received for partitions.
-        TWordMaxValueAccumulatorUMap m_MaxScores;
+        TWordMaxScoreUMap m_MaxScores;
 
         //! The factor used to scale the quantile scores to convert
         //! values per bucket length to values in absolute time. We
