@@ -213,6 +213,9 @@ public:
         //! Reset the test.
         virtual void handle(const SNewComponents& message);
 
+        //! Check if we should run the periodicity test on \p window.
+        bool shouldTest(ETest test, core_t::TTime time) const;
+
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
@@ -224,7 +227,7 @@ public:
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Get the values in the window if we're going to test at \p time.
-        TTimeDoublePrVec windowValues(core_t::TTime time, bool forced = false) const;
+        TTimeDoublePrVec windowValues() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -250,9 +253,6 @@ public:
     private:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
-
-        //! Check if we should run the periodicity test on \p window.
-        bool shouldTest(ETest test, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning: this is owned by the caller.)
         CExpandingWindow* newWindow(ETest test, bool deflate = true) const;

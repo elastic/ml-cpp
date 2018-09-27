@@ -147,8 +147,11 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
 
-    //! Get the values in a recent time window if they are available.
-    virtual TTimeDoublePrVec windowValues(core_t::TTime time, bool forced = false) const = 0;
+    //! Check if this might add components between now and \p time.
+    virtual bool mightAddComponents(core_t::TTime time) const = 0;
+
+    //! Get the values in a recent time window.
+    virtual TTimeDoublePrVec windowValues() const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

@@ -76,8 +76,11 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
+    //! Returns false.
+    virtual bool mightAddComponents(core_t::TTime time) const;
+
     //! Returns an empty vector.
-    virtual TTimeDoublePrVec windowValues(core_t::TTime time, bool forced = false) const;
+    virtual TTimeDoublePrVec windowValues() const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);

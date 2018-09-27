@@ -46,6 +46,7 @@ using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
 using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
 using TDouble10VecWeightsAry1Vec = maths_t::TDouble10VecWeightsAry1Vec;
+using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
 using TTimeDouble10VecPrVec = std::vector<std::pair<core_t::TTime, TDouble10Vec>>;
 using TSize1Vec = core::CSmallVector<std::size_t, 1>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
@@ -171,7 +172,9 @@ TTimeDouble10VecPrVec reinitializationWindow(core_t::TTime time,
                                              const TDecompositionPtr10Vec& trends) {
     TTimeDouble10VecPrVec window;
     for (std::size_t d = 0; d < trends.size(); ++d) {
-        auto trendWindow = trends[d]->windowValues(time);
+        auto trendWindow = trends[d]->mightAddComponents(time)
+                               ? trends[d]->windowValues()
+                               : TTimeDoublePrVec{};
         window.resize(std::max(window.size(), trendWindow.size()), {0, TDouble10Vec(3)});
         for (std::size_t i = 0; i < trendWindow.size(); ++i) {
             window[i].first = trendWindow[i].first;
@@ -394,7 +397,8 @@ void CTimeSeriesModelTest::testMode() {
 
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            auto window = trend.windowValues(time);
+            auto window = trend.mightAddComponents(time) ? trend.windowValues()
+                                                         : TTimeDoublePrVec{};
 
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);
@@ -766,7 +770,8 @@ void CTimeSeriesModelTest::testAddSamples() {
 
             model.addSamples(addSampleParams(weights), sample_);
 
-            auto window = trend.windowValues(time);
+            auto window = trend.mightAddComponents(time) ? trend.windowValues()
+                                                         : TTimeDoublePrVec{};
 
             if (trend.addPoint(time, sample)) {
                 trend.decayRate(trend.decayRate() / controllers[0].multiplier());
@@ -924,7 +929,8 @@ void CTimeSeriesModelTest::testPredict() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            auto window = trend.windowValues(time);
+            auto window = trend.mightAddComponents(time) ? trend.windowValues()
+                                                         : TTimeDoublePrVec{};
 
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);

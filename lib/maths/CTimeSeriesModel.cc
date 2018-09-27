@@ -127,12 +127,12 @@ const std::string VERSION_6_5_TAG("6.5");
 const std::string ID_6_3_TAG{"a"};
 const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
 const std::string IS_FORECASTABLE_6_3_TAG{"c"};
-//const std::string RNG_6_3_TAG{"d"};
+//const std::string RNG_6_3_TAG{"d"}; Removed in 6.5
 const std::string CONTROLLER_6_3_TAG{"e"};
 const std::string TREND_MODEL_6_3_TAG{"f"};
 const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
-//const std::string RECENT_SAMPLES_6_3_TAG{"i"};
+//const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5
 const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
 const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
 const std::string CHANGE_DETECTOR_6_3_TAG{"l"};
@@ -1214,7 +1214,6 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_CandidateChangePoint);
     seed = CChecksum::calculate(seed, m_CurrentChangeInterval);
     seed = CChecksum::calculate(seed, m_ChangeDetector);
-    seed = CChecksum::calculate(seed, m_AnomalyModel);
     return CChecksum::calculate(seed, m_Correlations != nullptr);
 }
 
@@ -1460,7 +1459,7 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
 
     change.s_TrendModel->decayRate(m_TrendModel->decayRate());
     m_TrendModel = change.s_TrendModel;
-    TTimeDoublePrVec window(m_TrendModel->windowValues(timeOfChangePoint, true));
+    TTimeDoublePrVec window(m_TrendModel->windowValues());
     if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         this->reinitializeStateGivenNewComponent(window);
     } else {
@@ -1494,13 +1493,18 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                              samples[rhs].first, samples[rhs].second);
                      });
 
+    // Maybe get a window of historical values with which to reinitialize
+    // the residual model if new components of the time series decomposition
+    // are identified.
     TTimeDoublePrVec window;
     for (auto i : timeorder) {
-        window = m_TrendModel->windowValues(samples[i].first);
-        if (window.size() > 0) {
+        if (m_TrendModel->mightAddComponents(samples[i].first)) {
+            window = m_TrendModel->windowValues();
             break;
         }
     }
+
+    // Do the update.
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
@@ -2762,22 +2766,31 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
                              samples[rhs].first, samples[rhs].second);
                      });
 
+    // Maybe get a window of historical values with which to reinitialize
+    // the residual model if new components of the time series decomposition
+    // are identified.
     EUpdateResult result{E_Success};
     TTimeDouble10VecPrVec window;
     for (auto i : timeorder) {
-        for (std::size_t d = 0u; d < dimension; ++d) {
-            auto trendWindow = m_TrendModel[d]->windowValues(samples[i].first);
-            window.resize(std::max(window.size(), trendWindow.size()),
-                          TTimeDouble10VecPr{0, TDouble10Vec(dimension)});
-            for (std::size_t j = 0; j < window.size(); ++j) {
-                window[j].first = trendWindow[j].first;
-                window[j].second[d] = trendWindow[j].second;
+        core_t::TTime time{samples[i].first};
+        if (std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
+                        [time](const TDecompositionPtr& model) {
+                            return model->mightAddComponents(time);
+                        })) {
+            for (std::size_t d = 0; d < dimension; ++d) {
+                auto trendWindow = m_TrendModel[d]->windowValues();
+                window.resize(std::max(window.size(), trendWindow.size()),
+                              TTimeDouble10VecPr{0, TDouble10Vec(dimension)});
+                for (std::size_t j = 0; j < window.size(); ++j) {
+                    window[j].first = trendWindow[j].first;
+                    window[j].second[d] = trendWindow[j].second;
+                }
             }
-        }
-        if (window.size() > 0) {
             break;
         }
     }
+
+    // Do the update.
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
