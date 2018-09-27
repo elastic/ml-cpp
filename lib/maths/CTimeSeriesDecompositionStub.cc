@@ -85,6 +85,11 @@ maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*tim
     return {1.0, 1.0};
 }
 
+CTimeSeriesDecompositionStub::TTimeDoublePrVec
+CTimeSeriesDecompositionStub::windowValues(core_t::TTime /*time*/, bool /*forced*/) const {
+    return {};
+}
+
 void CTimeSeriesDecompositionStub::skipTime(core_t::TTime /*skipInterval*/) {
 }
 

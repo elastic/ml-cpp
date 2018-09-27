@@ -33,6 +33,8 @@ struct SChangeDescription;
 //! calendar periodic and trend components.
 class MATHS_EXPORT CTimeSeriesDecompositionInterface {
 public:
+    using TTimeDoublePr = std::pair<core_t::TTime, double>;
+    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -144,6 +146,9 @@ public:
     //! variance scale as a percentage.
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
+
+    //! Get the values in a recent time window if they are available.
+    virtual TTimeDoublePrVec windowValues(core_t::TTime time, bool forced = false) const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

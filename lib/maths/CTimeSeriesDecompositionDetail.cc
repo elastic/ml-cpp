@@ -626,6 +626,26 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t:
     stepwisePropagateForwards(WEEK, start, end, m_Windows[E_Long]);
 }
 
+CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeDoublePrVec
+CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues(core_t::TTime time_,
+                                                               bool forced) const {
+    TTimeDoublePrVec result;
+    for (auto i : {E_Short, E_Long}) {
+        if (this->shouldTest(i, time_) || (forced && m_Windows[i])) {
+            TFloatMeanAccumulatorVec values{m_Windows[i]->values()};
+            core_t::TTime bucketLength{m_Windows[i]->bucketLength()};
+            core_t::TTime time{m_Windows[i]->startTime() + m_Windows[i]->offset()};
+            for (const auto& value : values) {
+                if (CBasicStatistics::count(value) > 0.0) {
+                    result.emplace_back(time, CBasicStatistics::mean(value));
+                }
+                time += bucketLength;
+            }
+        }
+    }
+    return result;
+}
+
 uint64_t CTimeSeriesDecompositionDetail::CPeriodicityTest::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Machine);
     seed = CChecksum::calculate(seed, m_DecayRate);

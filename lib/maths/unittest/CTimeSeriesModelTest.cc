@@ -46,6 +46,7 @@ using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
 using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
 using TDouble10VecWeightsAry1Vec = maths_t::TDouble10VecWeightsAry1Vec;
+using TTimeDouble10VecPrVec = std::vector<std::pair<core_t::TTime, TDouble10Vec>>;
 using TSize1Vec = core::CSmallVector<std::size_t, 1>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
 using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
@@ -166,20 +167,38 @@ decayRateControllers(std::size_t dimension) {
                                          dimension)}};
 }
 
-void reinitializePrior(double learnRate,
-                       const maths::CMultivariateTimeSeriesModel& model,
+TTimeDouble10VecPrVec reinitializationWindow(core_t::TTime time,
+                                             const TDecompositionPtr10Vec& trends) {
+    TTimeDouble10VecPrVec window;
+    for (std::size_t d = 0; d < trends.size(); ++d) {
+        auto trendWindow = trends[d]->windowValues(time);
+        window.resize(std::max(window.size(), trendWindow.size()), {0, TDouble10Vec(3)});
+        for (std::size_t i = 0; i < trendWindow.size(); ++i) {
+            window[i].first = trendWindow[i].first;
+            window[i].second[d] = trendWindow[i].second;
+        }
+    }
+    return window;
+}
+
+void reinitializePrior(const TTimeDouble10VecPrVec& window,
                        TDecompositionPtr10Vec& trends,
                        maths::CMultivariatePrior& prior,
                        TDecayRateController2Ary* controllers = nullptr) {
+
     prior.setToNonInformative(0.0, prior.decayRate());
     TDouble10Vec1Vec detrended_{TDouble10Vec(3)};
-    for (const auto& value : model.recentSamples()) {
-        for (std::size_t i = 0u; i < value.second.size(); ++i) {
-            detrended_[0][i] = trends[i]->detrend(value.first, value.second[i], 0.0);
+
+    double windowLength{static_cast<double>(window.size())};
+    maths_t::TDouble10VecWeightsAry1Vec weight{maths_t::countWeight(10.0 / windowLength, 3)};
+    for (const auto& value : window) {
+        TDouble10Vec1Vec sample{TDouble10Vec(3)};
+        for (std::size_t i = 0; i < 3; ++i) {
+            sample[0][i] = trends[i]->detrend(value.first, value.second[i], 0.0);
         }
-        prior.addSamples(detrended_,
-                         {maths_t::countWeight(learnRate, value.second.size())});
+        prior.addSamples(sample, weight);
     }
+
     if (controllers) {
         for (auto& trend : trends) {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
@@ -368,18 +387,24 @@ void CTimeSeriesModelTest::testMode() {
             time += bucketLength;
         }
 
-        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+        TDouble2VecWeightsAryVec unit{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+
         time = 0;
         for (auto sample : samples) {
-            model.addSamples(addSampleParams(weights),
+
+            model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+            auto window = trend.windowValues(time);
+
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);
-                for (const auto& value : model.recentSamples()) {
-                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
-                                     maths_t::CUnitWeights::SINGLE_UNIT);
+                double windowLength{static_cast<double>(window.size())};
+                maths_t::TDoubleWeightsAry1Vec weight{maths_t::countWeight(10.0 / windowLength)};
+                for (const auto& value : window) {
+                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)}, weight);
                 }
             }
+
             TDouble1Vec sample_{trend.detrend(time, sample, 0.0)};
             prior.addSamples(sample_, maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
@@ -452,7 +477,6 @@ void CTimeSeriesModelTest::testMode() {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
 
-        double learnRate{modelParams(bucketLength).learnRate()};
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
@@ -479,6 +503,8 @@ void CTimeSeriesModelTest::testMode() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
+            auto window = reinitializationWindow(time, trends);
+
             bool reinitialize{false};
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0u; i < sample.size(); ++i) {
@@ -486,8 +512,9 @@ void CTimeSeriesModelTest::testMode() {
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
             }
             if (reinitialize) {
-                reinitializePrior(learnRate, model, trends, prior);
+                reinitializePrior(window, trends, prior);
             }
+
             prior.addSamples(detrended,
                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
             prior.propagateForwardsByTime(1.0);
@@ -739,12 +766,15 @@ void CTimeSeriesModelTest::testAddSamples() {
 
             model.addSamples(addSampleParams(weights), sample_);
 
+            auto window = trend.windowValues(time);
+
             if (trend.addPoint(time, sample)) {
                 trend.decayRate(trend.decayRate() / controllers[0].multiplier());
                 prior.setToNonInformative(0.0, prior.decayRate());
-                for (const auto& value : model.recentSamples()) {
-                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
-                                     maths_t::CUnitWeights::SINGLE_UNIT);
+                double windowLength{static_cast<double>(window.size())};
+                maths_t::TDoubleWeightsAry1Vec weight{maths_t::countWeight(10.0 / windowLength)};
+                for (const auto& value : window) {
+                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)}, weight);
                 }
                 prior.decayRate(prior.decayRate() / controllers[1].multiplier());
                 controllers[0].reset();
@@ -781,7 +811,6 @@ void CTimeSeriesModelTest::testAddSamples() {
 
     LOG_DEBUG(<< "Decay rate control multivariate");
     {
-        double learnRate{modelParams(bucketLength).learnRate()};
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
@@ -813,21 +842,25 @@ void CTimeSeriesModelTest::testAddSamples() {
                             amplitude * std::sin(boost::math::double_constants::two_pi *
                                                  static_cast<double>(time) / 86400.0) +
                             (time / bucketLength > 1800 ? 10.0 : 0.0) + sample[i];
+                amplitude += 4.0;
+            }
+
+            model.addSamples(addSampleParams(weights),
+                             {core::make_triple(time, TDouble2Vec(sample), TAG)});
+
+            auto window = reinitializationWindow(time, trends);
+
+            for (std::size_t i = 0u; i < sample.size(); ++i) {
                 reinitialize |= trends[i]->addPoint(time, sample[i]);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
                 mean[i] = trends[i]->meanValue(time);
                 hasTrend |= true;
-                amplitude += 4.0;
             }
-
-            TTimeDouble2VecSizeTrVec sample_{
-                core::make_triple(time, TDouble2Vec(sample), TAG)};
-
-            model.addSamples(addSampleParams(weights), sample_);
 
             if (reinitialize) {
-                reinitializePrior(learnRate, model, trends, prior, &controllers);
+                reinitializePrior(window, trends, prior, &controllers);
             }
+
             prior.addSamples(detrended,
                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
             prior.propagateForwardsByTime(1.0);
@@ -891,11 +924,14 @@ void CTimeSeriesModelTest::testPredict() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
+            auto window = trend.windowValues(time);
+
             if (trend.addPoint(time, sample)) {
                 prior.setToNonInformative(0.0, DECAY_RATE);
-                for (const auto& value : model.recentSamples()) {
-                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)},
-                                     maths_t::CUnitWeights::SINGLE_UNIT);
+                double windowLength{static_cast<double>(window.size())};
+                maths_t::TDoubleWeightsAry1Vec weight{maths_t::countWeight(10.0 / windowLength)};
+                for (const auto& value : window) {
+                    prior.addSamples({trend.detrend(value.first, value.second, 0.0)}, weight);
                 }
             }
             prior.addSamples({trend.detrend(time, sample, 0.0)},
@@ -965,7 +1001,6 @@ void CTimeSeriesModelTest::testPredict() {
 
     LOG_DEBUG(<< "Multivariate Seasonal");
     {
-        double learnRate{modelParams(bucketLength).learnRate()};
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
@@ -986,6 +1021,12 @@ void CTimeSeriesModelTest::testPredict() {
                 coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                     static_cast<double>(time) / 86400.0);
             }
+
+            model.addSamples(addSampleParams(weights),
+                             {core::make_triple(time, TDouble2Vec(sample), TAG)});
+
+            auto window = reinitializationWindow(time, trends);
+
             bool reinitialize{false};
             TDouble10Vec detrended;
             for (std::size_t i = 0u; i < sample.size(); ++i) {
@@ -993,14 +1034,12 @@ void CTimeSeriesModelTest::testPredict() {
                 detrended.push_back(trends[i]->detrend(time, sample[i], 0.0));
             }
             if (reinitialize) {
-                reinitializePrior(learnRate, model, trends, prior);
+                reinitializePrior(window, trends, prior);
             }
+
             prior.addSamples({detrended},
                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
             prior.propagateForwardsByTime(1.0);
-
-            model.addSamples(addSampleParams(weights),
-                             {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
             time += bucketLength;
         }
@@ -1987,7 +2026,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "Univariate: Piecwise Constant");
+    LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {
         core_t::TTime bucketLength{600};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
@@ -2002,7 +2041,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         core_t::TTime time{0};
         TDoubleVec samples;
         double level{20.0};
-        for (auto dl : {10.0, 20.0, 15.0, 50.0, 30.0, 40.0, 15.0, 40.0, 25.0}) {
+        for (auto dl : {10.0, 20.0, 25.0, 50.0, 30.0, 40.0, 15.0, 40.0, 25.0}) {
             level += dl;
             rng.generateNormalSamples(
                 level, 2.0, 300 + static_cast<std::size_t>(2.0 * dl), samples);

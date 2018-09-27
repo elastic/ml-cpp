@@ -448,6 +448,11 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
     return pair(scale);
 }
 
+CTimeSeriesDecomposition::TTimeDoublePrVec
+CTimeSeriesDecomposition::windowValues(core_t::TTime time, bool forced) const {
+    return m_PeriodicityTest.windowValues(time, forced);
+}
+
 void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {
     m_LastValueTime += skipInterval;
     m_LastPropagationTime += skipInterval;
