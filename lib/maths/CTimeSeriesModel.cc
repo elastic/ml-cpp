@@ -279,7 +279,11 @@ public:
     //! Extends the current anomaly if \p probability is small; otherwise,
     //! it closes it. If the time series is currently anomalous, update the
     //! model with the anomaly feature vector.
-    void sample(core_t::TTime time, double error, double bucketProbability, double overallProbability);
+    void sample(const CModelProbabilityParams& params,
+                core_t::TTime time,
+                double error,
+                double bucketProbability,
+                double overallProbability);
 
     //! Reset the mean error norm.
     void reset();
@@ -390,8 +394,8 @@ private:
     static const maths_t::TDouble10VecWeightsAry1Vec UNIT;
 
 private:
-    //! Update the appropriate anomaly model with \p anomaly.
-    void sample(core_t::TTime time, double weight);
+    //! Update the appropriate anomaly model with \p weight.
+    void sample(const CModelProbabilityParams& params, core_t::TTime time, double weight);
 
     //! Compute the probability of the anomaly feature vector.
     bool anomalyProbability(core_t::TTime time, double& result) const;
@@ -429,7 +433,8 @@ CTimeSeriesAnomalyModel::CTimeSeriesAnomalyModel(core_t::TTime bucketLength, dou
         maths_t::E_ContinuousData, LARGEST_SIGNIFICANT_PROBABILITY * decayRate));
 }
 
-void CTimeSeriesAnomalyModel::sample(core_t::TTime time,
+void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params,
+                                     core_t::TTime time,
                                      double predictionError,
                                      double bucketProbability,
                                      double overallProbability) {
@@ -440,18 +445,26 @@ void CTimeSeriesAnomalyModel::sample(core_t::TTime time,
         }
         if (bucketProbability < 2.0 * LARGEST_SIGNIFICANT_PROBABILITY) {
             m_Anomaly->update(predictionError);
-            this->sample(time, m_Anomaly->weight(this->scale(time)));
+            this->sample(params, time, m_Anomaly->weight(this->scale(time)));
         }
     } else if (m_Anomaly != boost::none) {
-        this->sample(time, 1.0 - m_Anomaly->weight(this->scale(time)));
+        this->sample(params, time, 1.0 - m_Anomaly->weight(this->scale(time)));
         m_Anomaly.reset();
     }
 }
 
-void CTimeSeriesAnomalyModel::sample(core_t::TTime time, double weight) {
-    auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
-    TDouble10Vec1Vec features{m_Anomaly->features(this->scale(time))};
-    model.addSamples(features, {maths_t::countWeight(weight, 2)});
+void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params,
+                                     core_t::TTime time,
+                                     double weight) {
+    // In case a rule triggered to skip model update,
+    // this is the bit that we want to skip.
+    // The rest of sample is necessary as it creates
+    // the feature vector related to the current anomaly.
+    if (params.skipAnomalyModelUpdate() == false) {
+        auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
+        TDouble10Vec1Vec features{m_Anomaly->features(this->scale(time))};
+        model.addSamples(features, {maths_t::countWeight(weight, 2)});
+    }
 }
 
 void CTimeSeriesAnomalyModel::reset() {
@@ -1038,7 +1051,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         double residual{
             (sample[0] - m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])) /
             std::max(std::sqrt(this->seasonalWeight(0.0, time)[0]), 1.0)};
-        m_AnomalyModel->sample(time, residual, probabilities[0], probability);
+        m_AnomalyModel->sample(params, time, residual, probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(time, probability);
@@ -1171,7 +1184,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
             (mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
                                        mostAnomalousSample)) /
             std::max(std::sqrt(this->seasonalWeight(0.0, mostAnomalousTime)[0]), 1.0)};
-        m_AnomalyModel->sample(mostAnomalousTime, residual, probabilities[0], probability);
+        m_AnomalyModel->sample(params, mostAnomalousTime, residual,
+                               probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(mostAnomalousTime, probability);
@@ -2551,7 +2565,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         for (std::size_t i = 0u; i < dimension; ++i) {
             residual += (sample[0][i] - nearest[i]) / std::max(std::sqrt(scale[i]), 1.0);
         }
-        m_AnomalyModel->sample(time, residual, probabilities[0], probability);
+        m_AnomalyModel->sample(params, time, residual, probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(time, probability);
