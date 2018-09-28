@@ -169,6 +169,12 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
+    //! Check if this might add components between now and \p time.
+    virtual bool mightAddComponents(core_t::TTime time) const;
+
+    //! Get the values in a recent time window.
+    virtual TTimeDoublePrVec windowValues() const;
+
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);
 
@@ -185,7 +191,7 @@ public:
     virtual std::size_t staticSize() const;
 
     //! Get the time shift which is being applied.
-    virtual core_t::TTime timeShift(void) const;
+    virtual core_t::TTime timeShift() const;
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;

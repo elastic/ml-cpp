@@ -47,6 +47,9 @@ Increased independence of anomaly scores across partitions ({pull}182[182])
 Remove hard limit for maximum forecast interval and limit based on the time interval of data added
 to the model. (See {pull}214[#214].)
 
+Avoid potential false positives at model start up when first detecting new components of the time
+series decomposition. (See {pull}218[218].)
+
 //=== Bug Fixes
 
 Fix cause of "Bad density value..." log errors whilst forecasting. ({pull}207[#207].)
