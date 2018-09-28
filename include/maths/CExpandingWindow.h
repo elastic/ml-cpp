@@ -79,6 +79,9 @@ public:
     //! Get the end time of the sketch.
     core_t::TTime endTime() const;
 
+    //! Get the mean offset of values in the bucket.
+    core_t::TTime offset() const;
+
     //! Get the current bucket length.
     core_t::TTime bucketLength() const;
 

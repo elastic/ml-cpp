@@ -74,6 +74,10 @@ core_t::TTime CExpandingWindow::endTime() const {
                           m_BucketLengths[m_BucketLengthIndex]);
 }
 
+core_t::TTime CExpandingWindow::offset() const {
+    return static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5);
+}
+
 core_t::TTime CExpandingWindow::bucketLength() const {
     return m_BucketLengths[m_BucketLengthIndex];
 }
@@ -94,8 +98,7 @@ CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
     core_t::TTime start{CIntegerTools::floor(this->startTime(), m_BucketLength)};
     core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_BucketLength)};
     core_t::TTime size{static_cast<core_t::TTime>(m_BucketValues.size())};
-    core_t::TTime offset{
-        static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5)};
+    core_t::TTime offset{this->offset()};
 
     TFloatMeanAccumulatorVec predictions(size);
     for (core_t::TTime time = start + offset; time < end; time += m_BucketLength) {
