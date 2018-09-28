@@ -55,7 +55,7 @@ double weight(const CMultivariatePrior& prior,
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
-    using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
+    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
@@ -191,9 +191,6 @@ public:
 
     //! \name Test Functions
     //@{
-    //! Get the sliding window of recent values.
-    const TTimeDoublePrCBuf& recentSamples() const;
-
     //! Get the trend.
     const CTimeSeriesDecompositionInterface& trendModel() const;
 
@@ -246,7 +243,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent();
+    void reinitializeStateGivenNewComponent(const TTimeDoublePrVec& initialValues);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const CModelProbabilityParams& params,
@@ -276,9 +273,6 @@ private:
 
     //! True if the model can be forecast.
     bool m_IsForecastable;
-
-    //! A random number generator for sampling the sliding window.
-    CPRNG::CXorOShiro128Plus m_Rng;
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
@@ -313,10 +307,6 @@ private:
 
     //! Used to test for changes in the time series.
     TChangeDetectorPtr m_ChangeDetector;
-
-    //! A sliding window of the recent samples (used to reinitialize the
-    //! residual model when a new trend component is detected).
-    TTimeDoublePrCBuf m_RecentSamples;
 
     //! Models the correlations between time series.
     CTimeSeriesCorrelations* m_Correlations;
@@ -532,8 +522,8 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
-    using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
-    using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
+    using TTimeDouble10VecPr = std::pair<core_t::TTime, TDouble10Vec>;
+    using TTimeDouble10VecPrVec = std::vector<TTimeDouble10VecPr>;
     using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
@@ -667,9 +657,6 @@ public:
 
     //! \name Test Functions
     //@{
-    //! Get the sliding window of recent samples.
-    const TTimeDouble2VecPrCBuf& recentSamples() const;
-
     //! Get the trend.
     const TDecompositionPtr10Vec& trendModel() const;
 
@@ -710,7 +697,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent();
+    void reinitializeStateGivenNewComponent(const TTimeDouble10VecPrVec& initialValues);
 
     //! Get the model dimension.
     std::size_t dimension() const;
@@ -718,9 +705,6 @@ private:
 private:
     //! True if the data are non-negative.
     bool m_IsNonNegative;
-
-    //! A random number generator for sampling the sliding window.
-    CPRNG::CXorOShiro128Plus m_Rng;
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
@@ -741,10 +725,6 @@ private:
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.
     TAnomalyModelPtr m_AnomalyModel;
-
-    //! A sliding window of the recent samples (used to reinitialize the
-    //! residual model when a new trend component is detected).
-    TTimeDouble2VecPrCBuf m_RecentSamples;
 };
 }
 }
