@@ -44,8 +44,11 @@ anomalies. (See {pull}175[#175].)
 
 Increased independence of anomaly scores across partitions ({pull}182[182])  
 
+//=== Bug Fixes
+
 Fix cause of "Bad density value..." log errors whilst forecasting. ({pull}207[207])
 
-//=== Bug Fixes
+Fix incorrectly missing influencers when the influence field is one of the detector's partitioning
+fields and the bucket is empty. ({pull}219[#219])
 
 //=== Regressions
