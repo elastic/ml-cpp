@@ -549,7 +549,8 @@ void CMetricModel::fill(model_t::EFeature feature,
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -586,8 +587,9 @@ void CMetricModel::fill(model_t::EFeature feature,
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime bucketLength{gatherer.bucketLength()};
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                                                           model_t::sampleTime(feature, bucketTime, bucketLength));
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+        model_t::sampleTime(feature, bucketTime, bucketLength));
 
     params.s_Feature = feature;
     params.s_Model = model;

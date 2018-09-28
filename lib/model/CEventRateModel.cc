@@ -381,9 +381,9 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         if (!data) {
             continue;
         }
-        if (this->shouldIgnoreResult(feature, result.s_ResultType, pid,
-                                     model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                                     model_t::sampleTime(feature, startTime, bucketLength))) {
+        if (this->shouldIgnoreResult(
+                feature, result.s_ResultType, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                model_t::sampleTime(feature, startTime, bucketLength))) {
             skippedResults = true;
             continue;
         }
@@ -590,7 +590,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -625,7 +626,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, gatherer.bucketLength())};
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
