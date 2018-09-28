@@ -740,7 +740,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     m_ResidualModel->addSamples(samples_, weights_);
     m_ResidualModel->propagateForwardsByTime(params.propagationInterval());
 
-    // Update the multi-bucket feature model.
+    // Update the multi-bucket residual feature model.
     if (m_MultibucketFeatureModel != nullptr) {
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
@@ -760,12 +760,17 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         }
     }
 
+    // Age the anomaly model. Note that update requires the probability
+    // to be calculated. This is expensive to compute and so unlike our
+    // other model components is done in that function.
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->propagateForwardsByTime(params.propagationInterval());
     }
 
+    // Perform model decay control.
     double multiplier{this->updateDecayRates(params, averageTime, samples_)};
 
+    // Add the samples to the correlation models if there are any.
     if (m_Correlations != nullptr) {
         m_Correlations->addSamples(m_Id, params, samples, multiplier);
     }
@@ -2239,7 +2244,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     m_ResidualModel->addSamples(samples_, weights_);
     m_ResidualModel->propagateForwardsByTime(params.propagationInterval());
 
-    // Update the multi-bucket feature model.
+    // Update the multi-bucket residual feature model.
     if (m_MultibucketFeatureModel != nullptr) {
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
@@ -2259,10 +2264,14 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         }
     }
 
+    // Age the anomaly model. Note that update requires the probability
+    // to be calculated. This is expensive to compute and so unlike our
+    // other model components is done in that function.
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->propagateForwardsByTime(params.propagationInterval());
     }
 
+    // Perform model decay control.
     this->updateDecayRates(params, averageTime, samples_);
 
     return result;
