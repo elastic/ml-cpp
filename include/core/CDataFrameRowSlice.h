@@ -30,6 +30,7 @@ public:
 public:
     virtual ~CDataFrameRowSliceHandleImpl() = default;
     virtual TImplPtr clone() const = 0;
+    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
     virtual const TFloatVec& values() const = 0;
     virtual bool bad() const = 0;
 };
@@ -52,6 +53,7 @@ public:
     CDataFrameRowSliceHandle& operator=(const CDataFrameRowSliceHandle& other);
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
+    bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     std::size_t size() const;
     TFloatVecCItr begin() const;
     TFloatVecCItr end() const;
@@ -69,7 +71,8 @@ public:
 
 public:
     virtual ~CDataFrameRowSlice() = default;
-    virtual TSizeHandlePr read() const = 0;
+    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
+    virtual TSizeHandlePr read() = 0;
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
 };
@@ -87,7 +90,8 @@ public:
 class CORE_EXPORT CMainMemoryDataFrameRowSlice final : public CDataFrameRowSlice {
 public:
     CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec state);
-    virtual TSizeHandlePr read() const;
+    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
+    virtual TSizeHandlePr read();
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
 
@@ -131,6 +135,7 @@ public:
         CTemporaryDirectory(const std::string& name, std::size_t minimumSpace);
         ~CTemporaryDirectory();
         const std::string& name() const;
+        bool sufficientSpaceAvailable(std::size_t minimumSpace) const;
         bool bad() const;
 
     private:
@@ -144,9 +149,14 @@ public:
     COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                              std::size_t firstRow,
                              TFloatVec state);
-    virtual TSizeHandlePr read() const;
+    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
+    virtual TSizeHandlePr read();
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
+
+private:
+    void writeToDisk(const TFloatVec& state);
+    bool readFromDisk(TFloatVec& result) const;
 
 private:
     using TByteVec = CCompressUtil::TByteVec;
@@ -154,7 +164,7 @@ private:
 private:
     mutable bool m_StateIsBad = false;
     std::size_t m_FirstRow;
-    std::size_t m_NumberRows;
+    std::size_t m_Capacity;
     TTemporaryDirectoryPtr m_Directory;
     boost::filesystem::path m_FileName;
     uint64_t m_Checksum;

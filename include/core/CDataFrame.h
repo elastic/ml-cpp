@@ -87,9 +87,13 @@ public:
     CRowConstIterator() = default;
 
     //! \param[in] numberColumns The number of columns in the data frame.
+    //! \param[in] rowCapacity The capacity of each row in the data frame.
     //! \param[in] index The row index.
     //! \param[in] base The iterator for the columns of row \p index.
-    CRowConstIterator(std::size_t numberColumns, std::size_t index, TFloatVecCItr base);
+    CRowConstIterator(std::size_t numberColumns,
+                      std::size_t rowCapacity,
+                      std::size_t index,
+                      TFloatVecCItr base);
 
     //! \name Forward Iterator Contract
     //@{
@@ -105,6 +109,7 @@ public:
 
 private:
     std::size_t m_NumberColumns = 0;
+    std::size_t m_RowCapacity = 0;
     std::size_t m_Index = 0;
     TFloatVecCItr m_Base;
 };
@@ -167,8 +172,8 @@ public:
 
 public:
     //! \param[in] numberColumns The number of columns in the data frame.
-    //! \param[in] sliceCapacity The capacity of a slice of the data frame as
-    //! a number of rows.
+    //! \param[in] sliceCapacityInRows The capacity of a slice of the data frame
+    //! as a number of rows.
     //! \param[in] asyncReadAndWriteToStore Controls whether reads and writes
     //! from slice storage are synchronous or asynchronous.
     //! \param[in] writeSliceToStore The callback to write a slice to storage.
@@ -178,7 +183,7 @@ public:
     //! can be copied and are thread safe. If they are not stateless then it is
     //! the implementers responsibility to ensure these conditions are satisfied.
     CDataFrame(std::size_t numberColumns,
-               std::size_t sliceCapacity,
+               std::size_t sliceCapacityInRows,
                EReadWriteToStorage asyncReadAndWriteToStore,
                const TWriteSliceToStoreFunc& writeSliceToStore,
                const TReadSliceFromStoreFunc& readSliceFromStore);
@@ -201,8 +206,8 @@ public:
     //! that append columns.
     //!
     //! \param[in] numberThreads The target number of threads to use.
-    //! \param[in] numberColumns The desired number of columns.
-    bool reserve(std::size_t numberThreads, std::size_t numberColumns);
+    //! \param[in] rowCapacity The desired number of columns.
+    bool reserve(std::size_t numberThreads, std::size_t rowCapacity);
 
     //! This reads rows using one or more readers.
     //!
@@ -271,8 +276,8 @@ private:
     class CDataFrameRowSliceWriter final {
     public:
         CDataFrameRowSliceWriter(std::size_t numberRows,
-                                 std::size_t numberColumns,
-                                 std::size_t sliceCapacity,
+                                 std::size_t rowCapacity,
+                                 std::size_t sliceCapacityInRows,
                                  EReadWriteToStorage ayncWriteToStore,
                                  TWriteSliceToStoreFunc writeSliceToStore);
         ~CDataFrameRowSliceWriter();
@@ -290,8 +295,8 @@ private:
 
     private:
         std::size_t m_NumberRows;
-        std::size_t m_NumberColumns;
-        std::size_t m_SliceCapacity;
+        std::size_t m_RowCapacity;
+        std::size_t m_SliceCapacityInRows;
         EReadWriteToStorage m_AsyncWriteToStore;
         TWriteSliceToStoreFunc m_WriteSliceToStore;
 
@@ -318,12 +323,15 @@ private:
     TSizeSizePr numberOfThreadsAndStride(std::size_t target) const;
 
 private:
-    //! The number of columns in the data frame.
-    std::size_t m_NumberColumns;
     //! The number of rows in the data frame.
     std::size_t m_NumberRows = 0;
+    //! The number of columns in the data frame.
+    std::size_t m_NumberColumns;
+    //! The number of columns a row could contain. This is greater than or
+    //! equal to m_NumberColumns.
+    std::size_t m_RowCapacity;
     //! The capacity of a slice of the data frame as a number of rows.
-    std::size_t m_SliceCapacity;
+    std::size_t m_SliceCapacityInRows;
 
     //! If true read and write asynchronously to storage.
     EReadWriteToStorage m_AsyncReadAndWriteToStore;

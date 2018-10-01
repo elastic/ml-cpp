@@ -16,6 +16,7 @@ public:
     void testOnDiskBasicReadWrite();
     void testOnDiskParallelRead();
     void testMemoryUsage();
+    void testReserve();
 
     static CppUnit::Test* suite();
 };
