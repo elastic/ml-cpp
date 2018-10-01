@@ -153,15 +153,14 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
         }
         frame.finishWritingRows();
 
-        std::vector<TReadFunc> readers;
+        std::vector<CThreadReader> readers;
         bool successful;
         std::tie(readers, successful) = frame.readRows(3, CThreadReader{});
         CPPUNIT_ASSERT(successful);
         CPPUNIT_ASSERT_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
 
         TBoolVec rowRead(rows, false);
-        for (const auto& reader_ : readers) {
-            const auto& reader = *reader_.target<CThreadReader>();
+        for (const auto& reader : readers) {
             CPPUNIT_ASSERT_EQUAL(false, reader.duplicates());
             CPPUNIT_ASSERT(reader.rowsRead().size() <= 2000);
             for (const auto& row : reader.rowsRead()) {
@@ -230,15 +229,14 @@ void CDataFrameTest::testOnDiskParallelRead() {
     }
     frame.finishWritingRows();
 
-    std::vector<TReadFunc> readers;
+    std::vector<CThreadReader> readers;
     bool successful;
     std::tie(readers, successful) = frame.readRows(3, CThreadReader{});
     CPPUNIT_ASSERT(successful);
     CPPUNIT_ASSERT_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
 
     TBoolVec rowRead(rows, false);
-    for (const auto& reader_ : readers) {
-        const auto& reader = *reader_.target<CThreadReader>();
+    for (const auto& reader : readers) {
         CPPUNIT_ASSERT_EQUAL(false, reader.duplicates());
         CPPUNIT_ASSERT(reader.rowsRead().size() <= 2000);
         for (const auto& row : reader.rowsRead()) {

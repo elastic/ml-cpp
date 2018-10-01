@@ -118,7 +118,7 @@ private:
 //! \brief A data frame representation.
 //!
 //! DESECRIPTION:\n
-//! A table data structure with fixed number of columns and a dynamic number
+//! A table data structure with "fixed" number of columns and a dynamic number
 //! of rows.
 //!
 //! It can be read in row order and is append only. Reading rows can also be
@@ -126,29 +126,35 @@ private:
 //! frame's rows.
 //!
 //! Space can be reserved at any point to hold one or more additional columns.
-//! These are not visible until they are written by the appendColumns function.
+//! These are not visible until they are written.
 //!
 //! IMPLEMENTATION:\n
 //! This is a fairly lightweight container which is essentially responsible
 //! for managing the read and write process to some underlying store format.
 //! The store format is determined by the user implementing callbacks which are
 //! passed to the data frame constructor to read and write state from the store.
-//! For example, these could just copy to/from main memory, write to / read from
+//! For example, these could copy to / from main memory, "write to" / "read from"
 //! disk, etc. Copying these functions is assumed to have no side effects and they
 //! are assumed to be thread safe. If they have shared state the implementation
 //! must ensure that access to this is synchronized.
 //!
 //! The data frame is divided into slices each of which represent a number of
 //! contiguous rows. The idea is that they contain a reasonable amount of memory
-//! such that, for example, they significantly reduce the number of writes to /
-//! reads from disk since a slice is written or read in one go.
+//! so that, for example, they significantly reduce the number of "writes to" /
+//! "reads from" disk (a whole slice being written or read in one go), mean we'll
+//! get good locality of reference and mean there is minimal book keeping overhead
+//! (such as state for vector sizes, pointers to starts of memory blocks, etc).
 //!
 //! Reads and writes of a single row are also done via call backs supplied to the
-//! readRows and writeRows functions. This is to achieve maximum decoupling from
+//! readRows and writeRow functions. This is to achieve maximum decoupling from
 //! the calling code for how the underlying values are used or where they come
-//! from. For example, a stream can be attached to a row writer which copies the
-//! values directly into the data frame storage. Read and writes to storage can
-//! optionally happen in a separate thread to the row reading and writing.
+//! from. It also means certain operations can be done very efficiently. For example,
+//! a stream can be attached to a row writer function to copy the values directly
+//! into the data frame storage.
+//!
+//! Read and writes to storage can optionally happen in a separate thread to the
+//! row reading and writing to deal with the case that these operations can by
+//! time consuming.
 class CORE_EXPORT CDataFrame final {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
@@ -228,6 +234,27 @@ public:
     //! copy will be elided. Otherwise, the reader must hold the state by
     //! reference and must synchronize access to it.
     TReadFuncVecBoolPr readRows(std::size_t numberThreads, TReadFunc reader) const;
+
+    //! Convenience wrapper for typed readers.
+    //!
+    //! The reason for this is to wrap up the code to extract the typed readers
+    //! from the return type. A common case is that these will cache some state
+    //! which will need access to the underlying type to retrieve.
+    //!
+    //! \note READER must implement the TReadFunc contract.
+    template<typename READER>
+    std::pair<std::vector<READER>, bool> readRows(std::size_t numberThreads, READER reader) const {
+
+        TReadFuncVecBoolPr result_{readRows(numberThreads, TReadFunc(reader))};
+
+        std::vector<READER> result;
+        result.reserve(result_.first.size());
+        for (auto& reader_ : result_.first) {
+            result.push_back(std::move(*reader_.target<READER>()));
+        }
+
+        return {std::move(result), result_.second};
+    }
 
     // TODO Modify in-place maybe something like:
     // void readAndAppend(TReadFunc reader, std::size_t numberColumnsToAppend, TWriteFunc appender);
