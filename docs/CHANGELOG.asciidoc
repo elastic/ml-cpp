@@ -52,3 +52,19 @@ series decomposition. (See {pull}218[218].)
 Fix cause of "Bad density value..." log errors whilst forecasting. ({pull}207[207])
 
 //=== Regressions
+
+== {es} version 6.4.3
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+=== Enhancements
+
+Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
+
+//=== Bug Fixes
+
+//=== Regressions
