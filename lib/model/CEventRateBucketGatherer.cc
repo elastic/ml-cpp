@@ -728,8 +728,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const std::string& valueFieldName,
                                                    const TStrVec& influenceFieldNames,
                                                    core_t::TTime startTime)
-    : CBucketGatherer(dataGatherer, startTime), m_BeginInfluencingFields(0),
-      m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, startTime, influenceFieldNames.size()),
+      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
     this->initializeFeatureData();
@@ -742,8 +742,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const std::string& valueFieldName,
                                                    const TStrVec& influenceFieldNames,
                                                    core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, 0), m_BeginInfluencingFields(0),
-      m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
+      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
     traverser.traverseSubLevel(
