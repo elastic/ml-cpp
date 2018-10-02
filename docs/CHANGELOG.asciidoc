@@ -44,11 +44,30 @@ anomalies. (See {pull}175[#175].)
 
 Increased independence of anomaly scores across partitions ({pull}182[182])  
 
-//=== Bug Fixes
+Avoid potential false positives at model start up when first detecting new components of the time
+series decomposition. (See {pull}218[218].)
+
+=== Bug Fixes
 
 Fix cause of "Bad density value..." log errors whilst forecasting. ({pull}207[207])
 
 Fix incorrectly missing influencers when the influence field is one of the detector's partitioning
 fields and the bucket is empty. ({pull}219[#219])
+
+//=== Regressions
+
+== {es} version 6.4.3
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+=== Enhancements
+
+Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
+
+//=== Bug Fixes
 
 //=== Regressions
