@@ -31,6 +31,22 @@
 //=== Known Issues
 ////
 
+== {es} version 6.4.3
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+=== Enhancements
+
+Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
+
+//=== Bug Fixes
+
+//=== Regressions
+
 == Elasticsearch version 6.4.0
 
 //=== Breaking Changes
