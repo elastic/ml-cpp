@@ -921,8 +921,9 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
                                              const std::string& valueFieldName,
                                              const TStrVec& influenceFieldNames,
                                              core_t::TTime startTime)
-    : CBucketGatherer(dataGatherer, startTime), m_ValueFieldName(valueFieldName),
-      m_BeginInfluencingFields(0), m_BeginValueFields(0) {
+    : CBucketGatherer(dataGatherer, startTime, influenceFieldNames.size()),
+      m_ValueFieldName(valueFieldName), m_BeginInfluencingFields(0),
+      m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
     this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
     this->initializeFeatureData();
@@ -935,8 +936,8 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
                                              const std::string& valueFieldName,
                                              const TStrVec& influenceFieldNames,
                                              core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, 0), m_ValueFieldName(valueFieldName),
-      m_BeginValueFields(0) {
+    : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
+      m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
     traverser.traverseSubLevel(
         boost::bind(&CMetricBucketGatherer::acceptRestoreTraverser, this, _1));

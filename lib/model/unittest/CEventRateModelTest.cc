@@ -1615,6 +1615,62 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.99);
         CPPUNIT_ASSERT(lastInfluencersResult[1].second > 0.99);
     }
+    {
+        // The influencer is one of the partitioning fields.
+        SModelParams params(bucketLength);
+        params.s_DecayRate = 0.001;
+        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+        CEventRateModelFactory factory(params, interimBucketCorrector);
+        std::string byFieldName{"P"};
+        factory.fieldNames("", "", byFieldName, "", {byFieldName});
+        factory.features({model_t::E_IndividualCountByBucketAndPerson});
+        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1));
+        CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
+        CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CPPUNIT_ASSERT(model);
+
+        // Generate some events.
+        TTimeVec eventTimes;
+        TUInt64Vec expectedEventCounts = rawEventCounts();
+        expectedEventCounts.back() *= 3;
+        generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
+        core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
+
+        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        core_t::TTime bucketStartTime = startTime;
+        core_t::TTime bucketEndTime = startTime + bucketLength;
+        for (std::size_t i = 0, j = 0; bucketStartTime < endTime;
+             bucketStartTime += bucketLength, bucketEndTime += bucketLength, ++j) {
+
+            double count = 0.0;
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
+                addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
+                           TOptionalStr("p"));
+                count += 1.0;
+            }
+
+            model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
+        }
+
+        // Check we still have influences for an empty bucket.
+
+        model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
+
+        SAnnotatedProbability annotatedProbability;
+        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        partitioningFields.add(byFieldName, EMPTY_STRING);
+        CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, bucketStartTime,
+                                                 bucketEndTime, partitioningFields,
+                                                 1, annotatedProbability));
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "influencers = "
+                  << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+        CPPUNIT_ASSERT_EQUAL(false, annotatedProbability.s_Influences.empty());
+    }
 }
 
 void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence() {
