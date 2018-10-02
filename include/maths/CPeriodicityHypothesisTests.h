@@ -221,18 +221,18 @@ private:
         //! True if a known repeating partition is tested.
         bool s_HasPartition;
         //! The maximum variance to accept the alternative hypothesis.
-        double s_Vt;
+        double s_VarianceThreshold;
         //! The minimum amplitude to accept the alternative hypothesis.
-        double s_At;
+        double s_AmplitudeThreshold;
         //! The minimum autocorrelation to accept the alternative
         //! hypothesis.
-        double s_Rt;
+        double s_AutocorrelationThreshold;
         //! The data range.
         double s_Range;
         //! The number of buckets with at least one measurement.
-        double s_B;
+        double s_NonEmptyBuckets;
         //! The average number of measurements per bucket value.
-        double s_M;
+        double s_MeasurementsPerBucket;
         //! The null hypothesis periodic components.
         CPeriodicityHypothesisTestsResult s_H0;
         //! The variance estimate of H0.
