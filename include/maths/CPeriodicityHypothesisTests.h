@@ -294,7 +294,7 @@ private:
     private:
         //! The test.
         TTestFunc m_Test;
-        //! True if the hypothesis used a piecewise linear trend.
+        //! The number of segments in the trend.
         std::size_t m_TrendSegments;
         //! If true always test the nested hypotheses.
         bool m_AlwaysTestNested;
