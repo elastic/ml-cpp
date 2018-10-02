@@ -161,10 +161,10 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void baseAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void baseAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the state
-    virtual bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not

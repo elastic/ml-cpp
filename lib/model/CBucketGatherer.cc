@@ -50,6 +50,7 @@ const std::string COUNT_TAG("c");
 const std::string INFLUENCER_TAG("d");
 const std::string INFLUENCE_ITEM_TAG("a");
 const std::string INFLUENCE_COUNT_TAG("b");
+const std::string EMPTY_MAP_TAG("e");
 
 //! Persist a person, attribute and count tuple.
 void insertPersonAttributeCounts(const TSizeSizePrUInt64Pr& tuple,
@@ -88,14 +89,15 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
                       rhs->first.first, *rhs->first.second, rhs->second);
               });
 
-    for (std::size_t i = 0u; i < ordered.size(); ++i) {
-        inserter.insertValue(PERSON_UID_TAG,
-                             CDataGatherer::extractPersonId(ordered[i]->first));
+    if (ordered.empty()) {
+        inserter.insertValue(EMPTY_MAP_TAG, "");
+    }
+    for (auto& pair : ordered) {
+        inserter.insertValue(PERSON_UID_TAG, CDataGatherer::extractPersonId(pair->first));
         inserter.insertValue(ATTRIBUTE_UID_TAG,
-                             CDataGatherer::extractAttributeId(ordered[i]->first));
-        inserter.insertValue(INFLUENCER_TAG,
-                             *CDataGatherer::extractData(ordered[i]->first));
-        inserter.insertValue(COUNT_TAG, ordered[i]->second);
+                             CDataGatherer::extractAttributeId(pair->first));
+        inserter.insertValue(INFLUENCER_TAG, *CDataGatherer::extractData(pair->first));
+        inserter.insertValue(COUNT_TAG, pair->second);
     }
 }
 
@@ -567,7 +569,8 @@ std::size_t CBucketGatherer::memoryUsage() const {
 void CBucketGatherer::clear() {
     m_PersonAttributeCounts.clear(TSizeSizePrUInt64UMap(1));
     m_PersonAttributeExplicitNulls.clear(TSizeSizePrUSet(1));
-    m_InfluencerCounts.clear();
+    m_InfluencerCounts.clear(TSizeSizePrStoredStringPtrPrUInt64UMapVec(
+        this->endInfluencers() - this->beginInfluencers()));
 }
 
 bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
@@ -598,6 +601,8 @@ void CBucketGatherer::baseAcceptPersistInserter(core::CStatePersistInserter& ins
         BUCKET_COUNT_TAG,
         boost::bind<void>(TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(),
                           boost::cref(m_PersonAttributeCounts), _1));
+    // Clear any empty collections before persist these are resized on restore.
+    TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue influencerCounts{m_InfluencerCounts};
     inserter.insertLevel(
         INFLUENCERS_COUNT_TAG,
         boost::bind<void>(
