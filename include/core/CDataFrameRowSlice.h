@@ -30,7 +30,6 @@ public:
 public:
     virtual ~CDataFrameRowSliceHandleImpl() = default;
     virtual TImplPtr clone() const = 0;
-    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
     virtual const TFloatVec& values() const = 0;
     virtual bool bad() const = 0;
 };
@@ -53,7 +52,6 @@ public:
     CDataFrameRowSliceHandle& operator=(const CDataFrameRowSliceHandle& other);
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
-    bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     std::size_t size() const;
     TFloatVecCItr begin() const;
     TFloatVecCItr end() const;

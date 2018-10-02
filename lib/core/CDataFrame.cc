@@ -126,16 +126,14 @@ class CDataFrameRowSliceReader final {
 public:
     using TReadFunc = CDataFrame::TReadFunc;
     using TReadFuncRef = std::reference_wrapper<TReadFunc>;
-    using TReadSliceFromStoreFunc = CDataFrame::TReadSliceFromStoreFunc;
 
 public:
     CDataFrameRowSliceReader(TReadFunc& reader,
                              std::size_t numberColumns,
                              std::size_t rowCapacity,
-                             CDataFrame::EReadWriteToStorage asyncReadFromStore,
-                             const TReadSliceFromStoreFunc& readSliceFromStore)
+                             CDataFrame::EReadWriteToStorage asyncReadFromStore)
         : m_Reader{reader}, m_NumberColumns{numberColumns}, m_RowCapacity{rowCapacity},
-          m_AsyncReadFromStore{asyncReadFromStore}, m_ReadSliceFromStore{readSliceFromStore} {}
+          m_AsyncReadFromStore{asyncReadFromStore} {}
 
     //! Read all slices in [\p beginSlices, \p endSlices) passing to the
     //! callback supplied to the constructor.
@@ -155,7 +153,7 @@ public:
 
             CConcurrentWrapper<TReadFunc, 1, 1> asyncReader{m_Reader};
             for (auto i = beginSlices; i != endSlices; ++i) {
-                std::tie(firstRow, sliceBeingRead) = m_ReadSliceFromStore(*i);
+                std::tie(firstRow, sliceBeingRead) = (*i)->read();
                 if (sliceBeingRead.bad()) {
                     return false;
                 }
@@ -173,7 +171,7 @@ public:
         }
         case CDataFrame::EReadWriteToStorage::E_Sync:
             for (auto i = beginSlices; i != endSlices; ++i) {
-                std::tie(firstRow, sliceBeingRead) = m_ReadSliceFromStore(*i);
+                std::tie(firstRow, sliceBeingRead) = (*i)->read();
                 if (sliceBeingRead.bad()) {
                     return false;
                 }
@@ -195,27 +193,19 @@ private:
     std::size_t m_NumberColumns;
     std::size_t m_RowCapacity;
     CDataFrame::EReadWriteToStorage m_AsyncReadFromStore;
-    TReadSliceFromStoreFunc m_ReadSliceFromStore;
 };
 
 //! \brief Reserves extra columns in data frame.
 class CDataFrameRowSliceReserver {
 public:
-    using TReadSliceFromStoreFunc = CDataFrame::TReadSliceFromStoreFunc;
-
-public:
     CDataFrameRowSliceReserver(std::size_t numberColumns,
-                               std::size_t extraColumns,
-                               const TReadSliceFromStoreFunc& readSliceFromStore)
-        : m_NumberColumns{numberColumns}, m_ExtraColumns{extraColumns}, m_ReadSliceFromStore{readSliceFromStore} {
+                               std::size_t extraColumns)
+        : m_NumberColumns{numberColumns}, m_ExtraColumns{extraColumns} {
     }
 
     bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) {
-        CDataFrameRowSliceHandle sliceBeingRead;
         for (auto i = beginSlices; i != endSlices; ++i) {
-            std::tie(std::ignore, sliceBeingRead) = m_ReadSliceFromStore(*i);
-            if (sliceBeingRead.bad() ||
-                sliceBeingRead.reserve(m_NumberColumns, m_ExtraColumns) == false) {
+            if ((*i)->reserve(m_NumberColumns, m_ExtraColumns) == false) {
                 return false;
             }
         }
@@ -225,7 +215,6 @@ public:
 private:
     std::size_t m_NumberColumns;
     std::size_t m_ExtraColumns;
-    TReadSliceFromStoreFunc m_ReadSliceFromStore;
 };
 
 //! Compute the default slice capacity in rows.
@@ -239,19 +228,17 @@ std::size_t computeSliceCapacity(std::size_t numberColumns) {
 CDataFrame::CDataFrame(std::size_t numberColumns,
                        std::size_t sliceCapacityInRows,
                        EReadWriteToStorage asyncReadAndWriteToStore,
-                       const TWriteSliceToStoreFunc& writeSliceToStore,
-                       const TReadSliceFromStoreFunc& readSliceFromStore)
+                       const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_NumberColumns{numberColumns}, m_RowCapacity{numberColumns},
       m_SliceCapacityInRows{sliceCapacityInRows}, m_AsyncReadAndWriteToStore{asyncReadAndWriteToStore},
-      m_WriteSliceToStore{writeSliceToStore}, m_ReadSliceFromStore{readSliceFromStore} {
+      m_WriteSliceToStore{writeSliceToStore} {
 }
 
 CDataFrame::CDataFrame(std::size_t numberColumns,
                        EReadWriteToStorage asyncReadAndWriteToStore,
-                       const TWriteSliceToStoreFunc& writeSliceToStore,
-                       const TReadSliceFromStoreFunc& readSliceFromStore)
+                       const TWriteSliceToStoreFunc& writeSliceToStore)
     : CDataFrame{numberColumns, computeSliceCapacity(numberColumns),
-                 asyncReadAndWriteToStore, writeSliceToStore, readSliceFromStore} {
+                 asyncReadAndWriteToStore, writeSliceToStore} {
 }
 
 bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
@@ -263,7 +250,7 @@ bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
         LOG_TRACE(<< "numberThreads = " << numberThreads << " stride = " << stride);
 
         CDataFrameRowSliceReserver reserver{
-            m_NumberColumns, m_RowCapacity - m_NumberColumns, m_ReadSliceFromStore};
+            m_NumberColumns, m_RowCapacity - m_NumberColumns};
 
         std::vector<std::future<bool>> reserves;
         reserves.reserve(numberThreads);
@@ -299,8 +286,7 @@ CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         // This all happens on the main thread to avoid a context switch.
 
         CDataFrameRowSliceReader sliceReader{reader, m_NumberColumns, m_RowCapacity,
-                                             m_AsyncReadAndWriteToStore,
-                                             m_ReadSliceFromStore};
+                                             m_AsyncReadAndWriteToStore};
         bool successful{sliceReader(m_Slices.begin(), m_Slices.end())};
         return {{std::move(reader)}, successful};
     }
@@ -323,16 +309,14 @@ CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         auto begin = m_Slices.begin() + j;
         auto end = m_Slices.begin() + j + stride;
         CDataFrameRowSliceReader sliceReader{readers[i], m_NumberColumns,
-                                             m_RowCapacity, m_AsyncReadAndWriteToStore,
-                                             m_ReadSliceFromStore};
+                                             m_RowCapacity, m_AsyncReadAndWriteToStore};
         reads.push_back(std::async(std::launch::async, sliceReader, begin, end));
     }
     auto begin = m_Slices.begin() + j;
     auto end = m_Slices.end();
     if (begin != end) {
         CDataFrameRowSliceReader sliceReader{readers.back(), m_NumberColumns,
-                                             m_RowCapacity, m_AsyncReadAndWriteToStore,
-                                             m_ReadSliceFromStore};
+                                             m_RowCapacity, m_AsyncReadAndWriteToStore};
         reads.push_back(std::async(std::launch::async, sliceReader, begin, end));
     }
 
@@ -424,9 +408,6 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
 
 CDataFrame::TSizeDataFrameRowSlicePtrVecPr
 CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
-    // Passing a partial slice signals to the thread writing slices to
-    // storage that we're done.
-
     std::size_t firstRow{m_NumberRows - m_SliceBeingWritten.size() / m_RowCapacity};
     LOG_TRACE(<< "Last slice "
               << (firstRow == m_NumberRows ? "empty"
@@ -472,7 +453,8 @@ CDataFrame::TSizeSizePr CDataFrame::numberOfThreadsAndStride(std::size_t target)
 }
 
 void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
-    // Signal to the thread writing slices to storage that we're done.
+    // Passing an empty slice signals to the thread writing slices to
+    // storage that we're done.
 
     if (m_Writing) {
         if (m_AsyncWriteToStore == EReadWriteToStorage::E_Async) {
@@ -485,20 +467,18 @@ void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
 CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
                                     boost::optional<std::size_t> sliceCapacity,
                                     CDataFrame::EReadWriteToStorage readWriteToStoreAsync) {
-
     // The return copy is elided so we never need to call the explicitly
-    // deleted the data frame copy constructor.
+    // deleted data frame copy constructor.
 
     auto writer = [](std::size_t firstRow, TFloatVec slice) {
         return boost::make_unique<CMainMemoryDataFrameRowSlice>(firstRow, std::move(slice));
     };
-    auto reader = [](const TRowSlicePtr& slice) { return slice->read(); };
 
     if (sliceCapacity != boost::none) {
-        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer, reader};
+        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer};
     }
 
-    return {numberColumns, readWriteToStoreAsync, writer, reader};
+    return {numberColumns, readWriteToStoreAsync, writer};
 }
 
 CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
@@ -507,7 +487,7 @@ CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
                                     boost::optional<std::size_t> sliceCapacity,
                                     CDataFrame::EReadWriteToStorage readWriteToStoreAsync) {
     // The return copy is elided so we never need to call the explicitly
-    // deleted the data frame copy constructor.
+    // deleted data frame copy constructor.
 
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
@@ -523,12 +503,11 @@ CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
         return boost::make_unique<COnDiskDataFrameRowSlice>(directory, firstRow,
                                                             std::move(slice));
     };
-    auto reader = [](const TRowSlicePtr& slice) { return slice->read(); };
 
     if (sliceCapacity != boost::none) {
-        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer, reader};
+        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer};
     }
-    return {numberColumns, readWriteToStoreAsync, writer, reader};
+    return {numberColumns, readWriteToStoreAsync, writer};
 }
 }
 }

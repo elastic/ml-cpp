@@ -36,24 +36,18 @@ using namespace data_frame_row_slice_detail;
 //! values stored in the data frame.
 class CORE_EXPORT CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    CMainMemoryDataFrameRowSliceHandle(CMainMemoryDataFrameRowSlice& slice,
-                                       const TFloatVec& values)
-        : m_Slice{slice}, m_Values{values} {}
+    CMainMemoryDataFrameRowSliceHandle(const TFloatVec& values)
+        : m_Values{values} {}
     virtual TImplPtr clone() const {
-        return boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Slice, m_Values);
-    }
-    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) {
-        return m_Slice.get().reserve(numberColumns, extraColumns);
+        return boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Values);
     }
     virtual const TFloatVec& values() const { return m_Values; }
     virtual bool bad() const { return false; }
 
 private:
-    using TSliceRef = std::reference_wrapper<CMainMemoryDataFrameRowSlice>;
     using TFloatVecCRef = std::reference_wrapper<const TFloatVec>;
 
 private:
-    TSliceRef m_Slice;
     TFloatVecCRef m_Values;
 };
 
@@ -64,22 +58,15 @@ private:
 //! the slice is inflated.
 class CORE_EXPORT COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    COnDiskDataFrameRowSliceHandle(COnDiskDataFrameRowSlice& slice, TFloatVec values)
-        : m_Slice{slice}, m_Values{std::move(values)} {}
+    COnDiskDataFrameRowSliceHandle(TFloatVec values)
+        : m_Values{std::move(values)} {}
     virtual TImplPtr clone() const {
-        return boost::make_unique<COnDiskDataFrameRowSliceHandle>(m_Slice, m_Values);
-    }
-    virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) {
-        return m_Slice.get().reserve(numberColumns, extraColumns);
+        return boost::make_unique<COnDiskDataFrameRowSliceHandle>(m_Values);
     }
     virtual const TFloatVec& values() const { return m_Values; }
     virtual bool bad() const { return false; }
 
 private:
-    using TSliceRef = std::reference_wrapper<COnDiskDataFrameRowSlice>;
-
-private:
-    TSliceRef m_Slice;
     TFloatVec m_Values;
 };
 
@@ -92,7 +79,6 @@ public:
     virtual TImplPtr clone() const {
         return boost::make_unique<CBadDataFrameRowSliceHandle>();
     }
-    virtual bool reserve(std::size_t, std::size_t) { return false; }
     virtual const TFloatVec& values() const { return m_Empty; }
     virtual bool bad() const { return true; }
 
@@ -125,10 +111,6 @@ operator=(const CDataFrameRowSliceHandle& other) {
 CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::operator=(CDataFrameRowSliceHandle&& other) {
     m_Impl = std::move(other.m_Impl);
     return *this;
-}
-
-bool CDataFrameRowSliceHandle::reserve(std::size_t numberColumns, std::size_t extraColumns) {
-    return m_Impl->reserve(numberColumns, extraColumns);
 }
 
 std::size_t CDataFrameRowSliceHandle::size() const {
@@ -179,7 +161,7 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
     return {m_FirstRow,
-            {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(*this, m_State)}};
+            {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_State)}};
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
@@ -303,7 +285,7 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
     }
 
     return {m_FirstRow,
-            {boost::make_unique<COnDiskDataFrameRowSliceHandle>(*this, std::move(result))}};
+            {boost::make_unique<COnDiskDataFrameRowSliceHandle>(std::move(result))}};
 }
 
 std::size_t COnDiskDataFrameRowSlice::staticSize() const {

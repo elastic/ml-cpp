@@ -131,12 +131,11 @@ private:
 //! IMPLEMENTATION:\n
 //! This is a fairly lightweight container which is essentially responsible
 //! for managing the read and write process to some underlying store format.
-//! The store format is determined by the user implementing callbacks which are
-//! passed to the data frame constructor to read and write state from the store.
-//! For example, these could copy to / from main memory, "write to" / "read from"
-//! disk, etc. Copying these functions is assumed to have no side effects and they
-//! are assumed to be thread safe. If they have shared state the implementation
-//! must ensure that access to this is synchronized.
+//! The store format is determined by the user implementing functionality to
+//! read and write state from the store. For example, these could copy to /
+//! from main memory, "write to" / "read from" disk, etc. A factory function
+//! must be provided to the constructor which effectively that determines the
+//! type of storage used. It is assumed that copying this has no side effects.
 //!
 //! The data frame is divided into slices each of which represent a number of
 //! contiguous rows. The idea is that they contain a reasonable amount of memory
@@ -144,6 +143,9 @@ private:
 //! "reads from" disk (a whole slice being written or read in one go), mean we'll
 //! get good locality of reference and mean there is minimal book keeping overhead
 //! (such as state for vector sizes, pointers to starts of memory blocks, etc).
+//! In addition, it is assumed that access to the individual slices is thread
+//! safe. If they share state the implementation must ensure that access to this
+//! is synchronized.
 //!
 //! Reads and writes of a single row are also done via call backs supplied to the
 //! readRows and writeRow functions. This is to achieve maximum decoupling from
@@ -169,8 +171,6 @@ public:
     using TRowSlicePtrVec = std::vector<TRowSlicePtr>;
     using TSizeRowSliceHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
     using TWriteSliceToStoreFunc = std::function<TRowSlicePtr(std::size_t, TFloatVec)>;
-    using TReadSliceFromStoreFunc =
-        std::function<TSizeRowSliceHandlePr(const TRowSlicePtr&)>;
     using TSizeFloatVecPrQueue = CConcurrentQueue<TSizeFloatVecPr, 1>;
 
     //! Controls whether to read and write to storage asynchronously.
@@ -183,7 +183,6 @@ public:
     //! \param[in] asyncReadAndWriteToStore Controls whether reads and writes
     //! from slice storage are synchronous or asynchronous.
     //! \param[in] writeSliceToStore The callback to write a slice to storage.
-    //! \param[in] readSliceFromStore The callback to read a slice from storage.
     //!
     //! \warning This requires that \p writeSliceToStore and \p readSliceFromStore
     //! can be copied and are thread safe. If they are not stateless then it is
@@ -191,14 +190,12 @@ public:
     CDataFrame(std::size_t numberColumns,
                std::size_t sliceCapacityInRows,
                EReadWriteToStorage asyncReadAndWriteToStore,
-               const TWriteSliceToStoreFunc& writeSliceToStore,
-               const TReadSliceFromStoreFunc& readSliceFromStore);
+               const TWriteSliceToStoreFunc& writeSliceToStore);
 
     //! Overload which manages the setting of slice capacity to a sensible default.
     CDataFrame(std::size_t numberColumns,
                EReadWriteToStorage asyncReadAndWriteToStore,
-               const TWriteSliceToStoreFunc& writeSliceToStore,
-               const TReadSliceFromStoreFunc& readSliceFromStore);
+               const TWriteSliceToStoreFunc& writeSliceToStore);
 
     CDataFrame(const CDataFrame&) = delete;
     CDataFrame& operator=(const CDataFrame&) = delete;
@@ -235,11 +232,12 @@ public:
     //! reference and must synchronize access to it.
     TReadFuncVecBoolPr readRows(std::size_t numberThreads, TReadFunc reader) const;
 
-    //! Convenience wrapper for typed readers.
+    //! Convenience overload for typed readers.
     //!
     //! The reason for this is to wrap up the code to extract the typed readers
     //! from the return type. A common case is that these will cache some state
-    //! which will need access to the underlying type to retrieve.
+    //! for which the calling code will need access to the underlying type to
+    //! retrieve.
     //!
     //! \note READER must implement the TReadFunc contract.
     template<typename READER>
@@ -364,8 +362,6 @@ private:
     EReadWriteToStorage m_AsyncReadAndWriteToStore;
     //! The callback to write a slice to storage.
     TWriteSliceToStoreFunc m_WriteSliceToStore;
-    //! The callback to read a slice from storage.
-    TReadSliceFromStoreFunc m_ReadSliceFromStore;
 
     //! The stored slices.
     TRowSlicePtrVec m_Slices;
