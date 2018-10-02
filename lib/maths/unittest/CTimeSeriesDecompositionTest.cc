@@ -1557,7 +1557,6 @@ void CTimeSeriesDecompositionTest::testNonDiurnal() {
         rng.generateNormalSamples(0.0, 1.0, trend.size(), noise);
 
         core_t::TTime startTesting{pad + 28 * HOUR};
-        //TDoubleVec thresholds[]{TDoubleVec{0.08, 0.08}, TDoubleVec{0.18, 0.15}};
 
         maths::CTimeSeriesDecomposition decomposition(0.01, FIVE_MINS);
         CDebugGenerator debug("hourly." + core::CStringUtils::typeToString(pad) + ".m");
