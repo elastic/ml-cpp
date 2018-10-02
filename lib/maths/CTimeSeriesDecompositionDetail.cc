@@ -796,10 +796,10 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool def
             auto b = std::find_if(a + 1, buckets.end(), [&](core_t::TTime l) {
                 return size * l > maxLength;
             });
-            return new CExpandingWindow{
+            return new CExpandingWindow(
                 m_BucketLength,
                 TTimeCRng(buckets, a - buckets.begin(), b - buckets.begin()),
-		size, m_DecayRate, deflate};
+                size, m_DecayRate, deflate);
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };
