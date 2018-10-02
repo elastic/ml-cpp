@@ -169,6 +169,33 @@ void CNaiveBayesTest::testClassification() {
     }
 }
 
+void CNaiveBayesTest::testUninitialized() {
+    // Check that the classifier remains uninitialized while the class
+    // conditional densities are improper.
+
+    test::CRandomNumbers rng;
+
+    maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(
+        maths_t::E_ContinuousData, 0.05)};
+    maths::CNaiveBayes nb{
+        maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
+
+    TDoubleVec trainingData[2];
+
+    for (std::size_t i = 0u; i < 2; ++i) {
+        CPPUNIT_ASSERT_EQUAL(false, nb.initialized());
+
+        double x{static_cast<double>(i)};
+        rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
+        rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[1]);
+
+        nb.addTrainingDataPoint(1, {{trainingData[0][0]}, {trainingData[1][0]}});
+        nb.propagateForwardsByTime(1.0);
+    }
+
+    CPPUNIT_ASSERT_EQUAL(true, nb.initialized());
+}
+
 void CNaiveBayesTest::testPropagationByTime() {
     // Make feature distributions drift over time and verify that
     // the classifier adapts.
@@ -325,6 +352,8 @@ CppUnit::Test* CNaiveBayesTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
         "CNaiveBayesTest::testClassification", &CNaiveBayesTest::testClassification));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
+        "CNaiveBayesTest::testUninitialized", &CNaiveBayesTest::testUninitialized));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
         "CNaiveBayesTest::testPropagationByTime", &CNaiveBayesTest::testPropagationByTime));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(

@@ -582,6 +582,26 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponen
     // components only when we test.
 }
 
+bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
+                                                                  core_t::TTime time) const {
+    // We need to test more frequently than we compress because it
+    // would significantly delay when we first detect short periodic
+    // components for longer bucket lengths otherwise.
+    auto scheduledTest = [&]() {
+        if (test == E_Short) {
+            core_t::TTime length{time - m_Windows[test]->startTime()};
+            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
+                if (length >= schedule && length < schedule + m_BucketLength) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    return m_Windows[test] != nullptr &&
+           (m_Windows[test]->needToCompress(time) || scheduledTest());
+}
+
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
@@ -630,6 +650,25 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t:
                                                                          core_t::TTime end) {
     stepwisePropagateForwards(DAY, start, end, m_Windows[E_Short]);
     stepwisePropagateForwards(WEEK, start, end, m_Windows[E_Long]);
+}
+
+CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeDoublePrVec
+CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues() const {
+    TTimeDoublePrVec result;
+    for (auto i : {E_Short, E_Long}) {
+        if (m_Windows[i] != nullptr) {
+            TFloatMeanAccumulatorVec values{m_Windows[i]->values()};
+            core_t::TTime bucketLength{m_Windows[i]->bucketLength()};
+            core_t::TTime time{m_Windows[i]->startTime() + m_Windows[i]->offset()};
+            for (const auto& value : values) {
+                if (CBasicStatistics::count(value) > 0.0) {
+                    result.emplace_back(time, CBasicStatistics::mean(value));
+                }
+                time += bucketLength;
+            }
+        }
+    }
+    return result;
 }
 
 uint64_t CTimeSeriesDecompositionDetail::CPeriodicityTest::checksum(uint64_t seed) const {
@@ -723,32 +762,20 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
-                                                                  core_t::TTime time) const {
-    // We need to test more frequently than we compress because it
-    // only happens each 336 buckets and would significantly delay
-    // when we first detect short periodic components for longer
-    // bucket lengths otherwise.
-    auto scheduledTest = [&]() {
-        if (test == E_Short) {
-            core_t::TTime length{time - m_Windows[test]->startTime()};
-            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-                if (length >= schedule && length < schedule + m_BucketLength) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    return m_Windows[test] != nullptr &&
-           (m_Windows[test]->needToCompress(time) || scheduledTest());
-}
-
 CExpandingWindow*
 CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
+    // The choice of 336 is somewhat arbitrary since we scan over a
+    // range of bucket lengths so consider multiple window durations.
+    // However, this is divisible by 6 and is the number of hours in
+    // two weeks. Together with the bucket lengths we use this means
+    // we will typically get window lengths which are a whole number
+    // of hours and are usually a multiple of one weeks. The testing
+    // makes the best use of data when the true period is a divisor
+    // of the window length and this improves the odds for the most
+    // common seasonalities we observe.
     static const core_t::TTime TARGET_SIZE{336};
     static const TTimeVec SHORT{1,    5,    10,   30,    60,    300,  600,
                                 1800, 3600, 7200, 21600, 43200, 86400};
@@ -760,8 +787,8 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool def
             // Find the next longer permitted bucket length.
             auto a = std::lower_bound(buckets.begin(), buckets.end(), m_BucketLength);
             // Compute the window length in buckets which doesn't exceed
-            // the maximum length.
-            // and is great than the minimum number of buckets to test.
+            // the maximum length and is great than the minimum number of
+            // buckets to test.
             core_t::TTime size{
                 std::min(TARGET_SIZE, maxLength / buckets[a - buckets.begin()])};
             // Find the longest bucket length such that the window length
@@ -769,10 +796,10 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool def
             auto b = std::find_if(a + 1, buckets.end(), [&](core_t::TTime l) {
                 return size * l > maxLength;
             });
-            return new CExpandingWindow(
+            return new CExpandingWindow{
                 m_BucketLength,
                 TTimeCRng(buckets, a - buckets.begin(), b - buckets.begin()),
-                size, m_DecayRate, deflate);
+		size, m_DecayRate, deflate};
         }
         return static_cast<CExpandingWindow*>(nullptr);
     };

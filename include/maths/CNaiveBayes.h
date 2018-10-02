@@ -51,6 +51,9 @@ public:
     //! Set the data type.
     virtual void dataType(maths_t::EDataType dataType) = 0;
 
+    //! Check whether the density is improper.
+    virtual bool improper() const = 0;
+
     //! Add the value \p x.
     virtual void add(const TDouble1Vec& x) = 0;
 
@@ -97,6 +100,9 @@ public:
 
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Check whether the density is improper.
+    virtual bool improper() const;
 
     //! Add the value \p x.
     virtual void add(const TDouble1Vec& x);
@@ -243,6 +249,8 @@ private:
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+        //! Check if this class conditional densities are proper.
+        bool initialized() const;
         //! Get the number of examples in this class.
         double count() const;
         //! Get a writable reference of the number of examples in this class.
