@@ -431,6 +431,12 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
+
+    double multiBucketImpact{-5.0};
+    if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
+        resultBuilder.multiBucketImpact(multiBucketImpact);
+    }
+
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
     resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
     resultBuilder.build();

@@ -170,8 +170,8 @@ const std::string CORRELATION_TAG{"d"};
 
 // Strings identifying the different features for which time series
 // models compute probabilities.
-const std::string BUCKET_FEATURE_LABEL{"bucket"};
-const std::string MEAN_FEATURE_LABEL{"mean"};
+const std::string SINGLE_BUCKET_FEATURE_LABEL{"single_bucket"};
+const std::string MULTI_BUCKET_FEATURE_LABEL{"multi_bucket"};
 const std::string ANOMALY_FEATURE_LABEL{"anomaly"};
 }
 
@@ -1002,7 +1002,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
             calculation, value[0], params.bucketEmpty()[0][0],
             this->params().probabilityBucketEmpty(), (pl + pu) / 2.0)};
         probabilities.push_back(probability);
-        featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, probability);
+        featureProbabilities.emplace_back(SINGLE_BUCKET_FEATURE_LABEL, probability);
     } else {
         LOG_ERROR(<< "Failed to compute P(" << sample
                   << " | weight = " << weights << ", time = " << time << ")");
@@ -1033,7 +1033,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
             calculation, value[0], params.bucketEmpty()[0][0],
             this->params().probabilityBucketEmpty(), probability);
         probabilities.push_back(probability);
-        featureProbabilities.emplace_back(MEAN_FEATURE_LABEL, probability);
+        featureProbabilities.emplace_back(MULTI_BUCKET_FEATURE_LABEL, probability);
     }
 
     double probability{aggregateFeatureProbabilities(probabilities, correlation)};
@@ -1166,7 +1166,7 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     aggregator.calculate(probability);
     TDouble4Vec probabilities{probability};
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
-    featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, probability);
+    featureProbabilities.emplace_back(SINGLE_BUCKET_FEATURE_LABEL, probability);
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{
@@ -2439,7 +2439,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     }
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
-    result = SModelProbabilityResult{1.0, false, {{BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
+    result = SModelProbabilityResult{1.0, false, {{SINGLE_BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};
@@ -2534,7 +2534,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                                 2.0);
     }
 
-    TStrCRef labels[]{boost::cref(BUCKET_FEATURE_LABEL), boost::cref(MEAN_FEATURE_LABEL)};
+    TStrCRef labels[]{boost::cref(SINGLE_BUCKET_FEATURE_LABEL), boost::cref(MULTI_BUCKET_FEATURE_LABEL)};
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
     for (std::size_t i = 0u; i < probabilities.size(); ++i) {
         featureProbabilities.emplace_back(labels[i], probabilities[i]);

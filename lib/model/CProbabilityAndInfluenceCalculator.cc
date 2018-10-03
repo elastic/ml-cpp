@@ -49,6 +49,9 @@ using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalc
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
+const std::string SINGLE_BUCKET_FEATURE_LABEL{"single_bucket"};
+const std::string MULTI_BUCKET_FEATURE_LABEL{"multi_bucket"};
+
 //! Get the canonical influence string pointer.
 core::CStoredStringPtr canonical(const std::string& influence) {
     return CStringStore::influencers().get(influence);
@@ -573,6 +576,8 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     : m_Cutoff(cutoff), m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
+	  m_ExplainingProbabilities{{SINGLE_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}},
+								{MULTI_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}}},
       m_ProbabilityCache(nullptr) {
 }
 
@@ -592,11 +597,17 @@ void CProbabilityAndInfluenceCalculator::addAggregator(
     const maths::CJointProbabilityOfLessLikelySamples& aggregator) {
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
+    for (auto& ep : m_ExplainingProbabilities) {
+    	ep.second.add(aggregator);
+    }
 }
 
 void CProbabilityAndInfluenceCalculator::addAggregator(const maths::CProbabilityOfExtremeSample& aggregator) {
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
+    for (auto& ep : m_ExplainingProbabilities) {
+    	ep.second.add(aggregator);
+    }
 }
 
 void CProbabilityAndInfluenceCalculator::addCache(CModelTools::CProbabilityCache& cache) {
@@ -612,6 +623,16 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
     if (!other.m_Probability.empty()) {
         m_Probability.add(p, weight);
     }
+
+    for (const auto &ep : other.m_ExplainingProbabilities) {
+        if (ep.second.calculate(p) && !ep.second.empty()) {
+        	auto itr = m_ExplainingProbabilities.find(ep.first);
+        	if (itr != m_ExplainingProbabilities.end()) {
+                itr->second.add(p, weight);
+        	}
+        }
+    }
+
     for (const auto& aggregator : other.m_InfluencerProbabilities) {
         if (aggregator.second.calculate(p)) {
             auto& aggregator_ = m_InfluencerProbabilities
@@ -693,18 +714,33 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
         return false;
     }
 
+    auto readResult	= [&](const maths::SModelProbabilityResult& result) {
+    	for (auto fp : result.s_FeatureProbabilities) {
+    		auto itr = m_ExplainingProbabilities.find(fp.s_Label.get());
+    		if (itr != m_ExplainingProbabilities.end()) {
+                double featureProbability = fp.s_Probability;
+                featureProbability = model_t::adjustProbability(feature, elapsedTime, featureProbability);
+    			itr->second.add(featureProbability, weight);
+    		}
+    	}
+
+        probability = result.s_Probability;
+        probability = model_t::adjustProbability(feature, elapsedTime, probability);
+        tail = std::move(result.s_Tail);
+        type.set(result.s_Conditional ? model_t::CResultType::E_Conditional
+                                      : model_t::CResultType::E_Unconditional);
+        mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
+        m_Probability.add(probability, weight);
+    };
+
     // Check the cache.
     if (model_t::isConstant(feature) == false && m_ProbabilityCache) {
         TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
         model.detrend(time, computeProbabilityParams.seasonalConfidenceInterval(), values);
         maths::SModelProbabilityResult cached;
+
         if (m_ProbabilityCache->lookup(feature, id, values, cached)) {
-            probability = cached.s_Probability;
-            tail = std::move(cached.s_Tail);
-            type.set(cached.s_Conditional ? model_t::CResultType::E_Conditional
-                                          : model_t::CResultType::E_Unconditional);
-            mostAnomalousCorrelate = std::move(cached.s_MostAnomalousCorrelate);
-            m_Probability.add(cached.s_Probability, weight);
+            readResult(cached);
             return true;
         }
     }
@@ -715,13 +751,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     maths::SModelProbabilityResult result;
     if (model.probability(computeProbabilityParams, time, values, result)) {
         if (model_t::isConstant(feature) == false) {
-            probability = result.s_Probability;
-            probability = model_t::adjustProbability(feature, elapsedTime, probability);
-            tail = std::move(result.s_Tail);
-            type.set(result.s_Conditional ? model_t::CResultType::E_Conditional
-                                          : model_t::CResultType::E_Unconditional);
-            mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
-            m_Probability.add(probability, weight);
+            readResult(result);
             if (m_ProbabilityCache) {
                 m_ProbabilityCache->addModes(feature, id, model);
                 m_ProbabilityCache->addProbability(feature, id, values, result);
@@ -826,6 +856,42 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
 bool CProbabilityAndInfluenceCalculator::calculate(double& probability) const {
     return m_Probability.calculate(probability);
 }
+
+bool CProbabilityAndInfluenceCalculator::calculateExplainingProbabilities(
+		TStrDoubleUMap& explainingProbabilities) const {
+
+	double probability{0.0};
+    for (const auto& ep : m_ExplainingProbabilities) {
+        if (!ep.second.calculate(probability)) {
+            return false;
+        } else {
+            explainingProbabilities.emplace(ep.first, probability);
+        }
+    }
+
+    return true;
+}
+
+bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double &multiBucketImpact) const  {
+    TStrDoubleUMap explainingProbabilities;
+    if (!this->calculateExplainingProbabilities(explainingProbabilities)) {
+    	LOG_INFO(<< "Failed to compute explaining probabilities");
+        return false;
+    } else {
+    	double sbProbability = explainingProbabilities[SINGLE_BUCKET_FEATURE_LABEL];
+    	double mbProbability = explainingProbabilities[MULTI_BUCKET_FEATURE_LABEL];
+
+    	double ls = std::log(std::max(sbProbability, ml::maths::MINUSCULE_PROBABILITY));
+    	double lm = std::log(mbProbability);
+
+    	double scale = 5.0 * std::min(ls, lm) / std::min(std::max(ls, lm), -0.001) / std::log(1000);
+
+    	multiBucketImpact = std::max(std::min(scale * (ls - lm), 5.0), -5.0);
+    }
+
+    return true;
+}
+
 
 bool CProbabilityAndInfluenceCalculator::calculate(
     double& probability,

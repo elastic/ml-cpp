@@ -396,6 +396,12 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
+
+    double multiBucketImpact{-5.0};
+    if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
+        resultBuilder.multiBucketImpact(multiBucketImpact);
+    }
+
     resultBuilder.build();
 
     return true;

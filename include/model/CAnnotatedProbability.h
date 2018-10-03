@@ -137,6 +137,9 @@ struct MODEL_EXPORT SAnnotatedProbability {
     //! The probability of seeing the series' sample in a time interval.
     double s_Probability;
 
+    //! The impact of multi/single bucket analysis on the probability
+    double s_MultiBucketImpact;
+
     //! The smallest attribute probabilities and associated data describing
     //! the calculation.
     TAttributeProbability1Vec s_AttributeProbabilities;
