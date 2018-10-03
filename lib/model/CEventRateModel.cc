@@ -23,6 +23,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
@@ -432,7 +433,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
     resultBuilder.probability(p);
 
-    double multiBucketImpact{-5.0};
+    double multiBucketImpact{CAnomalyDetectorModelConfig::MINIMUM_MULTI_BUCKET_IMPACT};
     if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
         resultBuilder.multiBucketImpact(multiBucketImpact);
     }

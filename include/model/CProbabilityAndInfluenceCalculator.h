@@ -71,9 +71,10 @@ public:
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVecVec =
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
-    using TStrDoubleUMap = boost::unordered_map<std::string, double>;
-    using TStrProbabilityAggregatorMap =
-        boost::unordered_map<std::string, CModelTools::CProbabilityAggregator>;
+    using TFeatureProbabilityLabelDoubleUMap =
+        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, double>;
+    using TFeatureProbabilityLabelProbabilityAggregatorUMap =
+        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, CModelTools::CProbabilityAggregator>;
     using TStoredStringPtrStoredStringPtrPr =
         std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
@@ -322,7 +323,7 @@ private:
     void commitInfluences(model_t::EFeature feature, double logp, double weight);
 
     //! calculate the explaining probabilities
-    bool calculateExplainingProbabilities(TStrDoubleUMap& explainingProbabilities) const;
+    bool calculateExplainingProbabilities(TFeatureProbabilityLabelDoubleUMap& explainingProbabilities) const;
 
 private:
     //! The minimum value for the influence for which an influencing
@@ -340,7 +341,7 @@ private:
     CModelTools::CProbabilityAggregator m_Probability;
 
     //! holds the probabilities of explanatory features
-    TStrProbabilityAggregatorMap m_ExplainingProbabilities;
+    TFeatureProbabilityLabelProbabilityAggregatorUMap m_ExplainingProbabilities;
 
     //! The probability calculation cache if there is one.
     CModelTools::CProbabilityCache* m_ProbabilityCache;

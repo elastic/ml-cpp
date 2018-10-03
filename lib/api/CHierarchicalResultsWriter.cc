@@ -62,7 +62,7 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_CurrentRate(currentRate), s_BaselineMean{0.0}, s_CurrentMean{0.0},
       s_RawAnomalyScore(rawAnomalyScore),
       s_NormalizedAnomalyScore(normalizedAnomalyScore),
-      s_Probability(probability), s_MultiBucketImpact{-5.0},
+      s_Probability(probability), s_MultiBucketImpact{model::CAnomalyDetectorModelConfig::MINIMUM_MULTI_BUCKET_IMPACT},
       s_Influences(influences), s_Identifier(identifier) {
 }
 
@@ -290,11 +290,11 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
         m_BucketTime, EMPTY_STRING, EMPTY_STRING, baselineCount, currentCount,
         baselineCount ? TDouble1Vec(1, *baselineCount) : TDouble1Vec(),
         currentCount ? TDouble1Vec(1, static_cast<double>(*currentCount)) : TDouble1Vec(),
-        node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore,
-        node.probability(), -5.0, *node.s_Spec.s_ValueFieldName,
-        node.s_AnnotatedProbability.s_Influences, node.s_Spec.s_UseNull,
-        model::function_t::isMetric(node.s_Spec.s_Function), node.s_Spec.s_Detector,
-        node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions));
+        node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
+        model::CAnomalyDetectorModelConfig::MINIMUM_MULTI_BUCKET_IMPACT,
+        *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
+        node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
+        node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions));
 }
 
 void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node,

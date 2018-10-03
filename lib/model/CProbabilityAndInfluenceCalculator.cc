@@ -17,6 +17,7 @@
 #include <maths/CTools.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CStringStore.h>
 
 namespace ml {
@@ -48,9 +49,6 @@ using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-
-const std::string SINGLE_BUCKET_FEATURE_LABEL{"single_bucket"};
-const std::string MULTI_BUCKET_FEATURE_LABEL{"multi_bucket"};
 
 //! Get the canonical influence string pointer.
 core::CStoredStringPtr canonical(const std::string& influence) {
@@ -576,9 +574,10 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     : m_Cutoff(cutoff), m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-      m_ExplainingProbabilities{
-          {SINGLE_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}},
-          {MULTI_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}}},
+      m_ExplainingProbabilities{{maths::SModelProbabilityResult::E_SingleBucketProbability,
+                                 {CModelTools::CProbabilityAggregator::E_Min}},
+                                {maths::SModelProbabilityResult::E_MultiBucketProbability,
+                                 {CModelTools::CProbabilityAggregator::E_Min}}},
       m_ProbabilityCache(nullptr) {
 }
 
@@ -627,9 +626,9 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
 
     for (const auto& ep : other.m_ExplainingProbabilities) {
         if (ep.second.calculate(p) && !ep.second.empty()) {
-            auto itr = m_ExplainingProbabilities.find(ep.first);
-            if (itr != m_ExplainingProbabilities.end()) {
-                itr->second.add(p, weight);
+            auto ret = m_ExplainingProbabilities.insert(ep);
+            if (ret.second == false) {
+                ret.first->second.add(p, weight);
             }
         }
     }
@@ -716,8 +715,8 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     }
 
     auto readResult = [&](const maths::SModelProbabilityResult& result) {
-        for (auto fp : result.s_FeatureProbabilities) {
-            auto itr = m_ExplainingProbabilities.find(fp.s_Label.get());
+        for (const auto& fp : result.s_FeatureProbabilities) {
+            auto itr = m_ExplainingProbabilities.find(fp.s_Label);
             if (itr != m_ExplainingProbabilities.end()) {
                 double featureProbability = fp.s_Probability;
                 featureProbability = model_t::adjustProbability(
@@ -860,7 +859,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double& probability) const {
 }
 
 bool CProbabilityAndInfluenceCalculator::calculateExplainingProbabilities(
-    TStrDoubleUMap& explainingProbabilities) const {
+    TFeatureProbabilityLabelDoubleUMap& explainingProbabilities) const {
 
     double probability{0.0};
     for (const auto& ep : m_ExplainingProbabilities) {
@@ -875,22 +874,27 @@ bool CProbabilityAndInfluenceCalculator::calculateExplainingProbabilities(
 }
 
 bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& multiBucketImpact) const {
-    TStrDoubleUMap explainingProbabilities;
+    TFeatureProbabilityLabelDoubleUMap explainingProbabilities;
     if (!this->calculateExplainingProbabilities(explainingProbabilities)) {
         LOG_INFO(<< "Failed to compute explaining probabilities");
         return false;
-    } else {
-        double sbProbability = explainingProbabilities[SINGLE_BUCKET_FEATURE_LABEL];
-        double mbProbability = explainingProbabilities[MULTI_BUCKET_FEATURE_LABEL];
-
-        double ls = std::log(std::max(sbProbability, ml::maths::MINUSCULE_PROBABILITY));
-        double lm = std::log(mbProbability);
-
-        double scale = 5.0 * std::min(ls, lm) /
-                       std::min(std::max(ls, lm), -0.001) / std::log(1000);
-
-        multiBucketImpact = std::max(std::min(scale * (ls - lm), 5.0), -5.0);
     }
+
+    double sbProbability =
+        explainingProbabilities[maths::SModelProbabilityResult::E_SingleBucketProbability];
+    double mbProbability =
+        explainingProbabilities[maths::SModelProbabilityResult::E_MultiBucketProbability];
+
+    double ls = std::log(std::max(sbProbability, ml::maths::CTools::smallestProbability()));
+    double lm = std::log(std::max(mbProbability, ml::maths::CTools::smallestProbability()));
+
+    double scale = CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT *
+                   std::min(ls, lm) / std::min(std::max(ls, lm), -0.001) /
+                   std::log(1000);
+
+    multiBucketImpact = std::max(
+        std::min(scale * (ls - lm), CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT),
+        -1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT);
 
     return true;
 }
