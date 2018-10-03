@@ -751,7 +751,8 @@ public:
 
         //! Adjust the values to remove any piecewise constant linear scales
         //! of the component with period \p period.
-        void adjustValuesForPiecewiseConstantScaling(std::size_t period, TFloatMeanAccumulatorVec& values) const;
+        void adjustValuesForPiecewiseConstantScaling(std::size_t period,
+                                                     TFloatMeanAccumulatorVec& values) const;
 
         //! Reweight the outlier values in \p values.
         //!
