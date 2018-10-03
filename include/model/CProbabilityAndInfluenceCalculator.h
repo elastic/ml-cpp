@@ -72,7 +72,8 @@ public:
     using TStrCRefDouble1VecDouble1VecPrPrVecVec =
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
     using TStrDoubleUMap = boost::unordered_map<std::string, double>;
-    using TStrProbabilityAggregatorMap = boost::unordered_map<std::string, CModelTools::CProbabilityAggregator>;
+    using TStrProbabilityAggregatorMap =
+        boost::unordered_map<std::string, CModelTools::CProbabilityAggregator>;
     using TStoredStringPtrStoredStringPtrPr =
         std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
@@ -310,7 +311,7 @@ public:
     bool calculate(double& probability,
                    TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
 
-    //! Calculate a measure of the impact of both the single bucket and multi 
+    //! Calculate a measure of the impact of both the single bucket and multi
     //! bucket probabilities on the make up of the overall probability.
     //!
     //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
@@ -321,7 +322,8 @@ private:
     void commitInfluences(model_t::EFeature feature, double logp, double weight);
 
     //! calculate the explaining probabilities
-    bool calculateExplainingProbabilities(TStrDoubleUMap &explainingProbabilities) const;
+    bool calculateExplainingProbabilities(TStrDoubleUMap& explainingProbabilities) const;
+
 private:
     //! The minimum value for the influence for which an influencing
     //! field value is judged to have any influence on a feature value.

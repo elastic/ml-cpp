@@ -576,8 +576,9 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     : m_Cutoff(cutoff), m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-	  m_ExplainingProbabilities{{SINGLE_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}},
-								{MULTI_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}}},
+      m_ExplainingProbabilities{
+          {SINGLE_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}},
+          {MULTI_BUCKET_FEATURE_LABEL, {CModelTools::CProbabilityAggregator::E_Min}}},
       m_ProbabilityCache(nullptr) {
 }
 
@@ -598,7 +599,7 @@ void CProbabilityAndInfluenceCalculator::addAggregator(
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
     for (auto& ep : m_ExplainingProbabilities) {
-    	ep.second.add(aggregator);
+        ep.second.add(aggregator);
     }
 }
 
@@ -606,7 +607,7 @@ void CProbabilityAndInfluenceCalculator::addAggregator(const maths::CProbability
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
     for (auto& ep : m_ExplainingProbabilities) {
-    	ep.second.add(aggregator);
+        ep.second.add(aggregator);
     }
 }
 
@@ -624,12 +625,12 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
         m_Probability.add(p, weight);
     }
 
-    for (const auto &ep : other.m_ExplainingProbabilities) {
+    for (const auto& ep : other.m_ExplainingProbabilities) {
         if (ep.second.calculate(p) && !ep.second.empty()) {
-        	auto itr = m_ExplainingProbabilities.find(ep.first);
-        	if (itr != m_ExplainingProbabilities.end()) {
+            auto itr = m_ExplainingProbabilities.find(ep.first);
+            if (itr != m_ExplainingProbabilities.end()) {
                 itr->second.add(p, weight);
-        	}
+            }
         }
     }
 
@@ -714,15 +715,16 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
         return false;
     }
 
-    auto readResult	= [&](const maths::SModelProbabilityResult& result) {
-    	for (auto fp : result.s_FeatureProbabilities) {
-    		auto itr = m_ExplainingProbabilities.find(fp.s_Label.get());
-    		if (itr != m_ExplainingProbabilities.end()) {
+    auto readResult = [&](const maths::SModelProbabilityResult& result) {
+        for (auto fp : result.s_FeatureProbabilities) {
+            auto itr = m_ExplainingProbabilities.find(fp.s_Label.get());
+            if (itr != m_ExplainingProbabilities.end()) {
                 double featureProbability = fp.s_Probability;
-                featureProbability = model_t::adjustProbability(feature, elapsedTime, featureProbability);
-    			itr->second.add(featureProbability, weight);
-    		}
-    	}
+                featureProbability = model_t::adjustProbability(
+                    feature, elapsedTime, featureProbability);
+                itr->second.add(featureProbability, weight);
+            }
+        }
 
         probability = result.s_Probability;
         probability = model_t::adjustProbability(feature, elapsedTime, probability);
@@ -858,9 +860,9 @@ bool CProbabilityAndInfluenceCalculator::calculate(double& probability) const {
 }
 
 bool CProbabilityAndInfluenceCalculator::calculateExplainingProbabilities(
-		TStrDoubleUMap& explainingProbabilities) const {
+    TStrDoubleUMap& explainingProbabilities) const {
 
-	double probability{0.0};
+    double probability{0.0};
     for (const auto& ep : m_ExplainingProbabilities) {
         if (!ep.second.calculate(probability)) {
             return false;
@@ -872,26 +874,26 @@ bool CProbabilityAndInfluenceCalculator::calculateExplainingProbabilities(
     return true;
 }
 
-bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double &multiBucketImpact) const  {
+bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& multiBucketImpact) const {
     TStrDoubleUMap explainingProbabilities;
     if (!this->calculateExplainingProbabilities(explainingProbabilities)) {
-    	LOG_INFO(<< "Failed to compute explaining probabilities");
+        LOG_INFO(<< "Failed to compute explaining probabilities");
         return false;
     } else {
-    	double sbProbability = explainingProbabilities[SINGLE_BUCKET_FEATURE_LABEL];
-    	double mbProbability = explainingProbabilities[MULTI_BUCKET_FEATURE_LABEL];
+        double sbProbability = explainingProbabilities[SINGLE_BUCKET_FEATURE_LABEL];
+        double mbProbability = explainingProbabilities[MULTI_BUCKET_FEATURE_LABEL];
 
-    	double ls = std::log(std::max(sbProbability, ml::maths::MINUSCULE_PROBABILITY));
-    	double lm = std::log(mbProbability);
+        double ls = std::log(std::max(sbProbability, ml::maths::MINUSCULE_PROBABILITY));
+        double lm = std::log(mbProbability);
 
-    	double scale = 5.0 * std::min(ls, lm) / std::min(std::max(ls, lm), -0.001) / std::log(1000);
+        double scale = 5.0 * std::min(ls, lm) /
+                       std::min(std::max(ls, lm), -0.001) / std::log(1000);
 
-    	multiBucketImpact = std::max(std::min(scale * (ls - lm), 5.0), -5.0);
+        multiBucketImpact = std::max(std::min(scale * (ls - lm), 5.0), -5.0);
     }
 
     return true;
 }
-
 
 bool CProbabilityAndInfluenceCalculator::calculate(
     double& probability,

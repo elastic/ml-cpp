@@ -2439,7 +2439,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     }
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
-    result = SModelProbabilityResult{1.0, false, {{SINGLE_BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
+    result = SModelProbabilityResult{
+        1.0, false, {{SINGLE_BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};
@@ -2534,7 +2535,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                                 2.0);
     }
 
-    TStrCRef labels[]{boost::cref(SINGLE_BUCKET_FEATURE_LABEL), boost::cref(MULTI_BUCKET_FEATURE_LABEL)};
+    TStrCRef labels[]{boost::cref(SINGLE_BUCKET_FEATURE_LABEL),
+                      boost::cref(MULTI_BUCKET_FEATURE_LABEL)};
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
     for (std::size_t i = 0u; i < probabilities.size(); ++i) {
         featureProbabilities.emplace_back(labels[i], probabilities[i]);
