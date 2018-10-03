@@ -315,6 +315,10 @@ public:
     //! Calculate a measure of the impact of both the single bucket and multi
     //! bucket probabilities on the make up of the overall probability.
     //!
+    //! The calculation is designed  such that the impact saturates when
+    //! one of the probabilities is less than a small fraction of the other or
+    //! when one probability is close to one, i.e. when one factor is not at all anomalous.
+    //!
     //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
     bool calculateMultiBucketImpact(double& multiBucketImpact) const;
 
