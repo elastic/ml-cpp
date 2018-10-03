@@ -1633,7 +1633,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConstantScaling(
-        std::size_t period, TFloatMeanAccumulatorVec& values) const {
+    std::size_t period,
+    TFloatMeanAccumulatorVec& values) const {
 
     // Periodicity testing detected piecewise constant linear scaling
     // of the underlying seasonal component. Here, we adjust all values
@@ -1644,14 +1645,13 @@ void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConsta
 
     TDoubleVec trend;
     TDoubleVec scales;
-    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-        values, period));
+    TSizeVec segmentation(
+        CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(values, period));
     std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
         values, period, segmentation);
     LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-    LOG_TRACE(<< "segmentation = "
-              << core::CContainerPrinter::print(segmentation));
+    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
     values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
         values, segmentation, trend, scales);
     TMeanAccumulator scale;
@@ -1666,8 +1666,8 @@ void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConsta
     }
     LOG_TRACE(<< "scale = " << CBasicStatistics::mean(scale));
     for (std::size_t i = 0; i < values.size(); ++i) {
-        CBasicStatistics::moment<0>(values[i]) +=
-            CBasicStatistics::mean(scale) * trend[i % trend.size()];
+        CBasicStatistics::moment<0>(values[i]) += CBasicStatistics::mean(scale) *
+                                                  trend[i % trend.size()];
     }
 }
 
