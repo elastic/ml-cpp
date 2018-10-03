@@ -78,6 +78,7 @@
 #include "CTimeSeriesDecompositionTest.h"
 #include "CTimeSeriesModelTest.h"
 #include "CTimeSeriesMultibucketFeaturesTest.h"
+#include "CTimeSeriesSegmentationTest.h"
 #include "CToolsTest.h"
 #include "CTrendComponentTest.h"
 #include "CXMeansOnline1dTest.h"
@@ -155,10 +156,11 @@ int main(int argc, const char** argv) {
     runner.addTest(CSolversTest::suite());
     runner.addTest(CSplineTest::suite());
     runner.addTest(CStatisticalTestsTest::suite());
-    runner.addTest(CTimeSeriesMultibucketFeaturesTest::suite());
     runner.addTest(CTimeSeriesChangeDetectorTest::suite());
     runner.addTest(CTimeSeriesDecompositionTest::suite());
     runner.addTest(CTimeSeriesModelTest::suite());
+    runner.addTest(CTimeSeriesMultibucketFeaturesTest::suite());
+    runner.addTest(CTimeSeriesSegmentationTest::suite());
     runner.addTest(CToolsTest::suite());
     runner.addTest(CTrendComponentTest::suite());
     runner.addTest(CXMeansTest::suite());
