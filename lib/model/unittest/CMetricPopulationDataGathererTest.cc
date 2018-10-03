@@ -708,7 +708,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
     LOG_DEBUG(<< "expectedNonZeroCounts = "
               << core::CContainerPrinter::print(expectedNonZeroCounts));
 
-    LOG_DEBUG(<< "Expected");
+    LOG_TRACE(<< "Expected");
     TStrFeatureDataPrVec expectedFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -722,8 +722,8 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
                                       gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expectedFeatureData.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG(<< "  " << key);
-                    LOG_DEBUG(<< "  " << data[j].second.print());
+                    LOG_TRACE(<< "  " << key);
+                    LOG_TRACE(<< "  " << data[j].second.print());
                 }
             }
         }
@@ -752,7 +752,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
                          core::CContainerPrinter::print(actualNonZeroCounts));
 
-    LOG_DEBUG(<< "Actual");
+    LOG_TRACE(<< "Actual");
     TStrFeatureDataPrVec actualFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -764,8 +764,8 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actualFeatureData.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG(<< "  " << key);
-                LOG_DEBUG(<< "    " << data[j].second.print());
+                LOG_TRACE(<< "  " << key);
+                LOG_TRACE(<< "    " << data[j].second.print());
             }
         }
     }
@@ -833,7 +833,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
 
     std::string expectedFeatureData;
     {
-        LOG_DEBUG(<< "Expected");
+        LOG_TRACE(<< "Expected");
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -846,8 +846,8 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
                                       gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG(<< "  " << key);
-                    LOG_DEBUG(<< "    " << data[j].second.print());
+                    LOG_TRACE(<< "  " << key);
+                    LOG_TRACE(<< "    " << data[j].second.print());
                 }
             }
         }
@@ -874,7 +874,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
 
     std::string actualFeatureData;
     {
-        LOG_DEBUG(<< "Actual");
+        LOG_TRACE(<< "Actual");
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -885,8 +885,8 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG(<< "  " << key);
-                LOG_DEBUG(<< "    " << data[j].second.print());
+                LOG_TRACE(<< "  " << key);
+                LOG_TRACE(<< "    " << data[j].second.print());
             }
         }
         actualFeatureData = core::CContainerPrinter::print(actual);

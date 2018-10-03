@@ -217,8 +217,6 @@ bool CTimeSeriesDecomposition::initialized() const {
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights) {
-    CComponents::CScopeNotifyOnStateChange result{m_Components};
-
     time += m_TimeShift;
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
@@ -239,11 +237,13 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       },
                       m_Components.periodicityTestConfig()};
 
+    m_Components.observeComponentsAdded();
+
     m_Components.handle(message);
     m_PeriodicityTest.handle(message);
     m_CalendarCyclicTest.handle(message);
 
-    return result.changed();
+    return m_Components.componentsAdded();
 }
 
 bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
