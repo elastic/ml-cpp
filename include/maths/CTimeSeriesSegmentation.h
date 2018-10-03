@@ -11,6 +11,7 @@
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
+#include <functional>
 #include <vector>
 
 namespace ml {
