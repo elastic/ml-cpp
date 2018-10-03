@@ -69,12 +69,12 @@ private:
     TDoubleVec m_Residuals;
 };
 
-std::size_t distance(const TSizeVec& lhs, const TSizeVec& rhs) {
-    std::size_t distance{0};
+std::size_t difference(const TSizeVec& lhs, const TSizeVec& rhs) {
+    std::size_t difference{0};
     for (std::size_t i = 0; i < lhs.size(); ++i) {
-        distance += std::max(lhs[i], rhs[i]) - std::min(lhs[i], rhs[i]);
+        difference += std::max(lhs[i], rhs[i]) - std::min(lhs[i], rhs[i]);
     }
-    return distance;
+    return difference;
 }
 }
 
@@ -131,8 +131,8 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
         // No false positives.
         CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
 
-        // Distance in index space is small.
-        CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 35);
+        // Difference in index space is small.
+        CPPUNIT_ASSERT(difference(trueSegmentation, segmentation) < 35);
 
         // Not biased.
         CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
@@ -196,8 +196,8 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
     // No false positives
     CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
 
-    // Distance in index space is small.
-    CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 35);
+    // Difference in index space is small.
+    CPPUNIT_ASSERT(difference(trueSegmentation, segmentation) < 35);
 
     // Not biased.
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
@@ -220,17 +220,17 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
 
     std::size_t period{48};
     std::string periods[]{"smooth", "spikey"};
+    std::function<double(core_t::TTime)> trends[]{smoothDaily, spikeyDaily};
     TFloatMeanAccumulatorVec values(range / halfHour);
     TDoubleVec noise;
 
     LOG_DEBUG(<< "Basic");
     for (auto outlierFraction : {0.0, 0.1}) {
-        std::size_t j{0};
-        for (auto periodic : {smoothDaily, spikeyDaily}) {
+        for (std::size_t j = 0; j < 2; ++j) {
             LOG_DEBUG(<< periods[j]);
             CDebugGenerator debug("results.m." +
                                   core::CStringUtils::typeToStringPretty(outlierFraction) +
-                                  "." + periods[j++]);
+                                  "." + periods[j]);
 
             values.assign(range / halfHour, TFloatMeanAccumulator{});
             TMeanVarAccumulator noiseMoments;
@@ -238,11 +238,11 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
                 rng.generateNormalSamples(0.0, 3.0, 1, noise);
                 noiseMoments.add(noise[0]);
                 if (time < 3 * week / 2) {
-                    values[time / halfHour].add(100.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(100.0 * trends[j](time) + noise[0]);
                 } else if (time < 2 * week) {
-                    values[time / halfHour].add(50.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(50.0 * trends[j](time) + noise[0]);
                 } else {
-                    values[time / halfHour].add(300.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(300.0 * trends[j](time) + noise[0]);
                 }
                 debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
             }
@@ -270,8 +270,8 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
             // No false positives.
             CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
 
-            // Distance in index space is small.
-            CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 5);
+            // Difference in index space is small.
+            CPPUNIT_ASSERT(difference(trueSegmentation, segmentation) < 5);
 
             // Not biased.
             CPPUNIT_ASSERT(
@@ -290,10 +290,9 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
 
     // Same again but with 5% salt-and-pepper outliers.
 
-    std::size_t j{0};
-    for (auto periodic : {smoothDaily, spikeyDaily}) {
+    for (std::size_t j = 0; j < 2; ++j) {
         LOG_DEBUG(<< periods[j]);
-        CDebugGenerator debug("results.m.outliers." + periods[j++]);
+        CDebugGenerator debug("results.m.outliers." + periods[j]);
         values.assign(range / halfHour, TFloatMeanAccumulator{});
         TDoubleVec u01;
         TSizeVec inliers;
@@ -306,11 +305,11 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
                 rng.generateNormalSamples(0.0, 3.0, 1, noise);
                 noiseMoments.add(noise[0]);
                 if (time < 3 * week / 2) {
-                    values[time / halfHour].add(100.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(100.0 * trends[j](time) + noise[0]);
                 } else if (time < 2 * week) {
-                    values[time / halfHour].add(50.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(50.0 * trends[j](time) + noise[0]);
                 } else {
-                    values[time / halfHour].add(300.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(300.0 * trends[j](time) + noise[0]);
                 }
                 inliers.push_back(time / halfHour);
             }
@@ -341,8 +340,8 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
         // No false positives
         CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
 
-        // Distance in index space is small.
-        CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 20);
+        // Difference in index space is small.
+        CPPUNIT_ASSERT(difference(trueSegmentation, segmentation) < 20);
 
         // Not biased.
         CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
