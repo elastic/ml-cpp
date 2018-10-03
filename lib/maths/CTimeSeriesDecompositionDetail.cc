@@ -427,9 +427,6 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{nullptr} {
-}
-
 void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue& /*message*/) {
 }
 
@@ -1238,7 +1235,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         if (mayUseTrendForPrediction && !m_UsingTrendForPrediction &&
             this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
-            *m_Watcher = true;
+            m_ComponentsAdded = true;
         }
     } break;
     case SC_DISABLED:
@@ -1271,9 +1268,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         if (!this->addSeasonalComponents(result, window, predictor)) {
             break;
         }
-        if (m_Watcher) {
-            *m_Watcher = true;
-        }
+        m_ComponentsAdded = true;
         LOG_DEBUG(<< "Detected seasonal components at " << time);
 
         m_UsingTrendForPrediction = true;
@@ -1327,28 +1322,12 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     }
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
-    m_UsingTrendForPrediction = true;
+void CTimeSeriesDecompositionDetail::CComponents::observeComponentsAdded() {
+    m_ComponentsAdded = false;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() {
-    double v0{CBasicStatistics::variance(m_PredictionErrorWithoutTrend)};
-    double v1{CBasicStatistics::variance(m_PredictionErrorWithTrend)};
-    double df0{CBasicStatistics::count(m_PredictionErrorWithoutTrend) - 1.0};
-    double df1{CBasicStatistics::count(m_PredictionErrorWithTrend) - m_Trend.parameters()};
-    if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
-        double relativeLogSignificance{
-            CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
-            LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-        double vt{*std::max_element(boost::begin(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION),
-                                    boost::end(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION)) *
-                  v0};
-        double p{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-                 (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                          : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};
-        m_UsingTrendForPrediction = (p >= 0.25);
-    }
-    return m_UsingTrendForPrediction;
+bool CTimeSeriesDecompositionDetail::CComponents::componentsAdded() {
+    return m_ComponentsAdded;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::shiftLevel(core_t::TTime time,
@@ -1364,38 +1343,6 @@ void CTimeSeriesDecompositionDetail::CComponents::linearScale(core_t::TTime time
     }
     if (m_Calendar) {
         m_Calendar->linearScale(time, scale);
-    }
-}
-
-void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& message) {
-    core_t::TTime time{message.s_Time};
-    core_t::TTime lastTime{message.s_LastTime};
-
-    std::size_t state{m_Machine.state()};
-
-    switch (state) {
-    case SC_NORMAL:
-    case SC_NEW_COMPONENTS:
-        this->canonicalize(time);
-        if (this->shouldInterpolate(time, lastTime)) {
-            LOG_TRACE(<< "Interpolating values at " << time);
-
-            if (m_Seasonal) {
-                m_Seasonal->interpolate(time, lastTime, true);
-            }
-            if (m_Calendar) {
-                m_Calendar->interpolate(time, lastTime, true);
-            }
-
-            this->apply(SC_INTERPOLATED, message);
-        }
-        break;
-    case SC_DISABLED:
-        break;
-    default:
-        LOG_ERROR(<< "Components in a bad state: " << state);
-        this->apply(SC_RESET, message);
-        break;
     }
 }
 
@@ -1469,6 +1416,10 @@ CTimeSeriesDecompositionDetail::CComponents::calendar() const {
 
 bool CTimeSeriesDecompositionDetail::CComponents::usingTrendForPrediction() const {
     return m_UsingTrendForPrediction;
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
+    m_UsingTrendForPrediction = true;
 }
 
 CPeriodicityHypothesisTestsConfig
@@ -1551,11 +1502,11 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
     using TSeasonalTimePtrBoolPr = std::pair<TSeasonalTimePtr, bool>;
     using TSeasonalTimePtrBoolPrVec = std::vector<TSeasonalTimePtrBoolPr>;
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     TSeasonalTimePtrBoolPrVec newComponents;
     const TSeasonalComponentVec& components{m_Seasonal->components()};
 
+    // Find the components to add to the decomposition.
     for (const auto& candidate_ : result.components()) {
         TSeasonalTimePtr seasonalTime(candidate_.seasonalTime());
         if (std::find_if(components.begin(), components.end(),
@@ -1568,6 +1519,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     }
 
     if (newComponents.size() > 0) {
+        // Remove any components which have been superseded.
         for (const auto& component : newComponents) {
             m_Seasonal->removeExcludedComponents(*component.first);
         }
@@ -1579,8 +1531,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         core_t::TTime dt{window.bucketLength()};
 
         TFloatMeanAccumulatorVec values;
-        for (const auto& component : newComponents) {
-            const auto& seasonalTime = component.first;
+        for (auto& component : newComponents) {
+
+            TSeasonalTimePtr seasonalTime;
+            bool piecewiseConstantLinearScaling;
+            std::tie(seasonalTime, piecewiseConstantLinearScaling) = std::move(component);
+            core_t::TTime period{seasonalTime->period()};
 
             // Extract the values, minus the prediction of existing components,
             // ignoring any values which fall outside the window of the component
@@ -1600,67 +1556,31 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                 values = CTimeSeriesSegmentation::removePiecewiseLinear(
                     values, CTimeSeriesSegmentation::piecewiseLinear(values));
             }
-
-            core_t::TTime period{seasonalTime->period()};
-
-            if (component.second) {
-                // Periodicity testing detected piecewise constant linear scaling
-                // of the underlying seasonal component. Here, we adjust all values
-                // so the scaling is constant and equal to the average scaling for
-                // the last populated period.
+            if (piecewiseConstantLinearScaling) {
                 LOG_TRACE(<< "Piecewise constant linear scaling");
-                TDoubleVec trend;
-                TDoubleVec scales;
-                std::size_t period_{static_cast<std::size_t>(period / dt)};
-                TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-                    values, period_));
-                std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-                    values, period_, segmentation);
-                LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
-                LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-                LOG_TRACE(<< "segmentation = "
-                          << core::CContainerPrinter::print(segmentation));
-                values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
-                    values, segmentation, trend, scales);
-                TMeanAccumulator scale;
-                for (std::size_t i = scales.size();
-                     i > 0 && CBasicStatistics::count(scale) < static_cast<double>(period_);
-                     --i) {
-                    for (std::size_t j = segmentation[i - 1];
-                         j < segmentation[i] && CBasicStatistics::count(scale) <
-                                                    static_cast<double>(period_);
-                         ++j) {
-                        if (CBasicStatistics::count(values[j]) > 0) {
-                            scale.add(scales[i - 1]);
-                        }
-                    }
-                }
-                LOG_TRACE(<< "scale = " << CBasicStatistics::mean(scale));
-                for (std::size_t i = 0; i < values.size(); ++i) {
-                    CBasicStatistics::moment<0>(values[i]) +=
-                        CBasicStatistics::mean(scale) * trend[i % trend.size()];
-                }
+                this->adjustValuesForPiecewiseConstantScaling(period / dt, values);
             }
 
             // If we see multiple repeats of the component in the window we use
             // a periodic boundary condition, which ensures that the prediction
             // at the repeat is continuous.
-            double bucketLength{static_cast<double>(m_BucketLength)};
             auto boundaryCondition = period > seasonalTime->windowLength()
                                          ? CSplineTypes::E_Natural
                                          : CSplineTypes::E_Periodic;
 
-            CSeasonalComponent candidate{*seasonalTime, m_SeasonalComponentSize,
-                                         m_DecayRate, bucketLength, boundaryCondition};
-            candidate.initialize(startTime, endTime, values);
-            candidate.interpolate(CIntegerTools::floor(endTime, period));
-            this->reweightOutliers(
-                startTime, dt,
-                [&candidate](core_t::TTime time) {
-                    return CBasicStatistics::mean(candidate.value(time, 0.0));
-                },
-                values);
+            // Re-weight outlier values with respect to the predictions of the
+            // new seasonal component.
+            double bucketLength{static_cast<double>(m_BucketLength)};
+            CSeasonalComponent newComponent{*seasonalTime, m_SeasonalComponentSize,
+                                            m_DecayRate, bucketLength, boundaryCondition};
+            newComponent.initialize(startTime, endTime, values);
+            newComponent.interpolate(CIntegerTools::floor(endTime, period));
+            auto componentPredictor = [&newComponent](core_t::TTime time) {
+                return CBasicStatistics::mean(newComponent.value(time, 0.0));
+            };
+            this->reweightOutliers(startTime, dt, componentPredictor, values);
 
+            // Add the new seasonal component.
             m_Seasonal->add(*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
                             bucketLength, boundaryCondition, startTime, endTime, values);
         }
@@ -1681,24 +1601,24 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             m_GainController.age(ageFactor(m_DecayRate, m_BucketLength));
         }
 
-        // Resetting the trend is bad from a forecast perspective so we avoid
-        // it if the amplitude of the seasonal components we've added are small.
-        CTrendComponent candidate{m_Trend.defaultDecayRate()};
         values = window.valuesMinusPrediction(predictor);
+        CTrendComponent newTrend{m_Trend.defaultDecayRate()};
         if (result.piecewiseLinearTrend()) {
             values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
                 values, CTimeSeriesSegmentation::piecewiseLinear(values));
         }
-        this->fit(startTime, dt, values, candidate);
+        this->fitTrend(startTime, dt, values, newTrend);
         this->reweightOutliers(startTime, dt,
-                               [&candidate](core_t::TTime time) {
-                                   return CBasicStatistics::mean(candidate.value(time, 0.0));
+                               [&newTrend](core_t::TTime time) {
+                                   return CBasicStatistics::mean(newTrend.value(time, 0.0));
                                },
                                values);
 
-        CTrendComponent trend{m_Trend.defaultDecayRate()};
-        this->fit(startTime, dt, values, trend);
-        m_Trend.swap(trend);
+        // TODO Resetting the trend is bad from a forecast perspective so we
+        // should avoid it if the difference is small.
+        newTrend = CTrendComponent{m_Trend.defaultDecayRate()};
+        this->fitTrend(startTime, dt, values, newTrend);
+        m_Trend.swap(newTrend);
     }
 
     return newComponents.size() > 0;
@@ -1710,6 +1630,45 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
     m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
     LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
     return true;
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConstantScaling(
+        std::size_t period, TFloatMeanAccumulatorVec& values) const {
+
+    // Periodicity testing detected piecewise constant linear scaling
+    // of the underlying seasonal component. Here, we adjust all values
+    // so the scaling is constant and equal to the average scaling for
+    // the last populated period.
+
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    TDoubleVec trend;
+    TDoubleVec scales;
+    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+        values, period));
+    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+        values, period, segmentation);
+    LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
+    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+    LOG_TRACE(<< "segmentation = "
+              << core::CContainerPrinter::print(segmentation));
+    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+        values, segmentation, trend, scales);
+    TMeanAccumulator scale;
+    for (std::size_t i = scales.size(), j = period + 1; i > 0 && j > 0; --i) {
+        std::size_t a{segmentation[i - 1]};
+        std::size_t b{segmentation[i]};
+        for (std::size_t k = a; k < b && j > 0; --j, ++k) {
+            if (CBasicStatistics::count(values[k]) > 0) {
+                scale.add(scales[i - 1]);
+            }
+        }
+    }
+    LOG_TRACE(<< "scale = " << CBasicStatistics::mean(scale));
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        CBasicStatistics::moment<0>(values[i]) +=
+            CBasicStatistics::mean(scale) * trend[i % trend.size()];
+    }
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
@@ -1731,7 +1690,7 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
 
         TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
         TMeanAccumulator meanDifference;
-        core_t::TTime time = startTime + dt / 2;
+        core_t::TTime time{startTime + dt / 2};
         for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
             if (CBasicStatistics::count(values[i]) > 0.0) {
                 double difference{
@@ -1759,10 +1718,10 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
     }
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::fit(core_t::TTime startTime,
-                                                      core_t::TTime dt,
-                                                      const TFloatMeanAccumulatorVec& values,
-                                                      CTrendComponent& trend) const {
+void CTimeSeriesDecompositionDetail::CComponents::fitTrend(core_t::TTime startTime,
+                                                           core_t::TTime dt,
+                                                           const TFloatMeanAccumulatorVec& values,
+                                                           CTrendComponent& trend) const {
     core_t::TTime time{startTime + dt / 2};
     for (const auto& value : values) {
         // Because we test before the window is fully compressed we can
@@ -1774,7 +1733,7 @@ void CTimeSeriesDecompositionDetail::CComponents::fit(core_t::TTime startTime,
         }
         time += dt;
     }
-};
+}
 
 void CTimeSeriesDecompositionDetail::CComponents::clearComponentErrors() {
     if (m_Seasonal) {
@@ -1819,11 +1778,63 @@ void CTimeSeriesDecompositionDetail::CComponents::apply(std::size_t symbol,
     }
 }
 
+bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() {
+    double v0{CBasicStatistics::variance(m_PredictionErrorWithoutTrend)};
+    double v1{CBasicStatistics::variance(m_PredictionErrorWithTrend)};
+    double df0{CBasicStatistics::count(m_PredictionErrorWithoutTrend) - 1.0};
+    double df1{CBasicStatistics::count(m_PredictionErrorWithTrend) - m_Trend.parameters()};
+    if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
+        double relativeLogSignificance{
+            CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
+            LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
+        double vt{*std::max_element(boost::begin(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION),
+                                    boost::end(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION)) *
+                  v0};
+        double p{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
+                 (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
+                          : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};
+        m_UsingTrendForPrediction = (p >= 0.25);
+    }
+    return m_UsingTrendForPrediction;
+}
+
 bool CTimeSeriesDecompositionDetail::CComponents::shouldInterpolate(core_t::TTime time,
                                                                     core_t::TTime last) {
     return m_Machine.state() == SC_NEW_COMPONENTS ||
            (m_Seasonal && m_Seasonal->shouldInterpolate(time, last)) ||
            (m_Calendar && m_Calendar->shouldInterpolate(time, last));
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& message) {
+    core_t::TTime time{message.s_Time};
+    core_t::TTime lastTime{message.s_LastTime};
+
+    std::size_t state{m_Machine.state()};
+
+    switch (state) {
+    case SC_NORMAL:
+    case SC_NEW_COMPONENTS:
+        this->canonicalize(time);
+        if (this->shouldInterpolate(time, lastTime)) {
+            LOG_TRACE(<< "Interpolating values at " << time);
+
+            if (m_Seasonal) {
+                m_Seasonal->interpolate(time, lastTime, true);
+            }
+            if (m_Calendar) {
+                m_Calendar->interpolate(time, lastTime, true);
+            }
+
+            this->apply(SC_INTERPOLATED, message);
+        }
+        break;
+    case SC_DISABLED:
+        break;
+    default:
+        LOG_ERROR(<< "Components in a bad state: " << state);
+        this->apply(SC_RESET, message);
+        break;
+    }
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time) {
@@ -1882,23 +1893,6 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
             m_Trend.shiftSlope(time, slope);
         }
     }
-}
-
-void CTimeSeriesDecompositionDetail::CComponents::notifyOnNewComponents(bool* watcher) {
-    m_Watcher = watcher;
-}
-
-CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::CScopeNotifyOnStateChange(CComponents& components)
-    : m_Components{components}, m_Watcher{false} {
-    m_Components.notifyOnNewComponents(&m_Watcher);
-}
-
-CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::~CScopeNotifyOnStateChange() {
-    m_Components.notifyOnNewComponents(nullptr);
-}
-
-bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::changed() const {
-    return m_Watcher;
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CGainController::acceptRestoreTraverser(

@@ -2247,7 +2247,7 @@ void CTimeSeriesModelTest::testLinearScaling() {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.1 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
         CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
