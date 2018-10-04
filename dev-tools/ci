@@ -24,8 +24,15 @@ set -e
 cd `dirname $0`
 
 # Default to a snapshot build
-if [ -z "$SNAPSHOT" ] ; then
-    SNAPSHOT=yes
+if [ -z "$BUILD_SNAPSHOT" ] ; then
+    BUILD_SNAPSHOT=true
+fi
+
+# Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
+if [ "$BUILD_SNAPSHOT" = false ] ; then
+    export SNAPSHOT=no
+else
+    export SNAPSHOT=yes
 fi
 
 # Remove any old builds
@@ -45,6 +52,6 @@ fi
 # If this isn't a PR build then upload the artifacts
 if [ -z "$PR_AUTHOR" ] ; then
     cd ..
-    ./gradlew --info -b upload.gradle upload
+    ./gradlew --info -b upload.gradle -Dbuild.snapshot=$BUILD_SNAPSHOT upload
 fi
 
