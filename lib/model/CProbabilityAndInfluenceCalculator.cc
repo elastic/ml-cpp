@@ -574,10 +574,6 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     : m_Cutoff(cutoff), m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-      m_ExplainingProbabilities{{maths::SModelProbabilityResult::E_SingleBucketProbability,
-                                 {CModelTools::CProbabilityAggregator::E_Min}},
-                                {maths::SModelProbabilityResult::E_MultiBucketProbability,
-                                 {CModelTools::CProbabilityAggregator::E_Min}}},
       m_ProbabilityCache(nullptr) {
 }
 
