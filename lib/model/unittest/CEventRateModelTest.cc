@@ -576,7 +576,7 @@ void CEventRateModelTest::testProbabilityCalculation() {
             CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime,
                                                      partitioningFields, 1, p));
             LOG_DEBUG(<< "bucket count = " << count << ", probability = " << p.s_Probability);
-            minProbabilities.add({p.s_Probability, j, p});
+            minProbabilities.add({p.s_Probability, static_cast<std::size_t>(j), p});
         }
 
         minProbabilities.sort();
