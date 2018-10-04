@@ -208,7 +208,7 @@ private:
 
     //! \brief A collection of statistics used during testing.
     struct STestStats {
-        STestStats();
+        explicit STestStats(double meanMagnitude);
         //! Set the various test thresholds.
         void setThresholds(double vt, double at, double Rt);
         //! Check if the null hypothesis is good enough to not need an
@@ -233,6 +233,8 @@ private:
         double s_NonEmptyBuckets;
         //! The average number of measurements per bucket value.
         double s_MeasurementsPerBucket;
+        //! The mean magnitude of the bucket values.
+        double s_MeanMagnitude;
         //! The null hypothesis periodic components.
         CPeriodicityHypothesisTestsResult s_H0;
         //! The variance estimate of H0.
