@@ -1154,8 +1154,16 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
     THypothesisSummaryVec summaries;
     summaries.reserve(hypotheses.size());
 
+    double meanMagnitude{CBasicStatistics::mean(std::accumulate(
+        m_BucketValues.begin(), m_BucketValues.end(), TMeanAccumulator{},
+        [](TMeanAccumulator partial, const TFloatMeanAccumulator& value) {
+            partial.add(std::fabs(CBasicStatistics::mean(value)),
+                        CBasicStatistics::count(value));
+            return partial;
+        }))};
+
     for (const auto& hypothesis : hypotheses) {
-        STestStats stats;
+        STestStats stats{meanMagnitude};
         stats.s_TrendSegments = static_cast<double>(hypothesis.trendSegments());
         CPeriodicityHypothesisTestsResult resultForHypothesis{hypothesis.test(stats)};
         if (stats.s_NonEmptyBuckets > stats.s_DF0) {
@@ -2195,13 +2203,14 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
 const double CPeriodicityHypothesisTests::ACCURATE_TEST_POPULATED_FRACTION{0.9};
 const double CPeriodicityHypothesisTests::MINIMUM_COEFFICIENT_OF_VARIATION{1e-4};
 
-CPeriodicityHypothesisTests::STestStats::STestStats()
+CPeriodicityHypothesisTests::STestStats::STestStats(double meanMagnitude)
     : s_TrendSegments(1.0), s_HasPeriod(false), s_HasPartition(false),
       s_VarianceThreshold(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION[E_HighThreshold]),
       s_AmplitudeThreshold(SEASONAL_SIGNIFICANT_AMPLITUDE[E_HighThreshold]),
       s_AutocorrelationThreshold(SEASONAL_SIGNIFICANT_AUTOCORRELATION[E_HighThreshold]),
       s_Range(0.0), s_NonEmptyBuckets(0.0), s_MeasurementsPerBucket(0.0),
-      s_V0(0.0), s_R0(0.0), s_DF0(0.0), s_StartOfPartition(0) {
+      s_MeanMagnitude(meanMagnitude), s_V0(0.0), s_R0(0.0), s_DF0(0.0),
+      s_StartOfPartition(0) {
 }
 
 void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at, double Rt) {
@@ -2211,16 +2220,7 @@ void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at
 }
 
 bool CPeriodicityHypothesisTests::STestStats::nullHypothesisGoodEnough() const {
-    TMeanAccumulator mean;
-    for (const auto& t : s_T0) {
-        mean += std::accumulate(t.begin(), t.end(), TMeanAccumulator(),
-                                [](TMeanAccumulator m, double x) {
-                                    m.add(std::fabs(x));
-                                    return m;
-                                });
-    }
-    return std::sqrt(s_V0) <=
-           MINIMUM_COEFFICIENT_OF_VARIATION * CBasicStatistics::mean(mean);
+    return std::sqrt(s_V0) <= MINIMUM_COEFFICIENT_OF_VARIATION * s_MeanMagnitude;
 }
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CNestedHypotheses(TTestFunc test)
