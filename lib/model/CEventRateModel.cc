@@ -433,7 +433,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
     resultBuilder.probability(p);
 
-    double multiBucketImpact{CAnomalyDetectorModelConfig::MINIMUM_MULTI_BUCKET_IMPACT};
+    double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
     if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
         resultBuilder.multiBucketImpact(multiBucketImpact);
     }

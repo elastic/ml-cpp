@@ -167,10 +167,7 @@ public:
     static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
 
     //! The maximum value that the multi_bucket_impact can take
-    static const double MAXIMUM_MULTI_BUCKET_IMPACT;
-
-    //! The minimum value that the multi_bucket_impact can take
-    static const double MINIMUM_MULTI_BUCKET_IMPACT;
+    static const double MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE;
 
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are

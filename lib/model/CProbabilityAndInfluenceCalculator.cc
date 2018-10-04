@@ -888,13 +888,13 @@ bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& mult
     double ls = std::log(std::max(sbProbability, ml::maths::CTools::smallestProbability()));
     double lm = std::log(std::max(mbProbability, ml::maths::CTools::smallestProbability()));
 
-    double scale = CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT *
+    double scale = CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE *
                    std::min(ls, lm) / std::min(std::max(ls, lm), -0.001) /
                    std::log(1000);
 
     multiBucketImpact = std::max(
-        std::min(scale * (ls - lm), CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT),
-        -1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT);
+        std::min(scale * (ls - lm), CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE),
+        -1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE);
 
     return true;
 }
