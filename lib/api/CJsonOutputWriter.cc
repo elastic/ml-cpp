@@ -33,6 +33,7 @@ const std::string RECORDS("records");
 const std::string EVENT_COUNT("event_count");
 const std::string IS_INTERIM("is_interim");
 const std::string PROBABILITY("probability");
+const std::string MULTI_BUCKET_IMPACT("multi_bucket_impact");
 const std::string RAW_ANOMALY_SCORE("raw_anomaly_score");
 const std::string ANOMALY_SCORE("anomaly_score");
 const std::string RECORD_SCORE("record_score");
@@ -534,6 +535,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+    m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, results.s_ByFieldName, *docPtr);
@@ -736,6 +738,7 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+    m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, results.s_ByFieldName, *docPtr);
