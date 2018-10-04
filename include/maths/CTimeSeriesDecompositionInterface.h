@@ -103,8 +103,8 @@ public:
     //! Get the value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the prediction
-    //! the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the
+    //! prediction the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
