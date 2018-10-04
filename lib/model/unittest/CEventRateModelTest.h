@@ -25,20 +25,20 @@ struct SModelParams;
 
 class CEventRateModelTest : public CppUnit::TestFixture {
 public:
-    void testOnlineCountSample();
-    void testOnlineNonZeroCountSample();
-    void testOnlineRare();
-    void testOnlineProbabilityCalculation();
-    void testOnlineProbabilityCalculationForLowNonZeroCount();
-    void testOnlineProbabilityCalculationForHighNonZeroCount();
-    void testOnlineCorrelatedNoTrend();
-    void testOnlineCorrelatedTrend();
+    void testCountSample();
+    void testNonZeroCountSample();
+    void testRare();
+    void testProbabilityCalculation();
+    void testProbabilityCalculationForLowNonZeroCount();
+    void testProbabilityCalculationForHighNonZeroCount();
+    void testCorrelatedNoTrend();
+    void testCorrelatedTrend();
     void testPrune();
     void testKey();
     void testModelsWithValueFields();
     void testCountProbabilityCalculationWithInfluence();
     void testDistinctCountProbabilityCalculationWithInfluence();
-    void testOnlineRareWithInfluence();
+    void testRareWithInfluence();
     void testSkipSampling();
     void testExplicitNulls();
     void testInterimCorrections();

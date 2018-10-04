@@ -167,12 +167,6 @@ const std::string FIRST_CORRELATE_ID_TAG{"a"};
 const std::string SECOND_CORRELATE_ID_TAG{"b"};
 const std::string CORRELATION_MODEL_TAG{"c"};
 const std::string CORRELATION_TAG{"d"};
-
-// Strings identifying the different features for which time series
-// models compute probabilities.
-const std::string BUCKET_FEATURE_LABEL{"bucket"};
-const std::string MEAN_FEATURE_LABEL{"mean"};
-const std::string ANOMALY_FEATURE_LABEL{"anomaly"};
 }
 
 namespace forecast {
@@ -1002,7 +996,8 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
             calculation, value[0], params.bucketEmpty()[0][0],
             this->params().probabilityBucketEmpty(), (pl + pu) / 2.0)};
         probabilities.push_back(probability);
-        featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, probability);
+        featureProbabilities.emplace_back(
+            SModelProbabilityResult::E_SingleBucketProbability, probability);
     } else {
         LOG_ERROR(<< "Failed to compute P(" << sample
                   << " | weight = " << weights << ", time = " << time << ")");
@@ -1033,7 +1028,8 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
             calculation, value[0], params.bucketEmpty()[0][0],
             this->params().probabilityBucketEmpty(), probability);
         probabilities.push_back(probability);
-        featureProbabilities.emplace_back(MEAN_FEATURE_LABEL, probability);
+        featureProbabilities.emplace_back(
+            SModelProbabilityResult::E_MultiBucketProbability, probability);
     }
 
     double probability{aggregateFeatureProbabilities(probabilities, correlation)};
@@ -1047,7 +1043,8 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(time, probability);
         probabilities.push_back(anomalyProbability);
-        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
+        featureProbabilities.emplace_back(
+            SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
     }
 
     result.s_Probability = probability;
@@ -1166,7 +1163,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     aggregator.calculate(probability);
     TDouble4Vec probabilities{probability};
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
-    featureProbabilities.emplace_back(BUCKET_FEATURE_LABEL, probability);
+    featureProbabilities.emplace_back(
+        SModelProbabilityResult::E_SingleBucketProbability, probability);
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{
@@ -1178,7 +1176,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(mostAnomalousTime, probability);
         probabilities.push_back(anomalyProbability);
-        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
+        featureProbabilities.emplace_back(
+            SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
     }
     aggregator.calculate(probability);
 
@@ -2439,7 +2438,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     }
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
-    result = SModelProbabilityResult{1.0, false, {{BUCKET_FEATURE_LABEL, 1.0}}, tail, {}};
+    result = SModelProbabilityResult{
+        1.0, false, {{SModelProbabilityResult::E_SingleBucketProbability, 1.0}}, tail, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};
@@ -2534,7 +2534,9 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                                 2.0);
     }
 
-    TStrCRef labels[]{boost::cref(BUCKET_FEATURE_LABEL), boost::cref(MEAN_FEATURE_LABEL)};
+    SModelProbabilityResult::EFeatureProbabilityLabel labels[]{
+        SModelProbabilityResult::E_SingleBucketProbability,
+        SModelProbabilityResult::E_MultiBucketProbability};
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
     for (std::size_t i = 0u; i < probabilities.size(); ++i) {
         featureProbabilities.emplace_back(labels[i], probabilities[i]);
@@ -2554,7 +2556,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         std::tie(probability, anomalyProbability) =
             m_AnomalyModel->probability(time, probability);
         probabilities.push_back(anomalyProbability);
-        featureProbabilities.emplace_back(ANOMALY_FEATURE_LABEL, anomalyProbability);
+        featureProbabilities.emplace_back(
+            SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
     }
 
     result.s_Probability = probability;

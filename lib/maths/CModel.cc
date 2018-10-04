@@ -286,12 +286,12 @@ SModelProbabilityResult::SModelProbabilityResult(double probability,
 }
 
 SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
-    : s_Label{boost::cref(EMPTY_STRING)} {
+    : s_Label{E_UndefinedProbability} {
 }
 
-SModelProbabilityResult::SFeatureProbability::SFeatureProbability(const std::string& label,
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability(EFeatureProbabilityLabel label,
                                                                   double probability)
-    : s_Label{boost::cref(label)}, s_Probability{probability} {
+    : s_Label{label}, s_Probability{probability} {
 }
 
 //////// CModel ////////
