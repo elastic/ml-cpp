@@ -346,10 +346,11 @@ private:
 
     //! holds the probabilities of explanatory features
     TFeatureProbabilityLabelProbabilityAggregatorUMap m_ExplainingProbabilities =
-    		TFeatureProbabilityLabelProbabilityAggregatorUMap{{maths::SModelProbabilityResult::E_SingleBucketProbability,
-        {CModelTools::CProbabilityAggregator::E_Min}},
-       {maths::SModelProbabilityResult::E_MultiBucketProbability,
-        {CModelTools::CProbabilityAggregator::E_Min}}};
+        TFeatureProbabilityLabelProbabilityAggregatorUMap{
+            {maths::SModelProbabilityResult::E_SingleBucketProbability,
+             {CModelTools::CProbabilityAggregator::E_Min}},
+            {maths::SModelProbabilityResult::E_MultiBucketProbability,
+             {CModelTools::CProbabilityAggregator::E_Min}}};
 
     //! The probability calculation cache if there is one.
     CModelTools::CProbabilityCache* m_ProbabilityCache;
