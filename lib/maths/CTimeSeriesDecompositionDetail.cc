@@ -1215,14 +1215,14 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         for (std::size_t i = 1u; i <= m; ++i) {
             CSeasonalComponent* component{seasonalComponents[i - 1]};
             CComponentErrors* error_{seasonalErrors[i - 1]};
-            double varianceIncrease{variances[i] / variance / expectedVarianceIncrease};
+            double varianceIncrease{variance == 0.0 ? 1.0 : variances[i] / variance / expectedVarianceIncrease};
             component->add(time, values[i], weight);
             error_->add(referenceError, error, predictions[i - 1], varianceIncrease, weight);
         }
         for (std::size_t i = m + 1; i <= m + n; ++i) {
             CCalendarComponent* component{calendarComponents[i - m - 1]};
             CComponentErrors* error_{calendarErrors[i - m - 1]};
-            double varianceIncrease{variances[i] / variance / expectedVarianceIncrease};
+            double varianceIncrease{variance == 0.0 ? 1.0 : variances[i] / variance / expectedVarianceIncrease};
             component->add(time, values[i], weight);
             error_->add(referenceError, error, predictions[i - 1], varianceIncrease, weight);
         }
