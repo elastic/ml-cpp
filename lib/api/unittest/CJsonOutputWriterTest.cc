@@ -365,20 +365,20 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0,
-                fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
+                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result13(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
                 fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result14(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
                 fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST);
 
             // 1st bucket
@@ -414,20 +414,20 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0,
-                fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
+                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result23(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
                 fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result24(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
                 fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST);
 
             // 2nd bucket
@@ -463,20 +463,20 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
-                fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
+                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result33(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
                 fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result34(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
+                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
                 fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST);
 
             // 3rd bucket
@@ -817,32 +817,32 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result111));
 
             ml::api::CHierarchicalResultsWriter::SResults result112(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.2, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.2, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result112));
 
             ml::api::CHierarchicalResultsWriter::SResults result113(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 2.0, 0.0, 0.4, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 2.0, 0.0, 0.4, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result113));
 
             ml::api::CHierarchicalResultsWriter::SResults result114(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 12.0, 0.0, 0.4, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 12.0, 0.0, 0.4, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result114));
             CPPUNIT_ASSERT(writer.acceptResult(result114));
 
@@ -901,24 +901,24 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 1.0, 0.0, 0.05, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 1.0, 0.0, 0.05, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result211));
 
             ml::api::CHierarchicalResultsWriter::SResults result212(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 7.0, 0.0, 0.001, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 7.0, 0.0, 0.001, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result212));
 
             ml::api::CHierarchicalResultsWriter::SResults result213(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.6, 0.0, 0.1, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.6, 0.0, 0.1, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result213));
             CPPUNIT_ASSERT(writer.acceptResult(result213));
 
@@ -964,8 +964,8 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 3,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 30.0, 0.0, 0.02, fieldName, influences,
-                false, true, 1, 100, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 30.0, 0.0, 0.02, -5.0, fieldName,
+                influences, false, true, 1, 100, EMPTY_STRING_LIST);
             CPPUNIT_ASSERT(writer.acceptResult(result311));
 
             overFieldName = "ofn";
@@ -1287,9 +1287,10 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit() {
         std::string emptyStr;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
         ml::api::CHierarchicalResultsWriter::SResults result(
-            ml::api::CHierarchicalResultsWriter::E_Result, pfn, pfv, bfn, bfv, emptyStr,
-            0, fun, fund, 42.0, 79, TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0),
-            0.0, 0.1, 0.1, fn, influences, false, true, 1, 100, EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::E_Result, pfn, pfv, bfn, bfv,
+            emptyStr, 0, fun, fund, 42.0, 79, TDouble1Vec(1, 6953.0),
+            TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fn, influences, false,
+            true, 1, 100, EMPTY_STRING_LIST);
 
         CPPUNIT_ASSERT(writer.acceptResult(result));
 
@@ -1435,7 +1436,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences() {
             ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
             partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
             function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-            TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, fieldName, influences,
+            TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName, influences,
             false, true, 1, 100, EMPTY_STRING_LIST);
 
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
@@ -1620,7 +1621,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent() {
             partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
             emptyString, 100, function, functionDescription, 42.0, 79,
             TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1,
-            fieldName, influences, false, true, 1, 100, EMPTY_STRING_LIST);
+            -5.0, fieldName, influences, false, true, 1, 100, EMPTY_STRING_LIST);
         CPPUNIT_ASSERT(writer.acceptResult(result));
 
         // This result has 2 scheduled events
@@ -1630,7 +1631,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent() {
             partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
             emptyString, 200, function, functionDescription, 42.0, 79,
             TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1,
-            fieldName, influences, false, true, 1, 100, eventDescriptions);
+            -5.0, fieldName, influences, false, true, 1, 100, eventDescriptions);
 
         CPPUNIT_ASSERT(writer.acceptResult(result2));
         CPPUNIT_ASSERT(writer.endOutputBatch(false, 1U));
@@ -1711,22 +1712,22 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
         ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
         partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
         1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-        TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, fieldName, influences, false,
-        true, 2, 100, EMPTY_STRING_LIST);
+        TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+        false, true, 2, 100, EMPTY_STRING_LIST);
 
     ml::api::CHierarchicalResultsWriter::SResults result13(
         ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
         partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
         correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-        TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0,
+        TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
         fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
 
     ml::api::CHierarchicalResultsWriter::SResults result14(
         ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
         partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
         1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-        TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, fieldName, influences, false,
-        false, 4, 100, EMPTY_STRING_LIST);
+        TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+        false, false, 4, 100, EMPTY_STRING_LIST);
 
     // 1st bucket
     writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);

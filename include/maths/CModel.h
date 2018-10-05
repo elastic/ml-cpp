@@ -230,12 +230,19 @@ struct MATHS_EXPORT SModelProbabilityResult {
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 
+    //! Labels for different contributions to the overall probability.
+    enum EFeatureProbabilityLabel {
+        E_SingleBucketProbability,
+        E_MultiBucketProbability,
+        E_AnomalyModelProbability,
+        E_UndefinedProbability
+    };
+
     //! \brief Wraps up a feature label and probability.
     struct MATHS_EXPORT SFeatureProbability {
-        using TStrCRef = boost::reference_wrapper<const std::string>;
         SFeatureProbability();
-        SFeatureProbability(const std::string& label, double probability);
-        TStrCRef s_Label;
+        SFeatureProbability(EFeatureProbabilityLabel label, double probability);
+        EFeatureProbabilityLabel s_Label;
         double s_Probability = 1.0;
     };
     using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;
