@@ -54,6 +54,9 @@ public:
     static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
     //! The initial byte limit margin to use if none is supplied
     static const double DEFAULT_BYTE_LIMIT_MARGIN;
+    //! The factor by which to scale the margin factor over time
+    //! when the bucket span is greater than 1d
+    static const double DEFAULT_MARGIN_SCALING_FACTOR;
 
 public:
     //! Default constructor
@@ -134,7 +137,7 @@ public:
     //! We start off applying a margin to the memory limit because
     //! it is difficult to accurately estimate the long term memory
     //! usage at this point. This is gradually decreased over time
-    //! by calling this pnce per bucket processed.
+    //! by calling this once per bucket processed.
     void decreaseMargin(core_t::TTime elapsedTime);
 
 private:
