@@ -30,6 +30,7 @@ const std::string FEATURE_TAG("k");
 const std::string DESCRIPTIVE_DATA_TAG("l");
 const std::string ANOMALY_TYPE_TAG("m");
 const std::string CORRELATED_ATTRIBUTE_TAG("n");
+const std::string MULTI_BUCKET_IMPACT_TAG("o");
 }
 
 SAttributeProbability::SAttributeProbability()
@@ -138,11 +139,13 @@ void SAttributeProbability::addDescriptiveData(annotated_probability::EDescripti
 }
 
 SAnnotatedProbability::SAnnotatedProbability()
-    : s_Probability(1.0), s_ResultType(model_t::CResultType::E_Final) {
+    : s_Probability(1.0), s_MultiBucketImpact(0.0),
+      s_ResultType(model_t::CResultType::E_Final) {
 }
 
 SAnnotatedProbability::SAnnotatedProbability(double p)
-    : s_Probability(p), s_ResultType(model_t::CResultType::E_Final) {
+    : s_Probability(p), s_MultiBucketImpact(0.0),
+      s_ResultType(model_t::CResultType::E_Final) {
 }
 
 void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescriptiveData key,
@@ -152,6 +155,7 @@ void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescripti
 
 void SAnnotatedProbability::swap(SAnnotatedProbability& other) {
     std::swap(s_Probability, other.s_Probability);
+    std::swap(s_MultiBucketImpact, other.s_MultiBucketImpact);
     s_AttributeProbabilities.swap(other.s_AttributeProbabilities);
     s_Influences.swap(other.s_Influences);
     s_DescriptiveData.swap(other.s_DescriptiveData);
@@ -161,6 +165,7 @@ void SAnnotatedProbability::swap(SAnnotatedProbability& other) {
 
 void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(PROBABILITY_TAG, s_Probability, inserter);
+    core::CPersistUtils::persist(MULTI_BUCKET_IMPACT_TAG, s_MultiBucketImpact, inserter);
 
     core::CPersistUtils::persist(ATTRIBUTE_PROBABILITIES_TAG,
                                  s_AttributeProbabilities, inserter);
@@ -193,6 +198,13 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
 
         if (name == PROBABILITY_TAG) {
             if (!core::CPersistUtils::restore(PROBABILITY_TAG, s_Probability, traverser)) {
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
+                          << traverser.value());
+                return false;
+            }
+        } else if (name == MULTI_BUCKET_IMPACT_TAG) {
+            if (!core::CPersistUtils::restore(MULTI_BUCKET_IMPACT_TAG,
+                                              s_MultiBucketImpact, traverser)) {
                 LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
                           << traverser.value());
                 return false;
