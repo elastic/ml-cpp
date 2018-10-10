@@ -102,7 +102,7 @@ size_t CStringUtils::numMatches(const std::string& str, const std::string& word)
     return count;
 }
 
-void CStringUtils::trimWhitespace(std::string& str) {
+void CStringUtils::trimWhitespace(std::string &str) {
     CStringUtils::trim(WHITESPACE_CHARS, str);
 }
 
