@@ -20,12 +20,15 @@ cd ..
 rem Ensure 3rd party dependencies are installed
 powershell.exe -ExecutionPolicy RemoteSigned -File dev-tools\download_windows_deps.ps1 || exit /b %ERRORLEVEL%
 
+rem Default to a snapshot build
+if not defined BUILD_SNAPSHOT set BUILD_SNAPSHOT=true
+
 rem Run the build and unit tests
 set ML_KEEP_GOING=1
-call .\gradlew.bat --info clean buildZip buildZipSymbols check || exit /b %ERRORLEVEL%
+call .\gradlew.bat --info -Dbuild.snapshot=%BUILD_SNAPSHOT% clean buildZip buildZipSymbols check || exit /b %ERRORLEVEL%
 
 rem If this isn't a PR build then upload the artifacts
-if not defined PR_AUTHOR call .\gradlew.bat --info -b upload.gradle upload || exit /b %ERRORLEVEL%
+if not defined PR_AUTHOR call .\gradlew.bat --info -b upload.gradle -Dbuild.snapshot=%BUILD_SNAPSHOT% upload || exit /b %ERRORLEVEL%
 
 endlocal
 
