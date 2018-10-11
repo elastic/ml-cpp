@@ -47,7 +47,6 @@ if (!(Test-Path Env:BUILD_SNAPSHOT)) {
 }
 
 # Run the build and unit tests
-$Env:ML_KEEP_GOING=1
 & ".\gradlew.bat" --info "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" clean buildZip buildZipSymbols check
 if ($LastExitCode -ne 0) {
     Exit $LastExitCode
