@@ -40,9 +40,6 @@ Set-Location -Path "$PSScriptRoot\.."
 
 # Ensure 3rd party dependencies are installed
 & "dev-tools\download_windows_deps.ps1"
-if ($LastExitCode -ne 0) {
-    Exit $LastExitCode
-}
 
 # Default to a snapshot build
 if (!(Test-Path Env:BUILD_SNAPSHOT)) {
