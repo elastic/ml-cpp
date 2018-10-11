@@ -9,7 +9,7 @@ $Destination="C:\"
 if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc141-mt-1_65_1.dll")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
-    $ZipDestination="$env:TEMP\$Archive"
+    $ZipDestination="$Env:TEMP\$Archive"
     (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
     Add-Type -assembly "system.io.compression.filesystem"
     [IO.Compression.ZipFile]::ExtractToDirectory($ZipDestination, $Destination)

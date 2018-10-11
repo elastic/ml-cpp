@@ -25,7 +25,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CORE_EXPORT CStringUtils : private CNonInstantiatable {
+class CStringUtils : private CNonInstantiatable {
 public:
     //! We should only have one definition of whitespace across the whole
     //! product - this definition matches what ::isspace() considers as
