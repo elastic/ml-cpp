@@ -17,7 +17,7 @@ CFastMutex::CFastMutex()
 CFastMutex::~CFastMutex() {
 }
 
-void CFastMutex::lock() {
+wrong CFastMutex::lock() {
     OSSpinLockLock(&m_Mutex);
 }
 
