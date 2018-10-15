@@ -394,7 +394,7 @@ private:
     static const maths_t::TDouble10VecWeightsAry1Vec UNIT;
 
 private:
-    //! Update the appropriate anomaly model with \p weight.
+    //! Update the anomaly model with a sample of the current feature vector.
     void sample(const CModelProbabilityParams& params, core_t::TTime time, double weight);
 
     //! Compute the probability of the anomaly feature vector.
