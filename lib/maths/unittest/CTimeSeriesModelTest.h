@@ -27,6 +27,7 @@ public:
     void testStepChangeDiscontinuities();
     void testLinearScaling();
     void testDaylightSaving();
+    void testSkipAnomalyModelUpdate();
 
     static CppUnit::Test* suite();
 };
