@@ -132,8 +132,8 @@ public:
                              std::size_t numberColumns,
                              std::size_t rowCapacity,
                              CDataFrame::EReadWriteToStorage asyncReadFromStore)
-        : m_Reader{reader}, m_NumberColumns{numberColumns}, m_RowCapacity{rowCapacity},
-          m_AsyncReadFromStore{asyncReadFromStore} {}
+        : m_Reader{reader}, m_NumberColumns{numberColumns},
+          m_RowCapacity{rowCapacity}, m_AsyncReadFromStore{asyncReadFromStore} {}
 
     //! Read all slices in [\p beginSlices, \p endSlices) passing to the
     //! callback supplied to the constructor.
@@ -198,10 +198,8 @@ private:
 //! \brief Reserves extra columns in data frame.
 class CDataFrameRowSliceReserver {
 public:
-    CDataFrameRowSliceReserver(std::size_t numberColumns,
-                               std::size_t extraColumns)
-        : m_NumberColumns{numberColumns}, m_ExtraColumns{extraColumns} {
-    }
+    CDataFrameRowSliceReserver(std::size_t numberColumns, std::size_t extraColumns)
+        : m_NumberColumns{numberColumns}, m_ExtraColumns{extraColumns} {}
 
     bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) {
         for (auto i = beginSlices; i != endSlices; ++i) {
@@ -229,9 +227,8 @@ CDataFrame::CDataFrame(std::size_t numberColumns,
                        std::size_t sliceCapacityInRows,
                        EReadWriteToStorage asyncReadAndWriteToStore,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
-    : m_NumberColumns{numberColumns}, m_RowCapacity{numberColumns},
-      m_SliceCapacityInRows{sliceCapacityInRows}, m_AsyncReadAndWriteToStore{asyncReadAndWriteToStore},
-      m_WriteSliceToStore{writeSliceToStore} {
+    : m_NumberColumns{numberColumns}, m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
+      m_AsyncReadAndWriteToStore{asyncReadAndWriteToStore}, m_WriteSliceToStore{writeSliceToStore} {
 }
 
 CDataFrame::CDataFrame(std::size_t numberColumns,
@@ -242,38 +239,40 @@ CDataFrame::CDataFrame(std::size_t numberColumns,
 }
 
 bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
-    if (m_NumberColumns < rowCapacity) {
-        m_RowCapacity = rowCapacity;
-
-        std::size_t stride;
-        std::tie(numberThreads, stride) = this->numberOfThreadsAndStride(numberThreads);
-        LOG_TRACE(<< "numberThreads = " << numberThreads << " stride = " << stride);
-
-        CDataFrameRowSliceReserver reserver{
-            m_NumberColumns, m_RowCapacity - m_NumberColumns};
-
-        std::vector<std::future<bool>> reserves;
-        reserves.reserve(numberThreads);
-        std::size_t j{0};
-        for (std::size_t i = 0; i + 1 < numberThreads; ++i, j += stride) {
-            auto begin = m_Slices.begin() + j;
-            auto end = m_Slices.begin() + j + stride;
-            reserves.push_back(std::async(std::launch::async, reserver, begin, end));
-        }
-        auto begin = m_Slices.begin() + j;
-        auto end = m_Slices.end();
-        if (begin != end) {
-            reserves.push_back(std::async(std::launch::async, reserver, begin, end));
-        }
-
-        bool successful{true};
-        for (auto& reserve : reserves) {
-            successful &= reserve.get();
-        }
-
-        return successful;
+    if (m_NumberColumns >= rowCapacity) {
+        return true;
     }
-    return true;
+
+    m_RowCapacity = rowCapacity;
+
+    std::size_t stride;
+    std::tie(numberThreads, stride) = this->numberOfThreadsAndStride(numberThreads);
+    LOG_TRACE(<< "numberThreads = " << numberThreads << " stride = " << stride);
+
+    CDataFrameRowSliceReserver reserver{m_NumberColumns, m_RowCapacity - m_NumberColumns};
+
+    // TODO review use of std::async in this function, we may want to use a thread pool.
+
+    std::vector<std::future<bool>> reserves;
+    reserves.reserve(numberThreads);
+    std::size_t j{0};
+    for (std::size_t i = 0; i + 1 < numberThreads; ++i, j += stride) {
+        auto begin = m_Slices.begin() + j;
+        auto end = m_Slices.begin() + j + stride;
+        reserves.push_back(std::async(std::launch::async, reserver, begin, end));
+    }
+    auto begin = m_Slices.begin() + j;
+    auto end = m_Slices.end();
+    if (begin != end) {
+        reserves.push_back(std::async(std::launch::async, reserver, begin, end));
+    }
+
+    bool successful{true};
+    for (auto& reserve : reserves) {
+        successful &= reserve.get();
+    }
+
+    return successful;
 }
 
 CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
@@ -302,14 +301,16 @@ CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
 
     TReadFuncVec readers{numberThreads, reader};
 
+    // TODO review use of std::async in this function, we may want to use a thread pool.
+
     std::vector<std::future<bool>> reads;
     reads.reserve(numberThreads);
     std::size_t j{0};
     for (std::size_t i = 0; i + 1 < numberThreads; ++i, j += stride) {
         auto begin = m_Slices.begin() + j;
         auto end = m_Slices.begin() + j + stride;
-        CDataFrameRowSliceReader sliceReader{readers[i], m_NumberColumns,
-                                             m_RowCapacity, m_AsyncReadAndWriteToStore};
+        CDataFrameRowSliceReader sliceReader{readers[i], m_NumberColumns, m_RowCapacity,
+                                             m_AsyncReadAndWriteToStore};
         reads.push_back(std::async(std::launch::async, sliceReader, begin, end));
     }
     auto begin = m_Slices.begin() + j;
