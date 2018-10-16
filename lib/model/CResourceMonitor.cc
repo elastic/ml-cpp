@@ -24,7 +24,8 @@ namespace model {
 const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
 const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
-const core_t::TTime CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD(172800); // 2 hours
+const core_t::TTime
+    CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD(2 * core::constants::HOUR);
 
 CResourceMonitor::CResourceMonitor(double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
