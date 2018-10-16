@@ -2361,7 +2361,7 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
             } else {
                 model.addSamples(addSampleParams(weights),
-                                {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                                 {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             }
             maths::SModelProbabilityResult result;
             model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
@@ -2375,7 +2375,8 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
 
         // Assert probs are decreasing
         double previousProbability = probabilities[0];
-        for (std::size_t currentProbability = 1; currentProbability < probabilities.size(); ++currentProbability) {
+        for (std::size_t currentProbability = 1;
+             currentProbability < probabilities.size(); ++currentProbability) {
             CPPUNIT_ASSERT(probabilities[currentProbability] <= previousProbability);
             previousProbability = probabilities[currentProbability];
         }
@@ -2406,7 +2407,7 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
             } else {
                 model.addSamples(addSampleParams(weights),
-                             {core::make_triple(time, TDouble2Vec(sample), TAG)});
+                                 {core::make_triple(time, TDouble2Vec(sample), TAG)});
             }
 
             maths::SModelProbabilityResult result;
@@ -2421,7 +2422,8 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
 
         // Assert probs are decreasing
         double previousProbability = probabilities[0];
-        for (std::size_t currentProbability = 1; currentProbability < probabilities.size(); ++currentProbability) {
+        for (std::size_t currentProbability = 1;
+             currentProbability < probabilities.size(); ++currentProbability) {
             CPPUNIT_ASSERT(probabilities[currentProbability] <= previousProbability);
             previousProbability = probabilities[currentProbability];
         }
@@ -2467,7 +2469,8 @@ CppUnit::Test* CTimeSeriesModelTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
         "CTimeSeriesModelTest::testDaylightSaving", &CTimeSeriesModelTest::testDaylightSaving));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testSkipAnomalyModelUpdate", &CTimeSeriesModelTest::testSkipAnomalyModelUpdate));
+        "CTimeSeriesModelTest::testSkipAnomalyModelUpdate",
+        &CTimeSeriesModelTest::testSkipAnomalyModelUpdate));
 
     return suiteOfTests;
 }
