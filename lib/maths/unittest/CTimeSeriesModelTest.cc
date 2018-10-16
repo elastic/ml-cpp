@@ -2354,32 +2354,28 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
         for (std::size_t bucket = 0; bucket < samples.size(); ++bucket) {
             auto sample = samples[bucket];
             auto currentComputeProbabilityParams = computeProbabilityParams(weights[0]);
+            maths::SModelProbabilityResult result;
 
             // We create anomalies in 10 consecutive buckets
             if (bucket >= 1700 && bucket < 1710) {
                 sample = 100.0;
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
+                probabilities.push_back(result.s_Probability);
             } else {
                 model.addSamples(addSampleParams(weights),
                                  {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
             }
-            maths::SModelProbabilityResult result;
-            model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
-            if (result.s_Probability < 1e-6) {
-                probabilities.push_back(result.s_Probability);
-            }
+
             time += bucketLength;
         }
 
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        double previousProbability = probabilities[0];
-        for (std::size_t currentProbability = 1;
-             currentProbability < probabilities.size(); ++currentProbability) {
-            CPPUNIT_ASSERT(probabilities[currentProbability] <= previousProbability);
-            previousProbability = probabilities[currentProbability];
-        }
+        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
+        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -2399,34 +2395,29 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
         for (std::size_t bucket = 0; bucket < samples.size(); ++bucket) {
             auto& sample = samples[bucket];
             auto currentComputeProbabilityParams = computeProbabilityParams(weights[0]);
+            maths::SModelProbabilityResult result;
 
             if (bucket >= 1700 && bucket < 1710) {
                 for (auto& coordinate : sample) {
                     coordinate += 100.0;
                 }
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                model.probability(currentComputeProbabilityParams, {{time}}, {(sample)}, result);
+                probabilities.push_back(result.s_Probability);
             } else {
                 model.addSamples(addSampleParams(weights),
                                  {core::make_triple(time, TDouble2Vec(sample), TAG)});
+                model.probability(currentComputeProbabilityParams, {{time}}, {(sample)}, result);
             }
 
-            maths::SModelProbabilityResult result;
-            model.probability(currentComputeProbabilityParams, {{time}}, {(sample)}, result);
-            if (result.s_Probability < 1e-6) {
-                probabilities.push_back(result.s_Probability);
-            }
             time += bucketLength;
         }
 
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        double previousProbability = probabilities[0];
-        for (std::size_t currentProbability = 1;
-             currentProbability < probabilities.size(); ++currentProbability) {
-            CPPUNIT_ASSERT(probabilities[currentProbability] <= previousProbability);
-            previousProbability = probabilities[currentProbability];
-        }
+        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
+        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 }
 
