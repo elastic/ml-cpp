@@ -80,4 +80,8 @@ Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
 
 //=== Bug Fixes
 
+Rules that trigger the `skip_model_update` action should also apply to the anomaly model.
+This fixes an issue where anomaly scores of results that triggered the rule would decrease
+if they occurred frequently. (See {ml-pull}222[#222].)
+
 //=== Regressions

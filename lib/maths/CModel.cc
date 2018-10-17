@@ -285,6 +285,17 @@ SModelProbabilityResult::SModelProbabilityResult(double probability,
       s_MostAnomalousCorrelate(mostAnomalousCorrelate) {
 }
 
+CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
+    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+    return *this;
+}
+
+bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
+    return m_SkipAnomalyModelUpdate;
+}
+
+//////// SModelProbabilityResult::SFeatureProbability ////////
+
 SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
     : s_Label{E_UndefinedProbability} {
 }
