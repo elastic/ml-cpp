@@ -123,6 +123,8 @@ immediately after upgrading. {ml-pull}143[#143] (issue: {ml-issue}141[#141])
 * Fixes issues upgrading the state, which could cause the autodetect process to 
 crash. {ml-pull}140[#140] (issue: {ml-issue}136[#136])
 
+Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
+
 //=== Regressions
 
 //=== Known Issues
