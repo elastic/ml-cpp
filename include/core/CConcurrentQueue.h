@@ -76,7 +76,7 @@ public:
         }
     }
 
-    //! Pop an item out of the queue, this blocks if the queue is full
+    //! Push a copy of \p item onto the queue, this blocks if the queue is full
     //! which means it can deadlock if no one consumes items (implementor's responsibility)
     void push(const T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
@@ -89,6 +89,26 @@ public:
         }
 
         m_Queue.push_back(item);
+
+        lock.unlock();
+        if (pending == 0) {
+            m_ConsumerCondition.notify_all();
+        }
+    }
+
+    //! Move \p item onto the queue, this blocks if the queue is full
+    //! which means it can deadlock if no one consumes items (implementor's responsibility)
+    void push(T&& item) {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        size_t pending = m_Queue.size();
+        // block if buffer is full, this can deadlock if no one consumes items,
+        // implementor has to take care
+        while (pending >= QUEUE_CAPACITY) {
+            m_ProducerCondition.wait(lock);
+            pending = m_Queue.size();
+        }
+
+        m_Queue.push_back(std::move(item));
 
         lock.unlock();
         if (pending == 0) {

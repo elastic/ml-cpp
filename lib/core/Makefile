@@ -74,6 +74,8 @@ CCompressOStream.cc \
 CompressUtils.cc \
 CContainerPrinter.cc \
 CDataAdder.cc \
+CDataFrame.cc \
+CDataFrameRowSlice.cc \
 CDataSearcher.cc \
 CDelimiter.cc \
 CDualThreadStreamBuf.cc \
