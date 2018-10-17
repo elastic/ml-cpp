@@ -205,6 +205,11 @@ public:
     //! Get whether or not to update the anomaly model.
     bool updateAnomalyModel() const;
 
+    //! Set whether or not to skip updating the anomaly model.
+    CModelProbabilityParams& skipAnomalyModelUpdate(bool skipAnomalyModelUpdate);
+    //! Get whether or not to skip updating the anomaly model.
+    bool skipAnomalyModelUpdate() const;
+
 private:
     //! The entity tag (if relevant otherwise 0).
     std::size_t m_Tag;
@@ -222,6 +227,9 @@ private:
     TOptionalSize m_MostAnomalousCorrelate;
     //! Whether or not to update the anomaly model.
     bool m_UpdateAnomalyModel;
+    //! Whether or not to skip updating the anomaly model
+    //! because a rule triggered.
+    bool m_SkipAnomalyModelUpdate = false;
 };
 
 //! \brief The model interface.

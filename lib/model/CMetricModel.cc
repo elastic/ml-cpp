@@ -542,6 +542,8 @@ void CMetricModel::fill(model_t::EFeature feature,
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -560,7 +562,8 @@ void CMetricModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature)) // new line
         .addBucketEmpty({!count || *count == 0})
-        .addWeights(weights);
+        .addWeights(weights)
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 }
 
 void CMetricModel::fill(model_t::EFeature feature,
@@ -577,6 +580,9 @@ void CMetricModel::fill(model_t::EFeature feature,
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime bucketLength{gatherer.bucketLength()};
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+        model_t::sampleTime(feature, bucketTime, bucketLength));
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -587,7 +593,9 @@ void CMetricModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature));
+    params.s_ComputeProbabilityParams
+        .addCalculation(model_t::probabilityCalculation(feature))
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]
