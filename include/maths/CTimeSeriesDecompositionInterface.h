@@ -33,6 +33,8 @@ struct SChangeDescription;
 //! calendar periodic and trend components.
 class MATHS_EXPORT CTimeSeriesDecompositionInterface {
 public:
+    using TTimeDoublePr = std::pair<core_t::TTime, double>;
+    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -101,8 +103,8 @@ public:
     //! Get the value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the prediction
-    //! the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the
+    //! prediction the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
@@ -144,6 +146,12 @@ public:
     //! variance scale as a percentage.
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
+
+    //! Check if this might add components between now and \p time.
+    virtual bool mightAddComponents(core_t::TTime time) const = 0;
+
+    //! Get the values in a recent time window.
+    virtual TTimeDoublePrVec windowValues() const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

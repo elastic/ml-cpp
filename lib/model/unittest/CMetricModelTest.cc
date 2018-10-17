@@ -2212,7 +2212,8 @@ void CMetricModelTest::testDecayRateControl() {
                                                    t + bucketLength / 2)[0]));
         }
         LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "reference = "
+                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError),
             maths::CBasicStatistics::mean(meanPredictionError), 0.05);

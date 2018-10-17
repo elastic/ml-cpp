@@ -19,6 +19,7 @@ const std::string CResultNormalizer::LEVEL("level");
 const std::string CResultNormalizer::PARTITION_FIELD_NAME("partition_field_name");
 const std::string CResultNormalizer::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CResultNormalizer::PERSON_FIELD_NAME("person_field_name");
+const std::string CResultNormalizer::PERSON_FIELD_VALUE("person_field_value");
 const std::string CResultNormalizer::FUNCTION_NAME("function_name");
 const std::string CResultNormalizer::VALUE_FIELD_NAME("value_field_name");
 const std::string CResultNormalizer::PROBABILITY_NAME("probability");
@@ -68,17 +69,29 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     }
 
     std::string level;
-    std::string partition;
+    std::string partitionName;
     std::string partitionValue;
-    std::string person;
+    std::string personName;
+    std::string personValue;
     std::string function;
     std::string valueFieldName;
     double probability(0.0);
 
-    bool isValidRecord = parseDataFields(dataRowFields, level, partition, person,
-                                         function, valueFieldName, probability);
+    // As of version 6.5 the 'personValue' field is required for (re)normalization to succeed.
+    // In the case of renormalization the 'personValue' field must be included in the set of
+    // parameters sent from the Java side ML plugin to Elasticsearch.
+    // In production the version of the native code application and the java application it is communicating directly
+    // with will always match so supporting BWC with versions prior to 6.5 is not necessary.
+    bool isNormalizable = this->parseDataFields(
+        dataRowFields, level, partitionName, partitionValue, personName,
+        personValue, function, valueFieldName, probability);
 
-    if (isValidRecord) {
+    LOG_TRACE(<< "level='" << level << "', partitionName='" << partitionName << "', partitionValue='"
+              << partitionValue << "', personName='" << personName << "', personValue='"
+              << personValue << "', function='" << function << "', valueFieldName='"
+              << valueFieldName << "', probability='" << probability << "'");
+
+    if (isNormalizable) {
         const model::CAnomalyScore::CNormalizer* levelNormalizer = nullptr;
         double score = probability > m_ModelConfig.maximumAnomalousProbability()
                            ? 0.0
@@ -86,28 +99,30 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
         } else if (level == LEAF_LEVEL) {
-            levelNormalizer = m_Normalizer.leafNormalizer(partition, person,
-                                                          function, valueFieldName);
+            levelNormalizer = m_Normalizer.leafNormalizer(
+                partitionName, personName, function, valueFieldName);
         } else if (level == PARTITION_LEVEL) {
-            levelNormalizer = m_Normalizer.partitionNormalizer(partition);
+            levelNormalizer = m_Normalizer.partitionNormalizer(partitionName);
         } else if (level == BUCKET_INFLUENCER_LEVEL) {
-            levelNormalizer = m_Normalizer.influencerBucketNormalizer(person);
+            levelNormalizer = m_Normalizer.influencerBucketNormalizer(personName);
         } else if (level == INFLUENCER_LEVEL) {
-            levelNormalizer = m_Normalizer.influencerNormalizer(person);
+            levelNormalizer = m_Normalizer.influencerNormalizer(personName);
         } else {
             LOG_ERROR(<< "Unexpected   : " << level);
         }
         if (levelNormalizer != nullptr) {
-            if (levelNormalizer->canNormalize() && levelNormalizer->normalize(score) == false) {
-                LOG_ERROR(<< "Failed to normalize score " << score << " at level "
-                          << level << " with partition field name " << partition
-                          << " and person field name " << person);
+            if (levelNormalizer->canNormalize()) {
+                model::CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
+                    partitionName, partitionValue, personName, personValue};
+                if (levelNormalizer->normalize(scope, score) == false) {
+                    LOG_ERROR(<< "Failed to normalize score " << score << " at level \""
+                              << level << "\" using scope " << scope.print());
+                }
             }
         } else {
-            LOG_ERROR(<< "No normalizer available"
-                         " at level '"
-                      << level << "' with partition field name '" << partition
-                      << "' and person field name '" << person << "'");
+            LOG_ERROR(<< "No normalizer available at level '" << level
+                      << "' with partition field name '" << partitionName
+                      << "' and person field name '" << personName << "'");
         }
 
         m_OutputFieldNormalizedScore =
@@ -126,14 +141,18 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
 
 bool CResultNormalizer::parseDataFields(const TStrStrUMap& dataRowFields,
                                         std::string& level,
-                                        std::string& partition,
-                                        std::string& person,
+                                        std::string& partitionName,
+                                        std::string& partitionValue,
+                                        std::string& personName,
+                                        std::string& personValue,
                                         std::string& function,
                                         std::string& valueFieldName,
                                         double& probability) {
     return this->parseDataField(dataRowFields, LEVEL, level) &&
-           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
-           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partitionName) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_VALUE, partitionValue) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, personName) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_VALUE, personValue) &&
            this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
            this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
            this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);

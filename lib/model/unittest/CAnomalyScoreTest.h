@@ -18,10 +18,13 @@ public:
 public:
     void testComputeScores();
     void testNormalizeScoresQuantiles();
+    void testNormalizeScoresQuantilesMultiplePartitions();
     void testNormalizeScoresNoisy();
     void testNormalizeScoresLargeScore();
+    void testNormalizeScoresPerPartitionMaxScore();
     void testNormalizeScoresNearZero();
     void testNormalizeScoresOrdering();
+    void testNormalizerGetMaxScore();
     void testJsonConversion();
     void testPersistEmpty();
 

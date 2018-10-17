@@ -40,7 +40,43 @@
 
 Perform anomaly detection on features derived from multiple bucket values to improve robustness
 of detection with respect to misconfigured bucket lengths and improve detection of long lasting
-anomalies. (See {pull}175[#175].)
+anomalies. (See {ml-pull}175[#175].)
+
+Support decomposing a time series into a piecewise linear trend and with piecewise constant
+scaling of the periodic components. This extends our decomposition functionality to handle the
+same types of change points that our modelling capabilities do. (See {ml-pull}198[198].)
+
+Increased independence of anomaly scores across partitions (See {ml-pull}182[182].)
+
+Avoid potential false positives at model start up when first detecting new components of the time
+series decomposition. (See {ml-pull}218[218].)
+
+Add a new label - multi_bucket_impact - to record level anomaly results.
+The value will be on a scale of -5 to +5 where -5 means the anomaly is purely single bucket
+and +5 means the anomaly is purely multi bucket. ({ml-pull}230[230])
+
+=== Bug Fixes
+
+Fix cause of "Bad density value..." log errors whilst forecasting. ({ml-pull}207[207])
+
+Fix incorrectly missing influencers when the influence field is one of the detector's partitioning
+fields and the bucket is empty. ({pull}219[#219])
+
+Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
+
+//=== Regressions
+
+== {es} version 6.4.3
+
+//=== Breaking Changes
+
+//=== Deprecations
+
+//=== New Features
+
+=== Enhancements
+
+Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
 
 //=== Bug Fixes
 

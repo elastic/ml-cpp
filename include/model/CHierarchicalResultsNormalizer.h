@@ -90,7 +90,12 @@ public:
 
     //! Enumeration of the possible jobs that the normalizer can
     //! perform when invoked.
-    enum EJob { E_Update, E_Normalize, E_NoOp };
+    enum EJob {
+        E_RefreshSettings,
+        E_UpdateQuantiles,
+        E_NormalizeScores,
+        E_NoOp
+    };
 
     //! Enumeration of possible outcomes of restoring from XML.
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };
@@ -146,13 +151,6 @@ public:
     const CAnomalyScore::CNormalizer*
     partitionNormalizer(const std::string& partitionFieldName) const;
 
-    //! Get a person normalizer.
-    //!
-    //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer*
-    personNormalizer(const std::string& partitionFieldName,
-                     const std::string& personFieldName) const;
-
     //! Get a leaf normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
@@ -163,6 +161,22 @@ public:
                    const std::string& valueFieldName) const;
 
 private:
+    //! \brief Creates new normalizer instances.
+    class CNormalizerFactory {
+    public:
+        CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig);
+        TNormalizer make(const TNode& node, bool pivot) const;
+
+    private:
+        const CAnomalyDetectorModelConfig& m_ModelConfig;
+    };
+
+private:
+    //! Check if there is one such node for each member of any
+    //! population analysis.
+    static bool isMemberOfPopulation(const TNode& node,
+                                     std::function<bool(const TNode&)> test = nullptr);
+
     //! Get the normalizer corresponding to \p cue if they exist
     //! and return NULL if it doesn't have an appropriate prefix.
     //! Also, extract the hash value.
@@ -187,6 +201,9 @@ private:
 
     //! Get the persistence cue for a leaf normalizer.
     static std::string leafCue(const TWord& word);
+
+    //! Safely dereference a stored string pointer, returning an empty string if null
+    static const std::string& dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr);
 
 private:
     //! The jobs that the normalizer will perform when invoked

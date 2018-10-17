@@ -89,7 +89,7 @@ private:
 //! to model the event rate in an arbitrary time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer {
+class MODEL_EXPORT CEventRateBucketGatherer final : public CBucketGatherer {
 public:
     using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
@@ -149,10 +149,10 @@ public:
     //! \name Persistence
     //@{
     //! Fill in the state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not

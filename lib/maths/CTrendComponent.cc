@@ -65,9 +65,9 @@ TOptionalDoubleDoublePr confidenceInterval(double prediction, double variance, d
         double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
         return std::make_pair(ql, qu);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed calculating confidence interval: "
-                  << e.what() << ", prediction = " << prediction
-                  << ", variance = " << variance << ", confidence = " << confidence);
+        LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
+                  << ", prediction = " << prediction << ", variance = " << variance
+                  << ", confidence = " << confidence);
     }
     return TOptionalDoubleDoublePr{};
 }

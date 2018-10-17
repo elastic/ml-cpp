@@ -126,7 +126,7 @@ public:
     //! series decomposition.
     class MATHS_EXPORT CHandler {
     public:
-        CHandler();
+        CHandler() = default;
         virtual ~CHandler() = default;
         CHandler(const CHandler&) = delete;
         CHandler& operator=(const CHandler&) = delete;
@@ -151,7 +151,7 @@ public:
 
     private:
         //! The controller responsible for forwarding messages.
-        CMediator* m_Mediator;
+        CMediator* m_Mediator = nullptr;
     };
 
     //! \brief Manages communication between handlers.
@@ -187,6 +187,9 @@ public:
     //! diurnal and any other large amplitude seasonal components.
     class MATHS_EXPORT CPeriodicityTest : public CHandler {
     public:
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+
         //! Test types (categorised as short and long period tests).
         enum ETest { E_Short, E_Long };
 
@@ -210,6 +213,9 @@ public:
         //! Reset the test.
         virtual void handle(const SNewComponents& message);
 
+        //! Check if we should run the periodicity test on \p window.
+        bool shouldTest(ETest test, core_t::TTime time) const;
+
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
@@ -219,6 +225,9 @@ public:
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
+
+        //! Get the values in the window if we're going to test at \p time.
+        TTimeDoublePrVec windowValues() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -235,18 +244,13 @@ public:
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
     private:
-        //! The bucket lengths to use to test for short period components.
-        static const TTimeVec SHORT_BUCKET_LENGTHS;
-
-        //! The bucket lengths to use to test for long period components.
-        static const TTimeVec LONG_BUCKET_LENGTHS;
+        //! The longest bucket length at which we'll test for periodic
+        //! components.
+        static const core_t::TTime LONGEST_BUCKET_LENGTH;
 
     private:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
-
-        //! Check if we should run the periodicity test on \p window.
-        bool shouldTest(ETest test, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning: this is owned by the caller.)
         CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
@@ -345,25 +349,6 @@ public:
         CComponents(double decayRate, core_t::TTime bucketLength, std::size_t seasonalComponentSize);
         CComponents(const CComponents& other);
 
-        //! \brief Watches to see if the seasonal components state changes.
-        class MATHS_EXPORT CScopeNotifyOnStateChange {
-        public:
-            CScopeNotifyOnStateChange(CComponents& components);
-            ~CScopeNotifyOnStateChange();
-            CScopeNotifyOnStateChange(const CScopeNotifyOnStateChange&) = delete;
-            CScopeNotifyOnStateChange& operator=(const CScopeNotifyOnStateChange&) = delete;
-
-            //! Check if the seasonal component's state changed.
-            bool changed() const;
-
-        private:
-            //! The seasonal components this is watching.
-            CComponents& m_Components;
-
-            //! The flag used to watch for changes.
-            bool m_Watcher;
-        };
-
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                     core_t::TTime lastValueTime,
@@ -384,20 +369,18 @@ public:
         //! Create a new calendar component.
         virtual void handle(const SDetectedCalendar& message);
 
-        //! Start using the trend for prediction.
-        void useTrendForPrediction();
+        //! Start observing for new components.
+        void observeComponentsAdded();
 
-        //! Test to see if using the trend improves prediction accuracy.
-        bool shouldUseTrendForPrediction();
+        //! Check if any components were added since observeComponentsAdded
+        //! was last called.
+        bool componentsAdded();
 
         //! Apply \p shift to the level at \p time and \p value.
         void shiftLevel(core_t::TTime time, double value, double shift);
 
         //! Apply a linear scale of \p scale.
         void linearScale(core_t::TTime time, double scale);
-
-        //! Maybe re-interpolate the components.
-        void interpolate(const SMessage& message);
 
         //! Maybe re-interpolate the components.
         void interpolateForForecast(core_t::TTime time);
@@ -430,6 +413,9 @@ public:
         //! Return true if we're using the trend for prediction.
         bool usingTrendForPrediction() const;
 
+        //! Start using the trend for prediction.
+        void useTrendForPrediction();
+
         //! Get configuration for the periodicity test.
         CPeriodicityHypothesisTestsConfig periodicityTestConfig() const;
 
@@ -457,6 +443,7 @@ public:
         using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
         using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
         //! \brief Manages the setting of the error gain when updating
         //! the components with a value.
@@ -762,6 +749,11 @@ public:
         //! Add a new calendar component to \p components.
         bool addCalendarComponent(const CCalendarFeature& feature, core_t::TTime time);
 
+        //! Adjust the values to remove any piecewise constant linear scales
+        //! of the component with period \p period.
+        void adjustValuesForPiecewiseConstantScaling(std::size_t period,
+                                                     TFloatMeanAccumulatorVec& values) const;
+
         //! Reweight the outlier values in \p values.
         //!
         //! These are the values with largest error w.r.t. \p predictor.
@@ -771,10 +763,10 @@ public:
                               TFloatMeanAccumulatorVec& values) const;
 
         //! Fit the trend component \p component to \p values.
-        void fit(core_t::TTime startTime,
-                 core_t::TTime dt,
-                 const TFloatMeanAccumulatorVec& values,
-                 CTrendComponent& trend) const;
+        void fitTrend(core_t::TTime startTime,
+                      core_t::TTime dt,
+                      const TFloatMeanAccumulatorVec& values,
+                      CTrendComponent& trend) const;
 
         //! Clear all component error statistics.
         void clearComponentErrors();
@@ -782,8 +774,14 @@ public:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
 
+        //! Test to see if using the trend improves prediction accuracy.
+        bool shouldUseTrendForPrediction();
+
         //! Check if we should interpolate.
         bool shouldInterpolate(core_t::TTime time, core_t::TTime last);
+
+        //! Maybe re-interpolate the components.
+        void interpolate(const SMessage& message);
 
         //! Shift the various regression model time origins to \p time.
         void shiftOrigin(core_t::TTime time);
@@ -841,8 +839,8 @@ public:
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction = false;
 
-        //! Set to true if non-null when the seasonal components change.
-        bool* m_Watcher = nullptr;
+        //! Set to true when new components are added.
+        bool m_ComponentsAdded = false;
     };
 };
 

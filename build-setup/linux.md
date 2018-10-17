@@ -22,11 +22,12 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 
 ### OS Packages
 
-You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`.  On RHEL/CentOS these can be installed using:
+You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`.  Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
 
 ```
 sudo yum install bzip2
 sudo yum install gcc-c++
+sudo yum install tzdata
 sudo yum install unzip
 sudo yum install zlib-devel
 ```

@@ -96,8 +96,11 @@ public:
     //! is at a premium.
     //!
     //! \tparam N_ The degree of the polynomial.
+    // clang-format off
     template<std::size_t N_, typename T = CFloatStorage>
-    class CLeastSquaresOnline : boost::addable<CLeastSquaresOnline<N_, T>> {
+    class CLeastSquaresOnline : boost::addable<CLeastSquaresOnline<N_, T>,
+                                boost::subtractable<CLeastSquaresOnline<N_, T>>> {
+        // clang-format on
     public:
         static const std::size_t N = N_ + 1;
         using TArray = boost::array<double, N>;

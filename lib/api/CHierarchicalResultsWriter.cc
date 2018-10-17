@@ -61,7 +61,8 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_PopulationAverage(populationAverage), s_BaselineRate(0.0),
       s_CurrentRate(currentRate), s_BaselineMean{0.0}, s_CurrentMean{0.0},
       s_RawAnomalyScore(rawAnomalyScore),
-      s_NormalizedAnomalyScore(normalizedAnomalyScore), s_Probability(probability),
+      s_NormalizedAnomalyScore(normalizedAnomalyScore),
+      s_Probability(probability), s_MultiBucketImpact{-1.0 * model::CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE},
       s_Influences(influences), s_Identifier(identifier) {
 }
 
@@ -82,6 +83,7 @@ CHierarchicalResultsWriter::SResults::SResults(
     double rawAnomalyScore,
     double normalizedAnomalyScore,
     double probability,
+    double multiBucketImpact,
     const std::string& metricValueField,
     const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
     bool useNull,
@@ -103,7 +105,8 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_BaselineRate(baselineRate), s_CurrentRate(currentRate),
       s_BaselineMean(baselineMean), s_CurrentMean(currentMean),
       s_RawAnomalyScore(rawAnomalyScore),
-      s_NormalizedAnomalyScore(normalizedAnomalyScore), s_Probability(probability),
+      s_NormalizedAnomalyScore(normalizedAnomalyScore),
+      s_Probability(probability), s_MultiBucketImpact{multiBucketImpact},
       s_Influences(influences), s_Identifier(identifier),
       s_ScheduledEventDescriptions(scheduledEventDescriptions) {
 }
@@ -238,7 +241,7 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
     const model::SAttributeProbability& attributeProbability =
         node.s_AnnotatedProbability.s_AttributeProbabilities[0];
 
-    m_ResultWriterFunc(TResults(
+    SResults individualResult = TResults(
         E_Result, *node.s_Spec.s_PartitionFieldName, *node.s_Spec.s_PartitionFieldValue,
         *node.s_Spec.s_ByFieldName, *node.s_Spec.s_PersonFieldValue,
         attributeProbability.s_CorrelatedAttributes.empty()
@@ -248,10 +251,13 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
         model_t::outputFunctionName(feature), node.s_AnnotatedProbability.s_BaselineBucketCount,
         node.s_AnnotatedProbability.s_CurrentBucketCount,
         attributeProbability.s_BaselineBucketMean, attributeProbability.s_CurrentBucketValue,
-        node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
+        node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore,
+        node.probability(), node.s_AnnotatedProbability.s_MultiBucketImpact,
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
-        node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST));
+        node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST);
+
+    m_ResultWriterFunc(individualResult);
 }
 
 void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResults& results,
@@ -285,6 +291,7 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
         baselineCount ? TDouble1Vec(1, *baselineCount) : TDouble1Vec(),
         currentCount ? TDouble1Vec(1, static_cast<double>(*currentCount)) : TDouble1Vec(),
         node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
+        -1.0 * model::CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE,
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
         node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions));

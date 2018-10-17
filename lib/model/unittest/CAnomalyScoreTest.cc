@@ -222,6 +222,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles() {
     model::CAnomalyDetectorModelConfig config =
         model::CAnomalyDetectorModelConfig::defaultConfig(1800);
     model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
 
     double totalError = 0.0;
     double numberSamples = 0.0;
@@ -229,8 +230,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles() {
     TDoubleMSet scores;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         scores.insert(samples[i]);
-        TDoubleVec sample(1u, samples[i]);
-        normalizer.updateQuantiles(sample);
+        normalizer.updateQuantiles({"", "", "bucket_time", ""}, samples[i]);
 
         TDoubleMSetItr itr = scores.upper_bound(samples[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
@@ -255,6 +255,77 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles() {
 
     LOG_DEBUG(<< "meanError = " << totalError / numberSamples);
     CPPUNIT_ASSERT(totalError / numberSamples < 0.0043);
+}
+
+// Test as with testNormalizeScores but with more than one partition
+// The quantile state will differ but still should be within reasonable bounds
+void CAnomalyScoreTest::testNormalizeScoresQuantilesMultiplePartitions() {
+    using TDoubleMSet = std::multiset<double>;
+    using TDoubleMSetItr = TDoubleMSet::iterator;
+
+    test::CRandomNumbers rng;
+
+    // generate two similar base samples
+    TDoubleVec samplesAAL;
+    rng.generateGammaSamples(1.0, 2.0, 20000, samplesAAL);
+
+    TDoubleVec samplesKLM;
+    rng.generateGammaSamples(1.0, 2.0, 20000, samplesKLM);
+
+    TDoubleVec samplesJAL;
+    rng.generateGammaSamples(1.0, 2.0, 20000, samplesJAL);
+
+    CPPUNIT_ASSERT_EQUAL(samplesAAL.size(), samplesKLM.size());
+    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+        if (samplesAAL[i] < 0.5) {
+            samplesAAL[i] = 0.0;
+        }
+        if (samplesKLM[i] < 0.5) {
+            samplesKLM[i] = 0.0;
+        }
+        if (samplesJAL[i] < 0.5) {
+            samplesJAL[i] = 0.0;
+        }
+    }
+
+    model::CAnomalyDetectorModelConfig config =
+        model::CAnomalyDetectorModelConfig::defaultConfig(1800);
+    model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
+
+    double totalError = 0.0;
+    double numberSamples = 0.0;
+
+    TDoubleMSet scores;
+    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+        scores.insert(samplesAAL[i]);
+        normalizer.updateQuantiles({"airline", "AAL", "", ""}, samplesAAL[i]);
+        normalizer.updateQuantiles({"airline", "KLM", "", ""}, samplesAAL[i]);
+        normalizer.updateQuantiles({"airline", "JAL", "", ""}, samplesAAL[i]);
+
+        TDoubleMSetItr itr = scores.upper_bound(samplesAAL[i]);
+        double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
+                              static_cast<double>(scores.size());
+
+        if (trueQuantile > 0.9) {
+            double lowerBound;
+            double upperBound;
+            normalizer.quantile(samplesAAL[i], 0.0, lowerBound, upperBound);
+
+            double quantile = (lowerBound + upperBound) / 2.0;
+            double error = std::fabs(quantile - trueQuantile);
+
+            totalError += error;
+            numberSamples += 1.0;
+
+            LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
+                      << ", upperBound = " << upperBound);
+            CPPUNIT_ASSERT(error < 0.02);
+        }
+    }
+
+    LOG_DEBUG(<< "meanError = " << totalError / numberSamples);
+    CPPUNIT_ASSERT(totalError / numberSamples < 0.0047);
 }
 
 void CAnomalyScoreTest::testNormalizeScoresNoisy() {
@@ -287,6 +358,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
     model::CAnomalyDetectorModelConfig config =
         model::CAnomalyDetectorModelConfig::defaultConfig(1800);
     model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
 
     //std::ostringstream raw;
     //std::ostringstream normalized;
@@ -296,15 +368,15 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
     TDoubleSizeMap maxScores;
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        normalizer.updateQuantiles(samples[i]);
+        normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
     }
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double sample = samples[i];
-        normalizer.normalize(sample);
+        normalizer.normalize({"", "", "bucket_time", ""}, sample);
         LOG_DEBUG(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
 
         //raw << " " << samples[i];
-        //normalized << " " << sample[0];
+        //normalized << " " << sample;
 
         if (maxScores.size() < boost::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
@@ -337,6 +409,65 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
                          core::CContainerPrinter::print(times));
 }
 
+void CAnomalyScoreTest::testNormalizeScoresPerPartitionMaxScore() {
+    // Test that another partition in the same normalizer does noes not unduly affect the scores
+    // (partitions are not totally independent and interact via the shared quantile state)
+
+    // scores from a single partition
+    const double expectedAALScores[] = {10.31767, 20.24881, 20.35545, 25.07737, 94.09136};
+
+    test::CRandomNumbers rng;
+
+    // generate two similar base samples
+    TDoubleVec samplesAAL;
+    rng.generateUniformSamples(0.0, 0.1, 500, samplesAAL);
+
+    TDoubleVec samplesKLM;
+    rng.generateUniformSamples(0.0, 0.1, 500, samplesKLM);
+
+    std::size_t anomalyTimes[] = {50, 110, 190, 220, 290};
+    double anomalies[] = {2.0, 4.0, 4.0, 5.0, 30.0};
+
+    // Add in the anomalies.
+    for (size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+        samplesAAL[anomalyTimes[i]] += anomalies[i];
+        samplesKLM[anomalyTimes[i]] += anomalies[i];
+    }
+
+    model::CAnomalyDetectorModelConfig config =
+        model::CAnomalyDetectorModelConfig::defaultConfig(1800);
+    model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
+
+    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+        normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
+        normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
+    }
+
+    TDoubleVec actualAALScores;
+    for (std::size_t i = 0u; i < boost::size(anomalyTimes); ++i) {
+        double sampleAAL = samplesAAL[anomalyTimes[i]];
+        double sampleKLM = samplesKLM[anomalyTimes[i]];
+        LOG_DEBUG(<< "sampleAAL = " << sampleAAL);
+        LOG_DEBUG(<< "sampleKLM = " << sampleKLM);
+        normalizer.normalize({"", "", "airline", "AAL"}, sampleAAL);
+        normalizer.normalize({"", "", "airline", "KLM"}, sampleKLM);
+        actualAALScores.push_back(sampleAAL);
+    }
+    std::sort(actualAALScores.begin(), actualAALScores.end());
+    LOG_DEBUG(<< "actualAALScores = " << core::CContainerPrinter::print(actualAALScores));
+
+    for (std::size_t i = 0u; i < boost::size(expectedAALScores); ++i) {
+        double pctChange = 100.0 *
+                           (std::fabs(actualAALScores[i] - expectedAALScores[i])) /
+                           expectedAALScores[i];
+        LOG_DEBUG(<< "pctChange = " << pctChange << " actualAALScores[" << i
+                  << "] = " << actualAALScores[i] << " expectedAALScores[" << i
+                  << "] = " << expectedAALScores[i]);
+        CPPUNIT_ASSERT(pctChange < 5.0);
+    }
+}
+
 void CAnomalyScoreTest::testNormalizeScoresLargeScore() {
     // Test a large score isn't too dominant.
 
@@ -356,24 +487,26 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore() {
     model::CAnomalyDetectorModelConfig config =
         model::CAnomalyDetectorModelConfig::defaultConfig(1800);
     model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        normalizer.updateQuantiles(samples[i]);
+        normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
     }
 
     TDoubleVec scores;
     for (std::size_t i = 0u; i < boost::size(anomalyTimes); ++i) {
         double sample = samples[anomalyTimes[i]];
-        normalizer.normalize(sample);
+        normalizer.normalize({"", "", "bucket_time", ""}, sample);
         scores.push_back(sample);
     }
     std::sort(scores.begin(), scores.end());
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     for (std::size_t i = 0u; i + 1 < boost::size(anomalies); ++i) {
-        double uplift = scores[i] - 100.0 * anomalies[i] /
-                                        anomalies[boost::size(anomalies) - 1];
-        LOG_DEBUG(<< "uplift = " << uplift);
+        double change = 100.0 * anomalies[i] / anomalies[boost::size(anomalies) - 1];
+        double uplift = scores[i] - change;
+        LOG_DEBUG(<< "uplift = " << uplift << " scores[" << i << "] = " << scores[i] << " anomalies["
+                  << i << "] = " << anomalies[i] << " change = " << change);
         CPPUNIT_ASSERT(uplift > 5.0);
         CPPUNIT_ASSERT(uplift < 13.0);
     }
@@ -414,15 +547,16 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero() {
         model::CAnomalyDetectorModelConfig config =
             model::CAnomalyDetectorModelConfig::defaultConfig(1800);
         model::CAnomalyScore::CNormalizer normalizer(config);
+        normalizer.isForMembersOfPopulation(false);
 
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            normalizer.updateQuantiles(samples[j]);
+            normalizer.updateQuantiles({"", "", "", ""}, samples[j]);
         }
 
         TDoubleVec maxScores;
         for (std::size_t j = 0u; j < boost::size(anomalyTimes); ++j) {
             double sample = samples[anomalyTimes[j]];
-            normalizer.normalize(sample);
+            normalizer.normalize({"", "", "bucket_time", ""}, sample);
             maxScores.push_back(sample);
         }
         LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
@@ -450,13 +584,16 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering() {
         model::CAnomalyDetectorModelConfig config =
             model::CAnomalyDetectorModelConfig::defaultConfig(300);
         model::CAnomalyScore::CNormalizer normalizer(config);
+        normalizer.isForMembersOfPopulation(false);
+
         for (std::size_t j = 0u; j < i; ++j) {
-            normalizer.updateQuantiles(scores[j]);
+            normalizer.updateQuantiles({"", "", "", ""}, scores[j]);
         }
 
         TDoubleVec normalizedScores(scores);
         for (std::size_t j = 0u; j < i; ++j) {
-            CPPUNIT_ASSERT(normalizer.normalize(normalizedScores[j]));
+            CPPUNIT_ASSERT(normalizer.normalize({"", "", "bucket_time", ""},
+                                                normalizedScores[j]));
         }
 
         maths::COrderings::simultaneousSort(scores, normalizedScores);
@@ -469,23 +606,80 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering() {
     }
 }
 
+void CAnomalyScoreTest::testNormalizerGetMaxScore() {
+    test::CRandomNumbers rng;
+
+    // generate two similar base samples
+    TDoubleVec samplesAAL;
+    rng.generateUniformSamples(0.0, 0.1, 500, samplesAAL);
+
+    TDoubleVec samplesKLM;
+    rng.generateUniformSamples(0.0, 0.1, 500, samplesKLM);
+
+    std::size_t anomalyTimesAAL[] = {50, 110, 190, 220, 290};
+    double anomaliesAAL[] = {1.0, 3.0, 4.0, 5.0, 40.0};
+
+    std::size_t anomalyTimesKLM[] = {45, 120, 210, 220, 300};
+    double anomaliesKLM[] = {2.0, 3.0, 4.0, 6.0, 30.0};
+
+    // Add in the anomalies.
+    for (size_t i = 0; i < boost::size(anomalyTimesAAL); ++i) {
+        samplesAAL[anomalyTimesAAL[i]] += anomaliesAAL[i];
+    }
+    for (size_t i = 0; i < boost::size(anomalyTimesKLM); ++i) {
+        samplesAAL[anomalyTimesKLM[i]] += anomaliesKLM[i];
+    }
+
+    model::CAnomalyDetectorModelConfig config =
+        model::CAnomalyDetectorModelConfig::defaultConfig(1800);
+    model::CAnomalyScore::CNormalizer normalizer(config);
+    normalizer.isForMembersOfPopulation(false);
+
+    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+        normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
+        normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
+    }
+
+    double maxScoreAAL;
+    CPPUNIT_ASSERT(normalizer.maxScore({"", "", "airline", "AAL"}, maxScoreAAL));
+
+    double maxScoreKLM;
+    CPPUNIT_ASSERT(normalizer.maxScore({"", "", "airline", "KLM"}, maxScoreKLM));
+
+    LOG_DEBUG(<< "maxScoreAAL = " << maxScoreAAL);
+    LOG_DEBUG(<< "maxScoreKLM = " << maxScoreKLM);
+
+    const double expecteMaxScoreAAL = 40.0583;
+    const double expecteMaxScoreKLM = 0.0999999;
+
+    // Check that the partition wise max scores are as expected
+    // (and hence different from one another)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expecteMaxScoreAAL, maxScoreAAL, 5e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expecteMaxScoreKLM, maxScoreKLM, 5e-5);
+}
+
 void CAnomalyScoreTest::testJsonConversion() {
     test::CRandomNumbers rng;
+
+    const double maxScore{222.2};
 
     model::CAnomalyScore::TDoubleVec samples;
     // Generate lots of low anomaly scores with some variation
     rng.generateGammaSamples(1.0, 4.0, 500, samples);
     // Add two high anomaly scores
-    samples.push_back(222.2);
+    samples.push_back(maxScore);
     samples.push_back(77.7);
 
     model::CAnomalyDetectorModelConfig config =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     model::CAnomalyScore::CNormalizer origNormalizer(config);
-    origNormalizer.updateQuantiles(samples);
-    origNormalizer.normalize(samples);
+    origNormalizer.isForMembersOfPopulation(true);
 
+    for (auto& sample : samples) {
+        origNormalizer.updateQuantiles({"", "", "", ""}, sample);
+        origNormalizer.normalize({"", "", "bucket_time", ""}, sample);
+    }
     std::ostringstream ss;
     {
         core::CJsonStatePersistInserter inserter(ss);
@@ -533,6 +727,34 @@ void CAnomalyScoreTest::testJsonConversion() {
     CPPUNIT_ASSERT(doc.HasMember("a"));
 
     rapidjson::Value& stateDoc = doc["a"];
+
+    {
+        // Check that all required fields are present in the persisted state
+        CPPUNIT_ASSERT(stateDoc.HasMember("a"));
+        CPPUNIT_ASSERT(stateDoc.HasMember("b"));
+        // Field 'c' - m_MaxScore - removed in version > 6.5
+        CPPUNIT_ASSERT(stateDoc.HasMember("d"));
+        CPPUNIT_ASSERT(stateDoc.HasMember("e"));
+        CPPUNIT_ASSERT(stateDoc.HasMember("f"));
+        CPPUNIT_ASSERT(stateDoc.HasMember("g"));
+        CPPUNIT_ASSERT(stateDoc["g"].HasMember("d"));
+        CPPUNIT_ASSERT(stateDoc["g"].HasMember("a"));
+        CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("a"));
+        CPPUNIT_ASSERT(stateDoc["g"]["a"].HasMember("b"));
+
+        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"]["a"];
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        partitionMaxScoreDoc.Accept(writer);
+
+        std::string partitionMaxScoreStr(buffer.GetString());
+        partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
+                                               partitionMaxScoreStr.end(), '\n'),
+                                   partitionMaxScoreStr.end());
+        CPPUNIT_ASSERT_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
+                             partitionMaxScoreStr);
+    }
 
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -595,8 +817,14 @@ CppUnit::Test* CAnomalyScoreTest::suite() {
         "CAnomalyScoreTest::testNormalizeScoresQuantiles",
         &CAnomalyScoreTest::testNormalizeScoresQuantiles));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
+        "CAnomalyScoreTest::testNormalizeScoresQuantilesMultiplePartitions",
+        &CAnomalyScoreTest::testNormalizeScoresQuantilesMultiplePartitions));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
         "CAnomalyScoreTest::testNormalizeScoresNoisy",
         &CAnomalyScoreTest::testNormalizeScoresNoisy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
+        "CAnomalyScoreTest::testNormalizeScoresPerPartitionMaxScore",
+        &CAnomalyScoreTest::testNormalizeScoresPerPartitionMaxScore));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
         "CAnomalyScoreTest::testNormalizeScoresLargeScore",
         &CAnomalyScoreTest::testNormalizeScoresLargeScore));
@@ -606,6 +834,9 @@ CppUnit::Test* CAnomalyScoreTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
         "CAnomalyScoreTest::testNormalizeScoresOrdering",
         &CAnomalyScoreTest::testNormalizeScoresOrdering));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
+        "CAnomalyScoreTest::testNormalizerGetMaxScore",
+        &CAnomalyScoreTest::testNormalizerGetMaxScore));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
         "CAnomalyScoreTest::testJsonConversion", &CAnomalyScoreTest::testJsonConversion));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(

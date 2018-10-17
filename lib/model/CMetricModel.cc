@@ -22,6 +22,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CIndividualModelDetail.h>
@@ -396,6 +397,12 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
+
+    double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
+    if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
+        resultBuilder.multiBucketImpact(multiBucketImpact);
+    }
+
     resultBuilder.build();
 
     return true;

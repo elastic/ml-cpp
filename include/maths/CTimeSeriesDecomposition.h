@@ -125,8 +125,8 @@ public:
     //! Get the value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the prediction
-    //! the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the
+    //! prediction the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
@@ -165,6 +165,12 @@ public:
     //! for the variance scale as a percentage.
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+
+    //! Check if this might add components between now and \p time.
+    virtual bool mightAddComponents(core_t::TTime time) const;
+
+    //! Get the values in a recent time window.
+    virtual TTimeDoublePrVec windowValues() const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);

@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM droberts195/ml-macosx-build:3
+FROM droberts195/ml-macosx-build:5
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 

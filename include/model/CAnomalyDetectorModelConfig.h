@@ -166,6 +166,9 @@ public:
     //! for anomaly detection.
     static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
 
+    //! The maximum value that the multi_bucket_impact can take
+    static const double MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE;
+
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are
     //! computed on a fixed number of measurements rather than a fixed
