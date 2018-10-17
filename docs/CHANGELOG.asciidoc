@@ -45,6 +45,8 @@ Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
 
 //=== Bug Fixes
 
+Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
+
 //=== Regressions
 
 == Elasticsearch version 6.4.0

@@ -24,6 +24,8 @@ namespace model {
 const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
 const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
+const core_t::TTime
+    CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD(2 * core::constants::HOUR);
 
 CResourceMonitor::CResourceMonitor(double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
@@ -115,12 +117,13 @@ void CResourceMonitor::updateAllowAllocations() {
     std::size_t total{this->totalMemory()};
     if (m_AllowAllocations) {
         if (total > this->highLimit()) {
-            LOG_INFO(<< "Over current allocation limit. " << total
+            LOG_INFO(<< "Over current allocation high limit. " << total
                      << " bytes used, the limit is " << this->highLimit());
             m_AllowAllocations = false;
         }
     } else if (total < this->lowLimit()) {
-        LOG_INFO(<< "Below allocation limit, used " << total);
+        LOG_INFO(<< "Below current allocation low limit. " << total
+                 << " bytes used, the limit is " << this->lowLimit());
         m_AllowAllocations = true;
     }
 }
@@ -311,7 +314,7 @@ void CResourceMonitor::decreaseMargin(core_t::TTime elapsedTime) {
     // will be the overwhelmingly common source of additional memory
     // so the model memory should be accurate (on average) in this
     // time frame.
-    double scale{1.0 - static_cast<double>(elapsedTime) /
+    double scale{1.0 - static_cast<double>(std::min(elapsedTime, MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD)) /
                            static_cast<double>(core::constants::DAY)};
     m_ByteLimitMargin = 1.0 - scale * (1.0 - m_ByteLimitMargin);
 }
