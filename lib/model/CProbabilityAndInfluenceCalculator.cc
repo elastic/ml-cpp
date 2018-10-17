@@ -892,6 +892,8 @@ bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& mult
         std::min(scale * (ls - lm), CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE),
         -1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE);
 
+    multiBucketImpact = (std::floor(multiBucketImpact * 100.0)) / 100.0;
+
     return true;
 }
 
