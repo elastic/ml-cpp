@@ -25,6 +25,7 @@
 #include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTimeSeriesMultibucketFeatureSerialiser.h>
 #include <maths/CTimeSeriesMultibucketFeatures.h>
+#include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
@@ -43,27 +44,17 @@ namespace {
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TSizeVec = std::vector<std::size_t>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble4Vec = core::CSmallVector<double, 4>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
 using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
 using TDouble10Vec2Vec = core::CSmallVector<TDouble10Vec, 2>;
-using TSize1Vec = core::CSmallVector<std::size_t, 1>;
-using TSize2Vec = core::CSmallVector<std::size_t, 2>;
 using TSize10Vec = core::CSmallVector<std::size_t, 10>;
-using TSize2Vec1Vec = core::CSmallVector<TSize2Vec, 1>;
 using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
 using TDoubleDoublePr = std::pair<double, double>;
 using TSizeDoublePr10Vec = core::CSmallVector<TSizeDoublePr, 10>;
 using TCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>;
 using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
-using TStr4Vec = core::CSmallVector<std::string, 4>;
-using TStrCRef = boost::reference_wrapper<const std::string>;
-using TStrCRef4Vec = core::CSmallVector<TStrCRef, 4>;
-using TOptionalSize = boost::optional<std::size_t>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TChangeDetectorPtr = std::unique_ptr<CUnivariateTimeSeriesChangeDetector>;
 using TMultivariatePriorCPtrSizePr1Vec = CTimeSeriesCorrelations::TMultivariatePriorCPtrSizePr1Vec;
 
 //! The decay rate controllers we maintain.
@@ -308,7 +299,6 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMultivariateNormalConjugate = CMultivariateNormalConjugate<2>;
     using TMultivariateNormalConjugateVec = std::vector<TMultivariateNormalConjugate>;
 
@@ -653,7 +643,7 @@ void CUnivariateTimeSeriesModel::modelCorrelations(CTimeSeriesCorrelations& mode
     m_Correlations->addTimeSeries(m_Id, *this);
 }
 
-TSize2Vec1Vec CUnivariateTimeSeriesModel::correlates() const {
+CUnivariateTimeSeriesModel::TSize2Vec1Vec CUnivariateTimeSeriesModel::correlates() const {
     TSize2Vec1Vec result;
     TSize1Vec correlated;
     TSize2Vec1Vec variables;
@@ -1463,7 +1453,7 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
 
     change.s_TrendModel->decayRate(m_TrendModel->decayRate());
     m_TrendModel = change.s_TrendModel;
-    TTimeDoublePrVec window(m_TrendModel->windowValues());
+    TTimeFloatMeanAccumulatorPrVec window(m_TrendModel->windowValues());
     if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         this->reinitializeStateGivenNewComponent(window);
     } else {
@@ -1500,7 +1490,7 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     // Maybe get a window of historical values with which to reinitialize
     // the residual model if new components of the time series decomposition
     // are identified.
-    TTimeDoublePrVec window;
+    TTimeFloatMeanAccumulatorPrVec window;
     for (auto i : timeorder) {
         if (m_TrendModel->mightAddComponents(samples[i].first)) {
             window = m_TrendModel->windowValues();
@@ -1583,17 +1573,45 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(const TTimeDoublePrVec& initialValues) {
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const TTimeFloatMeanAccumulatorPrVec& initialValues) {
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+
+    // Reinitialize the residual model with any values we've been given. We
+    // remove any trend we can fit accounting for step discontinuities and
+    // re-weight so that the total sample weight corresponds to the sample
+    // weight the model receives from a fixed (shortish) time interval.
+
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+
     if (initialValues.size() > 0) {
-        double numberInitialValues{static_cast<double>(initialValues.size())};
-        maths_t::TDoubleWeightsAry1Vec weight{maths_t::countWeight(
-            10.0 * std::max(this->params().learnRate(), 1.0) / numberInitialValues)};
+        TFloatMeanAccumulatorVec samples;
+        samples.reserve(initialValues.size());
+        double totalWeight{0.0};
+
         for (const auto& value : initialValues) {
-            TDouble1Vec sample{m_TrendModel->detrend(value.first, value.second, 0.0)};
-            m_ResidualModel->addSamples(sample, weight);
+            CFloatStorage weight(CBasicStatistics::count(value.second));
+            if (weight > 0.0) {
+                samples.push_back(CBasicStatistics::accumulator(
+                    weight, CFloatStorage(m_TrendModel->detrend(
+                                value.first, CBasicStatistics::mean(value.second), 0.0))));
+                totalWeight += weight;
+            }
+        }
+
+        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samples)};
+        samples = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(samples), segmentation);
+
+        maths_t::TDoubleWeightsAry1Vec weight(1);
+        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / totalWeight};
+        for (const auto& sample : samples) {
+            weight[0] = maths_t::countWeight(weightScale * CBasicStatistics::count(sample));
+            m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weight);
         }
     }
+
+    // Note we can't reinitialize this from the initial values because we do
+    // not expect these to be at the bucket length granularity.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }
@@ -1601,6 +1619,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(const TTimeD
         m_MultibucketFeatureModel->setToNonInformative(
             0.0, m_MultibucketFeatureModel->decayRate());
     }
+
     if (m_Correlations != nullptr) {
         m_Correlations->clearCorrelationModels(m_Id);
     }
@@ -2018,7 +2037,7 @@ void CTimeSeriesCorrelations::addSamples(std::size_t id,
     m_Correlations.add(id, CBasicStatistics::median(data.s_Samples));
 }
 
-TSize1Vec CTimeSeriesCorrelations::correlated(std::size_t id) const {
+CTimeSeriesCorrelations::TSize1Vec CTimeSeriesCorrelations::correlated(std::size_t id) const {
     auto correlated = m_CorrelatedLookup.find(id);
     return correlated != m_CorrelatedLookup.end() ? correlated->second : TSize1Vec();
 }
@@ -2167,7 +2186,7 @@ void CMultivariateTimeSeriesModel::modelCorrelations(CTimeSeriesCorrelations& /*
     // no-op
 }
 
-TSize2Vec1Vec CMultivariateTimeSeriesModel::correlates() const {
+CMultivariateTimeSeriesModel::TSize2Vec1Vec CMultivariateTimeSeriesModel::correlates() const {
     return {};
 }
 
@@ -2782,7 +2801,7 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
     // the residual model if new components of the time series decomposition
     // are identified.
     EUpdateResult result{E_Success};
-    TTimeDouble10VecPrVec window;
+    TTimeFloatMeanAccumulatorPrVec10Vec window;
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         if (std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
@@ -2790,13 +2809,7 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
                             return model->mightAddComponents(time);
                         })) {
             for (std::size_t d = 0; d < dimension; ++d) {
-                auto trendWindow = m_TrendModel[d]->windowValues();
-                window.resize(std::max(window.size(), trendWindow.size()),
-                              TTimeDouble10VecPr{0, TDouble10Vec(dimension)});
-                for (std::size_t j = 0; j < window.size(); ++j) {
-                    window[j].first = trendWindow[j].first;
-                    window[j].second[d] = trendWindow[j].second;
-                }
+                window.push_back(m_TrendModel[d]->windowValues());
             }
             break;
         }
@@ -2875,21 +2888,57 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(const TTimeDouble10VecPrVec& initialValues) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const TTimeFloatMeanAccumulatorPrVec10Vec& initialValues) {
+    using TDouble10VecVec = std::vector<TDouble10Vec>;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+
+    // Reinitialize the residual model with any values we've been given. We
+    // remove any trend we can fit accounting for step discontinuities and
+    // re-weight so that the total sample weight corresponds to the sample
+    // weight the model receives from a fixed (shortish) time interval.
+
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+
     if (initialValues.size() > 0) {
         std::size_t dimension{this->dimension()};
-        double numberInitialValues{static_cast<double>(initialValues.size())};
-        maths_t::TDouble10VecWeightsAry1Vec weight{maths_t::countWeight(
-            10.0 * std::max(this->params().learnRate(), 1.0) / numberInitialValues, dimension)};
-        for (const auto& value : initialValues) {
-            TDouble10Vec1Vec sample{TDouble10Vec(dimension)};
-            for (std::size_t i = 0u; i < dimension; ++i) {
-                sample[0][i] = m_TrendModel[i]->detrend(value.first, value.second[i], 0.0);
+
+        TDouble10VecVec samples;
+
+        for (std::size_t d = 0; d < dimension; ++d) {
+            TFloatMeanAccumulatorVec dimensionSamples;
+            dimensionSamples.reserve(initialValues[d].size());
+
+            for (const auto& value : initialValues[d]) {
+                CFloatStorage weight(CBasicStatistics::count(value.second));
+                if (weight > 0.0) {
+                    dimensionSamples.push_back(CBasicStatistics::accumulator(
+                        weight, CFloatStorage(m_TrendModel[d]->detrend(
+                                    value.first, CBasicStatistics::mean(value.second), 0.0))));
+                }
             }
-            m_ResidualModel->addSamples(sample, weight);
+
+            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(dimensionSamples)};
+            dimensionSamples = CTimeSeriesSegmentation::removePiecewiseLinear(
+                std::move(dimensionSamples), segmentation);
+
+            samples.resize(dimensionSamples.size(), TDouble10Vec(dimension));
+            for (std::size_t i = 0; i < dimensionSamples.size(); ++i) {
+                samples[i][d] = CBasicStatistics::mean(dimensionSamples[i]);
+            }
+        }
+
+        maths_t::TDouble10VecWeightsAry1Vec weight{
+            maths_t::countWeight(10.0 * std::max(this->params().learnRate(), 1.0) /
+                                     static_cast<double>(samples.size()),
+                                 dimension)};
+        for (const auto& sample : samples) {
+            m_ResidualModel->addSamples({sample}, weight);
         }
     }
+
+    // Note we can't reinitialize this from the initial values because we do
+    // not expect these to be at the bucket length granularity.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }
@@ -2897,6 +2946,7 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(const TTim
         m_MultibucketFeatureModel->setToNonInformative(
             0.0, m_MultibucketFeatureModel->decayRate());
     }
+
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
                                    (*m_Controllers)[E_ResidualControl].multiplier());

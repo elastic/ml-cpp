@@ -11,6 +11,7 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -33,8 +34,9 @@ struct SChangeDescription;
 //! calendar periodic and trend components.
 class MATHS_EXPORT CTimeSeriesDecompositionInterface {
 public:
-    using TTimeDoublePr = std::pair<core_t::TTime, double>;
-    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -151,7 +153,7 @@ public:
     virtual bool mightAddComponents(core_t::TTime time) const = 0;
 
     //! Get the values in a recent time window.
-    virtual TTimeDoublePrVec windowValues() const = 0;
+    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

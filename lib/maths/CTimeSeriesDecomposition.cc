@@ -457,7 +457,8 @@ bool CTimeSeriesDecomposition::mightAddComponents(core_t::TTime time) const {
     return false;
 }
 
-CTimeSeriesDecomposition::TTimeDoublePrVec CTimeSeriesDecomposition::windowValues() const {
+CTimeSeriesDecomposition::TTimeFloatMeanAccumulatorPrVec
+CTimeSeriesDecomposition::windowValues() const {
     return m_PeriodicityTest.windowValues();
 }
 

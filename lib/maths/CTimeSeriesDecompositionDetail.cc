@@ -649,20 +649,19 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t:
     stepwisePropagateForwards(WEEK, start, end, m_Windows[E_Long]);
 }
 
-CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeDoublePrVec
+CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeFloatMeanAccumulatorPrVec
 CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues() const {
-    TTimeDoublePrVec result;
+    TTimeFloatMeanAccumulatorPrVec result;
     for (auto i : {E_Short, E_Long}) {
         if (m_Windows[i] != nullptr) {
             TFloatMeanAccumulatorVec values{m_Windows[i]->values()};
             core_t::TTime bucketLength{m_Windows[i]->bucketLength()};
             core_t::TTime time{m_Windows[i]->startTime() + m_Windows[i]->offset()};
             for (const auto& value : values) {
-                if (CBasicStatistics::count(value) > 0.0) {
-                    result.emplace_back(time, CBasicStatistics::mean(value));
-                }
+                result.emplace_back(time, value);
                 time += bucketLength;
             }
+            break;
         }
     }
     return result;

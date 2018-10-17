@@ -187,8 +187,9 @@ public:
     //! diurnal and any other large amplitude seasonal components.
     class MATHS_EXPORT CPeriodicityTest : public CHandler {
     public:
-        using TTimeDoublePr = std::pair<core_t::TTime, double>;
-        using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+        using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+        using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
 
         //! Test types (categorised as short and long period tests).
         enum ETest { E_Short, E_Long };
@@ -227,7 +228,7 @@ public:
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Get the values in the window if we're going to test at \p time.
-        TTimeDoublePrVec windowValues() const;
+        TTimeFloatMeanAccumulatorPrVec windowValues() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
