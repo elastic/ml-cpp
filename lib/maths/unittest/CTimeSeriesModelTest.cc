@@ -2360,12 +2360,14 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
             if (bucket >= 1700 && bucket < 1710) {
                 sample = 100.0;
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
-                model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {{sample}}, result);
                 probabilities.push_back(result.s_Probability);
             } else {
                 model.addSamples(addSampleParams(weights),
                                  {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-                model.probability(currentComputeProbabilityParams, {{time}}, {{sample}}, result);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {{sample}}, result);
             }
 
             time += bucketLength;
@@ -2402,12 +2404,14 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
                     coordinate += 100.0;
                 }
                 currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
-                model.probability(currentComputeProbabilityParams, {{time}}, {(sample)}, result);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {(sample)}, result);
                 probabilities.push_back(result.s_Probability);
             } else {
                 model.addSamples(addSampleParams(weights),
                                  {core::make_triple(time, TDouble2Vec(sample), TAG)});
-                model.probability(currentComputeProbabilityParams, {{time}}, {(sample)}, result);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {(sample)}, result);
             }
 
             time += bucketLength;
