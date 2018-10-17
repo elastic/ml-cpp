@@ -62,6 +62,8 @@ Fix cause of "Bad density value..." log errors whilst forecasting. ({ml-pull}207
 Fix incorrectly missing influencers when the influence field is one of the detector's partitioning
 fields and the bucket is empty. ({pull}219[#219])
 
+Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
+
 //=== Regressions
 
 == {es} version 6.4.3
