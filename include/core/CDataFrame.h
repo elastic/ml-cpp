@@ -180,8 +180,8 @@ public:
     //! \param[in] numberColumns The number of columns in the data frame.
     //! \param[in] sliceCapacityInRows The capacity of a slice of the data frame
     //! as a number of rows.
-    //! \param[in] asyncReadAndWriteToStore Controls whether reads and writes
-    //! from slice storage are synchronous or asynchronous.
+    //! \param[in] readAndWriteToStoreSyncStrategy Controls whether reads and
+    //! writes from slice storage are synchronous or asynchronous.
     //! \param[in] writeSliceToStore The callback to write a slice to storage.
     //!
     //! \warning This requires that \p writeSliceToStore and \p readSliceFromStore
@@ -189,12 +189,12 @@ public:
     //! the implementers responsibility to ensure these conditions are satisfied.
     CDataFrame(std::size_t numberColumns,
                std::size_t sliceCapacityInRows,
-               EReadWriteToStorage asyncReadAndWriteToStore,
+               EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
     //! Overload which manages the setting of slice capacity to a sensible default.
     CDataFrame(std::size_t numberColumns,
-               EReadWriteToStorage asyncReadAndWriteToStore,
+               EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
     CDataFrame(const CDataFrame&) = delete;
@@ -241,7 +241,8 @@ public:
     //!
     //! \note READER must implement the TReadFunc contract.
     template<typename READER>
-    std::pair<std::vector<READER>, bool> readRows(std::size_t numberThreads, READER reader) const {
+    std::pair<std::vector<READER>, bool>
+    readRows(std::size_t numberThreads, READER reader) const {
 
         TReadFuncVecBoolPr result_{readRows(numberThreads, TReadFunc(reader))};
 
@@ -303,7 +304,7 @@ private:
         CDataFrameRowSliceWriter(std::size_t numberRows,
                                  std::size_t rowCapacity,
                                  std::size_t sliceCapacityInRows,
-                                 EReadWriteToStorage ayncWriteToStore,
+                                 EReadWriteToStorage writeToStoreSyncStrategy,
                                  TWriteSliceToStoreFunc writeSliceToStore);
         ~CDataFrameRowSliceWriter();
 
@@ -322,7 +323,7 @@ private:
         std::size_t m_NumberRows;
         std::size_t m_RowCapacity;
         std::size_t m_SliceCapacityInRows;
-        EReadWriteToStorage m_AsyncWriteToStore;
+        EReadWriteToStorage m_WriteToStoreSyncStrategy;
         TWriteSliceToStoreFunc m_WriteSliceToStore;
 
         TFloatVec m_SliceBeingWritten;
@@ -359,7 +360,7 @@ private:
     std::size_t m_SliceCapacityInRows;
 
     //! If true read and write asynchronously to storage.
-    EReadWriteToStorage m_AsyncReadAndWriteToStore;
+    EReadWriteToStorage m_ReadAndWriteToStoreSyncStrategy;
     //! The callback to write a slice to storage.
     TWriteSliceToStoreFunc m_WriteSliceToStore;
 
@@ -375,12 +376,12 @@ private:
 //! \param[in] numberColumns The number of columns in the data frame created.
 //! \param[in] sliceCapacity If none null this overrides the default slice
 //! capacity in rows.
-//! \param[in] readWriteToStoreAsync Controls whether reads and writes from
-//! slice storage are synchronous or asynchronous.
+//! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
+//! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
 CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
                                     boost::optional<std::size_t> sliceCapacity = boost::none,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreAsync =
+                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                                         CDataFrame::EReadWriteToStorage::E_Sync);
 
 //! Make a data frame which uses disk storage for its slices.
@@ -391,14 +392,14 @@ CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
 //! \param[in] numberRows The number of rows that will be added.
 //! \param[in] sliceCapacity If none null this overrides the default slice
 //! capacity in rows.
-//! \param[in] readWriteToStoreAsync Controls whether reads and writes from
-//! slice storage are synchronous or asynchronous.
+//! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
+//! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
 CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
                                     std::size_t numberColumns,
                                     std::size_t numberRows,
                                     boost::optional<std::size_t> sliceCapacity = boost::none,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreAsync =
+                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                                         CDataFrame::EReadWriteToStorage::E_Async);
 }
 }

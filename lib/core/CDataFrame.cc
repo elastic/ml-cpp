@@ -225,17 +225,17 @@ std::size_t computeSliceCapacity(std::size_t numberColumns) {
 
 CDataFrame::CDataFrame(std::size_t numberColumns,
                        std::size_t sliceCapacityInRows,
-                       EReadWriteToStorage asyncReadAndWriteToStore,
+                       EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_NumberColumns{numberColumns}, m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_AsyncReadAndWriteToStore{asyncReadAndWriteToStore}, m_WriteSliceToStore{writeSliceToStore} {
+      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
 }
 
 CDataFrame::CDataFrame(std::size_t numberColumns,
-                       EReadWriteToStorage asyncReadAndWriteToStore,
+                       EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : CDataFrame{numberColumns, computeSliceCapacity(numberColumns),
-                 asyncReadAndWriteToStore, writeSliceToStore} {
+                 readAndWriteToStoreSyncStrategy, writeSliceToStore} {
 }
 
 bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
@@ -285,7 +285,7 @@ CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         // This all happens on the main thread to avoid a context switch.
 
         CDataFrameRowSliceReader sliceReader{reader, m_NumberColumns, m_RowCapacity,
-                                             m_AsyncReadAndWriteToStore};
+                                             m_ReadAndWriteToStoreSyncStrategy};
         bool successful{sliceReader(m_Slices.begin(), m_Slices.end())};
         return {{std::move(reader)}, successful};
     }
@@ -310,14 +310,14 @@ CDataFrame::TReadFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         auto begin = m_Slices.begin() + j;
         auto end = m_Slices.begin() + j + stride;
         CDataFrameRowSliceReader sliceReader{readers[i], m_NumberColumns, m_RowCapacity,
-                                             m_AsyncReadAndWriteToStore};
+                                             m_ReadAndWriteToStoreSyncStrategy};
         reads.push_back(std::async(std::launch::async, sliceReader, begin, end));
     }
     auto begin = m_Slices.begin() + j;
     auto end = m_Slices.end();
     if (begin != end) {
-        CDataFrameRowSliceReader sliceReader{readers.back(), m_NumberColumns,
-                                             m_RowCapacity, m_AsyncReadAndWriteToStore};
+        CDataFrameRowSliceReader sliceReader{readers.back(), m_NumberColumns, m_RowCapacity,
+                                             m_ReadAndWriteToStoreSyncStrategy};
         reads.push_back(std::async(std::launch::async, sliceReader, begin, end));
     }
 
@@ -333,7 +333,7 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     if (m_Writer == nullptr) {
         m_Writer = boost::make_unique<CDataFrameRowSliceWriter>(
             m_NumberRows, m_RowCapacity, m_SliceCapacityInRows,
-            m_AsyncReadAndWriteToStore, m_WriteSliceToStore);
+            m_ReadAndWriteToStoreSyncStrategy, m_WriteSliceToStore);
     }
     (*m_Writer)(writeRow);
 }
@@ -358,15 +358,16 @@ std::size_t CDataFrame::memoryUsage() const {
     return CMemory::dynamicSize(m_Slices) + CMemory::dynamicSize(m_Writer);
 }
 
-CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(std::size_t numberRows,
-                                                               std::size_t rowCapacity,
-                                                               std::size_t sliceCapacityInRows,
-                                                               EReadWriteToStorage asyncWriteToStore,
-                                                               TWriteSliceToStoreFunc writeSliceToStore)
+CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
+    std::size_t numberRows,
+    std::size_t rowCapacity,
+    std::size_t sliceCapacityInRows,
+    EReadWriteToStorage writeToStoreSyncStrategy,
+    TWriteSliceToStoreFunc writeSliceToStore)
     : m_NumberRows{numberRows}, m_RowCapacity{rowCapacity}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_AsyncWriteToStore{asyncWriteToStore}, m_WriteSliceToStore{writeSliceToStore} {
+      m_WriteToStoreSyncStrategy{writeToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
     m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
-    if (m_AsyncWriteToStore == EReadWriteToStorage::E_Async) {
+    if (m_WriteToStoreSyncStrategy == EReadWriteToStorage::E_Async) {
         m_AsyncWriteToStoreResult = std::async(
             std::launch::async, CAsyncDataFrameStorageWriter{writeSliceToStore},
             std::ref(m_SlicesToAsyncWriteToStore));
@@ -391,7 +392,7 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
         std::size_t firstRow{m_NumberRows - m_SliceCapacityInRows};
         LOG_TRACE(<< "Storing slice [" << firstRow << "," << m_NumberRows << ")");
 
-        switch (m_AsyncWriteToStore) {
+        switch (m_WriteToStoreSyncStrategy) {
         case EReadWriteToStorage::E_Async: {
             TSizeFloatVecPr slice{firstRow, std::move(m_SliceBeingWritten)};
             m_SlicesToAsyncWriteToStore.push(std::move(slice));
@@ -415,7 +416,7 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
                                            : "[" + std::to_string(firstRow) + "," +
                                                  std::to_string(m_NumberRows) + ")"));
 
-    switch (m_AsyncWriteToStore) {
+    switch (m_WriteToStoreSyncStrategy) {
     case EReadWriteToStorage::E_Async:
         if (m_SliceBeingWritten.size() > 0) {
             TSizeFloatVecPr slice{firstRow, std::move(m_SliceBeingWritten)};
@@ -458,7 +459,7 @@ void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
     // storage that we're done.
 
     if (m_Writing) {
-        if (m_AsyncWriteToStore == EReadWriteToStorage::E_Async) {
+        if (m_WriteToStoreSyncStrategy == EReadWriteToStorage::E_Async) {
             m_SlicesToAsyncWriteToStore.push({0, TFloatVec{}});
         }
         m_Writing = false;
@@ -467,7 +468,7 @@ void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
 
 CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
                                     boost::optional<std::size_t> sliceCapacity,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreAsync) {
+                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     // The return copy is elided so we never need to call the explicitly
     // deleted data frame copy constructor.
 
@@ -476,17 +477,17 @@ CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
     };
 
     if (sliceCapacity != boost::none) {
-        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer};
+        return {numberColumns, *sliceCapacity, readWriteToStoreSyncStrategy, writer};
     }
 
-    return {numberColumns, readWriteToStoreAsync, writer};
+    return {numberColumns, readWriteToStoreSyncStrategy, writer};
 }
 
 CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
                                     std::size_t numberColumns,
                                     std::size_t numberRows,
                                     boost::optional<std::size_t> sliceCapacity,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreAsync) {
+                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     // The return copy is elided so we never need to call the explicitly
     // deleted data frame copy constructor.
 
@@ -506,9 +507,9 @@ CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
     };
 
     if (sliceCapacity != boost::none) {
-        return {numberColumns, *sliceCapacity, readWriteToStoreAsync, writer};
+        return {numberColumns, *sliceCapacity, readWriteToStoreSyncStrategy, writer};
     }
-    return {numberColumns, readWriteToStoreAsync, writer};
+    return {numberColumns, readWriteToStoreSyncStrategy, writer};
 }
 }
 }
