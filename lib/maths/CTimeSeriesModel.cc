@@ -1591,22 +1591,23 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
 
         for (const auto& value : initialValues) {
             CFloatStorage weight(CBasicStatistics::count(value.second));
-            if (weight > 0.0) {
-                samples.push_back(CBasicStatistics::accumulator(
-                    weight, CFloatStorage(m_TrendModel->detrend(
-                                value.first, CBasicStatistics::mean(value.second), 0.0))));
-                totalWeight += weight;
-            }
+            samples.push_back(CBasicStatistics::accumulator(
+                weight, CFloatStorage(m_TrendModel->detrend(
+                            value.first, CBasicStatistics::mean(value.second), 0.0))));
+            totalWeight += weight;
         }
 
         TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samples)};
         samples = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(samples), segmentation);
 
-        maths_t::TDoubleWeightsAry1Vec weight(1);
+        maths_t::TDoubleWeightsAry1Vec weights(1);
         double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / totalWeight};
         for (const auto& sample : samples) {
-            weight[0] = maths_t::countWeight(weightScale * CBasicStatistics::count(sample));
-            m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weight);
+            double weight(CBasicStatistics::count(sample));
+            if (weight > 0.0) {
+                weights[0] = maths_t::countWeight(weightScale * weight);
+                m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weights);
+            }
         }
     }
 
@@ -2906,25 +2907,30 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         TDouble10VecVec samples;
 
         for (std::size_t d = 0; d < dimension; ++d) {
-            TFloatMeanAccumulatorVec dimensionSamples;
-            dimensionSamples.reserve(initialValues[d].size());
+            TFloatMeanAccumulatorVec samplesForDimension;
+            samplesForDimension.reserve(initialValues[d].size());
 
             for (const auto& value : initialValues[d]) {
-                CFloatStorage weight(CBasicStatistics::count(value.second));
-                if (weight > 0.0) {
-                    dimensionSamples.push_back(CBasicStatistics::accumulator(
-                        weight, CFloatStorage(m_TrendModel[d]->detrend(
-                                    value.first, CBasicStatistics::mean(value.second), 0.0))));
-                }
+                samplesForDimension.push_back(CBasicStatistics::accumulator(
+                    CBasicStatistics::count(value.second),
+                    CFloatStorage(m_TrendModel[d]->detrend(
+                        value.first, CBasicStatistics::mean(value.second), 0.0))));
             }
 
-            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(dimensionSamples)};
-            dimensionSamples = CTimeSeriesSegmentation::removePiecewiseLinear(
-                std::move(dimensionSamples), segmentation);
+            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samplesForDimension)};
+            samplesForDimension = CTimeSeriesSegmentation::removePiecewiseLinear(
+                std::move(samplesForDimension), segmentation);
 
-            samples.resize(dimensionSamples.size(), TDouble10Vec(dimension));
-            for (std::size_t i = 0; i < dimensionSamples.size(); ++i) {
-                samples[i][d] = CBasicStatistics::mean(dimensionSamples[i]);
+            samplesForDimension.erase(
+                std::remove_if(samplesForDimension.begin(), samplesForDimension.end(),
+                               [](const TFloatMeanAccumulator& sample) {
+                                   return CBasicStatistics::count(sample) == 0.0;
+                               }),
+                samplesForDimension.end());
+
+            samples.resize(samplesForDimension.size(), TDouble10Vec(dimension));
+            for (std::size_t i = 0; i < samplesForDimension.size(); ++i) {
+                samples[i][d] = CBasicStatistics::mean(samplesForDimension[i]);
             }
         }
 
