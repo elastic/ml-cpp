@@ -89,7 +89,7 @@ bool CTimeSeriesDecompositionStub::mightAddComponents(core_t::TTime /*time*/) co
     return false;
 }
 
-CTimeSeriesDecompositionStub::TTimeDoublePrVec
+CTimeSeriesDecompositionStub::TTimeFloatMeanAccumulatorPrVec
 CTimeSeriesDecompositionStub::windowValues() const {
     return {};
 }
