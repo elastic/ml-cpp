@@ -22,6 +22,7 @@ set -e
 
 cd `dirname $0`
 
+# Don't cache layers because then we pick up latest OS patches on rebuild
 docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION linux_image
 docker login
 docker push $ACCOUNT/$REPOSITORY:$VERSION
