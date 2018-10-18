@@ -701,7 +701,7 @@ CUnivariateLinearScaleModel::TOptionalChangeDescription
 CUnivariateLinearScaleModel::change() const {
     TOptionalChangeDescription result;
     result.emplace(SChangeDescription::E_LinearScale,
-                   CTools::truncate(CBasicStatistics::mean(m_Scale), MINIMUM_SCALE, MAXIMUM_SCALE),
+                   CBasicStatistics::mean(m_Scale),
                    this->trendModelPtr(), this->residualModelPtr());
     return result;
 }
