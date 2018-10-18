@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new unit test image is built
-FROM droberts195/ml-linux-test:1
+FROM droberts195/ml-linux-test:3
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 

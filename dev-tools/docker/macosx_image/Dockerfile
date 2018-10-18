@@ -29,7 +29,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-x86_64-apple-macosx10.10/usr && \
   cd /usr/local/sysroot-x86_64-apple-macosx10.10/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.10-3.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.10-4.tar.bz2 | tar jxf - && \
   wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/xcode-x86_64-apple-macosx10.10-1.tar.bz2 | tar jxf -
 
 # Build cctools-port
