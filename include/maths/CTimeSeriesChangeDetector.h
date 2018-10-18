@@ -49,7 +49,6 @@ struct MATHS_EXPORT SChangeDescription {
 
     SChangeDescription(EDescription decription,
                        double value,
-                       double magnitude,
                        const TDecompositionPtr& trendModel,
                        const TPriorPtr& residualModel);
 
@@ -61,9 +60,6 @@ struct MATHS_EXPORT SChangeDescription {
 
     //! The change value.
     TDouble2Vec s_Value;
-
-    //! The magnitude of the change.
-    TDouble2Vec s_Magnitude;
 
     //! The time series trend model to use after the change.
     TDecompositionPtr s_TrendModel;
@@ -247,7 +243,7 @@ protected:
     double expectedLogLikelihood() const;
 
     //! Update the log-likelihood with \p samples.
-    void updateLogLikelihood(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
+    void updateLogLikelihood(TDouble1Vec samples, const TDoubleWeightsAry1Vec& weights);
 
     //! Update the expected log-likelihoods.
     void updateExpectedLogLikelihood(const TDoubleWeightsAry1Vec& weights);
@@ -265,11 +261,17 @@ protected:
     const TPriorPtr& residualModelPtr() const;
 
 private:
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+private:
     //! The likelihood of the data under this model.
     double m_LogLikelihood;
 
     //! The expected log-likelihood of the data under this model.
     double m_ExpectedLogLikelihood;
+
+    //! The moments of the samples added so far.
+    TMeanVarAccumulator m_SampleMoments;
 
     //! A model decomposing the time series trend.
     TDecompositionPtr m_TrendModel;
@@ -421,7 +423,7 @@ private:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 private:
-    //! The optimal shift.
+    //! The optimal scale.
     TMeanAccumulator m_Scale;
 
     //! The mean magnitude of the change.

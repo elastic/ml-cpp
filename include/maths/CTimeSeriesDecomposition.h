@@ -198,7 +198,7 @@ public:
     virtual core_t::TTime lastValueTime() const;
 
 private:
-    using TMediatorPtr = std::shared_ptr<CMediator>;
+    using TMediatorPtr = std::unique_ptr<CMediator>;
 
 private:
     //! Set up the communication mediator.
