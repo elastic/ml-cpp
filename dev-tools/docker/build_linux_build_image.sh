@@ -16,13 +16,13 @@
 
 ACCOUNT=droberts195
 REPOSITORY=ml-linux-build
-VERSION=2
+VERSION=4
 
 set -e
 
 cd `dirname $0`
 
-docker build -t $ACCOUNT/$REPOSITORY:$VERSION linux_image
+docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION linux_image
 docker login
 docker push $ACCOUNT/$REPOSITORY:$VERSION
 

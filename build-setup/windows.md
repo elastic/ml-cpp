@@ -379,8 +379,8 @@ Start a command prompt using Start Menu -&gt; Apps -&gt; Microsoft Visual Studio
 ```
 cd \tools\boost_1_65_1
 bootstrap.bat
-b2 -j6 --layout=versioned --disable-icu --toolset=msvc-12.0 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.8" -sZLIB_LIBPATH="C:\tools\zlib-1.2.8" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python --without-test architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
-b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-12.0 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.8" -sZLIB_LIBPATH="C:\tools\zlib-1.2.8" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python --without-test architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
+b2 -j6 --layout=versioned --disable-icu --toolset=msvc-12.0 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.8" -sZLIB_LIBPATH="C:\tools\zlib-1.2.8" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
+b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-12.0 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.8" -sZLIB_LIBPATH="C:\tools\zlib-1.2.8" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
 ```
 
 The Boost headers and appropriate libraries should end up in `C:\usr\local\include` and `C:\usr\local\lib` respectively.

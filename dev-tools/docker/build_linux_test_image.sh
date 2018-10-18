@@ -16,7 +16,7 @@
 
 ACCOUNT=droberts195
 REPOSITORY=ml-linux-test
-VERSION=1
+VERSION=3
 
 set -e
 
