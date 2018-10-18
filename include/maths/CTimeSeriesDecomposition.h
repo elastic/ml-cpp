@@ -170,7 +170,7 @@ public:
     virtual bool mightAddComponents(core_t::TTime time) const;
 
     //! Get the values in a recent time window.
-    virtual TTimeDoublePrVec windowValues() const;
+    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);

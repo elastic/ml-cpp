@@ -80,7 +80,7 @@ public:
     virtual bool mightAddComponents(core_t::TTime time) const;
 
     //! Returns an empty vector.
-    virtual TTimeDoublePrVec windowValues() const;
+    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);
