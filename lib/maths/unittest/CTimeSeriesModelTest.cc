@@ -2064,7 +2064,8 @@ void CTimeSeriesModelTest::testAnomalyModel() {
 }
 
 void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
-    // Test reinitialization of the prior after detecting a step change.
+    // Test reinitialization of the residual model after detecting a
+    // step change.
     //
     // Check detection and modelling of step changes in data with
     //    1) Piecewise constant,
@@ -2084,7 +2085,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "Univariate: Prior Reinitialization");
+    LOG_DEBUG(<< "Univariate: Residual Model Reinitialization");
     {
         core_t::TTime bucketLength{600};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
