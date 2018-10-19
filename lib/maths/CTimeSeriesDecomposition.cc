@@ -15,21 +15,18 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
-#include <maths/CCalendarComponent.h>
 #include <maths/CChecksum.h>
-#include <maths/CExpandingWindow.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesChangeDetector.h>
-#include <maths/CTools.h>
 
 #include <boost/bind.hpp>
 #include <boost/container/flat_map.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/random/normal_distribution.hpp>
+#include <boost/ref.hpp>
 
 #include <cmath>
 #include <string>
@@ -503,7 +500,7 @@ const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponen
 }
 
 void CTimeSeriesDecomposition::initializeMediator() {
-    m_Mediator = std::make_shared<CMediator>();
+    m_Mediator = boost::make_unique<CMediator>();
     m_Mediator->registerHandler(m_PeriodicityTest);
     m_Mediator->registerHandler(m_CalendarCyclicTest);
     m_Mediator->registerHandler(m_Components);

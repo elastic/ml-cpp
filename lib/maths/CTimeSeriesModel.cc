@@ -170,7 +170,7 @@ const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate fe
 namespace winsorisation {
 namespace {
 const double MAXIMUM_P_VALUE{1e-3};
-const double MINIMUM_P_VALUE{1e-10};
+const double MINIMUM_P_VALUE{1e-6};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
 const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
 const double LOG_MINIMUM_WEIGHT{std::log(MINIMUM_WEIGHT)};
@@ -1465,14 +1465,18 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
     core_t::TTime timeOfChangePoint{m_CandidateChangePoint.first};
     double valueAtChangePoint{m_CandidateChangePoint.second};
 
-    change.s_TrendModel->decayRate(m_TrendModel->decayRate());
-    m_TrendModel = change.s_TrendModel;
+    auto& newTrendModel = change.s_TrendModel;
+    auto& newResidualModel = change.s_ResidualModel;
+    newTrendModel->decayRate(m_TrendModel->decayRate());
+    newResidualModel->decayRate(m_ResidualModel->decayRate());
+
     TTimeFloatMeanAccumulatorPrVec window(m_TrendModel->windowValues());
+
+    m_TrendModel = newTrendModel;
     if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         this->reinitializeStateGivenNewComponent(window);
     } else {
-        change.s_ResidualModel->decayRate(m_ResidualModel->decayRate());
-        m_ResidualModel = change.s_ResidualModel;
+        m_ResidualModel = newResidualModel;
     }
 
     return E_Success;
