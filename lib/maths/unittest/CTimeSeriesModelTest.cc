@@ -2109,7 +2109,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
             time, 50.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         LOG_DEBUG(<< "confidence interval = " << confidenceInterval);
         CPPUNIT_ASSERT(std::fabs(confidenceInterval[1][0] - 40.0) < 1.0);
-        CPPUNIT_ASSERT(confidenceInterval[2][0] - confidenceInterval[0][0] < 3.0);
+        CPPUNIT_ASSERT(confidenceInterval[2][0] - confidenceInterval[0][0] < 4.0);
     }
     LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {

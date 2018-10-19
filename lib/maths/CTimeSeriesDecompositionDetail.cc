@@ -2320,8 +2320,9 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::shiftOrigin(core_t:
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::linearScale(core_t::TTime time,
                                                                          double scale) {
-    for (auto& component : m_Components) {
-        component.linearScale(time, scale);
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
+        m_Components[i].linearScale(time, scale);
+        m_PredictionErrors[i].clear();
     }
 }
 
