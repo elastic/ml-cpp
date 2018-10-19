@@ -2296,6 +2296,111 @@ void CTimeSeriesModelTest::testDaylightSaving() {
     }
 }
 
+void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
+    // We test that when parameters dictate to skip updating the anomaly model
+    // probabilities become smaller despite seeing many anomalies.
+
+    test::CRandomNumbers rng;
+
+    std::size_t length = 2000;
+    core_t::TTime bucketLength{600};
+
+    LOG_DEBUG(<< "Univariate");
+    {
+        TDoubleVec samples;
+        rng.generateNormalSamples(10.0, 2.0, length, samples);
+
+        maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+        maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 1,
+                                                trend, univariateNormal()};
+
+        TDoubleVec probabilities;
+        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+        core_t::TTime time{0};
+        for (std::size_t bucket = 0; bucket < samples.size(); ++bucket) {
+            auto sample = samples[bucket];
+            auto currentComputeProbabilityParams = computeProbabilityParams(weights[0]);
+            TTail2Vec tail;
+            double probability;
+            bool conditional;
+            TSize1Vec mostAnomalousCorrelate;
+
+            // We create anomalies in 10 consecutive buckets
+            if (bucket >= 1700 && bucket < 1710) {
+                sample = 100.0;
+                currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {{sample}}, probability, tail, conditional,
+                                  mostAnomalousCorrelate);
+                probabilities.push_back(probability);
+            } else {
+                model.addSamples(addSampleParams(weights),
+                                 {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {{sample}}, probability, tail, conditional,
+                                  mostAnomalousCorrelate);
+            }
+
+            time += bucketLength;
+        }
+
+        LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+
+        // Assert probs are decreasing
+        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
+        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+    }
+
+    LOG_DEBUG(<< "Multivariate");
+    {
+        TDoubleVecVec samples;
+        rng.generateMultivariateNormalSamples(
+            {10.0, 10.0, 10.0},
+            {{4.0, 0.9, 0.5}, {0.9, 2.6, 0.1}, {0.5, 0.1, 3.0}}, length, samples);
+
+        maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+        maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
+        maths::CMultivariateTimeSeriesModel model{modelParams(bucketLength), trend, prior};
+
+        TDoubleVec probabilities;
+        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
+        core_t::TTime time{0};
+        for (std::size_t bucket = 0; bucket < samples.size(); ++bucket) {
+            auto& sample = samples[bucket];
+            auto currentComputeProbabilityParams = computeProbabilityParams(weights[0]);
+            TTail2Vec tail;
+            double probability;
+            bool conditional;
+            TSize1Vec mostAnomalousCorrelate;
+
+            if (bucket >= 1700 && bucket < 1710) {
+                for (auto& coordinate : sample) {
+                    coordinate += 100.0;
+                }
+                currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {(sample)}, probability, tail, conditional,
+                                  mostAnomalousCorrelate);
+                probabilities.push_back(probability);
+            } else {
+                model.addSamples(addSampleParams(weights),
+                                 {core::make_triple(time, TDouble2Vec(sample), TAG)});
+                model.probability(currentComputeProbabilityParams, {{time}},
+                                  {(sample)}, probability, tail, conditional,
+                                  mostAnomalousCorrelate);
+            }
+
+            time += bucketLength;
+        }
+
+        LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+
+        // Assert probs are decreasing
+        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
+        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+    }
+}
+
 CppUnit::Test* CTimeSeriesModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesModelTest");
 
@@ -2334,6 +2439,9 @@ CppUnit::Test* CTimeSeriesModelTest::suite() {
         "CTimeSeriesModelTest::testLinearScaling", &CTimeSeriesModelTest::testLinearScaling));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
         "CTimeSeriesModelTest::testDaylightSaving", &CTimeSeriesModelTest::testDaylightSaving));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
+        "CTimeSeriesModelTest::testSkipAnomalyModelUpdate",
+        &CTimeSeriesModelTest::testSkipAnomalyModelUpdate));
 
     return suiteOfTests;
 }

@@ -394,11 +394,16 @@ private:
 
 private:
     //! Update the appropriate anomaly model with \p anomaly.
-    void sample(core_t::TTime time, const CAnomaly& anomaly, double weight) {
-        std::size_t index(anomaly.positive() ? 0 : 1);
-        TDouble10Vec1Vec features{anomaly.features(this->scale(time))};
-        m_AnomalyFeatureModels[index].addSamples(features,
-                                                 {maths_t::countWeight(weight, 2)});
+    void sample(const CModelProbabilityParams& params,
+                core_t::TTime time,
+                const CAnomaly& anomaly,
+                double weight) {
+        if (params.skipAnomalyModelUpdate() == false) {
+            std::size_t index(anomaly.positive() ? 0 : 1);
+            TDouble10Vec1Vec features{anomaly.features(this->scale(time))};
+            m_AnomalyFeatureModels[index].addSamples(
+                features, {maths_t::countWeight(weight, 2)});
+        }
     }
 
     //! Get the scaled time.
@@ -451,7 +456,9 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
             double norm{std::sqrt(
                 std::accumulate(errors.begin(), errors.end(), 0.0,
                                 [](double n, double x) { return n + x * x; }))};
-            m_MeanError.add(norm);
+            if (params.skipAnomalyModelUpdate() == false) {
+                m_MeanError.add(norm);
+            }
             double scale{CBasicStatistics::mean(m_MeanError)};
             norm = (scale == 0.0 ? 1.0 : norm / scale);
             double sign{std::accumulate(errors.begin(), errors.end(), 0.0)};
@@ -461,7 +468,7 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
             }
             anomaly->update(norm, sign);
         } else if (anomaly != m_Anomalies.end()) {
-            this->sample(time, *anomaly, 1.0 - anomaly->weight(this->scale(time)));
+            this->sample(params, time, *anomaly, 1.0 - anomaly->weight(this->scale(time)));
             m_Anomalies.erase(anomaly);
         }
     }
@@ -475,7 +482,7 @@ void CTimeSeriesAnomalyModel::sampleAnomaly(const CModelProbabilityParams& param
             m_Anomalies.begin(), m_Anomalies.end(),
             [tag](const CAnomaly& anomaly_) { return anomaly_.tag() == tag; });
         if (anomaly != m_Anomalies.end()) {
-            this->sample(time, *anomaly, anomaly->weight(this->scale(time)));
+            this->sample(params, time, *anomaly, anomaly->weight(this->scale(time)));
         }
     }
 }

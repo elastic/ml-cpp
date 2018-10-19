@@ -583,6 +583,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -600,7 +602,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature)) // new line
         .addBucketEmpty({!count || *count == 0})
-        .addWeights(weight);
+        .addWeights(weight)
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 }
 
 void CEventRateModel::fill(model_t::EFeature feature,
@@ -616,6 +619,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, gatherer.bucketLength())};
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -626,7 +631,9 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature));
+    params.s_ComputeProbabilityParams
+        .addCalculation(model_t::probabilityCalculation(feature))
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]

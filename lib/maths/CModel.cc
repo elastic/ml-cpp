@@ -267,6 +267,17 @@ bool CModelProbabilityParams::updateAnomalyModel() const {
     return m_UpdateAnomalyModel;
 }
 
+CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
+    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+    return *this;
+}
+
+bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
+    return m_SkipAnomalyModelUpdate;
+}
+
+//////// CModel ////////
+
 CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs) {
     switch (lhs) {
     case E_Success:

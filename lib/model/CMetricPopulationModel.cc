@@ -929,6 +929,7 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     maths_t::setSeasonalVarianceScale(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -948,7 +949,8 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
         .tag(pid) // new line
         .addCalculation(model_t::probabilityCalculation(feature))
         .addBucketEmpty({false})
-        .addWeights(weights);
+        .addWeights(weights)
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 }
 
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////
