@@ -700,8 +700,7 @@ double CUnivariateLinearScaleModel::normalizedMagnitude() const {
 CUnivariateLinearScaleModel::TOptionalChangeDescription
 CUnivariateLinearScaleModel::change() const {
     TOptionalChangeDescription result;
-    result.emplace(SChangeDescription::E_LinearScale,
-                   CBasicStatistics::mean(m_Scale),
+    result.emplace(SChangeDescription::E_LinearScale, CBasicStatistics::mean(m_Scale),
                    this->trendModelPtr(), this->residualModelPtr());
     return result;
 }
