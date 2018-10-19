@@ -57,6 +57,7 @@ const std::string RESIDUAL_MODEL_TAG{"n"};
 const std::string LOG_INVERSE_DECISION_FUNCTION_TREND_TAG{"p"};
 const std::string TREND_MODEL_TAG{"q"};
 const std::string MAGNITUDE_TAG{"r"};
+const std::string SAMPLE_MOMENTS_TAG{"s"};
 const std::size_t EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS{4u};
 const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
 const double MAGNITUDE_THRESHOLD_STANDARD_DEVIATIONS_MULTPILIER{4.0};
@@ -70,11 +71,10 @@ const double LOG_INV_MAXIMUM_DECISION_FUNCTION{-CTools::fastLog(MAXIMUM_DECISION
 
 SChangeDescription::SChangeDescription(EDescription description,
                                        double value,
-                                       double magnitude,
                                        const TDecompositionPtr& trendModel,
                                        const TPriorPtr& residualModel)
-    : s_Description{description}, s_Value(1, value),
-      s_Magnitude(1, magnitude), s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
+    : s_Description{description},
+      s_Value(1, value), s_TrendModel{trendModel}, s_ResidualModel{residualModel} {
 }
 
 std::string SChangeDescription::print() const {
@@ -222,6 +222,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
     double noChangeBic{m_ChangeModels[0]->bic()};
     TMinAccumulator candidates;
     for (auto i = m_ChangeModels.begin() + 1; i != m_ChangeModels.end(); ++i) {
+        LOG_TRACE(<< "  BIC(" << (*i)->change()->print() << ") = " << (*i)->bic());
         candidates.add({(*i)->bic(), i});
     }
     candidates.sort();
@@ -244,7 +245,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
                    evidence / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
                    normalizedTimeRange, normalizedMagnitude};
         df = 0.5 * MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
-             (x[1] < 0.0 ? 1.0 : CTools::logisticFunction(x[1], 0.2, 1.0)) *
+             (x[1] < 0.0 ? 1.0 : CTools::logisticFunction(x[1], 0.3, 1.0)) *
              CTools::logisticFunction(x[2], 0.2, 0.5) *
              CTools::logisticFunction(x[3], 0.1, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
@@ -258,7 +259,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
                    normalizedTimeRange, normalizedMagnitude};
         df = MAXIMUM_DECISION_FUNCTION * CTools::logisticFunction(x[0], 0.05, 1.0) *
              CTools::logisticFunction(x[1], 0.1, 1.0) *
-             (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2, 1.0)) *
+             (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.3, 1.0)) *
              CTools::logisticFunction(x[3], 0.2, 0.5) *
              CTools::logisticFunction(x[4], 0.1, 1.0);
         LOG_TRACE(<< "df(" << (*candidates[0].second)->change()->print()
@@ -272,7 +273,7 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t& change
 
 bool CUnivariateTimeSeriesChangeDetector::stopTesting() const {
     core_t::TTime range{m_TimeRange.range()};
-    return (range > m_MinimumTimeToDetect) &&
+    return (range > 3 * m_MinimumTimeToDetect / 4) &&
            (range > m_MaximumTimeToDetect || m_LogInvDecisionFunctionTrend.count() == 0.0 ||
             m_LogInvDecisionFunctionTrend.predict(1.0) > 2.0);
 }
@@ -341,6 +342,7 @@ bool CUnivariateChangeModel::acceptRestoreTraverser(const SModelRestoreParams& /
         const std::string name{traverser.name()};
         RESTORE_BUILT_IN(LOG_LIKELIHOOD_TAG, m_LogLikelihood);
         RESTORE_BUILT_IN(EXPECTED_LOG_LIKELIHOOD_TAG, m_ExpectedLogLikelihood);
+        RESTORE(SAMPLE_MOMENTS_TAG, m_SampleMoments.fromDelimited(traverser.value()))
         return true;
     } while (traverser.next());
     return true;
@@ -350,6 +352,7 @@ void CUnivariateChangeModel::acceptPersistInserter(core::CStatePersistInserter& 
     inserter.insertValue(LOG_LIKELIHOOD_TAG, m_LogLikelihood, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(EXPECTED_LOG_LIKELIHOOD_TAG, m_ExpectedLogLikelihood,
                          core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(SAMPLE_MOMENTS_TAG, m_SampleMoments.toDelimited());
 }
 
 void CUnivariateChangeModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -369,6 +372,7 @@ std::size_t CUnivariateChangeModel::memoryUsage() const {
 uint64_t CUnivariateChangeModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_LogLikelihood);
     seed = CChecksum::calculate(seed, m_ExpectedLogLikelihood);
+    seed = CChecksum::calculate(seed, m_SampleMoments);
     seed = CChecksum::calculate(seed, m_TrendModel);
     return CChecksum::calculate(seed, m_ResidualModel);
 }
@@ -394,8 +398,17 @@ double CUnivariateChangeModel::expectedLogLikelihood() const {
     return m_ExpectedLogLikelihood;
 }
 
-void CUnivariateChangeModel::updateLogLikelihood(const TDouble1Vec& samples,
+void CUnivariateChangeModel::updateLogLikelihood(TDouble1Vec samples,
                                                  const TDoubleWeightsAry1Vec& weights) {
+    m_SampleMoments.add(samples);
+    double mean{CBasicStatistics::mean(m_SampleMoments)};
+    double sigma{std::sqrt(CBasicStatistics::variance(m_SampleMoments))};
+    if (sigma > 0.0) {
+        for (auto& sample : samples) {
+            sample = CTools::truncate(sample, mean - 3.0 * sigma, mean + 3.0 * sigma);
+        }
+    }
+
     double logLikelihood{};
     if (m_ResidualModel->jointLogMarginalLikelihood(samples, weights, logLikelihood) ==
         maths_t::E_FpNoErrors) {
@@ -473,7 +486,7 @@ double CUnivariateNoChangeModel::normalizedMagnitude() const {
 }
 
 TOptionalChangeDescription CUnivariateNoChangeModel::change() const {
-    return TOptionalChangeDescription();
+    return {};
 }
 
 void CUnivariateNoChangeModel::addSamples(const std::size_t count,
@@ -494,7 +507,7 @@ void CUnivariateNoChangeModel::addSamples(const std::size_t count,
         for (auto& weight : weights) {
             maths_t::setWinsorisationWeight(1.0, weight);
         }
-        this->updateLogLikelihood(samples, weights);
+        this->updateLogLikelihood(std::move(samples), weights);
     }
 }
 
@@ -564,10 +577,10 @@ double CUnivariateLevelShiftModel::normalizedMagnitude() const {
 }
 
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const {
-    return SChangeDescription{SChangeDescription::E_LevelShift,
-                              CBasicStatistics::mean(m_Shift),
-                              std::fabs(CBasicStatistics::mean(m_Shift)),
-                              this->trendModelPtr(), this->residualModelPtr()};
+    TOptionalChangeDescription result;
+    result.emplace(SChangeDescription::E_LevelShift, CBasicStatistics::mean(m_Shift),
+                   this->trendModelPtr(), this->residualModelPtr());
+    return result;
 }
 
 void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
@@ -605,7 +618,7 @@ void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
         for (auto& weight : weights) {
             maths_t::setWinsorisationWeight(1.0, weight);
         }
-        this->updateLogLikelihood(samples, weights);
+        this->updateLogLikelihood(std::move(samples), weights);
         this->updateExpectedLogLikelihood(weights);
     }
 
@@ -687,10 +700,10 @@ double CUnivariateLinearScaleModel::normalizedMagnitude() const {
 
 CUnivariateLinearScaleModel::TOptionalChangeDescription
 CUnivariateLinearScaleModel::change() const {
-    return SChangeDescription{SChangeDescription::E_LinearScale,
-                              CBasicStatistics::mean(m_Scale),
-                              CBasicStatistics::mean(m_Magnitude),
-                              this->trendModelPtr(), this->residualModelPtr()};
+    TOptionalChangeDescription result;
+    result.emplace(SChangeDescription::E_LinearScale, CBasicStatistics::mean(m_Scale),
+                   this->trendModelPtr(), this->residualModelPtr());
+    return result;
 }
 
 void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
@@ -742,7 +755,7 @@ void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
         for (auto& weight : weights) {
             maths_t::setWinsorisationWeight(1.0, weight);
         }
-        this->updateLogLikelihood(samples, weights);
+        this->updateLogLikelihood(std::move(samples), weights);
         this->updateExpectedLogLikelihood(weights);
     }
 }
@@ -807,9 +820,10 @@ double CUnivariateTimeShiftModel::normalizedMagnitude() const {
 }
 
 TOptionalChangeDescription CUnivariateTimeShiftModel::change() const {
-    return SChangeDescription{SChangeDescription::E_TimeShift,
-                              static_cast<double>(m_Shift), 0.0,
-                              this->trendModelPtr(), this->residualModelPtr()};
+    TOptionalChangeDescription result;
+    result.emplace(SChangeDescription::E_TimeShift, static_cast<double>(m_Shift),
+                   this->trendModelPtr(), this->residualModelPtr());
+    return result;
 }
 
 void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
@@ -836,7 +850,7 @@ void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
         for (auto& weight : weights) {
             maths_t::setWinsorisationWeight(1.0, weight);
         }
-        this->updateLogLikelihood(samples, weights);
+        this->updateLogLikelihood(std::move(samples), weights);
         this->updateExpectedLogLikelihood(weights);
     }
 }
