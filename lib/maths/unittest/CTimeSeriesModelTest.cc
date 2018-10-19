@@ -2366,7 +2366,6 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
         for (std::size_t bucket = 0; bucket < samples.size(); ++bucket) {
-            LOG_DEBUG(<< "Bucket = " << bucket);
             auto& sample = samples[bucket];
             auto currentComputeProbabilityParams = computeProbabilityParams(weights[0]);
             TTail2Vec tail;

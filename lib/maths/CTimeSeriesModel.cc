@@ -399,13 +399,10 @@ private:
                 const CAnomaly& anomaly,
                 double weight) {
         if (params.skipAnomalyModelUpdate() == false) {
-            LOG_DEBUG(<< "Executing anomaly update");
             std::size_t index(anomaly.positive() ? 0 : 1);
             TDouble10Vec1Vec features{anomaly.features(this->scale(time))};
             m_AnomalyFeatureModels[index].addSamples(
                 features, {maths_t::countWeight(weight, 2)});
-        } else {
-            LOG_DEBUG(<< "Skipping anomaly update");
         }
     }
 
@@ -459,7 +456,9 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams& param
             double norm{std::sqrt(
                 std::accumulate(errors.begin(), errors.end(), 0.0,
                                 [](double n, double x) { return n + x * x; }))};
-            m_MeanError.add(norm);
+            if (params.skipAnomalyModelUpdate() == false) {
+                m_MeanError.add(norm);
+            }
             double scale{CBasicStatistics::mean(m_MeanError)};
             norm = (scale == 0.0 ? 1.0 : norm / scale);
             double sign{std::accumulate(errors.begin(), errors.end(), 0.0)};
@@ -519,7 +518,7 @@ void CTimeSeriesAnomalyModel::probability(const CModelProbabilityParams& params,
             double pGivenAnomalous{(pl + pu) / 2.0};
             double pScore{CTools::anomalyScore(probability)};
             double pScoreGivenAnomalous{CTools::anomalyScore(pGivenAnomalous)};
-            LOG_DEBUG(<< "features = " << features << " score(.) = " << pScore
+            LOG_TRACE(<< "features = " << features << " score(.) = " << pScore
                       << " score(.|anomalous) = " << pScoreGivenAnomalous
                       << " p = " << probability);
             probability = std::min(
@@ -1134,11 +1133,8 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
             (mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
                                        mostAnomalousSample)) /
             std::max(std::sqrt(this->seasonalWeight(0.0, mostAnomalousTime)[0]), 1.0)};
-        LOG_DEBUG(<< "before update p = " << probability);
         m_AnomalyModel->updateAnomaly(params, mostAnomalousTime, residual, probability);
-        LOG_DEBUG(<< "before calc p = " << probability);
         m_AnomalyModel->probability(params, mostAnomalousTime, probability);
-        LOG_DEBUG(<< "after calc p = " << probability);
         m_AnomalyModel->sampleAnomaly(params, mostAnomalousTime);
     }
     return true;
@@ -2406,11 +2402,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         for (std::size_t i = 0u; i < dimension; ++i) {
             residual[i] = (sample[0][i] - nearest[i]) / std::max(std::sqrt(scale[i]), 1.0);
         }
-        LOG_DEBUG(<< "before update p = " << probability);
         m_AnomalyModel->updateAnomaly(params, time, residual, probability);
-        LOG_DEBUG(<< "before calc p = " << probability);
         m_AnomalyModel->probability(params, time, probability);
-        LOG_DEBUG(<< "after calc p = " << probability);
         m_AnomalyModel->sampleAnomaly(params, time);
     }
 
