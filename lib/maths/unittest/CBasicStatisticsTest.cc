@@ -965,7 +965,6 @@ void CBasicStatisticsTest::testCovariances() {
 }
 
 void CBasicStatisticsTest::testCovariancesLedoitWolf() {
-    using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TVector2Vec = std::vector<TVector2>;

@@ -214,7 +214,7 @@ public:
             TMaxValueAccumulator m_Score;
             double m_TimeSinceLastScore;
         };
-        using TWordMaxScoreUMap = TDictionary::CWordUMap<CMaxScore>::Type;
+        using TWordMaxScoreUMap = TDictionary::TWordTUMap<CMaxScore>;
 
     private:
         //! Used to convert raw scores in to integers so that we
