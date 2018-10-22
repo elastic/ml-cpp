@@ -56,6 +56,10 @@ fi
 # Remove any old builds
 rm -rf ../builds
 
+# Disassociate from reference repo
+git repack -a -d
+rm -rf ../.git/objects/info/alternates
+
 # If this is a PR build then fail fast on style checks
 if [ -n "$PR_AUTHOR" ] ; then
     ./docker_check_style.sh
