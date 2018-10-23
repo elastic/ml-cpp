@@ -58,7 +58,8 @@ rm -rf ../builds
 
 # Disassociate from reference repo
 git repack -a -d
-rm -rf ../.git/objects/info/alternates
+readonly GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2> /dev/null)
+rm -f "${GIT_TOPLEVEL}/.git/objects/info/alternates"
 
 # If this is a PR build then fail fast on style checks
 if [ -n "$PR_AUTHOR" ] ; then
