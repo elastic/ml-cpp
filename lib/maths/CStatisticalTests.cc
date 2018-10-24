@@ -74,6 +74,9 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
     if (std::isinf(x)) {
         return 1.0;
     }
+    if (std::isnan(x)) {
+        return 1.0;
+    }
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(F, x);
@@ -90,6 +93,9 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
     }
     if (std::isinf(x)) {
         return 0.0;
+    }
+    if (std::isnan(x)) {
+        return 1.0;
     }
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
