@@ -66,6 +66,8 @@ fields and the bucket is empty. ({pull}219[#219])
 
 Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
 
+Fix cause of "Failed to compute significance..." log errors ({ml-pull}272[272])"
+
 //=== Regressions
 
 == {es} version 6.4.3
