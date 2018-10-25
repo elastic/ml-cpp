@@ -30,12 +30,15 @@ const uint32_t SLEEP_TIME_MS = 100;
 const size_t TEST_SIZE = 10000;
 const size_t MAX_ATTEMPTS = 20;
 const char TEST_CHAR = 'a';
+// CTestTmpDir::tmpDir() fails to get the current user after the system call
+// filter is installed, so cache the value early
+const std::string TMP_DIR{ml::test::CTestTmpDir::tmpDir()};
 #ifdef Windows
-const char* const TEST_READ_PIPE_NAME = "\\\\.\\pipe\\testreadpipe";
-const char* const TEST_WRITE_PIPE_NAME = "\\\\.\\pipe\\testwritepipe";
+const std::string TEST_READ_PIPE_NAME{"\\\\.\\pipe\\testreadpipe"};
+const std::string TEST_WRITE_PIPE_NAME{"\\\\.\\pipe\\testwritepipe"};
 #else
-const char* const TEST_READ_PIPE_NAME = "testreadpipe";
-const char* const TEST_WRITE_PIPE_NAME = "testwritepipe";
+const std::string TEST_READ_PIPE_NAME{TMP_DIR + "/testreadpipe"};
+const std::string TEST_WRITE_PIPE_NAME{TMP_DIR + "/testwritepipe"};
 #endif
 
 class CNamedPipeWriter : public ml::core::CThread {
@@ -164,19 +167,11 @@ void CSystemCallFilterTest::testSystemCallFilter() {
     CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
                                           CPPUNIT_ASSERT(systemCall()));
 
-#ifdef Windows
-    const std::string readPipeName{TEST_READ_PIPE_NAME};
-    const std::string writePipeName{TEST_WRITE_PIPE_NAME};
-#else
-    const std::string readPipeName{ml::test::CTestTmpDir::tmpDir() + "/" + TEST_READ_PIPE_NAME};
-    const std::string writePipeName{ml::test::CTestTmpDir::tmpDir() + "/" + TEST_WRITE_PIPE_NAME};
-#endif
-
     // Operations that must function after seccomp is initialised
-    openPipeAndRead(readPipeName);
-    openPipeAndWrite(writePipeName);
+    openPipeAndRead(TEST_READ_PIPE_NAME);
+    openPipeAndWrite(TEST_WRITE_PIPE_NAME);
 
-    makeAndRemoveDirectory(ml::test::CTestTmpDir::tmpDir());
+    makeAndRemoveDirectory(TMP_DIR);
 }
 
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
@@ -242,7 +237,7 @@ void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
 
     boost::system::error_code errorCode;
     boost::filesystem::create_directories(temporaryFolder, errorCode);
-    CPPUNIT_ASSERT(errorCode == 0);
+    CPPUNIT_ASSERT_EQUAL(boost::system::error_code(), errorCode);
     boost::filesystem::remove_all(temporaryFolder, errorCode);
-    CPPUNIT_ASSERT(errorCode == 0);
+    CPPUNIT_ASSERT_EQUAL(boost::system::error_code(), errorCode);
 }
