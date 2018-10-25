@@ -48,7 +48,8 @@ The first major piece of development software to install is Apple's development 
 
 - If you are using Yosemite, you must install Xcode 7.2.x
 - If you are using El Capitan, you must install Xcode 8.2.x
-- If you are using Sierra/High Sierra, you must install Xcode 9.2.x
+- If you are using Sierra, you must install Xcode 9.2.x
+- If you are using High Sierra/Mojave, you must install Xcode 10.0.x
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 
