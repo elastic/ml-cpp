@@ -75,6 +75,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     if (std::isnan(x)) {
+        LOG_ERROR(<< "Test statistic is nan");
         return 1.0;
     }
     try {
@@ -95,6 +96,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         return 0.0;
     }
     if (std::isnan(x)) {
+        LOG_ERROR(<< "Test statistic is nan");
         return 1.0;
     }
     try {
