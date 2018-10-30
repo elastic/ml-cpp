@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new check style image is built
-FROM droberts195/ml-check-style:1
+FROM docker.elastic.co/ml-dev/ml-check-style:1
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
