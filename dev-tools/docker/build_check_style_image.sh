@@ -12,7 +12,8 @@
 # clang-format version, increment the image version, change the Dockerfile and
 # build a new image to be used for subsequent builds on this branch.
 
-ACCOUNT=droberts195
+HOST=push.docker.elastic.co
+ACCOUNT=ml-dev
 REPOSITORY=ml-check-style
 VERSION=1
 
@@ -20,7 +21,10 @@ set -e
 
 cd `dirname $0`
 
-docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION check_style_image
-docker login
-docker push $ACCOUNT/$REPOSITORY:$VERSION
+docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION check_style_image
+# Get a username and password for this by visiting
+# https://docker.elastic.co:7000 and allowing it to authenticate against your
+# GitHub account
+docker login $HOST
+docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
 
