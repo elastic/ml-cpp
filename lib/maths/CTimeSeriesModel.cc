@@ -1438,6 +1438,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
                 LOG_TRACE(<< "Starting to test for change at " << time);
                 m_ChangeDetector = boost::make_unique<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest);
+                m_TrendModel->testingForChange(true);
                 m_CurrentChangeInterval = 0;
             }
         } else {
@@ -1450,9 +1451,11 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
         m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
+            m_TrendModel->testingForChange(false);
         } else if (auto change = m_ChangeDetector->change()) {
             LOG_DEBUG(<< "Detected " << change->print() << " at " << time);
             m_ChangeDetector.reset();
+            m_TrendModel->testingForChange(false);
             return this->applyChange(*change);
         }
     }
@@ -1527,6 +1530,9 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     }
 
     if (result == E_Reset) {
+        if (window.empty()) {
+            window = m_TrendModel->windowValues();
+        }
         this->reinitializeStateGivenNewComponent(window);
     }
 
@@ -2850,6 +2856,11 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
     }
 
     if (result == E_Reset) {
+        if (window.empty()) {
+            for (std::size_t d = 0; d < dimension; ++d) {
+                window.push_back(m_TrendModel[d]->windowValues());
+            }
+        }
         this->reinitializeStateGivenNewComponent(window);
     }
 

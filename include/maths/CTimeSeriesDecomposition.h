@@ -94,6 +94,9 @@ public:
     //! Check if the decomposition has any initialized components.
     virtual bool initialized() const;
 
+    //! Set whether or not we're testing for a change.
+    virtual void testingForChange(bool value);
+
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the function point.

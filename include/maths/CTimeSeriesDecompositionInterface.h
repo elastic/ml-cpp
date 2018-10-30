@@ -73,6 +73,9 @@ public:
     //! Check if this is initialized.
     virtual bool initialized() const = 0;
 
+    //! Set whether or not we're testing for a change.
+    virtual void testingForChange(bool value) = 0;
+
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the function point.

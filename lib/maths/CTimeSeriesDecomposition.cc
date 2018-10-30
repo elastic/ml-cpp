@@ -211,6 +211,10 @@ bool CTimeSeriesDecomposition::initialized() const {
     return m_Components.initialized();
 }
 
+void CTimeSeriesDecomposition::testingForChange(bool value) {
+    m_Components.testingForChange(value);
+}
+
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights) {
