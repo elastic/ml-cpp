@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new unit test image is built
-FROM droberts195/ml-linux-test:1
+FROM docker.elastic.co/ml-dev/ml-linux-test:1
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
