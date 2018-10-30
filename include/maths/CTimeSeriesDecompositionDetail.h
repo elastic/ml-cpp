@@ -370,6 +370,9 @@ public:
         //! Create a new calendar component.
         virtual void handle(const SDetectedCalendar& message);
 
+        //! Set whether or not we're testing for a change.
+        void testingForChange(bool value);
+
         //! Start observing for new components.
         void observeComponentsAdded();
 
@@ -836,6 +839,9 @@ public:
 
         //! The moments of the error in the predictions including the trend.
         TMeanVarAccumulator m_PredictionErrorWithTrend;
+
+        //! Set to true when testing for a change.
+        bool m_TestingForChange = false;
 
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction = false;

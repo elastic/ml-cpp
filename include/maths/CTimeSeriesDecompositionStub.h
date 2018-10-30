@@ -37,6 +37,9 @@ public:
     //! Returns false.
     virtual bool initialized() const;
 
+    //! No-op.
+    virtual void testingForChange(bool value);
+
     //! No-op returning false.
     virtual bool addPoint(core_t::TTime time,
                           double value,

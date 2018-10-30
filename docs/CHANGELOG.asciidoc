@@ -68,6 +68,10 @@ Fix cause of hard_limit memory error for jobs with bucket span greater than one 
 
 Fix cause of "Failed to compute significance..." log errors ({ml-pull}272[272])"
 
+Prevent detecting a trend component during a possible change in the time series. The resulting
+model was poorly reinitialised in this case which damaged anomaly detection for some time. (See
+{ml-pull}287[#287].)
+
 //=== Regressions
 
 == {es} version 6.4.3
