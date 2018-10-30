@@ -41,11 +41,15 @@
 
 === Enhancements
 
-Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
+* Changes linker options on macOS to allow Homebrew installs ({ml-pull}225[#225])
 
 //=== Bug Fixes
 
-Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
+* Fixes the cause of `hard_limit` memory errors for jobs with bucket spans greater 
+than one day ({ml-pull}243[#243])
+* Rules that trigger the `skip_model_update` action should also apply to the 
+anomaly model. This fixes an issue where anomaly scores of results that triggered 
+the rule would decrease if they occurred frequently. {ml-pull}222[#222] (issue:{ml-issue}217[#217])
 
 //=== Regressions
 
