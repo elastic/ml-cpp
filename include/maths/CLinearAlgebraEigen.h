@@ -170,7 +170,7 @@ endIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
     return CSparseVectorIndexIterator<SCALAR, FLAGS>(vector, vector.data().size());
 }
 
-//! \brief Decorates Eigen matrix with some useful methods.
+//! \brief Decorates an Eigen matrix with some useful methods.
 template<typename SCALAR>
 class CDenseMatrix : public Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic> {
 public:
@@ -230,7 +230,7 @@ struct SConstant<CDenseMatrix<SCALAR>> {
     }
 };
 
-//! \brief Decorates Eigen column vector with some useful methods.
+//! \brief Decorates an Eigen column vector with some useful methods.
 template<typename SCALAR>
 class CDenseVector : public Eigen::Matrix<SCALAR, Eigen::Dynamic, 1> {
 public:
@@ -286,8 +286,7 @@ struct SConstant<CDenseVector<SCALAR>> {
     }
 };
 
-//! \brief A decorator or Eigen::Map for dense vector types which provides
-//! some useful methods.
+//! \brief Decorates an Eigen::Map of a dense matrix with some useful methods.
 template<typename SCALAR>
 class CMemoryMappedDenseMatrix
     : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
@@ -336,8 +335,7 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
     }
 };
 
-//! \brief A decorator or Eigen::Map for dense vector types which provides
-//! some useful methods.
+//! \brief Decorates an Eigen::Map of a dense vector with some useful methods.
 template<typename SCALAR>
 class CMemoryMappedDenseVector
     : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {

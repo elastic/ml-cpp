@@ -10,7 +10,6 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraFwd.h>
-#include <maths/CLinearAlgebraMemoryMapped.h>
 #include <maths/CTypeTraits.h>
 
 #include <cmath>
@@ -20,7 +19,7 @@ namespace ml {
 namespace maths {
 namespace las {
 
-//! Get the dimension of our internal vectors.
+//! Get the dimension of one of our internal vectors.
 template<typename VECTOR>
 std::size_t dimension(const VECTOR& x) {
     return x.dimension();
@@ -81,7 +80,7 @@ conformableZeroMatrix(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
     return conformableZeroMatrix(static_cast<const VECTOR&>(x));
 }
 
-//! Check if a vector is the zero vector.
+//! Check if a vector is a zero vector.
 template<typename VECTOR>
 bool isZero(const VECTOR& x) {
     for (std::size_t i = 0; i < dimension(x); ++i) {
@@ -98,7 +97,7 @@ typename SConstant<VECTOR>::Type ones(const VECTOR& x) {
     return SConstant<VECTOR>::get(dimension(x), 1);
 }
 
-//! Get the concomitant constant \p c vector.
+//! Get the concomitant constant \p constant vector.
 template<typename VECTOR>
 typename SConstant<VECTOR>::Type
 constant(const VECTOR& x, typename SCoordinate<VECTOR>::Type constant) {
@@ -161,32 +160,32 @@ typename SArrayView<VECTOR>::Type& componentwise(CAnnotatedVector<VECTOR, ANNOTA
     return componentwise(static_cast<VECTOR&>(x));
 }
 
-//! Euclidean distance implementation for our internal vectors.
+//! Euclidean distance implementation for one of our internal vectors.
 template<typename VECTOR>
 typename SCoordinate<VECTOR>::Type distance(const VECTOR& x, const VECTOR& y) {
     using TCoordinate = typename SPromoted<typename SCoordinate<VECTOR>::Type>::Type;
     TCoordinate result(0);
-    for (std::size_t i = 0; i < x.dimension(); ++i) {
+    for (std::size_t i = 0; i < dimension(x); ++i) {
         TCoordinate x_(y(i) - x(i));
         result += x_ * x_;
     }
     return std::sqrt(result);
 }
 
-//! Euclidean distance implementation for the Eigen dense vector.
+//! Euclidean distance implementation for an Eigen dense vector.
 template<typename SCALAR>
 SCALAR distance(const CDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
     return (y - x).norm();
 }
 
-//! Euclidean distance implementation for our memory mapped vector.
+//! Euclidean distance implementation for an Eigen memory mapped vector.
 template<typename SCALAR>
 SCALAR distance(const CMemoryMappedDenseVector<SCALAR>& x,
                 const CMemoryMappedDenseVector<SCALAR>& y) {
     return (y - x).norm();
 }
 
-//! Euclidean distance implementation for our annotated vector.
+//! Euclidean distance implementation for an annotated vector.
 template<typename VECTOR, typename ANNOTATION>
 typename SCoordinate<VECTOR>::Type
 distance(const CAnnotatedVector<VECTOR, ANNOTATION>& x,
@@ -194,7 +193,7 @@ distance(const CAnnotatedVector<VECTOR, ANNOTATION>& x,
     return distance(static_cast<const VECTOR&>(x), static_cast<const VECTOR&>(y));
 }
 
-//! Get the Euclidean norm of our internal vectors.
+//! Get the Euclidean norm of one of our internal vectors.
 template<typename VECTOR>
 typename SCoordinate<VECTOR>::Type norm(const VECTOR& x) {
     return x.euclidean();
@@ -218,7 +217,7 @@ typename SCoordinate<VECTOR>::Type norm(const CAnnotatedVector<VECTOR, ANNOTATIO
     return norm(static_cast<const VECTOR&>(x));
 }
 
-//! Get the Manhattan norm of our internal vector classes.
+//! Get the Manhattan norm of one of our internal vector classes.
 template<typename VECTOR>
 typename SCoordinate<VECTOR>::Type L1(const VECTOR& x) {
     return x.L1();
@@ -287,7 +286,7 @@ inner(const CAnnotatedVector<VECTOR, ANNOTATION>& x,
     return inner(static_cast<const VECTOR&>(x), static_cast<const VECTOR&>(y));
 }
 
-//! Get the outer product of our internal vector types.
+//! Get the outer product of one of our internal vector types.
 template<typename VECTOR>
 typename SConformableMatrix<VECTOR>::Type outer(const VECTOR& x) {
     return x.outer();
