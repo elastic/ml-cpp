@@ -57,6 +57,30 @@ struct SPromoted<CSymmetricMatrix<T>> {
     using Type = CSymmetricMatrix<typename SPromoted<T>::Type>;
 };
 
+//! \brief Defines the promoted type for an Eigen dense matrix.
+template<typename SCALAR>
+struct SPromoted<CDenseMatrix<SCALAR>> {
+    using Type = CDenseMatrix<typename SPromoted<SCALAR>::Type>;
+};
+
+//! \brief Defines the promoted type for an Eigen dense vector.
+template<typename SCALAR>
+struct SPromoted<CDenseVector<SCALAR>> {
+    using Type = CDenseVector<typename SPromoted<SCALAR>::Type>;
+};
+
+//! \brief Defines the promoted type for an Eigen memory mapped matrix.
+template<typename SCALAR>
+struct SPromoted<CMemoryMappedDenseMatrix<SCALAR>> {
+    using Type = CDenseMatrix<typename SPromoted<SCALAR>::Type>;
+};
+
+//! \brief Defines the promoted type for an Eigen memory mapped vector.
+template<typename SCALAR>
+struct SPromoted<CMemoryMappedDenseVector<SCALAR>> {
+    using Type = CDenseVector<typename SPromoted<SCALAR>::Type>;
+};
+
 //! \brief Defines the promoted type for an Eigen sparse matrix.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
 struct SPromoted<Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>> {
@@ -67,12 +91,6 @@ struct SPromoted<Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>> {
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
 struct SPromoted<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>> {
     using Type = Eigen::SparseVector<typename SPromoted<SCALAR>::Type, FLAGS, STORAGE_INDEX>;
-};
-
-//! \brief Defines the promoted type for an Eigen dense matrix.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-struct SPromoted<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type = Eigen::Matrix<typename SPromoted<SCALAR>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
 };
 
 //! \brief Defines the promoted type for a CAnnotatedVector.
@@ -111,6 +129,30 @@ struct SFloatingPoint<CSymmetricMatrix<T>, U> {
     using Type = CSymmetricMatrix<typename SFloatingPoint<T, U>::Type>;
 };
 
+//! \brief Defines an Eigen dense matrix on a suitable floating point type.
+template<typename SCALAR, typename U>
+struct SFloatingPoint<CDenseMatrix<SCALAR>, U> {
+    using Type = CDenseMatrix<typename SFloatingPoint<SCALAR, U>::Type>;
+};
+
+//! \brief Defines an Eigen dense vector on a suitable floating point type.
+template<typename SCALAR, typename U>
+struct SFloatingPoint<CDenseVector<SCALAR>, U> {
+    using Type = CDenseVector<typename SFloatingPoint<SCALAR, U>::Type>;
+};
+
+//! \brief Defines an Eigen dense matrix on a suitable floating point type.
+template<typename SCALAR, typename U>
+struct SFloatingPoint<CMemoryMappedDenseMatrix<SCALAR>, U> {
+    using Type = CDenseMatrix<typename SFloatingPoint<SCALAR, U>::Type>;
+};
+
+//! \brief Defines an Eigen dense vector on a suitable floating point type.
+template<typename SCALAR, typename U>
+struct SFloatingPoint<CMemoryMappedDenseVector<SCALAR>, U> {
+    using Type = CDenseVector<typename SFloatingPoint<SCALAR, U>::Type>;
+};
+
 //! \brief Defines an Eigen sparse matrix on a suitable floating point type.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX, typename U>
 struct SFloatingPoint<Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>, U> {
@@ -123,20 +165,13 @@ struct SFloatingPoint<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>, U> {
     using Type = Eigen::SparseVector<typename SFloatingPoint<SCALAR, U>::Type, FLAGS, STORAGE_INDEX>;
 };
 
-//! \brief Defines an Eigen dense matrix on a suitable floating point type.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS, typename U>
-struct SFloatingPoint<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>, U> {
-    using Type =
-        Eigen::Matrix<typename SFloatingPoint<SCALAR, U>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
-};
-
 //! \brief Defines CAnnotatedVector on a suitable floating point type.
 template<typename VECTOR, typename ANNOTATION, typename U>
 struct SFloatingPoint<CAnnotatedVector<VECTOR, ANNOTATION>, U> {
     using Type = CAnnotatedVector<typename SFloatingPoint<VECTOR, U>::Type, ANNOTATION>;
 };
 
-//! \brief Extracts the coordinate type for a point.
+//! \brief Extracts the coordinate type for a vector or matrix.
 template<typename T>
 struct SCoordinate {
     using Type = T;
@@ -166,6 +201,30 @@ struct SCoordinate<CSymmetricMatrix<T>> {
     using Type = T;
 };
 
+//! \brief Extracts the coordinate type for an Eigen dense matrix.
+template<typename SCALAR>
+struct SCoordinate<CDenseMatrix<SCALAR>> {
+    using Type = SCALAR;
+};
+
+//! \brief Extracts the coordinate type for an Eigen dense vector.
+template<typename SCALAR>
+struct SCoordinate<CDenseVector<SCALAR>> {
+    using Type = SCALAR;
+};
+
+//! \brief Extracts the coordinate type for an Eigen memory mapped matrix.
+template<typename SCALAR>
+struct SCoordinate<CMemoryMappedDenseMatrix<SCALAR>> {
+    using Type = SCALAR;
+};
+
+//! \brief Extracts the coordinate type for an Eigen memory mapped vector.
+template<typename SCALAR>
+struct SCoordinate<CMemoryMappedDenseVector<SCALAR>> {
+    using Type = SCALAR;
+};
+
 //! \brief Extracts the coordinate type for an Eigen sparse matrix.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
 struct SCoordinate<Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>> {
@@ -178,19 +237,13 @@ struct SCoordinate<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>> {
     using Type = SCALAR;
 };
 
-//! \brief Extracts the coordinate type for an Eigen dense matrix.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-struct SCoordinate<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type = SCALAR;
-};
-
 //! \brief Extracts the coordinate type for the underlying vector type.
 template<typename VECTOR, typename ANNOTATION>
 struct SCoordinate<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = typename SCoordinate<VECTOR>::Type;
 };
 
-//! \brief Extracts the conformable matrix type for a point.
+//! \brief Extracts the conformable matrix type for a vector.
 template<typename VECTOR>
 struct SConformableMatrix {
     static_assert(sizeof(VECTOR) < 0, "No conformable matrix type defined");
@@ -208,17 +261,22 @@ struct SConformableMatrix<CVector<T>> {
     using Type = CSymmetricMatrix<T>;
 };
 
+//! \brief Extracts the conformable matrix type for an Eigen dense vector.
+template<typename SCALAR>
+struct SConformableMatrix<CDenseVector<SCALAR>> {
+    using Type = CDenseMatrix<SCALAR>;
+};
+
+//! \brief Extracts the conformable matrix type for an Eigen memory mapped vector.
+template<typename SCALAR>
+struct SConformableMatrix<CMemoryMappedDenseVector<SCALAR>> {
+    using Type = CMemoryMappedDenseMatrix<SCALAR>;
+};
+
 //! \brief Extracts the conformable matrix type for an Eigen sparse vector.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
 struct SConformableMatrix<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>> {
     using Type = Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>;
-};
-
-//! \brief Extracts the conformable matrix type for an Eigen dense vector.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-struct SConformableMatrix<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type =
-        Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, OPTIONS, Eigen::Dynamic, Eigen::Dynamic>;
 };
 
 //! \brief Extracts the conformable matrix type for the underlying vector type.
@@ -227,26 +285,59 @@ struct SConformableMatrix<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = typename SConformableMatrix<VECTOR>::Type;
 };
 
-//! \brief Defines the array view for componentwise operations on vectors and
-//! matrices.
+//! \brief Defines the array view for componentwise operations on our internal
+//! vectors and matrices.
 template<typename VECTOR>
 struct SArrayView {
     using Type = VECTOR&;
 };
 
-//! \brief Defines the array view for componentwise operations on Eigen dense
-//! vectors and matrices.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-struct SArrayView<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type = Eigen::ArrayWrapper<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>>;
+//! \brief Defines the array view for componentwise operations on a Eigen dense matrix.
+template<typename SCALAR>
+struct SArrayView<const CDenseMatrix<SCALAR>> {
+    using Type =
+        Eigen::ArrayWrapper<const Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>>;
+};
+template<typename SCALAR>
+struct SArrayView<CDenseMatrix<SCALAR>> {
+    using Type =
+        Eigen::ArrayWrapper<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>>;
 };
 
-//! \brief Defines the array view for componentwise operations on Eigen dense
-//! vectors and matrices.
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-struct SArrayView<const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
+//! \brief Defines the array view for componentwise operations on an Eigen dense matrix.
+template<typename SCALAR>
+struct SArrayView<const CDenseVector<SCALAR>> {
     using Type =
-        Eigen::ArrayWrapper<const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>>;
+        Eigen::ArrayWrapper<const Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>>;
+};
+template<typename SCALAR>
+struct SArrayView<CDenseVector<SCALAR>> {
+    using Type =
+        Eigen::ArrayWrapper<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>>;
+};
+
+//! \brief Defines the array view for componentwise operations on an Eigen memory mapped matrix.
+template<typename SCALAR>
+struct SArrayView<const CMemoryMappedDenseMatrix<SCALAR>> {
+    using Type = Eigen::ArrayWrapper<
+        const Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 0, Eigen::Stride<0, 0>>>;
+};
+template<typename SCALAR>
+struct SArrayView<CMemoryMappedDenseMatrix<SCALAR>> {
+    using Type = Eigen::ArrayWrapper<
+        Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 0, Eigen::Stride<0, 0>>>;
+};
+
+//! \brief Defines the array view for componentwise operations on an Eigen memory mapped vector.
+template<typename SCALAR>
+struct SArrayView<const CMemoryMappedDenseVector<SCALAR>> {
+    using Type = Eigen::ArrayWrapper<
+        const Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>, 0, Eigen::Stride<0, 0>>>;
+};
+template<typename SCALAR>
+struct SArrayView<CMemoryMappedDenseVector<SCALAR>> {
+    using Type = Eigen::ArrayWrapper<
+        Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>, 0, Eigen::Stride<0, 0>>>;
 };
 
 //! \brief Defines the array view for componentwise operations on Eigen dense
@@ -254,6 +345,27 @@ struct SArrayView<const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX
 template<typename VECTOR, typename ANNOTATION>
 struct SArrayView<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = typename SArrayView<VECTOR>::Type;
+};
+
+//! \brief Defines the type of a singular value decomposition of a matrix.
+template<typename MATRIX>
+struct SJacobiSvd {
+    static_assert(sizeof(MATRIX) < 0, "SVD not supported for type");
+};
+
+//! \brief Defines the type of a singular value decomposition of our decorator
+//! of an Eigen dense matrix.
+template<typename SCALAR>
+struct SJacobiSvd<CDenseMatrix<SCALAR>> {
+    using Type = Eigen::JacobiSVD<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 
+                                  Eigen::ColPivHouseholderQRPreconditioner>;
+};
+
+//! \brief Defines the type of a singular value decomposition an Eigen dense matrix.
+template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
+struct SJacobiSvd<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
+    using Type = Eigen::JacobiSVD<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>, 
+                                  Eigen::ColPivHouseholderQRPreconditioner>;
 };
 
 //! \brief Defines a type which strips off any annotation from a vector.
@@ -268,26 +380,6 @@ struct SStripped {
 template<typename VECTOR, typename ANNOTATION>
 struct SStripped<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = VECTOR;
-};
-
-//! \brief Get the type of the first element of a pair.
-template<typename PAIR>
-struct SFirstType {};
-
-//! \brief Get the type of the first element of a pair.
-template<typename U, typename V>
-struct SFirstType<std::pair<U, V>> {
-    using Type = U;
-};
-
-//! \brief Get the type of the first element of a pair.
-template<typename PAIR>
-struct SSecondType {};
-
-//! \brief Get the type of the first element of a pair.
-template<typename U, typename V>
-struct SSecondType<std::pair<U, V>> {
-    using Type = V;
 };
 }
 }

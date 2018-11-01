@@ -394,8 +394,8 @@ public:
             condition_.push_back(i1[0]);
             CDenseMatrix<double> cp = projectedMatrix(condition_, c);
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
-            Eigen::JacobiSVD<CDenseMatrix<double>> c22(
-                cp.topLeftCorner(n, n), Eigen::ComputeThinU | Eigen::ComputeThinV);
+            auto c22 = cp.topLeftCorner(n, n).jacobiSvd(Eigen::ComputeThinU |
+                                                        Eigen::ComputeThinV);
             LOG_TRACE(<< "c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12
                       << ", a = " << xc << ", m2 = " << m2);
 
@@ -489,8 +489,8 @@ public:
             condition_.push_back(i1[1]);
             CDenseMatrix<double> cp = projectedMatrix(condition_, c);
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
-            Eigen::JacobiSVD<CDenseMatrix<double>> c22(
-                cp.topLeftCorner(n, n), Eigen::ComputeThinU | Eigen::ComputeThinV);
+            auto c22 = cp.topLeftCorner(n, n).jacobiSvd(Eigen::ComputeThinU |
+                                                        Eigen::ComputeThinV);
             LOG_TRACE(<< "c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12
                       << ", a = " << xc << ", m2 = " << m2);
 
@@ -807,8 +807,8 @@ public:
         double f = m_WishartDegreesFreedom - d - 1.0;
         LOG_TRACE(<< "f = " << f);
 
-        Eigen::JacobiSVD<TDenseMatrix> precision(toDenseMatrix(m_WishartScaleMatrix),
-                                                 Eigen::ComputeFullU | Eigen::ComputeFullV);
+        auto precision =
+            toDenseMatrix(m_WishartScaleMatrix).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
 
         // Note we can extract the (non-zero vectors of the Cholesky
         // factorization by noting that U = V^t and multiplying each

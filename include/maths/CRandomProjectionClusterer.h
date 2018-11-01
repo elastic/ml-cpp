@@ -209,7 +209,7 @@ public:
     using TVectorNx1Vec = std::vector<TVectorNx1>;
     using TVectorNx1VecVec = std::vector<TVectorNx1Vec>;
     using TSymmetricMatrixNxN = CSymmetricMatrixNxN<double, N>;
-    using TSvdNxN = Eigen::JacobiSVD<typename SDenseMatrix<TSymmetricMatrixNxN>::Type>;
+    using TSvdNxN = typename SJacobiSvd<typename SDenseMatrix<TSymmetricMatrixNxN>::Type>::Type;
     using TSvdNxNVec = std::vector<TSvdNxN>;
     using TSvdNxNVecVec = std::vector<TSvdNxNVec>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;

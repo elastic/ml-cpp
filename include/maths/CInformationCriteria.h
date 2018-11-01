@@ -137,8 +137,7 @@ public:
         for (std::size_t i = 0u; i < d; ++i) {
             vi += c(i);
         }
-        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() *
-                              las::norm(m));
+        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() * las::norm(m));
 
         m_D = static_cast<double>(d);
         m_K += 1.0;
@@ -199,7 +198,6 @@ public:
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
     using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
-    using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
 
 public:
     CGaussianInfoCriterion()
@@ -262,7 +260,7 @@ private:
     //! Compute the log of the determinant of \p covariance.
     double logDeterminant(const TCovariances& covariance) const {
         double n = CBasicStatistics::count(covariance);
-        const TMatrix& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
+        const auto& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
         double upper = information_criteria_detail::confidence(n - m_D - 1.0);
         return information_criteria_detail::logDeterminant(c, upper);
     }

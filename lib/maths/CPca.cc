@@ -51,7 +51,7 @@ void CPca::projectOntoPrincipleComponents(std::size_t numberComponents_,
 
     // Project.
     std::ptrdiff_t numberComponents{static_cast<std::ptrdiff_t>(numberComponents_)};
-    Eigen::JacobiSVD<TDenseMatrix> svd(matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    auto svd = matrix.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
     LOG_TRACE(<< "singularValues = " << svd.singularValues().transpose());
     for (auto&& vector : data) {
         vector = svd.matrixV().leftCols(numberComponents).transpose() * (mean + vector);
@@ -167,7 +167,7 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
             });
         }
         std::sort(columns.begin(), columns.end());
-        std::for_each(columnWeights.begin(), columnWeights.end(), [Z](double& weight) {
+        std::for_each(columnWeights.begin(), columnWeights.end(), [](double& weight) {
             weight = std::sqrt((weight - 1.0) / 50.0);
         });
     }
@@ -220,7 +220,7 @@ void CPca::projectOntoPrincipleComponentsRandom(std::size_t numberComponents,
     }
 
     // Project.
-    Eigen::JacobiSVD<TDenseMatrix> svd(matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    auto svd = matrix.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
     LOG_TRACE(<< "singularValues = " << svd.singularValues().transpose());
     for (const auto& vector : data) {
         projected.push_back(svd.matrixV().leftCols(numberComponents).transpose() *
