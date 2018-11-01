@@ -136,6 +136,7 @@ int main(int argc, char** argv) {
     permittedProcessPaths.push_back("./autodetect");
     permittedProcessPaths.push_back("./categorize");
     permittedProcessPaths.push_back("./normalize");
+    permittedProcessPaths.push_back("./data_frame_analyzer");
 
     ml::controller::CCommandProcessor processor(permittedProcessPaths);
     processor.processCommands(*commandStream);

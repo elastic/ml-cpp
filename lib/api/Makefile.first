@@ -28,6 +28,7 @@ CCmdSkeleton.cc \
 CConfigUpdater.cc \
 CCsvInputParser.cc \
 CCsvOutputWriter.cc \
+CDataFrameAnalyzer.cc \
 CDataProcessor.cc \
 CDataTyper.cc \
 CDetectionRulesJsonParser.cc \

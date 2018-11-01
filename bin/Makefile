@@ -17,6 +17,7 @@ COMPONENTS= \
             categorize \
             controller \
             normalize \
+            data_frame_analyzer \
 
 include $(CPP_SRC_HOME)/mk/toplevel.mk
 
