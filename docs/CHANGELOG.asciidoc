@@ -72,6 +72,8 @@ Prevent detecting a trend component during a possible change in the time series.
 model was poorly reinitialised in this case which damaged anomaly detection for some time. (See
 {ml-pull}287[#287].)
 
+Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors ({ml-pull}294[294]) 
+
 //=== Regressions
 
 == {es} version 6.4.3

@@ -1431,7 +1431,10 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
 
     result += core_t::LINE_ENDING + indent + "gamma ";
     if (this->isNonInformative()) {
-        result += "non-informative";
+        result +=
+            "non-informative: # sample count = " +
+            core::CStringUtils::typeToStringPretty(CBasicStatistics::count(m_SampleMoments)) +
+            ". priorRate = " + core::CStringUtils::typeToStringPretty(this->priorRate());
         return;
     }
 

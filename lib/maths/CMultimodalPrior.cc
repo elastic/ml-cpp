@@ -583,7 +583,7 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     double modeSamples = 0.0;
     for (const auto& mode : m_Modes) {
         if (!m_Clusterer->hasCluster(mode.s_Index)) {
-            LOG_ERROR(<< tag << "Expected cluster for = " << mode.s_Index);
+            LOG_ERROR(<< tag << "Expected cluster for mode = " << mode.s_Index);
             result = false;
         }
         modeSamples += mode.s_Prior->numberSamples();
