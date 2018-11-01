@@ -34,7 +34,7 @@ using namespace data_frame_row_slice_detail;
 //! Together with our memory mapped vector type this means algorithms
 //! on top of a raw data frame can work entirely in terms of the raw
 //! values stored in the data frame.
-class CORE_EXPORT CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
     CMainMemoryDataFrameRowSliceHandle(const TFloatVec& values)
         : m_Values{values} {}
@@ -56,7 +56,7 @@ private:
 //! DESCRIPTION:\n
 //! This stores a copy of values since these are created on-the-fly when
 //! the slice is inflated.
-class CORE_EXPORT COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
     COnDiskDataFrameRowSliceHandle(TFloatVec values)
         : m_Values{std::move(values)} {}
@@ -74,7 +74,7 @@ private:
 //!
 //! DESCRIPTION:\n
 //! This is used to signal that there is a problem accessing the slice.
-class CORE_EXPORT CBadDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class CBadDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
     virtual TImplPtr clone() const {
         return boost::make_unique<CBadDataFrameRowSliceHandle>();
