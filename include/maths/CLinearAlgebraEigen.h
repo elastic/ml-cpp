@@ -289,27 +289,26 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! \brief A decorator or Eigen::Map for dense vector types which provides
 //! some useful methods.
 template<typename SCALAR>
-class CMemoryMappedDenseMatrix : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
+class CMemoryMappedDenseMatrix
+    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
 public:
     using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase>;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { 
-        return true;
-    }
+    static bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Forwarding constructor.
     template<typename... ARGS>
-    CMemoryMappedDenseMatrix(ARGS&&... args) : TBase{std::forward<ARGS>(args)...} {}
+    CMemoryMappedDenseMatrix(ARGS&&... args)
+        : TBase{std::forward<ARGS>(args)...} {}
 
     //! \name Copy and Move Semantics
     //@{
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other)
         : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
     CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
-        : TBase{static_cast<const TBase&>(other)} {
-    }
+        : TBase{static_cast<const TBase&>(other)} {}
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
         : TBase{std::move(static_cast<TBase&&>(other))} {}
 
@@ -340,30 +339,28 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
 //! \brief A decorator or Eigen::Map for dense vector types which provides
 //! some useful methods.
 template<typename SCALAR>
-class CMemoryMappedDenseVector : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
+class CMemoryMappedDenseVector
+    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
 public:
     using TBase = Eigen::Map<typename CDenseVector<SCALAR>::TBase>;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { 
-        return true;
-    }
+    static bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Forwarding constructor.
     template<typename... ARGS>
-    CMemoryMappedDenseVector(ARGS&&... args) : TBase(std::forward<ARGS>(args)...) {}
+    CMemoryMappedDenseVector(ARGS&&... args)
+        : TBase(std::forward<ARGS>(args)...) {}
 
     //! \name Copy and Move Semantics
     //@{
     CMemoryMappedDenseVector(CMemoryMappedDenseVector& other)
         : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
     CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
-        : TBase{static_cast<const TBase&>(other)} {
-    }
+        : TBase{static_cast<const TBase&>(other)} {}
     CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
-        : TBase{std::move(static_cast<TBase&&>(other))} {
-    }
+        : TBase{std::move(static_cast<TBase&&>(other))} {}
     CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) {
         this->TBase::operator=(other);
         return *this;

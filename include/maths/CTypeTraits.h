@@ -357,15 +357,16 @@ struct SJacobiSvd {
 //! of an Eigen dense matrix.
 template<typename SCALAR>
 struct SJacobiSvd<CDenseMatrix<SCALAR>> {
-    using Type = Eigen::JacobiSVD<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 
-                                  Eigen::ColPivHouseholderQRPreconditioner>;
+    using Type =
+        Eigen::JacobiSVD<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>,
+                         Eigen::ColPivHouseholderQRPreconditioner>;
 };
 
 //! \brief Defines the type of a singular value decomposition an Eigen dense matrix.
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
 struct SJacobiSvd<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type = Eigen::JacobiSVD<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>, 
-                                  Eigen::ColPivHouseholderQRPreconditioner>;
+    using Type =
+        Eigen::JacobiSVD<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>, Eigen::ColPivHouseholderQRPreconditioner>;
 };
 
 //! \brief Defines a type which strips off any annotation from a vector.

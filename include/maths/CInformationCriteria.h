@@ -137,7 +137,8 @@ public:
         for (std::size_t i = 0u; i < d; ++i) {
             vi += c(i);
         }
-        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() * las::norm(m));
+        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() *
+                              las::norm(m));
 
         m_D = static_cast<double>(d);
         m_K += 1.0;

@@ -100,7 +100,8 @@ typename SConstant<VECTOR>::Type ones(const VECTOR& x) {
 
 //! Get the concomitant constant \p c vector.
 template<typename VECTOR>
-typename SConstant<VECTOR>::Type constant(const VECTOR& x, typename SCoordinate<VECTOR>::Type constant) {
+typename SConstant<VECTOR>::Type
+constant(const VECTOR& x, typename SCoordinate<VECTOR>::Type constant) {
     return SConstant<VECTOR>::get(dimension(x), constant);
 }
 
@@ -180,7 +181,8 @@ SCALAR distance(const CDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
 
 //! Euclidean distance implementation for our memory mapped vector.
 template<typename SCALAR>
-SCALAR distance(const CMemoryMappedDenseVector<SCALAR>& x, const CMemoryMappedDenseVector<SCALAR>& y) {
+SCALAR distance(const CMemoryMappedDenseVector<SCALAR>& x,
+                const CMemoryMappedDenseVector<SCALAR>& y) {
     return (y - x).norm();
 }
 
@@ -272,7 +274,8 @@ SCALAR inner(const CDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
 
 //! Get the inner product of two Eigen memory mapped vectors.
 template<typename SCALAR>
-SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x, const CMemoryMappedDenseVector<SCALAR>& y) {
+SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x,
+             const CMemoryMappedDenseVector<SCALAR>& y) {
     return x.dot(y);
 }
 

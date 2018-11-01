@@ -108,7 +108,8 @@ bool CRuleCondition::testValue(double value) const {
 
 std::string CRuleCondition::print() const {
     std::string result = this->print(m_AppliesTo);
-    result += " " + this->print(m_Operator) + " " + core::CStringUtils::typeToString(m_Value);
+    result += " " + this->print(m_Operator) + " " +
+              core::CStringUtils::typeToString(m_Value);
     return result;
 }
 
