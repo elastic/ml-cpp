@@ -160,8 +160,7 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
 }
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
-    return {m_FirstRow,
-            {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_State)}};
+    return {m_FirstRow, {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_State)}};
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
