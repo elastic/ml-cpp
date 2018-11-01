@@ -42,9 +42,11 @@ LOG_DETERMINANT(5);
 #undef LOG_DETERMINANT
 
 //! The log determinant of our internal heap symmetric matrix.
+MATHS_EXPORT
 double logDeterminant(const CSymmetricMatrix<double>& c, double upper);
 
 //! The log determinant of an Eigen matrix.
+MATHS_EXPORT
 double logDeterminant(const CDenseMatrix<double>& c, double upper);
 
 } // information_criteria_detail::
