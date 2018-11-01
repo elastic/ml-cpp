@@ -672,7 +672,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
 
     samples.clear();
 
-    if (numberSamples == 0 || this->isNonInformative()) {
+    if (numberSamples == 0) {
         return;
     }
 

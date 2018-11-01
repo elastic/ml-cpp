@@ -1113,15 +1113,13 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood() {
 
     TMeanVarSkewAccumulator sampleMoments;
 
+    // A number of sample moments less than 3.5 is considered "non-informative"
     for (std::size_t i = 0u; i < 3u; ++i) {
         LOG_DEBUG(<< "sample = " << samples[i]);
 
         sampleMoments.add(samples[i]);
         filter.addSamples(TDouble1Vec(1, samples[i]));
-
-        sampled.clear();
-        filter.sampleMarginalLikelihood(10, sampled);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), sampled.size());
+        CPPUNIT_ASSERT_EQUAL(std::string("\nmultimodal non-informative"), filter.print());
     }
 
     TMeanAccumulator meanMeanError;
