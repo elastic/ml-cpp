@@ -193,7 +193,7 @@ protected:
                               !points.empty() ? las::dimension(points[0]) : 1)),
                           4.0)};
         double n{static_cast<double>(points.size())};
-        double result;
+        double result{};
         switch (algorithm) {
         case E_Lof:
             result = std::max(std::min(5.0 * d, 20.0), std::pow(n, 1.0 / 3.0));
