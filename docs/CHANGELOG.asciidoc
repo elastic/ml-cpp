@@ -68,6 +68,8 @@ Fix cause of hard_limit memory error for jobs with bucket span greater than one 
 
 Fix cause of "Failed to compute significance..." log errors ({ml-pull}272[272])"
 
+Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors ({ml-pull}294[294]) 
+
 //=== Regressions
 
 == {es} version 6.4.3
