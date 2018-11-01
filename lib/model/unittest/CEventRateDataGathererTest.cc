@@ -1529,7 +1529,6 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
 
 void CEventRateDataGathererTest::testDistinctStrings() {
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    TSizeSizePr pair(0, 0);
 
     // Test the SUniqueStringFeatureData struct
     {
