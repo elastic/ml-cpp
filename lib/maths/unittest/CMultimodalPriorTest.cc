@@ -1112,16 +1112,34 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood() {
     TDouble1Vec sampled;
 
     TMeanVarSkewAccumulator sampleMoments;
-
+    // A number of sample moments less than 3.5 is considered "non-informative"
     for (std::size_t i = 0u; i < 3u; ++i) {
         LOG_DEBUG(<< "sample = " << samples[i]);
 
         sampleMoments.add(samples[i]);
         filter.addSamples(TDouble1Vec(1, samples[i]));
-
-        sampled.clear();
+        CPPUNIT_ASSERT_EQUAL(std::string("\nmultimodal non-informative"), filter.print());
         filter.sampleMarginalLikelihood(10, sampled);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), sampled.size());
+
+        TMeanVarSkewAccumulator sampledMoments;
+        sampledMoments.add(sampled);
+
+        LOG_DEBUG(<< "Sample moments = " << sampleMoments
+                  << ", sampled moments = " << sampledMoments);
+        LOG_DEBUG(<< "sampleMean = " << maths::CBasicStatistics::mean(sampleMoments)
+                  << ", sampledMean = " << maths::CBasicStatistics::mean(sampledMoments));
+        LOG_DEBUG(<< "sampleVariance = " << maths::CBasicStatistics::variance(sampleMoments)
+                  << ", sampledVariance = "
+                  << maths::CBasicStatistics::variance(sampledMoments));
+
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(sampleMoments),
+                                     maths::CBasicStatistics::mean(sampledMoments),
+                                     0.05 * maths::CBasicStatistics::mean(sampleMoments));
+
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            maths::CBasicStatistics::variance(sampleMoments),
+            maths::CBasicStatistics::variance(sampledMoments),
+            std::max(1e-6, 0.55 * maths::CBasicStatistics::variance(sampleMoments)));
     }
 
     TMeanAccumulator meanMeanError;
