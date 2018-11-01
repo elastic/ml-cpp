@@ -289,6 +289,8 @@ const std::string CALENDAR_TEST_6_3_TAG{"c"};
 // These work for all versions.
 
 // Components Tags
+// Version 6.5
+const std::string TESTING_FOR_CHANGE_6_5_TAG{"m"};
 // Version 6.4
 const std::string COMPONENT_6_4_TAG{"f"};
 const std::string ERRORS_6_4_TAG{"g"};
@@ -649,20 +651,19 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t:
     stepwisePropagateForwards(WEEK, start, end, m_Windows[E_Long]);
 }
 
-CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeDoublePrVec
+CTimeSeriesDecompositionDetail::CPeriodicityTest::TTimeFloatMeanAccumulatorPrVec
 CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues() const {
-    TTimeDoublePrVec result;
+    TTimeFloatMeanAccumulatorPrVec result;
     for (auto i : {E_Short, E_Long}) {
         if (m_Windows[i] != nullptr) {
             TFloatMeanAccumulatorVec values{m_Windows[i]->values()};
             core_t::TTime bucketLength{m_Windows[i]->bucketLength()};
             core_t::TTime time{m_Windows[i]->startTime() + m_Windows[i]->offset()};
             for (const auto& value : values) {
-                if (CBasicStatistics::count(value) > 0.0) {
-                    result.emplace_back(time, CBasicStatistics::mean(value));
-                }
+                result.emplace_back(time, value);
                 time += bucketLength;
             }
+            break;
         }
     }
     return result;
@@ -1073,6 +1074,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                     m_PredictionErrorWithoutTrend.fromDelimited(traverser.value()));
             RESTORE(MOMENTS_MINUS_TREND_6_3_TAG,
                     m_PredictionErrorWithTrend.fromDelimited(traverser.value()));
+            RESTORE_BUILT_IN(TESTING_FOR_CHANGE_6_5_TAG, m_TestingForChange)
             RESTORE_BUILT_IN(USING_TREND_FOR_PREDICTION_6_3_TAG, m_UsingTrendForPrediction)
         }
 
@@ -1136,6 +1138,7 @@ void CTimeSeriesDecompositionDetail::CComponents::acceptPersistInserter(
     inserter.insertValue(MOMENTS_6_3_TAG, m_PredictionErrorWithoutTrend.toDelimited());
     inserter.insertValue(MOMENTS_MINUS_TREND_6_3_TAG,
                          m_PredictionErrorWithTrend.toDelimited());
+    inserter.insertValue(TESTING_FOR_CHANGE_6_5_TAG, m_TestingForChange);
     inserter.insertValue(USING_TREND_FOR_PREDICTION_6_3_TAG, m_UsingTrendForPrediction);
 }
 
@@ -1151,6 +1154,7 @@ void CTimeSeriesDecompositionDetail::CComponents::swap(CComponents& other) {
     std::swap(m_GainController, other.m_GainController);
     std::swap(m_MeanVarianceScale, other.m_MeanVarianceScale);
     std::swap(m_PredictionErrorWithoutTrend, other.m_PredictionErrorWithoutTrend);
+    std::swap(m_TestingForChange, other.m_TestingForChange);
     std::swap(m_PredictionErrorWithTrend, other.m_PredictionErrorWithTrend);
     std::swap(m_UsingTrendForPrediction, other.m_UsingTrendForPrediction);
 }
@@ -1208,7 +1212,9 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         double variance{std::accumulate(variances.begin(), variances.end(), 0.0)};
         double expectedVarianceIncrease{1.0 / static_cast<double>(m + n + 1)};
 
-        bool mayUseTrendForPrediction{m_Trend.observedInterval() > 6 * m_BucketLength};
+        bool testForTrend{(m_TestingForChange == false) &&
+                          (m_UsingTrendForPrediction == false) &&
+                          (m_Trend.observedInterval() > 6 * m_BucketLength)};
 
         m_Trend.add(time, values[0], weight);
         m_Trend.dontShiftLevel(time, value);
@@ -1232,8 +1238,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         m_PredictionErrorWithTrend.add(error, weight);
         m_GainController.add(time, predictions);
 
-        if (mayUseTrendForPrediction && !m_UsingTrendForPrediction &&
-            this->shouldUseTrendForPrediction()) {
+        if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
             m_ComponentsAdded = true;
         }
@@ -1320,6 +1325,10 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
         this->apply(SC_RESET, message);
         break;
     }
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::testingForChange(bool value) {
+    m_TestingForChange = value;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::observeComponentsAdded() {
@@ -1472,6 +1481,7 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::checksum(uint64_t seed) co
     seed = CChecksum::calculate(seed, m_PredictionErrorWithoutTrend);
     seed = CChecksum::calculate(seed, m_PredictionErrorWithTrend);
     seed = CChecksum::calculate(seed, m_GainController);
+    seed = CChecksum::calculate(seed, m_TestingForChange);
     return CChecksum::calculate(seed, m_UsingTrendForPrediction);
 }
 
@@ -2321,8 +2331,9 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::shiftOrigin(core_t:
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::linearScale(core_t::TTime time,
                                                                          double scale) {
-    for (auto& component : m_Components) {
-        component.linearScale(time, scale);
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
+        m_Components[i].linearScale(time, scale);
+        m_PredictionErrors[i].clear();
     }
 }
 

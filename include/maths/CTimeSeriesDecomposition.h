@@ -94,6 +94,9 @@ public:
     //! Check if the decomposition has any initialized components.
     virtual bool initialized() const;
 
+    //! Set whether or not we're testing for a change.
+    virtual void testingForChange(bool value);
+
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the function point.
@@ -170,7 +173,7 @@ public:
     virtual bool mightAddComponents(core_t::TTime time) const;
 
     //! Get the values in a recent time window.
-    virtual TTimeDoublePrVec windowValues() const;
+    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);
@@ -198,7 +201,7 @@ public:
     virtual core_t::TTime lastValueTime() const;
 
 private:
-    using TMediatorPtr = std::shared_ptr<CMediator>;
+    using TMediatorPtr = std::unique_ptr<CMediator>;
 
 private:
     //! Set up the communication mediator.

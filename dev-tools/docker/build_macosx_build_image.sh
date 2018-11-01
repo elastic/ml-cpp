@@ -14,7 +14,8 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/macosx_builder/Dockerfile.
 
-ACCOUNT=droberts195
+HOST=push.docker.elastic.co
+ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
 VERSION=5
 
@@ -22,7 +23,10 @@ set -e
 
 cd `dirname $0`
 
-docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION macosx_image
-docker login
-docker push $ACCOUNT/$REPOSITORY:$VERSION
+docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION macosx_image
+# Get a username and password for this by visiting
+# https://docker.elastic.co:7000 and allowing it to authenticate against your
+# GitHub account
+docker login $HOST
+docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION
 
