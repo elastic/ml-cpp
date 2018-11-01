@@ -185,7 +185,9 @@ centredResidualMoments(ITR begin, ITR end, std::size_t offset, const TDoubleVec&
             norm2.add(p * p, w);
         }
     }
-    double scale{CBasicStatistics::mean(projection) / CBasicStatistics::mean(norm2)};
+    double scale{CBasicStatistics::mean(projection) == CBasicStatistics::mean(norm2)
+                     ? 1.0
+                     : CBasicStatistics::mean(projection) / CBasicStatistics::mean(norm2)};
     LOG_TRACE(<< "  scale = " << scale);
 
     TMeanVarAccumulator moments;
@@ -454,8 +456,8 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
             centredResidualMoments(values.cbegin(), split, startTime, dt)};
         TMeanVarAccumulator rightMoments{
             centredResidualMoments(split, values.cend(), splitTime, dt)};
-        TMeanAccumulator mean;
-        mean.add(values);
+        TMeanAccumulator mean{
+            std::accumulate(values.begin(), values.end(), TMeanAccumulator{})};
         LOG_TRACE(<< "  total moments = " << moments << ", left moments = " << leftMoments
                   << ", right moments = " << rightMoments << ", mean = " << mean);
         double f{CBasicStatistics::variance(moments) /
@@ -598,10 +600,12 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
         TMeanVarAccumulator leftMoments{centredResidualMoments(begin, split, offset, model)};
         TMeanVarAccumulator rightMoments{
             centredResidualMoments(split, end, splitOffset, model)};
+        TMeanAccumulator mean{std::accumulate(begin, end, TMeanAccumulator{})};
         LOG_TRACE(<< "  total moments = " << moments << ", left moments = " << leftMoments
                   << ", right moments = " << rightMoments);
         double f{CBasicStatistics::variance(moments) /
-                 CBasicStatistics::variance(leftMoments + rightMoments)};
+                 (CBasicStatistics::variance(leftMoments + rightMoments) +
+                  MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(CBasicStatistics::mean(mean)))};
         double significance{CStatisticalTests::rightTailFTest(
             f, static_cast<double>(range - 1), static_cast<double>(range - 3))};
         LOG_TRACE(<< "  significance = " << significance);

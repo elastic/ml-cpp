@@ -273,6 +273,15 @@ bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
 }
 
+CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
+    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+    return *this;
+}
+
+bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
+    return m_SkipAnomalyModelUpdate;
+}
+
 //////// SModelProbabilityResult::SFeatureProbability ////////
 
 SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
