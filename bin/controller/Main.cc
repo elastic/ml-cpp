@@ -23,8 +23,9 @@
 //! Only accepts requests to start the following processes:
 //! 1) ./autoconfig
 //! 2) ./autodetect
-//! 3) ./normalize
-//! 4) ./categorize
+//! 3) ./categorize
+//! 4) ./data_frame_analyzer
+//! 5) ./normalize
 //!
 //! The assumption here is that the working directory of this
 //! process will be the directory containing these other
@@ -135,8 +136,8 @@ int main(int argc, char** argv) {
     permittedProcessPaths.push_back("./autoconfig");
     permittedProcessPaths.push_back("./autodetect");
     permittedProcessPaths.push_back("./categorize");
-    permittedProcessPaths.push_back("./normalize");
     permittedProcessPaths.push_back("./data_frame_analyzer");
+    permittedProcessPaths.push_back("./normalize");
 
     ml::controller::CCommandProcessor processor(permittedProcessPaths);
     processor.processCommands(*commandStream);

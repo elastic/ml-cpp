@@ -6,6 +6,7 @@
 #include <api/CDataFrameAnalyzer.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
 
 namespace ml {
 namespace api {

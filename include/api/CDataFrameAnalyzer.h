@@ -6,8 +6,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalyzer_h
 #define INCLUDED_ml_api_CDataFrameAnalyzer_h
 
-#include <core/CLogger.h>
-
 #include <api/ImportExport.h>
 
 #include <boost/unordered_map.hpp>

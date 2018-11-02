@@ -71,16 +71,16 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
-    TScopedInputParserP inputParser;
-    inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
+    auto inputParser =
+        std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
 
-    if (inputParser->readStream(boost::bind(&ml::api::CDataFrameAnalyzer::handleRecord,
-                                            &dataFrameAnalyzer, _1)) == false) {
+    if (inputParser->readStream([&dataFrameAnalyzer](const auto& record) {
+            return dataFrameAnalyzer.handleRecord(record);
+        }) == false) {
         LOG_FATAL(<< "Failed to handle input to be analyzed");
         return EXIT_FAILURE;
     }

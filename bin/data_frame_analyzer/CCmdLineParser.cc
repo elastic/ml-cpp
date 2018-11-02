@@ -28,19 +28,24 @@ bool CCmdLineParser::parse(int argc,
                            bool& isOutputFileNamedPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")(
-            "version", "Display version information and exit")(
-            "config", boost::program_options::value<std::string>(),
-            "ID of the job this process is associated with")(
-            "logProperties", boost::program_options::value<std::string>(),
-            "Optional logger properties file")(
-            "logPipe", boost::program_options::value<std::string>(), "Optional log to named pipe")(
-            "input", boost::program_options::value<std::string>(),
-            "Optional file to read input from - not present means read from STDIN")(
-            "inputIsPipe", "Specified input file is a named pipe")(
-            "output", boost::program_options::value<std::string>(),
-            "Optional file to write output to - not present means write to STDOUT")(
-            "outputIsPipe", "Specified output file is a named pipe");
+        // clang-format off
+        desc.add_options()
+            ("help", "Display this information and exit")
+            ("version", "Display version information and exit")
+            ("config", boost::program_options::value<std::string>(),
+                    "ID of the job this process is associated with")
+            ("logProperties", boost::program_options::value<std::string>(),
+                    "Optional logger properties file")
+            ("logPipe", boost::program_options::value<std::string>(),
+                    "Optional log to named pipe")
+            ("input", boost::program_options::value<std::string>(),
+                    "Optional file to read input from - not present means read from STDIN")
+            ("inputIsPipe", "Specified input file is a named pipe")
+            ("output", boost::program_options::value<std::string>(),
+                    "Optional file to write output to - not present means write to STDOUT")
+            ("outputIsPipe", "Specified output file is a named pipe")
+        ;
+        // clang-format on
 
         boost::program_options::variables_map vm;
         boost::program_options::store(
