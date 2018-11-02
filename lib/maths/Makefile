@@ -46,6 +46,7 @@ CKMostCorrelated.cc \
 CLassoLogisticRegression.cc \
 CLinearAlgebra.cc \
 CLinearAlgebraTools.cc \
+CLocalOutlierFactors.cc \
 CLogNormalMeanPrecConjugate.cc \
 CLogTDistribution.cc \
 CMathsFuncs.cc \
