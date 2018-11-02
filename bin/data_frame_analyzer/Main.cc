@@ -70,8 +70,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    // auto inputParser =
-    //     boost::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
