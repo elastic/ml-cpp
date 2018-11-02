@@ -11,20 +11,19 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CGramSchmidt.h>
 #include <maths/CKdTree.h>
 #include <maths/CLinearAlgebraShims.h>
+#include <maths/COrthogonaliser.h>
 #include <maths/CPRNG.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
-#include <boost/make_unique.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -291,7 +290,10 @@ protected:
                     projection[p](d) = coordinates[i];
                 }
             }
-            CGramSchmidt::basis(projection);
+            if (COrthogonaliser::orthonormalBasis(projection) == false) {
+                LOG_ERROR(<< "Failed to compute projection");
+                continue;
+            }
 
             // Project onto the basis.
             core::parallel_for_each(0, points.size(), [&](std::size_t j) {
@@ -568,8 +570,8 @@ protected:
     public:
         using TPoint = CAnnotatedVector<POINT, std::size_t>;
         using TPointVec = std::vector<TPoint>;
-        using TMethodPtr = std::unique_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
-        using TMethodPtrVec = std::vector<TMethodPtr>;
+        using TMethodUPtr = std::unique_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
+        using TMethodUPtrVec = std::vector<TMethodUPtr>;
 
     public:
         CEnsemble(NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
@@ -578,14 +580,14 @@ protected:
         template<typename T>
         CEnsemble& lof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(std::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
         template<typename T>
         CEnsemble& ldof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(std::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
@@ -593,7 +595,7 @@ protected:
         CEnsemble& knn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
             m_Methods.push_back(
-                boost::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                std::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
                     m_K, this->lookup()));
             return *this;
         }
@@ -601,7 +603,7 @@ protected:
         CEnsemble& tnn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
             m_Methods.push_back(
-                boost::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                std::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
                     m_K, this->lookup()));
             return *this;
         }
@@ -637,7 +639,7 @@ protected:
 
     private:
         std::size_t m_K;
-        TMethodPtrVec m_Methods;
+        TMethodUPtrVec m_Methods;
         TDoubleVecVec m_Scores;
     };
 

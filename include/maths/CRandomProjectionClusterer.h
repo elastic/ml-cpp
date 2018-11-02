@@ -9,11 +9,11 @@
 
 #include <maths/CAgglomerativeClusterer.h>
 #include <maths/CBasicStatistics.h>
-#include <maths/CGramSchmidt.h>
 #include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CNaturalBreaksClassifier.h>
+#include <maths/COrthogonaliser.h>
 #include <maths/CSampling.h>
 #include <maths/CXMeans.h>
 
@@ -118,7 +118,7 @@ protected:
                                      &components[(i * N + j + 1) * m_Dimension]);
             }
 
-            if (!CGramSchmidt::basis(projection)) {
+            if (COrthogonaliser::orthonormalBasis(projection) == false) {
                 LOG_ERROR(<< "Failed to construct basis");
                 return false;
             }
@@ -156,7 +156,7 @@ protected:
                                     &components[(i * N + j + 1) * d]);
             }
 
-            if (!CGramSchmidt::basis(extension)) {
+            if (COrthogonaliser::orthonormalBasis(extension) == false) {
                 LOG_ERROR(<< "Failed to construct basis");
                 return false;
             }
