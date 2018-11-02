@@ -7,13 +7,15 @@
 #ifndef INCLUDED_ml_core_CStreamUtils_h
 #define INCLUDED_ml_core_CStreamUtils_h
 
+#include <core/ImportExport.h>
+
 #include <iosfwd>
 
 namespace ml {
 namespace core {
 
 //! \brief Stream utility functions.
-class CStreamUtils {
+class CORE_EXPORT CStreamUtils {
 public:
     //! boost::ini_parser doesn't like UTF-8 ini files that begin
     //! with byte order markers.  This function advances the seek

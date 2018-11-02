@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
     }
 
     TScopedDataSearcherPtr restoreSearcher;
-    if (ioMgr.restoreStream() != 0) {
+    if (ioMgr.restoreStream() != nullptr) {
         restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
     }
     TScopedInputParserPtr inputParser;
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
     ml::api::CClusterer clusterer(params, writer);
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code.
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), 0, *inputParser, clusterer);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), nullptr, *inputParser, clusterer);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately, we cannot rely on destruction to finalise the output

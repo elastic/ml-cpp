@@ -14,7 +14,7 @@ namespace ml {
 namespace maths {
 
 //! \brief Methods for principle component analysis.
-class CPca {
+class MATHS_EXPORT CPca {
 public:
     using TIntDoublePr = std::pair<std::ptrdiff_t, double>;
     using TSizeVec = std::vector<std::size_t>;

@@ -42,9 +42,11 @@ LOG_DETERMINANT(5);
 #undef LOG_DETERMINANT
 
 //! The log determinant of our internal heap symmetric matrix.
+MATHS_EXPORT
 double logDeterminant(const CSymmetricMatrix<double>& c, double upper);
 
 //! The log determinant of an Eigen matrix.
+MATHS_EXPORT
 double logDeterminant(const CDenseMatrix<double>& c, double upper);
 
 } // information_criteria_detail::
@@ -199,7 +201,6 @@ public:
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
     using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
-    using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
 
 public:
     CGaussianInfoCriterion()
@@ -262,7 +263,7 @@ private:
     //! Compute the log of the determinant of \p covariance.
     double logDeterminant(const TCovariances& covariance) const {
         double n = CBasicStatistics::count(covariance);
-        const TMatrix& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
+        const auto& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
         double upper = information_criteria_detail::confidence(n - m_D - 1.0);
         return information_criteria_detail::logDeterminant(c, upper);
     }
