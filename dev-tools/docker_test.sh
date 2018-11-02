@@ -71,8 +71,14 @@ do
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name cppunit_results.xml | xargs tar cf - build/distributions' | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name cppunit_results.xml | xargs tar cf - build/distributions build/test_status.txt' | tar xvf -
     docker rmi --force $TEMP_TAG
+    # The image build is set to return zero (i.e. succeed as far as Docker is
+    # concerned) when the only problem is that the unit tests fail, as this
+    # gives us the chance to copy the unit test result files out of it.  But
+    # then we need to check if the test status file says the tests passed to
+    # decide whether this script succeeds or fails.
+    grep passed build/test_status.txt
 
 done
 
