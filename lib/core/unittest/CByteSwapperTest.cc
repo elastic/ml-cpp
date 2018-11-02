@@ -30,7 +30,8 @@ void CByteSwapperTest::testByteSwaps() {
     CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type3) == 0x3412);
 
     int16_t type4(0x4321);
-    CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type4) == 0x2143);
+    // Deliberate error to test CI PR - do not commit
+    CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type4) == 0x7777);
 
     uint32_t type5(0x12345678);
     CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type5) == 0x78563412);
