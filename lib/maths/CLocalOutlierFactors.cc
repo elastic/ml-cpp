@@ -6,6 +6,8 @@
 
 #include <maths/CLocalOutlierFactors.h>
 
+#include <maths/CTools.h>
+
 namespace ml {
 namespace maths {
 
@@ -39,21 +41,18 @@ void CLocalOutlierFactors::normalize(TDoubleVec& scores) {
 }
 
 double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
-    auto logInterpolate = [](double x, double xa, double fa, double xb, double fb) {
+    auto logInterpolate = [](double xa, double fa, double xb, double fb, double x) {
         x = CTools::truncate(x, std::min(xa, xb), std::max(xa, xb));
-        double alpha{(CTools::fastLog(x) - CTools::fastLog(xa)) /
-                     (CTools::fastLog(xb) - CTools::fastLog(xa))};
-        double beta{1.0 - alpha};
-        return fb * alpha + fa * beta;
+        return CTools::linearlyInterpolate(CTools::fastLog(xa), CTools::fastLog(xb),
+                                           fa, fb, CTools::fastLog(x));
     };
     if (cdfComplement > 1e-4) {
         return 1e-4 / cdfComplement;
     }
     if (cdfComplement > 1e-20) {
-        return logInterpolate(cdfComplement, 1e-4, 1.0, 1e-20, 50.0);
+        return logInterpolate(1e-4, 1.0, 1e-20, 50.0, cdfComplement);
     }
-    return logInterpolate(cdfComplement, 1e-20, 50.0,
-                          std::numeric_limits<double>::min(), 100.0);
+    return logInterpolate(1e-20, 50.0, std::numeric_limits<double>::min(), 100.0, cdfComplement);
 }
 }
 }
