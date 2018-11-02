@@ -16,19 +16,16 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
-#include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
-#include <api/COutputChainer.h>
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <boost/make_unique.hpp>
 
 #include <string>
 
@@ -72,7 +69,7 @@ int main(int argc, char** argv) {
     }
 
     auto inputParser =
-        std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        boost::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
