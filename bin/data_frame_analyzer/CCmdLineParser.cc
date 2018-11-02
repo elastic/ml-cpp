@@ -22,6 +22,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& configFile,
                            std::string& logProperties,
                            std::string& logPipe,
+                           bool& lengthEncodedInput,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
@@ -38,6 +39,8 @@ bool CCmdLineParser::parse(int argc,
                     "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
                     "Optional log to named pipe")
+            ("lengthEncodedInput",
+                        "Take input in length encoded binary format - default is CSV")
             ("input", boost::program_options::value<std::string>(),
                     "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
@@ -68,6 +71,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("logPipe") > 0) {
             logPipe = vm["logPipe"].as<std::string>();
+        }
+        if (vm.count("lengthEncodedInput") > 0) {
+            lengthEncodedInput = true;
         }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();

@@ -16,7 +16,6 @@ namespace ml {
 namespace api {
 
 class API_EXPORT CDataFrameAnalyzer {
-
 public:
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
 

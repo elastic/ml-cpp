@@ -29,6 +29,7 @@ public:
                       std::string& configFile,
                       std::string& logProperties,
                       std::string& logPipe,
+                      bool& lengthEncodedInput,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,
