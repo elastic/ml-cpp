@@ -25,8 +25,6 @@ cd "$MY_DIR/../.."
 # Build the code
 make -j`grep -c '^processor' /proc/cpuinfo`
 
-# Note: there is no testing so this is not suitable as a CI script!
-
 # Strip the binaries
 dev-tools/strip_binaries.sh
 
@@ -48,6 +46,11 @@ zip -9 ../distributions/$ARTIFACT_NAME-debug-$PRODUCT_VERSION-$BUNDLE_PLATFORM.z
 cd ../..
 
 if [ "x$1" = "x--test" ] ; then
-    make -j`grep -c '^processor' /proc/cpuinfo` ML_KEEP_GOING=1 test
+    # Convert any failure of this make command into the word passed or failed in
+    # a status file - this allows the Docker image build to succeed if the only
+    # failure is the unit tests, and then the detailed test results can be
+    # copied from the image
+    echo passed > build/test_status.txt
+    make -j`grep -c '^processor' /proc/cpuinfo` ML_KEEP_GOING=1 test || echo failed > build/test_status.txt
 fi
 
