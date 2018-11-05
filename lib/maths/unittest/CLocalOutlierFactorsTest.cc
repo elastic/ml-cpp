@@ -26,7 +26,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TDoubleSizePr = std::pair<double, std::size_t>;
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
+using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
 using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 
@@ -118,7 +118,7 @@ void CLocalOutlierFactorsTest::testLof() {
         TDoubleVec scores;
         maths::CLocalOutlierFactors::normalizedLof(k, false, points, scores);
 
-        TMinAccumulator outliers_(20);
+        TMaxAccumulator outliers_(20);
         for (std::size_t i = 0u; i < scores.size(); ++i) {
             outliers_.add({scores[i], i});
         }
@@ -224,9 +224,21 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
 void CLocalOutlierFactorsTest::testEnsemble() {
     test::CRandomNumbers rng;
 
-    double TP{0.0}, TN{0.0}, FP{0.0}, FN{0.0};
+    // Check error stats for scores, 0.05, 0.1 and 0.5. We should see precision increase
+    // for higher scores but recall decrease.
+    //
+    // In practice, the samples are randomly generated so it isn't necessarily the case
+    // that those generated from the different process are the outliers, they simply have
+    // a much higher probability of this being the case.
+
+    double TP[]{0.0, 0.0, 0.0};
+    double TN[]{0.0, 0.0, 0.0};
+    double FP[]{0.0, 0.0, 0.0};
+    double FN[]{0.0, 0.0, 0.0};
+
     TSizeVec trueOutliers{100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
                           110, 111, 112, 113, 114, 115, 116, 117, 118, 119};
+
     for (std::size_t t = 0u; t < 100; ++t) {
         TVectorVec points;
         gaussianWithUniformNoise(rng, points);
@@ -234,28 +246,52 @@ void CLocalOutlierFactorsTest::testEnsemble() {
         TDoubleVec scores;
         maths::CLocalOutlierFactors::ensemble(points, scores);
 
-        TMinAccumulator outliers_(20);
+        TMaxAccumulator top20Outliers(20);
+        TSizeVec outliers[3];
         for (std::size_t i = 0u; i < scores.size(); ++i) {
-            outliers_.add({scores[i], i});
+            top20Outliers.add({scores[i], i});
+            if (scores[i] >= 0.01) {
+                outliers[0].push_back(i);
+            }
+            if (scores[i] >= 0.1) {
+                outliers[1].push_back(i);
+            }
+            if (scores[i] >= 0.5) {
+                outliers[2].push_back(i);
+            }
         }
-        TSizeVec outliers(20);
-        std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
-                       [](const TDoubleSizePr& value) { return value.second; });
-        std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
 
-        double correct{static_cast<double>(maths::CSetTools::setIntersectSize(
-            trueOutliers.begin(), trueOutliers.end(), outliers.begin(), outliers.end()))};
-        TP += correct / 2000.0;
-        TN += (80.0 + correct) / 10000.0;
-        FP += (20.0 - correct) / 2000.0;
-        FN += (20.0 - correct) / 10000.0;
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "outliers at 0.01 = " << core::CContainerPrinter::print(outliers[0]));
+            LOG_DEBUG(<< "outliers at 0.1  = " << core::CContainerPrinter::print(outliers[1]));
+            LOG_DEBUG(<< "outliers at 0.5  = " << core::CContainerPrinter::print(outliers[2]));
+        }
+
+        for (std::size_t i = 0; i < 3; ++i) {
+            double correct{static_cast<double>(maths::CSetTools::setIntersectSize(
+                trueOutliers.begin(), trueOutliers.end(), outliers[i].begin(), outliers[i].end()))};
+            double total{static_cast<double>(outliers[i].size())};
+            TP[i] += correct;
+            TN[i] += 100.0 - total + correct;
+            FP[i] += total - correct;
+            FN[i] += 20.0 - correct;
+        }
     }
-    LOG_DEBUG(<< "TP = " << TP << " TN = " << TN << " FP = " << FP << " FN = " << FN);
-    CPPUNIT_ASSERT(TP > 0.95);
-    CPPUNIT_ASSERT(TN > 0.99);
-    CPPUNIT_ASSERT(FP < 0.05);
-    CPPUNIT_ASSERT(FN < 0.01);
+
+    LOG_DEBUG(<< "At 0.01: TP = " << TP[0] << " TN = " << TN[0] << " FP = " << FP[0] << " FN = " << FN[0]);
+    LOG_DEBUG(<< "At 0.1:  TP = " << TP[1] << " TN = " << TN[1] << " FP = " << FP[1] << " FN = " << FN[1]);
+    LOG_DEBUG(<< "At 0.5:  TP = " << TP[2] << " TN = " << TN[2] << " FP = " << FP[2] << " FN = " << FN[2]);
+
+    double precisionLowerBounds[]{0.95, 0.98, 1.0};
+    double recallLowerBounds[]{0.75, 0.38, 0.11};
+    for (std::size_t i = 0; i < 3; ++i) {
+        double precision{TP[i] / (TP[i] + FP[i])};
+        double recall{TP[i] / (TP[i] + FN[i])};
+        LOG_DEBUG(<< "precision = " << precision);
+        LOG_DEBUG(<< "recall = " << recall);
+        CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
+        CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
+    }
 }
 
 CppUnit::Test* CLocalOutlierFactorsTest::suite() {
