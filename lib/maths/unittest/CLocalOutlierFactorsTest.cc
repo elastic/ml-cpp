@@ -26,7 +26,8 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TDoubleSizePr = std::pair<double, std::size_t>;
-using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
+using TMaxAccumulator =
+    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
 using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 
@@ -262,14 +263,18 @@ void CLocalOutlierFactorsTest::testEnsemble() {
         }
 
         if (t % 10 == 0) {
-            LOG_DEBUG(<< "outliers at 0.01 = " << core::CContainerPrinter::print(outliers[0]));
-            LOG_DEBUG(<< "outliers at 0.1  = " << core::CContainerPrinter::print(outliers[1]));
-            LOG_DEBUG(<< "outliers at 0.5  = " << core::CContainerPrinter::print(outliers[2]));
+            LOG_DEBUG(<< "outliers at 0.01 = "
+                      << core::CContainerPrinter::print(outliers[0]));
+            LOG_DEBUG(<< "outliers at 0.1  = "
+                      << core::CContainerPrinter::print(outliers[1]));
+            LOG_DEBUG(<< "outliers at 0.5  = "
+                      << core::CContainerPrinter::print(outliers[2]));
         }
 
         for (std::size_t i = 0; i < 3; ++i) {
             double correct{static_cast<double>(maths::CSetTools::setIntersectSize(
-                trueOutliers.begin(), trueOutliers.end(), outliers[i].begin(), outliers[i].end()))};
+                trueOutliers.begin(), trueOutliers.end(), outliers[i].begin(),
+                outliers[i].end()))};
             double total{static_cast<double>(outliers[i].size())};
             TP[i] += correct;
             TN[i] += 100.0 - total + correct;
@@ -278,9 +283,12 @@ void CLocalOutlierFactorsTest::testEnsemble() {
         }
     }
 
-    LOG_DEBUG(<< "At 0.01: TP = " << TP[0] << " TN = " << TN[0] << " FP = " << FP[0] << " FN = " << FN[0]);
-    LOG_DEBUG(<< "At 0.1:  TP = " << TP[1] << " TN = " << TN[1] << " FP = " << FP[1] << " FN = " << FN[1]);
-    LOG_DEBUG(<< "At 0.5:  TP = " << TP[2] << " TN = " << TN[2] << " FP = " << FP[2] << " FN = " << FN[2]);
+    LOG_DEBUG(<< "At 0.01: TP = " << TP[0] << " TN = " << TN[0]
+              << " FP = " << FP[0] << " FN = " << FN[0]);
+    LOG_DEBUG(<< "At 0.1:  TP = " << TP[1] << " TN = " << TN[1]
+              << " FP = " << FP[1] << " FN = " << FN[1]);
+    LOG_DEBUG(<< "At 0.5:  TP = " << TP[2] << " TN = " << TN[2]
+              << " FP = " << FP[2] << " FN = " << FN[2]);
 
     double precisionLowerBounds[]{0.95, 0.98, 1.0};
     double recallLowerBounds[]{0.75, 0.38, 0.11};
