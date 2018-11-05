@@ -64,10 +64,9 @@ private:
 //! Get the concomitant constant annotated vector.
 template<typename VECTOR, typename ANNOTATION>
 struct SConstant<CAnnotatedVector<VECTOR, ANNOTATION>> {
-    using Type = CAnnotatedVector<typename SConstant<VECTOR>::Type, ANNOTATION>;
-    static CAnnotatedVector<Type, ANNOTATION>
-    get(std::size_t dimension,
-        typename CAnnotatedVector<VECTOR, ANNOTATION>::TCoordinate constant) {
+    static auto get(std::size_t dimension,
+                    typename CAnnotatedVector<VECTOR, ANNOTATION>::TCoordinate constant)
+        -> CAnnotatedVector<decltype(SConstant<VECTOR>::get(dimension, constant)), ANNOTATION> {
         return {SConstant<VECTOR>::get(dimension, constant)};
     }
 };

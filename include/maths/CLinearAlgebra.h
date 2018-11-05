@@ -459,7 +459,6 @@ public:
 //! \brief Gets a constant symmetric matrix with specified dimension.
 template<typename T, std::size_t N>
 struct SConstant<CSymmetricMatrixNxN<T, N>> {
-    using Type = CSymmetricMatrixNxN<T, N>;
     static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/, T constant) {
         return CSymmetricMatrixNxN<T, N>(constant);
     }
@@ -748,7 +747,6 @@ private:
 //! \brief Gets a constant symmetric matrix with specified dimension.
 template<typename T>
 struct SConstant<CSymmetricMatrix<T>> {
-    using Type = CSymmetricMatrix<T>;
     static CSymmetricMatrix<T> get(std::size_t dimension, T constant) {
         return CSymmetricMatrix<T>(dimension, constant);
     }
@@ -1190,7 +1188,6 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
 //! \brief Gets a constant vector with specified dimension.
 template<typename T, std::size_t N>
 struct SConstant<CVectorNx1<T, N>> {
-    using Type = CVectorNx1<T, N>;
     static CVectorNx1<T, N> get(std::size_t /*dimension*/, T constant) {
         return CVectorNx1<T, N>(constant);
     }
@@ -1495,7 +1492,6 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
 //! \brief Gets a constant vector with specified dimension.
 template<typename T>
 struct SConstant<CVector<T>> {
-    using Type = CVector<T>;
     static CVector<T> get(std::size_t dimension, T constant) {
         return CVector<T>(dimension, constant);
     }

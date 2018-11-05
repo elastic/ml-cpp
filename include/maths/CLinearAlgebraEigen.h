@@ -183,21 +183,11 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseMatrix(CDenseMatrix& other)
-        : CDenseMatrix{static_cast<const CDenseMatrix&>(other)} {}
-    CDenseMatrix(const CDenseMatrix& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CDenseMatrix(CDenseMatrix&& other)
-        : TBase{std::move(static_cast<TBase&&>(other))} {}
-
-    CDenseMatrix& operator=(const CDenseMatrix& other) {
-        this->TBase::operator=(other);
-        return *this;
-    }
-    CDenseMatrix& operator=(CDenseMatrix&& other) {
-        this->TBase::operator=(std::move(static_cast<TBase&&>(other)));
-        return *this;
-    }
+    CDenseMatrix(CDenseMatrix& other) = default;
+    CDenseMatrix(const CDenseMatrix& other) = default;
+    CDenseMatrix(CDenseMatrix&& other) = default;
+    CDenseMatrix& operator=(const CDenseMatrix& other) = default;
+    CDenseMatrix& operator=(CDenseMatrix&& other) = default;
     // @}
 
     //! Debug the memory usage of this object.
@@ -221,7 +211,6 @@ public:
 //! specified numbers of rows and columns.
 template<typename SCALAR>
 struct SConstant<CDenseMatrix<SCALAR>> {
-    using Type = CDenseMatrix<SCALAR>;
     static CDenseMatrix<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant) {
         return get(dimension, dimension, constant);
     }
@@ -243,21 +232,11 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseVector(CDenseVector& other)
-        : CDenseVector{static_cast<const CDenseVector&>(other)} {}
-    CDenseVector(const CDenseVector& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CDenseVector(CDenseVector&& other)
-        : TBase{std::move(static_cast<TBase&&>(other))} {}
-
-    CDenseVector& operator=(const CDenseVector& other) {
-        this->TBase::operator=(other);
-        return *this;
-    }
-    CDenseVector& operator=(CDenseVector&& other) {
-        this->TBase::operator=(std::move(static_cast<TBase&&>(other)));
-        return *this;
-    }
+    CDenseVector(CDenseVector& other) = default;
+    CDenseVector(const CDenseVector& other) = default;
+    CDenseVector(CDenseVector&& other) = default;
+    CDenseVector& operator=(const CDenseVector& other) = default;
+    CDenseVector& operator=(CDenseVector&& other) = default;
     // @}
 
     //! Debug the memory usage of this object.
@@ -280,7 +259,6 @@ public:
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
 struct SConstant<CDenseVector<SCALAR>> {
-    using Type = CDenseVector<SCALAR>;
     static CDenseVector<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant) {
         return CDenseVector<SCALAR>::Constant(dimension, constant);
     }
@@ -304,21 +282,11 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other)
-        : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
-    CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
-        : TBase{std::move(static_cast<TBase&&>(other))} {}
-
-    CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) {
-        this->TBase::operator=(other);
-        return *this;
-    }
-    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
-        this->TBase::operator=(std::move(static_cast<TBase&&>(other)));
-        return *this;
-    }
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other) = default;
+    CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other) = default;
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) = default;
+    CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) = default;
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) = default;
     //@}
 };
 
@@ -326,11 +294,12 @@ public:
 //! specified numbers of rows and columns.
 template<typename SCALAR>
 struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
-    using Type = typename SConstant<CDenseMatrix<SCALAR>>::Type;
-    static Type get(std::ptrdiff_t dimension, SCALAR constant) {
+    static auto get(std::ptrdiff_t dimension, SCALAR constant)
+        -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(dimension, 1)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(dimension, constant);
     }
-    static Type get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant) {
+    static auto get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant)
+        -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant);
     }
 };
@@ -353,20 +322,11 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other)
-        : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
-    CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
-        : TBase{std::move(static_cast<TBase&&>(other))} {}
-    CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) {
-        this->TBase::operator=(other);
-        return *this;
-    }
-    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
-        this->TBase::operator=(std::move(static_cast<TBase&&>(other)));
-        return *this;
-    }
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other) = default;
+    CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other) = default;
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) = default;
+    CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) = default;
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) = default;
     //@}
 
     //! Get a checksum of this object.
@@ -381,8 +341,8 @@ public:
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
 struct SConstant<CMemoryMappedDenseVector<SCALAR>> {
-    using Type = typename SConstant<CDenseVector<SCALAR>>::Type;
-    static Type get(std::ptrdiff_t dimension, SCALAR constant) {
+    static auto get(std::ptrdiff_t dimension, SCALAR constant)
+        -> decltype(SConstant<CDenseVector<SCALAR>>::get(dimension, constant)) {
         return SConstant<CDenseVector<SCALAR>>::get(dimension, constant);
     }
 };

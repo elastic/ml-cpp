@@ -45,7 +45,7 @@ std::size_t dimension(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
 
 //! Get the concomitant zero vector.
 template<typename VECTOR>
-typename SConstant<VECTOR>::Type zero(const VECTOR& x) {
+auto zero(const VECTOR& x) -> decltype(SConstant<VECTOR>::get(dimension(x), 0)) {
     return SConstant<VECTOR>::get(dimension(x), 0);
 }
 
@@ -93,14 +93,14 @@ bool isZero(const VECTOR& x) {
 
 //! Get the concomitant ones vector.
 template<typename VECTOR>
-typename SConstant<VECTOR>::Type ones(const VECTOR& x) {
+auto ones(const VECTOR& x) -> decltype(SConstant<VECTOR>::get(dimension(x), 1)) {
     return SConstant<VECTOR>::get(dimension(x), 1);
 }
 
 //! Get the concomitant constant \p constant vector.
 template<typename VECTOR>
-typename SConstant<VECTOR>::Type
-constant(const VECTOR& x, typename SCoordinate<VECTOR>::Type constant) {
+auto constant(const VECTOR& x, typename SCoordinate<VECTOR>::Type constant)
+    -> decltype(SConstant<VECTOR>::get(dimension(x), constant)) {
     return SConstant<VECTOR>::get(dimension(x), constant);
 }
 
