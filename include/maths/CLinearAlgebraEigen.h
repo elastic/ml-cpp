@@ -183,7 +183,9 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseMatrix(CDenseMatrix& other) = default;
+    CDenseMatrix(CDenseMatrix& other) :
+        CDenseMatrix{static_cast<const CDenseMatrix&>(other)} {
+    }
     CDenseMatrix(const CDenseMatrix& other) = default;
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
@@ -232,7 +234,9 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseVector(CDenseVector& other) = default;
+    CDenseVector(CDenseVector& other) :
+        CDenseVector{static_cast<const CDenseVector&>(other)} {
+    }
     CDenseVector(const CDenseVector& other) = default;
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
@@ -282,7 +286,9 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other) = default;
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other) :
+        CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {
+    }
     CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other) = default;
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) = default;
     CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) = default;
@@ -322,7 +328,9 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other) = default;
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other) :
+        CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {
+    }
     CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other) = default;
     CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) = default;
     CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) = default;
