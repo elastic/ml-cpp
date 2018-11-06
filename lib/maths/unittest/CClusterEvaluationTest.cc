@@ -202,7 +202,7 @@ void CClusterEvaluationTest::testSilhouetteApprox() {
             LOG_DEBUG(<< "exact = " << exact << ", approx = " << approx[i][p]
                       << ", error = " << error);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(exact, approx[i][p],
-                                         3.0 * std::sqrt(errors[i][p]));
+                                         4.0 * std::sqrt(errors[i][p]));
         }
     }
 }
