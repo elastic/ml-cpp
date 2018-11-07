@@ -30,17 +30,17 @@ using TSizeSizePrDoublePrVec = std::vector<TSizeSizePrDoublePr>;
 //! DESCRIPTION:\n
 //! Used to represent dense feature vectors. This only implements
 //! the interface needed by the CLG algorithm.
-class MATHS_EXPORT CDenseMatrix {
+class MATHS_EXPORT CLrDenseMatrix {
 public:
     using iterator = TDoubleVec::const_iterator;
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
 public:
-    CDenseMatrix();
-    CDenseMatrix(TDoubleVecVec& elements);
+    CLrDenseMatrix();
+    explicit CLrDenseMatrix(TDoubleVecVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CDenseMatrix& other);
+    void swap(CLrDenseMatrix& other);
 
     //! Get the number of rows.
     std::size_t rows() const {
@@ -68,16 +68,16 @@ private:
 //!
 //! DESCRIPTION:\n
 //! This only implements the interface needed by the CLG algorithm.
-class MATHS_EXPORT CSparseMatrix {
+class MATHS_EXPORT CLrSparseMatrix {
 public:
     using iterator = TSizeSizePrDoublePrVec::const_iterator;
 
 public:
-    CSparseMatrix();
-    CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements);
+    CLrSparseMatrix();
+    CLrSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CSparseMatrix& other);
+    void swap(CLrSparseMatrix& other);
 
     //! Get the number of rows.
     std::size_t rows() const { return m_Rows; }
@@ -150,7 +150,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CDenseMatrix& x,
+    bool run(const CLrDenseMatrix& x,
              const TDoubleVec& y,
              const TDoubleVec& lambda,
              TDoubleVec& beta,
@@ -165,7 +165,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CSparseMatrix& x,
+    bool run(const CLrSparseMatrix& x,
              const TDoubleVec& y,
              const TDoubleVec& lambda,
              TDoubleVec& beta,
@@ -182,7 +182,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool runIncremental(const CDenseMatrix& x,
+    bool runIncremental(const CLrDenseMatrix& x,
                         const TDoubleVec& y,
                         const TDoubleVec& lambda,
                         TDoubleVec& beta,
@@ -199,7 +199,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool runIncremental(const CSparseMatrix& x,
+    bool runIncremental(const CLrSparseMatrix& x,
                         const TDoubleVec& y,
                         const TDoubleVec& lambda,
                         TDoubleVec& beta,

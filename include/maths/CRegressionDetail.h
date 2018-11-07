@@ -17,6 +17,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CRegression.h>
+#include <maths/CTypeTraits.h>
 
 #include <sstream>
 
@@ -181,16 +182,16 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
     LOG_TRACE(<< "x =\n" << x);
     LOG_TRACE(<< "y =\n" << y);
 
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
-                                Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
-        LOG_TRACE(<< "singular values = " << x_.singularValues());
+    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
+    if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
+        LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
     }
 
     // Don't bother checking the solution since we check
     // the matrix condition above.
-    VECTOR r = x_.solve(y);
+    VECTOR r = svd.solve(y);
     for (std::size_t i = 0u; i < n; ++i) {
         result[i] = r(i);
     }
@@ -211,9 +212,9 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     }
 
     this->gramian(n, x);
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
-                                Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
+    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
+    if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
         LOG_TRACE(<< "singular values = " << x_.singularValues());
         return false;
     }
@@ -222,8 +223,8 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     // the matrix condition above. Also, we zero initialize result
     // in the calling code so any values we don't fill in the
     // following loop are zero (as required).
-    x = (x_.matrixV() * x_.singularValues().cwiseInverse().asDiagonal() *
-         x_.matrixU().transpose()) *
+    x = (svd.matrixV() * svd.singularValues().cwiseInverse().asDiagonal() *
+         svd.matrixU().transpose()) *
         variance / CBasicStatistics::count(m_S);
     for (std::size_t i = 0u; i < n; ++i) {
         result(i, i) = x(i, i);

@@ -242,8 +242,6 @@ bool doMultivariateNormalSample(RNG& rng,
                                 const TDoubleVecVec& covariance,
                                 std::size_t n,
                                 TDoubleVecVec& samples) {
-    using TJacobiSvd = Eigen::JacobiSVD<CDenseMatrix<double>>;
-
     if (mean.size() != covariance.size()) {
         LOG_ERROR(<< "Incompatible mean and covariance: "
                   << core::CContainerPrinter::print(mean) << ", "
@@ -291,12 +289,12 @@ bool doMultivariateNormalSample(RNG& rng,
     }
     LOG_TRACE(<< "C =" << core_t::LINE_ENDING << ' ' << C);
 
-    TJacobiSvd svd(C, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    auto svd = C.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
 
     // Get the singular values, these are the variances of the normals
     // to sample.
-    const CDenseVector<double>& S = svd.singularValues();
-    const CDenseMatrix<double>& U = svd.matrixU();
+    const auto& S = svd.singularValues();
+    const auto& U = svd.matrixU();
     TDoubleVec stddevs;
     stddevs.reserve(d);
     for (std::size_t i = 0u; i < d; ++i) {
@@ -337,8 +335,6 @@ void doMultivariateNormalSample(RNG& rng,
                                 std::size_t n,
                                 std::vector<CVectorNx1<T, N>>& samples) {
     using TDenseVector = typename SDenseVector<CVectorNx1<T, N>>::Type;
-    using TDenseMatrix = typename SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type;
-    using TJacobiSvd = Eigen::JacobiSVD<TDenseMatrix>;
 
     samples.clear();
     if (n == 0) {
@@ -347,32 +343,30 @@ void doMultivariateNormalSample(RNG& rng,
 
     // See the other implementation for an explanation.
 
-    TJacobiSvd svd(toDenseMatrix(covariance), Eigen::ComputeFullU | Eigen::ComputeFullV);
+    auto svd = toDenseMatrix(covariance).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
 
     // Get the singular values, these are the variances of the normals
     // to sample.
-    const TDenseVector& S = svd.singularValues();
-    const TDenseMatrix& U = svd.matrixU();
+    const auto& S = svd.singularValues();
+    const auto& U = svd.matrixU();
     T stddevs[N] = {};
     for (std::size_t i = 0u; i < N; ++i) {
         stddevs[i] = std::sqrt(std::max(S(i), 0.0));
     }
 
-    {
-        samples.resize(n, mean);
-        TDenseVector sample(N);
-        for (std::size_t i = 0u; i < n; ++i) {
-            for (std::size_t j = 0u; j < N; ++j) {
-                if (stddevs[j] == 0.0) {
-                    sample(j) = 0.0;
-                } else {
-                    boost::random::normal_distribution<> normal(0.0, stddevs[j]);
-                    sample(j) = normal(rng);
-                }
+    samples.resize(n, mean);
+    TDenseVector sample(N);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < N; ++j) {
+            if (stddevs[j] == 0.0) {
+                sample(j) = 0.0;
+            } else {
+                boost::random::normal_distribution<> normal(0.0, stddevs[j]);
+                sample(j) = normal(rng);
             }
-            sample = U * sample;
-            samples[i] += fromDenseVector(sample);
         }
+        sample = U * sample;
+        samples[i] += fromDenseVector(sample);
     }
 }
 

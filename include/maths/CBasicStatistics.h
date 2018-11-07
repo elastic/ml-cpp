@@ -219,6 +219,8 @@ public:
         }
 
         //! Update with a generic value \p x.
+        //!
+        //! \note This copies \p x if type U isn't type T.
         template<typename U>
         void add(const U& x, const TCoordinate& n = TCoordinate{1});
 
@@ -1440,7 +1442,7 @@ struct SCentralMomentsCustomAdd {
     static inline void add(const U& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
-        moments.add(static_cast<T>(x), n, 0);
+        moments.add(x, n, 0);
     }
 };
 }

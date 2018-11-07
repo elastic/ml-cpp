@@ -226,8 +226,8 @@ void CPcaTest::testSparseProjectOntoPrincipleComponents() {
                 exactProjection.row(i) = dense[i];
                 approxProjection.row(i) = approx[i];
             }
-            Eigen::JacobiSVD<TDenseMatrix> exactSvd(exactProjection);
-            Eigen::JacobiSVD<TDenseMatrix> approxSvd(approxProjection);
+            auto exactSvd = exactProjection.jacobiSvd();
+            auto approxSvd = approxProjection.jacobiSvd();
             LOG_DEBUG(<< "exact = " << exactSvd.singularValues().transpose());
             LOG_DEBUG(<< "approx = " << approxSvd.singularValues().transpose());
             double error{

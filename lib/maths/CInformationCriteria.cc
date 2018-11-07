@@ -19,7 +19,7 @@ namespace {
 //! information criterion.
 template<typename MATRIX>
 double logDeterminant_(const MATRIX& covariance, double upper) {
-    Eigen::JacobiSVD<MATRIX> svd(covariance);
+    auto svd = covariance.jacobiSvd();
     double result = 0.0;
     double epsilon = svd.threshold() * svd.singularValues()(0);
     for (int i = 0u; i < svd.singularValues().size(); ++i) {

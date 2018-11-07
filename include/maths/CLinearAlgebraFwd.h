@@ -16,14 +16,20 @@
 // Unfortunately, Eigen headers seem to be super fragile to
 // include directly so we just forward declare here ourselves.
 namespace Eigen {
-template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-class SparseMatrix;
-template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-class SparseVector;
-template<typename EXPRESSION>
-class ArrayWrapper;
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
+template<typename, int, int, int, int, int>
 class Matrix;
+template<typename, int, typename>
+class SparseMatrix;
+template<typename, int, typename>
+class SparseVector;
+template<typename>
+class ArrayWrapper;
+template<typename, int, typename>
+class Map;
+template<typename, int>
+class JacobiSVD;
+template<int, int>
+class Stride;
 }
 
 namespace ml {
@@ -58,10 +64,18 @@ template<typename T>
 class CSymmetricMatrix;
 template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector;
-template<typename MATRIX>
-class CDenseMatrixInitializer;
+template<typename SCALAR>
+class CDenseVector;
+template<typename SCALAR>
+class CDenseMatrix;
 template<typename VECTOR>
 class CDenseVectorInitializer;
+template<typename MATRIX>
+class CDenseMatrixInitializer;
+template<typename SCALAR>
+class CMemoryMappedDenseVector;
+template<typename SCALAR>
+class CMemoryMappedDenseMatrix;
 }
 }
 

@@ -1099,6 +1099,8 @@ void CLinearAlgebraTest::testShims() {
     using TMatrix = maths::CSymmetricMatrix<double>;
     using TDenseVector = maths::CDenseVector<double>;
     using TDenseMatrix = maths::CDenseMatrix<double>;
+    using TMappedVector = maths::CMemoryMappedDenseVector<double>;
+    using TMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
 
     double components[][4]{{1.0, 3.1, 4.0, 1.5},
                            {0.9, 3.2, 2.1, 1.7},
@@ -1108,191 +1110,251 @@ void CLinearAlgebraTest::testShims() {
     TVector vector2(boost::begin(components[0]), boost::end(components[0]));
     TDenseVector vector3(4);
     vector3 << components[0][0], components[0][1], components[0][2], components[0][3];
+    TMappedVector vector4(components[0], 4);
 
     LOG_DEBUG(<< "Test dimension");
     {
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector1));
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector2));
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector3));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector4));
     }
     LOG_DEBUG(<< "Test zero");
     {
         CPPUNIT_ASSERT(TVector4(0.0) == maths::las::zero(vector1));
         CPPUNIT_ASSERT(TVector(4, 0.0) == maths::las::zero(vector2));
         CPPUNIT_ASSERT(TDenseVector::Zero(4) == maths::las::zero(vector3));
+        CPPUNIT_ASSERT(TDenseVector::Zero(4) == maths::las::zero(vector4));
     }
     LOG_DEBUG(<< "Test conformableZeroMatrix");
     {
         CPPUNIT_ASSERT(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
         CPPUNIT_ASSERT(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
         CPPUNIT_ASSERT(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector3));
+        CPPUNIT_ASSERT(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector4));
     }
     LOG_DEBUG(<< "Test isZero");
     {
-        CPPUNIT_ASSERT(!maths::las::isZero(vector1));
-        CPPUNIT_ASSERT(!maths::las::isZero(vector2));
-        CPPUNIT_ASSERT(!maths::las::isZero(vector3));
+        CPPUNIT_ASSERT(maths::las::isZero(vector1) == false);
+        CPPUNIT_ASSERT(maths::las::isZero(vector2) == false);
+        CPPUNIT_ASSERT(maths::las::isZero(vector3) == false);
+        CPPUNIT_ASSERT(maths::las::isZero(vector4) == false);
         CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector1)));
         CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector2)));
         CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector3)));
+        CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector4)));
     }
     LOG_DEBUG(<< "Test ones");
     {
         CPPUNIT_ASSERT(TVector4(1.0) == maths::las::ones(vector1));
         CPPUNIT_ASSERT(TVector(4, 1.0) == maths::las::ones(vector2));
         CPPUNIT_ASSERT(TDenseVector::Ones(4) == maths::las::ones(vector3));
+        CPPUNIT_ASSERT(TDenseVector::Ones(4) == maths::las::ones(vector4));
     }
     LOG_DEBUG(<< "Test constant");
     {
         CPPUNIT_ASSERT(TVector4(5.1) == maths::las::constant(vector1, 5.1));
         CPPUNIT_ASSERT(TVector(4, 5.1) == maths::las::constant(vector2, 5.1));
         CPPUNIT_ASSERT(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector3, 5.1));
+        CPPUNIT_ASSERT(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector4, 5.1));
     }
     LOG_DEBUG(<< "Test min");
     {
-        TVector4 vector4(components[1]);
-        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
-        TDenseVector vector6(4);
-        vector6 << components[1][0], components[1][1], components[1][2],
+        double placeholder[2][4];
+        std::copy(boost::begin(components[1]), boost::end(components[1]),
+                  boost::begin(placeholder[0]));
+        std::copy(boost::begin(components[2]), boost::end(components[2]),
+                  boost::begin(placeholder[1]));
+        TVector4 vector5(components[1]);
+        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector7(4);
+        vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
-        TVector4 vector7(components[2]);
-        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
-        TDenseVector vector9(4);
-        vector9 << components[2][0], components[2][1], components[2][2],
+        TMappedVector vector8(placeholder[0], 4);
+        TVector4 vector9(boost::begin(components[2]), boost::end(components[2]));
+        TVector vector10(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector11(4);
+        vector11 << components[2][0], components[2][1], components[2][2],
             components[2][3];
-        maths::las::min(vector1, vector4);
-        maths::las::min(vector2, vector5);
-        maths::las::min(vector3, vector6);
-        maths::las::min(vector1, vector7);
-        maths::las::min(vector2, vector8);
-        maths::las::min(vector3, vector9);
-        LOG_DEBUG(<< " min1 = " << core::CContainerPrinter::print(vector4));
+        TMappedVector vector12(placeholder[1], 4);
+        maths::las::min(vector1, vector5);
+        maths::las::min(vector2, vector6);
+        maths::las::min(vector3, vector7);
+        maths::las::min(vector4, vector8);
+        maths::las::min(vector1, vector9);
+        maths::las::min(vector2, vector10);
+        maths::las::min(vector3, vector11);
+        maths::las::min(vector4, vector12);
         LOG_DEBUG(<< " min1 = " << core::CContainerPrinter::print(vector5));
-        LOG_DEBUG(<< " min1 = " << vector6.transpose());
-        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector7));
-        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector8));
-        LOG_DEBUG(<< " min2 = " << vector9.transpose());
-        std::ostringstream o6;
-        o6 << vector6.transpose();
-        std::ostringstream o9;
-        o9 << vector9.transpose();
-        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
-                             core::CContainerPrinter::print(vector4));
+        LOG_DEBUG(<< " min1 = " << core::CContainerPrinter::print(vector6));
+        LOG_DEBUG(<< " min1 = " << vector7.transpose());
+        LOG_DEBUG(<< " min1 = " << vector8.transpose());
+        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector9));
+        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector10));
+        LOG_DEBUG(<< " min2 = " << vector11.transpose());
+        LOG_DEBUG(<< " min2 = " << vector12.transpose());
+        std::ostringstream o7;
+        o7 << vector7.transpose();
+        std::ostringstream o8;
+        o8 << vector8.transpose();
+        std::ostringstream o11;
+        o11 << vector11.transpose();
+        std::ostringstream o12;
+        o12 << vector12.transpose();
         CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
                              core::CContainerPrinter::print(vector5));
-        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o6.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
+                             core::CContainerPrinter::print(vector6));
+        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o7.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o8.str());
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                             core::CContainerPrinter::print(vector7));
+                             core::CContainerPrinter::print(vector9));
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                             core::CContainerPrinter::print(vector8));
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o9.str());
+                             core::CContainerPrinter::print(vector10));
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o11.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o12.str());
     }
     LOG_DEBUG(<< "Test max");
     {
-        TVector4 vector4(components[1]);
-        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
-        TDenseVector vector6(4);
-        vector6 << components[1][0], components[1][1], components[1][2],
+        double placeholder[2][4];
+        std::copy(boost::begin(components[1]), boost::end(components[1]),
+                  boost::begin(placeholder[0]));
+        std::copy(boost::begin(components[2]), boost::end(components[2]),
+                  boost::begin(placeholder[1]));
+        TVector4 vector5(components[1]);
+        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector7(4);
+        vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
-        TVector4 vector7(components[2]);
-        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
-        TDenseVector vector9(4);
-        vector9 << components[2][0], components[2][1], components[2][2],
+        TMappedVector vector8(placeholder[0], 4);
+        TVector4 vector9(components[2]);
+        TVector vector10(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector11(4);
+        vector11 << components[2][0], components[2][1], components[2][2],
             components[2][3];
-        maths::las::max(vector1, vector4);
-        maths::las::max(vector2, vector5);
-        maths::las::max(vector3, vector6);
-        maths::las::max(vector1, vector7);
-        maths::las::max(vector2, vector8);
-        maths::las::max(vector3, vector9);
-        LOG_DEBUG(<< " max1 = " << core::CContainerPrinter::print(vector4));
+        TMappedVector vector12(placeholder[1], 4);
+        maths::las::max(vector1, vector5);
+        maths::las::max(vector2, vector6);
+        maths::las::max(vector3, vector7);
+        maths::las::max(vector4, vector8);
+        maths::las::max(vector1, vector9);
+        maths::las::max(vector2, vector10);
+        maths::las::max(vector3, vector11);
+        maths::las::max(vector4, vector12);
         LOG_DEBUG(<< " max1 = " << core::CContainerPrinter::print(vector5));
-        LOG_DEBUG(<< " max1 = " << vector6.transpose());
-        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector7));
-        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector8));
-        LOG_DEBUG(<< " max2 = " << vector9.transpose());
-        std::ostringstream o6;
-        o6 << vector6.transpose();
-        std::ostringstream o9;
-        o9 << vector9.transpose();
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
-                             core::CContainerPrinter::print(vector4));
+        LOG_DEBUG(<< " max1 = " << core::CContainerPrinter::print(vector6));
+        LOG_DEBUG(<< " max1 = " << vector7.transpose());
+        LOG_DEBUG(<< " max1 = " << vector8.transpose());
+        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector9));
+        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector10));
+        LOG_DEBUG(<< " max2 = " << vector11.transpose());
+        LOG_DEBUG(<< " max2 = " << vector12.transpose());
+        std::ostringstream o7;
+        o7 << vector7.transpose();
+        std::ostringstream o8;
+        o8 << vector8.transpose();
+        std::ostringstream o11;
+        o11 << vector11.transpose();
+        std::ostringstream o12;
+        o12 << vector12.transpose();
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
                              core::CContainerPrinter::print(vector5));
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o6.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
+                             core::CContainerPrinter::print(vector6));
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o7.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o8.str());
         CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                             core::CContainerPrinter::print(vector7));
+                             core::CContainerPrinter::print(vector9));
         CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                             core::CContainerPrinter::print(vector8));
-        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o9.str());
+                             core::CContainerPrinter::print(vector10));
+        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o11.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o12.str());
     }
     LOG_DEBUG(<< "Test componentwise divide");
     {
-        TVector4 vector4(components[1]);
-        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
-        TDenseVector vector6(4);
-        vector6 << components[1][0], components[1][1], components[1][2],
+        TVector4 vector5(components[1]);
+        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector7(4);
+        vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
-        TVector4 d1 = maths::las::componentwise(vector1) / maths::las::componentwise(vector4);
-        TVector d2 = maths::las::componentwise(vector2) / maths::las::componentwise(vector5);
+        TMappedVector vector8(components[1], 4);
+        TVector4 d1 = maths::las::componentwise(vector1) / maths::las::componentwise(vector5);
+        TVector d2 = maths::las::componentwise(vector2) / maths::las::componentwise(vector6);
         TDenseVector d3 = maths::las::componentwise(vector3) /
-                          maths::las::componentwise(vector6);
+                          maths::las::componentwise(vector7);
+        TDenseVector d4 = maths::las::componentwise(vector4) /
+                          maths::las::componentwise(vector8);
         LOG_DEBUG(<< " v1 / v2 = " << core::CContainerPrinter::print(d1));
         LOG_DEBUG(<< " v1 / v2 = " << core::CContainerPrinter::print(d2));
         LOG_DEBUG(<< " v1 / v2 = " << d3.transpose());
-        std::ostringstream o;
-        o << d3.transpose();
+        LOG_DEBUG(<< " v1 / v2 = " << d4.transpose());
+        std::ostringstream o3;
+        o3 << d3.transpose();
+        std::ostringstream o4;
+        o4 << d4.transpose();
         CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
                              core::CContainerPrinter::print(d1));
         CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
                              core::CContainerPrinter::print(d2));
-        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o.str());
+        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o3.str());
+        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o4.str());
     }
     LOG_DEBUG(<< "Test distance");
     {
-        TVector4 vector7(components[2]);
-        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
-        TDenseVector vector9(4);
-        vector9 << components[2][0], components[2][1], components[2][2],
+        TVector4 vector5(components[2]);
+        TVector vector6(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector7(4);
+        vector7 << components[2][0], components[2][1], components[2][2],
             components[2][3];
-        double d1 = maths::las::distance(vector1, vector7);
-        double d2 = maths::las::distance(vector2, vector8);
-        double d3 = maths::las::distance(vector3, vector9);
+        TMappedVector vector8(components[2], 4);
+        double d1 = maths::las::distance(vector1, vector5);
+        double d2 = maths::las::distance(vector2, vector6);
+        double d3 = maths::las::distance(vector3, vector7);
+        double d4 = maths::las::distance(vector4, vector8);
         LOG_DEBUG(<< " d1 = " << d1);
         LOG_DEBUG(<< " d1 = " << d2);
         LOG_DEBUG(<< " d1 = " << d3);
+        LOG_DEBUG(<< " d1 = " << d4);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d1, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d2, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d3, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d4, 1e-10);
     }
     LOG_DEBUG(<< "Test Euclidean norm");
     {
         double n1 = maths::las::norm(vector1);
         double n2 = maths::las::norm(vector2);
         double n3 = maths::las::norm(vector3);
+        double n4 = maths::las::norm(vector4);
         LOG_DEBUG(<< " n1 = " << n1);
         LOG_DEBUG(<< " n1 = " << n2);
         LOG_DEBUG(<< " n1 = " << n3);
+        LOG_DEBUG(<< " n1 = " << n4);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n1, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n2, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n3, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n4, 1e-10);
     }
     LOG_DEBUG(<< "Test L1");
     {
-        TVector4 vector10(components[3]);
-        TVector vector11(boost::begin(components[3]), boost::end(components[3]));
-        TDenseVector vector12(4);
-        vector12 << components[3][0], components[3][1], components[3][2],
+        TVector4 vector5(components[3]);
+        TVector vector6(boost::begin(components[3]), boost::end(components[3]));
+        TDenseVector vector7(4);
+        vector7 << components[3][0], components[3][1], components[3][2],
             components[3][3];
-        double l1 = maths::las::L1(vector10);
-        double l2 = maths::las::L1(vector11);
-        double l3 = maths::las::L1(vector12);
+        TMappedVector vector8(components[3], 4);
+        double l1 = maths::las::L1(vector5);
+        double l2 = maths::las::L1(vector6);
+        double l3 = maths::las::L1(vector7);
+        double l4 = maths::las::L1(vector8);
         LOG_DEBUG(<< " l1 = " << l1);
         LOG_DEBUG(<< " l1 = " << l2);
         LOG_DEBUG(<< " l1 = " << l3);
+        LOG_DEBUG(<< " l1 = " << l4);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l1, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l2, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l3, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l4, 1e-10);
     }
     LOG_DEBUG(<< "Test Frobenius");
     {
@@ -1300,6 +1362,12 @@ void CLinearAlgebraTest::testShims() {
                              {2.3, 5.3, 0.1, -0.8},
                              {2.1, 0.1, 3.1, 0.0},
                              {-1.3, -0.8, 0.0, 0.3}};
+        double flat[16];
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                flat[4 * j + i] = elements[i][j];
+            }
+        }
         TDoubleVecVec elements_;
         elements_.emplace_back(boost::begin(elements[0]), boost::end(elements[0]));
         elements_.emplace_back(boost::begin(elements[1]), boost::end(elements[1]));
@@ -1312,38 +1380,48 @@ void CLinearAlgebraTest::testShims() {
             elements[1][0], elements[1][1], elements[1][2], elements[1][3],
             elements[2][0], elements[2][1], elements[2][2], elements[2][3],
             elements[3][0], elements[3][1], elements[3][2], elements[3][3];
+        TMappedMatrix matrix4(flat, 4, 4);
+        LOG_DEBUG(<< matrix4);
         double f1 = maths::las::frobenius(matrix1);
         double f2 = maths::las::frobenius(matrix2);
         double f3 = maths::las::frobenius(matrix3);
+        double f4 = maths::las::frobenius(matrix4);
         LOG_DEBUG(<< " f1 = " << f1);
         LOG_DEBUG(<< " f1 = " << f2);
         LOG_DEBUG(<< " f1 = " << f3);
+        LOG_DEBUG(<< " f1 = " << f4);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f1, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f2, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f3, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f4, 1e-10);
     }
     LOG_DEBUG(<< "Test inner");
     {
-        TVector4 vector4(components[1]);
-        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
-        TDenseVector vector6(4);
-        vector6 << components[1][0], components[1][1], components[1][2],
+        TVector4 vector5(components[1]);
+        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector7(4);
+        vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
-        double i1 = maths::las::inner(vector1, vector4);
-        double i2 = maths::las::inner(vector2, vector5);
-        double i3 = maths::las::inner(vector3, vector6);
+        TMappedVector vector8(components[1], 4);
+        double i1 = maths::las::inner(vector1, vector5);
+        double i2 = maths::las::inner(vector2, vector6);
+        double i3 = maths::las::inner(vector3, vector7);
+        double i4 = maths::las::inner(vector4, vector8);
         LOG_DEBUG(<< "i1 = " << i1);
         LOG_DEBUG(<< "i1 = " << i2);
         LOG_DEBUG(<< "i1 = " << i3);
+        LOG_DEBUG(<< "i1 = " << i4);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i1, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i2, 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i3, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i4, 1e-10);
     }
     LOG_DEBUG(<< "Test outer");
     {
         TMatrix4 outer1 = maths::las::outer(vector1);
         TMatrix outer2 = maths::las::outer(vector2);
         TDenseMatrix outer3 = maths::las::outer(vector3);
+        TDenseMatrix outer4 = maths::las::outer(vector4);
         LOG_DEBUG(<< "outer = " << outer1);
         LOG_DEBUG(<< "outer = " << outer2);
         LOG_DEBUG(<< "outer =\n" << outer3);
@@ -1352,6 +1430,7 @@ void CLinearAlgebraTest::testShims() {
                 CPPUNIT_ASSERT_EQUAL(vector1(i) * vector1(j), outer1(i, j));
                 CPPUNIT_ASSERT_EQUAL(vector2(i) * vector2(j), outer2(i, j));
                 CPPUNIT_ASSERT_EQUAL(vector3(i) * vector3(j), outer3(i, j));
+                CPPUNIT_ASSERT_EQUAL(vector4(i) * vector4(j), outer4(i, j));
             }
         }
     }

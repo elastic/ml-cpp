@@ -60,6 +60,16 @@ private:
     //! The data which has been annotated onto the vector.
     ANNOTATION m_Annotation;
 };
+
+//! Get the concomitant constant annotated vector.
+template<typename VECTOR, typename ANNOTATION>
+struct SConstant<CAnnotatedVector<VECTOR, ANNOTATION>> {
+    static auto get(std::size_t dimension,
+                    typename CAnnotatedVector<VECTOR, ANNOTATION>::TCoordinate constant)
+        -> CAnnotatedVector<decltype(SConstant<VECTOR>::get(dimension, constant)), ANNOTATION> {
+        return {SConstant<VECTOR>::get(dimension, constant)};
+    }
+};
 }
 }
 
