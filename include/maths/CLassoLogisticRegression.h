@@ -37,7 +37,7 @@ public:
 
 public:
     CLrDenseMatrix();
-    CLrDenseMatrix(TDoubleVecVec& elements);
+    explicit CLrDenseMatrix(TDoubleVecVec& elements);
 
     //! Efficiently swap the contents of two matrices.
     void swap(CLrDenseMatrix& other);
