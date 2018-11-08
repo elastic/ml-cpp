@@ -14,6 +14,7 @@
 #include <rapidjson/fwd.h>
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <thread>
 #include <vector>

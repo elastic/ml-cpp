@@ -20,6 +20,9 @@
 #include <boost/make_unique.hpp>
 
 #include <chrono>
+#include <memory>
+#include <string>
+#include <thread>
 #include <vector>
 
 using namespace ml;
