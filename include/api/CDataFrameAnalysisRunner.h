@@ -13,6 +13,7 @@
 
 #include <rapidjson/fwd.h>
 
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <string>
