@@ -13,6 +13,7 @@
 #include "CConfigUpdaterTest.h"
 #include "CCsvInputParserTest.h"
 #include "CCsvOutputWriterTest.h"
+#include "CDataFrameAnalysisSpecificationTest.h"
 #include "CDetectionRulesJsonParserTest.h"
 #include "CFieldConfigTest.h"
 #include "CFieldDataTyperTest.h"
@@ -46,6 +47,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CConfigUpdaterTest::suite());
     runner.addTest(CCsvInputParserTest::suite());
     runner.addTest(CCsvOutputWriterTest::suite());
+    runner.addTest(CDataFrameAnalysisSpecificationTest::suite());
     runner.addTest(CDetectionRulesJsonParserTest::suite());
     runner.addTest(CFieldConfigTest::suite());
     runner.addTest(CFieldDataTyperTest::suite());
