@@ -59,6 +59,7 @@ public:
     //!   }
     //! }
     //! </CODE>
+    //! TODO These should be consistent with Java naming where relevant.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
     //! \param[in] jsonSpecification The specification as a JSON object.

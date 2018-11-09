@@ -23,6 +23,7 @@
 namespace ml {
 namespace api {
 namespace {
+// TODO These should be consistent with Java naming where relevant.
 const char* ROWS{"rows"};
 const char* COLS{"cols"};
 const char* MEMORY_LIMIT{"memory_limit"};
