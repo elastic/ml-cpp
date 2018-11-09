@@ -28,8 +28,8 @@
 using namespace ml;
 
 namespace {
-using TRunnerFactoryPtr = std::unique_ptr<api::CDataFrameAnalysisRunnerFactory>;
-using TRunnerFactoryPtrVec = std::vector<TRunnerFactoryPtr>;
+using TRunnerFactoryUPtr = std::unique_ptr<api::CDataFrameAnalysisRunnerFactory>;
+using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 class CDataFrameTestAnalysisRunner : public api::CDataFrameAnalysisRunner {
 public:
@@ -66,11 +66,11 @@ class CDataFrameTestAnalysisRunnerFactory : public api::CDataFrameAnalysisRunner
 public:
     virtual const char* name() const { return "test"; }
 
-    virtual TRunnerPtr make(const api::CDataFrameAnalysisSpecification& spec) const {
+    virtual TRunnerUPtr make(const api::CDataFrameAnalysisSpecification& spec) const {
         return boost::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 
-    virtual TRunnerPtr make(const api::CDataFrameAnalysisSpecification& spec,
+    virtual TRunnerUPtr make(const api::CDataFrameAnalysisSpecification& spec,
                             const rapidjson::Value&) const {
         return boost::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
@@ -83,8 +83,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     // input string and simply check validation for each field.
 
     auto outliersFactory = []() {
-        TRunnerFactoryPtr factory{boost::make_unique<api::CDataFrameOutliersRunnerFactory>()};
-        TRunnerFactoryPtrVec factories;
+        TRunnerFactoryUPtr factory{boost::make_unique<api::CDataFrameOutliersRunnerFactory>()};
+        TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(factory));
         return factories;
     };
@@ -214,8 +214,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     // Test job running basics: start, wait, progress and errors.
 
     auto testFactory = []() {
-        TRunnerFactoryPtr factory{boost::make_unique<CDataFrameTestAnalysisRunnerFactory>()};
-        TRunnerFactoryPtrVec factories;
+        TRunnerFactoryUPtr factory{boost::make_unique<CDataFrameTestAnalysisRunnerFactory>()};
+        TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(factory));
         return factories;
     };

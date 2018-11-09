@@ -39,9 +39,9 @@ class CDataFrameAnalysisRunnerFactory;
 class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TStrVec = std::vector<std::string>;
-    using TRunnerPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
-    using TRunnerFactoryPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
-    using TRunnerFactoryPtrVec = std::vector<TRunnerFactoryPtr>;
+    using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
+    using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
+    using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
     //! Inititialize from a JSON object.
@@ -66,7 +66,7 @@ public:
     //! \note All constraints must be positive.
     //! \note The parameters, if any, must be consistent for the analysis type.
     //! \note If this fails the state is set to bad and the analysis will not run.
-    CDataFrameAnalysisSpecification(TRunnerFactoryPtrVec runnerFactories,
+    CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification);
 
     //! Check if the specification is bad.
@@ -108,8 +108,8 @@ private:
     std::size_t m_Threads = 0;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
-    TRunnerFactoryPtrVec m_RunnerFactories;
-    TRunnerPtr m_Runner;
+    TRunnerFactoryUPtrVec m_RunnerFactories;
+    TRunnerUPtr m_Runner;
 };
 }
 }

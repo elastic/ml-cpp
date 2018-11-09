@@ -118,13 +118,13 @@ private:
 //! \brief Makes a core::CDataFrame analysis runner.
 class API_EXPORT CDataFrameAnalysisRunnerFactory {
 public:
-    using TRunnerPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
+    using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
 
 public:
     virtual ~CDataFrameAnalysisRunnerFactory() = default;
     virtual const char* name() const = 0;
-    virtual TRunnerPtr make(const CDataFrameAnalysisSpecification& spec) const = 0;
-    virtual TRunnerPtr make(const CDataFrameAnalysisSpecification& spec,
+    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const = 0;
+    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
                             const rapidjson::Value& params) const = 0;
 };
 }

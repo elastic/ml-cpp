@@ -56,9 +56,9 @@ private:
 class API_EXPORT CDataFrameOutliersRunnerFactory : public CDataFrameAnalysisRunnerFactory {
 public:
     virtual const char* name() const;
-    virtual TRunnerPtr make(const CDataFrameAnalysisSpecification& spec) const;
-    virtual TRunnerPtr make(const CDataFrameAnalysisSpecification& spec,
-                            const rapidjson::Value& params) const;
+    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
+    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
+                             const rapidjson::Value& params) const;
 };
 }
 }

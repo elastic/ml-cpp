@@ -111,12 +111,12 @@ const char* CDataFrameOutliersRunnerFactory::name() const {
     return "outliers";
 }
 
-CDataFrameOutliersRunnerFactory::TRunnerPtr
+CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
     return boost::make_unique<CDataFrameOutliersRunner>(spec);
 }
 
-CDataFrameOutliersRunnerFactory::TRunnerPtr
+CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
                                       const rapidjson::Value& params) const {
     return boost::make_unique<CDataFrameOutliersRunner>(spec, params);

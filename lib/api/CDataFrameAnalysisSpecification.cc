@@ -49,7 +49,7 @@ std::string toString(const rapidjson::Value& value) {
 }
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryPtrVec runnerFactories,
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                                                  const std::string& jsonSpecification)
     : m_RunnerFactories{std::move(runnerFactories)} {
     rapidjson::Document document;
