@@ -71,7 +71,7 @@ public:
     }
 
     virtual TRunnerUPtr make(const api::CDataFrameAnalysisSpecification& spec,
-                            const rapidjson::Value&) const {
+                             const rapidjson::Value&) const {
         return boost::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 };
@@ -83,7 +83,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     // input string and simply check validation for each field.
 
     auto outliersFactory = []() {
-        TRunnerFactoryUPtr factory{boost::make_unique<api::CDataFrameOutliersRunnerFactory>()};
+        TRunnerFactoryUPtr factory{
+            boost::make_unique<api::CDataFrameOutliersRunnerFactory>()};
         TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(factory));
         return factories;
@@ -239,8 +240,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         CPPUNIT_ASSERT(runner != nullptr);
 
         std::string possibleErrors[]{"[]", "[error 0]", "[error 0, error 10]",
-                                    "[error 0, error 10, error 20]",
-                                    "[error 0, error 10, error 20, error 30]"};
+                                     "[error 0, error 10, error 20]",
+                                     "[error 0, error 10, error 20, error 30]"};
 
         double lastProgress{runner->progress()};
         for (;;) {
@@ -250,8 +251,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
             CPPUNIT_ASSERT(runner->progress() >= lastProgress);
             lastProgress = runner->progress();
             CPPUNIT_ASSERT(std::find(std::begin(possibleErrors), std::end(possibleErrors),
-                                    core::CContainerPrinter::print(runner->errors())) !=
-                        std::end(possibleErrors));
+                                     core::CContainerPrinter::print(runner->errors())) !=
+                           std::end(possibleErrors));
             if (runner->finished()) {
                 break;
             }
@@ -262,7 +263,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
 
         CPPUNIT_ASSERT_EQUAL(1.0, runner->progress());
         CPPUNIT_ASSERT_EQUAL(std::string{"[error 0, error 10, error 20, error 30]"},
-                            core::CContainerPrinter::print(runner->errors()));
+                             core::CContainerPrinter::print(runner->errors()));
     }
 }
 

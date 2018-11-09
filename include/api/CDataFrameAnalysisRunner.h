@@ -125,7 +125,7 @@ public:
     virtual const char* name() const = 0;
     virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const = 0;
     virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                            const rapidjson::Value& params) const = 0;
+                             const rapidjson::Value& params) const = 0;
 };
 }
 }
