@@ -81,7 +81,5 @@ void CDataFrameAnalysisRunner::addError(const std::string& error) {
     core::CScopedFastLock lock(m_Mutex);
     m_Errors.push_back(error);
 }
-
-core::CFastMutex CDataFrameAnalysisRunner::m_Mutex;
 }
 }

@@ -112,7 +112,7 @@ private:
     TStrVec m_Errors;
 
     std::thread m_Runner;
-    static core::CFastMutex m_Mutex;
+    mutable core::CFastMutex m_Mutex;
 };
 
 //! \brief Makes a core::CDataFrame analysis runner.
