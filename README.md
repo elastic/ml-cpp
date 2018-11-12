@@ -1,4 +1,4 @@
-"# Machine Learning for the Elastic Stac2
+# Machine Learning for the Elastic Stack
 
 <https://www.elastic.co/products/stack/machine-learning>
 
