@@ -13,7 +13,7 @@ if git -c core.fileMode=false diff-index --quiet HEAD -- ; then
     ML_FILEFLAGS=0
 else
     ML_FILEFLAGS=VS_FF_PRIVATEBUILD
-fi    
+fi
 echo $1 | grep '\.dll$' > /dev/null
 if [ $? -eq 0 ] ; then
     ML_FILETYPE=VFT_DLL
@@ -36,6 +36,6 @@ echo -DML_USER=\'\"$ML_USER\"\' \
      -DML_NAME=\'\"$ML_NAME\"\' \
      -DML_YEAR=\'\"$ML_YEAR\"\' \
      -DML_ICON=\'\"$ML_ICON\"\' \
-     -DRIGHT_CLICK_PRODUCT_NAME=\'\"Elastic X-Pack\"\' \
+     -DRIGHT_CLICK_PRODUCT_NAME=\'\"Elasticsearch machine learning\"\' \
      -N
 
