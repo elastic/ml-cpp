@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
                                         &ioMgr]() -> ml::core::CDataSearcher* {
         if (ioMgr.restoreStream()) {
             // Check whether state is restored from a file, if so we assume that this is a debugging case
-            // and therefore does not originate from X-Pack.
+            // and therefore does not originate from the ML Java code.
             if (!isRestoreFileNamedPipe) {
                 // apply a filter to overcome differences in the way persistence vs. restore works
                 auto strm = std::make_shared<boost::iostreams::filtering_istream>();
