@@ -1,4 +1,4 @@
-# Machine Learning for the Elastic Stack
+"# Machine Learning for the Elastic Stac2
 
 <https://www.elastic.co/products/stack/machine-learning>
 
@@ -9,8 +9,8 @@ available with either a trial or platinum license for the
 This repo only contains the the C++ code that implements the core analytics for
 machine learning.
 
-Code for integrating into the Elasticsearch and source for its documentation can
-be found in the main
+Code for integrating into Elasticsearch and source for its documentation can be
+found in the main
 [elasticsearch repo](https://github.com/elastic/elasticsearch).
 
 ## Elastic License Functionality
