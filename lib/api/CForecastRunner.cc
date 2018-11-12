@@ -228,7 +228,7 @@ void CForecastRunner::forecastWorker() {
                 boost::system::error_code errorCode;
                 boost::filesystem::remove_all(temporaryFolder, errorCode);
                 if (errorCode) {
-                    // not an error: there is also cleanup code on X-pack side
+                    // not an error: there is also cleanup code on the Java side
                     LOG_WARN(<< "Failed to cleanup temporary data from: "
                              << forecastJob.s_TemporaryFolder << " error "
                              << errorCode.message());
@@ -429,7 +429,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         // use -1 as default to allow 0 as 'never expires'
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
-        // note: this is not exposed on x-pack side
+        // note: this is not exposed on the Java side
         forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
