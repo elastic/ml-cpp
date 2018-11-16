@@ -36,8 +36,8 @@ class CDataFrameAnalysisSpecification;
 //!
 //! IMPLEMENTATION:\n
 //! Particular analyses are specified by a JSON object which is passed as a header
-//! before any data to the data_frame_analyzer command. It is the responsibility of
-//! the CDataFrameAnalysisSpecification to parse this header although it passes of
+//! to the data_frame_analyzer command before any data. It is the responsibility of
+//! the CDataFrameAnalysisSpecification to parse this header although it passes off
 //! the reading of the analysis parameters object to implementations of this runner.
 //! Therefore CDataFrameAnalysisSpecification is also responsible for creating an
 //! appropriate runner object for the data_frame_analyzer command. A particular
@@ -45,7 +45,7 @@ class CDataFrameAnalysisSpecification;
 //! returns a reference to the appropriate CDataFrameAnalysisRunner implementation.
 //!
 //! This launches the work to do the analysis in a background thread so that the
-//! main thread remains reponsive and can periodically report progress and errors.
+//! main thread remains responsive and can periodically report progress and errors.
 //!
 //! No mechanism is provided to cancel the work (yet) because it is anticipated
 //! that this will be probably be achieved by killing the process and it is too

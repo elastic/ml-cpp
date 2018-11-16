@@ -35,7 +35,8 @@ class CDataFrameAnalysisRunnerFactory;
 //! header which is passed to the data_frame_analyzer command before any data. This
 //! creates and owns an analysis runner object which is also configured by the header.
 //! The analysis is run asynchronously via the CDataFrameAnalysisSpecification::run
-//! method which returns a handle to the runner to retrieve progress and errors.
+//! method which returns a handle to the runner to retrieve progress, errors and other
+//! performance statistics.
 class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TStrVec = std::vector<std::string>;
