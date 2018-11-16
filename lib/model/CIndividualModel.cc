@@ -172,21 +172,6 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
     }
 }
 
-void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) {
-    CDataGatherer& gatherer = this->dataGatherer();
-    if (!gatherer.dataAvailable(startTime)) {
-        return;
-    }
-
-    for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-         time < endTime; time += bucketLength) {
-        gatherer.sampleNow(time);
-        this->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
-    }
-}
-
 void CIndividualModel::sample(core_t::TTime startTime,
                               core_t::TTime endTime,
                               CResourceMonitor& resourceMonitor) {

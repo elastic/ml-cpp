@@ -255,10 +255,6 @@ void CMetricPopulationModelFactory::features(const TFeatureVec& features) {
     m_SearchKeyCache.reset();
 }
 
-void CMetricPopulationModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
-    m_BucketResultsDelay = bucketResultsDelay;
-}
-
 double CMetricPopulationModelFactory::minimumSeasonalVarianceScale() const {
     return 1.0;
 }

@@ -256,10 +256,6 @@ void CMetricModelFactory::bucketLength(core_t::TTime bucketLength) {
     m_BucketLength = bucketLength;
 }
 
-void CMetricModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
-    m_BucketResultsDelay = bucketResultsDelay;
-}
-
 double CMetricModelFactory::minimumSeasonalVarianceScale() const {
     return 0.4;
 }

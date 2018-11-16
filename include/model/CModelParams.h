@@ -173,9 +173,6 @@ struct MODEL_EXPORT SModelParams {
     //! value is judged to have any influence on a feature value.
     double s_InfluenceCutoff;
 
-    //! The number of buckets to delay finalizing out-of-phase buckets.
-    std::size_t s_BucketResultsDelay;
-
     //! The minimum data size to trigger fuzzy de-duplication of samples to add
     //! to population models.
     std::size_t s_MinimumToFuzzyDeduplicate;

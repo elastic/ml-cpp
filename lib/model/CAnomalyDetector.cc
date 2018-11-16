@@ -367,9 +367,6 @@ void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime,
                                     core_t::TTime bucketEndTime,
                                     CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-    if (m_ModelConfig.bucketResultsDelay()) {
-        bucketLength /= 2;
-    }
     bucketStartTime = maths::CIntegerTools::floor(bucketStartTime, bucketLength);
     bucketEndTime = maths::CIntegerTools::floor(bucketEndTime, bucketLength);
     if (bucketEndTime <= m_LastBucketEndTime) {

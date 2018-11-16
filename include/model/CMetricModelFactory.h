@@ -130,9 +130,6 @@ public:
 
     //! Set the modeled bucket length.
     virtual void bucketLength(core_t::TTime bucketLength);
-
-    //! Set the bucket results delay
-    virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
     //@}
 
     //! Get the minimum seasonal variance scale
@@ -178,9 +175,6 @@ private:
 
     //! The bucket length to analyze.
     core_t::TTime m_BucketLength;
-
-    //! The bucket results delay.
-    std::size_t m_BucketResultsDelay = 0;
 
     //! A cached search key.
     mutable TOptionalSearchKey m_SearchKeyCache;

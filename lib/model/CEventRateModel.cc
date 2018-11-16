@@ -351,9 +351,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     }
 
     if (pid >= this->firstBucketTimes().size()) {
-        // This is not necessarily an error: the person might have been added
-        // only in an out of phase bucket so far
-        LOG_TRACE(<< "No first time for person = " << gatherer.personName(pid));
+        LOG_ERROR(<< "No first time for person = " << gatherer.personName(pid));
         return false;
     }
 
