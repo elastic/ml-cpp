@@ -209,7 +209,7 @@ void CCsvInputParserTest::testSimpleDelims() {
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
@@ -250,7 +250,7 @@ void CCsvInputParserTest::testComplexDelims() {
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 }
 
 void CCsvInputParserTest::testThroughput() {
@@ -295,7 +295,7 @@ void CCsvInputParserTest::testThroughput() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
@@ -328,7 +328,7 @@ void CCsvInputParserTest::testDateParse() {
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/bdYIMSp.csv");
@@ -338,7 +338,7 @@ void CCsvInputParserTest::testDateParse() {
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/YmdHMS.csv");
@@ -348,7 +348,7 @@ void CCsvInputParserTest::testDateParse() {
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/YmdHMSZ_GMT.csv");
@@ -358,7 +358,7 @@ void CCsvInputParserTest::testDateParse() {
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
     }
 
     // Switch to US Eastern time for this test
@@ -372,7 +372,7 @@ void CCsvInputParserTest::testDateParse() {
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
     }
 
     // Set the timezone back to nothing, i.e. let the operating system decide
@@ -393,7 +393,7 @@ void CCsvInputParserTest::testQuoteParsing() {
 
     CQuoteCheckingVisitor visitor;
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     CPPUNIT_ASSERT_EQUAL(size_t(1), visitor.recordCount());
 }

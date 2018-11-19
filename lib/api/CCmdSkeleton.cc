@@ -36,8 +36,8 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord,
-                                             &m_Processor, _1)) == false) {
+    if (m_InputParser.readStreamAsMaps(boost::bind(&CDataProcessor::handleRecord,
+                                                   &m_Processor, _1)) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }

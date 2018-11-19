@@ -21,12 +21,11 @@
 #include "CIoManagerTest.h"
 #include "CJsonOutputWriterTest.h"
 #include "CLengthEncodedInputParserTest.h"
-#include "CLineifiedJsonInputParserTest.h"
-#include "CLineifiedJsonOutputWriterTest.h"
-#include "CLineifiedXmlInputParserTest.h"
 #include "CModelPlotDataJsonWriterTest.h"
 #include "CModelSnapshotJsonWriterTest.h"
 #include "CMultiFileDataAdderTest.h"
+#include "CNdJsonInputParserTest.h"
+#include "CNdJsonOutputWriterTest.h"
 #include "COutputChainerTest.h"
 #include "CRestorePreviousStateTest.h"
 #include "CResultNormalizerTest.h"
@@ -55,9 +54,8 @@ int main(int argc, const char** argv) {
     runner.addTest(CIoManagerTest::suite());
     runner.addTest(CJsonOutputWriterTest::suite());
     runner.addTest(CLengthEncodedInputParserTest::suite());
-    runner.addTest(CLineifiedJsonInputParserTest::suite());
-    runner.addTest(CLineifiedJsonOutputWriterTest::suite());
-    runner.addTest(CLineifiedXmlInputParserTest::suite());
+    runner.addTest(CNdJsonInputParserTest::suite());
+    runner.addTest(CNdJsonOutputWriterTest::suite());
     runner.addTest(CModelPlotDataJsonWriterTest::suite());
     runner.addTest(CModelSnapshotJsonWriterTest::suite());
     runner.addTest(CMultiFileDataAdderTest::suite());

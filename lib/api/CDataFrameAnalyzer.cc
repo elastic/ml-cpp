@@ -11,8 +11,9 @@
 namespace ml {
 namespace api {
 
-bool CDataFrameAnalyzer::handleRecord(const TStrStrUMap& dataRowFields) {
-    LOG_INFO(<< core::CContainerPrinter::print(dataRowFields));
+bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& fieldValues) {
+    LOG_INFO(<< core::CContainerPrinter::print(fieldNames));
+    LOG_INFO(<< core::CContainerPrinter::print(fieldValues));
     return true;
 }
 }

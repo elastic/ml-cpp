@@ -10,7 +10,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 
 #include <api/CCsvInputParser.h>
-#include <api/CLineifiedJsonOutputWriter.h>
+#include <api/CNdJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
 
 #include <rapidjson/document.h>
@@ -38,7 +38,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(900);
 
-    ml::api::CLineifiedJsonOutputWriter outputWriter;
+    ml::api::CNdJsonOutputWriter outputWriter;
 
     ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
 
@@ -47,7 +47,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStream(
+    CPPUNIT_ASSERT(inputParser.readStreamAsMaps(
         boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
 
     std::string results(outputWriter.internalString());
@@ -394,7 +394,7 @@ void CResultNormalizerTest::testInitNormalizer() {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
-    ml::api::CLineifiedJsonOutputWriter outputWriter;
+    ml::api::CNdJsonOutputWriter outputWriter;
 
     ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
 
@@ -402,7 +402,7 @@ void CResultNormalizerTest::testInitNormalizer() {
 
     std::ifstream inputStrm("testfiles/normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStream(
+    CPPUNIT_ASSERT(inputParser.readStreamAsMaps(
         boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
 
     std::string results(outputWriter.internalString());

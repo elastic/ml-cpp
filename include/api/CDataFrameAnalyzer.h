@@ -8,19 +8,18 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/unordered_map.hpp>
-
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace api {
 
 class API_EXPORT CDataFrameAnalyzer {
 public:
-    using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+    using TStrVec = std::vector<std::string>;
 
 public:
-    bool handleRecord(const TStrStrUMap& dataRowFields);
+    bool handleRecord(const TStrVec& fieldNames, const TStrVec& fieldValues);
 };
 }
 }

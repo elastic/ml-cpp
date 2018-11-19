@@ -3,17 +3,20 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CLineifiedJsonOutputWriterTest_h
-#define INCLUDED_CLineifiedJsonOutputWriterTest_h
+#ifndef INCLUDED_CNdJsonInputParserTest_h
+#define INCLUDED_CNdJsonInputParserTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLineifiedJsonOutputWriterTest : public CppUnit::TestFixture {
+class CNdJsonInputParserTest : public CppUnit::TestFixture {
 public:
-    void testStringOutput();
-    void testNumericOutput();
+    void testThroughputArbitrary();
+    void testThroughputCommon();
 
     static CppUnit::Test* suite();
+
+private:
+    void runTest(bool allDocsSameStructure);
 };
 
-#endif // INCLUDED_CLineifiedJsonOutputWriterTest_h
+#endif // INCLUDED_CNdJsonInputParserTest_h

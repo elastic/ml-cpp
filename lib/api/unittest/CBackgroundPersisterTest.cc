@@ -19,8 +19,8 @@
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/CNullOutput.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
@@ -115,9 +115,9 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist() {
         ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, nullOutput,
                                        outputWriter, &backgroundPersister);
 
-        ml::api::CLineifiedJsonInputParser parser(inputStrm);
+        ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(
             boost::bind(&ml::api::CDataProcessor::handleRecord, &typer, _1)));
 
         // Persist the processors' state in the background
@@ -207,9 +207,9 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
             firstProcessor = &typer;
         }
 
-        ml::api::CLineifiedJsonInputParser parser(inputStrm);
+        ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(boost::bind(
             &ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
         // Persist the processors' state in the background

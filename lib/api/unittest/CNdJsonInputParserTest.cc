@@ -3,28 +3,28 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CLineifiedJsonInputParserTest.h"
+#include "CNdJsonInputParserTest.h"
 
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
 
 #include <api/CCsvInputParser.h>
-#include <api/CLineifiedJsonInputParser.h>
-#include <api/CLineifiedJsonOutputWriter.h>
+#include <api/CNdJsonInputParser.h>
+#include <api/CNdJsonOutputWriter.h>
 
 #include <fstream>
 #include <functional>
 #include <sstream>
 
-CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
+CppUnit::Test* CNdJsonInputParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNdJsonInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputArbitrary",
-        &CLineifiedJsonInputParserTest::testThroughputArbitrary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputCommon",
-        &CLineifiedJsonInputParserTest::testThroughputCommon));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
+        "CNdJsonInputParserTest::testThroughputArbitrary",
+        &CNdJsonInputParserTest::testThroughputArbitrary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
+        "CNdJsonInputParserTest::testThroughputCommon",
+        &CNdJsonInputParserTest::testThroughputCommon));
 
     return suiteOfTests;
 }
@@ -64,7 +64,7 @@ public:
 
 private:
     size_t m_RecordsPerBlock;
-    ml::api::CLineifiedJsonOutputWriter m_OutputWriter;
+    ml::api::CNdJsonOutputWriter m_OutputWriter;
 };
 
 class CVisitor {
@@ -72,7 +72,7 @@ public:
     CVisitor() : m_RecordCount(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap& /*dataRowFields*/) {
+    bool operator()(const ml::api::CNdJsonInputParser::TStrStrUMap& /*dataRowFields*/) {
         ++m_RecordCount;
         return true;
     }
@@ -84,17 +84,17 @@ private:
 };
 }
 
-void CLineifiedJsonInputParserTest::testThroughputArbitrary() {
+void CNdJsonInputParserTest::testThroughputArbitrary() {
     LOG_INFO(<< "Testing assuming arbitrary fields in JSON documents");
     this->runTest(false);
 }
 
-void CLineifiedJsonInputParserTest::testThroughputCommon() {
+void CNdJsonInputParserTest::testThroughputCommon() {
     LOG_INFO(<< "Testing assuming all JSON documents have the same fields");
     this->runTest(true);
 }
 
-void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
+void CNdJsonInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -107,20 +107,20 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStream(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamAsMaps(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
     std::istringstream input(setupVisitor.input(TEST_SIZE));
 
-    ml::api::CLineifiedJsonInputParser parser(input, allDocsSameStructure);
+    ml::api::CNdJsonInputParser parser(input, allDocsSameStructure);
 
     CVisitor visitor;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));

@@ -3,10 +3,10 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CLineifiedJsonInputParser_h
-#define INCLUDED_ml_api_CLineifiedJsonInputParser_h
+#ifndef INCLUDED_ml_api_CNdJsonInputParser_h
+#define INCLUDED_ml_api_CNdJsonInputParser_h
 
-#include <api/CLineifiedInputParser.h>
+#include <api/CNdInputParser.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
@@ -34,21 +34,28 @@ namespace api {
 //! Using the RapidJson library to do the heavy lifting, but copying output
 //! to standard STL/Boost data structures.
 //!
-class API_EXPORT CLineifiedJsonInputParser : public CLineifiedInputParser {
+class API_EXPORT CNdJsonInputParser : public CNdInputParser {
 public:
     //! Construct with an input stream to be parsed.  Once a stream is
     //! passed to this constructor, no other object should read from it.
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CLineifiedJsonInputParser(std::istream& strmIn, bool allDocsSameStructure = false);
+    CNdJsonInputParser(std::istream& strmIn, bool allDocsSameStructure = false);
 
-    //! Read records from the stream. The supplied reader function is called
-    //! once per record.  If the supplied reader function returns false,
-    //! reading will stop.  This method keeps reading until it reaches the
-    //! end of the stream or an error occurs.  If it successfully reaches
-    //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc& readerFunc);
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamAsMaps(const TMapReaderFunc& readerFunc) override;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamAsVecs(const TVecReaderFunc& readerFunc) override;
 
 private:
     //! Attempt to parse the current working record into data fields.
@@ -59,9 +66,21 @@ private:
                                         TStrRefVec& fieldValRefs,
                                         TStrStrUMap& recordFields);
 
+    bool decodeDocumentWithCommonFields(const rapidjson::Document& document,
+                                        TStrVec& fieldNames,
+                                        TStrVec& fieldValues);
+
     bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
                                            TStrVec& fieldNames,
                                            TStrStrUMap& recordFields);
+
+    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+                                           TStrVec& fieldNames,
+                                           TStrVec& fieldValues);
+
+    static bool jsonValueToString(const std::string& fieldName,
+                                  const rapidjson::Value& jsonValue,
+                                  std::string& fieldValueStr);
 
 private:
     //! Are all JSON documents expected to contain the same fields in the
@@ -71,4 +90,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CLineifiedJsonInputParser_h
+#endif // INCLUDED_ml_api_CNdJsonInputParser_h

@@ -89,14 +89,31 @@ public:
     //! before main() runs).
     CLengthEncodedInputParser(std::istream& strmIn);
 
-    //! Read records from the stream. The supplied reader function is called
-    //! once per record.  If the supplied reader function returns false,
-    //! reading will stop.  This method keeps reading until it reaches the
-    //! end of the stream or an error occurs.  If it successfully reaches
-    //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc& readerFunc);
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamAsMaps(const TMapReaderFunc& readerFunc) override;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamAsVecs(const TVecReaderFunc& readerFunc) override;
 
 private:
+    //! Attempt to parse a single length encoded record that contains the field
+    //! names for the rest of the stream.
+    bool readFieldNames();
+
+    //! Read records from the stream.  Relies on the field names having been
+    //! previously read successfully.  The same working vector is populated
+    //! for every record.
+    template<typename READER_FUNC, typename STR_VEC>
+    bool parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace);
+
     //! Attempt to parse a single length encoded record from the stream into
     //! the strings in the vector provided.  The vector is a template
     //! argument so that it may be a vector of boost::reference_wrappers
@@ -105,7 +122,7 @@ private:
     //! when the function is called or whether the function is allowed to
     //! resize it.
     template<bool RESIZE_ALLOWED, typename STR_VEC>
-    bool parseRecordFromStream(STR_VEC& results);
+    bool parseRecordFromStream(STR_VEC& values);
 
     //! Parse a 32 bit unsigned integer from the input stream.
     bool parseUInt32FromStream(uint32_t& num);

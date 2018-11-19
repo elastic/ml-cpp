@@ -162,7 +162,7 @@ void CLengthEncodedInputParserTest::testCsvEquivalence() {
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStream(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamAsMaps(std::ref(setupVisitor)));
 
     // Input must be binary otherwise Windows will stop at CTRL+Z
     std::istringstream input(setupVisitor.input(1), std::ios::in | std::ios::binary);
@@ -199,7 +199,7 @@ void CLengthEncodedInputParserTest::testCsvEquivalence() {
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
@@ -217,7 +217,7 @@ void CLengthEncodedInputParserTest::testThroughput() {
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStream(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamAsMaps(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
@@ -231,7 +231,7 @@ void CLengthEncodedInputParserTest::testThroughput() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
@@ -258,5 +258,5 @@ void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
     CVisitor visitor;
 
     LOG_INFO(<< "Expect the next parse to report a suspiciously long length");
-    CPPUNIT_ASSERT(!parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(!parser.readStreamAsMaps(std::ref(visitor)));
 }

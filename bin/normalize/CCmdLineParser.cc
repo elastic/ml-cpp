@@ -58,7 +58,7 @@ bool CCmdLineParser::parse(int argc,
             ("deleteStateFiles",
                         "If this flag is set then delete the normalizer state files once they have been read")
             ("writeCsv",
-                        "Write the results in CSV format (default is lineified JSON)")
+                        "Write the results in CSV format (default is ND-JSON)")
         ;
         // clang-format on
 

@@ -83,9 +83,10 @@ int main(int argc, char** argv) {
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
 
-    if (inputParser->readStream([&dataFrameAnalyzer](const auto& record) {
-            return dataFrameAnalyzer.handleRecord(record);
-        }) == false) {
+    if (inputParser->readStreamAsVecs(
+            [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
+                return dataFrameAnalyzer.handleRecord(fieldNames, fieldValues);
+            }) == false) {
         LOG_FATAL(<< "Failed to handle input to be analyzed");
         return EXIT_FAILURE;
     }

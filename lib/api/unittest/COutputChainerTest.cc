@@ -12,7 +12,7 @@
 #include <api/CAnomalyJob.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
 
 #include <test/CTestTmpDir.h>
@@ -62,9 +62,9 @@ void COutputChainerTest::testChaining() {
 
         CMockDataProcessor mockProcessor(outputChainer);
 
-        ml::api::CLineifiedJsonInputParser parser(inputStrm);
+        ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(
             boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
     }
 
