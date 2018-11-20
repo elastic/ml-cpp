@@ -10,13 +10,15 @@
 
 class CNdJsonInputParserTest : public CppUnit::TestFixture {
 public:
-    void testThroughputArbitrary();
-    void testThroughputCommon();
+    void testThroughputArbitraryMapHandler();
+    void testThroughputCommonMapHandler();
+    void testThroughputArbitraryVecHandler();
+    void testThroughputCommonVecHandler();
 
     static CppUnit::Test* suite();
 
 private:
-    void runTest(bool allDocsSameStructure);
+    void runTest(bool allDocsSameStructure, bool parseAsVecs);
 };
 
 #endif // INCLUDED_CNdJsonInputParserTest_h

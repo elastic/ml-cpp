@@ -20,11 +20,17 @@ CppUnit::Test* CNdJsonInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNdJsonInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputArbitrary",
-        &CNdJsonInputParserTest::testThroughputArbitrary));
+        "CNdJsonInputParserTest::testThroughputArbitraryMapHandler",
+        &CNdJsonInputParserTest::testThroughputArbitraryMapHandler));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputCommon",
-        &CNdJsonInputParserTest::testThroughputCommon));
+        "CNdJsonInputParserTest::testThroughputCommonMapHandler",
+        &CNdJsonInputParserTest::testThroughputCommonMapHandler));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
+        "CNdJsonInputParserTest::testThroughputArbitraryVecHandler",
+        &CNdJsonInputParserTest::testThroughputArbitraryVecHandler));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
+        "CNdJsonInputParserTest::testThroughputCommonVecHandler",
+        &CNdJsonInputParserTest::testThroughputCommonVecHandler));
 
     return suiteOfTests;
 }
@@ -71,8 +77,15 @@ class CVisitor {
 public:
     CVisitor() : m_RecordCount(0) {}
 
-    //! Handle a record
+    //! Handle a record in map form
     bool operator()(const ml::api::CNdJsonInputParser::TStrStrUMap& /*dataRowFields*/) {
+        ++m_RecordCount;
+        return true;
+    }
+
+    //! Handle a record in vector form
+    bool operator()(const ml::api::CNdJsonInputParser::TStrVec& /*fieldNames*/,
+                    const ml::api::CNdJsonInputParser::TStrVec& /*fieldValues*/) {
         ++m_RecordCount;
         return true;
     }
@@ -84,17 +97,27 @@ private:
 };
 }
 
-void CNdJsonInputParserTest::testThroughputArbitrary() {
-    LOG_INFO(<< "Testing assuming arbitrary fields in JSON documents");
-    this->runTest(false);
+void CNdJsonInputParserTest::testThroughputArbitraryMapHandler() {
+    LOG_INFO(<< "Testing parse to map assuming arbitrary fields in JSON documents");
+    this->runTest(false, false);
 }
 
-void CNdJsonInputParserTest::testThroughputCommon() {
-    LOG_INFO(<< "Testing assuming all JSON documents have the same fields");
-    this->runTest(true);
+void CNdJsonInputParserTest::testThroughputCommonMapHandler() {
+    LOG_INFO(<< "Testing parse to map assuming all JSON documents have the same fields");
+    this->runTest(true, false);
 }
 
-void CNdJsonInputParserTest::runTest(bool allDocsSameStructure) {
+void CNdJsonInputParserTest::testThroughputArbitraryVecHandler() {
+    LOG_INFO(<< "Testing parse to vectors assuming arbitrary fields in JSON documents");
+    this->runTest(false, true);
+}
+
+void CNdJsonInputParserTest::testThroughputCommonVecHandler() {
+    LOG_INFO(<< "Testing parse to vectors assuming all JSON documents have the same fields");
+    this->runTest(true, true);
+}
+
+void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -120,7 +143,11 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
+    if (parseAsVecs) {
+        CPPUNIT_ASSERT(parser.readStreamAsVecs(std::ref(visitor)));
+    } else {
+        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
+    }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
