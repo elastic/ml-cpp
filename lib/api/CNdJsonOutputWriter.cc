@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CLineifiedJsonOutputWriter.h>
+#include <api/CNdJsonOutputWriter.h>
 
 #include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CSleep.h>
@@ -14,27 +14,26 @@
 namespace ml {
 namespace api {
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter()
+CNdJsonOutputWriter::CNdJsonOutputWriter()
     : m_OutStream(m_StringOutputBuf), m_WriteStream(m_OutStream),
       m_Writer(m_WriteStream) {
 }
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields)
+CNdJsonOutputWriter::CNdJsonOutputWriter(const TStrSet& numericFields)
     : m_NumericFields(numericFields), m_OutStream(m_StringOutputBuf),
       m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
 }
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(std::ostream& strmOut)
+CNdJsonOutputWriter::CNdJsonOutputWriter(std::ostream& strmOut)
     : m_OutStream(strmOut), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
 }
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields,
-                                                       std::ostream& strmOut)
+CNdJsonOutputWriter::CNdJsonOutputWriter(const TStrSet& numericFields, std::ostream& strmOut)
     : m_NumericFields(numericFields), m_OutStream(strmOut),
       m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
 }
 
-CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter() {
+CNdJsonOutputWriter::~CNdJsonOutputWriter() {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
     m_WriteStream.Flush();
@@ -45,15 +44,15 @@ CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter() {
     core::CSleep::sleep(20);
 }
 
-bool CLineifiedJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
-                                            const TStrVec& /*extraFieldNames*/) {
+bool CNdJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
+                                     const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
-bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                          const TStrStrUMap& overrideDataRowFields) {
+bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                   const TStrStrUMap& overrideDataRowFields) {
     using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
-    TScopedAllocator scopedAllocator("CLineifiedJsonOutputWriter::writeRow", m_Writer);
+    TScopedAllocator scopedAllocator("CNdJsonOutputWriter::writeRow", m_Writer);
 
     rapidjson::Document doc = m_Writer.makeDoc();
 
@@ -84,7 +83,7 @@ bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
     return true;
 }
 
-std::string CLineifiedJsonOutputWriter::internalString() const {
+std::string CNdJsonOutputWriter::internalString() const {
     const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
 
     // This is only of any value if the first constructor was used - it's up to
@@ -92,9 +91,9 @@ std::string CLineifiedJsonOutputWriter::internalString() const {
     return m_StringOutputBuf.str();
 }
 
-void CLineifiedJsonOutputWriter::writeField(const std::string& name,
-                                            const std::string& value,
-                                            rapidjson::Document& doc) const {
+void CNdJsonOutputWriter::writeField(const std::string& name,
+                                     const std::string& value,
+                                     rapidjson::Document& doc) const {
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue(0.0);
         if (core::CStringUtils::stringToType(value, numericValue) == false) {

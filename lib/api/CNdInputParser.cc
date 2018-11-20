@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CLineifiedInputParser.h>
+#include <api/CNdInputParser.h>
 
 #include <core/CLogger.h>
 
@@ -15,15 +15,15 @@ namespace ml {
 namespace api {
 
 // Initialise statics
-const char CLineifiedInputParser::LINE_END('\n');
-const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072); // 128kB
+const char CNdInputParser::LINE_END('\n');
+const size_t CNdInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
-CLineifiedInputParser::CLineifiedInputParser(std::istream& strmIn)
+CNdInputParser::CNdInputParser(std::istream& strmIn)
     : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr),
       m_WorkBufferCapacity(0), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr) {
 }
 
-CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
+CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -87,7 +87,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
     return TCharPSizePr(static_cast<char*>(nullptr), 0);
 }
 
-void CLineifiedInputParser::resetBuffer() {
+void CNdInputParser::resetBuffer() {
     m_WorkBufferEnd = m_WorkBufferPtr;
 }
 }

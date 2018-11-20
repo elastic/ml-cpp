@@ -3,15 +3,19 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CLineifiedXmlOutputWriter_h
-#define INCLUDED_ml_api_CLineifiedXmlOutputWriter_h
+#ifndef INCLUDED_ml_api_CNdJsonOutputWriter_h
+#define INCLUDED_ml_api_CNdJsonOutputWriter_h
 
-#include <core/CXmlNodeWithChildrenPool.h>
+#include <core/CRapidJsonLineWriter.h>
 
 #include <api/COutputHandler.h>
 #include <api/ImportExport.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+
 #include <iosfwd>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -19,28 +23,38 @@ namespace ml {
 namespace api {
 
 //! \brief
-//! Write output data in XML format, one document per line
+//! Write output data in JSON format, one document per line
 //!
 //! DESCRIPTION:\n
-//! This class writes every result passed to it as a separate XML
+//! This class writes every result passed to it as a separate JSON
 //! document.  Each document is restricted to a single line so that
 //! whatever process consumes the output can determine where one
 //! document ends and the next starts.
 //!
 //! IMPLEMENTATION:\n
-//! Using RapidXml to do the heavy lifting.
+//! Using RapidJson to do the heavy lifting.
 //!
-class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler {
+class API_EXPORT CNdJsonOutputWriter : public COutputHandler {
+public:
+    using TStrSet = std::set<std::string>;
+
 public:
     //! Constructor that causes output to be written to the internal string
     //! stream
-    CLineifiedXmlOutputWriter(const std::string& rootName);
+    CNdJsonOutputWriter();
+
+    //! Constructor that causes output to be written to the internal string
+    //! stream, with some numeric fields
+    CNdJsonOutputWriter(const TStrSet& numericFields);
 
     //! Constructor that causes output to be written to the specified stream
-    CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut);
+    CNdJsonOutputWriter(std::ostream& strmOut);
+
+    //! Constructor that causes output to be written to the specified stream
+    CNdJsonOutputWriter(const TStrSet& numericFields, std::ostream& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CLineifiedXmlOutputWriter();
+    virtual ~CNdJsonOutputWriter();
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
@@ -52,7 +66,7 @@ public:
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
 
-    //! Write the data row fields as an XML document
+    //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
                           const TStrStrUMap& overrideDataRowFields);
 
@@ -61,9 +75,14 @@ public:
     std::string internalString() const;
 
 private:
-    //! Name of the root element in which the fields to be output will be
-    //! nested
-    std::string m_RootName;
+    //! Write a single field to the document
+    void writeField(const std::string& name,
+                    const std::string& value,
+                    rapidjson::Document& doc) const;
+
+private:
+    //! Which output fields are numeric?
+    TStrSet m_NumericFields;
 
     //! If we've been initialised without a specific stream, output is
     //! written to this string stream
@@ -72,10 +91,15 @@ private:
     //! Reference to the stream we're going to write to
     std::ostream& m_OutStream;
 
-    //! XML node pool for efficiency
-    core::CXmlNodeWithChildrenPool m_Pool;
+    //! JSON writer ostream wrapper
+    rapidjson::OStreamWrapper m_WriteStream;
+
+    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+
+    //! JSON writer
+    TGenericLineWriter m_Writer;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CLineifiedXmlOutputWriter_h
+#endif // INCLUDED_ml_api_CNdJsonOutputWriter_h

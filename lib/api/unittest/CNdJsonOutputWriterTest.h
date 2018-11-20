@@ -3,12 +3,12 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CLineifiedJsonOutputWriterTest_h
-#define INCLUDED_CLineifiedJsonOutputWriterTest_h
+#ifndef INCLUDED_CNdJsonOutputWriterTest_h
+#define INCLUDED_CNdJsonOutputWriterTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLineifiedJsonOutputWriterTest : public CppUnit::TestFixture {
+class CNdJsonOutputWriterTest : public CppUnit::TestFixture {
 public:
     void testStringOutput();
     void testNumericOutput();
@@ -16,4 +16,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CLineifiedJsonOutputWriterTest_h
+#endif // INCLUDED_CNdJsonOutputWriterTest_h

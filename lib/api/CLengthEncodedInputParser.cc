@@ -45,13 +45,54 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     }
 }
 
-bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
+bool CLengthEncodedInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+
+    if (this->readFieldNames() == false) {
+        return false;
+    }
+
+    TStrVec& fieldNames = this->fieldNames();
+
+    // We reuse the same field map for every record
+    TStrStrUMap recordFields;
+
+    // Cache references to the strings in the map corresponding to each field
+    // name - this avoids the need to repeatedly compute the same hashes
+    TStrRefVec fieldValRefs;
+    fieldValRefs.reserve(fieldNames.size());
+    for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
+        fieldValRefs.emplace_back(recordFields[*iter]);
+    }
+
+    return this->parseRecordLoop(
+        [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
+}
+
+bool CLengthEncodedInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
+
+    if (this->readFieldNames() == false) {
+        return false;
+    }
+
+    TStrVec& fieldNames = this->fieldNames();
+
+    // We reuse the same value vector for every record
+    TStrVec fieldValues(fieldNames.size());
+
+    return parseRecordLoop(
+        [&readerFunc, &fieldNames, &fieldValues] {
+            return readerFunc(fieldNames, fieldValues);
+        },
+        fieldValues);
+}
+
+bool CLengthEncodedInputParser::readFieldNames() {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
     TStrVec& fieldNames = this->fieldNames();
 
-    if (!this->gotFieldNames()) {
+    if (this->gotFieldNames() == false) {
         if (this->parseRecordFromStream<true>(fieldNames) == false) {
             LOG_ERROR(<< "Failed to parse length encoded header from stream");
             return false;
@@ -61,24 +102,21 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
             // If we parsed no field names at all, return true, as
             // completely empty input is technically valid
             LOG_INFO(<< "Field names are empty")
+            m_NoMoreRecords = true;
             return true;
         }
 
         this->gotFieldNames(true);
     }
-    // We reuse the same field map for every record
-    TStrStrUMap recordFields;
+    return true;
+}
 
-    // Cache references to the strings in the map corresponding to each field
-    // name - this avoids the need to repeatedly compute the same hashes
-    TStrRefVec fieldValRefs;
-    fieldValRefs.reserve(fieldNames.size());
-    for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
-        fieldValRefs.push_back(boost::ref(recordFields[*iter]));
-    }
+template<typename READER_FUNC, typename STR_VEC>
+bool CLengthEncodedInputParser::parseRecordLoop(const READER_FUNC& readerFunc,
+                                                STR_VEC& workSpace) {
 
-    while (!m_NoMoreRecords) {
-        if (this->parseRecordFromStream<false>(fieldValRefs) == false) {
+    while (m_NoMoreRecords == false) {
+        if (this->parseRecordFromStream<false>(workSpace) == false) {
             LOG_ERROR(<< "Failed to parse length encoded data record from stream");
             return false;
         }
@@ -89,7 +127,7 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
 
         this->gotData(true);
 
-        if (readerFunc(recordFields) == false) {
+        if (readerFunc() == false) {
             LOG_ERROR(<< "Record handler function forced exit");
             return false;
         }
@@ -99,7 +137,7 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
 }
 
 template<bool RESIZE_ALLOWED, typename STR_VEC>
-bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
+bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -125,7 +163,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
         return false;
     }
 
-    if (results.size() != numFields) {
+    if (values.size() != numFields) {
         if (RESIZE_ALLOWED) {
             if (numFields == 0) {
                 LOG_WARN(<< "Number of fields is 0 in input");
@@ -141,10 +179,10 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
             static_assert(!RESIZE_ALLOWED || !std::is_same<TVecValue, TStrRef>::value,
                           "RESIZE_ALLOWED must be false for reference vectors");
             std::string temp;
-            results.resize(numFields, typename STR_VEC::value_type(temp));
+            values.resize(numFields, typename STR_VEC::value_type(temp));
         } else {
             LOG_ERROR(<< "Incorrect number of fields in input stream record: expected "
-                      << results.size() << " but got " << numFields);
+                      << values.size() << " but got " << numFields);
             return false;
         }
     }
@@ -170,7 +208,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
             return false;
         }
 
-        if (this->parseStringFromStream(length, results[index]) == false) {
+        if (this->parseStringFromStream(length, values[index]) == false) {
             LOG_ERROR(<< "Unable to read field data from input stream");
             return false;
         }

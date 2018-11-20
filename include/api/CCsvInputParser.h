@@ -139,14 +139,31 @@ public:
     //! Get field name row exactly as it was in the input
     const std::string& fieldNameStr() const;
 
-    //! Read records from the stream. The supplied reader function is called
-    //! once per record.  If the supplied reader function returns false,
-    //! reading will stop.  This method keeps reading until it reaches the
-    //! end of the stream or an error occurs.  If it successfully reaches
-    //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc& readerFunc);
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) override;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
 
 private:
+    //! Attempt to parse a single CSV record that contains the field
+    //! names for the rest of the stream.
+    bool readFieldNames();
+
+    //! Read records from the stream.  Relies on the field names having been
+    //! previously read successfully.  The same working vector is populated
+    //! for every record.
+    template<typename READER_FUNC, typename STR_VEC>
+    bool parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace);
+
     //! Attempt to parse a single CSV record from the stream into the
     //! working record.  The CSV is assumed to be in the Excel style.
     bool parseCsvRecordFromStream();
@@ -155,7 +172,8 @@ private:
     bool parseFieldNames();
 
     //! Attempt to parse the current working record into data fields.
-    bool parseDataRecord(const TStrRefVec& fieldValRefs);
+    template<typename STR_VEC>
+    bool parseDataRecord(STR_VEC& values);
 
     //! Wrapper around std::getline() that removes carriage returns
     //! preceding the linefeed that breaks the line.  This means that we

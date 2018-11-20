@@ -122,8 +122,8 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     // write to the pipe to check whether it's still open on the remote side.
     // This means that all Java code that reads from Ml named pipes must
     // tolerate a test character appearing at the beginning of the data it
-    // receives.  We use a newline character, as the named pipes carry lineified
-    // JSON and it's easy to make them tolerate blank lines.
+    // receives.  We use a newline character, as the named pipes carry ND-JSON
+    // and it's easy to make them tolerate blank lines.
     bool sufferedShortLivedConnection(false);
     DWORD attempt(0);
     do {
