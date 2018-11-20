@@ -5,6 +5,7 @@
  */
 #include "CCsvInputParserTest.h"
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
@@ -48,7 +49,10 @@ public:
     CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
         : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
 
-    //! Handle a record
+    //! Reset the record count ready for another run
+    void reset() { m_RecordCount = 0; }
+
+    //! Handle a record in map form
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordCount;
 
@@ -78,6 +82,39 @@ public:
                                                 rawIter->second.end(), '\n'));
         size_t lineCount(0);
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
+        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+
+        return true;
+    }
+
+    //! Handle a record in vector form
+    bool operator()(const ml::api::CCsvInputParser::TStrVec& fieldNames,
+                    const ml::api::CCsvInputParser::TStrVec& fieldValues) {
+        ++m_RecordCount;
+
+        // For the throughput test, the assertions below will skew the
+        // results, so bypass them
+        if (m_Fast) {
+            return true;
+        }
+
+        // Check the field names
+        CPPUNIT_ASSERT_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+                             ml::core::CContainerPrinter::print(fieldNames));
+
+        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+
+        // Check the line count is consistent with the _raw field
+        auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
+        CPPUNIT_ASSERT(rawIter != fieldNames.end());
+        auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
+        CPPUNIT_ASSERT(lineCountIter != fieldNames.end());
+
+        const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
+        std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
+        std::size_t lineCount(0);
+        const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
+        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
         CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
 
         return true;
@@ -177,40 +214,48 @@ void CCsvInputParserTest::testSimpleDelims() {
     std::ifstream simpleStrm("testfiles/simple.txt");
     CPPUNIT_ASSERT(simpleStrm.is_open());
 
-    ml::api::CCsvInputParser parser(simpleStrm);
-
     ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.push_back("_cd");
-    expectedFieldNames.push_back("_indextime");
-    expectedFieldNames.push_back("_kv");
-    expectedFieldNames.push_back("_raw");
-    expectedFieldNames.push_back("_serial");
-    expectedFieldNames.push_back("_si");
-    expectedFieldNames.push_back("_sourcetype");
-    expectedFieldNames.push_back("_time");
-    expectedFieldNames.push_back("date_hour");
-    expectedFieldNames.push_back("date_mday");
-    expectedFieldNames.push_back("date_minute");
-    expectedFieldNames.push_back("date_month");
-    expectedFieldNames.push_back("date_second");
-    expectedFieldNames.push_back("date_wday");
-    expectedFieldNames.push_back("date_year");
-    expectedFieldNames.push_back("date_zone");
-    expectedFieldNames.push_back("eventtype");
-    expectedFieldNames.push_back("host");
-    expectedFieldNames.push_back("index");
-    expectedFieldNames.push_back("linecount");
-    expectedFieldNames.push_back("punct");
-    expectedFieldNames.push_back("source");
-    expectedFieldNames.push_back("sourcetype");
-    expectedFieldNames.push_back("server");
-    expectedFieldNames.push_back("timeendpos");
-    expectedFieldNames.push_back("timestartpos");
+    expectedFieldNames.emplace_back("_cd");
+    expectedFieldNames.emplace_back("_indextime");
+    expectedFieldNames.emplace_back("_kv");
+    expectedFieldNames.emplace_back("_raw");
+    expectedFieldNames.emplace_back("_serial");
+    expectedFieldNames.emplace_back("_si");
+    expectedFieldNames.emplace_back("_sourcetype");
+    expectedFieldNames.emplace_back("_time");
+    expectedFieldNames.emplace_back("date_hour");
+    expectedFieldNames.emplace_back("date_mday");
+    expectedFieldNames.emplace_back("date_minute");
+    expectedFieldNames.emplace_back("date_month");
+    expectedFieldNames.emplace_back("date_second");
+    expectedFieldNames.emplace_back("date_wday");
+    expectedFieldNames.emplace_back("date_year");
+    expectedFieldNames.emplace_back("date_zone");
+    expectedFieldNames.emplace_back("eventtype");
+    expectedFieldNames.emplace_back("host");
+    expectedFieldNames.emplace_back("index");
+    expectedFieldNames.emplace_back("linecount");
+    expectedFieldNames.emplace_back("punct");
+    expectedFieldNames.emplace_back("source");
+    expectedFieldNames.emplace_back("sourcetype");
+    expectedFieldNames.emplace_back("server");
+    expectedFieldNames.emplace_back("timeendpos");
+    expectedFieldNames.emplace_back("timestartpos");
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
+    // First read to a map
+    ml::api::CCsvInputParser parser1(simpleStrm);
+    CPPUNIT_ASSERT(parser1.readStreamAsMaps(std::ref(visitor)));
+    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 
+    // Now re-read to vectors
+    simpleStrm.clear();
+    simpleStrm.seekg(0);
+    visitor.reset();
+
+    ml::api::CCsvInputParser parser2(simpleStrm);
+    CPPUNIT_ASSERT(parser2.readStreamAsVecs(std::ref(visitor)));
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
@@ -218,39 +263,47 @@ void CCsvInputParserTest::testComplexDelims() {
     std::ifstream complexStrm("testfiles/complex.txt");
     CPPUNIT_ASSERT(complexStrm.is_open());
 
-    ml::api::CCsvInputParser parser(complexStrm);
-
     ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.push_back("_cd");
-    expectedFieldNames.push_back("_indextime");
-    expectedFieldNames.push_back("_kv");
-    expectedFieldNames.push_back("_raw");
-    expectedFieldNames.push_back("_serial");
-    expectedFieldNames.push_back("_si");
-    expectedFieldNames.push_back("_sourcetype");
-    expectedFieldNames.push_back("_time");
-    expectedFieldNames.push_back("date_hour");
-    expectedFieldNames.push_back("date_mday");
-    expectedFieldNames.push_back("date_minute");
-    expectedFieldNames.push_back("date_month");
-    expectedFieldNames.push_back("date_second");
-    expectedFieldNames.push_back("date_wday");
-    expectedFieldNames.push_back("date_year");
-    expectedFieldNames.push_back("date_zone");
-    expectedFieldNames.push_back("eventtype");
-    expectedFieldNames.push_back("host");
-    expectedFieldNames.push_back("index");
-    expectedFieldNames.push_back("linecount");
-    expectedFieldNames.push_back("punct");
-    expectedFieldNames.push_back("source");
-    expectedFieldNames.push_back("sourcetype");
-    expectedFieldNames.push_back("server");
-    expectedFieldNames.push_back("timeendpos");
-    expectedFieldNames.push_back("timestartpos");
+    expectedFieldNames.emplace_back("_cd");
+    expectedFieldNames.emplace_back("_indextime");
+    expectedFieldNames.emplace_back("_kv");
+    expectedFieldNames.emplace_back("_raw");
+    expectedFieldNames.emplace_back("_serial");
+    expectedFieldNames.emplace_back("_si");
+    expectedFieldNames.emplace_back("_sourcetype");
+    expectedFieldNames.emplace_back("_time");
+    expectedFieldNames.emplace_back("date_hour");
+    expectedFieldNames.emplace_back("date_mday");
+    expectedFieldNames.emplace_back("date_minute");
+    expectedFieldNames.emplace_back("date_month");
+    expectedFieldNames.emplace_back("date_second");
+    expectedFieldNames.emplace_back("date_wday");
+    expectedFieldNames.emplace_back("date_year");
+    expectedFieldNames.emplace_back("date_zone");
+    expectedFieldNames.emplace_back("eventtype");
+    expectedFieldNames.emplace_back("host");
+    expectedFieldNames.emplace_back("index");
+    expectedFieldNames.emplace_back("linecount");
+    expectedFieldNames.emplace_back("punct");
+    expectedFieldNames.emplace_back("source");
+    expectedFieldNames.emplace_back("sourcetype");
+    expectedFieldNames.emplace_back("server");
+    expectedFieldNames.emplace_back("timeendpos");
+    expectedFieldNames.emplace_back("timestartpos");
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
+    // First read to a map
+    ml::api::CCsvInputParser parser1(complexStrm);
+    CPPUNIT_ASSERT(parser1.readStreamAsMaps(std::ref(visitor)));
+
+    // Now re-read to vectors
+    complexStrm.clear();
+    complexStrm.seekg(0);
+    visitor.reset();
+
+    ml::api::CCsvInputParser parser2(complexStrm);
+    CPPUNIT_ASSERT(parser2.readStreamAsVecs(std::ref(visitor)));
 }
 
 void CCsvInputParserTest::testThroughput() {
