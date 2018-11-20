@@ -34,6 +34,14 @@ namespace api {
 //! Using the RapidJson library to do the heavy lifting, but copying output
 //! to standard STL/Boost data structures.
 //!
+//! It is possible to tell the parser that all documents have exactly the
+//! same structure, i.e. the same field names in the same order.  In
+//! this case the field names vector is only populated once.  If the
+//! documents turn out to have different structures then parsing may
+//! detect an error but may instead pass incorrect records to the handler
+//! function.  The default is the less efficient but safer option of
+//! parsing the field names separately from each document.
+//!
 class API_EXPORT CNdJsonInputParser : public CNdInputParser {
 public:
     //! Construct with an input stream to be parsed.  Once a stream is
