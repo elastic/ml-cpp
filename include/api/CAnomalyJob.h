@@ -216,7 +216,7 @@ private:
     void outputInterimResults(core_t::TTime bucketStartTime);
 
     //! Helper function for outputResults.
-    //! \p processingTime is the processing time can be written to the bucket
+    //! \p processingTime is the processing time of the bucket
     void writeOutResults(bool interim,
                          model::CHierarchicalResults& results,
                          core_t::TTime bucketTime,

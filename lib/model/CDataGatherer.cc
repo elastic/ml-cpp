@@ -840,18 +840,9 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
 }
 
 void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter& inserter) const {
-    const std::string& tag = m_BucketGatherer->persistenceTag();
-    if (tag == CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG) {
-        const CEventRateBucketGatherer* gatherer =
-            dynamic_cast<const CEventRateBucketGatherer*>(m_BucketGatherer.get());
-        inserter.insertLevel(tag, boost::bind(&CEventRateBucketGatherer::acceptPersistInserter,
-                                              boost::cref(gatherer), _1));
-    } else if (tag == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
-        const CMetricBucketGatherer* gatherer =
-            dynamic_cast<const CMetricBucketGatherer*>(m_BucketGatherer.get());
-        inserter.insertLevel(tag, boost::bind(&CMetricBucketGatherer::acceptPersistInserter,
-                                              boost::cref(gatherer), _1));
-    }
+    inserter.insertLevel(m_BucketGatherer->persistenceTag(),
+                         boost::bind(&CBucketGatherer::acceptPersistInserter,
+                                     m_BucketGatherer.get(), _1));
 }
 
 void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType,
