@@ -397,6 +397,7 @@ public:
 
     //! Persist state by passing information \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
+
 private:
     //! Resize the necessary data structures so they can hold values
     //! for the person and/or attribute identified by \p pid and \p cid,
