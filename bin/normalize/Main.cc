@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
     }
 
     // Now handle the numbers to be normalised from stdin
-    if (inputParser->readStreamAsMaps(boost::bind(
+    if (inputParser->readStreamIntoMaps(boost::bind(
             &ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
         LOG_FATAL(<< "Failed to handle input to be normalized");
         return EXIT_FAILURE;

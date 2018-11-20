@@ -17,7 +17,7 @@ CNdJsonInputParser::CNdJsonInputParser(std::istream& strmIn, bool allDocsSameStr
     : CNdInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
-bool CNdJsonInputParser::readStreamAsMaps(const TMapReaderFunc& readerFunc) {
+bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
     TStrVec& fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
@@ -60,7 +60,7 @@ bool CNdJsonInputParser::readStreamAsMaps(const TMapReaderFunc& readerFunc) {
     return true;
 }
 
-bool CNdJsonInputParser::readStreamAsVecs(const TVecReaderFunc& readerFunc) {
+bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
     TStrVec& fieldNames = this->fieldNames();
 
     // Reset the record buffer pointers in case we're reading a new stream

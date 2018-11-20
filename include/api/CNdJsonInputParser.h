@@ -56,14 +56,14 @@ public:
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamAsMaps(const TMapReaderFunc& readerFunc) override;
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) override;
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamAsVecs(const TVecReaderFunc& readerFunc) override;
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
 
 private:
     //! Attempt to parse the current working record into data fields.

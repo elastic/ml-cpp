@@ -154,7 +154,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamAsMaps(
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
         boost::bind(&ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
     // Persist the detector state to a stringstream

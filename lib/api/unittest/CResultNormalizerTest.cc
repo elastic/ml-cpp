@@ -47,7 +47,7 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStreamAsMaps(
+    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(
         boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
 
     std::string results(outputWriter.internalString());
@@ -402,7 +402,7 @@ void CResultNormalizerTest::testInitNormalizer() {
 
     std::ifstream inputStrm("testfiles/normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStreamAsMaps(
+    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(
         boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
 
     std::string results(outputWriter.internalString());

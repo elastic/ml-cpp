@@ -117,7 +117,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist() {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamAsMaps(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
             boost::bind(&ml::api::CDataProcessor::handleRecord, &typer, _1)));
 
         // Persist the processors' state in the background
@@ -209,7 +209,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamAsMaps(boost::bind(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(boost::bind(
             &ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
         // Persist the processors' state in the background

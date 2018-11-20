@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
 
-    if (inputParser->readStreamAsVecs(
+    if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
                 return dataFrameAnalyzer.handleRecord(fieldNames, fieldValues);
             }) == false) {

@@ -39,7 +39,7 @@ const std::string& CCsvInputParser::fieldNameStr() const {
     return m_FieldNameStr;
 }
 
-bool CCsvInputParser::readStreamAsMaps(const TMapReaderFunc& readerFunc) {
+bool CCsvInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
@@ -62,7 +62,7 @@ bool CCsvInputParser::readStreamAsMaps(const TMapReaderFunc& readerFunc) {
         [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
 }
 
-bool CCsvInputParser::readStreamAsVecs(const TVecReaderFunc& readerFunc) {
+bool CCsvInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;

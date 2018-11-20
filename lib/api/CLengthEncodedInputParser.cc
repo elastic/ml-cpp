@@ -45,7 +45,7 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     }
 }
 
-bool CLengthEncodedInputParser::readStreamAsMaps(const TMapReaderFunc& readerFunc) {
+bool CLengthEncodedInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
@@ -68,7 +68,7 @@ bool CLengthEncodedInputParser::readStreamAsMaps(const TMapReaderFunc& readerFun
         [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
 }
 
-bool CLengthEncodedInputParser::readStreamAsVecs(const TVecReaderFunc& readerFunc) {
+bool CLengthEncodedInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;

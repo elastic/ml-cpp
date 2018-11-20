@@ -64,7 +64,7 @@ void COutputChainerTest::testChaining() {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamAsMaps(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
             boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
     }
 

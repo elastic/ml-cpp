@@ -130,7 +130,7 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStreamAsMaps(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamIntoMaps(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
@@ -144,9 +144,9 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     if (parseAsVecs) {
-        CPPUNIT_ASSERT(parser.readStreamAsVecs(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamIntoVecs(std::ref(visitor)));
     } else {
-        CPPUNIT_ASSERT(parser.readStreamAsMaps(std::ref(visitor)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());

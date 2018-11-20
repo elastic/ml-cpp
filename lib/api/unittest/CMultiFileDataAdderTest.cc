@@ -198,7 +198,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamAsMaps(
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
         boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));
 
     // Persist the detector state to file(s)

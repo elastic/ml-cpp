@@ -200,7 +200,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStreamAsMaps(
+    if (!parser->readStreamIntoMaps(
             boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
         LOG_ERROR(<< "Failed to processs input");
         return false;

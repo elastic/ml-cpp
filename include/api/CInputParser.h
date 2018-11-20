@@ -28,7 +28,7 @@ namespace api {
 //! Abstract base class for input parser classes.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Abstract interface declares the readStreamAsMaps and readStreamAsVecs
+//! Abstract interface declares the readStreamIntoMaps and readStreamIntoVecs
 //! methods that must be implemented in sub-classes.
 //!
 class API_EXPORT CInputParser : private core::CNonCopyable {
@@ -76,14 +76,14 @@ public:
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    virtual bool readStreamAsMaps(const TMapReaderFunc& readerFunc) = 0;
+    virtual bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) = 0;
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    virtual bool readStreamAsVecs(const TVecReaderFunc& readerFunc) = 0;
+    virtual bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) = 0;
 
 protected:
     //! Set the "got field names" flag
