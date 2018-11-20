@@ -14,6 +14,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <type_traits>
 
 namespace ml {
 namespace maths {
@@ -277,13 +278,34 @@ SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x,
              const CMemoryMappedDenseVector<SCALAR>& y) {
     return x.dot(y);
 }
+//! Get the inner product of Eigen dense and memory mapped vectors.
+template<typename SCALAR>
+SCALAR inner(const CDenseVector<SCALAR>& x, const CMemoryMappedDenseVector<SCALAR>& y) {
+    return x.dot(y);
+}
+//! Get the inner product of Eigen dense and memory mapped vectors.
+template<typename SCALAR>
+SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
+    return x.dot(y);
+}
 
 //! Get the inner product of two annotated vectors.
-template<typename VECTOR, typename ANNOTATION>
-typename SCoordinate<VECTOR>::Type
-inner(const CAnnotatedVector<VECTOR, ANNOTATION>& x,
-      const CAnnotatedVector<VECTOR, ANNOTATION>& y) {
-    return inner(static_cast<const VECTOR&>(x), static_cast<const VECTOR&>(y));
+template<typename V1, typename V2, typename ANNOTATION>
+typename std::common_type<typename SCoordinate<V1>::Type, typename SCoordinate<V2>::Type>::type
+inner(const CAnnotatedVector<V1, ANNOTATION>& x, const CAnnotatedVector<V2, ANNOTATION>& y) {
+    return inner(static_cast<const V1&>(x), static_cast<const V2&>(y));
+}
+//! Get the inner product of an annotated and some other vector.
+template<typename V1, typename V2, typename ANNOTATION>
+typename std::common_type<typename SCoordinate<V1>::Type, typename SCoordinate<V2>::Type>::type
+inner(const V1& x, const CAnnotatedVector<V2, ANNOTATION>& y) {
+    return inner(x, static_cast<const V2&>(y));
+}
+//! Get the inner product of an annotated and some other vector.
+template<typename V1, typename V2, typename ANNOTATION>
+typename std::common_type<typename SCoordinate<V1>::Type, typename SCoordinate<V2>::Type>::type
+inner(const CAnnotatedVector<V1, ANNOTATION>& x, const V2& y) {
+    return inner(static_cast<const V1&>(x), y);
 }
 
 //! Get the outer product of one of our internal vector types.

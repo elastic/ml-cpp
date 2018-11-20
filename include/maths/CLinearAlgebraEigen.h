@@ -59,11 +59,24 @@ bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
 bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
                const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
-    using TIndex = typename Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>::Index;
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (TIndex i = 0; i < lhs.rows(); ++i) {
-        for (TIndex j = 0; j < lhs.cols(); ++j) {
+    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
+        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
+            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
+        }
+    }
+    return false;
+}
+
+//! Less than on an Eigen memory mapped matrix.
+template<typename PLAIN_OBJECT_TYPE, int OPTIONS, typename STRIDE_TYPE>
+bool operator<(const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& lhs,
+               const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& rhs) {
+    LESS_OR_GREATER(lhs.rows(), rhs.rows())
+    LESS_OR_GREATER(lhs.cols(), rhs.cols())
+    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
+        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
             LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
         }
     }

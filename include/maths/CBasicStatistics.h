@@ -1250,8 +1250,10 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
     public:
-        explicit COrderStatisticsHeap(std::size_t n, const LESS& less = LESS{})
-            : TImpl{std::vector<T>(std::max(n, std::size_t(1)), T{}), less} {
+        explicit COrderStatisticsHeap(std::size_t n,
+                                      const T& initial = T{},
+                                      const LESS& less = LESS{})
+            : TImpl{std::vector<T>(std::max(n, std::size_t(1)), initial), less} {
             if (n == 0) {
                 LOG_ERROR(<< "Invalid size of 0 for order statistics accumulator");
             }

@@ -57,7 +57,14 @@ void nearestNeightbours(std::size_t k, const TVectorVec& points, const TVector& 
     }
 }
 
-void gaussianWithUniformNoise(test::CRandomNumbers& rng, TVectorVec& points) {
+template<typename VECTOR>
+void gaussianWithUniformNoiseForPresizedPoints(test::CRandomNumbers& rng,
+                                               std::size_t numberInliers,
+                                               std::size_t numberOutliers,
+                                               std::vector<VECTOR>& points) {
+
+    CPPUNIT_ASSERT_EQUAL(numberInliers + numberOutliers, points.size());
+
     TDoubleVec mean{1.0, 10.0, 4.0, 8.0, 3.0, 5.0};
     TDoubleVecVec covariance{
         {1.0, 0.1, -0.1, 0.3, 0.2, -0.1}, {0.1, 1.3, -0.3, 0.1, 0.1, 0.1},
@@ -65,192 +72,57 @@ void gaussianWithUniformNoise(test::CRandomNumbers& rng, TVectorVec& points) {
         {0.2, 0.1, 0.2, 0.2, 2.2, -0.1},  {-0.1, 0.1, 0.1, -0.2, -0.1, 3.1}};
 
     TDoubleVecVec inliers;
-    rng.generateMultivariateNormalSamples(mean, covariance, 100, inliers);
+    rng.generateMultivariateNormalSamples(mean, covariance, numberInliers, inliers);
 
     TDoubleVec outliers;
-    rng.generateUniformSamples(0.0, 10.0, 20 * 6, outliers);
+    rng.generateUniformSamples(0.0, 10.0, numberOutliers * 6, outliers);
 
-    points.assign(120, TVector(6));
-    for (std::size_t i = 0u; i < inliers.size(); ++i) {
-        for (std::size_t j = 0u; j < 6; ++j) {
+    for (std::size_t i = 0; i < inliers.size(); ++i) {
+        for (std::size_t j = 0; j < 6; ++j) {
             points[i](j) = inliers[i][j];
         }
     }
-    for (std::size_t i = 100u, j = 0u; j < outliers.size(); ++i) {
+    for (std::size_t i = 100, j = 0; j < outliers.size(); ++i) {
         for (std::size_t end = j + 6; j < end; ++j) {
             points[i](j % 6) = outliers[j];
         }
     }
 }
+
+void gaussianWithUniformNoise(test::CRandomNumbers& rng,
+                              std::size_t numberInliers,
+                              std::size_t numberOutliers,
+                              TVectorVec& points) {
+    points.assign(120, TVector(6));
+    gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);
 }
 
-void CLocalOutlierFactorsTest::testLof() {
-    // Test vanilla verses sklearn.
+template<typename VECTOR>
+void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
+                                       std::size_t numberInliers,
+                                       std::size_t numberOutliers,
+                                       std::vector<VECTOR>& points,
+                                       TDoubleVec& TP,
+                                       TDoubleVec& TN,
+                                       TDoubleVec& FP,
+                                       TDoubleVec& FN) {
 
-    test::CRandomNumbers rng;
-    TVectorVec points;
-    gaussianWithUniformNoise(rng, points);
-
-    std::string expected[]{"[1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
-                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1,"
-                           " 1, -1, -1, -1, -1]",
-                           "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
-                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,"
-                           " 1, -1, -1, -1, -1]",
-                           "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
-                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
-                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, "
-                           "-1, -1, -1, -1, -1]"};
-    for (auto k : {5, 10, 15}) {
-        TDoubleVec scores;
-        maths::CLocalOutlierFactors::normalizedLof(k, false, points, scores);
-
-        TMaxAccumulator outliers_(20);
-        for (std::size_t i = 0u; i < scores.size(); ++i) {
-            outliers_.add({scores[i], i});
-        }
-        TSizeVec outliers(20);
-        std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
-                       [](const TDoubleSizePr& value) { return value.second; });
-        std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
-        TDoubleVec indicator(120, 1);
-        for (auto outlier : outliers) {
-            indicator[outlier] = -1;
-        }
-        CPPUNIT_ASSERT_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
-    }
-}
-
-void CLocalOutlierFactorsTest::testDlof() {
-    test::CRandomNumbers rng;
-    TVectorVec points;
-    gaussianWithUniformNoise(rng, points);
-
-    TDoubleVec scores;
-    maths::CLocalOutlierFactors::normalizedLdof(20, false, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
-
-    TDoubleVec ldof;
-    TVectorVec neighbours;
-    for (const auto& point : points) {
-        nearestNeightbours(20, points, point, neighbours);
-        TMeanAccumulator d, D;
-        for (std::size_t i = 0u; i < neighbours.size(); ++i) {
-            d.add(maths::las::distance(point, neighbours[i]));
-            for (std::size_t j = 0u; j < i; ++j) {
-                D.add(maths::las::distance(neighbours[i], neighbours[j]));
-            }
-        }
-        ldof.push_back(maths::CBasicStatistics::mean(d) / maths::CBasicStatistics::mean(D));
-    }
-    CLocalOutlierFactorsInternals::normalize(ldof);
-    LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
-
-    for (std::size_t i = 0u; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-6);
-    }
-}
-
-void CLocalOutlierFactorsTest::testDistancekNN() {
-    // Gaussian with uniform noise.
-
-    test::CRandomNumbers rng;
-    TVectorVec points;
-    gaussianWithUniformNoise(rng, points);
-
-    TDoubleVec scores;
-    maths::CLocalOutlierFactors::normalizedDistancekNN(3, false, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
-
-    TDoubleVec distances;
-    for (const auto& point : points) {
-        TVectorVec neighbours;
-        nearestNeightbours(3, points, point, neighbours);
-        distances.push_back(maths::las::distance(point, neighbours.back()));
-    }
-    CLocalOutlierFactorsInternals::normalize(distances);
-    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
-
-    for (std::size_t i = 0u; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
-    }
-
-    // Test projection.
-}
-
-void CLocalOutlierFactorsTest::testTotalDistancekNN() {
-    // Gaussian with uniform noise.
-
-    test::CRandomNumbers rng;
-    TVectorVec points;
-    gaussianWithUniformNoise(rng, points);
-
-    TDoubleVec scores;
-    maths::CLocalOutlierFactors::normalizedTotalDistancekNN(3, false, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
-
-    TDoubleVec distances;
-    for (const auto& point : points) {
-        TVectorVec neighbours;
-        nearestNeightbours(3, points, point, neighbours);
-        distances.push_back(
-            std::accumulate(neighbours.begin(), neighbours.end(), 0.0,
-                            [&point](double total, const TVector& neighbour) {
-                                return total + maths::las::distance(point, neighbour);
-                            }));
-    }
-    CLocalOutlierFactorsInternals::normalize(distances);
-    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
-
-    for (std::size_t i = 0u; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
-    }
-}
-
-void CLocalOutlierFactorsTest::testEnsemble() {
-    test::CRandomNumbers rng;
-
-    // Check error stats for scores, 0.05, 0.1 and 0.5. We should see precision increase
-    // for higher scores but recall decrease.
-    //
-    // In practice, the samples are randomly generated so it isn't necessarily the case
-    // that those generated from the different process are the outliers, they simply have
-    // a much higher probability of this being the case.
-
-    double TP[]{0.0, 0.0, 0.0};
-    double TN[]{0.0, 0.0, 0.0};
-    double FP[]{0.0, 0.0, 0.0};
-    double FN[]{0.0, 0.0, 0.0};
+    TP.assign(3, 0.0);
+    TN.assign(3, 0.0);
+    FP.assign(3, 0.0);
+    FN.assign(3, 0.0);
 
     TSizeVec trueOutliers{100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
                           110, 111, 112, 113, 114, 115, 116, 117, 118, 119};
 
-    for (std::size_t t = 0u; t < 100; ++t) {
-        TVectorVec points;
-        gaussianWithUniformNoise(rng, points);
+    for (std::size_t t = 0; t < 100; ++t) {
+        gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);
 
         TDoubleVec scores;
         maths::CLocalOutlierFactors::ensemble(points, scores);
 
-        TMaxAccumulator top20Outliers(20);
         TSizeVec outliers[3];
-        for (std::size_t i = 0u; i < scores.size(); ++i) {
-            top20Outliers.add({scores[i], i});
+        for (std::size_t i = 0; i < scores.size(); ++i) {
             if (scores[i] >= 0.01) {
                 outliers[0].push_back(i);
             }
@@ -289,16 +161,316 @@ void CLocalOutlierFactorsTest::testEnsemble() {
               << " FP = " << FP[1] << " FN = " << FN[1]);
     LOG_DEBUG(<< "At 0.5:  TP = " << TP[2] << " TN = " << TN[2]
               << " FP = " << FP[2] << " FN = " << FN[2]);
+}
+}
 
-    double precisionLowerBounds[]{0.95, 0.98, 1.0};
-    double recallLowerBounds[]{0.75, 0.38, 0.11};
-    for (std::size_t i = 0; i < 3; ++i) {
-        double precision{TP[i] / (TP[i] + FP[i])};
-        double recall{TP[i] / (TP[i] + FN[i])};
-        LOG_DEBUG(<< "precision = " << precision);
-        LOG_DEBUG(<< "recall = " << recall);
-        CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
-        CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
+void CLocalOutlierFactorsTest::testLof() {
+    // Test vanilla verses sklearn.
+
+    test::CRandomNumbers rng;
+    std::size_t numberInliers{100};
+    std::size_t numberOutliers{20};
+    TVectorVec points;
+    gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
+
+    std::string expected[]{"[1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
+                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1,"
+                           " 1, -1, -1, -1, -1]",
+                           "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
+                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,"
+                           " 1, -1, -1, -1, -1]",
+                           "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
+                           " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, "
+                           "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, "
+                           "-1, -1, -1, -1, -1]"};
+    for (auto k : {5, 10, 15}) {
+        TDoubleVec scores;
+        maths::CLocalOutlierFactors::normalizedLof(k, false, points, scores);
+
+        TMaxAccumulator outliers_(numberOutliers);
+        for (std::size_t i = 0u; i < scores.size(); ++i) {
+            outliers_.add({scores[i], i});
+        }
+        TSizeVec outliers(numberOutliers);
+        std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
+                       [](const TDoubleSizePr& value) { return value.second; });
+        std::sort(outliers.begin(), outliers.end());
+        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+        TDoubleVec indicator(numberInliers + numberOutliers, 1);
+        for (auto outlier : outliers) {
+            indicator[outlier] = -1;
+        }
+        CPPUNIT_ASSERT_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
+    }
+}
+
+void CLocalOutlierFactorsTest::testDlof() {
+    // Test against definition without projecting.
+
+    test::CRandomNumbers rng;
+    std::size_t numberInliers{100};
+    std::size_t numberOutliers{20};
+    TVectorVec points;
+    gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
+
+    TDoubleVec scores;
+    std::size_t k{10};
+    maths::CLocalOutlierFactors::normalizedLdof(k, false, points, scores);
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+
+    TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresWithoutProjecting.add({scores[i], i});
+    }
+
+    TDoubleVec ldof;
+    TVectorVec neighbours;
+    for (const auto& point : points) {
+        nearestNeightbours(k, points, point, neighbours);
+        TMeanAccumulator d, D;
+        for (std::size_t i = 0; i < neighbours.size(); ++i) {
+            d.add(maths::las::distance(point, neighbours[i]));
+            for (std::size_t j = 0; j < i; ++j) {
+                D.add(maths::las::distance(neighbours[i], neighbours[j]));
+            }
+        }
+        ldof.push_back(maths::CBasicStatistics::mean(d) / maths::CBasicStatistics::mean(D));
+    }
+    CLocalOutlierFactorsInternals::normalize(ldof);
+    LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
+
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-6);
+    }
+
+    // Compare outliers when projecting (should be similar).
+
+    maths::CLocalOutlierFactors::normalizedLdof(k, true, points, scores);
+
+    TMaxAccumulator outlierScoresProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresProjecting.add({scores[i], i});
+    }
+
+    TSizeVec outliersWithoutProjecting;
+    TSizeVec outliersProjecting;
+    for (std::size_t i = 0; i < numberOutliers; ++i) {
+        outliersWithoutProjecting.push_back(outlierScoresWithoutProjecting[i].second);
+        outliersProjecting.push_back(outlierScoresProjecting[i].second);
+    }
+
+    std::sort(outliersWithoutProjecting.begin(), outliersWithoutProjecting.end());
+    std::sort(outliersProjecting.begin(), outliersProjecting.end());
+    LOG_DEBUG(<< "without projecting = "
+              << core::CContainerPrinter::print(outliersWithoutProjecting));
+    LOG_DEBUG(<< "projecting         = "
+              << core::CContainerPrinter::print(outliersProjecting));
+
+    double similarity{maths::CSetTools::jaccard(
+        outliersWithoutProjecting.begin(), outliersWithoutProjecting.end(),
+        outliersProjecting.begin(), outliersProjecting.end())};
+
+    CPPUNIT_ASSERT(similarity > 0.4);
+}
+
+void CLocalOutlierFactorsTest::testDistancekNN() {
+    // Test against definition without projecting.
+
+    test::CRandomNumbers rng;
+    std::size_t numberInliers{100};
+    std::size_t numberOutliers{20};
+    TVectorVec points;
+    gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
+
+    TDoubleVec scores;
+    std::size_t k{10};
+    maths::CLocalOutlierFactors::normalizedDistancekNN(k, false, points, scores);
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+
+    TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresWithoutProjecting.add({scores[i], i});
+    }
+
+    TDoubleVec distances;
+    for (const auto& point : points) {
+        TVectorVec neighbours;
+        nearestNeightbours(k, points, point, neighbours);
+        distances.push_back(maths::las::distance(point, neighbours.back()));
+    }
+    CLocalOutlierFactorsInternals::normalize(distances);
+    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
+
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
+    }
+
+    // Compare outliers when projecting (should be similar).
+
+    maths::CLocalOutlierFactors::normalizedDistancekNN(k, true, points, scores);
+
+    TMaxAccumulator outlierScoresProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresProjecting.add({scores[i], i});
+    }
+
+    TSizeVec outliersWithoutProjecting;
+    TSizeVec outliersProjecting;
+    for (std::size_t i = 0; i < numberOutliers; ++i) {
+        outliersWithoutProjecting.push_back(outlierScoresWithoutProjecting[i].second);
+        outliersProjecting.push_back(outlierScoresProjecting[i].second);
+    }
+
+    std::sort(outliersWithoutProjecting.begin(), outliersWithoutProjecting.end());
+    std::sort(outliersProjecting.begin(), outliersProjecting.end());
+    LOG_DEBUG(<< "without projecting = "
+              << core::CContainerPrinter::print(outliersWithoutProjecting));
+    LOG_DEBUG(<< "projecting         = "
+              << core::CContainerPrinter::print(outliersProjecting));
+
+    double similarity{maths::CSetTools::jaccard(
+        outliersWithoutProjecting.begin(), outliersWithoutProjecting.end(),
+        outliersProjecting.begin(), outliersProjecting.end())};
+    CPPUNIT_ASSERT(similarity > 0.9);
+}
+
+void CLocalOutlierFactorsTest::testTotalDistancekNN() {
+    // Test against definition without projecting.
+
+    test::CRandomNumbers rng;
+    std::size_t numberInliers{100};
+    std::size_t numberOutliers{20};
+    TVectorVec points;
+    gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
+
+    TDoubleVec scores;
+    std::size_t k{10};
+    maths::CLocalOutlierFactors::normalizedTotalDistancekNN(k, false, points, scores);
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+
+    TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresWithoutProjecting.add({scores[i], i});
+    }
+
+    TDoubleVec distances;
+    for (const auto& point : points) {
+        TVectorVec neighbours;
+        nearestNeightbours(k, points, point, neighbours);
+        distances.push_back(
+            std::accumulate(neighbours.begin(), neighbours.end(), 0.0,
+                            [&point](double total, const TVector& neighbour) {
+                                return total + maths::las::distance(point, neighbour);
+                            }));
+    }
+    CLocalOutlierFactorsInternals::normalize(distances);
+    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
+
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
+    }
+
+    // Compare outliers when projecting (should be similar).
+
+    maths::CLocalOutlierFactors::normalizedTotalDistancekNN(k, true, points, scores);
+
+    TMaxAccumulator outlierScoresProjecting(numberOutliers);
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+        outlierScoresProjecting.add({scores[i], i});
+    }
+
+    TSizeVec outliersWithoutProjecting;
+    TSizeVec outliersProjecting;
+    for (std::size_t i = 0; i < numberOutliers; ++i) {
+        outliersWithoutProjecting.push_back(outlierScoresWithoutProjecting[i].second);
+        outliersProjecting.push_back(outlierScoresProjecting[i].second);
+    }
+
+    std::sort(outliersWithoutProjecting.begin(), outliersWithoutProjecting.end());
+    std::sort(outliersProjecting.begin(), outliersProjecting.end());
+    LOG_DEBUG(<< "without projecting = "
+              << core::CContainerPrinter::print(outliersWithoutProjecting));
+    LOG_DEBUG(<< "projecting         = "
+              << core::CContainerPrinter::print(outliersProjecting));
+
+    double similarity{maths::CSetTools::jaccard(
+        outliersWithoutProjecting.begin(), outliersWithoutProjecting.end(),
+        outliersProjecting.begin(), outliersProjecting.end())};
+    CPPUNIT_ASSERT(similarity > 0.9);
+}
+
+void CLocalOutlierFactorsTest::testEnsemble() {
+    // Check error stats for scores, 0.05, 0.1 and 0.5. We should see precision increase
+    // for higher scores but recall decrease.
+    //
+    // In practice, the samples are randomly generated so it isn't necessarily the case
+    // that those generated from the different process are the outliers, they simply have
+    // a much higher probability of this being the case.
+
+    std::size_t numberInliers{100};
+    std::size_t numberOutliers{20};
+
+    TDoubleVec TP;
+    TDoubleVec TN;
+    TDoubleVec FP;
+    TDoubleVec FN;
+    double precisionLowerBounds[]{0.89, 0.97, 0.99};
+    double recallLowerBounds[]{0.79, 0.41, 0.1};
+
+    {
+        test::CRandomNumbers rng;
+
+        TVectorVec points(numberInliers + numberOutliers, TVector(6));
+
+        outlierErrorStatisticsForEnsemble(rng, numberInliers, numberOutliers,
+                                          points, TP, TN, FP, FN);
+
+        for (std::size_t i = 0; i < 3; ++i) {
+            double precision{TP[i] / (TP[i] + FP[i])};
+            double recall{TP[i] / (TP[i] + FN[i])};
+            LOG_DEBUG(<< "precision = " << precision);
+            LOG_DEBUG(<< "recall = " << recall);
+            CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
+            CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
+        }
+    }
+
+    {
+        using TMemoryMappedVector = maths::CMemoryMappedDenseVector<double>;
+        using TMemoryMappedVectorVec = std::vector<TMemoryMappedVector>;
+
+        test::CRandomNumbers rng;
+
+        TDoubleVec storage((numberInliers + numberOutliers) * 6);
+        TMemoryMappedVectorVec points;
+        for (std::size_t i = 0; i < numberInliers + numberOutliers; ++i) {
+            points.emplace_back(&storage[6 * i], 6);
+        }
+
+        outlierErrorStatisticsForEnsemble(rng, numberInliers, numberOutliers,
+                                          points, TP, TN, FP, FN);
+        for (std::size_t i = 0; i < 3; ++i) {
+            double precision{TP[i] / (TP[i] + FP[i])};
+            double recall{TP[i] / (TP[i] + FN[i])};
+            LOG_DEBUG(<< "precision = " << precision);
+            LOG_DEBUG(<< "recall = " << recall);
+            CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
+            CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
+        }
     }
 }
 
