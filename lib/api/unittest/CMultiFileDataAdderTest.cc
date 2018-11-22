@@ -180,7 +180,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false);
+            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);

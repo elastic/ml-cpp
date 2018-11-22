@@ -28,8 +28,8 @@ CCountingModelFactory::CCountingModelFactory(const SModelParams& params,
                                              model_t::ESummaryMode summaryMode,
                                              const std::string& summaryCountFieldName)
     : CModelFactory(params, interimBucketCorrector), m_Identifier(),
-      m_SummaryMode(summaryMode), m_SummaryCountFieldName(summaryCountFieldName),
-      m_UseNull(false), m_BucketResultsDelay(0) {
+      m_SummaryMode(summaryMode),
+      m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false) {
 }
 
 CCountingModelFactory* CCountingModelFactory::clone() const {
@@ -138,10 +138,6 @@ void CCountingModelFactory::useNull(bool useNull) {
 void CCountingModelFactory::features(const TFeatureVec& features) {
     m_Features = features;
     m_SearchKeyCache.reset();
-}
-
-void CCountingModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
-    m_BucketResultsDelay = bucketResultsDelay;
 }
 
 CCountingModelFactory::TStrCRefVec CCountingModelFactory::partitioningFields() const {

@@ -161,22 +161,6 @@ void CPopulationModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& resu
     }
 }
 
-void CPopulationModel::sampleOutOfPhase(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) {
-    CDataGatherer& gatherer = this->dataGatherer();
-
-    if (!gatherer.dataAvailable(startTime)) {
-        return;
-    }
-
-    for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-         time < endTime; time += bucketLength) {
-        gatherer.sampleNow(time);
-        this->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
-    }
-}
-
 void CPopulationModel::sample(core_t::TTime startTime,
                               core_t::TTime endTime,
                               CResourceMonitor& resourceMonitor) {

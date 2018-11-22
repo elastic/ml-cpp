@@ -458,7 +458,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
             CPPUNIT_ASSERT(used.s_PartitionFields > testParam.s_ExpectedPartitionFields &&
                            used.s_PartitionFields < 450);
             CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
-                           0.97 * static_cast<double>(used.s_PartitionFields));
+                           0.96 * static_cast<double>(used.s_PartitionFields));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionLowerMemoryLimit);

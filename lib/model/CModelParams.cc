@@ -53,8 +53,7 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_PruneWindowScaleMaximum(CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM),
       s_DetectionRules(EMPTY_RULES), s_ScheduledEvents(EMPTY_SCHEDULED_EVENTS),
       s_InfluenceCutoff(CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF),
-      s_BucketResultsDelay(0), s_MinimumToFuzzyDeduplicate(10000),
-      s_CacheProbabilities(true) {
+      s_MinimumToFuzzyDeduplicate(10000), s_CacheProbabilities(true) {
 }
 
 void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketLength) {
