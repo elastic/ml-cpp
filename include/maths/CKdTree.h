@@ -225,9 +225,9 @@ public:
                 boost::numeric::bounds<TCoordinatePrecise>::highest()};
 
             // These neighbour points will be completely replaced by the call
-            // to nearestNeighbours, but we need the list to be full so we get
-            // the correct value for the furthest nearest neighbour in the set
-            // "found to date" branch and bound search.
+            // to nearestNeighbours, but we need the collection to be initialized
+            // with infinite distances so we get the correct value for the furthest
+            // nearest neighbour at the start of the branch and bound search.
             TNearestAccumulator neighbours(n, {inf, m_Nodes[0].s_Point});
             this->nearestNeighbours(point, m_Nodes[0],
                                     0, // Split coordinate

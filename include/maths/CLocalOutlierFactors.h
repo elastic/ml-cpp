@@ -188,7 +188,7 @@ protected:
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
 protected:
-    //!
+    //! Compute normalised outlier scores for a specified method.
     template<template<typename, typename> class METHOD, typename POINT>
     static void
     normalized(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
