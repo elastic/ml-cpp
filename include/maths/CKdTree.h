@@ -181,7 +181,6 @@ public:
     //! \note The \p points are moved into place.
     void build(TPointVec&& points) {
         this->build(points.begin(), points.end(), True());
-        points.clear();
     }
 
     //! Build from a pair of output random access iterators.
