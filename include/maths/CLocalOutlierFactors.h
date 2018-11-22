@@ -190,10 +190,8 @@ protected:
 protected:
     //!
     template<template<typename, typename> class METHOD, typename POINT>
-    static void normalized(std::size_t k,
-                           bool project,
-                           std::vector<POINT> points,
-                           TDoubleVec& scores) {
+    static void
+    normalized(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
         if (points.empty()) {
             // Nothing to do
         } else if (project) {
