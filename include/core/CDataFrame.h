@@ -279,9 +279,9 @@ public:
         return {std::move(result), result_.second};
     }
 
-    //! Append a number of columns with \p appender.
+    //! Overwrite a number of columns with \p writer.
     //!
-    //! If the data frame is not large enough this reserves the extra space.
+    //! The caller must ensure that the columns overwritten are in range.
     //!
     //! \warning If there is more than one thread and the writer has shared
     //! state then the caller must ensure that access to this is thread safe.
