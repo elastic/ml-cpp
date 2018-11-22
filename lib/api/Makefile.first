@@ -41,14 +41,12 @@ CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \
 CLengthEncodedInputParser.cc \
-CLineifiedInputParser.cc \
-CLineifiedJsonInputParser.cc \
-CLineifiedJsonOutputWriter.cc \
-CLineifiedXmlInputParser.cc \
-CLineifiedXmlOutputWriter.cc \
 CModelPlotDataJsonWriter.cc \
 CModelSizeStatsJsonWriter.cc \
 CModelSnapshotJsonWriter.cc \
+CNdInputParser.cc \
+CNdJsonInputParser.cc \
+CNdJsonOutputWriter.cc \
 CNullOutput.cc \
 COutputChainer.cc \
 COutputHandler.cc \

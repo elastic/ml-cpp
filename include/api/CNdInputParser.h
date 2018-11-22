@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CLineifiedInputParser_h
-#define INCLUDED_ml_api_CLineifiedInputParser_h
+#ifndef INCLUDED_ml_api_CNdInputParser_h
+#define INCLUDED_ml_api_CNdInputParser_h
 
 #include <api/CInputParser.h>
 #include <api/ImportExport.h>
@@ -28,17 +28,17 @@ namespace api {
 //! Does not use std::getline as it's not portably fast - see
 //! http://info.prelert.com/blog/stdgetline-is-the-poor-relation
 //!
-//! The original use case was to factor out commonality from lineified
-//! JSON and XML parsers.
+//! The original use case was to factor out commonality from the
+//! ND-JSON parser and (now deleted) newline delimited XML parser.
 //!
-class API_EXPORT CLineifiedInputParser : public CInputParser {
+class API_EXPORT CNdInputParser : public CInputParser {
 public:
     //! Construct with an input stream to be parsed.  Once a stream is
     //! passed to this constructor, no other object should read from it.
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CLineifiedInputParser(std::istream& strmIn);
+    CNdInputParser(std::istream& strmIn);
 
 protected:
     //! Line end character
@@ -88,4 +88,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CLineifiedJsonInputParser_h
+#endif // INCLUDED_ml_api_CNdJsonInputParser_h

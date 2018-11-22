@@ -72,16 +72,7 @@ public:
     template<typename POINT>
     static void
     normalizedLof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
-        if (points.empty()) {
-            // Nothing to do
-        } else if (project) {
-            using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            CLof<TPoint, TKdTree<TPoint>> lof(k);
-            computeForBagOfProjections(lof, points, scores);
-        } else {
-            CLof<POINT, TKdTree<POINT>> lof(k);
-            compute(lof, annotate(std::move(points)), scores);
-        }
+        normalized<CLof>(k, project, std::move(points), scores);
     }
 
     //! Compute the normalized local distance based outlier scores
@@ -110,16 +101,7 @@ public:
     template<typename POINT>
     static void
     normalizedLdof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
-        if (points.empty()) {
-            // Nothing to do
-        } else if (project) {
-            using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            CLdof<TPoint, TKdTree<TPoint>> ldof(k);
-            computeForBagOfProjections(ldof, points, scores);
-        } else {
-            CLdof<POINT, TKdTree<POINT>> ldof(k);
-            compute(ldof, annotate(std::move(points)), scores);
-        }
+        normalized<CLdof>(k, project, std::move(points), scores);
     }
 
     //! Compute the normalized distance to the k-th nearest neighbour
@@ -148,16 +130,7 @@ public:
                                       bool project,
                                       std::vector<POINT> points,
                                       TDoubleVec& scores) {
-        if (points.empty()) {
-            // Nothing to do
-        } else if (project) {
-            using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            CDistancekNN<TPoint, TKdTree<TPoint>> knn(k);
-            computeForBagOfProjections(knn, points, scores);
-        } else {
-            CDistancekNN<POINT, TKdTree<POINT>> knn(k);
-            compute(knn, annotate(std::move(points)), scores);
-        }
+        normalized<CDistancekNN>(k, project, std::move(points), scores);
     }
 
     //! Compute the normalized mean distance to the k nearest
@@ -186,16 +159,7 @@ public:
                                            bool project,
                                            std::vector<POINT> points,
                                            TDoubleVec& scores) {
-        if (points.empty()) {
-            // Nothing to do
-        } else if (project) {
-            using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            CTotalDistancekNN<TPoint, TKdTree<TPoint>> knn(k);
-            computeForBagOfProjections(knn, points, scores);
-        } else {
-            CTotalDistancekNN<POINT, TKdTree<POINT>> knn(k);
-            compute(knn, annotate(std::move(points)), scores);
-        }
+        normalized<CTotalDistancekNN>(k, project, std::move(points), scores);
     }
 
     //! Compute the outlier scores using a mean ensemble of approaches.
@@ -226,6 +190,22 @@ protected:
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
 protected:
+    //! Compute normalised outlier scores for a specified method.
+    template<template<typename, typename> class METHOD, typename POINT>
+    static void
+    normalized(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
+        if (points.empty()) {
+            // Nothing to do
+        } else if (project) {
+            using TPoint = decltype(SConstant<POINT>::get(0, 0));
+            METHOD<TPoint, TKdTree<TPoint>> method(k);
+            computeForBagOfProjections(method, points, scores);
+        } else {
+            METHOD<POINT, TKdTree<POINT>> method(k);
+            compute(method, annotate(std::move(points)), scores);
+        }
+    }
+
     //! Check whether to project the data.
     template<typename POINT>
     static bool shouldProject(const std::vector<POINT>& points) {
