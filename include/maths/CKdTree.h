@@ -210,7 +210,7 @@ public:
             TCoordinatePrecise distanceToNearest{
                 std::numeric_limits<TCoordinatePrecise>::max()};
             return this->nearestNeighbour(point, m_Nodes[0],
-                                          0, // Split coordinate,
+                                          0, // Split coordinate
                                           nearest, distanceToNearest);
         }
         return nearest;
@@ -221,14 +221,16 @@ public:
         result.clear();
 
         if (n > 0 && n < m_Nodes.size()) {
-            TNearestAccumulator neighbours(n);
             const TCoordinatePrecise inf{
                 boost::numeric::bounds<TCoordinatePrecise>::highest()};
-            for (std::size_t i = 0u; i < n; ++i) {
-                neighbours.add({inf, las::zero(point)});
-            }
+
+            // These neighbour points will be completely replaced by the call
+            // to nearestNeighbours, but we need the collection to be initialized
+            // with infinite distances so we get the correct value for the furthest
+            // nearest neighbour at the start of the branch and bound search.
+            TNearestAccumulator neighbours(n, {inf, m_Nodes[0].s_Point});
             this->nearestNeighbours(point, m_Nodes[0],
-                                    0, // Split coordinate,
+                                    0, // Split coordinate
                                     neighbours);
 
             result.reserve(neighbours.count());
