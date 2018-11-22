@@ -265,7 +265,7 @@ protected:
     //! Compute the outlier scores of \p points using \p compute.
     template<typename COMPUTE, typename POINT>
     static void compute(COMPUTE& compute,
-                        const std::vector<CAnnotatedVector<POINT, std::size_t>>& points,
+                        std::vector<CAnnotatedVector<POINT, std::size_t>> points,
                         TDoubleVec& scores) {
         scores.assign(points.size(), 0.0);
         compute(std::move(points), scores);
