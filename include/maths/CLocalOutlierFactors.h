@@ -18,8 +18,7 @@
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
-#include <boost/make_shared.hpp>
-#include <boost/math/distributions/normal.hpp>
+#include <boost/make_unique.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -28,6 +27,9 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CDataFrame;
+}
 namespace maths {
 
 //! \brief Utilities for computing outlier scores for collections
@@ -41,7 +43,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
-    //! The available algorithm.
+    //! The available algorithms.
     enum EAlgorithm { E_Lof, E_Ldof, E_DistancekNN, E_TotalDistancekNN };
 
 public:
@@ -564,7 +566,7 @@ protected:
     public:
         using TPoint = CAnnotatedVector<POINT, std::size_t>;
         using TPointVec = std::vector<TPoint>;
-        using TMethodPtr = boost::shared_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
+        using TMethodPtr = std::unique_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
         using TMethodPtrVec = std::vector<TMethodPtr>;
 
     public:
@@ -574,14 +576,14 @@ protected:
         template<typename T>
         CEnsemble& lof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_shared<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(boost::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
         template<typename T>
         CEnsemble& ldof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_shared<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(boost::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
@@ -589,7 +591,7 @@ protected:
         CEnsemble& knn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
             m_Methods.push_back(
-                boost::make_shared<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                boost::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
                     m_K, this->lookup()));
             return *this;
         }
@@ -597,7 +599,7 @@ protected:
         CEnsemble& tnn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
             m_Methods.push_back(
-                boost::make_shared<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                boost::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
                     m_K, this->lookup()));
             return *this;
         }
@@ -649,6 +651,10 @@ protected:
     //! greater the outlier.
     static double cdfComplementToScore(double cdfComplement);
 };
+
+//! Compute outliers for \p frame and write to a new column.
+MATHS_EXPORT
+bool computeOutliers(std::size_t numberThreads, core::CDataFrame& frame);
 }
 }
 

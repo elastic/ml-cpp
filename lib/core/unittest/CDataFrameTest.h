@@ -17,6 +17,8 @@ public:
     void testOnDiskParallelRead();
     void testMemoryUsage();
     void testReserve();
+    void testResizeColumns();
+    void testWriteColumns();
 
     static CppUnit::Test* suite();
 };
