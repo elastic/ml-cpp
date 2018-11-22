@@ -12,13 +12,11 @@
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CBucketQueue.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CResourceMonitor.h>
-#include <model/CResultsQueue.h>
 #include <model/CSearchKey.h>
 
 #include <api/CDataProcessor.h>
@@ -117,8 +115,6 @@ public:
         std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
     using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
     using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
-    using TModelPlotDataVecCItr = TModelPlotDataVec::const_iterator;
-    using TModelPlotDataVecQueue = model::CBucketQueue<TModelPlotDataVec>;
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
@@ -126,17 +122,13 @@ public:
     };
 
     struct SBackgroundPersistArgs {
-        SBackgroundPersistArgs(const model::CResultsQueue& resultsQueue,
-                               const TModelPlotDataVecQueue& modelPlotQueue,
-                               core_t::TTime time,
+        SBackgroundPersistArgs(core_t::TTime time,
                                const model::CResourceMonitor::SResults& modelSizeStats,
                                const model::CInterimBucketCorrector& interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
                                core_t::TTime lastResultsTime);
 
-        model::CResultsQueue s_ResultsQueue;
-        TModelPlotDataVecQueue s_ModelPlotQueue;
         core_t::TTime s_Time;
         model::CResourceMonitor::SResults s_ModelSizeStats;
         model::CInterimBucketCorrector s_InterimBucketCorrector;
@@ -224,14 +216,11 @@ private:
     void outputInterimResults(core_t::TTime bucketStartTime);
 
     //! Helper function for outputResults.
-    //! \p processingTimer is the processing time can be written to the bucket
-    //! \p sumPastProcessingTime is the total time previously spent processing
-    //! but resulted in no bucket being outputted.
+    //! \p processingTime is the processing time of the bucket
     void writeOutResults(bool interim,
                          model::CHierarchicalResults& results,
                          core_t::TTime bucketTime,
-                         uint64_t processingTime,
-                         uint64_t sumPastProcessingTime);
+                         uint64_t processingTime);
 
     //! Reset buckets in the range specified by the control message.
     void resetBuckets(const std::string& controlMessage);
@@ -259,8 +248,6 @@ private:
 
     //! Persist the detectors to a stream.
     bool persistState(const std::string& descriptionPrefix,
-                      const model::CResultsQueue& resultsQueue,
-                      const TModelPlotDataVecQueue& modelPlotQueue,
                       core_t::TTime time,
                       const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                       const model::CResourceMonitor::SResults& modelSizeStats,
@@ -296,15 +283,8 @@ private:
     //! \param[in] endTime The end of the time interval to skip sampling.
     void skipSampling(core_t::TTime endTime);
 
-    //! Outputs queued results and resets the queue to the given \p startTime
-    void flushAndResetResultsQueue(core_t::TTime startTime);
-
     //! Roll time forward to \p time
     void timeNow(core_t::TTime time);
-
-    //! Get the bucketLength, or half the bucketLength if
-    //! out-of-phase buckets are active
-    core_t::TTime effectiveBucketLength() const;
 
     //! Update configuration
     void updateConfig(const std::string& config);
@@ -333,15 +313,12 @@ private:
     //! specified time range.
     void generateModelPlot(core_t::TTime startTime,
                            core_t::TTime endTime,
-                           const model::CAnomalyDetector& detector);
+                           const model::CAnomalyDetector& detector,
+                           TModelPlotDataVec& modelPlotData);
 
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
-    void writeOutModelPlot(core_t::TTime resultsTime);
-
-    //! Write the pre-generated model plot to the output stream of the user's
-    //! choosing: either file or streamed to the API
-    void writeOutModelPlot(core_t::TTime, CModelPlotDataJsonWriter& writer);
+    void writeOutModelPlot(const TModelPlotDataVec& modelPlotData);
 
     //! Persist one detector to a stream.
     //! This method is static so that there is no danger of it accessing
@@ -476,15 +453,6 @@ private:
 
     //! The hierarchical results normalizer.
     model::CHierarchicalResultsNormalizer m_Normalizer;
-
-    //! Store the last N half-buckets' results in order
-    //! to choose the best result
-    model::CResultsQueue m_ResultsQueue;
-
-    //! Also store the model plot for the buckets for each
-    //! result time - these will be output when the corresponding
-    //! result is output
-    TModelPlotDataVecQueue m_ModelPlotQueue;
 
     friend class ::CBackgroundPersisterTest;
     friend class ::CAnomalyJobTest;

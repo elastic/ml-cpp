@@ -257,10 +257,6 @@ void CEventRatePopulationModelFactory::features(const TFeatureVec& features) {
     m_SearchKeyCache.reset();
 }
 
-void CEventRatePopulationModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
-    m_BucketResultsDelay = bucketResultsDelay;
-}
-
 CEventRatePopulationModelFactory::TStrCRefVec
 CEventRatePopulationModelFactory::partitioningFields() const {
     TStrCRefVec result;

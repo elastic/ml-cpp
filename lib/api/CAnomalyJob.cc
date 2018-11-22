@@ -11,6 +11,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CPersistUtils.h>
 #include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
@@ -68,9 +69,14 @@ const std::string VERSION_TAG("b");
 const std::string KEY_TAG("c");
 const std::string PARTITION_FIELD_TAG("d");
 const std::string DETECTOR_TAG("e");
-const std::string HIERARCHICAL_RESULTS_TAG("f");
+
+// This is no longer used - removed in 6.6
+// const std::string HIERARCHICAL_RESULTS_TAG("f");
 const std::string LATEST_RECORD_TIME_TAG("h");
-const std::string MODEL_PLOT_TAG("i");
+
+// This is no longer used - removed in 6.6
+// const std::string MODEL_PLOT_TAG("i");
+
 const std::string LAST_RESULTS_TIME_TAG("j");
 const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 }
@@ -104,9 +110,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
       m_PeriodicPersister(periodicPersister),
       m_MaxQuantileInterval(maxQuantileInterval),
       m_LastNormalizerPersistTime(core::CTimeUtils::now()), m_LatestRecordTime(0),
-      m_LastResultsTime(0), m_Aggregator(modelConfig), m_Normalizer(modelConfig),
-      m_ResultsQueue(m_ModelConfig.bucketResultsDelay(), this->effectiveBucketLength()),
-      m_ModelPlotQueue(m_ModelConfig.bucketResultsDelay(), this->effectiveBucketLength(), 0) {
+      m_LastResultsTime(0), m_Aggregator(modelConfig), m_Normalizer(modelConfig) {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
     m_Limits.resourceMonitor().memoryUsageReporter(
@@ -396,24 +400,23 @@ void CAnomalyJob::advanceTime(const std::string& time_) {
 void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
     // If the bucket time has increased, output results for all field names
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-    core_t::TTime effectiveBucketLength = this->effectiveBucketLength();
     core_t::TTime latency = m_ModelConfig.latency();
 
     if (m_LastFinalisedBucketEndTime == 0) {
-        m_LastFinalisedBucketEndTime = std::max(
-            m_LastFinalisedBucketEndTime,
-            maths::CIntegerTools::floor(time, effectiveBucketLength) - latency);
+        m_LastFinalisedBucketEndTime =
+            std::max(m_LastFinalisedBucketEndTime,
+                     maths::CIntegerTools::floor(time, bucketLength) - latency);
     }
 
     m_Normalizer.resetBigChange();
 
     for (core_t::TTime lastBucketEndTime = m_LastFinalisedBucketEndTime;
          lastBucketEndTime + bucketLength + latency <= time;
-         lastBucketEndTime += effectiveBucketLength) {
+         lastBucketEndTime += bucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
         m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
-        m_LastFinalisedBucketEndTime = lastBucketEndTime + effectiveBucketLength;
+        m_LastFinalisedBucketEndTime = lastBucketEndTime + bucketLength;
 
         // Check for periodic persistence immediately after calculating results
         // for the last bucket but before adding the first piece of data for the
@@ -448,8 +451,6 @@ void CAnomalyJob::skipTime(const std::string& time_) {
 void CAnomalyJob::skipSampling(core_t::TTime endTime) {
     LOG_INFO(<< "Skipping time to: " << endTime);
 
-    this->flushAndResetResultsQueue(endTime);
-
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
         if (detector == nullptr) {
@@ -461,39 +462,6 @@ void CAnomalyJob::skipSampling(core_t::TTime endTime) {
     }
 
     m_LastFinalisedBucketEndTime = endTime;
-}
-
-void CAnomalyJob::flushAndResetResultsQueue(core_t::TTime startTime) {
-    LOG_DEBUG(<< "Flush & reset results queue: " << startTime);
-    if (m_ModelConfig.bucketResultsDelay() != 0) {
-        core_t::TTime effectiveBucketLength = this->effectiveBucketLength();
-        core_t::TTime earliestResultTime = m_LastFinalisedBucketEndTime -
-                                           m_ResultsQueue.size() * effectiveBucketLength;
-        for (core_t::TTime bucketStart = earliestResultTime;
-             bucketStart < m_LastFinalisedBucketEndTime;
-             bucketStart += effectiveBucketLength) {
-            model::CHierarchicalResults& results = m_ResultsQueue.latest();
-            core_t::TTime resultsTime = m_ResultsQueue.chooseResultTime(
-                bucketStart, m_ModelConfig.bucketLength(), results);
-            if (resultsTime != 0) {
-                core::CStopWatch timer(true);
-                model::CHierarchicalResults& resultsToOutput = m_ResultsQueue.get(resultsTime);
-                uint64_t processingTime = timer.stop();
-                // Model plots must be written first so the Java persists them
-                // once the bucket result is processed
-                this->writeOutModelPlot(resultsTime);
-                this->writeOutResults(false, resultsToOutput, resultsTime,
-                                      processingTime, 0l);
-            }
-            m_ResultsQueue.push(model::CHierarchicalResults());
-        }
-    }
-
-    // Reset to a bucket before the bucket we skip to because
-    // when results are output we push the current bucket to the queue
-    core_t::TTime resetTime = startTime - m_ModelConfig.bucketLength();
-    m_ResultsQueue.reset(resetTime);
-    m_ModelPlotQueue.reset(resetTime);
 }
 
 void CAnomalyJob::timeNow(core_t::TTime time) {
@@ -508,11 +476,6 @@ void CAnomalyJob::timeNow(core_t::TTime time) {
     }
 }
 
-core_t::TTime CAnomalyJob::effectiveBucketLength() const {
-    return m_ModelConfig.bucketResultsDelay() ? m_ModelConfig.bucketLength() / 2
-                                              : m_ModelConfig.bucketLength();
-}
-
 void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
     LOG_TRACE(<< "Generating interim results");
 
@@ -523,7 +486,7 @@ void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
 
     core_t::TTime start = m_LastFinalisedBucketEndTime;
     core_t::TTime end = m_LastFinalisedBucketEndTime +
-                        (m_ModelConfig.latencyBuckets() + 1) * this->effectiveBucketLength();
+                        (m_ModelConfig.latencyBuckets() + 1) * m_ModelConfig.bucketLength();
 
     if (this->parseTimeRangeInControlMessage(controlMessage, start, end)) {
         LOG_TRACE(<< "Time range for results: " << start << " : " << end);
@@ -576,19 +539,12 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     using TKeyAnomalyDetectorPtrUMapCItr = TKeyAnomalyDetectorPtrUMap::const_iterator;
     using TKeyAnomalyDetectorPtrUMapCItrVec = std::vector<TKeyAnomalyDetectorPtrUMapCItr>;
 
-    static uint64_t cumulativeTime = 0;
-
     core::CStopWatch timer(true);
 
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
 
-    if (m_ModelPlotQueue.latestBucketEnd() < bucketLength) {
-        m_ModelPlotQueue.reset(bucketStartTime - m_ModelPlotQueue.bucketLength());
-    }
-
-    m_ResultsQueue.push(model::CHierarchicalResults(), bucketStartTime);
-    model::CHierarchicalResults& results = m_ResultsQueue.get(bucketStartTime);
-    m_ModelPlotQueue.push(TModelPlotDataVec(), bucketStartTime);
+    model::CHierarchicalResults results;
+    TModelPlotDataVec modelPlotData;
 
     TKeyAnomalyDetectorPtrUMapCItrVec iterators;
     iterators.reserve(m_Detectors.size());
@@ -609,7 +565,8 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         detector->buildResults(bucketStartTime, bucketStartTime + bucketLength, results);
         detector->releaseMemory(bucketStartTime - m_ModelConfig.samplingAgeCutoff());
 
-        this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength, *detector);
+        this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength,
+                                *detector, modelPlotData);
     }
 
     if (!results.empty()) {
@@ -628,20 +585,12 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(false, results);
     }
 
-    core_t::TTime resultsTime =
-        m_ResultsQueue.chooseResultTime(bucketStartTime, bucketLength, results);
-    if (resultsTime != 0) {
-        model::CHierarchicalResults& resultsToOutput = m_ResultsQueue.get(resultsTime);
-        uint64_t processingTime = timer.stop();
-        // Model plots must be written first so the Java persists them
-        // once the bucket result is processed
-        this->writeOutModelPlot(resultsTime);
-        this->writeOutResults(false, resultsToOutput, resultsTime,
-                              processingTime, cumulativeTime);
-        cumulativeTime = 0;
-    } else {
-        cumulativeTime += timer.stop();
-    }
+    uint64_t processingTime = timer.stop();
+
+    // Model plots must be written first so the Java persists them
+    // once the bucket result is processed
+    this->writeOutModelPlot(modelPlotData);
+    this->writeOutResults(false, results, bucketStartTime, processingTime);
 
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
     model::CStringStore::tidyUpNotThreadSafe();
@@ -681,22 +630,14 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(true, results);
     }
 
-    // For the case where there are out-of-phase buckets, and there is a gap for an
-    // intermediate bucket, output it as interim too.
     uint64_t processingTime = timer.stop();
-    if (m_ResultsQueue.hasInterimResults()) {
-        core_t::TTime olderTime = bucketStartTime - bucketLength;
-        model::CHierarchicalResults& olderResult = m_ResultsQueue.get(olderTime);
-        this->writeOutResults(true, olderResult, olderTime, processingTime, 0l);
-    }
-    this->writeOutResults(true, results, bucketStartTime, processingTime, 0l);
+    this->writeOutResults(true, results, bucketStartTime, processingTime);
 }
 
 void CAnomalyJob::writeOutResults(bool interim,
                                   model::CHierarchicalResults& results,
                                   core_t::TTime bucketTime,
-                                  uint64_t processingTime,
-                                  uint64_t sumPastProcessingTime) {
+                                  uint64_t processingTime) {
     if (!results.empty()) {
         LOG_TRACE(<< "Got results object here: " << results.root()->s_RawAnomalyScore
                   << " / " << results.root()->s_NormalizedAnomalyScore
@@ -720,8 +661,7 @@ void CAnomalyJob::writeOutResults(bool interim,
             bucketTime, results.root()->s_AnnotatedProbability.s_Probability,
             results.root()->s_RawAnomalyScore, results.root()->s_NormalizedAnomalyScore);
 
-        if (m_JsonOutputWriter.endOutputBatch(
-                interim, sumPastProcessingTime + processingTime) == false) {
+        if (m_JsonOutputWriter.endOutputBatch(interim, processingTime) == false) {
             LOG_ERROR(<< "Problem writing anomaly output");
         }
         m_LastResultsTime = bucketTime;
@@ -904,15 +844,6 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
                 LOG_ERROR(<< "Cannot restore results aggregator");
                 return false;
             }
-        } else if (name == HIERARCHICAL_RESULTS_TAG) {
-            core::CPersistUtils::restore(HIERARCHICAL_RESULTS_TAG, m_ResultsQueue, traverser);
-        } else if (name == MODEL_PLOT_TAG) {
-            core_t::TTime resultsQueueResetTime =
-                m_ModelConfig.bucketResultsDelay() == 0
-                    ? m_LastFinalisedBucketEndTime
-                    : m_LastFinalisedBucketEndTime - this->effectiveBucketLength();
-            m_ModelPlotQueue.reset(resultsQueueResetTime);
-            core::CPersistUtils::restore(MODEL_PLOT_TAG, m_ModelPlotQueue, traverser);
         } else if (name == LATEST_RECORD_TIME_TAG) {
             core::CPersistUtils::restore(LATEST_RECORD_TIME_TAG, m_LatestRecordTime, traverser);
         } else if (name == LAST_RESULTS_TIME_TAG) {
@@ -1054,8 +985,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
     return this->persistState(
-        "State persisted due to job close at ", m_ResultsQueue,
-        m_ModelPlotQueue, m_LastFinalisedBucketEndTime, detectors,
+        "State persisted due to job close at ", m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
         m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
@@ -1070,7 +1000,7 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
     // Do NOT add boost::ref wrappers around these arguments - they
     // MUST be copied for thread safety
     TBackgroundPersistArgsPtr args = std::make_shared<SBackgroundPersistArgs>(
-        m_ResultsQueue, m_ModelPlotQueue, m_LastFinalisedBucketEndTime,
+        m_LastFinalisedBucketEndTime,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
         m_ModelConfig.interimBucketCorrector(), m_Aggregator,
@@ -1119,16 +1049,14 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         return false;
     }
 
-    return this->persistState(
-        "Periodic background persist at ", args->s_ResultsQueue,
-        args->s_ModelPlotQueue, args->s_Time, args->s_Detectors, args->s_ModelSizeStats,
-        args->s_InterimBucketCorrector, args->s_Aggregator, args->s_NormalizerState,
-        args->s_LatestRecordTime, args->s_LastResultsTime, persister);
+    return this->persistState("Periodic background persist at ", args->s_Time,
+                              args->s_Detectors, args->s_ModelSizeStats,
+                              args->s_InterimBucketCorrector, args->s_Aggregator,
+                              args->s_NormalizerState, args->s_LatestRecordTime,
+                              args->s_LastResultsTime, persister);
 }
 
 bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
-                               const model::CResultsQueue& resultsQueue,
-                               const TModelPlotDataVecQueue& modelPlotQueue,
                                core_t::TTime lastFinalisedBucketEnd,
                                const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                const model::CResourceMonitor::SResults& modelSizeStats,
@@ -1157,15 +1085,6 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
                 core::CJsonStatePersistInserter inserter(*strm);
                 inserter.insertValue(TIME_TAG, lastFinalisedBucketEnd);
                 inserter.insertValue(VERSION_TAG, model::CAnomalyDetector::STATE_VERSION);
-
-                if (resultsQueue.size() > 1) {
-                    core::CPersistUtils::persist(HIERARCHICAL_RESULTS_TAG,
-                                                 resultsQueue, inserter);
-                }
-                if (modelPlotQueue.size() > 1) {
-                    core::CPersistUtils::persist(MODEL_PLOT_TAG, modelPlotQueue, inserter);
-                }
-
                 inserter.insertLevel(INTERIM_BUCKET_CORRECTOR_TAG,
                                      boost::bind(&model::CInterimBucketCorrector::acceptPersistInserter,
                                                  &interimBucketCorrector, _1));
@@ -1312,29 +1231,21 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
 
 void CAnomalyJob::generateModelPlot(core_t::TTime startTime,
                                     core_t::TTime endTime,
-                                    const model::CAnomalyDetector& detector) {
+                                    const model::CAnomalyDetector& detector,
+                                    TModelPlotDataVec& modelPlotData) {
     double modelPlotBoundsPercentile(m_ModelConfig.modelPlotBoundsPercentile());
     if (modelPlotBoundsPercentile > 0.0) {
         LOG_TRACE(<< "Generating model debug data at " << startTime);
-        detector.generateModelPlot(
-            startTime, endTime, m_ModelConfig.modelPlotBoundsPercentile(),
-            m_ModelConfig.modelPlotTerms(), m_ModelPlotQueue.get(startTime));
+        detector.generateModelPlot(startTime, endTime,
+                                   m_ModelConfig.modelPlotBoundsPercentile(),
+                                   m_ModelConfig.modelPlotTerms(), modelPlotData);
     }
 }
 
-void CAnomalyJob::writeOutModelPlot(core_t::TTime resultsTime) {
-    double modelPlotBoundsPercentile(m_ModelConfig.modelPlotBoundsPercentile());
-    if (modelPlotBoundsPercentile > 0.0) {
-        LOG_TRACE(<< "Writing debug data at time " << resultsTime);
-        CModelPlotDataJsonWriter modelPlotWriter(m_OutputStream);
-        this->writeOutModelPlot(resultsTime, modelPlotWriter);
-    }
-}
-
-void CAnomalyJob::writeOutModelPlot(core_t::TTime resultsTime,
-                                    CModelPlotDataJsonWriter& writer) {
-    for (const auto& plot : m_ModelPlotQueue.get(resultsTime)) {
-        writer.writeFlat(m_JobId, plot);
+void CAnomalyJob::writeOutModelPlot(const TModelPlotDataVec& modelPlotData) {
+    CModelPlotDataJsonWriter modelPlotWriter(m_OutputStream);
+    for (const auto& plot : modelPlotData) {
+        modelPlotWriter.writeFlat(m_JobId, plot);
     }
 }
 
@@ -1504,16 +1415,13 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
 }
 
 CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
-    const model::CResultsQueue& resultsQueue,
-    const TModelPlotDataVecQueue& modelPlotQueue,
     core_t::TTime time,
     const model::CResourceMonitor::SResults& modelSizeStats,
     const model::CInterimBucketCorrector& interimBucketCorrector,
     const model::CHierarchicalResultsAggregator& aggregator,
     core_t::TTime latestRecordTime,
     core_t::TTime lastResultsTime)
-    : s_ResultsQueue(resultsQueue), s_ModelPlotQueue(modelPlotQueue),
-      s_Time(time), s_ModelSizeStats(modelSizeStats),
+    : s_Time(time), s_ModelSizeStats(modelSizeStats),
       s_InterimBucketCorrector(interimBucketCorrector), s_Aggregator(aggregator),
       s_LatestRecordTime(latestRecordTime), s_LastResultsTime(lastResultsTime) {
 }

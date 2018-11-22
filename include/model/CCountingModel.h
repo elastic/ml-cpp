@@ -160,17 +160,6 @@ public:
                                         core_t::TTime endTime,
                                         CResourceMonitor& resourceMonitor);
 
-    //! This samples the bucket statistics, and any state needed
-    //! by computeProbablity, in the time interval [\p startTime,
-    //! \p endTime], but does not update the model. This is needed
-    //! by the results preview.
-    //!
-    //! \param[in] startTime The start of the time interval to sample.
-    //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
-
     //! This samples the bucket statistics, in the time interval
     //! [\p startTime, \p endTime].
     //!

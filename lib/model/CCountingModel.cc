@@ -171,12 +171,6 @@ void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result
     result.assign(people.begin(), people.end());
 }
 
-void CCountingModel::sampleOutOfPhase(core_t::TTime startTime,
-                                      core_t::TTime endTime,
-                                      CResourceMonitor& resourceMonitor) {
-    this->sampleBucketStatistics(startTime, endTime, resourceMonitor);
-}
-
 void CCountingModel::sampleBucketStatistics(core_t::TTime startTime,
                                             core_t::TTime endTime,
                                             CResourceMonitor& /*resourceMonitor*/) {

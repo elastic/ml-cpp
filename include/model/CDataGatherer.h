@@ -120,7 +120,6 @@ public:
         CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
     using TBucketGathererPtr = std::unique_ptr<CBucketGatherer>;
-    using TBucketGathererPtrVec = std::vector<TBucketGathererPtr>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
@@ -338,7 +337,7 @@ public:
                      core_t::TTime bucketLength,
                      std::vector<std::pair<model_t::EFeature, T>>& result) const {
         TFeatureAnyPrVec rawFeatureData;
-        this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
+        m_BucketGatherer->featureData(time, bucketLength, rawFeatureData);
 
         bool succeeded = true;
 
@@ -558,7 +557,7 @@ public:
     void timeNow(core_t::TTime time);
 
     //! Print the current bucket.
-    std::string printCurrentBucket(core_t::TTime time) const;
+    std::string printCurrentBucket() const;
 
     //! Record a attribute called \p attribute.
     std::size_t addAttribute(const std::string& attribute,
@@ -591,9 +590,6 @@ public:
 
     //! Reset bucket and return true if bucket was successfully
     //! reset or false otherwise.
-    //! Note that this should not be used in conjunction with out-of-phase buckets
-    //! where the concept of resetting a specific bucketed period of time is
-    //! not valid.
     bool resetBucket(core_t::TTime bucketStart);
 
     //! Release memory that is no longer needed
@@ -693,14 +689,6 @@ private:
     using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
 
 private:
-    //! Select the correct bucket gatherer based on the time: if we have
-    //! out-of-phase buckets, select either in-phase or out-of-phase.
-    const CBucketGatherer& chooseBucketGatherer(core_t::TTime time) const;
-
-    //! Select the correct bucket gatherer based on the time: if we have
-    //! out-of-phase buckets, select either in-phase or out-of-phase.
-    CBucketGatherer& chooseBucketGatherer(core_t::TTime time);
-
     //! Restore state from supplied traverser.
     bool acceptRestoreTraverser(const std::string& summaryCountFieldName,
                                 const std::string& personFieldName,
@@ -738,9 +726,9 @@ private:
     //! The collection of features on which to gather data.
     TFeatureVec m_Features;
 
-    //! The collection of bucket gatherers which contain the bucket-specific
+    //! The bucket gatherer which contains the bucket-specific
     //! metrics and counts.
-    TBucketGathererPtrVec m_Gatherers;
+    TBucketGathererPtr m_BucketGatherer;
 
     //! Indicates whether the data being gathered are already summarized
     //! by an external aggregation process.

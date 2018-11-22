@@ -17,10 +17,6 @@
 #include <vector>
 
 namespace ml {
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
 namespace model {
 
 //! \brief Data necessary to create a model plot
@@ -35,8 +31,6 @@ public:
         SByFieldData(double lowerBound, double upperBound, double median);
 
         void addValue(const std::string& personName, double value);
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         double s_LowerBound;
         double s_UpperBound;
@@ -63,8 +57,6 @@ public:
                    const std::string& byFieldName,
                    core_t::TTime bucketSpan,
                    int detectorIndex);
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     TFeatureStrByFieldDataUMapUMapCItr begin() const;
     TFeatureStrByFieldDataUMapUMapCItr end() const;
     SByFieldData& get(const model_t::EFeature& feature, const std::string& byFieldValue);
