@@ -78,15 +78,16 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     CFloatStorage initial;
     TVectorVec points(frame.numberRows(), TVector{&initial, 1});
 
-    bool readSuccessful;
-    std::tie(std::ignore, readSuccessful) =
-        frame.readRows(numberThreads, [&points](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                points[row->index()] = TVector{row->data(), row->numberColumns()};
-            }
-        });
+    auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            points[row->index()] = TVector{row->data(), row->numberColumns()};
+        }
+    };
 
-    if (readSuccessful == false) {
+    bool successful;
+    std::tie(std::ignore, successful) = frame.readRows(numberThreads, rowsToPoints);
+
+    if (successful == false) {
         LOG_ERROR(<< "Failed to read the data frame");
         return false;
     }
@@ -94,12 +95,19 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     TDoubleVec scores;
     CLocalOutlierFactors::ensemble(std::move(points), scores);
 
-    frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
-    frame.writeColumns(numberThreads, [&scores](TRowItr beginRows, TRowItr endRows) {
+    auto writeScores = [&scores](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             row->writeColumn(row->numberColumns() - 1, scores[row->index()]);
         }
-    });
+    };
+
+    frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
+    successful = frame.writeColumns(numberThreads, writeScores);
+    if (successful == false) {
+        LOG_ERROR(<< "Failed to write scores");
+        return false;
+    }
+    return true;
 }
 }
 
