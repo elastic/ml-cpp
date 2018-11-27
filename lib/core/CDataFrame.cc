@@ -188,19 +188,19 @@ public:
                 // We wait here so at most one slice is copied into memory.
                 await(backgroundApply);
                 LOG_TRACE(<< "applying function to slice starting at row " << firstRow);
-                backgroundApply = 
-                    async(defaultAsyncExecutor(), 
-                          [ firstRow, slice = std::move(sliceHandle), i, this ] {
-                            std::size_t rows{slice.size() / m_RowCapacity};
-                            std::size_t lastRow{firstRow + rows};
-                            m_Function(CRowIterator{m_NumberColumns, m_RowCapacity,
-                                                    firstRow, slice.begin()},
-                                        CRowIterator{m_NumberColumns, m_RowCapacity,
-                                                    lastRow, slice.end()});
-                            if (m_CommitFunctionAction) {
-                                (*i)->write(slice.values());
-                            }
-                        });
+                backgroundApply = async(
+                    defaultAsyncExecutor(),
+                    [ firstRow, slice = std::move(sliceHandle), i, this ] {
+                        std::size_t rows{slice.size() / m_RowCapacity};
+                        std::size_t lastRow{firstRow + rows};
+                        m_Function(CRowIterator{m_NumberColumns, m_RowCapacity,
+                                                firstRow, slice.begin()},
+                                   CRowIterator{m_NumberColumns, m_RowCapacity,
+                                                lastRow, slice.end()});
+                        if (m_CommitFunctionAction) {
+                            (*i)->write(slice.values());
+                        }
+                    });
             }
             await(backgroundApply);
             break;
