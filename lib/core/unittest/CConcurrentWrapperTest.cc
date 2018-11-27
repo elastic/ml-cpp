@@ -9,7 +9,10 @@
 #include <core/CConcurrentWrapper.h>
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
-#include <core/Concurrency.h>
+
+// FIXME
+//#include <core/Concurrency.h>
+#include <transwarp/transwarp.h>
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -81,7 +84,7 @@ void CConcurrentWrapperTest::testThreads() {
     static const size_t MESSAGES(1500);
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-        core::static_thread_pool tp(10);
+        transwarp::detail::thread_pool tp(10);
         for (size_t i = 0; i < MESSAGES; ++i) {
             tp.push(boost::bind(aTask, boost::ref(wrappedStringStream), i,
                                 std::chrono::microseconds(0)));
@@ -105,7 +108,7 @@ void CConcurrentWrapperTest::testThreadsSlow() {
 
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-        core::static_thread_pool tp(2);
+        transwarp::detail::thread_pool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
             tp.push(boost::bind(aTask, boost::ref(wrappedStringStream), i,
                                 std::chrono::microseconds(50)));
@@ -129,7 +132,7 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
 
     {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-        core::static_thread_pool tp(2);
+        transwarp::detail::thread_pool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
             tp.push(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
                                 i, std::chrono::microseconds(50)));
@@ -153,7 +156,7 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
 
     {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-        core::static_thread_pool tp(8);
+        transwarp::detail::thread_pool tp(8);
         for (size_t i = 0; i < MESSAGES; ++i) {
             tp.push(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
                                 i, std::chrono::microseconds(0)));
