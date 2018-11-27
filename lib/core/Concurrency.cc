@@ -16,50 +16,63 @@
 namespace ml {
 namespace core {
 namespace {
-std::size_t THREAD_POOL_SIZE{0};
+class CExecutorHolder {
+public:
+    CExecutorHolder()
+        : m_ThreadPoolSize{0}, m_Executor{boost::make_unique<transwarp::sequential>()} {}
 
-std::unique_ptr<executor> makeThreadPool(std::size_t threads) {
-    if (threads == 0) {
-        threads = std::thread::hardware_concurrency();
-    }
-
-    THREAD_POOL_SIZE = threads;
-
-    if (THREAD_POOL_SIZE > 0) {
-        try {
-            return boost::make_unique<transwarp::parallel>(THREAD_POOL_SIZE);
-        } catch (const std::exception& e) {
-            LOG_WARN(<< "Failed to create thread pool: " << e.what());
+    static CExecutorHolder makeThreadPool(std::size_t threadPoolSize) {
+        if (threadPoolSize == 0) {
+            threadPoolSize = std::thread::hardware_concurrency();
         }
-    } else {
-        LOG_WARN(<< "Failed to determine hardware concurrency");
+
+        if (threadPoolSize > 0) {
+            try {
+                return CExecutorHolder{threadPoolSize};
+            } catch (const std::exception& e) {
+                LOG_ERROR(<< "Failed to create thread pool: " << e.what());
+            }
+        } else {
+            LOG_WARN(<< "Failed to determine hardware concurrency");
+        }
+
+        // We'll just have to execute in the main thread.
+        return CExecutorHolder{};
     }
 
-    // We'll just have to execute in the main thread.
-    return boost::make_unique<transwarp::sequential>();
+    executor& executor() { return *m_Executor; }
+    std::size_t threadPoolSize() const { return m_ThreadPoolSize; }
+
+private:
+    CExecutorHolder(std::size_t threadPoolSize)
+        : m_ThreadPoolSize{threadPoolSize},
+          m_Executor{boost::make_unique<transwarp::parallel>(threadPoolSize)} {}
+
+private:
+    std::size_t m_ThreadPoolSize;
+    std::unique_ptr<core::executor> m_Executor;
+};
+
+CExecutorHolder singletonExecutor;
 }
 
-std::unique_ptr<executor> THREAD_POOL{boost::make_unique<transwarp::sequential>()};
-}
-
-void startDefaultAsyncExecutor(std::size_t threads) {
-    THREAD_POOL = makeThreadPool(threads);
+void startDefaultAsyncExecutor(std::size_t threadPoolSize) {
+    singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize);
 }
 
 void stopDefaultAsyncExecutor() {
-    THREAD_POOL_SIZE = 0;
-    THREAD_POOL = boost::make_unique<transwarp::sequential>();
+    singletonExecutor = CExecutorHolder{};
 }
 
 std::size_t defaultAsyncThreadPoolSize() {
-    return THREAD_POOL_SIZE;
+    return singletonExecutor.threadPoolSize();
 }
 
 //! The global default thread pool.
 //!
 //! This gets the default parallel executor specified by the create_default_executor.
 executor& defaultAsyncExecutor() {
-    return *THREAD_POOL;
+    return singletonExecutor.executor();
 }
 }
 }

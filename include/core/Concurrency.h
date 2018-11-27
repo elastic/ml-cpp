@@ -74,7 +74,7 @@ auto bindRetrievableState(FUNCTION&& function, STATE&& state) {
 //! \note If this is called with threads = 0 it defaults threads to using calling
 //! std::thread::hardware_concurrency to size the thread pool.
 CORE_EXPORT
-void startDefaultAsyncExecutor(std::size_t threads = 0);
+void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0);
 
 //! Shutdown the thread pool and reset the executor to sequential in the same thread.
 //!
