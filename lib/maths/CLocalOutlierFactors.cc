@@ -72,9 +72,9 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     using TRowItr = core::CDataFrame::TRowItr;
 
     // The points will be entirely overwritten by readRows so the initial
-    // value is not important. This is presized so that readRows only needs
-    // to access and write to each element. Since it does this once it is
-    // thread safe.
+    // value is not important. This is presized so that rowsToPoints only
+    // needs to access and write to each element. Since it does this once
+    // per element it is thread safe.
     CFloatStorage initial;
     TVectorVec points(frame.numberRows(), TVector{&initial, 1});
 
