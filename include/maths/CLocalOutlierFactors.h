@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CLocalOutlierFactors_h
 
 #include <core/CHashing.h>
+#include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CGramSchmidt.h>
@@ -293,23 +294,23 @@ protected:
             CGramSchmidt::basis(projection);
 
             // Project onto the basis.
-            for (std::size_t j = 0; j < points.size(); ++j) {
+            core::parallel_for_each(0, points.size(), [&](std::size_t j) {
                 for (std::size_t d = 0; d < projectedDimension; ++d) {
                     projectedPoints[j](d) = las::inner(projection[d], points[j]);
                 }
-            }
+            });
 
             // Compute the scores and update the overall score.
             scores.assign(points.size(), 0.0);
             compute(projectedPoints, scores);
-            for (std::size_t j = 0; j < scores.size(); ++j) {
+            core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
                 meanScores[j].add(CTools::fastLog(scores[j]));
-            }
+            });
         }
 
-        for (std::size_t i = 0; i < meanScores.size(); ++i) {
+        core::parallel_for_each(0, meanScores.size(), [&](std::size_t i) {
             scores[i] = std::exp(CBasicStatistics::mean(meanScores[i]));
-        }
+        });
     }
 
     //! Compute the number of bags and the projection dimension.
@@ -342,10 +343,12 @@ protected:
         void run(std::size_t k, TPointVec points, TDoubleVec& scores) {
             this->setup(points);
             m_Lookup.build(std::move(points));
-            for (const auto& point : m_Lookup) {
-                m_Lookup.nearestNeighbours(k + 1, point, m_Neighbours);
-                this->add(point, m_Neighbours, scores);
-            }
+            core::parallel_for_each(
+                m_Lookup.begin(), m_Lookup.end(),
+                [&, neighbours = TPointVec{} ](const TPoint& point) mutable {
+                    m_Lookup.nearestNeighbours(k + 1, point, neighbours);
+                    this->add(point, neighbours, scores);
+                });
             this->compute(scores);
         }
 
@@ -360,7 +363,6 @@ protected:
 
     private:
         NEAREST_NEIGHBOURS m_Lookup;
-        TPointVec m_Neighbours;
     };
 
     //! \brief Computes the normalized version of the local outlier
@@ -387,6 +389,7 @@ protected:
             m_Lrd.assign(points.size(), 0.0);
         }
 
+        //! \warning This must be thread safe.
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec&) {
             std::size_t i{point.annotation()};
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
@@ -400,36 +403,50 @@ protected:
         virtual void compute(TDoubleVec& scores) {
             using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
+            // We bind a minimum accumulator (by value) to each lambda (since one copy
+            // is then accessed by each thread) and take the minimum of these at the end.
+
+            auto results = core::parallel_for_each(
+                this->lookup().begin(), this->lookup().end(),
+                core::bindRetrievableState(
+                    [&](TMinAccumulator& min, const TPoint& point) {
+                        std::size_t i{point.annotation()};
+                        TMeanAccumulator reachability_;
+                        for (const auto& neighbour : m_KDistances[i]) {
+                            reachability_.add(
+                                std::max(kdistance(m_KDistances[index(neighbour)]),
+                                         distance(neighbour)));
+                        }
+                        double reachability{CBasicStatistics::mean(reachability_)};
+                        if (reachability > 0.0) {
+                            m_Lrd[i] = 1.0 / reachability;
+                            min.add(reachability);
+                        } else {
+                            m_Lrd[i] = -1.0;
+                        }
+                    },
+                    TMinAccumulator{}));
+
             TMinAccumulator min;
-            for (const auto& point : this->lookup()) {
-                std::size_t i{point.annotation()};
-                TMeanAccumulator reachability_;
-                for (const auto& neighbour : m_KDistances[i]) {
-                    reachability_.add(std::max(kdistance(m_KDistances[index(neighbour)]),
-                                               distance(neighbour)));
-                }
-                double reachability{CBasicStatistics::mean(reachability_)};
-                if (reachability > 0.0) {
-                    m_Lrd[i] = 1.0 / reachability;
-                    min.add(reachability);
-                } else {
-                    m_Lrd[i] = -1.0;
-                }
+            for (const auto& result : results) {
+                min += result.s_FunctionState;
             }
+
             if (min.count() > 0) {
                 for (auto& lrd : m_Lrd) {
                     if (lrd < 0.0) {
                         lrd = min[0] / 2.0;
                     }
                 }
-                for (const auto& point : this->lookup()) {
-                    std::size_t i{point.annotation()};
-                    TMeanAccumulator score;
-                    for (const auto& neighbour : m_KDistances[i]) {
-                        score.add(m_Lrd[index(neighbour)]);
-                    }
-                    scores[i] = CBasicStatistics::mean(score) / m_Lrd[i];
-                }
+                core::parallel_for_each(
+                    this->lookup().begin(), this->lookup().end(), [&](const TPoint& point) {
+                        std::size_t i{point.annotation()};
+                        TMeanAccumulator score;
+                        for (const auto& neighbour : m_KDistances[i]) {
+                            score.add(m_Lrd[index(neighbour)]);
+                        }
+                        scores[i] = CBasicStatistics::mean(score) / m_Lrd[i];
+                    });
             }
             normalize(scores);
         }
@@ -467,6 +484,7 @@ protected:
             this->run(m_K, std::move(points), scores);
         }
 
+        //! \warning This must be thread safe.
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec& scores) {
             TMeanAccumulator d, D;
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
@@ -502,6 +520,7 @@ protected:
             this->run(m_K, std::move(points), scores);
         }
 
+        //! \warning This must be thread safe.
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec& scores) {
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
             scores[point.annotation()] = las::distance(point, neighbours[k]);
@@ -527,6 +546,7 @@ protected:
             this->run(m_K, std::move(points), scores);
         }
 
+        //! \warning This must be thread safe.
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec& scores) {
             std::size_t i{point.annotation()};
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
@@ -595,6 +615,7 @@ protected:
             m_Scores.assign(m_Methods.size(), TDoubleVec(points.size()));
         }
 
+        //! \warning This must be thread safe.
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec&) {
             for (std::size_t i = 0; i < m_Methods.size(); ++i) {
                 m_Methods[i]->add(point, neighbours, m_Scores[i]);

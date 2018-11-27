@@ -9,6 +9,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/Concurrency.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -16,6 +17,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <mutex>
 #include <vector>
 
 using namespace ml;
@@ -85,6 +87,14 @@ private:
     bool m_Duplicates = false;
     TSizeFloatVecUMap m_Rows;
 };
+}
+
+void CDataFrameTest::setUp() {
+    core::startDefaultAsyncExecutor();
+}
+
+void CDataFrameTest::tearDown() {
+    core::stopDefaultAsyncExecutor();
 }
 
 void CDataFrameTest::testInMainMemoryBasicReadWrite() {

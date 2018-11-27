@@ -71,7 +71,6 @@ CBase64Filter.cc \
 CBufferFlushTimer.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
-CompressUtils.cc \
 CContainerPrinter.cc \
 CDataAdder.cc \
 CDataFrame.cc \
@@ -91,6 +90,8 @@ CLogger.cc \
 CMemory.cc \
 CMemoryUsage.cc \
 CMemoryUsageJsonWriter.cc \
+CompressUtils.cc \
+Concurrency.cc \
 CPatternSet.cc \
 CPersistUtils.cc \
 CRapidJsonConcurrentLineWriter.cc \

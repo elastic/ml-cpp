@@ -7,6 +7,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <core/CLogger.h>
+#include <core/Concurrency.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 
@@ -110,6 +111,16 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
                 m_Bad = true;
             }
         }
+    }
+
+    if (this->bad() == false && m_Threads > 1) {
+        core::startDefaultAsyncExecutor(m_Threads - 1);
+    }
+}
+
+CDataFrameAnalysisSpecification::~CDataFrameAnalysisSpecification() {
+    if (m_Threads > 1) {
+        core::stopDefaultAsyncExecutor();
     }
 }
 

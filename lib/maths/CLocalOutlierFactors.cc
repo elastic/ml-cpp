@@ -37,9 +37,9 @@ void CLocalOutlierFactors::normalize(TDoubleVec& scores) {
         double variance{CBasicStatistics::variance(moments)};
         if (variance > 0.0) {
             boost::math::normal normal(mean, std::sqrt(variance));
-            for (auto& score : scores) {
+            core::parallel_for_each(scores.begin(), scores.end(), [normal](double& score) {
                 score = cdfComplementToScore(CTools::safeCdfComplement(normal, score));
-            }
+            });
         } else {
             scores.assign(scores.size(), 0.0);
         }
@@ -72,9 +72,9 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     using TRowItr = core::CDataFrame::TRowItr;
 
     // The points will be entirely overwritten by readRows so the initial
-    // value is not important. This is presized so that rowsToPoints only
-    // needs to access and write to each element. Since it does this once
-    // per element it is thread safe.
+    // value is not important. This is presized so that readRows only needs
+    // to access and write to each element. Since it does this once it is
+    // thread safe.
     CFloatStorage initial;
     TVectorVec points(frame.numberRows(), TVector{&initial, 1});
 

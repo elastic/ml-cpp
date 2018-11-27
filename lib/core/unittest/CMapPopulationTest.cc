@@ -8,10 +8,10 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
+#include <core/Concurrency.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
-#include <boost/threadpool.hpp>
 
 #include <algorithm>
 
@@ -91,20 +91,17 @@ void CMapPopulationTest::testMapInsertSpeed() {
     // threads is chosen to be less than the number of cores so that the results
     // aren't skewed too much if other processes are running on the machine
     unsigned int numCpus(boost::thread::hardware_concurrency());
-    boost::threadpool::pool tp(numCpus / 3 + 1);
+    ml::core::static_thread_pool tp(numCpus / 3 + 1);
 
     // Add tasks for all the tests to the pool
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapInsertStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapInsertCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapOpSqBracStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapOpSqBracCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapInsertStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapInsertCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapOpSqBracStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapOpSqBracCharP, this));
-
-    //  Wait until all tests are finished
-    tp.wait();
+    tp.push(boost::bind(&CMapPopulationTest::testMapInsertStr, this));
+    tp.push(boost::bind(&CMapPopulationTest::testMapInsertCharP, this));
+    tp.push(boost::bind(&CMapPopulationTest::testMapOpSqBracStr, this));
+    tp.push(boost::bind(&CMapPopulationTest::testMapOpSqBracCharP, this));
+    tp.push(boost::bind(&CMapPopulationTest::testUMapInsertStr, this));
+    tp.push(boost::bind(&CMapPopulationTest::testUMapInsertCharP, this));
+    tp.push(boost::bind(&CMapPopulationTest::testUMapOpSqBracStr, this));
+    tp.push(boost::bind(&CMapPopulationTest::testUMapOpSqBracCharP, this));
 }
 
 void CMapPopulationTest::testMapInsertStr() {

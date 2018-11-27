@@ -70,7 +70,8 @@ public:
     //! \note If this fails the state is set to bad and the analysis will not run.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification);
-
+    ~CDataFrameAnalysisSpecification();
+    
     //! Check if the specification is bad.
     bool bad() const;
 
