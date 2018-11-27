@@ -124,7 +124,7 @@ bool computeOutliers(std::size_t numberThreads, core::CDataFrame& frame) {
     // TODO this needs to work out the partitioning and run outlier detection
     // one partition at a time.
 
-    return true;
+    return false;
 }
 }
 }
