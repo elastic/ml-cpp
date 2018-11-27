@@ -83,8 +83,8 @@ void CConcurrentWrapperTest::testThreads() {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
         core::static_thread_pool tp(10);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.push(std::bind(aTask, boost::ref(wrappedStringStream), i,
-                              std::chrono::microseconds(0)));
+            tp.push(boost::bind(aTask, boost::ref(wrappedStringStream), i,
+                                std::chrono::microseconds(0)));
         }
     }
 
@@ -107,8 +107,8 @@ void CConcurrentWrapperTest::testThreadsSlow() {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
         core::static_thread_pool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.push(std::bind(aTask, boost::ref(wrappedStringStream), i,
-                              std::chrono::microseconds(50)));
+            tp.push(boost::bind(aTask, boost::ref(wrappedStringStream), i,
+                                std::chrono::microseconds(50)));
         }
     }
 
@@ -129,10 +129,10 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
 
     {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-        core::static_thread_pool tp(8);
+        core::static_thread_pool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.push(std::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
-                              i, std::chrono::microseconds(50)));
+            tp.push(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
+                                i, std::chrono::microseconds(50)));
         }
     }
 
@@ -155,8 +155,8 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
         core::static_thread_pool tp(8);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.push(std::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
-                              i, std::chrono::microseconds(0)));
+            tp.push(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
+                                i, std::chrono::microseconds(0)));
         }
     }
 
