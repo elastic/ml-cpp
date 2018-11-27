@@ -34,7 +34,7 @@ bool CCmdLineParser::parse(int argc,
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
             ("config", boost::program_options::value<std::string>(),
-                    "ID of the job this process is associated with")
+                    "The configuration file")
             ("logProperties", boost::program_options::value<std::string>(),
                     "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),

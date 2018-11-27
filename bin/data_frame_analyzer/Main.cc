@@ -20,7 +20,10 @@
 #include <ver/CBuildInfo.h>
 
 #include <api/CCsvInputParser.h>
+#include <api/CDataFrameAnalysisRunner.h>
+#include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameOutliersRunner.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
 
@@ -28,9 +31,23 @@
 
 #include <boost/make_unique.hpp>
 
+#include <fstream>
 #include <string>
 
 #include <stdlib.h>
+
+// TODO That might belong in CDataFrameAnalyzer
+ml::api::CDataFrameAnalysisSpecification
+makeDataFrameAnalysisSpecification(const std::string& configFile) {
+    using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
+    TRunnerFactoryUPtrVec factories;
+    factories.push_back(boost::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+
+    std::ifstream configFileStream(configFile);
+    std::string dataFrameConfig(std::istreambuf_iterator<char>{configFileStream},
+                                std::istreambuf_iterator<char>{});
+    return ml::api::CDataFrameAnalysisSpecification{std::move(factories), dataFrameConfig};
+}
 
 int main(int argc, char** argv) {
     // Read command line options
@@ -81,6 +98,9 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
+    // TODO Actually use the specification to create the data frame and run the analysis
+    ml::api::CDataFrameAnalysisSpecification dataFrameAnalysisSpecification{
+        makeDataFrameAnalysisSpecification(configFile)};
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
 
     if (inputParser->readStreamIntoVecs(
