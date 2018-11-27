@@ -30,7 +30,7 @@ public:
 public:
     virtual ~CDataFrameRowSliceHandleImpl() = default;
     virtual TImplPtr clone() const = 0;
-    virtual const TFloatVec& values() const = 0;
+    virtual TFloatVec& values() const = 0;
     virtual bool bad() const = 0;
 };
 }
@@ -40,7 +40,7 @@ public:
 class CORE_EXPORT CDataFrameRowSliceHandle {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
-    using TFloatVecCItr = TFloatVec::const_iterator;
+    using TFloatVecItr = TFloatVec::iterator;
     using TImplPtr = std::unique_ptr<data_frame_row_slice_detail::CDataFrameRowSliceHandleImpl>;
 
 public:
@@ -53,8 +53,9 @@ public:
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
     std::size_t size() const;
-    TFloatVecCItr begin() const;
-    TFloatVecCItr end() const;
+    TFloatVecItr begin() const;
+    TFloatVecItr end() const;
+    const TFloatVec& values() const;
     bool bad() const;
 
 private:
@@ -71,6 +72,7 @@ public:
     virtual ~CDataFrameRowSlice() = default;
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
     virtual TSizeHandlePr read() = 0;
+    virtual void write(const TFloatVec& values) = 0;
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
 };
@@ -90,6 +92,7 @@ public:
     CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec state);
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
+    virtual void write(const TFloatVec& values);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
 
@@ -149,6 +152,7 @@ public:
                              TFloatVec state);
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
+    virtual void write(const TFloatVec& values);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
 

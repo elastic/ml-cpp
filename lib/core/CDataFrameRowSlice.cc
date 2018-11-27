@@ -21,7 +21,7 @@
 namespace ml {
 namespace core {
 using TFloatVec = std::vector<CFloatStorage>;
-using TFloatVecCItr = TFloatVec::const_iterator;
+using TFloatVecItr = TFloatVec::iterator;
 
 namespace {
 using namespace data_frame_row_slice_detail;
@@ -36,19 +36,19 @@ using namespace data_frame_row_slice_detail;
 //! values stored in the data frame.
 class CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    CMainMemoryDataFrameRowSliceHandle(const TFloatVec& values)
-        : m_Values{values} {}
+    CMainMemoryDataFrameRowSliceHandle(TFloatVec& values) : m_Values{values} {}
     virtual TImplPtr clone() const {
         return boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Values);
     }
-    virtual const TFloatVec& values() const { return m_Values; }
+    virtual bool inMainMemory() const { return true; }
+    virtual TFloatVec& values() const { return m_Values; }
     virtual bool bad() const { return false; }
 
 private:
-    using TFloatVecCRef = std::reference_wrapper<const TFloatVec>;
+    using TFloatVecRef = std::reference_wrapper<TFloatVec>;
 
 private:
-    TFloatVecCRef m_Values;
+    TFloatVecRef m_Values;
 };
 
 //! \brief A handle for reading CRawDataFrameRowSlice objects.
@@ -63,11 +63,11 @@ public:
     virtual TImplPtr clone() const {
         return boost::make_unique<COnDiskDataFrameRowSliceHandle>(m_Values);
     }
-    virtual const TFloatVec& values() const { return m_Values; }
+    virtual TFloatVec& values() const { return m_Values; }
     virtual bool bad() const { return false; }
 
 private:
-    TFloatVec m_Values;
+    mutable TFloatVec m_Values;
 };
 
 //! \brief An implementation of a bad handle.
@@ -79,12 +79,12 @@ public:
     virtual TImplPtr clone() const {
         return boost::make_unique<CBadDataFrameRowSliceHandle>();
     }
-    virtual const TFloatVec& values() const { return m_Empty; }
+    virtual TFloatVec& values() const { return m_Empty; }
     virtual bool bad() const { return true; }
 
 private:
     //! Stub for the values.
-    TFloatVec m_Empty;
+    mutable TFloatVec m_Empty;
 };
 }
 
@@ -117,12 +117,16 @@ std::size_t CDataFrameRowSliceHandle::size() const {
     return m_Impl->values().size();
 }
 
-TFloatVecCItr CDataFrameRowSliceHandle::begin() const {
+TFloatVecItr CDataFrameRowSliceHandle::begin() const {
     return m_Impl->values().begin();
 }
 
-TFloatVecCItr CDataFrameRowSliceHandle::end() const {
+TFloatVecItr CDataFrameRowSliceHandle::end() const {
     return m_Impl->values().end();
+}
+
+const TFloatVec& CDataFrameRowSliceHandle::values() const {
+    return m_Impl->values();
 }
 
 bool CDataFrameRowSliceHandle::bad() const {
@@ -161,6 +165,10 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
     return {m_FirstRow, {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_State)}};
+}
+
+void CMainMemoryDataFrameRowSlice::write(const TFloatVec&) {
+    // Nothing to do.
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
@@ -285,6 +293,12 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 
     return {m_FirstRow,
             {boost::make_unique<COnDiskDataFrameRowSliceHandle>(std::move(result))}};
+}
+
+void COnDiskDataFrameRowSlice::write(const TFloatVec& values) {
+    if (m_StateIsBad == false) {
+        this->writeToDisk(values);
+    }
 }
 
 std::size_t COnDiskDataFrameRowSlice::staticSize() const {

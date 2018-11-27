@@ -27,23 +27,25 @@ namespace core {
 namespace data_frame_detail {
 
 using TFloatVec = std::vector<CFloatStorage>;
-using TFloatVecCItr = TFloatVec::const_iterator;
+using TFloatVecItr = TFloatVec::iterator;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object. It is
 //! lightweight (24 bytes) and is expected to only be valid transiently
-//! during a read. It should not be stored. If a copy of the underlying
-//! row is required call copyTo and supply an output iterator that must be
-//! able to receive number of columns of data.
-class CORE_EXPORT CRowCRef {
+//! during a read. It should not be stored.
+//!
+//! If the row resides in main memory then its data can be referenced. If
+//! it resides on disk then this is only valid whilst being read and it
+//! should be copied if needed longer.
+class CORE_EXPORT CRowRef {
 public:
     //! \param[in] index The row index.
     //! \param[in] beginColumns The iterator for the columns of row \p index.
     //! \param[in] endColumns The iterator for the end of the columns of row
     //! \p index.
-    CRowCRef(std::size_t index, TFloatVecCItr beginColumns, TFloatVecCItr endColumns);
+    CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns);
 
     //! Get column \p i value.
     CFloatStorage operator[](std::size_t i) const;
@@ -54,7 +56,16 @@ public:
     //! Get the number of columns.
     std::size_t numberColumns() const;
 
+    //! Write \p value to \p column of the row.
+    void writeColumn(std::size_t index, double value) const;
+
+    //! Get the data backing the row.
+    CFloatStorage* data() const;
+
     //! Copy the range to \p output iterator.
+    //!
+    //! \warning The output iterator that must be able to receive number of
+    //! columns values.
     template<typename ITR>
     void copyTo(ITR output) const {
         std::copy(m_BeginColumns, m_EndColumns, output);
@@ -62,18 +73,18 @@ public:
 
 private:
     std::size_t m_Index;
-    TFloatVecCItr m_BeginColumns;
-    TFloatVecCItr m_EndColumns;
+    TFloatVecItr m_BeginColumns;
+    TFloatVecItr m_EndColumns;
 };
 
 //! \brief Decorates CRowCRef to give it pointer semantics.
-class CORE_EXPORT CRowCPtr : public CRowCRef {
+class CORE_EXPORT CRowPtr : public CRowRef {
 public:
     template<typename... ARGS>
-    CRowCPtr(ARGS&&... args) : CRowCRef{std::forward<ARGS>(args)...} {}
+    CRowPtr(ARGS&&... args) : CRowRef{std::forward<ARGS>(args)...} {}
 
-    CRowCPtr* operator->() { return this; }
-    const CRowCPtr* operator->() const { return this; }
+    CRowPtr* operator->() { return this; }
+    const CRowPtr* operator->() const { return this; }
 };
 
 //! \brief A forward iterator over rows of the data frame.
@@ -81,37 +92,34 @@ public:
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object which
 //! dereferences to CRowRef objects.
-class CORE_EXPORT CRowConstIterator
-    : public std::iterator<std::forward_iterator_tag, CRowCRef, std::ptrdiff_t, CRowCPtr, CRowCRef> {
+class CORE_EXPORT CRowIterator
+    : public std::iterator<std::forward_iterator_tag, CRowRef, std::ptrdiff_t, CRowPtr, CRowRef> {
 public:
-    CRowConstIterator() = default;
+    CRowIterator() = default;
 
     //! \param[in] numberColumns The number of columns in the data frame.
     //! \param[in] rowCapacity The capacity of each row in the data frame.
     //! \param[in] index The row index.
     //! \param[in] base The iterator for the columns of row \p index.
-    CRowConstIterator(std::size_t numberColumns,
-                      std::size_t rowCapacity,
-                      std::size_t index,
-                      TFloatVecCItr base);
+    CRowIterator(std::size_t numberColumns, std::size_t rowCapacity, std::size_t index, TFloatVecItr base);
 
     //! \name Forward Iterator Contract
     //@{
-    bool operator==(const CRowConstIterator& rhs) const;
-    bool operator!=(const CRowConstIterator& rhs) const;
-    CRowCRef operator*() const;
-    CRowCPtr operator->() const;
-    CRowConstIterator& operator++();
-    CRowConstIterator operator++(int);
+    bool operator==(const CRowIterator& rhs) const;
+    bool operator!=(const CRowIterator& rhs) const;
+    CRowRef operator*() const;
+    CRowPtr operator->() const;
+    CRowIterator& operator++();
+    CRowIterator operator++(int);
     //@}
 
-    TFloatVecCItr base() const;
+    TFloatVecItr base() const;
 
 private:
     std::size_t m_NumberColumns = 0;
     std::size_t m_RowCapacity = 0;
     std::size_t m_Index = 0;
-    TFloatVecCItr m_Base;
+    TFloatVecItr m_Base;
 };
 }
 
@@ -162,10 +170,10 @@ public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
     using TSizeFloatVecPr = std::pair<std::size_t, TFloatVec>;
-    using TRowCItr = data_frame_detail::CRowConstIterator;
-    using TReadFunc = std::function<void(TRowCItr, TRowCItr)>;
-    using TReadFuncVec = std::vector<TReadFunc>;
-    using TReadFuncVecBoolPr = std::pair<TReadFuncVec, bool>;
+    using TRowItr = data_frame_detail::CRowIterator;
+    using TRowFunc = std::function<void(TRowItr, TRowItr)>;
+    using TRowFuncVec = std::vector<TRowFunc>;
+    using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
     using TWriteFunc = std::function<void(TFloatVecItr)>;
     using TRowSlicePtr = std::unique_ptr<CDataFrameRowSlice>;
     using TRowSlicePtrVec = std::vector<TRowSlicePtr>;
@@ -187,13 +195,15 @@ public:
     //! \warning This requires that \p writeSliceToStore and \p readSliceFromStore
     //! can be copied and are thread safe. If they are not stateless then it is
     //! the implementers responsibility to ensure these conditions are satisfied.
-    CDataFrame(std::size_t numberColumns,
+    CDataFrame(bool inMainMemory,
+               std::size_t numberColumns,
                std::size_t sliceCapacityInRows,
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
     //! Overload which manages the setting of slice capacity to a sensible default.
-    CDataFrame(std::size_t numberColumns,
+    CDataFrame(bool inMainMemory,
+               std::size_t numberColumns,
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
@@ -202,6 +212,15 @@ public:
 
     CDataFrame(CDataFrame&&) = default;
     CDataFrame& operator=(CDataFrame&&) = default;
+
+    //! Check if the data frame resides in main memory.
+    bool inMainMemory() const;
+
+    //! Get the number of rows in the data frame.
+    std::size_t numberRows() const;
+
+    //! Get the number of columns in the data frame.
+    std::size_t numberColumns() const;
 
     //! Reserve space for up to \p numberColumns.
     //!
@@ -212,6 +231,12 @@ public:
     //! \param[in] rowCapacity The desired number of columns.
     bool reserve(std::size_t numberThreads, std::size_t rowCapacity);
 
+    //! Resize to contain \p numberColumns columns.
+    //!
+    //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] numberColumns The desired number of columns.
+    bool resizeColumns(std::size_t numberThreads, std::size_t numberColumns);
+
     //! This reads rows using one or more readers.
     //!
     //! One reader is bound to one thread. Each thread reads a disjoint subset
@@ -220,9 +245,8 @@ public:
     //! for \f$m\f$ slices and \f$n\f$ readers to eliminate contention on the
     //! data frame state.
     //!
-    //! \warning If there is more than one reader and these have shared state
-    //! then the caller is responsible for synchronization of access to this
-    //! state.
+    //! \warning If there is more than one thread and the reader has shared
+    //! state then the caller must ensure that access to this is thread safe.
     //!
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] reader The callback to read rows.
@@ -230,7 +254,7 @@ public:
     //! accumulate state in the reader which is passed back. RVO means any
     //! copy will be elided. Otherwise, the reader must hold the state by
     //! reference and must synchronize access to it.
-    TReadFuncVecBoolPr readRows(std::size_t numberThreads, TReadFunc reader) const;
+    TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const;
 
     //! Convenience overload for typed readers.
     //!
@@ -239,12 +263,12 @@ public:
     //! for which the calling code will need access to the underlying type to
     //! retrieve.
     //!
-    //! \note READER must implement the TReadFunc contract.
+    //! \note READER must implement the TRowFunc contract.
     template<typename READER>
     std::pair<std::vector<READER>, bool>
     readRows(std::size_t numberThreads, READER reader) const {
 
-        TReadFuncVecBoolPr result_{readRows(numberThreads, TReadFunc(reader))};
+        TRowFuncVecBoolPr result_{readRows(numberThreads, TRowFunc(std::move(reader)))};
 
         std::vector<READER> result;
         result.reserve(result_.first.size());
@@ -255,10 +279,16 @@ public:
         return {std::move(result), result_.second};
     }
 
-    // TODO Modify in-place maybe something like:
-    // void readAndAppend(TReadFunc reader, std::size_t numberColumnsToAppend, TWriteFunc appender);
-    // Delaying adding more than the bare functionality until more of the calling
-    // infrastructure is available.
+    //! Overwrite a number of columns with \p writer.
+    //!
+    //! The caller must ensure that the columns overwritten are in range.
+    //!
+    //! \warning If there is more than one thread and the writer has shared
+    //! state then the caller must ensure that access to this is thread safe.
+    //!
+    //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] writer The callback to write the columns.
+    bool writeColumns(std::size_t numberThreads, TRowFunc writer);
 
     //! This writes a single row of the data frame via a callback.
     //!
@@ -348,7 +378,15 @@ private:
     //! \note This is always less than or equal to \p target.
     TSizeSizePr numberOfThreadsAndStride(std::size_t target) const;
 
+    //! Apply \p function to the rows in the data frame.
+    template<typename SLICE_FUNCTION_FACTORY>
+    TRowFuncVecBoolPr applyFunctionToRows(std::size_t numberThreads,
+                                          TRowFunc function,
+                                          SLICE_FUNCTION_FACTORY factory) const;
+
 private:
+    //! True if the data frame resides in main memory.
+    bool m_InMainMemory;
     //! The number of rows in the data frame.
     std::size_t m_NumberRows = 0;
     //! The number of columns in the data frame.

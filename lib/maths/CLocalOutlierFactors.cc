@@ -6,7 +6,15 @@
 
 #include <maths/CLocalOutlierFactors.h>
 
+#include <core/CDataFrame.h>
+
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTools.h>
+
+#include <boost/math/distributions/normal.hpp>
+
+#include <tuple>
+#include <vector>
 
 namespace ml {
 namespace maths {
@@ -53,6 +61,70 @@ double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
         return logInterpolate(1e-4, 1.0, 1e-20, 50.0, cdfComplement);
     }
     return logInterpolate(1e-20, 50.0, std::numeric_limits<double>::min(), 100.0, cdfComplement);
+}
+
+namespace {
+bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& frame) {
+
+    using TDoubleVec = std::vector<double>;
+    using TVector = CMemoryMappedDenseVector<CFloatStorage>;
+    using TVectorVec = std::vector<TVector>;
+    using TRowItr = core::CDataFrame::TRowItr;
+
+    // The points will be entirely overwritten by readRows so the initial
+    // value is not important. This is presized so that rowsToPoints only
+    // needs to access and write to each element. Since it does this once
+    // per element it is thread safe.
+    CFloatStorage initial;
+    TVectorVec points(frame.numberRows(), TVector{&initial, 1});
+
+    auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            points[row->index()] = TVector{row->data(), row->numberColumns()};
+        }
+    };
+
+    bool successful;
+    std::tie(std::ignore, successful) = frame.readRows(numberThreads, rowsToPoints);
+
+    if (successful == false) {
+        LOG_ERROR(<< "Failed to read the data frame");
+        return false;
+    }
+
+    TDoubleVec scores;
+    CLocalOutlierFactors::ensemble(std::move(points), scores);
+
+    auto writeScores = [&scores](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            row->writeColumn(row->numberColumns() - 1, scores[row->index()]);
+        }
+    };
+
+    frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
+    successful = frame.writeColumns(numberThreads, writeScores);
+    if (successful == false) {
+        LOG_ERROR(<< "Failed to write scores");
+        return false;
+    }
+    return true;
+}
+}
+
+bool computeOutliers(std::size_t numberThreads, core::CDataFrame& frame) {
+    // TODO threading of outlier scores.
+    // TODO progress monitoring.
+    // TODO memory monitoring.
+    // TODO different analysis types.
+
+    if (frame.inMainMemory()) {
+        return computeOutliersNoPartitions(numberThreads, frame);
+    }
+
+    // TODO this needs to work out the partitioning and run outlier detection
+    // one partition at a time.
+
+    return false;
 }
 }
 }
