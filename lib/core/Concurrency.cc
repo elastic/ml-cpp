@@ -24,7 +24,7 @@ public:
 //! \brief Executes a function in a thread pool.
 class CThreadPoolExecutor final : public CExecutor {
 public:
-    CThreadPoolExecutor(std::size_t size) : m_ThreadPool(size) {}
+    explicit CThreadPoolExecutor(std::size_t size) : m_ThreadPool{size} {}
 
     virtual void schedule(std::packaged_task<boost::any()>&& f) {
         m_ThreadPool.schedule(std::forward<std::packaged_task<boost::any()>>(f));
