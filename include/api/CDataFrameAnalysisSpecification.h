@@ -9,6 +9,7 @@
 
 #include <core/CFastMutex.h>
 
+#include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -24,8 +25,6 @@ namespace core {
 class CDataFrame;
 }
 namespace api {
-class CDataFrameAnalysisRunner;
-class CDataFrameAnalysisRunnerFactory;
 
 //! \brief Parses a complete specification for running a core::CDataFrame analysis
 //! and supports launching that analysis on a specified frame object.
@@ -60,14 +59,18 @@ public:
     //!   }
     //! }
     //! </CODE>
-    //! TODO These should be consistent with Java naming where relevant.
     //!
-    //! \param[in] runnerFactories Plugins for the supported analyses.
     //! \param[in] jsonSpecification The specification as a JSON object.
     //! \note The analysis name must be one of the supported analysis types.
     //! \note All constraints must be positive.
     //! \note The parameters, if any, must be consistent for the analysis type.
     //! \note If this fails the state is set to bad and the analysis will not run.
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
+
+    //! This construtor provides support for custom analysis types and is mainly
+    //! intended for testing.
+    //!
+    //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification);
 
