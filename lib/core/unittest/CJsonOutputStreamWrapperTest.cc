@@ -60,7 +60,7 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites() {
 
         ml::core::CStaticThreadPool tp(100);
         for (size_t i = 0; i < WRITERS; ++i) {
-            tp.schedule(std::bind(task, boost::ref(wrapper), i, DOCUMENTS_PER_WRITER));
+            tp.schedule([&wrapper, i] { task(wrapper, i, DOCUMENTS_PER_WRITER); });
         }
     }
 
