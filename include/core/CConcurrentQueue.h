@@ -10,6 +10,7 @@
 #include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/optional.hpp>
 
 #include <condition_variable>
 #include <mutex>
@@ -34,6 +35,9 @@ namespace core {
 template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
+    using TOptional = boost::optional<T>;
+
+public:
     CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
         static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
         static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY,
@@ -46,8 +50,8 @@ public:
         while (m_Queue.empty()) {
             m_ConsumerCondition.wait(lock);
         }
-        size_t oldSize = m_Queue.size();
-        auto val = m_Queue.front();
+        size_t oldSize{m_Queue.size()};
+        T result{std::move(m_Queue.front())};
         m_Queue.pop_front();
 
         // notification in case buffer was full
@@ -55,18 +59,18 @@ public:
             lock.unlock();
             m_ProducerCondition.notify_all();
         }
-        return val;
+        return result;
     }
 
-    //! Pop an item out of the queue, this blocks until an item is available
-    void pop(T& item) {
+    //! Pop an item out of the queue, this returns none if an item isn't available
+    TOptional try_pop() {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        while (m_Queue.empty()) {
-            m_ConsumerCondition.wait(lock);
+        if (m_Queue.empty()) {
+            return boost::none;
         }
 
-        size_t oldSize = m_Queue.size();
-        item = m_Queue.front();
+        size_t oldSize{m_Queue.size()};
+        T result{std::move(m_Queue.front())};
         m_Queue.pop_front();
 
         // notification in case buffer was full
@@ -74,10 +78,11 @@ public:
             lock.unlock();
             m_ProducerCondition.notify_all();
         }
+        return result;
     }
 
-    //! Push a copy of \p item onto the queue, this blocks if the queue is full
-    //! which means it can deadlock if no one consumes items (implementor's responsibility)
+    //! Push a copy of \p item onto the queue, this blocks if the queue is full which
+    //! means it can deadlock if no one consumes items (implementor's responsibility)
     void push(const T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         size_t pending = m_Queue.size();
@@ -96,8 +101,8 @@ public:
         }
     }
 
-    //! Move \p item onto the queue, this blocks if the queue is full
-    //! which means it can deadlock if no one consumes items (implementor's responsibility)
+    //! Forward \p item to the queue, this blocks if the queue is full which means
+    //! it can deadlock if no one consumes items (implementor's responsibility)
     void push(T&& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         size_t pending = m_Queue.size();
@@ -108,7 +113,7 @@ public:
             pending = m_Queue.size();
         }
 
-        m_Queue.push_back(std::move(item));
+        m_Queue.push_back(std::forward<T>(item));
 
         lock.unlock();
         if (pending == 0) {
@@ -125,7 +130,7 @@ public:
     //! Get the memory used by this component.
     std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
 
-    // ! Return the number of items currently in the queue
+    //! Return the number of items currently in the queue
     size_t size() const { return m_Queue.size(); }
 
 private:

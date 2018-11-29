@@ -7,6 +7,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <core/CLogger.h>
+#include <core/Concurrency.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 

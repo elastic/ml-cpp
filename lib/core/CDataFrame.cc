@@ -10,6 +10,7 @@
 #include <core/CDataFrameRowSlice.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
+#include <core/Concurrency.h>
 
 #include <boost/make_unique.hpp>
 
@@ -168,7 +169,7 @@ public:
     //! callback supplied to the constructor.
     //!
     //! \return False if the rows couldn't all be read.
-    bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) {
+    bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) const {
         std::size_t firstRow;
         CDataFrameRowSliceHandle sliceHandle;
 
@@ -176,30 +177,32 @@ public:
         case CDataFrame::EReadWriteToStorage::E_Async: {
             // The slices get read from storage on the thread executing this
             // function each slice is then concurrently read by the callback
-            // on a worker thread managed by the concurrent wrapper. We use
-            // a queue of length one so the memory used by the queue is only
-            // one slice.
+            // on a worker thread.
 
-            CConcurrentWrapper<TRowFunc, 1, 1> asyncFunction{m_Function};
+            future<void> backgroundApply;
             for (auto i = beginSlices; i != endSlices; ++i) {
                 std::tie(firstRow, sliceHandle) = (*i)->read();
                 if (sliceHandle.bad()) {
                     return false;
                 }
+                // We wait here so at most one slice is copied into memory.
+                wait_for_valid(backgroundApply);
                 LOG_TRACE(<< "applying function to slice starting at row " << firstRow);
-                asyncFunction(
-                    [ firstRow, slice = std::move(sliceHandle), i, this ](TRowFuncRef function) {
+                backgroundApply = async(
+                    defaultAsyncExecutor(),
+                    [ firstRow, slice = std::move(sliceHandle), i, this ] {
                         std::size_t rows{slice.size() / m_RowCapacity};
                         std::size_t lastRow{firstRow + rows};
-                        function(CRowIterator{m_NumberColumns, m_RowCapacity,
-                                              firstRow, slice.begin()},
-                                 CRowIterator{m_NumberColumns, m_RowCapacity,
-                                              lastRow, slice.end()});
+                        m_Function(CRowIterator{m_NumberColumns, m_RowCapacity,
+                                                firstRow, slice.begin()},
+                                   CRowIterator{m_NumberColumns, m_RowCapacity,
+                                                lastRow, slice.end()});
                         if (m_CommitFunctionAction) {
                             (*i)->write(slice.values());
                         }
                     });
             }
+            wait_for_valid(backgroundApply);
             break;
         }
         case CDataFrame::EReadWriteToStorage::E_Sync:
@@ -468,29 +471,25 @@ CDataFrame::applyFunctionToRows(std::size_t numberThreads,
 
     TRowFuncVec functions{numberThreads, function};
 
-    // TODO review use of std::async in this function, we may want to use a thread pool.
-
-    std::vector<std::future<bool>> functionsSuccessful;
-    functionsSuccessful.reserve(numberThreads);
+    std::vector<future<bool>> tasks;
+    tasks.reserve(numberThreads);
     std::size_t j{0};
     for (std::size_t i = 0; i + 1 < numberThreads; ++i, j += stride) {
         auto begin = m_Slices.begin() + j;
         auto end = m_Slices.begin() + j + stride;
         auto sliceFunction = factory(functions[i]);
-        functionsSuccessful.push_back(
-            std::async(std::launch::async, sliceFunction, begin, end));
+        tasks.push_back(async(defaultAsyncExecutor(), sliceFunction, begin, end));
     }
     auto begin = m_Slices.begin() + j;
     auto end = m_Slices.end();
     if (begin != end) {
         auto sliceFunction = factory(functions.back());
-        functionsSuccessful.push_back(
-            std::async(std::launch::async, sliceFunction, begin, end));
+        tasks.push_back(async(defaultAsyncExecutor(), sliceFunction, begin, end));
     }
 
     bool successful{true};
-    for (auto& functionSuccessful : functionsSuccessful) {
-        successful &= functionSuccessful.get();
+    for (auto& task : tasks) {
+        successful &= task.get();
     }
 
     return {std::move(functions), successful};

@@ -16,6 +16,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/Concurrency.h>
 
 #include <ver/CBuildInfo.h>
 
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 
 // TODO That might belong in CDataFrameAnalyzer
+// TODO Error handling: split out reading file.
 ml::api::CDataFrameAnalysisSpecification
 makeDataFrameAnalysisSpecification(const std::string& configFile) {
     using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
@@ -101,6 +103,14 @@ int main(int argc, char** argv) {
     // TODO Actually use the specification to create the data frame and run the analysis
     ml::api::CDataFrameAnalysisSpecification dataFrameAnalysisSpecification{
         makeDataFrameAnalysisSpecification(configFile)};
+    if (dataFrameAnalysisSpecification.bad()) {
+        LOG_FATAL("Failed to parse analysis specification");
+        return EXIT_FAILURE;
+    }
+    if (dataFrameAnalysisSpecification.threads() > 1) {
+        ml::core::startDefaultAsyncExecutor(dataFrameAnalysisSpecification.threads() - 1);
+    }
+
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
 
     if (inputParser->readStreamIntoVecs(

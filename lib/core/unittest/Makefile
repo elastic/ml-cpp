@@ -31,6 +31,7 @@ CBlockingMessageQueueTest.cc \
 CByteSwapperTest.cc \
 CCompressedDictionaryTest.cc \
 CCompressUtilsTest.cc \
+CConcurrencyTest.cc \
 CConcurrentWrapperTest.cc \
 CContainerPrinterTest.cc \
 CContainerThroughputTest.cc \
@@ -83,7 +84,6 @@ CStoredStringPtrTest.cc \
 CStringSimilarityTesterTest.cc \
 CStringUtilsTest.cc \
 CThreadFarmTest.cc \
-CThreadPoolTest.cc \
 CThreadMutexConditionTest.cc \
 CTickerTest.cc \
 CTimeUtilsTest.cc \

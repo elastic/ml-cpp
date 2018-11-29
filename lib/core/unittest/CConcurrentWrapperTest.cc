@@ -9,13 +9,14 @@
 #include <core/CConcurrentWrapper.h>
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
+#include <core/CStaticThreadPool.h>
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
-#include <boost/threadpool.hpp>
 
 #include <algorithm>
 #include <chrono>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -50,7 +51,7 @@ void CConcurrentWrapperTest::testBasic() {
 
 namespace {
 
-void task(CConcurrentWrapper<std::ostringstream>& sink, int i, std::chrono::microseconds pause) {
+void aTask(CConcurrentWrapper<std::ostringstream>& sink, int i, std::chrono::microseconds pause) {
     sink([i, pause](std::ostream& o) {
         o << "ta";
         std::this_thread::sleep_for(pause);
@@ -61,9 +62,9 @@ void task(CConcurrentWrapper<std::ostringstream>& sink, int i, std::chrono::micr
     });
 }
 
-void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink,
-                          int i,
-                          std::chrono::microseconds pause) {
+void aTaskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink,
+                           int i,
+                           std::chrono::microseconds pause) {
     sink([i, pause](std::ostream& o) {
         o << "ta";
         std::this_thread::sleep_for(pause);
@@ -80,14 +81,11 @@ void CConcurrentWrapperTest::testThreads() {
     static const size_t MESSAGES(1500);
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-
-        boost::threadpool::pool tp(10);
+        core::CStaticThreadPool tp(10);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i,
+            tp.schedule(boost::bind(aTask, boost::ref(wrappedStringStream), i,
                                     std::chrono::microseconds(0)));
         }
-
-        tp.wait();
     }
 
     std::string output = stringStream.str();
@@ -107,14 +105,11 @@ void CConcurrentWrapperTest::testThreadsSlow() {
 
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-
-        boost::threadpool::pool tp(2);
+        core::CStaticThreadPool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i,
+            tp.schedule(boost::bind(aTask, boost::ref(wrappedStringStream), i,
                                     std::chrono::microseconds(50)));
         }
-
-        tp.wait();
     }
 
     std::string output = stringStream.str();
@@ -134,15 +129,11 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
 
     {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-
-        boost::threadpool::pool tp(2);
-
+        core::CStaticThreadPool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream),
+            tp.schedule(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
                                     i, std::chrono::microseconds(50)));
         }
-
-        tp.wait();
     }
 
     std::string output = stringStream.str();
@@ -162,15 +153,11 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
 
     {
         TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-
-        boost::threadpool::pool tp(8);
-
+        core::CStaticThreadPool tp(8);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream),
+            tp.schedule(boost::bind(aTaskLowCapacityQueue, boost::ref(wrappedStringStream),
                                     i, std::chrono::microseconds(0)));
         }
-
-        tp.wait();
     }
 
     std::string output = stringStream.str();
