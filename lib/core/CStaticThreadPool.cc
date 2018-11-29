@@ -91,7 +91,7 @@ void CStaticThreadPool::worker(std::size_t id) {
         noThrowExecute(task);
     }
 
-    // Drain this threads queue before exiting.
+    // Drain this thread's queue before exiting.
     for (auto task = m_TaskQueues[id].try_pop(); task; task = m_TaskQueues[id].try_pop()) {
         noThrowExecute(task);
     }

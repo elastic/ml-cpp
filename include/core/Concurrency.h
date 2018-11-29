@@ -76,7 +76,7 @@ public:
 //! Setup the global default executor for async.
 //!
 //! \note This is not thread safe as the intention is that it is invoked once,
-//! usually at the beginning of main.
+//! usually at the beginning of main or in single threaded test code.
 //! \note If this is called with threads equal to zero it defaults to calling
 //! std::thread::hardware_concurrency to size the thread pool.
 CORE_EXPORT
@@ -85,7 +85,7 @@ void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0);
 //! Shutdown the thread pool and reset the executor to sequential in the same thread.
 //!
 //! \note This is not thread safe as the intention is that it is invoked in single
-//! threaded test code.
+//! threaded test code
 CORE_EXPORT
 void stopDefaultAsyncExecutor();
 

@@ -79,7 +79,8 @@ CExecutorHolder singletonExecutor;
 
 void startDefaultAsyncExecutor(std::size_t threadPoolSize) {
     // This is purposely not thread safe. This is only meant to be called once from
-    // the main thread, typically from main of an executable.
+    // the main thread, typically from main of an executable or in single threaded
+    // test code.
     singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize);
 }
 

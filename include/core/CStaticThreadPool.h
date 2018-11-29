@@ -19,11 +19,11 @@
 namespace ml {
 namespace core {
 
-//! \brief A minimal fixed size thread pool for implementing CParallelExecutor.
+//! \brief A minimal fixed size thread pool for implementing CThreadPoolExecutor.
 //!
 //! IMPLEMENTATION:\n
 //! This purposely has very limited interface and is intended to mainly support
-//! CParallelExecutor. This provides the mechanism by which we expose the thread
+//! CThreadPoolExecutor. This provides the mechanism by which we expose the thread
 //! pool to the rest of the code via calls core::async.
 class CORE_EXPORT CStaticThreadPool {
 public:
