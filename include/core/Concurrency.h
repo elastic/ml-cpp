@@ -180,6 +180,7 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
 }
 
 //! Get the conjunction of all \p futures.
+CORE_EXPORT
 bool get_conjunction_of_all(std::vector<future<bool>>& futures);
 
 //! Run \p f in parallel using async.
