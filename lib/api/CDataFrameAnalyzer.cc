@@ -86,26 +86,32 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
 }
 
 bool CDataFrameAnalyzer::isControlMessage(const TStrVec& fieldValues) const {
-    return m_ControlFieldValue != CONTROL_FIELD_MISSING &&
+    return m_ControlFieldValue >= CONTROL_FIELD_MISSING &&
            fieldValues[m_ControlFieldValue].size() > 0;
 }
 
 bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
-    bool unrecognised{fieldValues.size() > 1};
-    if (unrecognised == false) {
-        switch (fieldValues[m_ControlFieldValue][0]) {
-        case RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE:
-            this->run();
-            break;
-        default:
-            unrecognised = true;
-        }
+
+    bool unrecognised{false};
+    switch (fieldValues[m_ControlFieldValue][0]) {
+    case ' ':
+        // Spaces are just used to fill the buffers and force prior messages
+        // through the system - we don't need to do anything else.
+        LOG_TRACE(<< "Received pad of length " << controlMessage.length());
+        return true;
+    case RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE:
+        this->run();
+        break;
+    default:
+        unrecognised = true;
+        break;
     }
-    if (unrecognised) {
-        LOG_ERROR(<< "Unrecognised control message value '"
+    if (unrecognised || fieldValues[m_ControlFieldValue].size() > 1) {
+        LOG_ERROR(<< "Invalid control message value '"
                   << fieldValues[m_ControlFieldValue] << "'");
+        return false;
     }
-    return unrecognised == false;
+    return true;
 }
 
 void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
