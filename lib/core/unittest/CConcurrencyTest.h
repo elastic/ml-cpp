@@ -17,4 +17,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CDataFrameTest_h
+#endif // INCLUDED_CConcurrencyTest_h

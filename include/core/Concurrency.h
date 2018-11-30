@@ -185,6 +185,9 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
 //! be a Callable equivalent to std::function<void(std::size_t)>.
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
+// TODO This splits into # thread tasks which may not be optimal if the work per
+// iteration is imbalanced. This needs revisiting when we have more callers and
+// it should possibly be configurable by the calling context.
 template<typename FUNCTION>
 std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNCTION&& f) {
 
@@ -246,6 +249,7 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
 //! be a Callable equivalent to std::function<void (decltype(*start))>.
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
+// TODO See above.
 template<typename ITR, typename FUNCTION>
 std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
 

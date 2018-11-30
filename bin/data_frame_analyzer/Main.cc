@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     if (dataFrameAnalysisSpecification.threads() > 1) {
-        ml::core::startDefaultAsyncExecutor(dataFrameAnalysisSpecification.threads() - 1);
+        ml::core::startDefaultAsyncExecutor(dataFrameAnalysisSpecification.threads());
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
