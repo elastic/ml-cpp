@@ -34,7 +34,18 @@ CStaticThreadPool::~CStaticThreadPool() {
 }
 
 void CStaticThreadPool::schedule(TTask&& task) {
-    m_TaskQueues[m_Cursor.fetch_add(1) % m_TaskQueues.size()].push(std::forward<TTask>(task));
+    // Only block if every queue is full.
+    std::size_t i{m_Cursor.fetch_add(1)};
+    std::size_t end{i + m_TaskQueues.size()};
+    for (/**/; i < end; ++i) {
+        if (m_TaskQueues[i % m_TaskQueues.size()].tryPush(std::forward<TTask>(task))) {
+            break;
+        }
+    }
+    if (i == end) {
+        m_TaskQueues[i % m_TaskQueues.size()].push(std::forward<TTask>(task));
+    }
+    m_Cursor.store(i);
 }
 
 void CStaticThreadPool::schedule(std::function<void()>&& f) {
@@ -64,8 +75,8 @@ void CStaticThreadPool::worker(std::size_t id) {
         try {
             (*task)();
         } catch (const std::future_error& e) {
-            LOG_ERROR(<< "Failed executing packaged task: " << e.code() << " "
-                      << e.what());
+            LOG_ERROR(<< "Failed executing packaged task: '" << e.code() << "' "
+                      << "with error '" << e.what() << "'");
         }
     };
 
@@ -79,7 +90,7 @@ void CStaticThreadPool::worker(std::size_t id) {
 
         TOptionalTask task;
         for (std::size_t i = 0; i < m_TaskQueues.size(); ++i) {
-            task = m_TaskQueues[(id + i) % m_TaskQueues.size()].try_pop();
+            task = m_TaskQueues[(id + i) % m_TaskQueues.size()].tryPop();
             if (task != boost::none) {
                 break;
             }
@@ -92,7 +103,7 @@ void CStaticThreadPool::worker(std::size_t id) {
     }
 
     // Drain this thread's queue before exiting.
-    for (auto task = m_TaskQueues[id].try_pop(); task; task = m_TaskQueues[id].try_pop()) {
+    for (auto task = m_TaskQueues[id].tryPop(); task; task = m_TaskQueues[id].tryPop()) {
         noThrowExecute(task);
     }
 }

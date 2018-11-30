@@ -78,6 +78,7 @@ CSleepTest.cc \
 CSmallVectorTest.cc \
 CStateCompressorTest.cc \
 CStateMachineTest.cc \
+CStaticThreadPoolTest.cc \
 CStatisticsTest.cc \
 CStopWatchTest.cc \
 CStoredStringPtrTest.cc \

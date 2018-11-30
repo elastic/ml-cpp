@@ -59,6 +59,7 @@
 #include "CSmallVectorTest.h"
 #include "CStateCompressorTest.h"
 #include "CStateMachineTest.h"
+#include "CStaticThreadPoolTest.h"
 #include "CStatisticsTest.h"
 #include "CStopWatchTest.h"
 #include "CStoredStringPtrTest.h"
@@ -134,6 +135,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CSmallVectorTest::suite());
     runner.addTest(CStateCompressorTest::suite());
     runner.addTest(CStateMachineTest::suite());
+    runner.addTest(CStaticThreadPoolTest::suite());
     runner.addTest(CStatisticsTest::suite());
     runner.addTest(CStopWatchTest::suite());
     runner.addTest(CStoredStringPtrTest::suite());
