@@ -128,7 +128,7 @@ private:
             m_ConsumerCondition.wait(lock);
         }
     }
-    void waitWhileFull(std::unique_lock<std::mutex>& lock, std::size_t pending) {
+    void waitWhileFull(std::unique_lock<std::mutex>& lock, std::size_t& pending) {
         while (pending >= QUEUE_CAPACITY) {
             m_ProducerCondition.wait(lock);
             pending = m_Queue.size();
