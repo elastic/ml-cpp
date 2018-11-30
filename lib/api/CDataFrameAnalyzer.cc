@@ -39,11 +39,11 @@ bool CDataFrameAnalyzer::usingControlMessages() const {
 bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& fieldValues) {
 
     // Control messages are signified by a dot in the field name. This supports:
-    //   - using the last field for a control message
-    //   - missing
+    //   - using the last field for a control message,
+    //   - missing.
     //
     // Note if the the control message field name is missing the analysis must
-    // be triggered to run by calling run explicitly by the calling code.
+    // be triggered to run by calling run explicitly.
 
     bool result{true};
     if (this->readyToReceiveControlMessages() == false) {
