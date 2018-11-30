@@ -12,6 +12,7 @@
 
 #include <boost/any.hpp>
 
+#include <algorithm>
 #include <functional>
 #include <future>
 #include <thread>
@@ -131,6 +132,10 @@ template<typename R>
 using future = concurrency_detail::CTypedFutureAnyWrapper<R>;
 
 //! An version of std::async which uses a specified executor.
+//!
+//! \note f must be copy constructible.
+//! \note f must be thread safe.
+//! \note If f throws this will throw.
 // clang-format off
 template<typename FUNCTION, typename... ARGS>
 future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
@@ -174,6 +179,9 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
     std::for_each(futures.begin(), futures.end(), wait_for_valid);
 }
 
+//! Get the conjunction of all \p futures.
+bool get_conjunction_of_all(std::vector<future<bool>>& futures);
+
 //! Run \p f in parallel using async.
 //!
 //! This executes \p f on each index in the range [\p start, \p end) using the
@@ -185,6 +193,7 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
 //! be a Callable equivalent to std::function<void(std::size_t)>.
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
+//! \note If f throws this will throw.
 // TODO This splits into # thread tasks which may not be optimal if the work per
 // iteration is imbalanced. This needs revisiting when we have more callers and
 // it should possibly be configurable by the calling context.
@@ -217,7 +226,7 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
     // ensure the best possible locality of reference for reads which occur
     // at a similar time in the different threads.
 
-    std::vector<future<decltype(f(0))>> tasks;
+    std::vector<future<bool>> tasks;
 
     for (std::size_t offset = 0; offset < threads; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
@@ -229,11 +238,12 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
                                      for (std::size_t i = start_; i < end_; i += threads) {
                                          g(i);
                                      }
+                                     return true; // So we can check for exceptions via get.
                                  },
                                  start, end));
     }
 
-    wait_for_all(tasks);
+    get_conjunction_of_all(tasks);
 
     return functions;
 }
@@ -249,6 +259,7 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
 //! be a Callable equivalent to std::function<void (decltype(*start))>.
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
+//! \note If f throws this will throw.
 // TODO See above.
 template<typename ITR, typename FUNCTION>
 std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
@@ -268,7 +279,7 @@ std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
 
     // See above for the rationale for this access pattern.
 
-    std::vector<future<decltype(f(*start))>> tasks;
+    std::vector<future<bool>> tasks;
 
     for (std::size_t offset = 0; offset < threads; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
@@ -287,11 +298,12 @@ std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
                 for (ITR j = start_; i < size; i += threads, incrementByThreads(j)) {
                     g(*j);
                 }
+                return true; // So we can check for exceptions via get.
             },
             start));
     }
 
-    wait_for_all(tasks);
+    get_conjunction_of_all(tasks);
 
     return functions;
 }

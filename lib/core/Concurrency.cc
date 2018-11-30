@@ -10,6 +10,7 @@
 #include <core/CStaticThreadPool.h>
 
 #include <memory>
+#include <numeric>
 #include <thread>
 
 namespace ml {
@@ -96,6 +97,15 @@ std::size_t defaultAsyncThreadPoolSize() {
 
 CExecutor& defaultAsyncExecutor() {
     return singletonExecutor.get();
+}
+
+bool get_conjunction_of_all(std::vector<future<bool>>& futures) {
+    return std::accumulate(futures.begin(), futures.end(), true,
+                           [](bool conjunction, future<bool>& future) {
+                               // Don't shortcircuit
+                               bool value = future.get();
+                               return conjunction && value;
+                           });
 }
 }
 }

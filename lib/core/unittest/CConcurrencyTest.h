@@ -12,7 +12,10 @@
 class CConcurrencyTest : public CppUnit::TestFixture {
 public:
     void testAsyncWithExecutors();
+    void testAsyncWithExecutorsAndExceptions();
+    void testParallelForEachWithEmpty();
     void testParallelForEach();
+    void testParallelForEachWithExceptions();
 
     static CppUnit::Test* suite();
 };
