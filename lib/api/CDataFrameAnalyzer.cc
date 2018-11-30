@@ -103,7 +103,7 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     }
     if (unrecognised) {
         LOG_ERROR(<< "Unrecognised control message value '"
-                    << fieldValues[m_ControlFieldValue] << "'");
+                  << fieldValues[m_ControlFieldValue] << "'");
     }
     return unrecognised == false;
 }
