@@ -76,37 +76,37 @@ public:
     //! means it can deadlock if no one consumes items (implementor's responsibility)
     void push(const T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        std::size_t pending{m_Queue.size()};
-        this->waitWhileFull(lock, pending);
+        this->waitWhileFull(lock);
 
+        std::size_t oldSize{m_Queue.size()};
         m_Queue.push_back(item);
 
-        this->notifyIfNoLongerEmpty(lock, pending);
+        this->notifyIfNoLongerEmpty(lock, oldSize);
     }
 
     //! Forward \p item to the queue, this blocks if the queue is full which means
     //! it can deadlock if no one consumes items (implementor's responsibility)
     void push(T&& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        size_t pending{m_Queue.size()};
-        this->waitWhileFull(lock, pending);
+        this->waitWhileFull(lock);
 
+        size_t oldSize{m_Queue.size()};
         m_Queue.push_back(std::forward<T>(item));
 
-        this->notifyIfNoLongerEmpty(lock, pending);
+        this->notifyIfNoLongerEmpty(lock, oldSize);
     }
 
     //! Forward \p item to the queue, if the queue is full this fails and returns false
     bool tryPush(T&& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        std::size_t pending{m_Queue.size()};
-        if (pending == QUEUE_CAPACITY) {
+        if (m_Queue.size() >= QUEUE_CAPACITY) {
             return false;
         }
 
+        size_t oldSize{m_Queue.size()};
         m_Queue.push_back(std::forward<T>(item));
 
-        this->notifyIfNoLongerEmpty(lock, pending);
+        this->notifyIfNoLongerEmpty(lock, oldSize);
         return true;
     }
 
@@ -120,7 +120,10 @@ public:
     std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
 
     //! Return the number of items currently in the queue
-    size_t size() const { return m_Queue.size(); }
+    size_t size() const {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        return m_Queue.size();
+    }
 
 private:
     void waitWhileEmpty(std::unique_lock<std::mutex>& lock) {
@@ -128,10 +131,9 @@ private:
             m_ConsumerCondition.wait(lock);
         }
     }
-    void waitWhileFull(std::unique_lock<std::mutex>& lock, std::size_t& pending) {
-        while (pending >= QUEUE_CAPACITY) {
+    void waitWhileFull(std::unique_lock<std::mutex>& lock) {
+        while (m_Queue.size() >= QUEUE_CAPACITY) {
             m_ProducerCondition.wait(lock);
-            pending = m_Queue.size();
         }
     }
 
@@ -141,9 +143,9 @@ private:
             m_ProducerCondition.notify_all();
         }
     }
-    void notifyIfNoLongerEmpty(std::unique_lock<std::mutex>& lock, std::size_t pending) {
+    void notifyIfNoLongerEmpty(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
         lock.unlock();
-        if (pending == 0) {
+        if (oldSize == 0) {
             m_ConsumerCondition.notify_all();
         }
     }

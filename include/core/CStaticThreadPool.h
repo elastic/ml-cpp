@@ -53,6 +53,12 @@ public:
     //! Executes the specified function in the thread pool.
     void schedule(std::function<void()>&& f);
 
+    //! Check if the thread pool has been marked as busy.
+    bool busy() const;
+
+    //! Check if the thread pool has been marked as busy.
+    void busy(bool busy);
+
 private:
     using TOptionalTask = boost::optional<TTask>;
     using TTaskQueue = CConcurrentQueue<TTask, 50>;
@@ -67,6 +73,7 @@ private:
     // This doesn't have to be atomic because it is always only set to true and
     // always set straight before it is checked on each worker in the pool.
     bool m_Done = false;
+    std::atomic_bool m_Busy;
     std::atomic_uint64_t m_Cursor;
     TTaskQueueVec m_TaskQueues;
     TThreadVec m_Pool;

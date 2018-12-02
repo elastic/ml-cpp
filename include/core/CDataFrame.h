@@ -372,17 +372,14 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
-    //! Get the number of threads and the stride (in the data frame) for the
-    //! target number of threads \p target.
-    //!
-    //! \note This is always less than or equal to \p target.
-    TSizeSizePr numberOfThreadsAndStride(std::size_t target) const;
+    TRowFuncVecBoolPr
+    parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, bool commitResult) const;
 
-    //! Apply \p function to the rows in the data frame.
-    template<typename SLICE_FUNCTION_FACTORY>
-    TRowFuncVecBoolPr applyFunctionToRows(std::size_t numberThreads,
-                                          TRowFunc function,
-                                          SLICE_FUNCTION_FACTORY factory) const;
+    TRowFuncVecBoolPr sequentialApplyToAllRows(TRowFunc func, bool commitResult) const;
+
+    void applyToRowsOfOneSlice(TRowFunc& func,
+                               std::size_t firstRow,
+                               const CDataFrameRowSliceHandle& slice) const;
 
 private:
     //! True if the data frame resides in main memory.

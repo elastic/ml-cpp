@@ -166,7 +166,7 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
         bool successful;
         std::tie(readers, successful) = frame.readRows(3, CThreadReader{});
         CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t{3}, readers.size());
 
         TBoolVec rowRead(rows, false);
         for (const auto& reader : readers) {

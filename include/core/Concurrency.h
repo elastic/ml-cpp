@@ -31,7 +31,7 @@ struct SCallableWithBoundState {
         s_Function(s_FunctionState, std::forward<ARGS>(args)...);
     }
 
-    FUNCTION s_Function;
+    mutable FUNCTION s_Function;
     mutable BOUND_STATE s_FunctionState;
 };
 }
@@ -72,6 +72,8 @@ class CExecutor {
 public:
     virtual ~CExecutor() = default;
     virtual void schedule(std::packaged_task<boost::any()>&& f) = 0;
+    virtual bool busy() const = 0;
+    virtual void busy(bool value) = 0;
 };
 
 //! Setup the global default executor for async.
@@ -136,7 +138,12 @@ using future = concurrency_detail::CTypedFutureAnyWrapper<R>;
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
 //! \note If f throws this will throw.
-// clang-format off
+//! \warning This behaves differently from std::async which can lead to deadlocks
+//! in situations where launching a new thread would not. For example, if you're
+//! using the defaultAsyncExecutor you need to be careful calling async nested as
+//! it is easy to create a deadlock if tasks wait on other tasks enqueued after
+//! them. Prefer using high level primitives, such as parallel_for_each, which are
+//! safer.
 template<typename FUNCTION, typename... ARGS>
 future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
 async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
@@ -146,9 +153,9 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     // if possible, so this is safe to invoke later in the context of a packaged task.
     auto g = std::bind<R>(std::forward<FUNCTION>(f), std::forward<ARGS>(args)...);
 
-    std::packaged_task<boost::any()> task{[g_ = std::move(g)]() mutable {
+    std::packaged_task<boost::any()> task([g_ = std::move(g)]() mutable {
         return concurrency_detail::resultToAny(g_, std::is_same<R, void>{});
-    }};
+    });
     auto result = task.get_future();
 
     // Schedule the task to compute the result.
@@ -156,7 +163,6 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
 
     return std::move(result);
 }
-// clang-format on
 
 //! Wait for all \p futures to be available.
 template<typename T>
@@ -179,15 +185,41 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
     std::for_each(futures.begin(), futures.end(), wait_for_valid);
 }
 
+//! \brief Waits for a future to complete when the object is destroyed.
+template<typename T>
+class CWaitIfValidWhenExitingScope {
+public:
+    CWaitIfValidWhenExitingScope(future<T>& future) : m_Future{future} {}
+    ~CWaitIfValidWhenExitingScope() { wait_for_valid(m_Future); }
+    CWaitIfValidWhenExitingScope(const CWaitIfValidWhenExitingScope&) = delete;
+    CWaitIfValidWhenExitingScope& operator=(const CWaitIfValidWhenExitingScope&) = delete;
+
+private:
+    future<T>& m_Future;
+};
+
 //! Get the conjunction of all \p futures.
 CORE_EXPORT
 bool get_conjunction_of_all(std::vector<future<bool>>& futures);
+
+namespace concurrency_detail {
+class CORE_EXPORT CDefaultAsyncExecutorBusyForScope {
+public:
+    CDefaultAsyncExecutorBusyForScope();
+    ~CDefaultAsyncExecutorBusyForScope();
+    bool wasBusy() const;
+
+private:
+    bool m_WasBusy;
+};
+}
 
 //! Run \p f in parallel using async.
 //!
 //! This executes \p f on each index in the range [\p start, \p end) using the
 //! default async executor.
 //!
+//! \param[in] partitions The number of tasks into which to partition the range.
 //! \param[in] start The first index for which to execute \p f.
 //! \param[in] end The end of the indices for which to execute \p f.
 //! \param[in,out] f The function to execute on each index. This expected to
@@ -195,33 +227,51 @@ bool get_conjunction_of_all(std::vector<future<bool>>& futures);
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
 //! \note If f throws this will throw.
-// TODO This splits into # thread tasks which may not be optimal if the work per
-// iteration is imbalanced. This needs revisiting when we have more callers and
-// it should possibly be configurable by the calling context.
 template<typename FUNCTION>
-std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNCTION&& f) {
+std::vector<FUNCTION>
+parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FUNCTION&& f) {
 
     if (end <= start) {
         return {std::forward<FUNCTION>(f)};
     }
 
-    std::size_t threads{std::min(defaultAsyncThreadPoolSize(), end - start)};
+    partitions = std::min(partitions, end - start);
 
-    if (threads < 2) {
+    // This function is not re-entrant without the chance of deadlock if we always
+    // execute in parallel. In particular, we wait on the completion of tasks which
+    // are enqueued in the global thread pool. However, if this has already been
+    // called further up the stack we will enqueue functions which will wait on the
+    // results of these and will block the tasks they need to complete behind them
+    // in the queues. There are a couple strategies we could take, two obvious ones
+    // in order of increasing complexity and decreasing pessimism are:
+    //   1) Execute sequentially if there are any tasks in the thread pool, we then
+    //      won't wait here and nothing will block in the queue,
+    //   2) Assign tasks a priority and ensure in the queue that tasks are execute
+    //      in priority order. Then we can assign these tasks "highest priority in
+    //      queue" + 1.
+    //
+    // In the first instance I'm going to implement 1) because in practice we probably
+    // don't actually need to nest parallel_for_each and we are just interested in
+    // guarding against accidental deadlock in the case someone inadvertantly calls
+    // parallelised code and it is significantly simpler.
+
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+
+    if (partitions < 2 || scope.wasBusy()) {
         for (std::size_t i = start; i < end; ++i) {
             f(i);
         }
         return {std::forward<FUNCTION>(f)};
     }
 
-    std::vector<FUNCTION> functions{threads, std::forward<FUNCTION>(f)};
+    std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
 
     // Threads access the indices in the following pattern:
     //   [0, m,   2*m,   ...]
     //   [1, m+1, 2*m+1, ...]
     //   [2, m+2, 2*m+2, ...]
     //   ...
-    // for m threads. This is choosen because it is expected that the index
+    // for m partitions. This is choosen because it is expected that the index
     // will often be used to access elements in a contiguous block of memory.
     // Provided the threads are doing roughly equal work per call this should
     // ensure the best possible locality of reference for reads which occur
@@ -229,14 +279,14 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
 
     std::vector<future<bool>> tasks;
 
-    for (std::size_t offset = 0; offset < threads; ++offset, ++start) {
+    for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
         auto& g = functions[offset];
         tasks.emplace_back(async(defaultAsyncExecutor(),
-                                 [&g, threads](std::size_t start_, std::size_t end_) {
-                                     for (std::size_t i = start_; i < end_; i += threads) {
+                                 [&g, partitions](std::size_t start_, std::size_t end_) {
+                                     for (std::size_t i = start_; i < end_; i += partitions) {
                                          g(i);
                                      }
                                      return true; // So we can check for exceptions via get.
@@ -249,11 +299,19 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
     return functions;
 }
 
+//! Overload with number of threads partitions.
+template<typename FUNCTION>
+std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNCTION&& f) {
+    return parallel_for_each(defaultAsyncThreadPoolSize(), start, end,
+                             std::forward<FUNCTION>(f));
+}
+
 //! Run \p f in parallel using async.
 //!
 //! This executes \p f on each dereferenced iterator value in the range
 //! [\p start, \p end) using the default async executor.
 //!
+//! \param[in] partitions The number of tasks into which to partition the range.
 //! \param[in] start The first iterator for the values on which to execute \p f.
 //! \param[in] end The end iterator for the values on which to execute \p f.
 //! \param[in,out] f The function to execute on each value. This expected to
@@ -261,52 +319,64 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
 //! \note f must be copy constructible.
 //! \note f must be thread safe.
 //! \note If f throws this will throw.
-// TODO See above.
 template<typename ITR, typename FUNCTION>
-std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
+std::vector<FUNCTION>
+parallel_for_each(std::size_t partitions, ITR start, ITR end, FUNCTION&& f) {
 
     std::size_t size(std::distance(start, end));
     if (size == 0) {
         return {std::forward<FUNCTION>(f)};
     }
 
-    std::size_t threads{std::min(defaultAsyncThreadPoolSize(), size)};
+    partitions = std::min(partitions, size);
 
-    if (threads < 2) {
+    // See above for details.
+
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+
+    if (partitions < 2 || scope.wasBusy()) {
         return {std::for_each(start, end, std::forward<FUNCTION>(f))};
     }
 
-    std::vector<FUNCTION> functions{threads, std::forward<FUNCTION>(f)};
+    std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
 
     // See above for the rationale for this access pattern.
 
     std::vector<future<bool>> tasks;
 
-    for (std::size_t offset = 0; offset < threads; ++offset, ++start) {
+    for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
         auto& g = functions[offset];
-        tasks.emplace_back(async(
-            defaultAsyncExecutor(),
-            [&g, threads, offset, size](ITR start_) {
-                std::size_t i{offset};
-                auto incrementByThreads = [&i, threads, size](ITR& j) {
-                    if (i < size) {
-                        std::advance(j, threads);
-                    }
-                };
-                for (ITR j = start_; i < size; i += threads, incrementByThreads(j)) {
-                    g(*j);
-                }
-                return true; // So we can check for exceptions via get.
-            },
-            start));
+        tasks.emplace_back(
+            async(defaultAsyncExecutor(),
+                  [&g, partitions, offset, size](ITR start_) {
+                      std::size_t i{offset};
+                      auto incrementByPartitions = [&i, partitions, size](ITR& j) {
+                          if (i < size) {
+                              std::advance(j, partitions);
+                          }
+                      };
+                      for (ITR j = start_; i < size;
+                           i += partitions, incrementByPartitions(j)) {
+                          g(*j);
+                      }
+                      return true; // So we can check for exceptions via get.
+                  },
+                  start));
     }
 
     get_conjunction_of_all(tasks);
 
     return functions;
+}
+
+//! Overload with number of threads partitions.
+template<typename ITR, typename FUNCTION>
+std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
+    return parallel_for_each(defaultAsyncThreadPoolSize(), start, end,
+                             std::forward<FUNCTION>(f));
 }
 }
 }

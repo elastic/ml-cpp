@@ -20,6 +20,8 @@ namespace {
 class CImmediateExecutor final : public CExecutor {
 public:
     virtual void schedule(std::packaged_task<boost::any()>&& f) { f(); }
+    virtual bool busy() const { return false; }
+    virtual void busy(bool) {}
 };
 
 //! \brief Executes a function in a thread pool.
@@ -30,6 +32,8 @@ public:
     virtual void schedule(std::packaged_task<boost::any()>&& f) {
         m_ThreadPool.schedule(std::forward<std::packaged_task<boost::any()>>(f));
     }
+    virtual bool busy() const { return m_ThreadPool.busy(); }
+    virtual void busy(bool value) { return m_ThreadPool.busy(value); }
 
 private:
     CStaticThreadPool m_ThreadPool;
@@ -106,6 +110,25 @@ bool get_conjunction_of_all(std::vector<future<bool>>& futures) {
                                bool value = future.get();
                                return conjunction && value;
                            });
+}
+
+namespace concurrency_detail {
+CDefaultAsyncExecutorBusyForScope::CDefaultAsyncExecutorBusyForScope()
+    : m_WasBusy{defaultAsyncExecutor().busy()} {
+    if (m_WasBusy == false) {
+        defaultAsyncExecutor().busy(true);
+    }
+}
+
+CDefaultAsyncExecutorBusyForScope::~CDefaultAsyncExecutorBusyForScope() {
+    if (m_WasBusy == false) {
+        defaultAsyncExecutor().busy(false);
+    }
+}
+
+bool CDefaultAsyncExecutorBusyForScope::wasBusy() const {
+    return m_WasBusy;
+}
 }
 }
 }

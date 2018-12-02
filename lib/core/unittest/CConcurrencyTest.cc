@@ -15,6 +15,7 @@ using namespace ml;
 
 namespace {
 using TIntVec = std::vector<int>;
+using TIntVecVec = std::vector<TIntVec>;
 
 double throws() {
     throw std::runtime_error("don't run me");
@@ -27,6 +28,18 @@ double throws() {
 [[noreturn]] void throws(std::size_t) {
     throw std::runtime_error("don't run me");
 };
+
+double parallelSum(const TIntVec& values) {
+    auto results = core::parallel_for_each(
+        values.begin(), values.end(),
+        core::bindRetrievableState(
+            [](double& sum, int value) { sum += static_cast<double>(value); }, 0.0));
+    double sum{0.0};
+    for (const auto& result : results) {
+        sum += result.s_FunctionState;
+    }
+    return sum;
+}
 }
 
 void CConcurrencyTest::testAsyncWithExecutors() {
@@ -159,6 +172,9 @@ void CConcurrencyTest::testParallelForEach() {
 
 void CConcurrencyTest::testParallelForEachWithExceptions() {
 
+    // Test functions throwing exceptions are safely handled in worker threads
+    // and the exceptions are propagated to the calling thread.
+
     core::stopDefaultAsyncExecutor();
 
     TIntVec values(1000);
@@ -206,6 +222,36 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
     core::stopDefaultAsyncExecutor();
 }
 
+void CConcurrencyTest::testParallelForEachReentry() {
+
+    // Test that calls to parallel_for_each can be safely nested.
+
+    core::startDefaultAsyncExecutor(5);
+
+    double expected{};
+    TIntVecVec values;
+    {
+        TIntVec element(10);
+        std::iota(element.begin(), element.end(), 0.0);
+        expected = 100.0 * std::accumulate(element.begin(), element.end(), 0.0);
+        values.resize(100, element);
+    }
+
+    for (std::size_t t = 0; t < 10; ++t) {
+        auto results = core::parallel_for_each(values.begin(), values.end(),
+                                               core::bindRetrievableState(
+                                                   [](double& sum, const TIntVec& element) {
+                                                       sum += parallelSum(element);
+                                                   },
+                                                   0.0));
+        double actual{0.0};
+        for (const auto& result : results) {
+            actual += result.s_FunctionState;
+        }
+        CPPUNIT_ASSERT_EQUAL(expected, actual);
+    }
+}
+
 CppUnit::Test* CConcurrencyTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrencyTest");
 
@@ -222,6 +268,9 @@ CppUnit::Test* CConcurrencyTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
         "CConcurrencyTest::testParallelForEachWithExceptions",
         &CConcurrencyTest::testParallelForEachWithExceptions));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
+        "CConcurrencyTest::testParallelForEachReentry",
+        &CConcurrencyTest::testParallelForEachReentry));
 
     return suiteOfTests;
 }
