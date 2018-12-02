@@ -372,8 +372,9 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
-    TRowFuncVecBoolPr
-    parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, bool commitResult) const;
+    TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
+                                             TRowFunc func,
+                                             bool commitResult) const;
 
     TRowFuncVecBoolPr sequentialApplyToAllRows(TRowFunc func, bool commitResult) const;
 
