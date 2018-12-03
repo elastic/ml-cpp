@@ -17,7 +17,7 @@ std::size_t computeSize(std::size_t hint) {
 }
 
 CStaticThreadPool::CStaticThreadPool(std::size_t size)
-    : m_Cursor{0}, m_TaskQueues{computeSize(size)} {
+    : m_Busy{false}, m_Cursor{0}, m_TaskQueues{computeSize(size)} {
     m_Pool.reserve(m_TaskQueues.size());
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
         try {
