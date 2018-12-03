@@ -86,8 +86,7 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
 }
 
 bool CDataFrameAnalyzer::isControlMessage(const TStrVec& fieldValues) const {
-    return m_ControlFieldValue >= CONTROL_FIELD_MISSING &&
-           fieldValues[m_ControlFieldValue].size() > 0;
+    return m_ControlFieldValue >= 0 && fieldValues[m_ControlFieldValue].size() > 0;
 }
 
 bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
