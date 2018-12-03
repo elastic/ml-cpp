@@ -190,9 +190,8 @@ task build(dependsOn: [check, assemble]) {
   description = 'Assemble and test the C++ part of Machine Learning'
 }
 
-task wrapper(type: Wrapper) {
-    distributionType = DistributionType.ALL
-
+wrapper {
+    distributionType = 'ALL'
     doLast {
         final DistributionLocator locator = new DistributionLocator()
         final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
@@ -200,6 +199,6 @@ task wrapper(type: Wrapper) {
         final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
         final String sha256Sum = new String(sha256Uri.toURL().bytes)
         wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
+        println "Added checksum to wrapper properties"
     }
 }
-
