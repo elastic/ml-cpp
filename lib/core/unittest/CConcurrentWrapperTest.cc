@@ -81,15 +81,15 @@ void CConcurrentWrapperTest::testThreads() {
     static const size_t MESSAGES(1500);
 
     {
-    TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-    {
-        core::CStaticThreadPool tp(10);
-        for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule([&wrappedStringStream, i] {
-                task(wrappedStringStream, i, std::chrono::microseconds(0));
-            });
+        TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
+        {
+            core::CStaticThreadPool tp(10);
+            for (size_t i = 0; i < MESSAGES; ++i) {
+                tp.schedule([&wrappedStringStream, i] {
+                    task(wrappedStringStream, i, std::chrono::microseconds(0));
+                });
+            }
         }
-    }
     }
 
     std::string output = stringStream.str();
@@ -108,15 +108,15 @@ void CConcurrentWrapperTest::testThreadsSlow() {
     static const size_t MESSAGES(50);
 
     {
-    TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
-    {
-        core::CStaticThreadPool tp(2);
-        for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule([&wrappedStringStream, i] {
-                task(wrappedStringStream, i, std::chrono::microseconds(50));
-            });
+        TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
+        {
+            core::CStaticThreadPool tp(2);
+            for (size_t i = 0; i < MESSAGES; ++i) {
+                tp.schedule([&wrappedStringStream, i] {
+                    task(wrappedStringStream, i, std::chrono::microseconds(50));
+                });
+            }
         }
-    }
     }
 
     std::string output = stringStream.str();
@@ -135,15 +135,16 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
     static const size_t MESSAGES(50);
 
     {
-    TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
-    {
-        core::CStaticThreadPool tp(2);
-        for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule([&wrappedStringStream, i] {
-                taskLowCapacityQueue(wrappedStringStream, i, std::chrono::microseconds(50));
-            });
+        TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
+        {
+            core::CStaticThreadPool tp(2);
+            for (size_t i = 0; i < MESSAGES; ++i) {
+                tp.schedule([&wrappedStringStream, i] {
+                    taskLowCapacityQueue(wrappedStringStream, i,
+                                         std::chrono::microseconds(50));
+                });
+            }
         }
-    }
     }
 
     std::string output = stringStream.str();
