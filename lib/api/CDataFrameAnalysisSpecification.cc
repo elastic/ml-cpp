@@ -23,7 +23,16 @@
 namespace ml {
 namespace api {
 namespace {
-// TODO These should be consistent with Java naming where relevant.
+using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
+
+TRunnerFactoryUPtrVec analysisFactories() {
+    TRunnerFactoryUPtrVec factories;
+    factories.push_back(boost::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+    // Add new analysis types here.
+    return factories;
+}
+
+// These must be consistent with Java names.
 const char* ROWS{"rows"};
 const char* COLS{"cols"};
 const char* MEMORY_LIMIT{"memory_limit"};
@@ -48,6 +57,10 @@ std::string toString(const rapidjson::Value& value) {
     value.Accept(writer);
     return valueAsString.GetString();
 }
+}
+
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
