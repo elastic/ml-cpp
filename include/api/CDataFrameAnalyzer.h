@@ -12,19 +12,28 @@
 #include <api/ImportExport.h>
 
 #include <cinttypes>
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace api {
 
 //! \brief Handles input to the data_frame_analyzer command.
 class API_EXPORT CDataFrameAnalyzer {
 public:
     using TStrVec = std::vector<std::string>;
+    using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
+    using TJsonOutputStreamWrapperUPtrSupplier =
+        std::function<TJsonOutputStreamWrapperUPtr()>;
 
 public:
-    explicit CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification);
+    explicit CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification,
+                                TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
 
     //! This is true if the analyzer is receiving control messages.
     bool usingControlMessages() const;
@@ -54,6 +63,7 @@ private:
     std::uint64_t m_BadValueCount;
     CDataFrameAnalysisSpecification m_AnalysisSpecification;
     core::CDataFrame m_DataFrame;
+    TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
 };
 }
 }

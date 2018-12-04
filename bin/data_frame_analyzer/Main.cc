@@ -29,10 +29,9 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/make_unique.hpp>
-
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <string>
 
 namespace {
@@ -89,13 +88,11 @@ int main(int argc, char** argv) {
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
-            return boost::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
         }
-        return boost::make_unique<ml::api::CCsvInputParser>(
+        return std::make_unique<ml::api::CCsvInputParser>(
             ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
     }()};
-
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
@@ -111,7 +108,10 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::api::CDataFrameAnalyzer dataFrameAnalyzer{std::move(analysisSpecification)};
+    ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
+        std::move(analysisSpecification), [&ioMgr]() {
+            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+        }};
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
