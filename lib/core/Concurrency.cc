@@ -45,7 +45,8 @@ private:
 //! \see http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579
 template<typename EXECUTOR, typename... ARGS>
 std::unique_ptr<CExecutor> makeUniqueWorkaroundCwg1579(ARGS&&... args) {
-    std::unique_ptr<CExecutor> result = std::make_unique<EXECUTOR>(std::forward<ARGS>(args)...);
+    std::unique_ptr<CExecutor> result =
+        std::make_unique<EXECUTOR>(std::forward<ARGS>(args)...);
     return result;
 }
 
