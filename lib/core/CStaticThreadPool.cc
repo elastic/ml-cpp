@@ -30,6 +30,7 @@ CStaticThreadPool::CStaticThreadPool(std::size_t size)
 }
 
 CStaticThreadPool::~CStaticThreadPool() {
+    LOG_DEBUG(<< "Static thread pool being destructed");
     this->shutdown();
 }
 
@@ -72,6 +73,7 @@ void CStaticThreadPool::shutdown() {
             return boost::any{};
         }});
     }
+    LOG_DEBUG(<< "Joining...");
     for (auto& thread : m_Pool) {
         thread.join();
     }
@@ -113,6 +115,7 @@ void CStaticThreadPool::worker(std::size_t id) {
 
     // Drain this thread's queue before exiting.
     for (auto task = m_TaskQueues[id].tryPop(); task; task = m_TaskQueues[id].tryPop()) {
+        LOG_DEBUG(<< "Draining queue " << id << " size = " << m_TaskQueues[id].size());
         noThrowExecute(task);
     }
 }

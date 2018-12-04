@@ -120,7 +120,7 @@ public:
     std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
 
     //! Return the number of items currently in the queue
-    size_t size() const {
+    size_t size() {
         std::unique_lock<std::mutex> lock(m_Mutex);
         return m_Queue.size();
     }
