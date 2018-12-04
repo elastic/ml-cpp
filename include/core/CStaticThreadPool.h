@@ -14,6 +14,7 @@
 #include <boost/optional.hpp>
 
 #include <atomic>
+#include <cstdint>
 #include <functional>
 #include <thread>
 #include <vector>
@@ -74,7 +75,7 @@ private:
     // always set straight before it is checked on each worker in the pool.
     bool m_Done = false;
     std::atomic_bool m_Busy;
-    std::atomic_uint64_t m_Cursor;
+    std::atomic<std::uint64_t> m_Cursor;
     TTaskQueueVec m_TaskQueues;
     TThreadVec m_Pool;
 };

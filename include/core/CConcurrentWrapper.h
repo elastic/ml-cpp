@@ -44,11 +44,9 @@ public:
     }
 
     ~CConcurrentWrapper() {
-        LOG_DEBUG(<< "Wrapper being destructed");
         m_Queue.push([this] { m_Done = true; });
 
         m_Worker.join();
-        LOG_DEBUG(<< "Wrapper joined");
     }
 
     //! Push something into the queue of the wrapped object

@@ -42,7 +42,10 @@ private:
 class CExecutorHolder {
 public:
     CExecutorHolder()
-        : m_ThreadPoolSize{0}, m_Executor(std::make_unique<CImmediateExecutor>()) {}
+        : m_ThreadPoolSize{0},
+    //    Work around cross compile for OS X from Linux
+          m_Executor(static_cast<CExecutor*>(
+              std::make_unique<CImmediateExecutor>().release())) {}
 
     static CExecutorHolder makeThreadPool(std::size_t threadPoolSize) {
         if (threadPoolSize == 0) {
@@ -72,7 +75,9 @@ public:
 private:
     CExecutorHolder(std::size_t threadPoolSize)
         : m_ThreadPoolSize{threadPoolSize},
-          m_Executor(std::make_unique<CThreadPoolExecutor>(threadPoolSize)) {}
+    //    Work around cross compile for OS X from Linux
+          m_Executor(static_cast<CExecutor*>(
+              std::make_unique<CThreadPoolExecutor>(threadPoolSize).release())) {}
 
 private:
     std::size_t m_ThreadPoolSize;
