@@ -169,17 +169,10 @@ void CForecastRunner::forecastWorker() {
                         }
                     }
 
-                    const TForecastModelWrapper& model = series.s_ToForecast.back();
-                    model_t::TDouble1VecDouble1VecPr support =
-                        model_t::support(model.s_Feature);
-                    bool success = model.s_ForecastModel->forecast(
-                        forecastJob.s_StartTime, forecastJob.forecastEnd(),
-                        forecastJob.s_BoundsPercentile, support.first, support.second,
-                        boost::bind(&model::CForecastDataSink::push, &sink, _1,
-                                    model_t::print(model.s_Feature), series.s_PartitionFieldName,
-                                    series.s_PartitionFieldValue, series.s_ByFieldName,
-                                    model.s_ByFieldValue, series.s_DetectorIndex),
-                        message);
+                    const TForecastModelWrapper& model{series.s_ToForecast.back()};
+                    bool success{model.forecast(
+                        series, forecastJob.s_StartTime, forecastJob.forecastEnd(),
+                        forecastJob.s_BoundsPercentile, sink, message)};
                     series.s_ToForecast.pop_back();
 
                     if (success == false) {
