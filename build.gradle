@@ -190,6 +190,11 @@ task build(dependsOn: [check, assemble]) {
   description = 'Assemble and test the C++ part of Machine Learning'
 }
 
+/*
+ * This breaks when ml-cpp is in elasticsearch-extra
+ * and elasticsearch is still using Gradle 4.x
+ * TODO: Uncomment next time Gradle is upgraded
+ *
 wrapper {
     distributionType = 'ALL'
     doLast {
@@ -202,3 +207,4 @@ wrapper {
         println "Added checksum to wrapper properties"
     }
 }
+*/
