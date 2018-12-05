@@ -28,6 +28,14 @@
 
 //=== Regressions
 
+ == {es} version 6.5.3
+
+=== Bug Fixes
+
+Correct query times for model plot and forecast in the bucket to match the times we assign
+the samples we add to the model for each bucket. For long bucket lengths, this could result
+in apparently shifted model plot with respect to the data and increased errors in forecasts. 
+
  == {es} version 6.5.0
 
 //=== Breaking Changes

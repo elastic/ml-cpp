@@ -40,21 +40,31 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
 public:
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TStrUMap = boost::unordered_set<std::string>;
+    struct SForecastResultSeries;
 
     //! Wrapper for 1 timeseries model, its feature and by Field
-    struct MODEL_EXPORT SForecastModelWrapper {
-        SForecastModelWrapper(model_t::EFeature feature,
+    class MODEL_EXPORT CForecastModelWrapper {
+    public:
+        CForecastModelWrapper(model_t::EFeature feature,
                               TMathsModelPtr&& forecastModel,
                               const std::string& byFieldValue);
 
-        SForecastModelWrapper(SForecastModelWrapper&& other);
+        CForecastModelWrapper(CForecastModelWrapper&& other);
 
-        SForecastModelWrapper(const SForecastModelWrapper& that) = delete;
-        SForecastModelWrapper& operator=(const SForecastModelWrapper&) = delete;
+        CForecastModelWrapper(const CForecastModelWrapper& that) = delete;
+        CForecastModelWrapper& operator=(const CForecastModelWrapper&) = delete;
 
-        model_t::EFeature s_Feature;
-        TMathsModelPtr s_ForecastModel;
-        std::string s_ByFieldValue;
+        bool forecast(const SForecastResultSeries& series,
+                      core_t::TTime startTime,
+                      core_t::TTime endTime,
+                      double boundsPercentile,
+                      CForecastDataSink& sink,
+                      std::string& message) const;
+
+    private:
+        model_t::EFeature m_Feature;
+        TMathsModelPtr m_ForecastModel;
+        std::string m_ByFieldValue;
     };
 
     //! Everything that defines 1 series of forecasts
@@ -68,7 +78,7 @@ public:
 
         SModelParams s_ModelParams;
         int s_DetectorIndex;
-        std::vector<SForecastModelWrapper> s_ToForecast;
+        std::vector<CForecastModelWrapper> s_ToForecast;
         std::string s_ToForecastPersisted;
         std::string s_PartitionFieldName;
         std::string s_PartitionFieldValue;
