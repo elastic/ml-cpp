@@ -112,7 +112,7 @@ public:
     using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
 
-    using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
+    using TForecastModelWrapper = model::CForecastDataSink::CForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
     using TMathsModelPtr = std::unique_ptr<maths::CModel>;
