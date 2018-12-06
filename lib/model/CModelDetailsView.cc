@@ -77,12 +77,11 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
 
     if (this->isByFieldIdActive(byFieldId)) {
         const maths::CModel* model = this->model(feature, byFieldId);
-        if (model == nullptr) {
+        if (!model) {
             return;
         }
 
         std::size_t dimension = model_t::dimension(feature);
-        time = model_t::sampleTime(feature, time, model->params().bucketLength());
 
         maths_t::TDouble2VecWeightsAry weights(
             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
