@@ -26,6 +26,10 @@ double truncateToFloatRange(double value) {
 const std::string CONTROL_MESSAGE_FIELD_NAME{"."};
 // Control message types:
 const char RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE{'r'};
+
+const std::string ID_HASH{"id_hash"};
+const std::string RESULTS{"results"};
+const std::string OUTLIER_SCORE{"outlier_score"};
 }
 
 // TODO memory calculations plus choose data frame storage strategy.
@@ -65,15 +69,18 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 
 void CDataFrameAnalyzer::run() {
     // TODO
+
+    // This is writing fake results just to enable testing
+    // the parsing and merging of results in the java side
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
     for (std::size_t i = 0; i < m_AnalysisSpecification.rows(); ++i) {
         outputWriter.StartObject();
-        outputWriter.String("id");
-        outputWriter.String("");
-        outputWriter.String("results");
+        outputWriter.String(ID_HASH);
+        outputWriter.String(ID_HASH);
+        outputWriter.String(RESULTS);
         outputWriter.StartObject();
-        outputWriter.String("outlier_score");
+        outputWriter.String(RESULTS);
         outputWriter.Double(i);
         outputWriter.EndObject();
         outputWriter.EndObject();
