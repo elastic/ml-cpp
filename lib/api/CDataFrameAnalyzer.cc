@@ -77,10 +77,10 @@ void CDataFrameAnalyzer::run() {
     for (std::size_t i = 0; i < m_AnalysisSpecification.rows(); ++i) {
         outputWriter.StartObject();
         outputWriter.String(ID_HASH);
-        outputWriter.String(ID_HASH);
+        outputWriter.String(ID_HASH); // This should be the actual hash
         outputWriter.String(RESULTS);
         outputWriter.StartObject();
-        outputWriter.String(RESULTS);
+        outputWriter.String(OUTLIER_SCORE);
         outputWriter.Double(i);
         outputWriter.EndObject();
         outputWriter.EndObject();
