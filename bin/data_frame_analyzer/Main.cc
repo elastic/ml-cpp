@@ -30,25 +30,22 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/make_unique.hpp>
-
+#include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <string>
 
-#include <stdlib.h>
-
-// TODO That might belong in CDataFrameAnalyzer
-// TODO Error handling: split out reading file.
-ml::api::CDataFrameAnalysisSpecification
-makeDataFrameAnalysisSpecification(const std::string& configFile) {
-    using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
-    TRunnerFactoryUPtrVec factories;
-    factories.push_back(boost::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
-
-    std::ifstream configFileStream(configFile);
-    std::string dataFrameConfig(std::istreambuf_iterator<char>{configFileStream},
-                                std::istreambuf_iterator<char>{});
-    return ml::api::CDataFrameAnalysisSpecification{std::move(factories), dataFrameConfig};
+namespace {
+std::pair<std::string, bool> readFileToString(const std::string& fileName) {
+    std::ifstream fileStream{fileName};
+    if (fileStream.is_open() == false) {
+        LOG_ERROR(<< "Failed to open file '" << fileName << "'");
+        return {std::string{}, false};
+    }
+    return {std::string{std::istreambuf_iterator<char>{fileStream},
+                        std::istreambuf_iterator<char>{}},
+            true};
+}
 }
 
 int main(int argc, char** argv) {
@@ -92,18 +89,22 @@ int main(int argc, char** argv) {
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
-            return boost::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
         }
-        return boost::make_unique<ml::api::CCsvInputParser>(
+        return std::make_unique<ml::api::CCsvInputParser>(
             ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
     }()};
 
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
+    std::string analysisSpecificationJson;
+    bool couldReadConfigFile;
+    std::tie(analysisSpecificationJson, couldReadConfigFile) = readFileToString(configFile);
+    if (couldReadConfigFile == false) {
+        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
+        return EXIT_FAILURE;
+    }
 
-    // TODO Actually use the specification to create the data frame and run the analysis
-    ml::api::CDataFrameAnalysisSpecification dataFrameAnalysisSpecification{
-        makeDataFrameAnalysisSpecification(configFile)};
-    if (dataFrameAnalysisSpecification.bad()) {
+    ml::api::CDataFrameAnalysisSpecification analysisSpecification{analysisSpecificationJson};
+    if (analysisSpecification.bad()) {
         LOG_FATAL("Failed to parse analysis specification");
         return EXIT_FAILURE;
     }
@@ -111,7 +112,10 @@ int main(int argc, char** argv) {
         ml::core::startDefaultAsyncExecutor(dataFrameAnalysisSpecification.threads());
     }
 
-    ml::api::CDataFrameAnalyzer dataFrameAnalyzer;
+    ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
+        std::move(analysisSpecification), [&ioMgr]() {
+            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+        }};
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
@@ -120,6 +124,14 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to handle input to be analyzed");
         return EXIT_FAILURE;
     }
+
+    if (dataFrameAnalyzer.usingControlMessages() == false) {
+        // To make running from the command line easy, we'll run the analysis
+        // after closing the input pipe if control messages are not in use.
+        dataFrameAnalyzer.run();
+    }
+
+    // TODO Error handling, writing results back, etc.
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
