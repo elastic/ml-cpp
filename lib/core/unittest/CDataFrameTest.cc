@@ -9,6 +9,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/Concurrency.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -16,6 +17,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <mutex>
 #include <vector>
 
 using namespace ml;
@@ -87,6 +89,14 @@ private:
 };
 }
 
+void CDataFrameTest::setUp() {
+    core::startDefaultAsyncExecutor();
+}
+
+void CDataFrameTest::tearDown() {
+    core::stopDefaultAsyncExecutor();
+}
+
 void CDataFrameTest::testInMainMemoryBasicReadWrite() {
 
     // Check we get the rows we write to the data frame in the order we write them.
@@ -156,7 +166,7 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
         bool successful;
         std::tie(readers, successful) = frame.readRows(3, CThreadReader{});
         CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t{3}, readers.size());
 
         TBoolVec rowRead(rows, false);
         for (const auto& reader : readers) {

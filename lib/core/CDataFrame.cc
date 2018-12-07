@@ -10,6 +10,7 @@
 #include <core/CDataFrameRowSlice.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
+#include <core/Concurrency.h>
 
 #include <boost/make_unique.hpp>
 
@@ -129,110 +130,6 @@ private:
     TWriteSliceToStoreFunc m_WriteSliceToStore;
 };
 
-//! \brief Reserves extra columns in data frame.
-class CDataFrameRowSliceReserver {
-public:
-    CDataFrameRowSliceReserver(std::size_t numberColumns, std::size_t extraColumns)
-        : m_NumberColumns{numberColumns}, m_ExtraColumns{extraColumns} {}
-
-    bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) {
-        for (auto i = beginSlices; i != endSlices; ++i) {
-            if ((*i)->reserve(m_NumberColumns, m_ExtraColumns) == false) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-private:
-    std::size_t m_NumberColumns;
-    std::size_t m_ExtraColumns;
-};
-
-//! \brief Reads a collection of slices from a data frame.
-class CDataFrameRowSliceApply final {
-public:
-    using TRowFunc = CDataFrame::TRowFunc;
-    using TRowFuncRef = std::reference_wrapper<TRowFunc>;
-
-public:
-    CDataFrameRowSliceApply(TRowFunc& function,
-                            bool commitFunctionAction,
-                            std::size_t numberColumns,
-                            std::size_t rowCapacity,
-                            CDataFrame::EReadWriteToStorage asyncReadFromStore)
-        : m_Function{function}, m_CommitFunctionAction{commitFunctionAction}, m_NumberColumns{numberColumns},
-          m_RowCapacity{rowCapacity}, m_AsyncReadFromStore{asyncReadFromStore} {}
-
-    //! Read all slices in [\p beginSlices, \p endSlices) passing to the
-    //! callback supplied to the constructor.
-    //!
-    //! \return False if the rows couldn't all be read.
-    bool operator()(TRowSlicePtrVecCItr beginSlices, TRowSlicePtrVecCItr endSlices) {
-        std::size_t firstRow;
-        CDataFrameRowSliceHandle sliceHandle;
-
-        switch (m_AsyncReadFromStore) {
-        case CDataFrame::EReadWriteToStorage::E_Async: {
-            // The slices get read from storage on the thread executing this
-            // function each slice is then concurrently read by the callback
-            // on a worker thread managed by the concurrent wrapper. We use
-            // a queue of length one so the memory used by the queue is only
-            // one slice.
-
-            CConcurrentWrapper<TRowFunc, 1, 1> asyncFunction{m_Function};
-            for (auto i = beginSlices; i != endSlices; ++i) {
-                std::tie(firstRow, sliceHandle) = (*i)->read();
-                if (sliceHandle.bad()) {
-                    return false;
-                }
-                LOG_TRACE(<< "applying function to slice starting at row " << firstRow);
-                asyncFunction(
-                    [ firstRow, slice = std::move(sliceHandle), i, this ](TRowFuncRef function) {
-                        std::size_t rows{slice.size() / m_RowCapacity};
-                        std::size_t lastRow{firstRow + rows};
-                        function(CRowIterator{m_NumberColumns, m_RowCapacity,
-                                              firstRow, slice.begin()},
-                                 CRowIterator{m_NumberColumns, m_RowCapacity,
-                                              lastRow, slice.end()});
-                        if (m_CommitFunctionAction) {
-                            (*i)->write(slice.values());
-                        }
-                    });
-            }
-            break;
-        }
-        case CDataFrame::EReadWriteToStorage::E_Sync:
-            for (auto i = beginSlices; i != endSlices; ++i) {
-                std::tie(firstRow, sliceHandle) = (*i)->read();
-                if (sliceHandle.bad()) {
-                    return false;
-                }
-                LOG_TRACE(<< "applying function to slice starting at row " << firstRow);
-                std::size_t rows{sliceHandle.size() / m_NumberColumns};
-                std::size_t lastRow{firstRow + rows};
-                m_Function(CRowIterator{m_NumberColumns, m_RowCapacity,
-                                        firstRow, sliceHandle.begin()},
-                           CRowIterator{m_NumberColumns, m_RowCapacity, lastRow,
-                                        sliceHandle.end()});
-                if (m_CommitFunctionAction) {
-                    (*i)->write(sliceHandle.values());
-                }
-            }
-            break;
-        }
-
-        return true;
-    }
-
-private:
-    TRowFuncRef m_Function;
-    bool m_CommitFunctionAction;
-    std::size_t m_NumberColumns;
-    std::size_t m_RowCapacity;
-    CDataFrame::EReadWriteToStorage m_AsyncReadFromStore;
-};
-
 //! Compute the default slice capacity in rows.
 std::size_t computeSliceCapacity(std::size_t numberColumns) {
     // TODO This probably needs some careful tuning, which I haven't performed
@@ -278,16 +175,18 @@ bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
 
     m_RowCapacity = rowCapacity;
 
-    // We pass a dummy function which is ignored since we'll use the reserver
-    // to "apply" this function to slices and this simply ignores the supplied
-    // value.
-
-    bool successful;
-    std::tie(std::ignore, successful) =
-        this->applyFunctionToRows(numberThreads, TRowFunc{}, [this](TRowFunc) {
-            return CDataFrameRowSliceReserver{m_NumberColumns, m_RowCapacity - m_NumberColumns};
-        });
-    return successful;
+    std::atomic_bool successful{true};
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
+                      [this, &successful](TRowSlicePtr& slice) {
+                          if (successful.load() == false) {
+                              return;
+                          }
+                          if (slice->reserve(m_NumberColumns,
+                                             m_RowCapacity - m_NumberColumns) == false) {
+                              successful.store(false);
+                          }
+                      });
+    return successful.load();
 }
 
 bool CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
@@ -301,21 +200,22 @@ bool CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
                                                    TRowFunc reader) const {
     if (m_NumberRows == 0) {
-        return {{reader}, true};
+        return {{std::move(reader)}, true};
     }
-    return this->applyFunctionToRows(numberThreads, std::move(reader), [this](TRowFunc& read) {
-        return CDataFrameRowSliceApply{read, false, m_NumberColumns, m_RowCapacity,
-                                       m_ReadAndWriteToStoreSyncStrategy};
-    });
+    return numberThreads > 1
+               ? this->parallelApplyToAllRows(numberThreads, std::move(reader), false)
+               : this->sequentialApplyToAllRows(std::move(reader), false);
 }
 
 bool CDataFrame::writeColumns(std::size_t numberThreads, TRowFunc writer) {
+    if (m_NumberRows == 0) {
+        return true;
+    }
     bool successful;
-    std::tie(std::ignore, successful) = this->applyFunctionToRows(
-        numberThreads, std::move(writer), [this](TRowFunc& append) {
-            return CDataFrameRowSliceApply{append, true, m_NumberColumns, m_RowCapacity,
-                                           m_ReadAndWriteToStoreSyncStrategy};
-        });
+    std::tie(std::ignore, successful) =
+        numberThreads > 1
+            ? this->parallelApplyToAllRows(numberThreads, std::move(writer), true)
+            : this->sequentialApplyToAllRows(std::move(writer), true);
     return successful;
 }
 
@@ -424,76 +324,111 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
     return {m_NumberRows, std::move(m_SyncWrittenSlices)};
 }
 
-CDataFrame::TSizeSizePr CDataFrame::numberOfThreadsAndStride(std::size_t target) const {
+CDataFrame::TRowFuncVecBoolPr
+CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, bool commitResult) const {
 
-    if (m_Slices.empty()) {
-        return {1, 0};
+    // If we're reading in parallel then we don't want to interleave
+    // reads from storage and applying the function because we're
+    // already fully balancing our work across the slices.
+
+    std::atomic_bool successful{true};
+
+    CDataFrameRowSliceHandle readRow;
+    auto results = parallel_for_each(
+        numberThreads, m_Slices.begin(), m_Slices.end(),
+        bindRetrievableState(
+            [&successful, readRow, commitResult,
+             this](TRowFunc& func_, const TRowSlicePtr& slice) mutable {
+                if (successful.load() == false) {
+                    return;
+                }
+
+                std::size_t firstRow;
+                std::tie(firstRow, readRow) = slice->read();
+                if (readRow.bad()) {
+                    successful.store(false);
+                    return;
+                }
+
+                this->applyToRowsOfOneSlice(func_, firstRow, readRow);
+
+                if (commitResult) {
+                    slice->write(readRow.values());
+                }
+            },
+            std::move(func)));
+
+    TRowFuncVec functions;
+    functions.reserve(results.size());
+    for (auto& result : results) {
+        functions.emplace_back(std::move(result.s_FunctionState));
     }
 
-    std::size_t numberSlices{m_Slices.size()};
-    std::size_t numberThreads{std::min(numberSlices, target)};
-    std::size_t strideLowerBound{numberSlices / numberThreads};
-    std::size_t strideUpperBound{strideLowerBound + 1};
-
-    if (numberSlices % numberThreads == 0) {
-        return {numberThreads, strideLowerBound};
-    }
-    if (numberSlices % strideUpperBound == 0) {
-        return {numberThreads - 1, strideUpperBound};
-    }
-    return {numberThreads, strideUpperBound};
+    return {std::move(functions), successful.load()};
 }
 
-template<typename SLICE_FUNCTION_FACTORY>
 CDataFrame::TRowFuncVecBoolPr
-CDataFrame::applyFunctionToRows(std::size_t numberThreads,
-                                TRowFunc function,
-                                SLICE_FUNCTION_FACTORY factory) const {
-    if (numberThreads == 1) {
-        // This all happens on the main thread to avoid a context switch.
+CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
 
-        auto sliceFunction = factory(function);
-        bool successful{sliceFunction(m_Slices.begin(), m_Slices.end())};
-        return {{std::move(function)}, successful};
+    std::size_t firstRow;
+    CDataFrameRowSliceHandle readSlice;
+
+    switch (m_ReadAndWriteToStoreSyncStrategy) {
+    case CDataFrame::EReadWriteToStorage::E_Async: {
+        // The slices get read from storage on the thread executing this
+        // function each slice is then concurrently read by the callback
+        // on a worker thread.
+
+        future<void> backgroundApply;
+
+        // We need to wait and this isn't guaranteed by the future destructor.
+        CWaitIfValidWhenExitingScope<void> waitFor(backgroundApply);
+
+        for (auto& slice : m_Slices) {
+            std::tie(firstRow, readSlice) = slice->read();
+            if (readSlice.bad()) {
+                return {{std::move(func)}, false};
+            }
+
+            // We wait here so at most one slice is copied into memory.
+            wait_for_valid(backgroundApply);
+
+            backgroundApply = async(defaultAsyncExecutor(), [
+                &func, firstRow, readSlice_ = std::move(readSlice), &slice, commitResult, this
+            ] {
+                this->applyToRowsOfOneSlice(func, firstRow, readSlice_);
+                if (commitResult) {
+                    slice->write(readSlice_.values());
+                }
+            });
+        }
+        break;
+    }
+    case CDataFrame::EReadWriteToStorage::E_Sync:
+        for (auto& slice : m_Slices) {
+            std::tie(firstRow, readSlice) = slice->read();
+            if (readSlice.bad()) {
+                return {{std::move(func)}, false};
+            }
+            this->applyToRowsOfOneSlice(func, firstRow, readSlice);
+            if (commitResult) {
+                slice->write(readSlice.values());
+            }
+        }
+        break;
     }
 
-    // We use a fixed schedule whereby each reader reads non-overlapping
-    // slices. This means we can get no contention on reads from the slice
-    // vector. This is naturally load balanced because we arrange for each
-    // reader to read, as close as possible, the same number of rows.
+    return {{std::move(func)}, true};
+}
 
-    std::size_t stride;
-    std::tie(numberThreads, stride) = this->numberOfThreadsAndStride(numberThreads);
-    LOG_TRACE(<< "numberThreads = " << numberThreads << " stride = " << stride);
-
-    TRowFuncVec functions{numberThreads, function};
-
-    // TODO review use of std::async in this function, we may want to use a thread pool.
-
-    std::vector<std::future<bool>> functionsSuccessful;
-    functionsSuccessful.reserve(numberThreads);
-    std::size_t j{0};
-    for (std::size_t i = 0; i + 1 < numberThreads; ++i, j += stride) {
-        auto begin = m_Slices.begin() + j;
-        auto end = m_Slices.begin() + j + stride;
-        auto sliceFunction = factory(functions[i]);
-        functionsSuccessful.push_back(
-            std::async(std::launch::async, sliceFunction, begin, end));
-    }
-    auto begin = m_Slices.begin() + j;
-    auto end = m_Slices.end();
-    if (begin != end) {
-        auto sliceFunction = factory(functions.back());
-        functionsSuccessful.push_back(
-            std::async(std::launch::async, sliceFunction, begin, end));
-    }
-
-    bool successful{true};
-    for (auto& functionSuccessful : functionsSuccessful) {
-        successful &= functionSuccessful.get();
-    }
-
-    return {std::move(functions), successful};
+void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
+                                       std::size_t firstRow,
+                                       const CDataFrameRowSliceHandle& slice) const {
+    LOG_TRACE(<< "Applying function to slice starting at row " << firstRow);
+    std::size_t rows{slice.size() / m_NumberColumns};
+    std::size_t lastRow{firstRow + rows};
+    func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow, slice.begin()},
+         CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.end()});
 }
 
 void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {

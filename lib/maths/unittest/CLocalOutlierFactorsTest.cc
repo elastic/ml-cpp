@@ -431,7 +431,15 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     double precisionLowerBounds[]{0.89, 0.97, 0.99};
     double recallLowerBounds[]{0.79, 0.41, 0.1};
 
-    {
+    // Test sequential then parallel.
+
+    core::stopDefaultAsyncExecutor();
+
+    std::string tags[]{"sequential", "parallel"};
+
+    for (std::size_t t = 0; t < 2; ++t) {
+        LOG_DEBUG(<< "Testing " << tags[t]);
+
         test::CRandomNumbers rng;
 
         TVectorVec points(numberInliers + numberOutliers, TVector(6));
@@ -447,9 +455,15 @@ void CLocalOutlierFactorsTest::testEnsemble() {
             CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
             CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
         }
+
+        core::startDefaultAsyncExecutor();
     }
 
-    {
+    core::stopDefaultAsyncExecutor();
+
+    for (std::size_t t = 0; t < 2; ++t) {
+        LOG_DEBUG(<< "Testing " << tags[t]);
+
         using TMemoryMappedVector = maths::CMemoryMappedDenseVector<double>;
         using TMemoryMappedVectorVec = std::vector<TMemoryMappedVector>;
 
@@ -471,7 +485,11 @@ void CLocalOutlierFactorsTest::testEnsemble() {
             CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
             CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
         }
+
+        core::startDefaultAsyncExecutor();
     }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 CppUnit::Test* CLocalOutlierFactorsTest::suite() {

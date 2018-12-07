@@ -3,16 +3,20 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CThreadPoolTest_h
-#define INCLUDED_CThreadPoolTest_h
+
+#ifndef INCLUDED_CStaticThreadPoolTest_h
+#define INCLUDED_CStaticThreadPoolTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CThreadPoolTest : public CppUnit::TestFixture {
+class CStaticThreadPoolTest : public CppUnit::TestFixture {
 public:
-    void testPool();
+    void testScheduleDelayMinimisation();
+    void testThroughputStability();
+    void testManyTasksThroughput();
+    void testExceptions();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CThreadPoolTest_h
+#endif // INCLUDED_CStateMachineTest_h

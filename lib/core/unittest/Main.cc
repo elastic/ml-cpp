@@ -11,6 +11,7 @@
 #include "CByteSwapperTest.h"
 #include "CCompressUtilsTest.h"
 #include "CCompressedDictionaryTest.h"
+#include "CConcurrencyTest.h"
 #include "CConcurrentWrapperTest.h"
 #include "CContainerPrinterTest.h"
 #include "CContainerThroughputTest.h"
@@ -58,6 +59,7 @@
 #include "CSmallVectorTest.h"
 #include "CStateCompressorTest.h"
 #include "CStateMachineTest.h"
+#include "CStaticThreadPoolTest.h"
 #include "CStatisticsTest.h"
 #include "CStopWatchTest.h"
 #include "CStoredStringPtrTest.h"
@@ -65,7 +67,6 @@
 #include "CStringUtilsTest.h"
 #include "CThreadFarmTest.h"
 #include "CThreadMutexConditionTest.h"
-#include "CThreadPoolTest.h"
 #include "CTickerTest.h"
 #include "CTimeUtilsTest.h"
 #include "CTripleTest.h"
@@ -86,6 +87,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CByteSwapperTest::suite());
     runner.addTest(CCompressedDictionaryTest::suite());
     runner.addTest(CCompressUtilsTest::suite());
+    runner.addTest(CConcurrencyTest::suite());
     runner.addTest(CConcurrentWrapperTest::suite());
     runner.addTest(CContainerPrinterTest::suite());
     runner.addTest(CContainerThroughputTest::suite());
@@ -133,6 +135,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CSmallVectorTest::suite());
     runner.addTest(CStateCompressorTest::suite());
     runner.addTest(CStateMachineTest::suite());
+    runner.addTest(CStaticThreadPoolTest::suite());
     runner.addTest(CStatisticsTest::suite());
     runner.addTest(CStopWatchTest::suite());
     runner.addTest(CStoredStringPtrTest::suite());
@@ -140,7 +143,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CStringUtilsTest::suite());
     runner.addTest(CThreadFarmTest::suite());
     runner.addTest(CThreadMutexConditionTest::suite());
-    runner.addTest(CThreadPoolTest::suite());
     runner.addTest(CTickerTest::suite());
     runner.addTest(CTimeUtilsTest::suite());
     runner.addTest(CTripleTest::suite());

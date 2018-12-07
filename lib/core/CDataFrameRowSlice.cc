@@ -95,7 +95,7 @@ CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(TImplPtr impl)
 }
 
 CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(const CDataFrameRowSliceHandle& other)
-    : m_Impl{other.m_Impl->clone()} {
+    : m_Impl{other.m_Impl != nullptr ? other.m_Impl->clone() : nullptr} {
 }
 
 CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other)
@@ -104,7 +104,9 @@ CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& ot
 
 CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::
 operator=(const CDataFrameRowSliceHandle& other) {
-    m_Impl = other.m_Impl->clone();
+    if (other.m_Impl != nullptr) {
+        other.m_Impl->clone();
+    }
     return *this;
 }
 
