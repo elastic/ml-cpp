@@ -74,20 +74,29 @@ public:
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification);
 
+    CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
+    CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
+    CDataFrameAnalysisSpecification(CDataFrameAnalysisSpecification&&) = delete;
+    CDataFrameAnalysisSpecification& operator=(CDataFrameAnalysisSpecification&&) = delete;
+
     //! Check if the specification is bad.
     bool bad() const;
 
     //! \return The number of rows in the frame.
-    std::size_t rows() const;
+    std::size_t numberRows() const;
 
     //! \return The number of columns in the input frame.
-    std::size_t cols() const;
+    std::size_t numberColumns() const;
+
+    //! \return The number of columns the analysis configured to run will append
+    //! to the data frame.
+    std::size_t numberExtraColumns() const;
 
     //! \return The memory limit for the process.
     std::size_t memoryLimit() const;
 
     //! \return The number of threads the analysis can use.
-    std::size_t threads() const;
+    std::size_t numberThreads() const;
 
     //! Run the analysis in a background thread.
     //!
@@ -107,10 +116,10 @@ private:
 
 private:
     bool m_Bad = false;
-    std::size_t m_Rows = 0;
-    std::size_t m_Cols = 0;
+    std::size_t m_NumberRows = 0;
+    std::size_t m_NumberColumns = 0;
     std::size_t m_MemoryLimit = 0;
-    std::size_t m_Threads = 0;
+    std::size_t m_NumberThreads = 0;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;

@@ -6,9 +6,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalyzer_h
 #define INCLUDED_ml_api_CDataFrameAnalyzer_h
 
-#include <core/CDataFrame.h>
-
-#include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
 #include <cinttypes>
@@ -19,9 +16,11 @@
 
 namespace ml {
 namespace core {
+class CDataFrame;
 class CJsonOutputStreamWrapper;
 }
 namespace api {
+class CDataFrameAnalysisSpecification;
 
 //! \brief Handles input to the data_frame_analyzer command.
 class API_EXPORT CDataFrameAnalyzer {
@@ -30,25 +29,34 @@ public:
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
+    using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
 
 public:
-    explicit CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification,
-                                TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
+    CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
+    ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
     bool usingControlMessages() const;
 
-    //! Handle adding a row of the data frame or a control message.
+    //! Handle receiving a row of the data frame or a control message.
     bool handleRecord(const TStrVec& fieldNames, const TStrVec& fieldValues);
+
+    //! Call when all row have been received.
+    void receivedAllRows();
 
     //! Run the configured analysis.
     void run();
+
+private:
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
 private:
     static const std::ptrdiff_t CONTROL_FIELD_UNSET{-2};
     static const std::ptrdiff_t CONTROL_FIELD_MISSING{-1};
 
 private:
+    bool sufficientFieldValues(const TStrVec& fieldNames) const;
     bool readyToReceiveControlMessages() const;
     bool prepareToReceiveControlMessages(const TStrVec& fieldNames);
     bool isControlMessage(const TStrVec& fieldValues) const;
@@ -57,12 +65,12 @@ private:
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
-    std::ptrdiff_t m_ControlFieldValue = CONTROL_FIELD_UNSET;
+    std::ptrdiff_t m_ControlFieldIndex = CONTROL_FIELD_UNSET;
     std::ptrdiff_t m_BeginDataFieldValues = -1;
     std::ptrdiff_t m_EndDataFieldValues = -1;
     std::uint64_t m_BadValueCount;
-    CDataFrameAnalysisSpecification m_AnalysisSpecification;
-    core::CDataFrame m_DataFrame;
+    TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
+    TDataFrameUPtr m_DataFrame;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
 };
 }

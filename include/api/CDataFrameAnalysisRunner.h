@@ -23,6 +23,10 @@
 namespace ml {
 namespace core {
 class CDataFrame;
+class CRapidJsonConcurrentLineWriter;
+namespace data_frame_detail {
+class CRowRef;
+}
 }
 namespace api {
 class CDataFrameAnalysisSpecification;
@@ -53,6 +57,7 @@ class CDataFrameAnalysisSpecification;
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TStrVec = std::vector<std::string>;
+    using TRowRef = core::data_frame_detail::CRowRef;
 
 public:
     CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
@@ -67,9 +72,25 @@ public:
     //! into main memory during an analysis.
     virtual std::size_t numberOfPartitions() const = 0;
 
-    //! \return The number of columns this analysis requires. This includes
-    //! the columns of the input frame plus any that the analysis will append.
-    virtual std::size_t requiredFrameColumns() const = 0;
+    //! \return The number of columns this analysis appends.
+    virtual std::size_t numberExtraColumns() const = 0;
+
+    //! Write the extra columns of \p row added by the analysis to \p writer.
+    //!
+    //! This should create a new object of the form:
+    //! <pre>
+    //! {
+    //!   "name of column n":   "value of column n",
+    //!   "name of column n+1": "value of column n+1",
+    //!   ...
+    //! }
+    //! </pre>
+    //! with one named member for each column added.
+    //!
+    //! \param[in] row The row to write the columns added by this analysis.
+    //! \param[in,out] writer The stream to which to write the extra columns.
+    virtual void writeOneRow(TRowRef row,
+                             core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Checks whether the analysis is already running and if not launches it
     //! in the background.

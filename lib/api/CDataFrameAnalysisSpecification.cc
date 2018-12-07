@@ -85,12 +85,12 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         };
 
         if (document.HasMember(ROWS) && isPositiveInteger(document[ROWS])) {
-            m_Rows = document[ROWS].GetUint();
+            m_NumberRows = document[ROWS].GetUint();
         } else {
             registerFailure(ROWS);
         }
         if (document.HasMember(COLS) && isPositiveInteger(document[COLS])) {
-            m_Cols = document[COLS].GetUint();
+            m_NumberColumns = document[COLS].GetUint();
         } else {
             registerFailure(COLS);
         }
@@ -100,7 +100,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
             registerFailure(MEMORY_LIMIT);
         }
         if (document.HasMember(THREADS) && isPositiveInteger(document[THREADS])) {
-            m_Threads = document[THREADS].GetUint();
+            m_NumberThreads = document[THREADS].GetUint();
         } else {
             registerFailure(THREADS);
         }
@@ -130,20 +130,24 @@ bool CDataFrameAnalysisSpecification::bad() const {
     return m_Bad || m_Runner->bad();
 }
 
-std::size_t CDataFrameAnalysisSpecification::rows() const {
-    return m_Rows;
+std::size_t CDataFrameAnalysisSpecification::numberRows() const {
+    return m_NumberRows;
 }
 
-std::size_t CDataFrameAnalysisSpecification::cols() const {
-    return m_Cols;
+std::size_t CDataFrameAnalysisSpecification::numberColumns() const {
+    return m_NumberColumns;
+}
+
+std::size_t CDataFrameAnalysisSpecification::numberExtraColumns() const {
+    return m_Runner != nullptr ? m_Runner->numberExtraColumns() : 0;
 }
 
 std::size_t CDataFrameAnalysisSpecification::memoryLimit() const {
     return m_MemoryLimit;
 }
 
-std::size_t CDataFrameAnalysisSpecification::threads() const {
-    return m_Threads;
+std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
+    return m_NumberThreads;
 }
 
 CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {

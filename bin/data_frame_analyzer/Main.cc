@@ -103,13 +103,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::api::CDataFrameAnalysisSpecification analysisSpecification{analysisSpecificationJson};
-    if (analysisSpecification.bad()) {
+    auto analysisSpecification =
+        std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
+    if (analysisSpecification->bad()) {
         LOG_FATAL("Failed to parse analysis specification");
         return EXIT_FAILURE;
     }
-    if (analysisSpecification.threads() > 1) {
-        ml::core::startDefaultAsyncExecutor(analysisSpecification.threads());
+    if (analysisSpecification->numberThreads() > 1) {
+        ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{

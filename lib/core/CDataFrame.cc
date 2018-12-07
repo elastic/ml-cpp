@@ -156,6 +156,8 @@ CDataFrame::CDataFrame(bool inMainMemory,
                  readAndWriteToStoreSyncStrategy, writeSliceToStore} {
 }
 
+CDataFrame::~CDataFrame() = default;
+
 bool CDataFrame::inMainMemory() const {
     return m_InMainMemory;
 }
@@ -169,7 +171,7 @@ std::size_t CDataFrame::numberColumns() const {
 }
 
 bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
-    if (m_NumberColumns >= rowCapacity) {
+    if (m_RowCapacity >= rowCapacity) {
         return true;
     }
 
@@ -425,7 +427,7 @@ void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
                                        std::size_t firstRow,
                                        const CDataFrameRowSliceHandle& slice) const {
     LOG_TRACE(<< "Applying function to slice starting at row " << firstRow);
-    std::size_t rows{slice.size() / m_NumberColumns};
+    std::size_t rows{slice.size() / m_RowCapacity};
     std::size_t lastRow{firstRow + rows};
     func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow, slice.begin()},
          CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.end()});
@@ -443,28 +445,32 @@ void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
     }
 }
 
-CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
-                                    boost::optional<std::size_t> sliceCapacity,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+std::unique_ptr<CDataFrame>
+makeMainStorageDataFrame(std::size_t numberColumns,
+                         boost::optional<std::size_t> sliceCapacity,
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     // The return copy is elided so we never need to call the explicitly
     // deleted data frame copy constructor.
 
     auto writer = [](std::size_t firstRow, TFloatVec slice) {
-        return boost::make_unique<CMainMemoryDataFrameRowSlice>(firstRow, std::move(slice));
+        return std::make_unique<CMainMemoryDataFrameRowSlice>(firstRow, std::move(slice));
     };
 
     if (sliceCapacity != boost::none) {
-        return {true, numberColumns, *sliceCapacity, readWriteToStoreSyncStrategy, writer};
+        return std::make_unique<CDataFrame>(true, numberColumns, *sliceCapacity,
+                                            readWriteToStoreSyncStrategy, writer);
     }
 
-    return {true, numberColumns, readWriteToStoreSyncStrategy, writer};
+    return std::make_unique<CDataFrame>(true, numberColumns,
+                                        readWriteToStoreSyncStrategy, writer);
 }
 
-CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
-                                    std::size_t numberColumns,
-                                    std::size_t numberRows,
-                                    boost::optional<std::size_t> sliceCapacity,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+std::unique_ptr<CDataFrame>
+makeDiskStorageDataFrame(const std::string& rootDirectory,
+                         std::size_t numberColumns,
+                         std::size_t numberRows,
+                         boost::optional<std::size_t> sliceCapacity,
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     // The return copy is elided so we never need to call the explicitly
     // deleted data frame copy constructor.
 
@@ -479,14 +485,16 @@ CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
     // the folder cleaned up, until the data frame itself is destroyed.
 
     auto writer = [directory](std::size_t firstRow, TFloatVec slice) {
-        return boost::make_unique<COnDiskDataFrameRowSlice>(directory, firstRow,
-                                                            std::move(slice));
+        return std::make_unique<COnDiskDataFrameRowSlice>(directory, firstRow,
+                                                          std::move(slice));
     };
 
     if (sliceCapacity != boost::none) {
-        return {false, numberColumns, *sliceCapacity, readWriteToStoreSyncStrategy, writer};
+        return std::make_unique<CDataFrame>(false, numberColumns, *sliceCapacity,
+                                            readWriteToStoreSyncStrategy, writer);
     }
-    return {false, numberColumns, readWriteToStoreSyncStrategy, writer};
+    return std::make_unique<CDataFrame>(false, numberColumns,
+                                        readWriteToStoreSyncStrategy, writer);
 }
 }
 }

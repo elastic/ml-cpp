@@ -6,12 +6,15 @@
 #include <api/CDataFrameAnalyzer.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CFloatStorage.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CTools.h>
+
+#include <api/CDataFrameAnalysisSpecification.h>
 
 #include <limits>
 
@@ -25,23 +28,29 @@ double truncateToFloatRange(double value) {
 
 const std::string CONTROL_MESSAGE_FIELD_NAME{"."};
 // Control message types:
+const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 const char RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE{'r'};
 
 const std::string ID_HASH{"id_hash"};
 const std::string RESULTS{"results"};
-const std::string OUTLIER_SCORE{"outlier_score"};
 }
 
-// TODO memory calculations plus choose data frame storage strategy.
-CDataFrameAnalyzer::CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification,
+CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                                        TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
-    : m_AnalysisSpecification{std::move(analysisSpecification)},
-      m_DataFrame{core::makeMainStorageDataFrame(m_AnalysisSpecification.cols())},
-      m_OutStreamSupplier{outStreamSupplier} {
+    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
+
+    // TODO memory calculations plus choose data frame storage strategy.
+    if (m_AnalysisSpecification != nullptr && m_AnalysisSpecification->bad() == false) {
+        m_DataFrame = core::makeMainStorageDataFrame(m_AnalysisSpecification->numberColumns());
+        m_DataFrame->reserve(m_AnalysisSpecification->numberThreads(),
+                             m_AnalysisSpecification->numberColumns() +
+                                 m_AnalysisSpecification->numberExtraColumns());
+    }
 }
+CDataFrameAnalyzer::~CDataFrameAnalyzer() = default;
 
 bool CDataFrameAnalyzer::usingControlMessages() const {
-    return m_ControlFieldValue >= 0;
+    return m_ControlFieldIndex >= 0;
 }
 
 bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& fieldValues) {
@@ -53,9 +62,20 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     // Note if the the control message field name is missing the analysis must
     // be triggered to run by calling run explicitly.
 
-    bool result{true};
-    if (this->readyToReceiveControlMessages() == false) {
-        result = this->prepareToReceiveControlMessages(fieldNames);
+    if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad()) {
+        LOG_TRACE(<< "Specification is bad");
+        return false;
+    }
+
+    if (this->readyToReceiveControlMessages() == false &&
+        this->prepareToReceiveControlMessages(fieldNames) == false) {
+        return false;
+    }
+
+    if (this->sufficientFieldValues(fieldValues) == false) {
+        LOG_TRACE(<< "Expected " << m_AnalysisSpecification->numberColumns()
+                  << " field values and got " << fieldValues.size());
+        return false;
     }
 
     if (this->isControlMessage(fieldValues)) {
@@ -63,44 +83,69 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     }
 
     this->addRowToDataFrame(fieldValues);
+    return false;
+}
 
-    return result;
+void CDataFrameAnalyzer::receivedAllRows() {
+    m_DataFrame->finishWritingRows();
+    LOG_TRACE(<< "Received " << m_DataFrame->numberRows() << " rows");
 }
 
 void CDataFrameAnalyzer::run() {
-    // TODO
 
-    // This is writing fake results just to enable testing
-    // the parsing and merging of results in the java side
+    if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad() ||
+        m_DataFrame == nullptr) {
+        return;
+    }
+
+    LOG_TRACE(<< "Running analysis...");
+
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
+
+    if (analysis == nullptr) {
+        return;
+    }
+
+    // TODO progress monitoring, etc.
+
+    analysis->waitToFinish();
+
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
-    for (std::size_t i = 0; i < m_AnalysisSpecification.rows(); ++i) {
-        outputWriter.StartObject();
-        outputWriter.String(ID_HASH);
-        outputWriter.String(ID_HASH); // This should be the actual hash
-        outputWriter.String(RESULTS);
-        outputWriter.StartObject();
-        outputWriter.String(OUTLIER_SCORE);
-        outputWriter.Double(i);
-        outputWriter.EndObject();
-        outputWriter.EndObject();
-    }
+
+    // We write results single threaded because we need to write the rows to
+    // Java in the order they were written to the data_frame_analyzer so it
+    // can join the extra columns with the original data frame.
+    std::size_t numberThreads{1};
+
+    using TRowItr = core::CDataFrame::TRowItr;
+    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            outputWriter.StartObject();
+            outputWriter.String(ID_HASH);
+            outputWriter.String(ID_HASH); // TODO this should be the actual hash
+            outputWriter.String(RESULTS);
+            analysis->writeOneRow(*row, outputWriter);
+            outputWriter.EndObject();
+        }
+    });
+
     outputWriter.flush();
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
-    return m_ControlFieldValue != CONTROL_FIELD_UNSET;
+    return m_ControlFieldIndex != CONTROL_FIELD_UNSET;
 }
 
 bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNames) {
     if (fieldNames.empty() || fieldNames.back() != CONTROL_MESSAGE_FIELD_NAME) {
-        m_ControlFieldValue = CONTROL_FIELD_MISSING;
+        m_ControlFieldIndex = CONTROL_FIELD_MISSING;
         m_BeginDataFieldValues = 0;
         m_EndDataFieldValues = static_cast<std::ptrdiff_t>(fieldNames.size());
     } else {
-        m_ControlFieldValue = static_cast<std::ptrdiff_t>(fieldNames.size() - 1);
+        m_ControlFieldIndex = static_cast<std::ptrdiff_t>(fieldNames.size() - 1);
         m_BeginDataFieldValues = 0;
-        m_EndDataFieldValues = m_ControlFieldValue;
+        m_EndDataFieldValues = m_ControlFieldIndex;
         auto pos = std::find(fieldNames.begin(), fieldNames.end(), CONTROL_MESSAGE_FIELD_NAME);
         if (pos != fieldNames.end() - 1) {
             LOG_ERROR(<< "Unexpected possible control field: ignoring");
@@ -111,18 +156,29 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
 }
 
 bool CDataFrameAnalyzer::isControlMessage(const TStrVec& fieldValues) const {
-    return m_ControlFieldValue >= 0 && fieldValues[m_ControlFieldValue].size() > 0;
+    return m_ControlFieldIndex >= 0 && fieldValues[m_ControlFieldIndex].size() > 0;
+}
+
+bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const {
+    if (m_ControlFieldIndex >= 0) {
+        return fieldValues.size() == m_AnalysisSpecification->numberColumns() + 1;
+    }
+    return fieldValues.size() == m_AnalysisSpecification->numberColumns();
 }
 
 bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
+    LOG_TRACE(<< "Control message: '" << fieldValues[m_ControlFieldIndex] << "'");
 
     bool unrecognised{false};
-    switch (fieldValues[m_ControlFieldValue][0]) {
+    switch (fieldValues[m_ControlFieldIndex][0]) {
     case ' ':
         // Spaces are just used to fill the buffers and force prior messages
         // through the system - we don't need to do anything else.
         LOG_TRACE(<< "Received pad of length " << controlMessage.length());
         return true;
+    case FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE:
+        this->receivedAllRows();
+        break;
     case RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE:
         this->run();
         break;
@@ -130,19 +186,23 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         unrecognised = true;
         break;
     }
-    if (unrecognised || fieldValues[m_ControlFieldValue].size() > 1) {
+    if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
         LOG_ERROR(<< "Invalid control message value '"
-                  << fieldValues[m_ControlFieldValue] << "'");
+                  << fieldValues[m_ControlFieldIndex] << "'");
         return false;
     }
     return true;
 }
 
 void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
+    if (m_DataFrame == nullptr) {
+        return;
+    }
+
     using TFloatVec = std::vector<core::CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
 
-    m_DataFrame.writeRow([&](TFloatVecItr output) {
+    m_DataFrame->writeRow([&](TFloatVecItr output) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++output) {
             double value;
