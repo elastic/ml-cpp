@@ -7,7 +7,9 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CFloatStorage.h>
+#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CTools.h>
 
@@ -24,12 +26,18 @@ double truncateToFloatRange(double value) {
 const std::string CONTROL_MESSAGE_FIELD_NAME{"."};
 // Control message types:
 const char RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE{'r'};
+
+const std::string ID_HASH{"id_hash"};
+const std::string RESULTS{"results"};
+const std::string OUTLIER_SCORE{"outlier_score"};
 }
 
 // TODO memory calculations plus choose data frame storage strategy.
-CDataFrameAnalyzer::CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification)
+CDataFrameAnalyzer::CDataFrameAnalyzer(CDataFrameAnalysisSpecification analysisSpecification,
+                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
-      m_DataFrame{core::makeMainStorageDataFrame(m_AnalysisSpecification.cols())} {
+      m_DataFrame{core::makeMainStorageDataFrame(m_AnalysisSpecification.cols())},
+      m_OutStreamSupplier{outStreamSupplier} {
 }
 
 bool CDataFrameAnalyzer::usingControlMessages() const {
@@ -61,6 +69,23 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 
 void CDataFrameAnalyzer::run() {
     // TODO
+
+    // This is writing fake results just to enable testing
+    // the parsing and merging of results in the java side
+    auto outStream = m_OutStreamSupplier();
+    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+    for (std::size_t i = 0; i < m_AnalysisSpecification.rows(); ++i) {
+        outputWriter.StartObject();
+        outputWriter.String(ID_HASH);
+        outputWriter.String(ID_HASH); // This should be the actual hash
+        outputWriter.String(RESULTS);
+        outputWriter.StartObject();
+        outputWriter.String(OUTLIER_SCORE);
+        outputWriter.Double(i);
+        outputWriter.EndObject();
+        outputWriter.EndObject();
+    }
+    outputWriter.flush();
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
@@ -77,7 +102,7 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
         m_BeginDataFieldValues = 0;
         m_EndDataFieldValues = m_ControlFieldValue;
         auto pos = std::find(fieldNames.begin(), fieldNames.end(), CONTROL_MESSAGE_FIELD_NAME);
-        if (pos != fieldNames.end()) {
+        if (pos != fieldNames.end() - 1) {
             LOG_ERROR(<< "Unexpected possible control field: ignoring");
             return false;
         }
