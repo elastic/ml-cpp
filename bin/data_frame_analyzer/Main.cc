@@ -108,8 +108,8 @@ int main(int argc, char** argv) {
         LOG_FATAL("Failed to parse analysis specification");
         return EXIT_FAILURE;
     }
-    if (dataFrameAnalysisSpecification.threads() > 1) {
-        ml::core::startDefaultAsyncExecutor(dataFrameAnalysisSpecification.threads());
+    if (analysisSpecification.threads() > 1) {
+        ml::core::startDefaultAsyncExecutor(analysisSpecification.threads());
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
