@@ -19,8 +19,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
 
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -115,9 +115,8 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(*(expectedScore++),
-                                     result["results"]["outlier_score"].GetDouble(),
-                                     1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            *(expectedScore++), result["results"]["outlier_score"].GetDouble(), 1e-6);
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
@@ -147,9 +146,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(*(expectedScore++),
-                                     result["results"]["outlier_score"].GetDouble(),
-                                     1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            *(expectedScore++), result["results"]["outlier_score"].GetDouble(), 1e-6);
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
