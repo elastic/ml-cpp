@@ -71,8 +71,9 @@ private:
     void worker(std::size_t id);
 
 private:
-    // This doesn't have to be atomic because it is always only set to true and
-    // always set straight before it is checked on each worker in the pool.
+    // This doesn't have to be atomic because it is always only set to true,
+    // always set straight before it is checked on each worker in the pool
+    // and tearing can't happen for single byte writes.
     bool m_Done = false;
     std::atomic_bool m_Busy;
     std::atomic<std::uint64_t> m_Cursor;
