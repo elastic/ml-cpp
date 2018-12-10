@@ -63,6 +63,8 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     // be triggered to run by calling run explicitly.
 
     if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad()) {
+        // TODO We need to communicate an error but don't want one for each row.
+        // Revisit this when we have finalized our monitoring strategy.
         LOG_TRACE(<< "Specification is bad");
         return false;
     }
@@ -73,6 +75,8 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     }
 
     if (this->sufficientFieldValues(fieldValues) == false) {
+        // TODO We need to communicate an error but don't want one for each row.
+        // Revisit this when we have finalized our monitoring strategy.
         LOG_TRACE(<< "Expected " << m_AnalysisSpecification->numberColumns()
                   << " field values and got " << fieldValues.size());
         return false;
@@ -88,7 +92,7 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 
 void CDataFrameAnalyzer::receivedAllRows() {
     m_DataFrame->finishWritingRows();
-    LOG_TRACE(<< "Received " << m_DataFrame->numberRows() << " rows");
+    LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
 }
 
 void CDataFrameAnalyzer::run() {
