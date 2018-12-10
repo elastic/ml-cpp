@@ -111,7 +111,7 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
                                            core::CRapidJsonConcurrentLineWriter& outputWriter) const {
     std::size_t lastColumn{row.numberColumns() - 1};
     outputWriter.StartObject();
-    outputWriter.String(OUTLIER_SCORE);
+    outputWriter.Key(OUTLIER_SCORE);
     outputWriter.Double(row[lastColumn]);
     outputWriter.EndObject();
 }

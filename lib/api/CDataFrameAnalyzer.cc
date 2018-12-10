@@ -222,9 +222,9 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
-            outputWriter.String(ID_HASH);
+            outputWriter.Key(ID_HASH);
             outputWriter.String(ID_HASH); // TODO this should be the actual hash
-            outputWriter.String(RESULTS);
+            outputWriter.Key(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
             outputWriter.EndObject();
         }
