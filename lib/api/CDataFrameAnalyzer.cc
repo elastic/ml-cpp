@@ -209,6 +209,7 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis) const {
     // TODO Revisit this can probably be core::CRapidJsonLineWriter.
+    // TODO This should probably be a member variable so it is only created once.
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
