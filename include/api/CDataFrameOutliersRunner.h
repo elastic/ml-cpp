@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#ifndef INCLUDED_ml_api_CDataFrameOutliersRunner_h
+#define INCLUDED_ml_api_CDataFrameOutliersRunner_h
+
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <api/ImportExport.h>
@@ -65,3 +68,5 @@ public:
 };
 }
 }
+
+#endif // INCLUDED_ml_api_CDataFrameOutliersRunner_h

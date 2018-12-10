@@ -46,6 +46,7 @@ CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analy
                                  m_AnalysisSpecification->numberExtraColumns());
     }
 }
+
 CDataFrameAnalyzer::~CDataFrameAnalyzer() = default;
 
 bool CDataFrameAnalyzer::usingControlMessages() const {
