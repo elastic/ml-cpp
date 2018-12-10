@@ -110,27 +110,7 @@ void CDataFrameAnalyzer::run() {
 
     analysis->waitToFinish();
 
-    auto outStream = m_OutStreamSupplier();
-    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
-
-    // We write results single threaded because we need to write the rows to
-    // Java in the order they were written to the data_frame_analyzer so it
-    // can join the extra columns with the original data frame.
-    std::size_t numberThreads{1};
-
-    using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            outputWriter.StartObject();
-            outputWriter.String(ID_HASH);
-            outputWriter.String(ID_HASH); // TODO this should be the actual hash
-            outputWriter.String(RESULTS);
-            analysis->writeOneRow(*row, outputWriter);
-            outputWriter.EndObject();
-        }
-    });
-
-    outputWriter.flush();
+    this->writeResultsOf(*analysis);
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
@@ -221,6 +201,31 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
             }
         }
     });
+}
+
+void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis) const {
+    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
+    auto outStream = m_OutStreamSupplier();
+    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+
+    // We write results single threaded because we need to write the rows to
+    // Java in the order they were written to the data_frame_analyzer so it
+    // can join the extra columns with the original data frame.
+    std::size_t numberThreads{1};
+
+    using TRowItr = core::CDataFrame::TRowItr;
+    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            outputWriter.StartObject();
+            outputWriter.String(ID_HASH);
+            outputWriter.String(ID_HASH); // TODO this should be the actual hash
+            outputWriter.String(RESULTS);
+            analysis.writeOneRow(*row, outputWriter);
+            outputWriter.EndObject();
+        }
+    });
+
+    outputWriter.flush();
 }
 }
 }

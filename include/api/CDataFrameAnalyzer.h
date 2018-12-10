@@ -21,6 +21,7 @@ class CDataFrame;
 class CJsonOutputStreamWrapper;
 }
 namespace api {
+class CDataFrameAnalysisRunner;
 class CDataFrameAnalysisSpecification;
 
 //! \brief Handles input to the data_frame_analyzer command.
@@ -63,6 +64,7 @@ private:
     bool isControlMessage(const TStrVec& fieldValues) const;
     bool handleControlMessage(const TStrVec& fieldValues);
     void addRowToDataFrame(const TStrVec& fieldValues);
+    void writeResultsOf(const CDataFrameAnalysisRunner& analysis) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
