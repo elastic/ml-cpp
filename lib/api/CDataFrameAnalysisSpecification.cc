@@ -6,13 +6,14 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CRapidJsonLineWriter.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <rapidjson/ostreamwrapper.h>
 
 #include <boost/make_unique.hpp>
 
@@ -52,10 +53,11 @@ bool isValidMember(const MEMBER& member) {
 }
 
 std::string toString(const rapidjson::Value& value) {
-    rapidjson::StringBuffer valueAsString;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(valueAsString);
-    value.Accept(writer);
-    return valueAsString.GetString();
+    std::ostringstream valueAsString;
+    rapidjson::OStreamWrapper shim{valueAsString};
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> writer{shim};
+    writer.write(value);
+    return valueAsString.str();
 }
 }
 
