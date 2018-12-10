@@ -29,7 +29,6 @@ double truncateToFloatRange(double value) {
 const std::string CONTROL_MESSAGE_FIELD_NAME{"."};
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
-const char RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE{'r'};
 
 const std::string ID_HASH{"id_hash"};
 const std::string RESULTS{"results"};
@@ -178,8 +177,6 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         return true;
     case FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE:
         this->receivedAllRows();
-        break;
-    case RUN_ANALYSIS_CONTROL_MESSAGE_FIELD_VALUE:
         this->run();
         break;
     default:

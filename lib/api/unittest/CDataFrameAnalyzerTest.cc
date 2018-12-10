@@ -137,7 +137,6 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     addTestData(fieldNames, fieldValues, analyzer, expectedScores);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "r"});
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
