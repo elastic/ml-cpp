@@ -7,22 +7,22 @@
 #ifndef INCLUDED_ml_core_CDataFrame_h
 #define INCLUDED_ml_core_CDataFrame_h
 
-#include <core/CConcurrentQueue.h>
-#include <core/CDataFrameRowSlice.h>
 #include <core/CFloatStorage.h>
+#include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
 #include <boost/optional.hpp>
 
 #include <algorithm>
 #include <functional>
-#include <future>
 #include <iterator>
 #include <memory>
 #include <vector>
 
 namespace ml {
 namespace core {
+class CDataFrameRowSlice;
+class CDataFrameRowSliceHandle;
 
 namespace data_frame_detail {
 
@@ -175,11 +175,10 @@ public:
     using TRowFuncVec = std::vector<TRowFunc>;
     using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
     using TWriteFunc = std::function<void(TFloatVecItr)>;
-    using TRowSlicePtr = std::unique_ptr<CDataFrameRowSlice>;
+    using TRowSlicePtr = std::shared_ptr<CDataFrameRowSlice>;
     using TRowSlicePtrVec = std::vector<TRowSlicePtr>;
     using TSizeRowSliceHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
     using TWriteSliceToStoreFunc = std::function<TRowSlicePtr(std::size_t, TFloatVec)>;
-    using TSizeFloatVecPrQueue = CConcurrentQueue<TSizeFloatVecPr, 1>;
 
     //! Controls whether to read and write to storage asynchronously.
     enum class EReadWriteToStorage { E_Async, E_Sync };
@@ -340,7 +339,6 @@ private:
                                  std::size_t sliceCapacityInRows,
                                  EReadWriteToStorage writeToStoreSyncStrategy,
                                  TWriteSliceToStoreFunc writeSliceToStore);
-        ~CDataFrameRowSliceWriter();
 
         //! Write a single row using the callback \p writeRow.
         void operator()(const TWriteFunc& writeRow);
@@ -350,28 +348,14 @@ private:
         TSizeDataFrameRowSlicePtrVecPr finishWritingRows();
 
     private:
-        //! This is called to flush the queue to write to the store.
-        void finishAsyncWriteToStore();
-
-    private:
         std::size_t m_NumberRows;
         std::size_t m_RowCapacity;
         std::size_t m_SliceCapacityInRows;
         EReadWriteToStorage m_WriteToStoreSyncStrategy;
         TWriteSliceToStoreFunc m_WriteSliceToStore;
-
         TFloatVec m_SliceBeingWritten;
-
-        //! This is true while the rows are still being added.
-        bool m_Writing = true;
-        //! A queue of finished slices shared with the thread that writes
-        //! them to storage if writes to storage are asynchronous.
-        TSizeFloatVecPrQueue m_SlicesToAsyncWriteToStore;
-        //! The result of the asynchronous work to write slices to storage
-        //! if there is any.
-        std::future<TRowSlicePtrVec> m_AsyncWriteToStoreResult;
-        //! The synchronously written stored slices.
-        TRowSlicePtrVec m_SyncWrittenSlices;
+        future<TRowSlicePtr> m_SliceWrittenAsyncToStore;
+        TRowSlicePtrVec m_SlicesWrittenToStore;
     };
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 

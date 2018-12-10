@@ -33,9 +33,9 @@ void slowTask(std::atomic_uint& counter) {
 }
 
 // ASSERTIONS BASED ON TIMINGS ARE NOT RELIABLE IN OUR VIRTUALISED TEST ENVIRONMENT
-// SO I'VE COMMENTED OUT. THESE VALUES CONSISTENTLY PASSED AT ONE POINT ON BARE METAL.
-// IF YOU MAKE CHANGES TO THE THREAD POOL COMMENT THEM BACK IN AND CHECK LOCALLY THAT
-// YOU HAVEN'T DEGRADED PERFORMANCE.
+// SO ARE COMMENTED OUT. THESE VALUES CONSISTENTLY PASSED AT ONE POINT ON BARE METAL.
+// IF YOU MAKE CHANGES TO THE THREAD POOL COMMENT THEM BACK IN AND CHECK THAT YOU
+// HAVEN'T DEGRADED PERFORMANCE.
 
 void CStaticThreadPoolTest::testScheduleDelayMinimisation() {
 
@@ -105,9 +105,10 @@ void CStaticThreadPoolTest::testThroughputStability() {
 
     CPPUNIT_ASSERT_EQUAL(2000u, counter.load());
 
-    // The best we can achieve is 2000ms ignoring all overheads. In fact, there will
-    // be imbalance in the queues when the pool shuts down which is then performed
-    // single threaded. Also there are other overheads.
+    // The best we can achieve is 2000ms ignoring all overheads. There will be
+    // imbalance in the queues when the pool shuts down and we must wait for
+    // the queue with the longest delay to drain on its worker thread. There
+    // will also be overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
     //CPPUNIT_ASSERT(totalTime <= 2600);
@@ -151,7 +152,8 @@ void CStaticThreadPoolTest::testManyTasksThroughput() {
 
 void CStaticThreadPoolTest::testExceptions() {
 
-    // Check we don't deadlock we don't kill worker threads if we do stupid things.
+    // Check we don't deadlock because we don't kill worker threads if we do stupid
+    // things.
 
     std::atomic_uint counter{0};
     {
@@ -167,7 +169,7 @@ void CStaticThreadPoolTest::testExceptions() {
         }
     }
 
-    // We limped on without killing any of the worker threads.
+    // We didn't lose any real tasks.
     CPPUNIT_ASSERT_EQUAL(200u, counter.load());
 }
 
