@@ -28,6 +28,22 @@
 
 //=== Regressions
 
+ == {es} version 6.6.0
+
+=== Breaking Changes
+
+=== Deprecations
+
+=== New Features
+
+=== Enhancements
+
+=== Bug Fixes
+
+Fix cause of "Sample out of bounds" error message (See {ml-pull}355[355].}
+
+=== Regressions
+
  == {es} version 6.5.3
 
 === Bug Fixes
