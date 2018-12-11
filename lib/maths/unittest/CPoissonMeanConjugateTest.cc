@@ -494,6 +494,54 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
     }
 }
 
+void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
+    // Here we test that the retrieved samples are
+    // a) positive
+    // b) monotonically increasing
+    // c) No ERROR log messages are generated
+    // The input sample and weight are chosen to be ones that generate
+    // an initial sample that is less than an offset value of 0.0
+
+    const char* logFile = "test.log";
+
+    std::remove(logFile);
+    // log at level ERROR only
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+        "testfiles/testLogErrorsLog4cxx.properties"));
+
+    CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
+
+    TDouble1Vec sampleVec(1, 283.3232);
+    maths_t::TDoubleWeightsAry1Vec weightVec(1, maths_t::countWeight(0.0206505));
+
+    filter.addSamples(sampleVec, weightVec);
+
+    std::size_t numberSampled = 50u;
+    TDouble1Vec sampled;
+
+    filter.sampleMarginalLikelihood(numberSampled, sampled);
+
+    double prevSample{0.0};
+    for (double sample : sampled) {
+        CPPUNIT_ASSERT(sample > prevSample);
+        CPPUNIT_ASSERT(sample >= 0.0);
+        prevSample = sample;
+    }
+
+    // Revert to the default properties for the test framework - very similar to the hardcoded default.
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile("testfiles/log4cxx.properties"));
+
+    std::ifstream log(logFile);
+    CPPUNIT_ASSERT(log.is_open());
+    char line[256];
+    while (log.getline(line, 256)) {
+        LOG_INFO(<< "Got '" << line << "'");
+        CPPUNIT_ASSERT(false);
+    }
+    log.close();
+    std::remove(logFile);
+}
+
 void CPoissonMeanConjugateTest::testCdf() {
     // Test error cases.
     //
@@ -960,6 +1008,9 @@ CppUnit::Test* CPoissonMeanConjugateTest::suite() {
         &CPoissonMeanConjugateTest::testSampleMarginalLikelihood));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
         "CPoissonMeanConjugateTest::testCdf", &CPoissonMeanConjugateTest::testCdf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
+        "CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds",
+        &CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
         "CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples",
         &CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples));

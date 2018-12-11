@@ -642,6 +642,11 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
                                 m_Offset;
 
                 LOG_TRACE(<< "sample = " << sample);
+                if (sample < 0) {
+                    // We discard negative samples as they are logically incongruous for a counting distribution.
+                    // These are extremely rare but can occur when the variance is large and the offset is 0, for example.
+                    continue;
+                }
 
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
