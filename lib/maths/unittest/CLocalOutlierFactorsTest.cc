@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
@@ -82,7 +83,7 @@ void gaussianWithUniformNoiseForPresizedPoints(test::CRandomNumbers& rng,
             points[i](j) = inliers[i][j];
         }
     }
-    for (std::size_t i = 100, j = 0; j < outliers.size(); ++i) {
+    for (std::size_t i = inliers.size(), j = 0; j < outliers.size(); ++i) {
         for (std::size_t end = j + 6; j < end; ++j) {
             points[i](j % 6) = outliers[j];
         }
@@ -93,7 +94,7 @@ void gaussianWithUniformNoise(test::CRandomNumbers& rng,
                               std::size_t numberInliers,
                               std::size_t numberOutliers,
                               TVectorVec& points) {
-    points.assign(120, TVector(6));
+    points.assign(numberInliers + numberOutliers, TVector(6));
     gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);
 }
 
@@ -112,8 +113,8 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
     FP.assign(3, 0.0);
     FN.assign(3, 0.0);
 
-    TSizeVec trueOutliers{100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
-                          110, 111, 112, 113, 114, 115, 116, 117, 118, 119};
+    TSizeVec trueOutliers(numberOutliers, 0);
+    std::iota(trueOutliers.begin(), trueOutliers.end(), numberInliers);
 
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);

@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <limits>
+#include <type_traits>
 #include <vector>
 
 namespace ml {
@@ -81,6 +83,7 @@ public:
         SNode(SNode* parent, const POINT& point)
             : s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr),
               s_Point(point) {}
+
         //! Move \p point into place.
         //!
         //! \note Since this is an internal class and we ensure that this
@@ -91,7 +94,7 @@ public:
         //! other constructor saves us a redundant copy in these cases.
         SNode(SNode* parent, POINT&& point)
             : s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr),
-              s_Point(std::move(point)) {}
+              s_Point(std::forward<POINT>(point)) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
@@ -119,7 +122,7 @@ public:
 
         //! Get the coordinate the points are split on.
         std::size_t depth() const {
-            std::size_t depth{0u};
+            std::size_t depth{0};
             for (const SNode* ancestor = s_Parent; ancestor; ancestor = ancestor->s_Parent) {
                 ++depth;
             }
@@ -166,12 +169,6 @@ public:
         TNodeVecCItr m_Itr;
     };
 
-private:
-    //! Boolean true type.
-    struct True {};
-    //! Boolean false type.
-    struct False {};
-
 public:
     //! Reserve space for \p n points.
     void reserve(std::size_t n) { m_Nodes.reserve(n); }
@@ -179,20 +176,25 @@ public:
     //! Build a k-d tree on the collection of points \p points.
     //!
     //! \note The vector \p points is reordered.
-    void build(TPointVec& points) { this->build(points.begin(), points.end()); }
+    void build(TPointVec& points) {
+        this->build(points.begin(), points.end(), std::false_type{});
+    }
 
     //! Build a k-d tree on the collection of points \p points.
     //!
     //! \note The \p points are moved into place.
     void build(TPointVec&& points) {
-        this->build(points.begin(), points.end(), True());
+        // We forward to a local variable so the the space allocated for
+        // the vector buffer is freed at the end of this function.
+        TPointVec points_{std::forward<TPointVec>(points)};
+        this->build(points_.begin(), points_.end(), std::true_type{});
     }
 
     //! Build from a pair of output random access iterators.
     //!
     //! \note The range [\p begin, \p end) is reordered.
-    template<typename ITR, typename MOVE = False>
-    void build(ITR begin, ITR end, MOVE move = MOVE()) {
+    template<typename ITR, typename MOVE = std::false_type>
+    void build(ITR begin, ITR end, MOVE move = MOVE{}) {
         if (begin == end) {
             return;
         }
@@ -212,11 +214,11 @@ public:
         const POINT* nearest{nullptr};
 
         if (m_Nodes.size() > 0) {
-            TCoordinatePrecise distanceToNearest{
-                std::numeric_limits<TCoordinatePrecise>::max()};
+            auto inf = std::numeric_limits<TCoordinatePrecise>::max();
+
             return this->nearestNeighbour(point, m_Nodes[0],
                                           0, // Split coordinate
-                                          nearest, distanceToNearest);
+                                          nearest, inf);
         }
         return nearest;
     }
@@ -226,8 +228,7 @@ public:
         result.clear();
 
         if (n > 0 && n < m_Nodes.size()) {
-            const TCoordinatePrecise inf{
-                boost::numeric::bounds<TCoordinatePrecise>::highest()};
+            auto inf = std::numeric_limits<TCoordinatePrecise>::max();
 
             // These neighbour points will be completely replaced by the call
             // to nearestNeighbours, but we need the collection to be initialized
@@ -306,12 +307,12 @@ public:
 
 private:
     //! Append a node moving \p point into place.
-    void append(True /*move*/, SNode* parent, POINT& point) {
+    void append(std::true_type, SNode* parent, POINT& point) {
         m_Nodes.emplace_back(parent, std::move(point));
     }
 
     //! Append a node coping \p point into place.
-    void append(False /*move*/, SNode* parent, const POINT& point) {
+    void append(std::false_type, SNode* parent, const POINT& point) {
         m_Nodes.emplace_back(parent, point);
     }
 

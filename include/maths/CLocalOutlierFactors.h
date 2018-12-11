@@ -391,9 +391,9 @@ protected:
     template<typename POINT>
     static TSizeSizePr computeBagsAndProjectedDimension(const std::vector<POINT>& points) {
         // Note because we get big wins in the lookup speed of the k-d
-        // by reducing the point dimensions we still get a speed up if
-        // "number of projections" x "projection dimension" is O(dimension)
-        // of the full space.
+        // tree by reducing the points' dimensions we still get a speed
+        // up if "number of projections" x "projection dimension" is
+        // O("dimension of the full space").
 
         std::size_t dimension{las::dimension(points[0])};
         double rootDimension{std::sqrt(std::min(static_cast<double>(dimension), 100.0))};
@@ -449,9 +449,11 @@ protected:
     public:
         using TPoint = CAnnotatedVector<POINT, std::size_t>;
         using TPointVec = std::vector<TPoint>;
-        using TSizeDoublePr = std::pair<std::size_t, double>;
-        using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
-        using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
+        using TCoordinate = typename SCoordinate<POINT>::Type;
+        using TCoordinateVec = std::vector<TCoordinate>;
+        using TUInt32CoordinatePr = std::pair<uint32_t, TCoordinate>;
+        using TUInt32CoordinatePrVec = std::vector<TUInt32CoordinatePr>;
+        static const TCoordinate UNSET_DISTANCE;
 
     public:
         CLof(std::size_t k, NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
@@ -462,28 +464,27 @@ protected:
         }
 
         virtual void setup(const TPointVec& points) {
-            m_KDistances.assign(points.size(), TSizeDoublePrVec());
-            m_Lrd.assign(points.size(), 0.0);
+            m_KDistances.assign(m_K * points.size(), {0, UNSET_DISTANCE});
+            m_Lrd.assign(points.size(), UNSET_DISTANCE);
         }
 
         virtual void add(const TPoint& point, const TPointVec& neighbours, TDoubleVec&) {
             // This is called exactly once for each point therefore an
             // element of m_KDistances is only ever written by one thread.
-            std::size_t i{point.annotation()};
+            std::size_t i{point.annotation() * m_K};
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
-            m_KDistances[i].reserve(k);
             for (std::size_t j = 1; j <= k; ++j) {
-                m_KDistances[i].emplace_back(neighbours[j].annotation(),
-                                             las::distance(point, neighbours[j]));
+                m_KDistances[i + j - 1].first = static_cast<uint32_t>(neighbours[j].annotation());
+                m_KDistances[i + j - 1].second = las::distance(point, neighbours[j]);
             }
         }
 
         virtual void compute(TDoubleVec& scores) {
             using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
-            // We bind a minimum accumulator (by value) to each lambda (since one
-            // copy is then accessed by each thread) and take the minimum of these
-            // at the end.
+            // We bind a minimum accumulator (by value) to each lambda 
+            // (since one copy is then accessed by each thread) and take
+            // the minimum of these at the end.
 
             auto results = core::parallel_for_each(
                 this->lookup().begin(), this->lookup().end(),
@@ -491,17 +492,17 @@ protected:
                     [&](TMinAccumulator& min, const TPoint& point) {
                         std::size_t i{point.annotation()};
                         TMeanAccumulator reachability_;
-                        for (const auto& neighbour : m_KDistances[i]) {
-                            reachability_.add(
-                                std::max(kdistance(m_KDistances[index(neighbour)]),
-                                         distance(neighbour)));
+                        for (std::size_t j = i * m_K; j < (i + 1) * m_K; ++j) {
+                            const auto& neighbour = m_KDistances[j];
+                            if (distance(neighbour) != UNSET_DISTANCE) {
+                                reachability_.add(std::max(kdistance(index(neighbour)),
+                                                           distance(neighbour)));
+                            }
                         }
                         double reachability{CBasicStatistics::mean(reachability_)};
                         if (reachability > 0.0) {
                             m_Lrd[i] = 1.0 / reachability;
                             min.add(reachability);
-                        } else {
-                            m_Lrd[i] = -1.0;
                         }
                     },
                     TMinAccumulator{}));
@@ -523,8 +524,11 @@ protected:
                     this->lookup().begin(), this->lookup().end(), [&](const TPoint& point) {
                         std::size_t i{point.annotation()};
                         TMeanAccumulator score;
-                        for (const auto& neighbour : m_KDistances[i]) {
-                            score.add(m_Lrd[index(neighbour)]);
+                        for (std::size_t j = i * m_K; j < (i + 1) * m_K; ++j) {
+                            const auto& neighbour = m_KDistances[j];
+                            if (distance(neighbour) != UNSET_DISTANCE) {
+                                score.add(m_Lrd[index(neighbour)]);
+                            }
                         }
                         scores[i] = CBasicStatistics::mean(score) / m_Lrd[i];
                     });
@@ -538,20 +542,27 @@ protected:
         }
 
     private:
-        static std::size_t index(const TSizeDoublePr& neighbour) {
+        static std::size_t index(const TUInt32CoordinatePr& neighbour) {
             return neighbour.first;
         }
-        static double distance(const TSizeDoublePr& neighbour) {
+        static double distance(const TUInt32CoordinatePr& neighbour) {
             return neighbour.second;
         }
-        static double kdistance(const TSizeDoublePrVec& neighbours) {
-            return distance(neighbours.back());
+        double kdistance(std::size_t index) const {
+            for (std::size_t j = (index + 1) * m_K; j > index * m_K; --j) {
+                if (distance(m_KDistances[j - 1]) != UNSET_DISTANCE) {
+                    return distance(m_KDistances[j - 1]);
+                }
+            }
+            return UNSET_DISTANCE;
         }
 
     private:
         std::size_t m_K;
-        TSizeDoublePrVecVec m_KDistances;
-        TDoubleVec m_Lrd;
+        // The k distances to the neighbouring points of each point are
+        // stored flattened: [neighbours of 0, neighbours of 1,...].
+        TUInt32CoordinatePrVec m_KDistances;
+        TCoordinateVec m_Lrd;
     };
 
     //! \brief Computes the normalized version of the local distance
@@ -738,6 +749,11 @@ protected:
     //! greater the outlier.
     static double cdfComplementToScore(double cdfComplement);
 };
+
+template<typename POINT, typename NEAREST_NEIGHBOURS>
+const typename CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
+CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::UNSET_DISTANCE = -1.0;
+
 
 //! Compute outliers for \p frame and write to a new column.
 MATHS_EXPORT
