@@ -15,6 +15,7 @@ public:
     void testPropagation();
     void testMeanEstimation();
     void testMarginalLikelihood();
+    void testSampleMarginalLikelihoodInSupportBounds();
     void testMarginalLikelihoodMode();
     void testMarginalLikelihoodVariance();
     void testSampleMarginalLikelihood();
