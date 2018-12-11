@@ -73,8 +73,12 @@ void CStaticThreadPool::shutdown() {
         }});
     }
     for (auto& thread : m_Pool) {
-        thread.join();
+        if (thread.joinable()) {
+            thread.join();
+        }
     }
+    m_TaskQueues.clear();
+    m_Pool.clear();
 }
 
 void CStaticThreadPool::worker(std::size_t id) {

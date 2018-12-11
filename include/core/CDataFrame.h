@@ -207,9 +207,10 @@ public:
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
+    ~CDataFrame();
+
     CDataFrame(const CDataFrame&) = delete;
     CDataFrame& operator=(const CDataFrame&) = delete;
-
     CDataFrame(CDataFrame&&) = default;
     CDataFrame& operator=(CDataFrame&&) = default;
 
@@ -415,10 +416,11 @@ private:
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
-                                    boost::optional<std::size_t> sliceCapacity = boost::none,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                                        CDataFrame::EReadWriteToStorage::E_Sync);
+std::unique_ptr<CDataFrame>
+makeMainStorageDataFrame(std::size_t numberColumns,
+                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
+                             CDataFrame::EReadWriteToStorage::E_Sync);
 
 //! Make a data frame which uses disk storage for its slices.
 //!
@@ -431,12 +433,13 @@ CDataFrame makeMainStorageDataFrame(std::size_t numberColumns,
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-CDataFrame makeDiskStorageDataFrame(const std::string& rootDirectory,
-                                    std::size_t numberColumns,
-                                    std::size_t numberRows,
-                                    boost::optional<std::size_t> sliceCapacity = boost::none,
-                                    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                                        CDataFrame::EReadWriteToStorage::E_Async);
+std::unique_ptr<CDataFrame>
+makeDiskStorageDataFrame(const std::string& rootDirectory,
+                         std::size_t numberColumns,
+                         std::size_t numberRows,
+                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
+                             CDataFrame::EReadWriteToStorage::E_Async);
 }
 }
 

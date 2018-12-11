@@ -6,12 +6,13 @@
 
 #include <api/CDataFrameOutliersRunner.h>
 
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CLocalOutlierFactors.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
-
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
@@ -25,14 +26,17 @@
 namespace ml {
 namespace api {
 namespace {
+// Configuration
 const char* NUMBER_NEIGHBOURS{"number_neighbours"};
 const char* METHOD{"method"};
 const char* LOF{"lof"};
 const char* LDOF{"ldof"};
 const char* DISTANCE_KTH_NN{"distance_kth_nn"};
 const char* DISTANCE_KNN{"distance_knn"};
-
 const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
+
+// Output
+const std::string OUTLIER_SCORE{"outlier_score"};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -98,13 +102,22 @@ std::size_t CDataFrameOutliersRunner::numberOfPartitions() const {
     return m_NumberPartitions;
 }
 
-std::size_t CDataFrameOutliersRunner::requiredFrameColumns() const {
-    // This is number of columns + outlier score + explaining features TBD.
-    return this->spec().cols() + 1;
+std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
+    // Column for outlier score + explaining features TBD.
+    return 1;
 }
 
-void CDataFrameOutliersRunner::runImpl(core::CDataFrame& /*frame*/) {
-    // TODO
+void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
+                                           core::CRapidJsonConcurrentLineWriter& outputWriter) const {
+    std::size_t lastColumn{row.numberColumns() - 1};
+    outputWriter.StartObject();
+    outputWriter.Key(OUTLIER_SCORE);
+    outputWriter.Double(row[lastColumn]);
+    outputWriter.EndObject();
+}
+
+void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
+    maths::computeOutliers(this->spec().numberThreads(), frame);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

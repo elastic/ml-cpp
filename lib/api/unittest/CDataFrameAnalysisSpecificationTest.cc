@@ -37,8 +37,8 @@ public:
         : api::CDataFrameAnalysisRunner{spec} {}
 
     virtual std::size_t numberOfPartitions() const { return 1; }
-
-    std::size_t requiredFrameColumns() const { return this->spec().cols() + 2; }
+    virtual std::size_t numberExtraColumns() const { return 2; }
+    virtual void writeOneRow(TRowRef, core::CRapidJsonConcurrentLineWriter&) const {}
 
 protected:
     void runImpl(core::CDataFrame&) {
@@ -129,10 +129,10 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "100000", "2", "outliers")};
         CPPUNIT_ASSERT_EQUAL(false, spec.bad());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.cols());
+        CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
+        CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
         CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, spec.threads());
+        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, spec.numberThreads());
     }
     LOG_DEBUG(<< "Bad input");
     {
@@ -234,9 +234,9 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
         CPPUNIT_ASSERT_EQUAL(false, spec.bad());
 
-        core::CDataFrame frame{core::makeMainStorageDataFrame(10)};
+        std::unique_ptr<core::CDataFrame> frame{core::makeMainStorageDataFrame(10)};
 
-        api::CDataFrameAnalysisRunner* runner = spec.run(frame);
+        api::CDataFrameAnalysisRunner* runner = spec.run(*frame);
         CPPUNIT_ASSERT(runner != nullptr);
 
         std::string possibleErrors[]{"[]", "[error 0]", "[error 0, error 10]",
@@ -272,7 +272,7 @@ CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
         new CppUnit::TestSuite("CDataFrameAnalysisSpecificationTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
-        "CDataFrameAnalysisSpecificationTest::testAdd",
+        "CDataFrameAnalysisSpecificationTest::testCreate",
         &CDataFrameAnalysisSpecificationTest::testCreate));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
         "CDataFrameAnalysisSpecificationTest::testRunAnalysis",

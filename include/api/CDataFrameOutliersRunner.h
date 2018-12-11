@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#ifndef INCLUDED_ml_api_CDataFrameOutliersRunner_h
+#define INCLUDED_ml_api_CDataFrameOutliersRunner_h
+
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <api/ImportExport.h>
@@ -26,8 +29,11 @@ public:
     //! \sa CDataFrameAnalysisRunner::run.
     virtual std::size_t numberOfPartitions() const;
 
-    //! \return The number of columns of the output frame.
-    virtual std::size_t requiredFrameColumns() const;
+    //! \return The number of columns this adds to the data frame.
+    virtual std::size_t numberExtraColumns() const;
+
+    //! Write the extra columns of \p row added by outlier analysis to \p writer.
+    virtual void writeOneRow(TRowRef row, core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;
@@ -62,3 +68,5 @@ public:
 };
 }
 }
+
+#endif // INCLUDED_ml_api_CDataFrameOutliersRunner_h

@@ -75,12 +75,11 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     // value is not important. This is presized so that rowsToPoints only
     // needs to access and write to each element. Since it does this once
     // per element it is thread safe.
-    CFloatStorage initial;
-    TVectorVec points(frame.numberRows(), TVector{&initial, 1});
+    TVectorVec points(frame.numberRows(), TVector{nullptr, 1});
 
     auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            points[row->index()] = TVector{row->data(), row->numberColumns()};
+            new (&points[row->index()]) TVector{row->data(), row->numberColumns()};
         }
     };
 
@@ -104,7 +103,7 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
     frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
     successful = frame.writeColumns(numberThreads, writeScores);
     if (successful == false) {
-        LOG_ERROR(<< "Failed to write scores");
+        LOG_ERROR(<< "Failed to write scores to the data frame");
         return false;
     }
     return true;

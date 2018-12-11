@@ -28,6 +28,7 @@ SRCS=\
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
+	CDataFrameAnalyzerTest.cc \
 	CDetectionRulesJsonParserTest.cc \
 	CFieldConfigTest.cc \
 	CFieldDataTyperTest.cc \

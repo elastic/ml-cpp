@@ -6,13 +6,14 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CRapidJsonLineWriter.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <rapidjson/ostreamwrapper.h>
 
 #include <boost/make_unique.hpp>
 
@@ -52,10 +53,11 @@ bool isValidMember(const MEMBER& member) {
 }
 
 std::string toString(const rapidjson::Value& value) {
-    rapidjson::StringBuffer valueAsString;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(valueAsString);
-    value.Accept(writer);
-    return valueAsString.GetString();
+    std::ostringstream valueAsString;
+    rapidjson::OStreamWrapper shim{valueAsString};
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> writer{shim};
+    writer.write(value);
+    return valueAsString.str();
 }
 }
 
@@ -85,12 +87,12 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         };
 
         if (document.HasMember(ROWS) && isPositiveInteger(document[ROWS])) {
-            m_Rows = document[ROWS].GetUint();
+            m_NumberRows = document[ROWS].GetUint();
         } else {
             registerFailure(ROWS);
         }
         if (document.HasMember(COLS) && isPositiveInteger(document[COLS])) {
-            m_Cols = document[COLS].GetUint();
+            m_NumberColumns = document[COLS].GetUint();
         } else {
             registerFailure(COLS);
         }
@@ -100,7 +102,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
             registerFailure(MEMORY_LIMIT);
         }
         if (document.HasMember(THREADS) && isPositiveInteger(document[THREADS])) {
-            m_Threads = document[THREADS].GetUint();
+            m_NumberThreads = document[THREADS].GetUint();
         } else {
             registerFailure(THREADS);
         }
@@ -130,20 +132,24 @@ bool CDataFrameAnalysisSpecification::bad() const {
     return m_Bad || m_Runner->bad();
 }
 
-std::size_t CDataFrameAnalysisSpecification::rows() const {
-    return m_Rows;
+std::size_t CDataFrameAnalysisSpecification::numberRows() const {
+    return m_NumberRows;
 }
 
-std::size_t CDataFrameAnalysisSpecification::cols() const {
-    return m_Cols;
+std::size_t CDataFrameAnalysisSpecification::numberColumns() const {
+    return m_NumberColumns;
+}
+
+std::size_t CDataFrameAnalysisSpecification::numberExtraColumns() const {
+    return m_Runner != nullptr ? m_Runner->numberExtraColumns() : 0;
 }
 
 std::size_t CDataFrameAnalysisSpecification::memoryLimit() const {
     return m_MemoryLimit;
 }
 
-std::size_t CDataFrameAnalysisSpecification::threads() const {
-    return m_Threads;
+std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
+    return m_NumberThreads;
 }
 
 CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
