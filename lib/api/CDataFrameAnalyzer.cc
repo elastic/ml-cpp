@@ -87,7 +87,7 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     }
 
     this->addRowToDataFrame(fieldValues);
-    return false;
+    return true;
 }
 
 void CDataFrameAnalyzer::receivedAllRows() {
