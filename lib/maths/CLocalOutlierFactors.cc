@@ -79,7 +79,8 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
 
     auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            new (&points[row->index()]) TVector{row->data(), row->numberColumns()};
+            points[row->index()] =
+                TVector{row->data(), static_cast<long>(row->numberColumns())};
         }
     };
 
