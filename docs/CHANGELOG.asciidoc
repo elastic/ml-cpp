@@ -28,7 +28,7 @@
 
 //=== Regressions
 
- == {es} version 6.5.3
+ == {es} version 6.5.4
 
 === Bug Fixes
 
