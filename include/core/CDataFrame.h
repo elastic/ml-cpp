@@ -320,6 +320,9 @@ public:
     //! Get the memory used by the data frame.
     std::size_t memoryUsage() const;
 
+    //! Get a checksum of all the data stored in the data frame.
+    std::uint64_t checksum() const;
+
     // TODO Better error case diagnostics.
 
     // TODO We may want an architecture agnostic check pointing mechanism for long

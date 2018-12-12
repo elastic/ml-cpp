@@ -86,6 +86,12 @@ private:
     //! Stub for the values.
     mutable TFloatVec m_Empty;
 };
+
+//! Checksum \p slice.
+uint64_t computeChecksum(const TFloatVec& slice) {
+    return CHashing::murmurHash64(
+        slice.data(), static_cast<int>(sizeof(CFloatStorage) * slice.size()), 0);
+}
 }
 
 //////// CDataFrameRowSliceHandle ////////
@@ -181,6 +187,10 @@ std::size_t CMainMemoryDataFrameRowSlice::memoryUsage() const {
     return CMemory::dynamicSize(m_State);
 }
 
+std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
+    return computeChecksum(m_State);
+}
+
 //////// COnDiskDataFrameRowSlice ////////
 
 namespace {
@@ -200,12 +210,6 @@ bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
         return false;
     }
     return true;
-}
-
-//! Checksum \p slice.
-uint64_t checksum(const TFloatVec& slice) {
-    return CHashing::murmurHash64(
-        slice.data(), static_cast<int>(sizeof(CFloatStorage) * slice.size()), 0);
 }
 }
 
@@ -282,7 +286,7 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
             return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
 
-        if (checksum(result) != m_Checksum) {
+        if (computeChecksum(result) != m_Checksum) {
             LOG_ERROR(<< "Corrupt from row " << m_FirstRow);
             m_StateIsBad = true;
             return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
@@ -313,7 +317,7 @@ std::size_t COnDiskDataFrameRowSlice::memoryUsage() const {
 
 void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& state) {
     m_Capacity = state.size();
-    m_Checksum = checksum(state);
+    m_Checksum = computeChecksum(state);
     LOG_TRACE(<< "Checksum = " << m_Checksum);
 
     std::size_t bytes{sizeof(CFloatStorage) * state.size()};
@@ -321,6 +325,10 @@ void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& state) {
 
     std::ofstream file{m_FileName.string(), std::ios_base::trunc | std::ios_base::binary};
     file.write(reinterpret_cast<const char*>(state.data()), bytes);
+}
+
+std::uint64_t COnDiskDataFrameRowSlice::checksum() const {
+    return m_Checksum;
 }
 
 bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& result) const {

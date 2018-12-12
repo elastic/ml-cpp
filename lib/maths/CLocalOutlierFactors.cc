@@ -84,6 +84,8 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
         }
     };
 
+    std::uint64_t checksum{frame.checksum()};
+
     bool successful;
     std::tie(std::ignore, successful) = frame.readRows(numberThreads, rowsToPoints);
 
@@ -94,6 +96,15 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
 
     TDoubleVec scores;
     CLocalOutlierFactors::ensemble(std::move(points), scores);
+
+    // This never happens now, but it is a sanity check against someone
+    // changing CLocalOutlierFactors to accidentally write to the data
+    // frame via one of the memory mapped vectors. All bets are off as to
+    // if we generate anything meaningful if this happens.
+    if (checksum != frame.checksum()) {
+        LOG_ERROR(<< "Accidentally modified the data frame");
+        return false;
+    }
 
     auto writeScores = [&scores](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {

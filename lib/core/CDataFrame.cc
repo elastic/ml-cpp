@@ -8,6 +8,7 @@
 
 #include <core/CConcurrentWrapper.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/Concurrency.h>
@@ -248,6 +249,19 @@ void CDataFrame::finishWritingRows() {
 
 std::size_t CDataFrame::memoryUsage() const {
     return CMemory::dynamicSize(m_Slices) + CMemory::dynamicSize(m_Writer);
+}
+
+std::uint64_t CDataFrame::checksum() const {
+    std::vector<std::uint64_t> checksums(m_Slices.size(), 0);
+    parallel_for_each(0, m_Slices.size(), [&](std::size_t index) {
+        checksums[index] = m_Slices[index]->checksum();
+    });
+
+    std::uint64_t result{0};
+    for (auto checksum : checksums) {
+        result = CHashing::hashCombine(result, checksum);
+    }
+    return result;
 }
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(

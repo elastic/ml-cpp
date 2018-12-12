@@ -75,6 +75,7 @@ public:
     virtual void write(const TFloatVec& values) = 0;
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
+    virtual std::uint64_t checksum() const = 0;
 };
 
 //! \brief In main memory CDataFrame slice storage.
@@ -95,6 +96,7 @@ public:
     virtual void write(const TFloatVec& values);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
+    virtual std::uint64_t checksum() const;
 
 private:
     std::size_t m_FirstRow;
@@ -155,6 +157,7 @@ public:
     virtual void write(const TFloatVec& values);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
+    virtual std::uint64_t checksum() const;
 
 private:
     void writeToDisk(const TFloatVec& state);
