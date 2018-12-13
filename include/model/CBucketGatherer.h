@@ -56,7 +56,8 @@ class CResourceMonitor;
 //! IMPLEMENTATION:\n
 //! This functionality has been separated from the CDataGatherer in order
 //! to allow the CDataGatherer to support multiple overlapping buckets and
-//! buckets with different time spans.
+//! buckets with different time spans. However, the overlapping feature
+//! has been removed but this class is kept to avoid BWC issues.
 class MODEL_EXPORT CBucketGatherer {
 public:
     using TDoubleVec = std::vector<double>;
@@ -393,6 +394,9 @@ public:
 
     //! Create samples if possible for the bucket pointed out by \p time.
     virtual void sample(core_t::TTime time) = 0;
+
+    //! Persist state by passing information \p inserter.
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
 private:
     //! Resize the necessary data structures so they can hold values

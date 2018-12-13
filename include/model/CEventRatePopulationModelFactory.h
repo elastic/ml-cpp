@@ -129,9 +129,6 @@ public:
 
     //! Set the features which will be modeled.
     virtual void features(const TFeatureVec& features);
-
-    //! Set the bucket results delay
-    virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
     //@}
 
     //! Get the minimum seasonal variance scale
@@ -178,9 +175,6 @@ private:
 
     //! The count features which will be modeled.
     TFeatureVec m_Features;
-
-    //! The bucket results delay.
-    std::size_t m_BucketResultsDelay = 0;
 
     //! A cached search key.
     mutable TOptionalSearchKey m_SearchKeyCache;

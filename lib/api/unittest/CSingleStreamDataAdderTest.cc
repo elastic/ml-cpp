@@ -120,7 +120,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false);
+            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);

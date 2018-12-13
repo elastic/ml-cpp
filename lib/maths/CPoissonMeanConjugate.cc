@@ -646,6 +646,9 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
                     samples.push_back(sample);
+                } else if (sample < support.first) {
+                    // Extremely rarely the variance is large and the offset is 0, resulting in a negative sample.
+                    // We discard these negative samples as they are logically incongruous for a counting distribution.
                 } else {
                     LOG_ERROR(<< "Sample out of bounds: sample = " << sample << ", support = ["
                               << support.first << "," << support.second << "]"

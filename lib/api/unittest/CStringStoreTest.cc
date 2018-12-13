@@ -129,7 +129,6 @@ void CStringStoreTest::testPersonStringPruning() {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
-    modelConfig.bucketResultsDelay(2);
 
     model::CLimits limits;
 
@@ -153,9 +152,6 @@ void CStringStoreTest::testPersonStringPruning() {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
-
-        // There will be one anomaly in this batch, which will be stuck in the
-        // results queue.
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -212,9 +208,8 @@ void CStringStoreTest::testPersonStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0),
                              model::CStringStore::influencers().m_Strings.size());
 
-        // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
+        // "", "count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -257,7 +252,6 @@ void CStringStoreTest::testPersonStringPruning() {
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -299,7 +293,6 @@ void CStringStoreTest::testPersonStringPruning() {
 
         // One composer should have been culled!
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -327,7 +320,6 @@ void CStringStoreTest::testAttributeStringPruning() {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
-    modelConfig.bucketResultsDelay(2);
 
     model::CLimits limits;
 
@@ -350,9 +342,6 @@ void CStringStoreTest::testAttributeStringPruning() {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
-
-        // There will be one anomaly in this batch, which will be stuck in the
-        // results queue.
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -410,7 +399,6 @@ void CStringStoreTest::testAttributeStringPruning() {
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("distinct_count"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -454,7 +442,6 @@ void CStringStoreTest::testAttributeStringPruning() {
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("distinct_count"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -497,7 +484,6 @@ void CStringStoreTest::testAttributeStringPruning() {
 
         // One composer should have been culled!
         CPPUNIT_ASSERT(this->nameExists("count"));
-        CPPUNIT_ASSERT(this->nameExists("distinct_count"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
         CPPUNIT_ASSERT(this->nameExists("composer"));
         CPPUNIT_ASSERT(this->nameExists("instrument"));
@@ -523,7 +509,6 @@ void CStringStoreTest::testInfluencerStringPruning() {
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
-    modelConfig.bucketResultsDelay(2);
 
     model::CLimits limits;
 

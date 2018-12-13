@@ -271,7 +271,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                                    : 1.0;
                 double ceff = emptyBucketWeight * count * this->learnRate(feature);
 
-                LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket(time)
+                LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
                           << ", feature = " << model_t::print(feature)
                           << ", samples = " << core::CContainerPrinter::print(samples)
                           << ", isInteger = " << data_.second.s_IsInteger
@@ -338,9 +338,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     }
 
     if (pid >= this->firstBucketTimes().size()) {
-        // This is not necessarily an error: the person might have been added
-        // only in an out of phase bucket so far
-        LOG_TRACE(<< "No first time for person = " << gatherer.personName(pid));
+        LOG_ERROR(<< "No first time for person = " << gatherer.personName(pid));
         return false;
     }
 

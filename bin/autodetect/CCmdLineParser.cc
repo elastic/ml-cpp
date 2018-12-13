@@ -50,7 +50,6 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistFileNamedPipe,
                            size_t& maxAnomalyRecords,
                            bool& memoryUsage,
-                           std::size_t& bucketResultsDelay,
                            bool& multivariateByFields,
                            TStrVec& clauseTokens) {
     try {
@@ -111,8 +110,6 @@ bool CCmdLineParser::parse(int argc,
                         "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                         "Log the model memory usage at the end of the job")
-            ("resultFinalizationWindow", boost::program_options::value<std::size_t>(),
-                        "The numer of half buckets to store before choosing which overlapping bucket has the biggest anomaly")
             ("multivariateByFields",
                         "Optional flag to enable multi-variate analysis of correlated by fields")
         ;
@@ -221,9 +218,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
-        }
-        if (vm.count("resultFinalizationWindow") > 0) {
-            bucketResultsDelay = vm["resultFinalizationWindow"].as<std::size_t>();
         }
         if (vm.count("multivariateByFields") > 0) {
             multivariateByFields = true;

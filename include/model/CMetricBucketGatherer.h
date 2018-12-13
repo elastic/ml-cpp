@@ -90,7 +90,7 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Fill in the state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
