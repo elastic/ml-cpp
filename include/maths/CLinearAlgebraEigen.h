@@ -334,7 +334,7 @@ public:
 
 private:
     void reseat(const CMemoryMappedDenseMatrix& other) {
-        TBase *base{static_cast<TBase*>(this)};
+        TBase* base{static_cast<TBase*>(this)};
         new (base) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
     }
 };
@@ -435,7 +435,7 @@ public:
 
 private:
     void reseat(const CMemoryMappedDenseVector& other) {
-        TBase *base{static_cast<TBase*>(this)};
+        TBase* base{static_cast<TBase*>(this)};
         new (base) TBase{const_cast<SCALAR*>(other.data()), other.size()};
     }
 };
