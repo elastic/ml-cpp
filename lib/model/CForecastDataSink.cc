@@ -9,6 +9,8 @@
 #include <core/CLogger.h>
 #include <core/CScopedRapidJsonPoolAllocator.h>
 
+#include <maths/CIntegerTools.h>
+
 #include <boost/bind.hpp>
 
 #include <vector>
@@ -221,9 +223,11 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);
-
-    // time is in Java format - milliseconds since the epoch
-    m_Writer.addTimeFieldToObj(TIMESTAMP, errorBar.s_Time, doc);
+    // Time is in Java format - milliseconds since the epoch. Note this
+    // matches the Java notion of "bucket time" which is defined as the
+    // start of the bucket containing the forecast time.
+    core_t::TTime time{maths::CIntegerTools::floor(errorBar.s_Time, errorBar.s_BucketLength)};
+    m_Writer.addTimeFieldToObj(TIMESTAMP, time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);
     if (!partitionFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, partitionFieldName, doc);
