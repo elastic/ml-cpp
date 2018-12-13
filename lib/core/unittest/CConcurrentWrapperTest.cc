@@ -82,15 +82,20 @@ void CConcurrentWrapperTest::testThreads() {
 
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
+        LOG_DEBUG(<< "Created wrapper");
         {
             core::CStaticThreadPool tp(10);
+            LOG_DEBUG(<< "Created thread pool");
             for (size_t i = 0; i < MESSAGES; ++i) {
                 tp.schedule([&wrappedStringStream, i] {
                     task(wrappedStringStream, i, std::chrono::microseconds(0));
                 });
+                LOG_DEBUG(<< "processed " << i);
             }
         }
+        LOG_DEBUG(<< "Shutdown thread pool");
     }
+    LOG_DEBUG(<< "Shutdown wrapper");
 
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
