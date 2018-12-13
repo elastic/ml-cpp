@@ -312,19 +312,31 @@ public:
         : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
     CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
         : TBase{nullptr, 1, 1} {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+        this->reseat(other);
     }
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
         : TBase{nullptr, 1, 1} {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+        this->reseat(other);
     }
     CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
     }
     CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
     }
     //@}
+
+private:
+    void reseat(const CMemoryMappedDenseMatrix& other) {
+        TBase *base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+    }
 };
 
 //! \brief Gets a constant square dense matrix with specified dimension or with
@@ -393,21 +405,21 @@ public:
         : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
     CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
         : TBase{nullptr, 1} {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.size()};
+        this->reseat(other);
     }
     CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
         : TBase{nullptr, 1} {
-        new (this) TBase{const_cast<SCALAR*>(other.data()), other.size()};
+        this->reseat(other);
     }
     CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) {
         if (this != &other) {
-            new (this) TBase{const_cast<SCALAR*>(other.data()), other.size()};
+            this->reseat(other);
         }
         return *this;
     }
     CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
         if (this != &other) {
-            new (this) TBase{const_cast<SCALAR*>(other.data()), other.size()};
+            this->reseat(other);
         }
         return *this;
     }
@@ -419,6 +431,12 @@ public:
             seed = CChecksum::calculate(seed, this->coeff(i));
         }
         return seed;
+    }
+
+private:
+    void reseat(const CMemoryMappedDenseVector& other) {
+        TBase *base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.size()};
     }
 };
 
