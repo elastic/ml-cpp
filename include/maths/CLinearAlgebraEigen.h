@@ -281,7 +281,16 @@ struct SConstant<CDenseVector<SCALAR>> {
     }
 };
 
-//! \brief Decorates an Eigen::Map of a dense matrix with some useful methods.
+//! \brief Decorates an Eigen::Map of a dense matrix with some useful methods
+//! and changes default copy semantics to shallow copy.
+//!
+//! IMPLEMENTATION:\n
+//! This effectively acts like a std::reference_wrapper of an Eigen::Map for
+//! an Eigen matrix. In particular, all copying is shallow unlike Eigen::Map
+//! that acts directly on the referenced memory. This is to match the behaviour
+//! of CMemoryMappedDenseVector.
+//!
+//! \sa CMemoryMappedDenseVector for more information.
 template<typename SCALAR>
 class CMemoryMappedDenseMatrix
     : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
@@ -302,11 +311,32 @@ public:
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other)
         : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
     CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) = default;
-    CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) = default;
-    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) = default;
+        : TBase{nullptr, 1, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
+        : TBase{nullptr, 1, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
     //@}
+
+private:
+    void reseat(const CMemoryMappedDenseMatrix& other) {
+        TBase* base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+    }
 };
 
 //! \brief Gets a constant square dense matrix with specified dimension or with
@@ -323,7 +353,37 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
     }
 };
 
-//! \brief Decorates an Eigen::Map of a dense vector with some useful methods.
+//! \brief Decorates an Eigen::Map of a dense vector with some useful methods
+//! and changes default copy semantics to shallow.
+//!
+//! IMPLEMENTATION:\n
+//! This effectively acts like a std::reference_wrapper of an Eigen::Map for
+//! an Eigen vector. In particular, all copying is shallow unlike Eigen::Map
+//! that acts directly on the referenced memory, i.e.
+//! \code{.cpp}
+//! double values1[]{1.0, 1.0};
+//! double values2[]{2.0, 2.0};
+//!
+//! CMemoryMappedDenseVector<double> mm1{values1, 2};
+//! CMemoryMappedDenseVector<double> mm2{values2, 2};
+//!
+//! mm1 = mm2;
+//! std::cout << mm1(0) << "," << mm1(1) << "," << values1[0] << "," << values1[1] << std::endl;
+//!
+//! Eigen::Map<Eigen::VectorXd> map1{values1, 2};
+//! Eigen::Map<Eigen::VectorXd> map2{values2, 2};
+//!
+//! map1 = map2;
+//! std::cout << map1(0) << "," << map1(1) << "," << values1[0] << "," << values1[1] << std::endl;
+//! \endcode
+//!
+//! Outputs:\n
+//! 2,2,1,1\n
+//! 2,2,2,2
+//!
+//! This better fits our needs with data frames where we want to reference the
+//! memory stored in the data frame rows, but never modify it directly through
+//! this vector type.
 template<typename SCALAR>
 class CMemoryMappedDenseVector
     : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
@@ -337,17 +397,32 @@ public:
     //! Forwarding constructor.
     template<typename... ARGS>
     CMemoryMappedDenseVector(ARGS&&... args)
-        : TBase(std::forward<ARGS>(args)...) {}
+        : TBase{std::forward<ARGS>(args)...} {}
 
     //! \name Copy and Move Semantics
     //@{
     CMemoryMappedDenseVector(CMemoryMappedDenseVector& other)
         : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
     CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
-        : TBase{static_cast<const TBase&>(other)} {}
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) = default;
-    CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) = default;
-    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) = default;
+        : TBase{nullptr, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
+        : TBase{nullptr, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
     //@}
 
     //! Get a checksum of this object.
@@ -356,6 +431,12 @@ public:
             seed = CChecksum::calculate(seed, this->coeff(i));
         }
         return seed;
+    }
+
+private:
+    void reseat(const CMemoryMappedDenseVector& other) {
+        TBase* base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.size()};
     }
 };
 

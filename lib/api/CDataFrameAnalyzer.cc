@@ -158,7 +158,8 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     case ' ':
         // Spaces are just used to fill the buffers and force prior messages
         // through the system - we don't need to do anything else.
-        LOG_TRACE(<< "Received pad of length " << controlMessage.length());
+        LOG_TRACE(<< "Received pad of length "
+                  << fieldValues[m_ControlFieldIndex].length());
         return true;
     case FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE:
         this->receivedAllRows();
