@@ -6,6 +6,8 @@
 
 #include <core/CStaticThreadPool.h>
 
+#include <chrono>
+
 namespace ml {
 namespace core {
 namespace {
@@ -21,7 +23,7 @@ CStaticThreadPool::CStaticThreadPool(std::size_t size)
     m_Pool.reserve(m_TaskQueues.size());
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
         try {
-            m_Pool.emplace_back([&, id] { worker(id); });
+            m_Pool.emplace_back([this, id] { this->worker(id); });
         } catch (...) {
             this->shutdown();
             throw;
@@ -65,6 +67,16 @@ void CStaticThreadPool::busy(bool value) {
 }
 
 void CStaticThreadPool::shutdown() {
+
+    // Wait here until all the queues are empty. This is to ensure that each thread
+    // is waiting to pop its own queue. This is critical because each thread must
+    // execute its own shutdown message.
+    auto notIsEmpty = [](TTaskQueue& queue) { return queue.size() > 0; };
+    while (std::find_if(m_TaskQueues.begin(), m_TaskQueues.end(), notIsEmpty) !=
+           m_TaskQueues.end()) {
+        std::this_thread::sleep_for(std::chrono::microseconds{50});
+    }
+
     // Signal to each thread that it is finished.
     for (auto& queue : m_TaskQueues) {
         queue.push(TTask{[&] {
@@ -72,11 +84,13 @@ void CStaticThreadPool::shutdown() {
             return boost::any{};
         }});
     }
+
     for (auto& thread : m_Pool) {
         if (thread.joinable()) {
             thread.join();
         }
     }
+
     m_TaskQueues.clear();
     m_Pool.clear();
 }
@@ -112,11 +126,6 @@ void CStaticThreadPool::worker(std::size_t id) {
             task = m_TaskQueues[id].pop();
         }
 
-        noThrowExecute(task);
-    }
-
-    // Drain this thread's queue before exiting.
-    for (auto task = m_TaskQueues[id].tryPop(); task; task = m_TaskQueues[id].tryPop()) {
         noThrowExecute(task);
     }
 }

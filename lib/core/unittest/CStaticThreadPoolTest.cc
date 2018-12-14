@@ -105,12 +105,10 @@ void CStaticThreadPoolTest::testThroughputStability() {
 
     CPPUNIT_ASSERT_EQUAL(2000u, counter.load());
 
-    // The best we can achieve is 2000ms ignoring all overheads. In fact, there will
-    // be imbalance in the queues when the pool shuts down which is then performed
-    // single threaded. Also there are other overheads.
+    // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //CPPUNIT_ASSERT(totalTime <= 2600);
+    //CPPUNIT_ASSERT(totalTime <= 2400);
 }
 
 void CStaticThreadPoolTest::testManyTasksThroughput() {
