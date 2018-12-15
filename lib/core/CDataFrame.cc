@@ -264,6 +264,12 @@ std::uint64_t CDataFrame::checksum() const {
     return result;
 }
 
+std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
+                                            std::size_t numberRows,
+                                            std::size_t numberColumns) {
+    return inMainMemory ? numberRows * numberColumns * sizeof(float) : 0;
+}
+
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     std::size_t numberRows,
     std::size_t rowCapacity,

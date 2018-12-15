@@ -36,7 +36,7 @@ const char* DISTANCE_KNN{"distance_knn"};
 const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
-const std::string OUTLIER_SCORE{"outlier_score"};
+const char* OUTLIER_SCORE{"outlier_score"};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -95,11 +95,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec}, m_NumberPartitions{1 /*FIXME*/} {
-}
-
-std::size_t CDataFrameOutliersRunner::numberOfPartitions() const {
-    return m_NumberPartitions;
+    : CDataFrameAnalysisRunner{spec} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
@@ -118,6 +114,37 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::computeOutliers(this->spec().numberThreads(), frame);
+}
+
+std::size_t
+CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                         std::size_t numberRows,
+                                                         std::size_t numberColumns) const {
+    std::size_t result{0};
+    switch (numberPartitions) {
+    case 1:
+        result = estimateMemoryUsage<maths::CDenseVector<float>>(numberRows, numberColumns);
+        break;
+    default:
+        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<float>>(
+            numberRows, numberColumns);
+    }
+    return result;
+}
+
+template<typename POINT>
+std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
+    maths::CLocalOutlierFactors::EAlgorithm method{
+        m_Method != boost::none
+            ? static_cast<maths::CLocalOutlierFactors::EAlgorithm>(*m_Method)
+            : maths::CLocalOutlierFactors::E_Ensemble};
+    if (m_NumberNeighbours != boost::none) {
+        return maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+            method, *m_NumberNeighbours, numberRows, numberColumns);
+    }
+    return maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(method, numberRows,
+                                                                   numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

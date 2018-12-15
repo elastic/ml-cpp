@@ -70,7 +70,18 @@ public:
     //! \note If this is greater than one then the data frame should be stored
     //! on disk. The run method is responsible for copying the relevant pieces
     //! into main memory during an analysis.
-    virtual std::size_t numberOfPartitions() const = 0;
+    std::size_t numberPartitions() const;
+
+    //! Get the maximum permitted partition size in numbers of rows.
+    std::size_t maximumNumberRowsPerPartition() const;
+
+    //! Estimate the amount of memory this analysis will use to run for a
+    //! frame with \p numberRows and \p numberColumns.
+    //!
+    //! The partition determines the storage strategy, i.e. if the data frame
+    //! is in main memory (numberPartitions == 1) and on disk otherwise. This
+    //! in turn determines the representation we will use for row vectors.
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
@@ -117,6 +128,9 @@ public:
 
 protected:
     virtual void runImpl(core::CDataFrame& frame) = 0;
+    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                       std::size_t numberRows,
+                                                       std::size_t numberColumns) const = 0;
 
     const CDataFrameAnalysisSpecification& spec() const;
 
@@ -124,9 +138,13 @@ protected:
     void setToFinished();
     void updateProgress(double fractionalProgress);
     void addError(const std::string& error);
+    void computeRequiredNumberPartitionsAndMaximumPartitionSize();
 
 private:
     const CDataFrameAnalysisSpecification& m_Spec;
+
+    std::size_t m_NumberPartitions = 0;
+    std::size_t m_MaximumNumberRowsPerPartition = 0;
 
     bool m_Bad = false;
     std::atomic_bool m_Finished;

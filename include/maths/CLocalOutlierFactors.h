@@ -45,7 +45,13 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
     //! The available algorithms.
-    enum EAlgorithm { E_Lof, E_Ldof, E_DistancekNN, E_TotalDistancekNN };
+    enum EAlgorithm {
+        E_Lof,
+        E_Ldof,
+        E_DistancekNN,
+        E_TotalDistancekNN,
+        E_Ensemble
+    };
 
 public:
     //! Compute the normalized LOF scores for \p points.
@@ -184,6 +190,47 @@ public:
         }
     }
 
+    //! Estimate the amount of memory that will be used computing outliers.
+    //!
+    //! \param[in] algorithm The algorithm that will be used.
+    //! \param[in] k The number of nearest neighbours which will be used.
+    //! \param[in] numberPoints The number of points for outliers will be
+    //! computed.
+    //! \param[in] dimension The dimension of the points for which outliers
+    //! will be computed.
+    template<typename POINT>
+    static std::size_t estimateMemoryUsage(EAlgorithm algorithm,
+                                           std::size_t k,
+                                           std::size_t numberPoints,
+                                           std::size_t dimension) {
+        std::size_t result{TKdTree<POINT>::estimateMemoryUsage(numberPoints, dimension)};
+        switch (algorithm) {
+        case E_Ensemble:
+            result += CLof<POINT, TKdTree<POINT>>::estimateMemoryUsage(k, numberPoints) +
+                      CEnsemble<POINT, TKdTree<POINT>>::estimateMemoryUsage(
+                          numberPoints, dimension);
+            break;
+        case E_Lof:
+            result += CLof<POINT, TKdTree<POINT>>::estimateMemoryUsage(numberPoints, dimension);
+            break;
+        case E_Ldof:
+        case E_DistancekNN:
+        case E_TotalDistancekNN:
+            break;
+        }
+        return result;
+    }
+
+    //! Overload of estimateMemoryUsage which computes estimated usage
+    //! for the default method and number of nearest neighbours.
+    template<typename POINT>
+    static std::size_t
+    estimateMemoryUsage(EAlgorithm algorithm, std::size_t numberPoints, std::size_t dimension) {
+        return estimateMemoryUsage<POINT>(
+            algorithm, defaultNumberOfNeighbours(numberPoints, dimension),
+            numberPoints, dimension);
+    }
+
 protected:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -210,8 +257,11 @@ protected:
     //! Check whether to project the data.
     template<typename POINT>
     static bool shouldProject(const std::vector<POINT>& points) {
-        return (points.size() > 0 ? las::dimension(points[0]) : 1) > 4;
+        return shouldProject(points.size() > 0 ? las::dimension(points[0]) : 1);
     }
+
+    //! Check whether to project the data.
+    static bool shouldProject(std::size_t dimension) { return dimension > 4; }
 
     //! Get the number of nearest neighbours to use.
     template<typename POINT>
@@ -220,12 +270,18 @@ protected:
             return 1;
         }
 
-        double numberPoints{static_cast<double>(points.size())};
+        std::size_t numberPoints{points.size()};
         std::size_t dimension{las::dimension(points[0])};
         if (shouldProject(points)) {
             std::tie(std::ignore, dimension) = computeBagsAndProjectedDimension(points);
         }
 
+        return defaultNumberOfNeighbours(numberPoints, dimension);
+    }
+
+    //! Get the number of nearest neighbours to use.
+    static std::size_t defaultNumberOfNeighbours(std::size_t numberPoints,
+                                                 std::size_t dimension) {
         return static_cast<std::size_t>(
             CTools::truncate(std::min(5.0 * static_cast<double>(dimension),
                                       std::pow(static_cast<double>(numberPoints), 1.0 / 3.0)),
@@ -456,6 +512,11 @@ protected:
             normalize(scores);
         }
 
+        static std::size_t estimateMemoryUsage(std::size_t numberPoints, std::size_t k) {
+            return numberPoints * (sizeof(TSizeDoublePrVec) +
+                                   k * sizeof(TSizeDoublePr) + sizeof(double));
+        }
+
     private:
         static std::size_t index(const TSizeDoublePr& neighbour) {
             return neighbour.first;
@@ -633,6 +694,11 @@ protected:
                 }
                 scores[i] /= static_cast<double>(m_Scores.size());
             }
+        }
+
+        static std::size_t estimateMemoryUsage(std::size_t numberPoints,
+                                               std::size_t numberMethods) {
+            return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
         }
 
     private:

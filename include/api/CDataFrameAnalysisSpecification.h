@@ -92,7 +92,7 @@ public:
     //! to the data frame.
     std::size_t numberExtraColumns() const;
 
-    //! \return The memory limit for the process.
+    //! \return The memory usage limit for the process.
     std::size_t memoryLimit() const;
 
     //! \return The number of threads the analysis can use.

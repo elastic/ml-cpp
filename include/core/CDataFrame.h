@@ -323,6 +323,12 @@ public:
     //! Get a checksum of all the data stored in the data frame.
     std::uint64_t checksum() const;
 
+    //! Get the estimated memory usage for a data frame with \p numberRows rows and
+    //! \p numberColumns columns.
+    static std::size_t estimateMemoryUsage(bool inMainMemory,
+                                           std::size_t numberRows,
+                                           std::size_t numberColumns);
+
     // TODO Better error case diagnostics.
 
     // TODO We may want an architecture agnostic check pointing mechanism for long

@@ -19,15 +19,11 @@ namespace ml {
 namespace api {
 
 //! \brief Runs outlier detection on a core::CDataFrame.
-class API_EXPORT CDataFrameOutliersRunner : public CDataFrameAnalysisRunner {
+class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunner {
 public:
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const rapidjson::Value& params);
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
-
-    //! \return The number of partitions to use when computing outliers for the frame.
-    //! \sa CDataFrameAnalysisRunner::run.
-    virtual std::size_t numberOfPartitions() const;
 
     //! \return The number of columns this adds to the data frame.
     virtual std::size_t numberExtraColumns() const;
@@ -40,6 +36,11 @@ private:
 
 private:
     virtual void runImpl(core::CDataFrame& frame);
+    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                       std::size_t numberRows,
+                                                       std::size_t numberColumns) const;
+    template<typename POINT>
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
     //! \name Custom config
@@ -54,8 +55,6 @@ private:
     //! \see maths::CLocalOutlierFactors for more details.
     TOptionalSize m_Method;
     //@}
-
-    std::size_t m_NumberPartitions;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.
