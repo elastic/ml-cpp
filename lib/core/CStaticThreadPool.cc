@@ -35,18 +35,19 @@ CStaticThreadPool::~CStaticThreadPool() {
     this->shutdown();
 }
 
-void CStaticThreadPool::schedule(TTask&& task) {
+void CStaticThreadPool::schedule(TTask&& task_) {
     // Only block if every queue is full.
     std::size_t size{m_TaskQueues.size()};
     std::size_t i{m_Cursor.load()};
     std::size_t end{i + size};
+    CWrappedTask task{std::forward<TTask>(task_)};
     for (/**/; i < end; ++i) {
-        if (m_TaskQueues[i % size].tryPush(std::forward<TTask>(task))) {
+        if (m_TaskQueues[i % size].tryPush(std::move(task))) {
             break;
         }
     }
     if (i == end) {
-        m_TaskQueues[i % size].push(std::forward<TTask>(task));
+        m_TaskQueues[i % size].push(std::move(task));
     }
     m_Cursor.store(i + 1);
 }
@@ -68,21 +69,17 @@ void CStaticThreadPool::busy(bool value) {
 
 void CStaticThreadPool::shutdown() {
 
-    // Wait here until all the queues are empty. This is to ensure that each thread
-    // is waiting to pop its own queue. This is critical because each thread must
-    // execute its own shutdown message.
-    auto notIsEmpty = [](TTaskQueue& queue) { return queue.size() > 0; };
-    while (std::find_if(m_TaskQueues.begin(), m_TaskQueues.end(), notIsEmpty) !=
-           m_TaskQueues.end()) {
-        std::this_thread::sleep_for(std::chrono::microseconds{50});
-    }
+    // Drain before starting to shutting down to maximise through put.
+    this->drainQueuesWithoutBlocking();
 
-    // Signal to each thread that it is finished.
-    for (auto& queue : m_TaskQueues) {
-        queue.push(TTask{[&] {
+    // Signal to each thread that it is finished. We bind each task to a thread so
+    // so each thread executes exactly one shutdown task.
+    for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
+        TTask done{[&] {
             m_Done = true;
             return boost::any{};
-        }});
+        }};
+        m_TaskQueues[id].push(CWrappedTask{std::move(done), id});
     }
 
     for (auto& thread : m_Pool) {
@@ -97,14 +94,11 @@ void CStaticThreadPool::shutdown() {
 
 void CStaticThreadPool::worker(std::size_t id) {
 
-    auto noThrowExecute = [](TOptionalTask& task) {
-        try {
-            (*task)();
-        } catch (const std::future_error& e) {
-            LOG_ERROR(<< "Failed executing packaged task: '" << e.code() << "' "
-                      << "with error '" << e.what() << "'");
-        }
+    auto ifAllowed = [id](const CWrappedTask& task) {
+        return task.executableOnThread(id);
     };
+
+    TOptionalTask task;
 
     while (m_Done == false) {
         // We maintain "worker count" queues and each worker has an affinity to a
@@ -115,9 +109,8 @@ void CStaticThreadPool::worker(std::size_t id) {
         // workers on queue reads.
 
         std::size_t size{m_TaskQueues.size()};
-        TOptionalTask task;
         for (std::size_t i = 0; i < size; ++i) {
-            task = m_TaskQueues[(id + i) % size].tryPop();
+            task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
             if (task != boost::none) {
                 break;
             }
@@ -126,7 +119,48 @@ void CStaticThreadPool::worker(std::size_t id) {
             task = m_TaskQueues[id].pop();
         }
 
-        noThrowExecute(task);
+        (*task)();
+
+        // In the typical situation that the thread(s) adding tasks to the queues can
+        // do this much faster than the threads consuming them, all queues will be full
+        // and the producer(s) will be waiting to add a task as each one is consumed.
+        // By switching to work on a new queue here we minimise contention between the
+        // producers and consumers. Testing on bare metal (OSX) the overhead per task
+        // dropped from around 2.2 microseconds to 1.5 microseconds by yielding here.
+        std::this_thread::yield();
+    }
+}
+
+void CStaticThreadPool::drainQueuesWithoutBlocking() {
+    TOptionalTask task;
+    auto popTask = [&] {
+        for (auto& queue : m_TaskQueues) {
+            task = queue.tryPop();
+            if (task != boost::none) {
+                (*task)();
+                return true;
+            }
+        }
+        return false;
+    };
+    while (popTask()) {
+    }
+}
+
+CStaticThreadPool::CWrappedTask::CWrappedTask(TTask&& task, TOptionalSize threadId)
+    : m_Task{std::forward<TTask>(task)}, m_ThreadId{threadId} {
+}
+
+bool CStaticThreadPool::CWrappedTask::executableOnThread(std::size_t id) const {
+    return m_ThreadId == boost::none || *m_ThreadId == id;
+}
+
+void CStaticThreadPool::CWrappedTask::operator()() {
+    try {
+        m_Task();
+    } catch (const std::future_error& e) {
+        LOG_ERROR(<< "Failed executing packaged task: '" << e.code() << "' "
+                  << "with error '" << e.what() << "'");
     }
 }
 }

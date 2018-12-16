@@ -14,7 +14,8 @@ public:
     void testScheduleDelayMinimisation();
     void testThroughputStability();
     void testManyTasksThroughput();
-    void testExceptions();
+    void testSchedulingOverhead();
+    void testWithExceptions();
 
     static CppUnit::Test* suite();
 };
