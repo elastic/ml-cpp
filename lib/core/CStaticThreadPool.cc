@@ -69,7 +69,7 @@ void CStaticThreadPool::busy(bool value) {
 
 void CStaticThreadPool::shutdown() {
 
-    // Drain before starting to shutting down to maximise through put.
+    // Drain the queues before starting to shut down in order to maximise throughput.
     this->drainQueuesWithoutBlocking();
 
     // Signal to each thread that it is finished. We bind each task to a thread so
