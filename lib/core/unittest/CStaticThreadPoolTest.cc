@@ -105,12 +105,10 @@ void CStaticThreadPoolTest::testThroughputStability() {
 
     CPPUNIT_ASSERT_EQUAL(2000u, counter.load());
 
-    // The best we can achieve is 2000ms ignoring all overheads. In fact, there will
-    // be imbalance in the queues when the pool shuts down which is then performed
-    // single threaded. Also there are other overheads.
+    // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //CPPUNIT_ASSERT(totalTime <= 2600);
+    //CPPUNIT_ASSERT(totalTime <= 2400);
 }
 
 void CStaticThreadPoolTest::testManyTasksThroughput() {
@@ -149,7 +147,26 @@ void CStaticThreadPoolTest::testManyTasksThroughput() {
     //CPPUNIT_ASSERT(totalTime <= 780);
 }
 
-void CStaticThreadPoolTest::testExceptions() {
+void CStaticThreadPoolTest::testSchedulingOverhead() {
+
+    // Test the overhead per task is less than 1.6 microseconds.
+
+    core::CStaticThreadPool pool{4};
+
+    core::CStopWatch watch{true};
+    for (std::size_t i = 0; i < 1000000; ++i) {
+        if (i % 100000 == 0) {
+            LOG_DEBUG(<< i);
+        }
+        pool.schedule([]() {});
+    }
+
+    double overhead{static_cast<double>(watch.stop()) / 1000.0};
+    LOG_DEBUG(<< "Total time = " << overhead);
+    //CPPUNIT_ASSERT(overhead < 1.6);
+}
+
+void CStaticThreadPoolTest::testWithExceptions() {
 
     // Check we don't deadlock we don't kill worker threads if we do stupid things.
 
@@ -184,7 +201,10 @@ CppUnit::Test* CStaticThreadPoolTest::suite() {
         "CStaticThreadPoolTest::testManyTasksThroughput",
         &CStaticThreadPoolTest::testManyTasksThroughput));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testExceptions", &CStaticThreadPoolTest::testExceptions));
+        "CStaticThreadPoolTest::testSchedulingOverhead",
+        &CStaticThreadPoolTest::testSchedulingOverhead));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
+        "CStaticThreadPoolTest::testWithExceptions", &CStaticThreadPoolTest::testWithExceptions));
 
     return suiteOfTests;
 }
