@@ -52,11 +52,11 @@ private:
     //! outlier factors.
     TOptionalSize m_NumberNeighbours;
 
-    //! If non-null selects the method to use to compute outlier factors; the default
-    //! is an ensemble of all supported types.
+    //! Selects the method to use to compute outlier factors; the default is an ensemble
+    //! of all supported types.
     //!
     //! \see maths::CLocalOutlierFactors for more details.
-    TOptionalSize m_Method;
+    std::size_t m_Method;
     //@}
 };
 

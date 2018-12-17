@@ -19,7 +19,7 @@
 namespace ml {
 namespace api {
 namespace {
-std::size_t memoryLimitWithMargin(const CDataFrameAnalysisSpecification& spec) {
+std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& spec) {
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
 }
@@ -36,7 +36,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     std::size_t numberRows{m_Spec.numberRows()};
     std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
-    std::size_t memoryLimit{memoryLimitWithMargin(m_Spec)};
+    std::size_t memoryLimit{memoryLimitWithSafetyMargin(m_Spec)};
 
     LOG_TRACE(<< "memory limit = " << memoryLimit);
 
@@ -148,7 +148,7 @@ void CDataFrameAnalysisRunner::addError(const std::string& error) {
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
                                                           std::size_t numberColumns) const {
-    return core::CDataFrame::estimateMemoryUsage(m_NumberPartitions == 1,
+    return core::CDataFrame::estimateMemoryUsage(this->storeDataFrameInMainMemory(),
                                                  numberRows, numberColumns) +
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
 }

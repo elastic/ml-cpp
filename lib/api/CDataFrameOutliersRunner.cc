@@ -73,13 +73,13 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     if (params.HasMember(METHOD)) {
         if (std::strcmp(LOF, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Lof));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Lof);
         } else if (std::strcmp(LDOF, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Ldof));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Ldof);
         } else if (std::strcmp(DISTANCE_KTH_NN, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_DistancekNN));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_DistancekNN);
         } else if (std::strcmp(DISTANCE_KNN, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_TotalDistancekNN));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_TotalDistancekNN);
         } else {
             registerFailure(METHOD);
         }
@@ -95,7 +95,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec} {
+    : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
+                                          maths::CLocalOutlierFactors::E_Ensemble)} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
@@ -136,9 +137,7 @@ template<typename POINT>
 std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows,
                                                           std::size_t numberColumns) const {
     maths::CLocalOutlierFactors::EAlgorithm method{
-        m_Method != boost::none
-            ? static_cast<maths::CLocalOutlierFactors::EAlgorithm>(*m_Method)
-            : maths::CLocalOutlierFactors::E_Ensemble};
+        static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method)};
     if (m_NumberNeighbours != boost::none) {
         return maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
             method, *m_NumberNeighbours, numberRows, numberColumns);
