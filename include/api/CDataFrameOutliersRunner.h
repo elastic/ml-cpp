@@ -21,8 +21,11 @@ namespace api {
 //! \brief Runs outlier detection on a core::CDataFrame.
 class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunner {
 public:
+    //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const rapidjson::Value& params);
+
+    //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
 
     //! \return The number of columns this adds to the data frame.
@@ -61,9 +64,11 @@ private:
 class API_EXPORT CDataFrameOutliersRunnerFactory : public CDataFrameAnalysisRunnerFactory {
 public:
     virtual const char* name() const;
-    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
-    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value& params) const;
+
+private:
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const;
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                 const rapidjson::Value& params) const;
 };
 }
 }

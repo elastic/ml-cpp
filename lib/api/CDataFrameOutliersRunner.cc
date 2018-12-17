@@ -99,7 +99,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
-    // Column for outlier score + explaining features TBD.
+    // Column for outlier score + explaining features TODO.
     return 1;
 }
 
@@ -152,14 +152,14 @@ const char* CDataFrameOutliersRunnerFactory::name() const {
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
-    return boost::make_unique<CDataFrameOutliersRunner>(spec);
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec);
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& params) const {
-    return boost::make_unique<CDataFrameOutliersRunner>(spec, params);
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                          const rapidjson::Value& params) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec, params);
 }
 }
 }

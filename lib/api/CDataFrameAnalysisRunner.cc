@@ -32,19 +32,47 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
+void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
+
+    std::size_t numberRows{m_Spec.numberRows()};
+    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
+    std::size_t memoryLimit{memoryLimitWithMargin(m_Spec)};
+
+    // Find the smallest number of partitions such that the size per partition
+    // is less than the memory limit.
+
+    for (m_NumberPartitions = 1; m_NumberPartitions < numberRows; ++m_NumberPartitions) {
+        std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
+        if (this->estimateMemoryUsage(partitionNumberRows, numberColumns) < memoryLimit) {
+            break;
+        }
+    }
+
+    if (m_NumberPartitions == numberRows) {
+        m_Bad = true;
+    } else if (m_NumberPartitions > 1) {
+        // The maximum number of rows is found by binary search in the interval
+        // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
+
+        m_MaximumNumberRowsPerPartition = *std::lower_bound(
+            boost::make_counting_iterator(numberRows / m_NumberPartitions),
+            boost::make_counting_iterator(numberRows / (m_NumberPartitions - 1)),
+            memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
+                return this->estimateMemoryUsage(partitionNumberRows, numberColumns) < limit;
+            });
+    }
+}
+
+bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {
+    return m_NumberPartitions > 1;
+}
+
 std::size_t CDataFrameAnalysisRunner::numberPartitions() const {
     return m_NumberPartitions;
 }
 
 std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
     return m_MaximumNumberRowsPerPartition;
-}
-
-std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
-                                                          std::size_t numberColumns) const {
-    return core::CDataFrame::estimateMemoryUsage(m_NumberPartitions == 1,
-                                                 numberRows, numberColumns) +
-           this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
 }
 
 void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
@@ -107,35 +135,26 @@ void CDataFrameAnalysisRunner::addError(const std::string& error) {
     m_Errors.push_back(error);
 }
 
-void CDataFrameAnalysisRunner::computeRequiredNumberPartitionsAndMaximumPartitionSize() {
+std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
+    return core::CDataFrame::estimateMemoryUsage(m_NumberPartitions == 1,
+                                                 numberRows, numberColumns) +
+           this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
+}
 
-    std::size_t numberRows{m_Spec.numberRows()};
-    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
-    std::size_t memoryLimit{memoryLimitWithMargin(m_Spec)};
+CDataFrameAnalysisRunnerFactory::TRunnerUPtr
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
+    auto result = this->makeImpl(spec);
+    result->computeAndSaveExecutionStrategy();
+    return result;
+}
 
-    // Find the smallest number of partitions such that the size per partition
-    // is less than the memory limit.
-
-    for (m_NumberPartitions = 1; m_NumberPartitions < numberRows; ++m_NumberPartitions) {
-        std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
-        if (this->estimateMemoryUsage(partitionNumberRows, numberColumns) < memoryLimit) {
-            break;
-        }
-    }
-
-    if (m_NumberPartitions == numberRows) {
-        m_Bad = true;
-    } else if (m_NumberPartitions > 1) {
-        // The maximum number of rows is found by binary search in the interval
-        // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
-
-        m_MaximumNumberRowsPerPartition = *std::lower_bound(
-            boost::make_counting_iterator(numberRows / m_NumberPartitions),
-            boost::make_counting_iterator(numberRows / (m_NumberPartitions - 1)),
-            memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
-                return this->estimateMemoryUsage(partitionNumberRows, numberColumns) < limit;
-            });
-    }
+CDataFrameAnalysisRunnerFactory::TRunnerUPtr
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
+                                      const rapidjson::Value& params) const {
+    auto result = this->makeImpl(spec, params);
+    result->computeAndSaveExecutionStrategy();
+    return result;
 }
 }
 }

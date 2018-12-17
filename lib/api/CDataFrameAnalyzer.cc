@@ -38,12 +38,8 @@ CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analy
                                        TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
 
-    // TODO memory calculations plus choose data frame storage strategy.
-    if (m_AnalysisSpecification != nullptr && m_AnalysisSpecification->bad() == false) {
-        m_DataFrame = core::makeMainStorageDataFrame(m_AnalysisSpecification->numberColumns());
-        m_DataFrame->reserve(m_AnalysisSpecification->numberThreads(),
-                             m_AnalysisSpecification->numberColumns() +
-                                 m_AnalysisSpecification->numberExtraColumns());
+    if (m_AnalysisSpecification != nullptr) {
+        m_DataFrame = m_AnalysisSpecification->makeDataFrame();
     }
 }
 

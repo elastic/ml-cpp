@@ -39,6 +39,7 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TStrVec = std::vector<std::string>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
@@ -53,6 +54,7 @@ public:
     //!   "cols": <integer>,
     //!   "memory_limit": <integer>,
     //!   "threads": <integer>,
+    //!   "temp_dir": <string>,
     //!   "analysis": {
     //!     "name": <string>,
     //!     "parameters": <object>
@@ -65,6 +67,9 @@ public:
     //! \note All constraints must be positive.
     //! \note The parameters, if any, must be consistent for the analysis type.
     //! \note If this fails the state is set to bad and the analysis will not run.
+    //! \note temp_dir Is a directory which can be used to store the data frame
+    //! out-of-core if we can't meet the memory constraint for the analysis without
+    //! partitioning.
     CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
 
     //! This construtor provides support for custom analysis types and is mainly
@@ -98,6 +103,13 @@ public:
     //! \return The number of threads the analysis can use.
     std::size_t numberThreads() const;
 
+    //! Make a data frame suitable for this analysis specification.
+    //!
+    //! This chooses the storage strategy based on the analysis constraints and
+    //! the number of rows and target number of columns and reserves capacity as
+    //! appropriate.
+    TDataFrameUPtr makeDataFrame() const;
+
     //! Run the analysis in a background thread.
     //!
     //! This returns a handle to the object responsible for running the analysis.
@@ -120,6 +132,7 @@ private:
     std::size_t m_NumberColumns = 0;
     std::size_t m_MemoryLimit = 0;
     std::size_t m_NumberThreads = 0;
+    std::string m_TemporaryDirectory;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
