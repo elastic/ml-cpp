@@ -20,7 +20,7 @@ namespace ml {
 namespace api {
 namespace {
 std::size_t memoryLimitWithMargin(const CDataFrameAnalysisSpecification& spec) {
-    return static_cast<std::size_t>(0.8 * static_cast<double>(spec.memoryLimit()) + 0.5);
+    return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
 }
 
@@ -38,15 +38,22 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
     std::size_t memoryLimit{memoryLimitWithMargin(m_Spec)};
 
+    LOG_TRACE(<< "memory limit = " << memoryLimit);
+
     // Find the smallest number of partitions such that the size per partition
     // is less than the memory limit.
 
     for (m_NumberPartitions = 1; m_NumberPartitions < numberRows; ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
-        if (this->estimateMemoryUsage(partitionNumberRows, numberColumns) < memoryLimit) {
+        std::size_t memoryUsage{this->estimateMemoryUsage(partitionNumberRows, numberColumns)};
+        LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
+        LOG_TRACE(<< "memory usage = " << memoryUsage);
+        if (memoryUsage <= memoryLimit) {
             break;
         }
     }
+
+    LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (m_NumberPartitions == numberRows) {
         m_Bad = true;
@@ -60,11 +67,15 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
             memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
                 return this->estimateMemoryUsage(partitionNumberRows, numberColumns) < limit;
             });
+
+        LOG_TRACE(<< "maximum rows per partition = " << m_MaximumNumberRowsPerPartition);
+    } else {
+        m_MaximumNumberRowsPerPartition = numberRows;
     }
 }
 
 bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {
-    return m_NumberPartitions > 1;
+    return m_NumberPartitions == 1;
 }
 
 std::size_t CDataFrameAnalysisRunner::numberPartitions() const {
