@@ -56,8 +56,6 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
             //   1. strategy is in main memory iff the number of partitions is one,
             //   2. number partitions x maximum number rows >= number rows,
             //   3. (number partitions - 1) x maximum number rows <= number rows.
-            //   4. If the frame is stored out-of-core, maximum number of rows is a
-            //      function of number columns only.
 
             bool inMainMemory{runner->storeDataFrameInMainMemory()};
             std::size_t numberPartitions{runner->numberPartitions()};
