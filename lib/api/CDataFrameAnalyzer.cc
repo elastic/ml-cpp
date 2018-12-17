@@ -87,8 +87,10 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 }
 
 void CDataFrameAnalyzer::receivedAllRows() {
-    m_DataFrame->finishWritingRows();
-    LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
+    if (m_DataFrame != nullptr) {
+        m_DataFrame->finishWritingRows();
+        LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
+    }
 }
 
 void CDataFrameAnalyzer::run() {

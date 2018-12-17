@@ -172,7 +172,7 @@ CDataFrameAnalysisSpecification::makeDataFrame() const {
     }
 
     // TODO Remove hack when passing directory in config.
-    if (m_Runner->storeDataFrameInMainMemory()) {
+    if (m_Runner->storeDataFrameInMainMemory() == false) {
         return {};
     }
 
