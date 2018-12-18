@@ -49,7 +49,7 @@ public:
     //! and is suitable for our use case where we don't need to guaranty that this
     //! always returns immediately and instead want to exert back pressure on the
     //! thread scheduling tasks if the pool can't keep up.
-    void schedule(TTask&& task);
+    void schedule(std::packaged_task<boost::any()>&& task);
 
     //! Executes the specified function in the thread pool.
     void schedule(std::function<void()>&& f);
@@ -61,14 +61,27 @@ public:
     void busy(bool busy);
 
 private:
-    using TOptionalTask = boost::optional<TTask>;
-    using TTaskQueue = CConcurrentQueue<TTask, 50>;
-    using TTaskQueueVec = std::vector<TTaskQueue>;
+    using TOptionalSize = boost::optional<std::size_t>;
+    class CWrappedTask {
+    public:
+        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = boost::none);
+
+        bool executableOnThread(std::size_t id) const;
+        void operator()();
+
+    private:
+        TTask m_Task;
+        TOptionalSize m_ThreadId;
+    };
+    using TOptionalTask = boost::optional<CWrappedTask>;
+    using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 50>;
+    using TWrappedTaskQueueVec = std::vector<TWrappedTaskQueue>;
     using TThreadVec = std::vector<std::thread>;
 
 private:
     void shutdown();
     void worker(std::size_t id);
+    void drainQueuesWithoutBlocking();
 
 private:
     // This doesn't have to be atomic because it is always only set to true,
@@ -77,7 +90,7 @@ private:
     bool m_Done = false;
     std::atomic_bool m_Busy;
     std::atomic<std::uint64_t> m_Cursor;
-    TTaskQueueVec m_TaskQueues;
+    TWrappedTaskQueueVec m_TaskQueues;
     TThreadVec m_Pool;
 };
 }

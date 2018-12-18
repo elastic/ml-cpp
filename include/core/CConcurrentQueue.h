@@ -58,9 +58,11 @@ public:
     }
 
     //! Pop an item out of the queue, this returns none if an item isn't available
-    TOptional tryPop() {
+    //! or the pop isn't allowed
+    template<typename PREDICATE>
+    TOptional tryPop(PREDICATE allowed) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        if (m_Queue.empty()) {
+        if (m_Queue.empty() || allowed(m_Queue.front()) == false) {
             return boost::none;
         }
 
@@ -71,6 +73,9 @@ public:
         this->notifyIfNoLongerFull(lock, oldSize);
         return result;
     }
+
+    //! Pop an item out of the queue, this returns none if an item isn't available
+    TOptional tryPop() { return this->tryPop(always); }
 
     //! Push a copy of \p item onto the queue, this blocks if the queue is full which
     //! means it can deadlock if no one consumes items (implementor's responsibility)
@@ -149,6 +154,8 @@ private:
             m_ConsumerCondition.notify_all();
         }
     }
+
+    static bool always(const T&) { return true; }
 
 private:
     //! The internal queue
