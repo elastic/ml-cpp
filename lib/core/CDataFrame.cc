@@ -6,7 +6,6 @@
 
 #include <core/CDataFrame.h>
 
-#include <core/CConcurrentWrapper.h>
 #include <core/CDataFrameRowSlice.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
@@ -90,47 +89,6 @@ TFloatVecItr CRowIterator::base() const {
 using namespace data_frame_detail;
 
 namespace {
-using TFloatVec = CDataFrame::TFloatVec;
-using TSizeFloatVecPrQueue = CDataFrame::TSizeFloatVecPrQueue;
-using TRowSlicePtr = CDataFrame::TRowSlicePtr;
-using TRowSlicePtrVec = CDataFrame::TRowSlicePtrVec;
-using TRowSlicePtrVecCItr = TRowSlicePtrVec::const_iterator;
-
-//! \brief A worker function object used to asynchronously write slices
-//! to storage.
-class CAsyncDataFrameStorageWriter final {
-public:
-    using TWriteSliceToStoreFunc = CDataFrame::TWriteSliceToStoreFunc;
-
-public:
-    CAsyncDataFrameStorageWriter(const TWriteSliceToStoreFunc& writeSliceToStore)
-        : m_WriteSliceToStore{writeSliceToStore} {}
-
-    TRowSlicePtrVec operator()(TSizeFloatVecPrQueue& sliceQueue) {
-        // Loop until we're signaled to exit by an empty slice.
-
-        TRowSlicePtrVec slices;
-
-        std::size_t firstRow;
-        TFloatVec slice;
-        for (;;) {
-            std::tie(firstRow, slice) = sliceQueue.pop();
-            std::size_t size{slice.size()};
-            if (size > 0) {
-                auto storedSlice = m_WriteSliceToStore(firstRow, std::move(slice));
-                slices.push_back(std::move(storedSlice));
-            } else {
-                break;
-            }
-        }
-
-        return slices;
-    }
-
-private:
-    TWriteSliceToStoreFunc m_WriteSliceToStore;
-};
-
 //! Compute the default slice capacity in rows.
 std::size_t computeSliceCapacity(std::size_t numberColumns) {
     // TODO This probably needs some careful tuning, which I haven't performed
@@ -264,82 +222,6 @@ std::uint64_t CDataFrame::checksum() const {
     return result;
 }
 
-CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
-    std::size_t numberRows,
-    std::size_t rowCapacity,
-    std::size_t sliceCapacityInRows,
-    EReadWriteToStorage writeToStoreSyncStrategy,
-    TWriteSliceToStoreFunc writeSliceToStore)
-    : m_NumberRows{numberRows}, m_RowCapacity{rowCapacity}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_WriteToStoreSyncStrategy{writeToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
-    m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
-    if (m_WriteToStoreSyncStrategy == EReadWriteToStorage::E_Async) {
-        m_AsyncWriteToStoreResult = std::async(
-            std::launch::async, CAsyncDataFrameStorageWriter{writeSliceToStore},
-            std::ref(m_SlicesToAsyncWriteToStore));
-    }
-}
-
-CDataFrame::CDataFrameRowSliceWriter::~CDataFrameRowSliceWriter() {
-    this->finishAsyncWriteToStore();
-}
-
-void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow) {
-    // Write the next row at the end of the current slice being written
-    // and if the slice is full pass to the thread storing slices.
-
-    std::size_t end{m_SliceBeingWritten.size()};
-
-    m_SliceBeingWritten.resize(end + m_RowCapacity);
-    writeRow(m_SliceBeingWritten.begin() + end);
-    ++m_NumberRows;
-
-    if (m_SliceBeingWritten.size() == m_SliceCapacityInRows * m_RowCapacity) {
-        std::size_t firstRow{m_NumberRows - m_SliceCapacityInRows};
-        LOG_TRACE(<< "Storing slice [" << firstRow << "," << m_NumberRows << ")");
-
-        switch (m_WriteToStoreSyncStrategy) {
-        case EReadWriteToStorage::E_Async: {
-            TSizeFloatVecPr slice{firstRow, std::move(m_SliceBeingWritten)};
-            m_SlicesToAsyncWriteToStore.push(std::move(slice));
-            break;
-        }
-        case EReadWriteToStorage::E_Sync:
-            m_SyncWrittenSlices.push_back(
-                m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
-            break;
-        }
-        m_SliceBeingWritten.clear();
-        m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
-    }
-}
-
-CDataFrame::TSizeDataFrameRowSlicePtrVecPr
-CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
-    std::size_t firstRow{m_NumberRows - m_SliceBeingWritten.size() / m_RowCapacity};
-    LOG_TRACE(<< "Last slice "
-              << (firstRow == m_NumberRows ? "empty"
-                                           : "[" + std::to_string(firstRow) + "," +
-                                                 std::to_string(m_NumberRows) + ")"));
-
-    switch (m_WriteToStoreSyncStrategy) {
-    case EReadWriteToStorage::E_Async:
-        if (m_SliceBeingWritten.size() > 0) {
-            TSizeFloatVecPr slice{firstRow, std::move(m_SliceBeingWritten)};
-            m_SlicesToAsyncWriteToStore.push(std::move(slice));
-        }
-        this->finishAsyncWriteToStore();
-        return {m_NumberRows, m_AsyncWriteToStoreResult.get()};
-    case EReadWriteToStorage::E_Sync:
-        if (m_SliceBeingWritten.size() > 0) {
-            m_SyncWrittenSlices.push_back(
-                m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
-        }
-        break;
-    }
-    return {m_NumberRows, std::move(m_SyncWrittenSlices)};
-}
-
 CDataFrame::TRowFuncVecBoolPr
 CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, bool commitResult) const {
 
@@ -447,25 +329,72 @@ void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
          CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.end()});
 }
 
-void CDataFrame::CDataFrameRowSliceWriter::finishAsyncWriteToStore() {
-    // Passing an empty slice signals to the thread writing slices to
-    // storage that we're done.
+CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
+    std::size_t numberRows,
+    std::size_t rowCapacity,
+    std::size_t sliceCapacityInRows,
+    EReadWriteToStorage writeToStoreSyncStrategy,
+    TWriteSliceToStoreFunc writeSliceToStore)
+    : m_NumberRows{numberRows}, m_RowCapacity{rowCapacity}, m_SliceCapacityInRows{sliceCapacityInRows},
+      m_WriteToStoreSyncStrategy{writeToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
+    m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
+}
 
-    if (m_Writing) {
-        if (m_WriteToStoreSyncStrategy == EReadWriteToStorage::E_Async) {
-            m_SlicesToAsyncWriteToStore.push({0, TFloatVec{}});
+void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow) {
+    // Write the next row at the end of the current slice being written
+    // and if the slice is full pass to the thread storing slices.
+
+    std::size_t end{m_SliceBeingWritten.size()};
+
+    m_SliceBeingWritten.resize(end + m_RowCapacity);
+    writeRow(m_SliceBeingWritten.begin() + end);
+    ++m_NumberRows;
+
+    if (m_SliceBeingWritten.size() == m_SliceCapacityInRows * m_RowCapacity) {
+        std::size_t firstRow{m_NumberRows - m_SliceCapacityInRows};
+        LOG_TRACE(<< "Storing slice [" << firstRow << "," << m_NumberRows << ")");
+
+        switch (m_WriteToStoreSyncStrategy) {
+        case EReadWriteToStorage::E_Async: {
+            if (m_SliceWrittenAsyncToStore.valid()) {
+                m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
+            }
+            m_SliceWrittenAsyncToStore = async(defaultAsyncExecutor(),
+                                               m_WriteSliceToStore, firstRow,
+                                               std::move(m_SliceBeingWritten));
+            break;
         }
-        m_Writing = false;
+        case EReadWriteToStorage::E_Sync:
+            m_SlicesWrittenToStore.push_back(
+                m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
+            break;
+        }
+        m_SliceBeingWritten.clear();
+        m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
     }
+}
+
+CDataFrame::TSizeDataFrameRowSlicePtrVecPr
+CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
+    if (m_SliceWrittenAsyncToStore.valid()) {
+        m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
+    }
+
+    if (m_SliceBeingWritten.size() > 0) {
+        std::size_t firstRow{m_NumberRows - m_SliceBeingWritten.size() / m_RowCapacity};
+        LOG_TRACE(<< "Last slice [" << std::to_string(firstRow) << ","
+                  << std::to_string(m_NumberRows) + ")");
+        m_SlicesWrittenToStore.push_back(
+            m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
+    }
+
+    return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
 }
 
 std::unique_ptr<CDataFrame>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    // The return copy is elided so we never need to call the explicitly
-    // deleted data frame copy constructor.
-
     auto writer = [](std::size_t firstRow, TFloatVec slice) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(firstRow, std::move(slice));
     };
@@ -485,9 +414,6 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberRows,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    // The return copy is elided so we never need to call the explicitly
-    // deleted data frame copy constructor.
-
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     COnDiskDataFrameRowSlice::TTemporaryDirectoryPtr directory{

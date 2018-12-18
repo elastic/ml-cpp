@@ -33,9 +33,9 @@ void slowTask(std::atomic_uint& counter) {
 }
 
 // ASSERTIONS BASED ON TIMINGS ARE NOT RELIABLE IN OUR VIRTUALISED TEST ENVIRONMENT
-// SO I'VE COMMENTED OUT. THESE VALUES CONSISTENTLY PASSED AT ONE POINT ON BARE METAL.
-// IF YOU MAKE CHANGES TO THE THREAD POOL COMMENT THEM BACK IN AND CHECK LOCALLY THAT
-// YOU HAVEN'T DEGRADED PERFORMANCE.
+// SO ARE COMMENTED OUT. THESE VALUES CONSISTENTLY PASSED AT ONE POINT ON BARE METAL.
+// IF YOU MAKE CHANGES TO THE THREAD POOL COMMENT THEM BACK IN AND CHECK THAT YOU
+// HAVEN'T DEGRADED PERFORMANCE.
 
 void CStaticThreadPoolTest::testScheduleDelayMinimisation() {
 
@@ -168,7 +168,8 @@ void CStaticThreadPoolTest::testSchedulingOverhead() {
 
 void CStaticThreadPoolTest::testWithExceptions() {
 
-    // Check we don't deadlock we don't kill worker threads if we do stupid things.
+    // Check we don't deadlock because we don't kill worker threads if we do stupid
+    // things.
 
     std::atomic_uint counter{0};
     {
@@ -184,7 +185,7 @@ void CStaticThreadPoolTest::testWithExceptions() {
         }
     }
 
-    // We limped on without killing any of the worker threads.
+    // We didn't lose any real tasks.
     CPPUNIT_ASSERT_EQUAL(200u, counter.load());
 }
 
