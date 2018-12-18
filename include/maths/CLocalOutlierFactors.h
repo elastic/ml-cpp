@@ -272,7 +272,8 @@ protected:
         // interested in Euclidean distances.
         TDoubleVec coordinates;
         CPRNG::CXorOShiro128Plus rng;
-        CSampling::normalSample(rng, 0.0, 1.0, bags * projectedDimension * dimension, coordinates);
+        CSampling::normalSample(rng, 0.0, 1.0, 2 * bags * projectedDimension * dimension,
+                                coordinates);
 
         TMeanAccumulatorVec meanScores(points.size());
 
@@ -283,31 +284,30 @@ protected:
         }
 
         TPointVec projection(projectedDimension, las::zero(points[0]));
-        for (std::size_t i = 0; i < coordinates.size(); /**/) {
+        for (std::size_t bag = 0, i = 0; bag < bags && i < coordinates.size(); /**/) {
             // Create an orthonormal basis for the bag.
             for (std::size_t p = 0; p < projectedDimension; ++p) {
                 for (std::size_t d = 0; d < dimension; ++i, ++d) {
                     projection[p](d) = coordinates[i];
                 }
             }
-            if (COrthogonaliser::orthonormalBasis(projection) == false) {
-                LOG_ERROR(<< "Failed to compute projection");
-                continue;
+            if (COrthogonaliser::orthonormalBasis(projection) &&
+                projection.size() == projectedDimension) {
+                // Project onto the basis.
+                core::parallel_for_each(0, points.size(), [&](std::size_t j) {
+                    for (std::size_t d = 0; d < projectedDimension; ++d) {
+                        projectedPoints[j](d) = las::inner(projection[d], points[j]);
+                    }
+                });
+
+                // Compute the scores and update the overall score.
+                scores.assign(points.size(), 0.0);
+                compute(projectedPoints, scores);
+                core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
+                    meanScores[j].add(CTools::fastLog(scores[j]));
+                });
+                ++bag;
             }
-
-            // Project onto the basis.
-            core::parallel_for_each(0, points.size(), [&](std::size_t j) {
-                for (std::size_t d = 0; d < projectedDimension; ++d) {
-                    projectedPoints[j](d) = las::inner(projection[d], points[j]);
-                }
-            });
-
-            // Compute the scores and update the overall score.
-            scores.assign(points.size(), 0.0);
-            compute(projectedPoints, scores);
-            core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
-                meanScores[j].add(CTools::fastLog(scores[j]));
-            });
         }
 
         core::parallel_for_each(0, meanScores.size(), [&](std::size_t i) {
@@ -594,9 +594,8 @@ protected:
         template<typename T>
         CEnsemble& knn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(
-                std::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
-                    m_K, this->lookup()));
+            m_Methods.push_back(std::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                m_K, this->lookup()));
             return *this;
         }
         template<typename T>
