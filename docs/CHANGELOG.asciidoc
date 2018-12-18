@@ -32,9 +32,10 @@
 
 === Bug Fixes
 
-Correct query times for model plot and forecast in the bucket to match the times we assign
-the samples we add to the model for each bucket. For long bucket lengths, this could result
-in apparently shifted model plot with respect to the data and increased errors in forecasts. 
+Fixes a problem that could result in shifted model bounds and increased forecast
+errors with long bucket spans. The solution was to correct query times for model
+bounds and forecasts in the bucket to match the times assigned to the samples
+that are added to the model for each bucket. (See {ml-pull}327[#327].)
 
  == {es} version 6.5.0
 
