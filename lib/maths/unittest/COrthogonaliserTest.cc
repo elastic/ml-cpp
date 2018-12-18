@@ -9,9 +9,9 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <maths/COrthogonaliser.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
+#include <maths/COrthogonaliser.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -276,20 +276,18 @@ void COrthogonaliserTest::testEdgeCases() {
     {
         LOG_DEBUG(<< "*** Test zero vector ***");
 
-        TDoubleVecVec x_{{0.0, 0.0, 0.0, 0.0},
-                         {1.0, 3.0, 4.0, 0.0},
-                         {0.4, 0.3, 0.6, 1.0}};
+        TDoubleVecVec x_{{0.0, 0.0, 0.0, 0.0}, {1.0, 3.0, 4.0, 0.0}, {0.4, 0.3, 0.6, 1.0}};
         std::size_t p[]{0, 1, 2};
 
         do {
             LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
 
             TDoubleVecVec x{x_};
-            debug(x);
+            //debug(x);
             maths::COrthogonaliser::orthonormalBasis(x);
-            debug(x);
+            //debug(x);
 
-            //CPPUNIT_ASSERT_EQUAL(std::size_t(2), x.size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(2), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));
     }
     {
@@ -308,9 +306,9 @@ void COrthogonaliserTest::testEdgeCases() {
 
             TDoubleVecVec x{x_};
 
-            debug(x);
+            //debug(x);
             maths::COrthogonaliser::orthonormalBasis(x);
-            debug(x);
+            //debug(x);
 
             CPPUNIT_ASSERT_EQUAL(std::size_t(3), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));

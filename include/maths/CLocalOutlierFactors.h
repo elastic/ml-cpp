@@ -293,6 +293,7 @@ protected:
             }
             if (COrthogonaliser::orthonormalBasis(projection) &&
                 projection.size() == projectedDimension) {
+
                 // Project onto the basis.
                 core::parallel_for_each(0, points.size(), [&](std::size_t j) {
                     for (std::size_t d = 0; d < projectedDimension; ++d) {
@@ -306,6 +307,7 @@ protected:
                 core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
                     meanScores[j].add(CTools::fastLog(scores[j]));
                 });
+
                 ++bag;
             }
         }
