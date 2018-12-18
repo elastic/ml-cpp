@@ -67,7 +67,7 @@ public:
     //! Set up the projections.
     virtual bool initialise(std::size_t numberProjections, std::size_t dimension) {
         m_Dimension = dimension;
-        if (!this->generateProjections(numberProjections)) {
+        if (this->generateProjections(numberProjections) == false) {
             LOG_ERROR(<< "Failed to generate projections");
             return false;
         }
@@ -110,21 +110,19 @@ protected:
         m_Projections.resize(b);
 
         TDoubleVec components;
-        CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * m_Dimension, components);
-        for (std::size_t i = 0u; i < b; ++i) {
-            TVectorArray& projection = m_Projections[i];
-            for (std::size_t j = 0u; j < N; ++j) {
-                projection[j].assign(&components[(i * N + j) * m_Dimension],
-                                     &components[(i * N + j + 1) * m_Dimension]);
+        CSampling::normalSample(m_Rng, 0.0, 1.0, 2 * b * N * m_Dimension, components);
+        auto projection = m_Projections.begin();
+        for (std::size_t i = 0; i < 2 * b && projection != m_Projections.end(); ++i) {
+            for (std::size_t j = 0; j < N; ++j) {
+                (*projection)[j].assign(&components[(i * N + j) * m_Dimension],
+                                        &components[(i * N + j + 1) * m_Dimension]);
             }
-
-            if (COrthogonaliser::orthonormalBasis(projection) == false) {
-                LOG_ERROR(<< "Failed to construct basis");
-                return false;
+            if (COrthogonaliser::orthonormalBasis(*projection)) {
+                ++projection;
             }
         }
 
-        return true;
+        return projection == m_Projections.end();
     }
 
     //! Extend the projections for an increase in data

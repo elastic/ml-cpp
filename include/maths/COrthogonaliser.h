@@ -85,7 +85,8 @@ private:
         std::size_t result{las::dimension(vectors[0])};
         for (std::size_t i = 1; i < vectors.size(); ++i) {
             if (las::dimension(vectors[i]) != result) {
-                LOG_ERROR(<< "Mismatched dimensions " << las::dimension(vectors[i]) << " != " << result);
+                LOG_ERROR(<< "Mismatched dimensions "
+                          << las::dimension(vectors[i]) << " != " << result);
                 return -1;
             }
         }
@@ -105,13 +106,18 @@ private:
 
     template<typename VECTOR>
     static bool resize(std::vector<VECTOR>& vectors, std::size_t rank) {
-        vectors.resize(rank);
+        if (vectors.size() > rank) {
+            vectors.resize(rank);
+        }
         return true;
     }
     template<typename VECTOR, std::size_t N>
-    static bool resize(boost::array<VECTOR, N>&, std::size_t) {
-        LOG_ERROR(<< "Expecting no linear dependencies");
-        return false;
+    static bool resize(boost::array<VECTOR, N>&, std::size_t rank) {
+        if (N > rank) {
+            LOG_TRACE(<< "Found linear dependencies but require none");
+            return false;
+        }
+        return true;
     }
 
     template<typename VECTOR>
@@ -121,13 +127,16 @@ private:
         }
     }
     template<typename SCALAR>
-    static void writeColumn(std::size_t j, const std::vector<SCALAR>& vector, CDenseMatrix<double>& m) {
+    static void writeColumn(std::size_t j,
+                            const std::vector<SCALAR>& vector,
+                            CDenseMatrix<double>& m) {
         for (std::size_t i = 0; i < vector.size(); ++i) {
             m(i, j) = vector[i];
         }
     }
-    template<typename SCALAR>
-    static void writeColumn(std::size_t j, const CDenseVector<SCALAR>& vector, CDenseMatrix<double>& m) {
+    static void writeColumn(std::size_t j,
+                            const CDenseVector<double>& vector,
+                            CDenseMatrix<double>& m) {
         m.col(j) = vector;
     }
 
@@ -137,12 +146,14 @@ private:
             vector(i) = m(i, j);
         }
     }
-    template<typename SCALAR>
-    static void readColumn(std::size_t j, const CDenseMatrix<double>& m, CDenseVector<SCALAR>& vector) {
+    static void readColumn(std::size_t j,
+                           const CDenseMatrix<double>& m,
+                           CDenseVector<double>& vector) {
         vector = m.col(j);
     }
     template<typename SCALAR>
-    static void readColumn(std::size_t j, const CDenseMatrix<double>& m, std::vector<SCALAR>& vector) {
+    static void
+    readColumn(std::size_t j, const CDenseMatrix<double>& m, std::vector<SCALAR>& vector) {
         for (std::size_t i = 0; i < vector.size(); ++i) {
             vector[i] = m(i, j);
         }
