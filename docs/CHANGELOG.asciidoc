@@ -33,14 +33,10 @@
 === Bug Fixes
 
 * Fixes CPoissonMeanConjugate sampling error. {ml-pull}335[#335]
-* Removes out-of-phase buckets feature. {ml-pull}318[#318] (issue: {ml-issue}302[#302])
+//NOTE: Remove from final 7.0.0 release notes if already in 6.x
 
 == {es} version 7.0.0-alpha1
 
 === Enhancements
 
 * Adds include categorical filter type to detector rules. {ml-pull}27[#27]
-* Linear scaling change detection. {ml-pull}25[#25]
-* Implements an absolute goodness-of-fit test to accept a change. {ml-pull}21[#21]
-* Wires in change detection/modelling to our univariate time series model. {ml-pull}11[#11]
-* First pass implementation of support functionality for change detection and modelling. {ml-pull}9[#9]
