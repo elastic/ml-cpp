@@ -37,6 +37,3 @@
 
 == {es} version 7.0.0-alpha1
 
-=== Enhancements
-
-* Adds include categorical filter type to detector rules. {ml-pull}27[#27]
