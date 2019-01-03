@@ -65,7 +65,7 @@ private:
         }
 
         auto qr = x.colPivHouseholderQr();
-        long int rank{qr.rank()};
+        auto rank = qr.rank();
         CDenseMatrix<double> thinQ{CDenseMatrix<double>::Identity(rows, rank)};
         thinQ = qr.householderQ() * thinQ;
 
