@@ -124,11 +124,12 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
     std::size_t result{0};
     switch (numberPartitions) {
     case 1:
-        result = estimateMemoryUsage<maths::CDenseVector<float>>(numberRows, numberColumns);
-        break;
-    default:
         result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<float>>(
             numberRows, numberColumns);
+        break;
+    default:
+        result = estimateMemoryUsage<maths::CDenseVector<float>>(numberRows, numberColumns);
+        break;
     }
     return result;
 }
@@ -138,12 +139,11 @@ std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows
                                                           std::size_t numberColumns) const {
     maths::CLocalOutlierFactors::EAlgorithm method{
         static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method)};
-    if (m_NumberNeighbours != boost::none) {
-        return maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
-            method, *m_NumberNeighbours, numberRows, numberColumns);
-    }
-    return maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(method, numberRows,
-                                                                   numberColumns);
+    return m_NumberNeighbours != boost::none
+               ? maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+                     method, *m_NumberNeighbours, numberRows, numberColumns)
+               : maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+                     method, numberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {
