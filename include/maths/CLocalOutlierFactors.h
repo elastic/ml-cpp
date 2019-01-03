@@ -264,6 +264,10 @@ protected:
         using TPointVec = std::vector<TPoint>;
         using TAnnotatedPoint = CAnnotatedVector<TPoint, std::size_t>;
         using TAnnotatedPointVec = std::vector<TAnnotatedPoint>;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+        using TMaxAccumulatorVec = std::vector<TMaxAccumulator>;
+
+        scores.assign(points.size(), 0.0);
 
         std::size_t dimension{las::dimension(points[0])};
         std::size_t bags, projectedDimension;
@@ -275,13 +279,23 @@ protected:
         CPRNG::CXorOShiro128Plus rng;
         CSampling::normalSample(rng, 0.0, 1.0, bags * projectedDimension * dimension, coordinates);
 
-        TMeanAccumulatorVec meanScores(points.size());
-
+        // Placeholder for projected points.
         TAnnotatedPointVec projectedPoints;
         projectedPoints.reserve(points.size());
         for (std::size_t i = 0; i < points.size(); ++i) {
             projectedPoints.emplace_back(SConstant<POINT>::get(projectedDimension, 0), i);
         }
+
+        // We're interested if points are:
+        //   1) Outlying in any projection of the data,
+        //   2) Outlying in many projections of the data.
+        //
+        // We want to identify the former as outliers and the later as
+        // the most significant outliers. To this end we average the
+        // maximum score from any projection with the average score for
+        // all projections.
+        TMaxAccumulatorVec maxScores(points.size());
+        TMeanAccumulatorVec meanScores(points.size());
 
         TPointVec projection(projectedDimension, las::zero(points[0]));
         for (std::size_t i = 0; i < coordinates.size(); /**/) {
@@ -301,15 +315,15 @@ protected:
             });
 
             // Compute the scores and update the overall score.
-            scores.assign(points.size(), 0.0);
             compute(projectedPoints, scores);
             core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
-                meanScores[j].add(CTools::fastLog(scores[j]));
+                maxScores[j].add(scores[j]);
+                meanScores[j].add(scores[j]);
             });
         }
 
         core::parallel_for_each(0, meanScores.size(), [&](std::size_t i) {
-            scores[i] = std::exp(CBasicStatistics::mean(meanScores[i]));
+            scores[i] = (maxScores[i][0] + CBasicStatistics::mean(meanScores[i])) / 2.0;
         });
     }
 
@@ -438,9 +452,11 @@ protected:
             }
 
             if (min.count() > 0) {
+                // Use twice the maximum "density" at any other point if there are
+                // k-fold duplicates.
                 for (auto& lrd : m_Lrd) {
                     if (lrd < 0.0) {
-                        lrd = min[0] / 2.0;
+                        lrd = 2.0 / min[0];
                     }
                 }
                 core::parallel_for_each(

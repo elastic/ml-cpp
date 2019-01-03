@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CStringUtils.h>
 
 #include <maths/CLocalOutlierFactors.h>
 
@@ -73,14 +74,16 @@ void addTestData(TStrVec fieldNames,
     TPointVec points(numberInliers + numberOutliers, TPoint(5));
     for (std::size_t i = 0; i < inliers.size(); ++i) {
         for (std::size_t j = 0; j < 5; ++j) {
-            fieldValues[j] = std::to_string(inliers[i][j]);
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                inliers[i][j], core::CIEEE754::E_DoublePrecision);
             points[i](j) = inliers[i][j];
         }
         analyzer.handleRecord(fieldNames, fieldValues);
     }
     for (std::size_t i = 0, j = numberInliers; i < outliers.size(); ++j) {
         for (std::size_t k = 0; k < 5; ++i, ++k) {
-            fieldValues[k] = std::to_string(outliers[i]);
+            fieldValues[k] = core::CStringUtils::typeToStringPrecise(
+                outliers[i], core::CIEEE754::E_DoublePrecision);
             points[j](k) = outliers[i];
         }
         analyzer.handleRecord(fieldNames, fieldValues);
@@ -115,8 +118,10 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *(expectedScore++), result["results"]["outlier_score"].GetDouble(), 1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
+                                     result["results"]["outlier_score"].GetDouble(),
+                                     1e-6 * *expectedScore);
+        ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
@@ -145,8 +150,10 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *(expectedScore++), result["results"]["outlier_score"].GetDouble(), 1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
+                                     result["results"]["outlier_score"].GetDouble(),
+                                     1e-6 * *expectedScore);
+        ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }

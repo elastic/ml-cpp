@@ -123,23 +123,23 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
 
         TSizeVec outliers[3];
         for (std::size_t i = 0; i < scores.size(); ++i) {
-            if (scores[i] >= 0.01) {
+            if (scores[i] >= 0.1) {
                 outliers[0].push_back(i);
             }
-            if (scores[i] >= 0.1) {
+            if (scores[i] >= 1.0) {
                 outliers[1].push_back(i);
             }
-            if (scores[i] >= 0.5) {
+            if (scores[i] >= 10.0) {
                 outliers[2].push_back(i);
             }
         }
 
         if (t % 10 == 0) {
-            LOG_DEBUG(<< "outliers at 0.01 = "
-                      << core::CContainerPrinter::print(outliers[0]));
             LOG_DEBUG(<< "outliers at 0.1  = "
+                      << core::CContainerPrinter::print(outliers[0]));
+            LOG_DEBUG(<< "outliers at 1.0  = "
                       << core::CContainerPrinter::print(outliers[1]));
-            LOG_DEBUG(<< "outliers at 0.5  = "
+            LOG_DEBUG(<< "outliers at 10.0 = "
                       << core::CContainerPrinter::print(outliers[2]));
         }
 
@@ -155,11 +155,11 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
         }
     }
 
-    LOG_DEBUG(<< "At 0.01: TP = " << TP[0] << " TN = " << TN[0]
+    LOG_DEBUG(<< "At 0.1:  TP = " << TP[0] << " TN = " << TN[0]
               << " FP = " << FP[0] << " FN = " << FN[0]);
-    LOG_DEBUG(<< "At 0.1:  TP = " << TP[1] << " TN = " << TN[1]
+    LOG_DEBUG(<< "At 1.0:  TP = " << TP[1] << " TN = " << TN[1]
               << " FP = " << FP[1] << " FN = " << FN[1]);
-    LOG_DEBUG(<< "At 0.5:  TP = " << TP[2] << " TN = " << TN[2]
+    LOG_DEBUG(<< "At 10.0: TP = " << TP[2] << " TN = " << TN[2]
               << " FP = " << FP[2] << " FN = " << FN[2]);
 }
 }
@@ -428,8 +428,8 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.89, 0.97, 0.99};
-    double recallLowerBounds[]{0.79, 0.41, 0.1};
+    double precisionLowerBounds[]{0.79, 0.84, 0.95};
+    double recallLowerBounds[]{0.84, 0.7, 0.23};
 
     // Test sequential then parallel.
 
