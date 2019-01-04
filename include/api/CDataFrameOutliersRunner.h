@@ -19,15 +19,14 @@ namespace ml {
 namespace api {
 
 //! \brief Runs outlier detection on a core::CDataFrame.
-class API_EXPORT CDataFrameOutliersRunner : public CDataFrameAnalysisRunner {
+class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunner {
 public:
+    //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const rapidjson::Value& params);
-    CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
 
-    //! \return The number of partitions to use when computing outliers for the frame.
-    //! \sa CDataFrameAnalysisRunner::run.
-    virtual std::size_t numberOfPartitions() const;
+    //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
+    CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
 
     //! \return The number of columns this adds to the data frame.
     virtual std::size_t numberExtraColumns() const;
@@ -40,6 +39,11 @@ private:
 
 private:
     virtual void runImpl(core::CDataFrame& frame);
+    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                       std::size_t numberRows,
+                                                       std::size_t numberColumns) const;
+    template<typename POINT>
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
     //! \name Custom config
@@ -48,23 +52,23 @@ private:
     //! outlier factors.
     TOptionalSize m_NumberNeighbours;
 
-    //! If non-null selects the method to use to compute outlier factors; the default
-    //! is an ensemble of all supported types.
+    //! Selects the method to use to compute outlier factors; the default is an ensemble
+    //! of all supported types.
     //!
     //! \see maths::CLocalOutlierFactors for more details.
-    TOptionalSize m_Method;
+    std::size_t m_Method;
     //@}
-
-    std::size_t m_NumberPartitions;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.
 class API_EXPORT CDataFrameOutliersRunnerFactory : public CDataFrameAnalysisRunnerFactory {
 public:
     virtual const char* name() const;
-    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
-    virtual TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value& params) const;
+
+private:
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const;
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                 const rapidjson::Value& params) const;
 };
 }
 }

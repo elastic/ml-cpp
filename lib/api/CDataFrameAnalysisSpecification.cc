@@ -6,6 +6,7 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CDataFrame.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonLineWriter.h>
@@ -15,6 +16,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
 
+#include <boost/filesystem/path.hpp>
 #include <boost/make_unique.hpp>
 
 #include <cstring>
@@ -38,6 +40,7 @@ const char* ROWS{"rows"};
 const char* COLS{"cols"};
 const char* MEMORY_LIMIT{"memory_limit"};
 const char* THREADS{"threads"};
+const char* TEMPORARY_DIRECTORY{"temp_dir"};
 const char* ANALYSIS{"analysis"};
 const char* NAME{"name"};
 const char* PARAMETERS{"parameters"};
@@ -106,6 +109,16 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         } else {
             registerFailure(THREADS);
         }
+        // TODO Remove hack when being passed.
+        if (false) {
+            if (document.HasMember(TEMPORARY_DIRECTORY) &&
+                document[TEMPORARY_DIRECTORY].IsString() &&
+                boost::filesystem::portable_name(document[TEMPORARY_DIRECTORY].GetString())) {
+                m_TemporaryDirectory = document[TEMPORARY_DIRECTORY].GetString();
+            } else {
+                registerFailure(TEMPORARY_DIRECTORY);
+            }
+        }
 
         if (document.HasMember(ANALYSIS) && document[ANALYSIS].IsObject()) {
             const auto& analysis = document[ANALYSIS];
@@ -150,6 +163,26 @@ std::size_t CDataFrameAnalysisSpecification::memoryLimit() const {
 
 std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
+}
+
+CDataFrameAnalysisSpecification::TDataFrameUPtr
+CDataFrameAnalysisSpecification::makeDataFrame() const {
+    if (m_Bad) {
+        return {};
+    }
+
+    // TODO Remove hack when passing directory in config.
+    if (m_Runner->storeDataFrameInMainMemory() == false) {
+        return {};
+    }
+
+    TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
+                              ? core::makeMainStorageDataFrame(m_NumberColumns)
+                              : core::makeDiskStorageDataFrame(
+                                    m_TemporaryDirectory, m_NumberColumns, m_NumberRows)};
+    result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
+
+    return result;
 }
 
 CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {

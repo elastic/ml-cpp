@@ -27,6 +27,7 @@ SRCS=\
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
+	CDataFrameAnalysisRunnerTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
 	CDataFrameAnalyzerTest.cc \
 	CDetectionRulesJsonParserTest.cc \
