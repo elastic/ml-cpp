@@ -277,8 +277,8 @@ void CDataFrameTest::testMemoryUsage() {
         std::bind(&core::makeMainStorageDataFrame, cols, capacity,
                   core::CDataFrame::EReadWriteToStorage::E_Sync);
 
-    // 750 bytes and data size + 200 byte overhead.
-    std::size_t maximumMemory[]{750, rows * cols * 4 + 200};
+    // 800 bytes and data size + 200 byte overhead.
+    std::size_t maximumMemory[]{800, rows * cols * 4 + 200};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};

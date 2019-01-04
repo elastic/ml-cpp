@@ -57,6 +57,12 @@ protected:
     }
 
 private:
+    virtual std::size_t
+    estimateBookkeepingMemoryUsage(std::size_t, std::size_t, std::size_t) const {
+        return 0;
+    }
+
+private:
     static test::CRandomNumbers ms_Rng;
 };
 
@@ -66,13 +72,14 @@ class CDataFrameTestAnalysisRunnerFactory : public api::CDataFrameAnalysisRunner
 public:
     virtual const char* name() const { return "test"; }
 
-    virtual TRunnerUPtr make(const api::CDataFrameAnalysisSpecification& spec) const {
-        return boost::make_unique<CDataFrameTestAnalysisRunner>(spec);
+private:
+    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec) const {
+        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 
-    virtual TRunnerUPtr make(const api::CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value&) const {
-        return boost::make_unique<CDataFrameTestAnalysisRunner>(spec);
+    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec,
+                                 const rapidjson::Value&) const {
+        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 };
 }

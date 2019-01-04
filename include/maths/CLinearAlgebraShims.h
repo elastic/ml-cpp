@@ -332,6 +332,41 @@ typename SConformableMatrix<VECTOR>::Type
 outer(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
     return outer(static_cast<const VECTOR&>(x));
 }
+
+namespace las_detail {
+template<typename VECTOR>
+struct SEstimateMemoryUsage {
+    static std::size_t value(std::size_t) { return 0; }
+};
+template<typename T>
+struct SEstimateMemoryUsage<CVector<T>> {
+    static std::size_t value(std::size_t dimension) {
+        return dimension * sizeof(T);
+    }
+};
+template<typename SCALAR>
+struct SEstimateMemoryUsage<CDenseVector<SCALAR>> {
+    static std::size_t value(std::size_t dimension) {
+        // Ignore pad for alignment.
+        return dimension * sizeof(SCALAR);
+    }
+};
+template<typename VECTOR, typename ANNOTATION>
+struct SEstimateMemoryUsage<CAnnotatedVector<VECTOR, ANNOTATION>> {
+    static std::size_t value(std::size_t dimension) {
+        // Ignore any dynamic memory used by the annotation: we don't know how to
+        // compute this here. It will be up to the calling code to estimate this
+        // correctly.
+        return SEstimateMemoryUsage<VECTOR>::value(dimension);
+    }
+};
+}
+
+//! Estimate the amount of memory a point of type VECTOR and \p dimension will use.
+template<typename VECTOR>
+std::size_t estimateMemoryUsage(std::size_t dimension) {
+    return las_detail::SEstimateMemoryUsage<VECTOR>::value(dimension);
+}
 }
 }
 }

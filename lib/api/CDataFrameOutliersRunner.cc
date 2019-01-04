@@ -36,7 +36,7 @@ const char* DISTANCE_KNN{"distance_knn"};
 const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
-const std::string OUTLIER_SCORE{"outlier_score"};
+const char* OUTLIER_SCORE{"outlier_score"};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -73,13 +73,13 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     if (params.HasMember(METHOD)) {
         if (std::strcmp(LOF, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Lof));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Lof);
         } else if (std::strcmp(LDOF, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Ldof));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Ldof);
         } else if (std::strcmp(DISTANCE_KTH_NN, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_DistancekNN));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_DistancekNN);
         } else if (std::strcmp(DISTANCE_KNN, params[METHOD].GetString()) == 0) {
-            m_Method.reset(static_cast<std::size_t>(maths::CLocalOutlierFactors::E_TotalDistancekNN));
+            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_TotalDistancekNN);
         } else {
             registerFailure(METHOD);
         }
@@ -95,15 +95,12 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec}, m_NumberPartitions{1 /*FIXME*/} {
-}
-
-std::size_t CDataFrameOutliersRunner::numberOfPartitions() const {
-    return m_NumberPartitions;
+    : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
+                                          maths::CLocalOutlierFactors::E_Ensemble)} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
-    // Column for outlier score + explaining features TBD.
+    // Column for outlier score + explaining features TODO.
     return 1;
 }
 
@@ -120,19 +117,48 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::computeOutliers(this->spec().numberThreads(), frame);
 }
 
+std::size_t
+CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                         std::size_t numberRows,
+                                                         std::size_t numberColumns) const {
+    std::size_t result{0};
+    switch (numberPartitions) {
+    case 1:
+        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<float>>(
+            numberRows, numberColumns);
+        break;
+    default:
+        result = estimateMemoryUsage<maths::CDenseVector<float>>(numberRows, numberColumns);
+        break;
+    }
+    return result;
+}
+
+template<typename POINT>
+std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
+    maths::CLocalOutlierFactors::EAlgorithm method{
+        static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method)};
+    return m_NumberNeighbours != boost::none
+               ? maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+                     method, *m_NumberNeighbours, numberRows, numberColumns)
+               : maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+                     method, numberRows, numberColumns);
+}
+
 const char* CDataFrameOutliersRunnerFactory::name() const {
     return "outliers";
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
-    return boost::make_unique<CDataFrameOutliersRunner>(spec);
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec);
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& params) const {
-    return boost::make_unique<CDataFrameOutliersRunner>(spec, params);
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                          const rapidjson::Value& params) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec, params);
 }
 }
 }

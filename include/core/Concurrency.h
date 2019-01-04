@@ -250,10 +250,10 @@ parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FU
     //      in priority order. Then we can assign these tasks "highest priority in
     //      queue" + 1.
     //
-    // In the first instance I'm going to implement 1) because in practice we probably
-    // don't actually need to nest parallel_for_each and we are just interested in
-    // guarding against accidental deadlock in the case someone inadvertantly calls
-    // parallelised code and it is significantly simpler.
+    // This implements 1) because it is significantly simpler to and in practice we
+    // probably don't actually need to nest parallel_for_each. We're just interested
+    // in guarding against accidental deadlock in the case someone inadvertantly calls
+    // parallelised code in the function to execute.
 
     concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
 

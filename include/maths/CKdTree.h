@@ -126,6 +126,11 @@ public:
             return depth;
         }
 
+        //! Estimate the amount of memory this node will use.
+        static std::size_t estimateMemoryUsage(std::size_t dimension) {
+            return sizeof(SNode) + las::estimateMemoryUsage<POINT>(dimension);
+        }
+
         //! The parent.
         SNode* s_Parent;
         //! The left child if one exists.
@@ -289,6 +294,14 @@ public:
             }
         }
         return true;
+    }
+
+    //! Estimate the amount of memory the k-d tree will use.
+    //!
+    //! \param[in] numberPoints The number of points it will hold.
+    //! \param[in] dimension The dimension of points it will hold.
+    static std::size_t estimateMemoryUsage(std::size_t numberPoints, std::size_t dimension) {
+        return numberPoints * SNode::estimateMemoryUsage(dimension);
     }
 
 private:

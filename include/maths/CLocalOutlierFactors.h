@@ -44,7 +44,13 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
     //! The available algorithms.
-    enum EAlgorithm { E_Lof, E_Ldof, E_DistancekNN, E_TotalDistancekNN };
+    enum EAlgorithm {
+        E_Lof,
+        E_Ldof,
+        E_DistancekNN,
+        E_TotalDistancekNN,
+        E_Ensemble
+    };
 
 public:
     //! Compute the normalized LOF scores for \p points.
@@ -183,6 +189,48 @@ public:
         }
     }
 
+    //! Estimate the amount of memory that will be used computing outliers.
+    //!
+    //! \param[in] algorithm The algorithm that will be used.
+    //! \param[in] k The number of nearest neighbours which will be used.
+    //! \param[in] numberPoints The number of points for outliers will be
+    //! computed.
+    //! \param[in] dimension The dimension of the points for which outliers
+    //! will be computed.
+    template<typename POINT>
+    static std::size_t estimateMemoryUsage(EAlgorithm algorithm,
+                                           std::size_t k,
+                                           std::size_t numberPoints,
+                                           std::size_t dimension) {
+        // TODO handle the case we'll project the data properly.
+        std::size_t result{TKdTree<POINT>::estimateMemoryUsage(numberPoints, dimension)};
+        switch (algorithm) {
+        case E_Ensemble:
+            result += CLof<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(k, numberPoints) +
+                      CEnsemble<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(
+                          numberPoints, 4);
+            break;
+        case E_Lof:
+            result += CLof<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(k, numberPoints);
+            break;
+        case E_Ldof:
+        case E_DistancekNN:
+        case E_TotalDistancekNN:
+            break;
+        }
+        return result;
+    }
+
+    //! Overload of estimateMemoryUsage which computes estimated usage
+    //! for the default method and number of nearest neighbours.
+    template<typename POINT>
+    static std::size_t
+    estimateMemoryUsage(EAlgorithm algorithm, std::size_t numberPoints, std::size_t dimension) {
+        return estimateMemoryUsage<POINT>(
+            algorithm, defaultNumberOfNeighbours(numberPoints, dimension),
+            numberPoints, dimension);
+    }
+
 protected:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -209,8 +257,11 @@ protected:
     //! Check whether to project the data.
     template<typename POINT>
     static bool shouldProject(const std::vector<POINT>& points) {
-        return (points.size() > 0 ? las::dimension(points[0]) : 1) > 4;
+        return shouldProject(points.size() > 0 ? las::dimension(points[0]) : 1);
     }
+
+    //! Check whether to project the data.
+    static bool shouldProject(std::size_t dimension) { return dimension > 4; }
 
     //! Get the number of nearest neighbours to use.
     template<typename POINT>
@@ -219,12 +270,18 @@ protected:
             return 1;
         }
 
-        double numberPoints{static_cast<double>(points.size())};
+        std::size_t numberPoints{points.size()};
         std::size_t dimension{las::dimension(points[0])};
         if (shouldProject(points)) {
             std::tie(std::ignore, dimension) = computeBagsAndProjectedDimension(points);
         }
 
+        return defaultNumberOfNeighbours(numberPoints, dimension);
+    }
+
+    //! Get the number of nearest neighbours to use.
+    static std::size_t defaultNumberOfNeighbours(std::size_t numberPoints,
+                                                 std::size_t dimension) {
         return static_cast<std::size_t>(
             CTools::truncate(std::min(5.0 * static_cast<double>(dimension),
                                       std::pow(static_cast<double>(numberPoints), 1.0 / 3.0)),
@@ -263,6 +320,8 @@ protected:
         using TPointVec = std::vector<TPoint>;
         using TAnnotatedPoint = CAnnotatedVector<TPoint, std::size_t>;
         using TAnnotatedPointVec = std::vector<TAnnotatedPoint>;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+        using TMaxAccumulatorVec = std::vector<TMaxAccumulator>;
 
         std::size_t dimension{las::dimension(points[0])};
         std::size_t bags, projectedDimension;
@@ -275,13 +334,23 @@ protected:
         CSampling::normalSample(rng, 0.0, 1.0, 2 * bags * projectedDimension * dimension,
                                 coordinates);
 
-        TMeanAccumulatorVec meanScores(points.size());
-
+        // Placeholder for projected points.
         TAnnotatedPointVec projectedPoints;
         projectedPoints.reserve(points.size());
         for (std::size_t i = 0; i < points.size(); ++i) {
             projectedPoints.emplace_back(SConstant<POINT>::get(projectedDimension, 0), i);
         }
+
+        // We're interested if points are:
+        //   1) Outlying in any projection of the data,
+        //   2) Outlying in many projections of the data.
+        //
+        // We want to identify the former as outliers and the later as
+        // the most significant outliers. To this end we average the
+        // maximum score from any projection with the average score for
+        // all projections.
+        TMaxAccumulatorVec maxScores(points.size());
+        TMeanAccumulatorVec meanScores(points.size());
 
         TPointVec projection(projectedDimension, las::zero(points[0]));
         for (std::size_t bag = 0, i = 0; bag < bags && i < coordinates.size(); /**/) {
@@ -305,7 +374,8 @@ protected:
                 scores.assign(points.size(), 0.0);
                 compute(projectedPoints, scores);
                 core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
-                    meanScores[j].add(CTools::fastLog(scores[j]));
+                    maxScores[j].add(scores[j]);
+                    meanScores[j].add(scores[j]);
                 });
 
                 ++bag;
@@ -313,7 +383,7 @@ protected:
         }
 
         core::parallel_for_each(0, meanScores.size(), [&](std::size_t i) {
-            scores[i] = std::exp(CBasicStatistics::mean(meanScores[i]));
+            scores[i] = (maxScores[i][0] + CBasicStatistics::mean(meanScores[i])) / 2.0;
         });
     }
 
@@ -442,9 +512,11 @@ protected:
             }
 
             if (min.count() > 0) {
+                // Use twice the maximum "density" at any other point if there are
+                // k-fold duplicates.
                 for (auto& lrd : m_Lrd) {
                     if (lrd < 0.0) {
-                        lrd = min[0] / 2.0;
+                        lrd = 2.0 / min[0];
                     }
                 }
                 core::parallel_for_each(
@@ -458,6 +530,11 @@ protected:
                     });
             }
             normalize(scores);
+        }
+
+        static std::size_t estimateOwnMemoryOverhead(std::size_t k, std::size_t numberPoints) {
+            return numberPoints * (sizeof(TSizeDoublePrVec) +
+                                   k * sizeof(TSizeDoublePr) + sizeof(double));
         }
 
     private:
@@ -636,6 +713,11 @@ protected:
                 }
                 scores[i] /= static_cast<double>(m_Scores.size());
             }
+        }
+
+        static std::size_t estimateOwnMemoryOverhead(std::size_t numberPoints,
+                                                     std::size_t numberMethods) {
+            return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
         }
 
     private:

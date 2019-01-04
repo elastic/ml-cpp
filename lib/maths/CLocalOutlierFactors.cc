@@ -54,13 +54,13 @@ double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
         return CTools::linearlyInterpolate(CTools::fastLog(xa), CTools::fastLog(xb),
                                            fa, fb, CTools::fastLog(x));
     };
-    if (cdfComplement > 1e-4) {
-        return 1e-4 / cdfComplement;
+    if (cdfComplement > 1e-3) {
+        return 1e-3 / cdfComplement;
     }
-    if (cdfComplement > 1e-20) {
-        return logInterpolate(1e-4, 1.0, 1e-20, 50.0, cdfComplement);
+    if (cdfComplement > 1e-10) {
+        return logInterpolate(1e-10, 50.0, 1e-3, 1.0, cdfComplement);
     }
-    return logInterpolate(1e-20, 50.0, std::numeric_limits<double>::min(), 100.0, cdfComplement);
+    return logInterpolate(std::numeric_limits<double>::min(), 100.0, 1e-10, 50.0, cdfComplement);
 }
 
 namespace {
