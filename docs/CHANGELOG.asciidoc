@@ -28,6 +28,22 @@
 
 //=== Regressions
 
+ == {es} version 6.7.0
+
+=== Breaking Changes
+
+=== Deprecations
+
+=== New Features
+
+=== Enhancements
+
+Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
+
+=== Bug Fixes
+
+=== Regressions
+
  == {es} version 6.6.0
 
 === Breaking Changes
