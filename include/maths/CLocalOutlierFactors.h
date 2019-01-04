@@ -203,15 +203,16 @@ public:
                                            std::size_t k,
                                            std::size_t numberPoints,
                                            std::size_t dimension) {
+        // TODO handle the case we'll project the data properly.
         std::size_t result{TKdTree<POINT>::estimateMemoryUsage(numberPoints, dimension)};
         switch (algorithm) {
         case E_Ensemble:
-            result += CLof<POINT, TKdTree<POINT>>::estimateMemoryUsage(k, numberPoints) +
-                      CEnsemble<POINT, TKdTree<POINT>>::estimateMemoryUsage(
-                          numberPoints, dimension);
+            result += CLof<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(k, numberPoints) +
+                      CEnsemble<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(
+                          numberPoints, 4);
             break;
         case E_Lof:
-            result += CLof<POINT, TKdTree<POINT>>::estimateMemoryUsage(numberPoints, dimension);
+            result += CLof<POINT, TKdTree<POINT>>::estimateOwnMemoryOverhead(k, numberPoints);
             break;
         case E_Ldof:
         case E_DistancekNN:
@@ -512,7 +513,7 @@ protected:
             normalize(scores);
         }
 
-        static std::size_t estimateMemoryUsage(std::size_t numberPoints, std::size_t k) {
+        static std::size_t estimateOwnMemoryOverheads(std::size_t k, std::size_t numberPoints) {
             return numberPoints * (sizeof(TSizeDoublePrVec) +
                                    k * sizeof(TSizeDoublePr) + sizeof(double));
         }
@@ -696,8 +697,8 @@ protected:
             }
         }
 
-        static std::size_t estimateMemoryUsage(std::size_t numberPoints,
-                                               std::size_t numberMethods) {
+        static std::size_t estimateOwnMemoryOverheads(std::size_t numberPoints,
+                                                      std::size_t numberMethods) {
             return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
         }
 
