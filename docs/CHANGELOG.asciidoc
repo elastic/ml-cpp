@@ -37,3 +37,9 @@
 
 == {es} version 7.0.0-alpha1
 
+== {es} version 6.7.0
+
+=== Enhancements
+
+* Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
+
