@@ -414,7 +414,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
 }
 
 void CLocalOutlierFactorsTest::testEnsemble() {
-    // Check error stats for scores, 0.05, 0.1 and 0.5. We should see precision increase
+    // Check error stats for scores, 0.1, 1.0 and 10.0. We should see precision increase
     // for higher scores but recall decrease.
     //
     // In practice, the samples are randomly generated so it isn't necessarily the case
@@ -428,8 +428,8 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.79, 0.84, 0.95};
-    double recallLowerBounds[]{0.84, 0.7, 0.23};
+    double precisionLowerBounds[]{0.8, 0.85, 0.95};
+    double recallLowerBounds[]{0.86, 0.7, 0.21};
 
     // Test sequential then parallel.
 
