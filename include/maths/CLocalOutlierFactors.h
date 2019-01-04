@@ -513,7 +513,7 @@ protected:
             normalize(scores);
         }
 
-        static std::size_t estimateOwnMemoryOverheads(std::size_t k, std::size_t numberPoints) {
+        static std::size_t estimateOwnMemoryOverhead(std::size_t k, std::size_t numberPoints) {
             return numberPoints * (sizeof(TSizeDoublePrVec) +
                                    k * sizeof(TSizeDoublePr) + sizeof(double));
         }
@@ -697,8 +697,8 @@ protected:
             }
         }
 
-        static std::size_t estimateOwnMemoryOverheads(std::size_t numberPoints,
-                                                      std::size_t numberMethods) {
+        static std::size_t estimateOwnMemoryOverhead(std::size_t numberPoints,
+                                                     std::size_t numberMethods) {
             return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
         }
 
