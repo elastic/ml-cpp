@@ -11,20 +11,19 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CGramSchmidt.h>
 #include <maths/CKdTree.h>
 #include <maths/CLinearAlgebraShims.h>
+#include <maths/COrthogonaliser.h>
 #include <maths/CPRNG.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
-#include <boost/make_unique.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -324,8 +323,6 @@ protected:
         using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
         using TMaxAccumulatorVec = std::vector<TMaxAccumulator>;
 
-        scores.assign(points.size(), 0.0);
-
         std::size_t dimension{las::dimension(points[0])};
         std::size_t bags, projectedDimension;
         std::tie(bags, projectedDimension) = computeBagsAndProjectedDimension(points);
@@ -334,7 +331,8 @@ protected:
         // interested in Euclidean distances.
         TDoubleVec coordinates;
         CPRNG::CXorOShiro128Plus rng;
-        CSampling::normalSample(rng, 0.0, 1.0, bags * projectedDimension * dimension, coordinates);
+        CSampling::normalSample(rng, 0.0, 1.0, 2 * bags * projectedDimension * dimension,
+                                coordinates);
 
         // Placeholder for projected points.
         TAnnotatedPointVec projectedPoints;
@@ -355,28 +353,33 @@ protected:
         TMeanAccumulatorVec meanScores(points.size());
 
         TPointVec projection(projectedDimension, las::zero(points[0]));
-        for (std::size_t i = 0; i < coordinates.size(); /**/) {
+        for (std::size_t bag = 0, i = 0; bag < bags && i < coordinates.size(); /**/) {
             // Create an orthonormal basis for the bag.
             for (std::size_t p = 0; p < projectedDimension; ++p) {
                 for (std::size_t d = 0; d < dimension; ++i, ++d) {
                     projection[p](d) = coordinates[i];
                 }
             }
-            CGramSchmidt::basis(projection);
+            if (COrthogonaliser::orthonormalBasis(projection) &&
+                projection.size() == projectedDimension) {
 
-            // Project onto the basis.
-            core::parallel_for_each(0, points.size(), [&](std::size_t j) {
-                for (std::size_t d = 0; d < projectedDimension; ++d) {
-                    projectedPoints[j](d) = las::inner(projection[d], points[j]);
-                }
-            });
+                // Project onto the basis.
+                core::parallel_for_each(0, points.size(), [&](std::size_t j) {
+                    for (std::size_t d = 0; d < projectedDimension; ++d) {
+                        projectedPoints[j](d) = las::inner(projection[d], points[j]);
+                    }
+                });
 
-            // Compute the scores and update the overall score.
-            compute(projectedPoints, scores);
-            core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
-                maxScores[j].add(scores[j]);
-                meanScores[j].add(scores[j]);
-            });
+                // Compute the scores and update the overall score.
+                scores.assign(points.size(), 0.0);
+                compute(projectedPoints, scores);
+                core::parallel_for_each(0, scores.size(), [&](std::size_t j) {
+                    maxScores[j].add(scores[j]);
+                    meanScores[j].add(scores[j]);
+                });
+
+                ++bag;
+            }
         }
 
         core::parallel_for_each(0, meanScores.size(), [&](std::size_t i) {
@@ -646,8 +649,8 @@ protected:
     public:
         using TPoint = CAnnotatedVector<POINT, std::size_t>;
         using TPointVec = std::vector<TPoint>;
-        using TMethodPtr = std::unique_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
-        using TMethodPtrVec = std::vector<TMethodPtr>;
+        using TMethodUPtr = std::unique_ptr<CMethod<POINT, const NEAREST_NEIGHBOURS&>>;
+        using TMethodUPtrVec = std::vector<TMethodUPtr>;
 
     public:
         CEnsemble(NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
@@ -656,30 +659,29 @@ protected:
         template<typename T>
         CEnsemble& lof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(std::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
         template<typename T>
         CEnsemble& ldof(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(boost::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
+            m_Methods.push_back(std::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
                 m_K, this->lookup()));
             return *this;
         }
         template<typename T>
         CEnsemble& knn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
-            m_Methods.push_back(
-                boost::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
-                    m_K, this->lookup()));
+            m_Methods.push_back(std::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                m_K, this->lookup()));
             return *this;
         }
         template<typename T>
         CEnsemble& tnn(const std::vector<T>& points) {
             m_K = defaultNumberOfNeighbours(points);
             m_Methods.push_back(
-                boost::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
+                std::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
                     m_K, this->lookup()));
             return *this;
         }
@@ -720,7 +722,7 @@ protected:
 
     private:
         std::size_t m_K;
-        TMethodPtrVec m_Methods;
+        TMethodUPtrVec m_Methods;
         TDoubleVecVec m_Scores;
     };
 

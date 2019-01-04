@@ -37,7 +37,6 @@ CEntropySketch.cc \
 CExpandingWindow.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
-CGramSchmidt.cc \
 CImputer.cc \
 CInformationCriteria.cc \
 CIntegerTools.cc \

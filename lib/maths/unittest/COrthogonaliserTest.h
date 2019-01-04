@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CGramSchmidtTest_h
-#define INCLUDED_CGramSchmidtTest_h
+#ifndef INCLUDED_COrthogonaliserTest_h
+#define INCLUDED_COrthogonaliserTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGramSchmidtTest : public CppUnit::TestFixture {
+class COrthogonaliserTest : public CppUnit::TestFixture {
 public:
     void testOrthogonality();
     void testNormalisation();
@@ -19,4 +19,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CGramSchmidtTest_h
+#endif // INCLUDED_COrthogonaliserTest_h

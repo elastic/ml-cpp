@@ -9,8 +9,8 @@
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CGramSchmidt.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/COrthogonaliser.h>
 #include <maths/CPca.h>
 
 #include <test/CRandomNumbers.h>
@@ -53,7 +53,7 @@ void CPcaTest::testProjectOntoPrincipleComponents() {
                     }
                 }
             }
-            maths::CGramSchmidt::basis(basis);
+            maths::COrthogonaliser::orthonormalBasis(basis);
 
             std::size_t points{500};
             support.resize(points);
