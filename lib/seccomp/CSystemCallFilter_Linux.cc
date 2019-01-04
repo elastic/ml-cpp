@@ -26,8 +26,6 @@ const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
-// Offset to the arch field in struct seccomp_data
-const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 
 // Copied from seccomp.h
 // seccomp.h cannot be included as it was added in Linux kernel 3.17
@@ -44,10 +42,6 @@ const std::uint32_t SECCOMP_DATA_ARCH_OFFSET = 0x04;
 #endif
 
 const struct sock_filter FILTER[] = {
-    // Load architecture from 'seccomp_data' buffer into accumulator
-    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_ARCH_OFFSET),
-    // Jump to disallow if architecture is not X86_64
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 0, 5),
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
     // Only applies to X86_64 arch. Jump to disallow for calls using the x32 ABI
