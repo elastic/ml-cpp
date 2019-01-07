@@ -15,6 +15,7 @@ public:
     void testRunOutlierDetection();
     void testFlushMessage();
     void testErrors();
+    void testRoundTripDocIds();
 
     static CppUnit::Test* suite();
 };

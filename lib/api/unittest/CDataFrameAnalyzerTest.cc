@@ -105,7 +105,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     TDoubleVec expectedScores;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5"};
-    TStrVec fieldValues(fieldNames.size());
+    TStrVec fieldValues{"", "", "", "", ""};
     addTestData(fieldNames, fieldValues, analyzer, expectedScores);
 
     analyzer.receivedAllRows();
@@ -137,11 +137,11 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
 
     TDoubleVec expectedScores;
 
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", "."};
-    TStrVec fieldValues(fieldNames.size());
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
     addTestData(fieldNames, fieldValues, analyzer, expectedScores);
 
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
@@ -169,8 +169,8 @@ void CDataFrameAnalyzerTest::testFlushMessage() {
 
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
     CPPUNIT_ASSERT_EQUAL(
-        true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
-                                    {"", "", "", "", "", "           "}));
+        true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                    {"", "", "", "", "", "", "           "}));
 }
 
 void CDataFrameAnalyzerTest::testErrors() {
@@ -190,28 +190,63 @@ void CDataFrameAnalyzerTest::testErrors() {
                                                    {"10", "10", "10", "10", "10"}));
     }
 
-    // Test control message in the wrong position
+    // Test special field in the wrong position
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
-            false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5"},
-                                         {"10", "10", "10", "", "10", "10"}));
+            false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
+                                         {"10", "10", "10", "", "10", "10", ""}));
+    }
+
+    // Test missing special field
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+        CPPUNIT_ASSERT_EQUAL(
+            false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
+                                         {"10", "10", "10", "10", "10", ""}));
     }
 
     // Test bad control message
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
-            false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
-                                         {"10", "10", "10", "10", "10", "foo"}));
+            false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                         {"10", "10", "10", "10", "10", "", "foo"}));
     }
 
     // Test bad input
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
-            false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
+            false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10"}));
+    }
+}
+
+void CDataFrameAnalyzerTest::testRoundTripDocIds() {
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
+        analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                              {i, i, i, i, i, i, ""});
+    }
+
+    analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                          {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    int expectedId{0};
+    for (const auto& result : results.GetArray()) {
+        LOG_DEBUG(<< "id = " << result["id_hash"].GetInt());
+        CPPUNIT_ASSERT_EQUAL(++expectedId, result["id_hash"].GetInt());
     }
 }
 
@@ -228,6 +263,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testErrors", &CDataFrameAnalyzerTest::testErrors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRoundTripDocIds",
+        &CDataFrameAnalyzerTest::testRoundTripDocIds));
 
     return suiteOfTests;
 }
