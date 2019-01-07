@@ -183,9 +183,9 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     using TFloatVec = std::vector<core::CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
 
-    m_DataFrame->writeRow([&](TFloatVecItr output) {
+    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docId) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
-             i != m_EndDataFieldValues; ++i, ++output) {
+             i != m_EndDataFieldValues; ++i, ++columns) {
             double value;
             if (core::CStringUtils::stringToType(fieldValues[i], value) == false) {
                 ++m_BadValueCount;
@@ -193,16 +193,17 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                 // TODO this is a can of worms we can deal with later.
                 // Use NaN to indicate missing in the data frame, but this needs
                 // handling with care from an analysis perspective. If analyses
-                // can deal with missing values we need to make sure they would
-                // deal with NaNs correctly otherwise we need to impute or exit
-                // with failure.
-                *output = core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+                // can deal with missing values they need to treat NaNs as missing
+                // otherwise we must impute or exit with failure.
+                *columns = core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
             } else {
                 // Tuncation is very unlikely since the values will typically be
                 // standardised.
-                *output = truncateToFloatRange(value);
+                *columns = truncateToFloatRange(value);
             }
         }
+        // TODO write stub until passed.
+        docId = 0xdeadbeef;
     });
 }
 
@@ -222,7 +223,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
             outputWriter.Key(ID_HASH);
-            outputWriter.String(ID_HASH); // TODO this should be the actual hash
+            outputWriter.Int(row->docId());
             outputWriter.Key(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
             outputWriter.EndObject();

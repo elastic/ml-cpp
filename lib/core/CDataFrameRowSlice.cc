@@ -13,15 +13,17 @@
 #include <core/CMemory.h>
 #include <core/CompressUtils.h>
 
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/make_unique.hpp>
+#include <boost/filesystem.hpp>
 
 #include <memory>
+#include <vector>
 
 namespace ml {
 namespace core {
 using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecItr = TFloatVec::iterator;
+using TInt32Vec = std::vector<std::int32_t>;
+using TInt32VecCItr = TInt32Vec::const_iterator;
 
 namespace {
 using namespace data_frame_row_slice_detail;
@@ -36,19 +38,23 @@ using namespace data_frame_row_slice_detail;
 //! values stored in the data frame.
 class CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    CMainMemoryDataFrameRowSliceHandle(TFloatVec& values) : m_Values{values} {}
+    CMainMemoryDataFrameRowSliceHandle(TFloatVec& rows, const TInt32Vec& docIds)
+        : m_Rows{rows}, m_DocIds{docIds} {}
     virtual TImplPtr clone() const {
-        return boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Values);
+        return std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocIds);
     }
     virtual bool inMainMemory() const { return true; }
-    virtual TFloatVec& values() const { return m_Values; }
+    virtual TFloatVec& rows() const { return m_Rows; }
+    virtual const TInt32Vec& docIds() const { return m_DocIds; }
     virtual bool bad() const { return false; }
 
 private:
     using TFloatVecRef = std::reference_wrapper<TFloatVec>;
+    using TInt32VecCRef = std::reference_wrapper<const TInt32Vec>;
 
 private:
-    TFloatVecRef m_Values;
+    TFloatVecRef m_Rows;
+    TInt32VecCRef m_DocIds;
 };
 
 //! \brief A handle for reading CRawDataFrameRowSlice objects.
@@ -58,39 +64,49 @@ private:
 //! the slice is inflated.
 class COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    COnDiskDataFrameRowSliceHandle(TFloatVec values)
-        : m_Values{std::move(values)} {}
+    COnDiskDataFrameRowSliceHandle(TFloatVec rows, TInt32Vec docIds)
+        : m_Rows{std::move(rows)}, m_DocIds{std::move(docIds)} {}
     virtual TImplPtr clone() const {
-        return boost::make_unique<COnDiskDataFrameRowSliceHandle>(m_Values);
+        return std::make_unique<COnDiskDataFrameRowSliceHandle>(m_Rows, m_DocIds);
     }
-    virtual TFloatVec& values() const { return m_Values; }
+    virtual TFloatVec& rows() const { return m_Rows; }
+    virtual const TInt32Vec& docIds() const { return m_DocIds; }
     virtual bool bad() const { return false; }
 
 private:
-    mutable TFloatVec m_Values;
+    mutable TFloatVec m_Rows;
+    TInt32Vec m_DocIds;
 };
 
-//! \brief An implementation of a bad handle.
+//! \brief The implementation of a bad handle.
 //!
 //! DESCRIPTION:\n
 //! This is used to signal that there is a problem accessing the slice.
 class CBadDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
     virtual TImplPtr clone() const {
-        return boost::make_unique<CBadDataFrameRowSliceHandle>();
+        return std::make_unique<CBadDataFrameRowSliceHandle>();
     }
-    virtual TFloatVec& values() const { return m_Empty; }
+    virtual TFloatVec& rows() const { return m_EmptyRows; }
+    virtual const TInt32Vec& docIds() const { return m_EmptyDocIds; }
     virtual bool bad() const { return true; }
 
 private:
-    //! Stub for the values.
-    mutable TFloatVec m_Empty;
+    //! Stub for the rows.
+    mutable TFloatVec m_EmptyRows;
+    //! Stub for the row document ids.
+    TInt32Vec m_EmptyDocIds;
 };
 
-//! Checksum \p slice.
-uint64_t computeChecksum(const TFloatVec& slice) {
-    return CHashing::murmurHash64(
-        slice.data(), static_cast<int>(sizeof(CFloatStorage) * slice.size()), 0);
+//! Checksum \p vec.
+template<typename T>
+std::uint64_t computeChecksum(const std::vector<T>& vec) {
+    return CHashing::murmurHash64(vec.data(), static_cast<int>(sizeof(T) * vec.size()), 0);
+}
+
+//! Checksum \p rows and \p docIds.
+std::uint64_t computeChecksum(const TFloatVec& rows, const TInt32Vec& docIds) {
+    return CHashing::hashCombine(computeChecksum(rows), computeChecksum(docIds));
 }
 }
 
@@ -122,19 +138,31 @@ CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::operator=(CDataFrameRowSlice
 }
 
 std::size_t CDataFrameRowSliceHandle::size() const {
-    return m_Impl->values().size();
+    return m_Impl->rows().size();
 }
 
-TFloatVecItr CDataFrameRowSliceHandle::begin() const {
-    return m_Impl->values().begin();
+TFloatVecItr CDataFrameRowSliceHandle::beginRows() const {
+    return m_Impl->rows().begin();
 }
 
-TFloatVecItr CDataFrameRowSliceHandle::end() const {
-    return m_Impl->values().end();
+TFloatVecItr CDataFrameRowSliceHandle::endRows() const {
+    return m_Impl->rows().end();
 }
 
-const TFloatVec& CDataFrameRowSliceHandle::values() const {
-    return m_Impl->values();
+TInt32VecCItr CDataFrameRowSliceHandle::beginDocIds() const {
+    return m_Impl->docIds().begin();
+}
+
+TInt32VecCItr CDataFrameRowSliceHandle::endDocIds() const {
+    return m_Impl->docIds().end();
+}
+
+const TFloatVec& CDataFrameRowSliceHandle::rows() const {
+    return m_Impl->rows();
+}
+
+const CDataFrameRowSliceHandle::TInt32Vec& CDataFrameRowSliceHandle::docIds() const {
+    return m_Impl->docIds();
 }
 
 bool CDataFrameRowSliceHandle::bad() const {
@@ -143,10 +171,13 @@ bool CDataFrameRowSliceHandle::bad() const {
 
 //////// CMainMemoryDataFrameRowSlice ////////
 
-CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec state)
-    : m_FirstRow{firstRow}, m_State{std::move(state)} {
-    LOG_TRACE(<< "slice size = " << m_State.size() << " capacity = " << m_State.capacity());
-    m_State.shrink_to_fit();
+CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
+                                                           TFloatVec rows,
+                                                           TInt32Vec docIds)
+    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocIds(docIds) {
+    LOG_TRACE(<< "slice size = " << m_Rows.size() << " capacity = " << m_Rows.capacity());
+    m_Rows.shrink_to_fit();
+    m_DocIds.shrink_to_fit();
 }
 
 bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
@@ -154,15 +185,15 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
     // Padding is inserted into the underlying vector which is skipped over
     // by the CRowConstIterator object.
 
-    std::size_t numberRows{m_State.size() / numberColumns};
+    std::size_t numberRows{m_Rows.size() / numberColumns};
     std::size_t newNumberColumns{numberColumns + extraColumns};
     try {
-        TFloatVec state(m_State.size() + numberRows * extraColumns);
-        for (auto i = m_State.begin(), j = state.begin(); i != m_State.end();
+        TFloatVec state(m_Rows.size() + numberRows * extraColumns);
+        for (auto i = m_Rows.begin(), j = state.begin(); i != m_Rows.end();
              i += numberColumns, j += newNumberColumns) {
             std::copy(i, i + numberColumns, j);
         }
-        std::swap(state, m_State);
+        std::swap(state, m_Rows);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to reserve " << extraColumns
                   << " extra columns: caught '" << e.what() << "'");
@@ -172,10 +203,11 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
 }
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
-    return {m_FirstRow, {boost::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_State)}};
+    return {m_FirstRow,
+            {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocIds)}};
 }
 
-void CMainMemoryDataFrameRowSlice::write(const TFloatVec&) {
+void CMainMemoryDataFrameRowSlice::write(const TFloatVec&, const TInt32Vec&) {
     // Nothing to do.
 }
 
@@ -184,11 +216,11 @@ std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::memoryUsage() const {
-    return CMemory::dynamicSize(m_State);
+    return CMemory::dynamicSize(m_Rows) + CMemory::dynamicSize(m_DocIds);
 }
 
 std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
-    return computeChecksum(m_State);
+    return computeChecksum(m_Rows, m_DocIds);
 }
 
 //////// COnDiskDataFrameRowSlice ////////
@@ -215,14 +247,16 @@ bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
 
 COnDiskDataFrameRowSlice::COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                                                    std::size_t firstRow,
-                                                   TFloatVec state)
-    : m_StateIsBad{directory->bad()}, m_FirstRow{firstRow}, m_Capacity{state.size()},
+                                                   TFloatVec rows,
+                                                   TInt32Vec docIds)
+    : m_StateIsBad{directory->bad()}, m_FirstRow{firstRow},
+      m_RowsCapacity{rows.size()}, m_DocIdsCapacity{docIds.size()},
       m_Directory{directory}, m_FileName{directory->name()}, m_Checksum{0} {
 
     if (m_StateIsBad == false) {
         m_FileName /= boost::filesystem::unique_path(
             "rows-" + std::to_string(firstRow) + "-%%%%-%%%%-%%%%-%%%%");
-        this->writeToDisk(state);
+        this->writeToDisk(rows, docIds);
     }
 }
 
@@ -236,14 +270,15 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
     }
 
     try {
-        TFloatVec oldState(m_Capacity);
-        if (this->readFromDisk(oldState) == false) {
+        TFloatVec oldRows(m_RowsCapacity);
+        TInt32Vec docIds(m_DocIdsCapacity);
+        if (this->readFromDisk(oldRows, docIds) == false) {
             LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
             m_StateIsBad = true;
             return false;
         }
 
-        std::size_t numberRows{oldState.size() / numberColumns};
+        std::size_t numberRows{oldRows.size() / numberColumns};
 
         if (sufficientDiskSpaceAvailable(m_Directory->name(),
                                          numberRows * extraColumns) == false) {
@@ -253,13 +288,13 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         }
 
         std::size_t newNumberColumns{numberColumns + extraColumns};
-        TFloatVec newState(numberRows * newNumberColumns, 0.0);
-        for (auto i = oldState.begin(), j = newState.begin();
-             i != oldState.end(); i += numberColumns, j += newNumberColumns) {
+        TFloatVec newRows(numberRows * newNumberColumns, 0.0);
+        for (auto i = oldRows.begin(), j = newRows.begin(); i != oldRows.end();
+             i += numberColumns, j += newNumberColumns) {
             std::copy(i, i + numberColumns, j);
         }
 
-        this->writeToDisk(newState);
+        this->writeToDisk(newRows, docIds);
 
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to reserve " << extraColumns
@@ -274,36 +309,38 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 
     if (m_StateIsBad) {
         LOG_ERROR(<< "Bad row slice 'rows-" << m_FirstRow << "'");
-        return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
+        return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
     }
 
-    TFloatVec result;
+    TFloatVec rows;
+    TInt32Vec docIds;
 
     try {
-        if (this->readFromDisk(result) == false) {
+        if (this->readFromDisk(rows, docIds) == false) {
             LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
             m_StateIsBad = true;
-            return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
+            return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
 
-        if (computeChecksum(result) != m_Checksum) {
+        if (computeChecksum(rows, docIds) != m_Checksum) {
             LOG_ERROR(<< "Corrupt from row " << m_FirstRow);
             m_StateIsBad = true;
-            return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
+            return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Caught '" << e.what() << "' while reading from row " << m_FirstRow);
         m_StateIsBad = true;
-        return {0, {boost::make_unique<CBadDataFrameRowSliceHandle>()}};
+        return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
     }
 
     return {m_FirstRow,
-            {boost::make_unique<COnDiskDataFrameRowSliceHandle>(std::move(result))}};
+            {std::make_unique<COnDiskDataFrameRowSliceHandle>(std::move(rows),
+                                                              std::move(docIds))}};
 }
 
-void COnDiskDataFrameRowSlice::write(const TFloatVec& values) {
+void COnDiskDataFrameRowSlice::write(const TFloatVec& rows, const TInt32Vec& docIds) {
     if (m_StateIsBad == false) {
-        this->writeToDisk(values);
+        this->writeToDisk(rows, docIds);
     }
 }
 
@@ -315,30 +352,38 @@ std::size_t COnDiskDataFrameRowSlice::memoryUsage() const {
     return CMemory::dynamicSize(m_Directory) + CMemory::dynamicSize(m_FileName.string());
 }
 
-void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& state) {
-    m_Capacity = state.size();
-    m_Checksum = computeChecksum(state);
+void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Vec& docIds) {
+    m_RowsCapacity = rows.size();
+    m_DocIdsCapacity = docIds.size();
+    m_Checksum = CHashing::hashCombine(computeChecksum(rows), computeChecksum(docIds));
     LOG_TRACE(<< "Checksum = " << m_Checksum);
 
-    std::size_t bytes{sizeof(CFloatStorage) * state.size()};
-    LOG_TRACE(<< "bytes = " << bytes);
+    std::size_t rowBytes{sizeof(CFloatStorage) * rows.size()};
+    std::size_t docIdBytes{sizeof(std::int32_t) * docIds.size()};
+    LOG_TRACE(<< "row bytes = " << rowBytes);
+    LOG_TRACE(<< "doc ids bytes = " << docIdBytes);
 
     std::ofstream file{m_FileName.string(), std::ios_base::trunc | std::ios_base::binary};
-    file.write(reinterpret_cast<const char*>(state.data()), bytes);
+    file.write(reinterpret_cast<const char*>(rows.data()), rowBytes);
+    file.write(reinterpret_cast<const char*>(docIds.data()), docIdBytes);
 }
 
 std::uint64_t COnDiskDataFrameRowSlice::checksum() const {
     return m_Checksum;
 }
 
-bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& result) const {
-    result.resize(m_Capacity);
+bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docIds) const {
+    rows.resize(m_RowsCapacity);
+    docIds.resize(m_DocIdsCapacity);
 
-    std::size_t bytes{sizeof(CFloatStorage) * m_Capacity};
-    LOG_TRACE(<< "bytes = " << bytes);
+    std::size_t rowsBytes{sizeof(CFloatStorage) * m_RowsCapacity};
+    std::size_t docIdsBytes{sizeof(std::int32_t) * m_DocIdsCapacity};
+    LOG_TRACE(<< "row bytes = " << rowBytes);
+    LOG_TRACE(<< "doc ids bytes = " << docIdBytes);
 
     std::ifstream file{m_FileName.string(), std::ios_base::binary};
-    file.read(reinterpret_cast<char*>(result.data()), bytes);
+    file.read(reinterpret_cast<char*>(rows.data()), rowsBytes);
+    file.read(reinterpret_cast<char*>(docIds.data()), docIdsBytes);
     return file.bad() == false;
 }
 

@@ -12,8 +12,6 @@
 #include <core/CMemory.h>
 #include <core/Concurrency.h>
 
-#include <boost/make_unique.hpp>
-
 #include <algorithm>
 #include <future>
 #include <memory>
@@ -22,8 +20,8 @@ namespace ml {
 namespace core {
 namespace data_frame_detail {
 
-CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns)
-    : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns} {
+CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docId)
+    : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocId{docId} {
 }
 
 CFloatStorage CRowRef::operator[](std::size_t i) const {
@@ -46,44 +44,48 @@ CFloatStorage* CRowRef::data() const {
     return &(*m_BeginColumns);
 }
 
+std::int32_t CRowRef::docId() const {
+    return m_DocId;
+}
+
 CRowIterator::CRowIterator(std::size_t numberColumns,
                            std::size_t rowCapacity,
                            std::size_t index,
-                           TFloatVecItr base)
-    : m_NumberColumns{numberColumns}, m_RowCapacity{rowCapacity}, m_Index{index}, m_Base{base} {
+                           TFloatVecItr rowItr,
+                           TInt32VecCItr docIdItr)
+    : m_NumberColumns{numberColumns},
+      m_RowCapacity{rowCapacity}, m_Index{index}, m_RowItr{rowItr}, m_DocIdItr{docIdItr} {
 }
 
 bool CRowIterator::operator==(const CRowIterator& rhs) const {
-    return m_Base == rhs.m_Base;
+    return m_RowItr == rhs.m_RowItr && m_DocIdItr == rhs.m_DocIdItr;
 }
 
 bool CRowIterator::operator!=(const CRowIterator& rhs) const {
-    return m_Base != rhs.m_Base;
+    return m_RowItr != rhs.m_RowItr || m_DocIdItr != rhs.m_DocIdItr;
 }
 
 CRowRef CRowIterator::operator*() const {
-    return CRowRef{m_Index, m_Base, m_Base + m_NumberColumns};
+    return CRowRef{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocIdItr};
 }
 
 CRowPtr CRowIterator::operator->() const {
-    return CRowPtr{m_Index, m_Base, m_Base + m_NumberColumns};
+    return CRowPtr{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocIdItr};
 }
 
 CRowIterator& CRowIterator::operator++() {
     ++m_Index;
-    m_Base += m_RowCapacity;
+    m_RowItr += m_RowCapacity;
+    ++m_DocIdItr;
     return *this;
 }
 
 CRowIterator CRowIterator::operator++(int) {
     CRowIterator result{*this};
     ++m_Index;
-    m_Base += m_RowCapacity;
+    m_RowItr += m_RowCapacity;
+    ++m_DocIdItr;
     return result;
-}
-
-TFloatVecItr CRowIterator::base() const {
-    return m_Base;
 }
 }
 using namespace data_frame_detail;
@@ -182,7 +184,7 @@ bool CDataFrame::writeColumns(std::size_t numberThreads, TRowFunc writer) {
 
 void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     if (m_Writer == nullptr) {
-        m_Writer = boost::make_unique<CDataFrameRowSliceWriter>(
+        m_Writer = std::make_unique<CDataFrameRowSliceWriter>(
             m_NumberRows, m_RowCapacity, m_SliceCapacityInRows,
             m_ReadAndWriteToStoreSyncStrategy, m_WriteSliceToStore);
     }
@@ -257,7 +259,7 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, boo
                 this->applyToRowsOfOneSlice(func_, firstRow, readRow);
 
                 if (commitResult) {
-                    slice->write(readRow.values());
+                    slice->write(readRow.rows(), readRow.docIds());
                 }
             },
             std::move(func)));
@@ -302,7 +304,7 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
             ] {
                 this->applyToRowsOfOneSlice(func, firstRow, readSlice_);
                 if (commitResult) {
-                    slice->write(readSlice_.values());
+                    slice->write(readSlice_.rows(), readSlice_.docIds());
                 }
             });
         }
@@ -316,7 +318,7 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
             }
             this->applyToRowsOfOneSlice(func, firstRow, readSlice);
             if (commitResult) {
-                slice->write(readSlice.values());
+                slice->write(readSlice.rows(), readSlice.docIds());
             }
         }
         break;
@@ -331,8 +333,10 @@ void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
     LOG_TRACE(<< "Applying function to slice starting at row " << firstRow);
     std::size_t rows{slice.size() / m_RowCapacity};
     std::size_t lastRow{firstRow + rows};
-    func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow, slice.begin()},
-         CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.end()});
+    func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow,
+                      slice.beginRows(), slice.beginDocIds()},
+         CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.endRows(),
+                      slice.endDocIds()});
 }
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
@@ -343,20 +347,23 @@ CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     TWriteSliceToStoreFunc writeSliceToStore)
     : m_NumberRows{numberRows}, m_RowCapacity{rowCapacity}, m_SliceCapacityInRows{sliceCapacityInRows},
       m_WriteToStoreSyncStrategy{writeToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
-    m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
+    m_RowsOfSliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
+    m_DocIdsOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
 }
 
 void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow) {
     // Write the next row at the end of the current slice being written
     // and if the slice is full pass to the thread storing slices.
 
-    std::size_t end{m_SliceBeingWritten.size()};
+    std::size_t end{m_RowsOfSliceBeingWritten.size()};
 
-    m_SliceBeingWritten.resize(end + m_RowCapacity);
-    writeRow(m_SliceBeingWritten.begin() + end);
+    m_RowsOfSliceBeingWritten.resize(end + m_RowCapacity);
+    m_DocIdsOfSliceBeingWritten.emplace_back();
+    writeRow(m_RowsOfSliceBeingWritten.begin() + end,
+             m_DocIdsOfSliceBeingWritten.back());
     ++m_NumberRows;
 
-    if (m_SliceBeingWritten.size() == m_SliceCapacityInRows * m_RowCapacity) {
+    if (m_DocIdsOfSliceBeingWritten.size() == m_SliceCapacityInRows) {
         std::size_t firstRow{m_NumberRows - m_SliceCapacityInRows};
         LOG_TRACE(<< "Storing slice [" << firstRow << "," << m_NumberRows << ")");
 
@@ -365,18 +372,22 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
             if (m_SliceWrittenAsyncToStore.valid()) {
                 m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
             }
-            m_SliceWrittenAsyncToStore = async(defaultAsyncExecutor(),
-                                               m_WriteSliceToStore, firstRow,
-                                               std::move(m_SliceBeingWritten));
+            m_SliceWrittenAsyncToStore =
+                async(defaultAsyncExecutor(), m_WriteSliceToStore, firstRow,
+                      std::move(m_RowsOfSliceBeingWritten),
+                      std::move(m_DocIdsOfSliceBeingWritten));
             break;
         }
         case EReadWriteToStorage::E_Sync:
             m_SlicesWrittenToStore.push_back(
-                m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
+                m_WriteSliceToStore(firstRow, std::move(m_RowsOfSliceBeingWritten),
+                                    std::move(m_DocIdsOfSliceBeingWritten)));
             break;
         }
-        m_SliceBeingWritten.clear();
-        m_SliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
+        m_RowsOfSliceBeingWritten.clear();
+        m_DocIdsOfSliceBeingWritten.clear();
+        m_RowsOfSliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
+        m_DocIdsOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
     }
 }
 
@@ -386,12 +397,13 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
         m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
     }
 
-    if (m_SliceBeingWritten.size() > 0) {
-        std::size_t firstRow{m_NumberRows - m_SliceBeingWritten.size() / m_RowCapacity};
+    if (m_DocIdsOfSliceBeingWritten.size() > 0) {
+        std::size_t firstRow{m_NumberRows - m_RowsOfSliceBeingWritten.size() / m_RowCapacity};
         LOG_TRACE(<< "Last slice [" << std::to_string(firstRow) << ","
                   << std::to_string(m_NumberRows) + ")");
         m_SlicesWrittenToStore.push_back(
-            m_WriteSliceToStore(firstRow, std::move(m_SliceBeingWritten)));
+            m_WriteSliceToStore(firstRow, std::move(m_RowsOfSliceBeingWritten),
+                                std::move(m_DocIdsOfSliceBeingWritten)));
     }
 
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
@@ -401,8 +413,9 @@ std::unique_ptr<CDataFrame>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    auto writer = [](std::size_t firstRow, TFloatVec slice) {
-        return std::make_unique<CMainMemoryDataFrameRowSlice>(firstRow, std::move(slice));
+    auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docIds) {
+        return std::make_unique<CMainMemoryDataFrameRowSlice>(
+            firstRow, std::move(rows), std::move(docIds));
     };
 
     if (sliceCapacity != boost::none) {
@@ -430,9 +443,9 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
     // pointer is copied to the data frame. So this isn't destroyed, and
     // the folder cleaned up, until the data frame itself is destroyed.
 
-    auto writer = [directory](std::size_t firstRow, TFloatVec slice) {
-        return std::make_unique<COnDiskDataFrameRowSlice>(directory, firstRow,
-                                                          std::move(slice));
+    auto writer = [directory](std::size_t firstRow, TFloatVec rows, TInt32Vec docIds) {
+        return std::make_unique<COnDiskDataFrameRowSlice>(
+            directory, firstRow, std::move(rows), std::move(docIds));
     };
 
     if (sliceCapacity != boost::none) {
