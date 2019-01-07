@@ -42,10 +42,6 @@ Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
 
 === Bug Fixes
 
-Fix a race condition if a forecast job requires overflowing to disk but cleanup of temporary
-storage fails. This can cause the autodetect process to hang on exit, if more forecast requests
-are in the queue. (See {ml-pull}352[352].)
-
 === Regressions
 
  == {es} version 6.6.0
@@ -63,6 +59,14 @@ are in the queue. (See {ml-pull}352[352].)
 Fix cause of "Sample out of bounds" error message (See {ml-pull}355[355].}
 
 === Regressions
+
+ == {es} version 6.5.5
+
+=== Bug Fixes
+
+Fix a race condition if a forecast job requires overflowing to disk but cleanup of temporary
+storage fails. This can cause the autodetect process to hang on exit, if more forecast requests
+are in the queue. (See {ml-pull}352[352].)
 
  == {es} version 6.5.3
 
