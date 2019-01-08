@@ -12,8 +12,7 @@ class CStatisticsTest : public CppUnit::TestFixture {
 public:
     void testStatistics();
     void testPersist();
-
-    void threadRunner(int i);
+    void testCacheStatistics();
 
     static CppUnit::Test* suite();
 };

@@ -13,9 +13,11 @@
 #include <boost/array.hpp>
 
 #include <iosfwd>
-#include <map>
+#include <vector>
 
 #include <stdint.h>
+
+class CStatisticsTest;
 
 namespace ml {
 namespace stat_t {
@@ -109,12 +111,25 @@ class CStatePersistInserter;
 //! A singleton class: there should only be one collection of global stats
 //!
 class CORE_EXPORT CStatistics : private CNonCopyable {
+private:
+    class CStatsCache;
+
+private:
+    using TStatArray = boost::array<CStat, stat_t::E_LastEnumStat>;
+    using TStatsCacheUPtr = std::unique_ptr<CStatsCache>;
+
 public:
     //! Singleton pattern
     static CStatistics& instance();
 
     //! Provide access to the relevant stat from the collection
     static CStat& stat(int index);
+
+    //! copy the collection of live statistics to a cache
+    static void cacheStats();
+
+    //! Transfer ownership of the cached statistics to the caller
+    static TStatsCacheUPtr transferCachedStats();
 
     //! \name Persistence
     //@{
@@ -126,9 +141,6 @@ public:
     //@}
 
 private:
-    using TStatArray = boost::array<CStat, stat_t::E_LastEnumStat>;
-
-private:
     //! Constructor of a Singleton is private
     CStatistics();
 
@@ -138,8 +150,40 @@ private:
     //! Collection of statistics
     TStatArray m_Stats;
 
+    //! cache of stats for use in persistence
+    TStatsCacheUPtr m_Cache;
+
     //! Enabling printing out the current statistics.
     friend CORE_EXPORT std::ostream& operator<<(std::ostream& o, const CStatistics& stats);
+
+    //! Helper class for storing a snapshot of statistics prior to persisting them
+    friend class CStatsCache;
+
+    //! Befriend the test suite
+    friend class ::CStatisticsTest;
+
+private:
+    //! Maintains a snapshot of statistics to be used for persistence
+    //!
+    //! IMPLEMENTATION DECISIONS:\n
+    //! Only used by CStatistics so nested within that class definition
+    //! Instances of this class exist only transitorily, ownership is transferred by move semantics only.
+    class CStatsCache : private CNonCopyable {
+    public:
+        CStatsCache();
+
+        //! populate the cache with current live values
+        void populate(const CStatistics::TStatArray& statArray);
+
+        //! Provide access to the relevant stat from the collection
+        uint64_t stat(int index) const;
+
+    private:
+        using TUInt64Vec = std::vector<uint64_t>;
+
+    private:
+        TUInt64Vec m_Stats;
+    };
 };
 
 } // core

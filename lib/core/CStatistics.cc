@@ -53,7 +53,7 @@ void addStringInt(TGenericLineWriter& writer,
 }
 }
 
-CStatistics::CStatistics() {
+CStatistics::CStatistics() : m_Stats(), m_Cache(nullptr) {
 }
 
 CStatistics& CStatistics::instance() {
@@ -67,23 +67,31 @@ CStat& CStatistics::stat(int index) {
     return ms_Instance.m_Stats[index];
 }
 
+void CStatistics::cacheStats() {
+    ms_Instance.m_Cache = std::make_unique<CStatsCache>();
+    ms_Instance.m_Cache->populate(ms_Instance.m_Stats);
+}
+
+CStatistics::TStatsCacheUPtr CStatistics::transferCachedStats() {
+    return std::move(ms_Instance.m_Cache);
+}
+
 void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter& inserter) {
-    // This does not guarantee that consistent statistics get persisted for a
-    // background persistence.  The analytics thread could be updating
-    // statistics while this method is running.  There is no danger of memory
-    // corruption, as the counters are simple numbers.  However, it is possible
-    // that the persisted state could contain counters that are inconsistent
-    // with each other.
-    //
-    // TODO: add the ability to copy a set of statistics, then change
-    // persistence to persist the consistent copy instead of the live values.
-    // (The copy would have to be taken in the thread that updates the
-    // statistics, so that it would know it was not updating statistics during
-    // the copy operation.)
+    // As the analytics thread could be updating statistics while this method is running, in order
+    // to guarantee that consistent statistics get persisted for a background persistence task we must not persist
+    // live values. Instead, we access a cached set of self consistent statistics for persistence.
+
+    core::CStatistics::TStatsCacheUPtr statsCache = core::CStatistics::transferCachedStats();
+    if (statsCache == nullptr) {
+        // Programmatic error, either cacheStats has not been called immediately prior to this call
+        // or transferCachedStats has been called twice in succession
+        // Choose not to abort here. Instead populate the persisted stats with zeros.
+        LOG_ERROR(<< "Null stats cache.");
+    }
 
     for (int i = 0; i < stat_t::E_LastEnumStat; ++i) {
         inserter.insertValue(KEY_TAG, i);
-        inserter.insertValue(VALUE_TAG, stat(i).value());
+        inserter.insertValue(VALUE_TAG, statsCache ? statsCache->stat(i) : uint64_t(0));
     }
 }
 
@@ -194,6 +202,22 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
     writeStream.Flush();
 
     return o;
+}
+
+CStatistics::CStatsCache::CStatsCache() {
+}
+
+void CStatistics::CStatsCache::populate(const CStatistics::TStatArray& statArray) {
+    for (const auto& stat : statArray) {
+        m_Stats.push_back(stat.value());
+    }
+}
+
+uint64_t CStatistics::CStatsCache::stat(int index) const {
+    if (static_cast<std::size_t>(index) >= m_Stats.size()) {
+        LOG_ABORT(<< "Bad index " << index);
+    }
+    return m_Stats[index];
 }
 
 } // core

@@ -7,6 +7,7 @@
 
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
+#include <core/CStatistics.h>
 #include <core/CTimeUtils.h>
 
 #include <string>
@@ -109,6 +110,9 @@ bool CBackgroundPersister::startPersist() {
         }
     }
 
+    // create a cache of the statistics, to ensure persistence operates
+    // on a consistent collection of statistics
+    core::CStatistics::cacheStats();
     m_IsShutdown = false;
     m_IsBusy = m_BackgroundThread.start();
 
