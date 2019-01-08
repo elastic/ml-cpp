@@ -474,7 +474,8 @@ protected:
             std::size_t i{point.annotation() * m_K};
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
             for (std::size_t j = 1; j <= k; ++j) {
-                m_KDistances[i + j - 1].first = static_cast<uint32_t>(neighbours[j].annotation());
+                m_KDistances[i + j - 1].first =
+                    static_cast<uint32_t>(neighbours[j].annotation());
                 m_KDistances[i + j - 1].second = las::distance(point, neighbours[j]);
             }
         }
@@ -482,7 +483,7 @@ protected:
         virtual void compute(TDoubleVec& scores) {
             using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
-            // We bind a minimum accumulator (by value) to each lambda 
+            // We bind a minimum accumulator (by value) to each lambda
             // (since one copy is then accessed by each thread) and take
             // the minimum of these at the end.
 
@@ -537,8 +538,7 @@ protected:
         }
 
         static std::size_t estimateOwnMemoryOverhead(std::size_t k, std::size_t numberPoints) {
-            return numberPoints * (sizeof(TSizeDoublePrVec) +
-                                   k * sizeof(TSizeDoublePr) + sizeof(double));
+            return numberPoints * (k * sizeof(TUInt32CoordinatePr) + sizeof(TCoordinate));
         }
 
     private:
@@ -728,7 +728,8 @@ protected:
 
         static std::size_t estimateOwnMemoryOverhead(std::size_t numberPoints,
                                                      std::size_t numberMethods) {
-            return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
+            return numberMethods * (sizeof(TMethodUPtr) + sizeof(TDoubleVec) +
+                                    numberPoints * sizeof(double));
         }
 
     private:
@@ -752,8 +753,7 @@ protected:
 
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 const typename CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
-CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::UNSET_DISTANCE = -1.0;
-
+    CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::UNSET_DISTANCE = -1.0;
 
 //! Compute outliers for \p frame and write to a new column.
 MATHS_EXPORT
