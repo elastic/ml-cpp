@@ -222,7 +222,6 @@ void CForecastRunner::forecastWorker() {
                     LOG_WARN(<< "Failed to cleanup temporary data from: "
                              << forecastJob.s_TemporaryFolder << " error "
                              << errorCode.message());
-                    return;
                 }
             }
         }
