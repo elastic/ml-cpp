@@ -215,7 +215,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
                                           Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
-        LOG_TRACE(<< "singular values = " << x_.singularValues());
+        LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
     }
 
