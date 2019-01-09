@@ -189,8 +189,8 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
         return false;
     }
 
-    // Don't bother checking the solution since we check
-    // the matrix condition above.
+    // Don't bother checking the solution since we check the matrix
+    // condition above.
     VECTOR r = svd.solve(y);
     for (std::size_t i = 0u; i < n; ++i) {
         result[i] = r(i);

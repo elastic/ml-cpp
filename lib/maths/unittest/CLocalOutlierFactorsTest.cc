@@ -533,18 +533,19 @@ void CLocalOutlierFactorsTest::testProgressMonitoring() {
     int lastTotalFractionalProgress{0};
     int lastProgressReport{0};
 
+    bool monotonic{true};
     while (finished.load() == false) {
         if (totalFractionalProgress.load() > lastProgressReport) {
             LOG_DEBUG(<< (static_cast<double>(lastProgressReport) / 10) << "% complete");
             lastProgressReport += 100;
         }
-        CPPUNIT_ASSERT(totalFractionalProgress.load() >= lastTotalFractionalProgress);
+        monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
         lastTotalFractionalProgress = totalFractionalProgress.load();
     }
-
-    CPPUNIT_ASSERT_EQUAL(1024, totalFractionalProgress.load());
-
     worker.join();
+
+    CPPUNIT_ASSERT(monotonic);
+    CPPUNIT_ASSERT_EQUAL(1024, totalFractionalProgress.load());
 }
 
 CppUnit::Test* CLocalOutlierFactorsTest::suite() {
