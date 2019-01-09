@@ -61,6 +61,12 @@ xcode-select --install
 
 at the command prompt.
 
+If you are using Mojave you must take the further step of installing the developer header files into `/usr/include`. Previous versions did this automatically when the command line tools were installed. Create `/usr/include` by installing `/Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg` this can be done with the command:
+
+```
+installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
+
 ### log4cxx
 
 Download `apache-log4cxx-0.10.0.tar.gz` from one of the mirrors listed at <http://www.apache.org/dyn/closer.cgi/logging/log4cxx/0.10.0/apache-log4cxx-0.10.0.tar.gz>.
