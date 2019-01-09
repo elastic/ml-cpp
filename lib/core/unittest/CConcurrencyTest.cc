@@ -264,7 +264,7 @@ void CConcurrencyTest::testProgressMonitoring() {
         LOG_DEBUG(<< "Testing " << tag << " indices");
 
         std::thread worker{[&reportProgress]() {
-            core::parallel_for_each(std::size_t{0}, std::size_t{1000},
+            core::parallel_for_each(4, std::size_t{0}, std::size_t{1000},
                                     [](std::size_t) {
                                         std::chrono::microseconds pause{500};
                                         std::this_thread::sleep_for(pause);
@@ -297,7 +297,7 @@ void CConcurrencyTest::testProgressMonitoring() {
         LOG_DEBUG(<< "Testing " << tag << " iterators");
 
         std::thread worker{[&reportProgress, &values]() {
-            core::parallel_for_each(values.begin(), values.end(),
+            core::parallel_for_each(4, values.begin(), values.end(),
                                     [](int) {
                                         std::chrono::microseconds pause{500};
                                         std::this_thread::sleep_for(pause);

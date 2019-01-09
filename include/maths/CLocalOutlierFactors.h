@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -42,6 +43,7 @@ private:
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TProgressCallback = std::function<void(double)>;
 
     //! The available algorithms.
     enum EAlgorithm {
@@ -53,13 +55,15 @@ public:
     };
 
 public:
+    CLocalOutlierFactors(TProgressCallback recordProgress = noop);
+
     //! Compute the normalized LOF scores for \p points.
     //!
     //! \note This automatically chooses to project the data and
     //! the number of nearest neighbours to use based on the data
     //! characteristics.
     template<typename POINT>
-    static void normalizedLof(std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedLof(std::vector<POINT> points, TDoubleVec& scores) {
         std::size_t k{defaultNumberOfNeighbours(points)};
         bool project{shouldProject(points)};
         normalizedLof(k, project, std::move(points), scores);
@@ -76,8 +80,7 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void
-    normalizedLof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedLof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
         normalized<CLof>(k, project, std::move(points), scores);
     }
 
@@ -88,7 +91,7 @@ public:
     //! the number of nearest neighbours to use based on the data
     //! characteristics.
     template<typename POINT>
-    static void normalizedLdof(std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedLdof(std::vector<POINT> points, TDoubleVec& scores) {
         std::size_t k{defaultNumberOfNeighbours(points)};
         bool project{shouldProject(points)};
         normalizedLdof(k, project, std::move(points), scores);
@@ -105,8 +108,7 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void
-    normalizedLdof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedLdof(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
         normalized<CLdof>(k, project, std::move(points), scores);
     }
 
@@ -117,7 +119,7 @@ public:
     //! the number of nearest neighbours to use based on the data
     //! characteristics.
     template<typename POINT>
-    static void normalizedDistancekNN(std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedDistancekNN(std::vector<POINT> points, TDoubleVec& scores) {
         std::size_t k{defaultNumberOfNeighbours(points)};
         bool project{shouldProject(points)};
         normalizedDistancekNN(k, project, std::move(points), scores);
@@ -132,10 +134,7 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void normalizedDistancekNN(std::size_t k,
-                                      bool project,
-                                      std::vector<POINT> points,
-                                      TDoubleVec& scores) {
+    void normalizedDistancekNN(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
         normalized<CDistancekNN>(k, project, std::move(points), scores);
     }
 
@@ -146,7 +145,7 @@ public:
     //! the number of nearest neighbours to use based on the data
     //! characteristics.
     template<typename POINT>
-    static void normalizedTotalDistancekNN(std::vector<POINT> points, TDoubleVec& scores) {
+    void normalizedTotalDistancekNN(std::vector<POINT> points, TDoubleVec& scores) {
         std::size_t k{defaultNumberOfNeighbours(points)};
         bool project{shouldProject(points)};
         normalizedTotalDistancekNN(k, project, std::move(points), scores);
@@ -161,10 +160,10 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void normalizedTotalDistancekNN(std::size_t k,
-                                           bool project,
-                                           std::vector<POINT> points,
-                                           TDoubleVec& scores) {
+    void normalizedTotalDistancekNN(std::size_t k,
+                                    bool project,
+                                    std::vector<POINT> points,
+                                    TDoubleVec& scores) {
         normalized<CTotalDistancekNN>(k, project, std::move(points), scores);
     }
 
@@ -174,17 +173,20 @@ public:
     //! the number of nearest neighbours to use based on the data
     //! characteristics.
     template<typename POINT>
-    static void ensemble(std::vector<POINT> points, TDoubleVec& scores) {
+    void ensemble(std::vector<POINT> points, TDoubleVec& scores) {
         if (points.empty()) {
-            // Nothing to do
-        } else if (shouldProject(points)) {
+            return;
+        }
+
+        std::size_t k{defaultNumberOfNeighbours(points)};
+        if (shouldProject(points)) {
             using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            CEnsemble<TPoint, TKdTree<TPoint>> ensemble;
-            ensemble.lof(points).ldof(points).knn(points).tnn(points);
+            CEnsemble<TPoint, TKdTree<TPoint>> ensemble{k, m_RecordProgress};
+            ensemble.lof().ldof().knn().tnn();
             computeForBagOfProjections(ensemble, points, scores);
         } else {
-            CEnsemble<POINT, TKdTree<POINT>> ensemble;
-            ensemble.lof(points).ldof(points).knn(points).tnn(points);
+            CEnsemble<POINT, TKdTree<POINT>> ensemble{k, m_RecordProgress};
+            ensemble.lof().ldof().knn().tnn();
             compute(ensemble, annotate(std::move(points)), scores);
         }
     }
@@ -240,16 +242,15 @@ protected:
 protected:
     //! Compute normalised outlier scores for a specified method.
     template<template<typename, typename> class METHOD, typename POINT>
-    static void
-    normalized(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
+    void normalized(std::size_t k, bool project, std::vector<POINT> points, TDoubleVec& scores) {
         if (points.empty()) {
             // Nothing to do
         } else if (project) {
             using TPoint = decltype(SConstant<POINT>::get(0, 0));
-            METHOD<TPoint, TKdTree<TPoint>> method(k);
+            METHOD<TPoint, TKdTree<TPoint>> method(k, m_RecordProgress);
             computeForBagOfProjections(method, points, scores);
         } else {
-            METHOD<POINT, TKdTree<POINT>> method(k);
+            METHOD<POINT, TKdTree<POINT>> method(k, m_RecordProgress);
             compute(method, annotate(std::move(points)), scores);
         }
     }
@@ -411,7 +412,8 @@ protected:
         using TPointVec = std::vector<TPoint>;
 
     public:
-        CMethod(NEAREST_NEIGHBOURS lookup) : m_Lookup(std::move(lookup)) {}
+        CMethod(NEAREST_NEIGHBOURS lookup, TProgressCallback recordProgress)
+            : m_Lookup{std::move(lookup)}, m_RecordProgress{recordProgress} {}
         virtual ~CMethod() = default;
 
         void run(std::size_t k, TPointVec points, TDoubleVec& scores) {
@@ -425,6 +427,9 @@ protected:
                 [&, neighbours = TPointVec{} ](const TPoint& point) mutable {
                     m_Lookup.nearestNeighbours(k + 1, point, neighbours);
                     this->add(point, neighbours, scores);
+                },
+                [this](double fractionalProgress) {
+                    m_RecordProgress(fractionalProgress * this->addRuntimeWeight());
                 });
             this->compute(scores);
         }
@@ -438,8 +443,13 @@ protected:
 
         virtual void compute(TDoubleVec& scores) { normalize(scores); }
 
+        TProgressCallback progressCallback() const { return m_RecordProgress; }
+
+        virtual double addRuntimeWeight() const = 0;
+
     private:
         NEAREST_NEIGHBOURS m_Lookup;
+        TProgressCallback m_RecordProgress;
     };
 
     //! \brief Computes the normalized version of the local outlier
@@ -454,8 +464,10 @@ protected:
         using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 
     public:
-        CLof(std::size_t k, NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-            : CMethod<POINT, NEAREST_NEIGHBOURS>(std::move(lookup)), m_K(k) {}
+        CLof(std::size_t k,
+             TProgressCallback recordProgress,
+             NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
+            : CMethod<POINT, NEAREST_NEIGHBOURS>{std::move(lookup), recordProgress}, m_K{k} {}
 
         void operator()(TPointVec points, TDoubleVec& scores) {
             this->run(m_K, std::move(points), scores);
@@ -504,7 +516,10 @@ protected:
                             m_Lrd[i] = -1.0;
                         }
                     },
-                    TMinAccumulator{}));
+                    TMinAccumulator{}),
+                [this](double fractionalProgress) {
+                    (this->progressCallback())(fractionalProgress * 0.1);
+                });
 
             TMinAccumulator min;
             for (const auto& result : results) {
@@ -537,6 +552,8 @@ protected:
                                    k * sizeof(TSizeDoublePr) + sizeof(double));
         }
 
+        virtual double addRuntimeWeight() const { return 0.9; }
+
     private:
         static std::size_t index(const TSizeDoublePr& neighbour) {
             return neighbour.first;
@@ -563,8 +580,10 @@ protected:
         using TPointVec = std::vector<TPoint>;
 
     public:
-        CLdof(std::size_t k, NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-            : CMethod<POINT, NEAREST_NEIGHBOURS>(std::move(lookup)), m_K(k) {}
+        CLdof(std::size_t k,
+              TProgressCallback recordProgress,
+              NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
+            : CMethod<POINT, NEAREST_NEIGHBOURS>{std::move(lookup), recordProgress}, m_K{k} {}
 
         void operator()(TPointVec points, TDoubleVec& scores) {
             this->run(m_K, std::move(points), scores);
@@ -585,6 +604,8 @@ protected:
                                              : 0.0;
         }
 
+        virtual double addRuntimeWeight() const { return 1.0; }
+
     private:
         std::size_t m_K;
     };
@@ -598,8 +619,10 @@ protected:
         using TPointVec = std::vector<TPoint>;
 
     public:
-        CDistancekNN(std::size_t k, NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-            : CMethod<POINT, NEAREST_NEIGHBOURS>(std::move(lookup)), m_K(k) {}
+        CDistancekNN(std::size_t k,
+                     TProgressCallback recordProgress,
+                     NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
+            : CMethod<POINT, NEAREST_NEIGHBOURS>{std::move(lookup), recordProgress}, m_K{k} {}
 
         void operator()(TPointVec points, TDoubleVec& scores) {
             this->run(m_K, std::move(points), scores);
@@ -609,6 +632,8 @@ protected:
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
             scores[point.annotation()] = las::distance(point, neighbours[k]);
         }
+
+        virtual double addRuntimeWeight() const { return 1.0; }
 
     private:
         std::size_t m_K;
@@ -623,8 +648,10 @@ protected:
         using TPointVec = std::vector<TPoint>;
 
     public:
-        CTotalDistancekNN(std::size_t k, NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-            : CMethod<POINT, NEAREST_NEIGHBOURS>(std::move(lookup)), m_K(k) {}
+        CTotalDistancekNN(std::size_t k,
+                          TProgressCallback recordProgress,
+                          NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
+            : CMethod<POINT, NEAREST_NEIGHBOURS>{std::move(lookup), recordProgress}, m_K{k} {}
 
         void operator()(TPointVec points, TDoubleVec& scores) {
             this->run(m_K, std::move(points), scores);
@@ -638,6 +665,8 @@ protected:
             }
             scores[i] /= static_cast<double>(k);
         }
+
+        virtual double addRuntimeWeight() const { return 1.0; }
 
     private:
         std::size_t m_K;
@@ -653,36 +682,30 @@ protected:
         using TMethodUPtrVec = std::vector<TMethodUPtr>;
 
     public:
-        CEnsemble(NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-            : CMethod<POINT, NEAREST_NEIGHBOURS>(lookup), m_K(0) {}
+        CEnsemble(std::size_t k,
+                  TProgressCallback recordProgress,
+                  NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
+            : CMethod<POINT, NEAREST_NEIGHBOURS>{lookup, recordProgress}, m_K{k} {}
 
-        template<typename T>
-        CEnsemble& lof(const std::vector<T>& points) {
-            m_K = defaultNumberOfNeighbours(points);
+        CEnsemble& lof() {
             m_Methods.push_back(std::make_unique<CLof<POINT, const NEAREST_NEIGHBOURS&>>(
-                m_K, this->lookup()));
+                m_K, this->progressCallback(), this->lookup()));
             return *this;
         }
-        template<typename T>
-        CEnsemble& ldof(const std::vector<T>& points) {
-            m_K = defaultNumberOfNeighbours(points);
+        CEnsemble& ldof() {
             m_Methods.push_back(std::make_unique<CLdof<POINT, const NEAREST_NEIGHBOURS&>>(
-                m_K, this->lookup()));
+                m_K, this->progressCallback(), this->lookup()));
             return *this;
         }
-        template<typename T>
-        CEnsemble& knn(const std::vector<T>& points) {
-            m_K = defaultNumberOfNeighbours(points);
+        CEnsemble& knn() {
             m_Methods.push_back(std::make_unique<CDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
-                m_K, this->lookup()));
+                m_K, this->progressCallback(), this->lookup()));
             return *this;
         }
-        template<typename T>
-        CEnsemble& tnn(const std::vector<T>& points) {
-            m_K = defaultNumberOfNeighbours(points);
+        CEnsemble& tnn() {
             m_Methods.push_back(
                 std::make_unique<CTotalDistancekNN<POINT, const NEAREST_NEIGHBOURS&>>(
-                    m_K, this->lookup()));
+                    m_K, this->progressCallback(), this->lookup()));
             return *this;
         }
 
@@ -720,8 +743,16 @@ protected:
             return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
         }
 
+        virtual double addRuntimeWeight() const {
+            double result{1.0};
+            for (const auto& method : m_Methods) {
+                result = std::min(result, method->addRuntimeWeight());
+            }
+            return result;
+        }
+
     private:
-        std::size_t m_K;
+        std::size_t m_K = 0;
         TMethodUPtrVec m_Methods;
         TDoubleVecVec m_Scores;
     };
@@ -737,11 +768,19 @@ protected:
     //! score in the range [0,100] with the higher the score the
     //! greater the outlier.
     static double cdfComplementToScore(double cdfComplement);
+
+private:
+    static void noop(double);
+
+private:
+    TProgressCallback m_RecordProgress;
 };
 
 //! Compute outliers for \p frame and write to a new column.
 MATHS_EXPORT
-bool computeOutliers(std::size_t numberThreads, core::CDataFrame& frame);
+bool computeOutliers(std::size_t numberThreads,
+                     std::function<void(double)> recordProgress,
+                     core::CDataFrame& frame);
 }
 }
 

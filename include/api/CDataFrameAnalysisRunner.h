@@ -132,7 +132,17 @@ protected:
 
     void setToBad();
     void setToFinished();
-    void updateProgress(double fractionalProgress);
+
+    //! This adds \p fractionalProgess to the current progress.
+    //!
+    //! \note The caller should try to ensure that the sum of the values added
+    //! at the end of the analysis is equal to one.
+    //! \note This is converted to an integer - so we can atomically add - by
+    //! scaling by 1024. Therefore, this shouldn't be called with values less
+    //! than 0.001. In fact, it is unlikely that such high resolution is needed
+    //! and typically this would be called significantly less frequently.
+    void recordProgress(double fractionalProgress);
+
     void addError(const std::string& error);
 
 private:
@@ -150,7 +160,7 @@ private:
 
     bool m_Bad = false;
     std::atomic_bool m_Finished;
-    std::atomic<double> m_FractionalProgress;
+    std::atomic_int m_FractionalProgress;
     TStrVec m_Errors;
 
     std::thread m_Runner;
