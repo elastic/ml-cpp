@@ -13,6 +13,7 @@
 #include <boost/array.hpp>
 
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 #include <stdint.h>
