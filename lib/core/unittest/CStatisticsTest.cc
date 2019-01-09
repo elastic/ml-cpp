@@ -119,7 +119,7 @@ void CStatisticsTest::testCacheStatistics() {
     // copy the live values to the cache
     stats.cacheStats();
 
-    //! obtain ownership of the stats cache
+    // obtain ownership of the stats cache
     ml::core::CStatistics::TStatsCacheUPtr statsCache =
         ml::core::CStatistics::transferCachedStats();
     CPPUNIT_ASSERT(statsCache != nullptr);

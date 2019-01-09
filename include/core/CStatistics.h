@@ -10,8 +10,7 @@
 #include <core/CStat.h>
 #include <core/ImportExport.h>
 
-#include <boost/array.hpp>
-
+#include <array>
 #include <iosfwd>
 #include <memory>
 #include <vector>
@@ -116,7 +115,7 @@ private:
     class CStatsCache;
 
 private:
-    using TStatArray = boost::array<CStat, stat_t::E_LastEnumStat>;
+    using TStatArray = std::array<CStat, stat_t::E_LastEnumStat>;
     using TStatsCacheUPtr = std::unique_ptr<CStatsCache>;
 
 public:
