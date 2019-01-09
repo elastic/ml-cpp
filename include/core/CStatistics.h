@@ -169,7 +169,7 @@ private:
     //! IMPLEMENTATION DECISIONS:\n
     //! Only used by CStatistics so nested within that class definition
     //! Instances of this class exist only transitorily, ownership is transferred by move semantics only.
-    class CStatsCache : private CNonCopyable {
+    class CORE_EXPORT CStatsCache : private CNonCopyable {
     public:
         CStatsCache();
 
