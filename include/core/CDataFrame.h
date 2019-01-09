@@ -28,6 +28,8 @@ namespace data_frame_detail {
 
 using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecItr = TFloatVec::iterator;
+using TInt32Vec = std::vector<std::int32_t>;
+using TInt32VecCItr = TInt32Vec::const_iterator;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -45,7 +47,8 @@ public:
     //! \param[in] beginColumns The iterator for the columns of row \p index.
     //! \param[in] endColumns The iterator for the end of the columns of row
     //! \p index.
-    CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns);
+    //! \param[in] docId The row's document identifier.
+    CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docId);
 
     //! Get column \p i value.
     CFloatStorage operator[](std::size_t i) const;
@@ -71,10 +74,14 @@ public:
         std::copy(m_BeginColumns, m_EndColumns, output);
     }
 
+    //! Get the row's document identifier.
+    std::int32_t docId() const;
+
 private:
     std::size_t m_Index;
     TFloatVecItr m_BeginColumns;
     TFloatVecItr m_EndColumns;
+    std::int32_t m_DocId;
 };
 
 //! \brief Decorates CRowCRef to give it pointer semantics.
@@ -100,8 +107,15 @@ public:
     //! \param[in] numberColumns The number of columns in the data frame.
     //! \param[in] rowCapacity The capacity of each row in the data frame.
     //! \param[in] index The row index.
-    //! \param[in] base The iterator for the columns of row \p index.
-    CRowIterator(std::size_t numberColumns, std::size_t rowCapacity, std::size_t index, TFloatVecItr base);
+    //! \param[in] rowItr The iterator for the columns of the rows starting
+    //! at \p index.
+    //! \param[in] docIdItr The iterator for the document identifiers of rows
+    //! starting at \p index.
+    CRowIterator(std::size_t numberColumns,
+                 std::size_t rowCapacity,
+                 std::size_t index,
+                 TFloatVecItr rowItr,
+                 TInt32VecCItr docIdItr);
 
     //! \name Forward Iterator Contract
     //@{
@@ -113,13 +127,12 @@ public:
     CRowIterator operator++(int);
     //@}
 
-    TFloatVecItr base() const;
-
 private:
     std::size_t m_NumberColumns = 0;
     std::size_t m_RowCapacity = 0;
     std::size_t m_Index = 0;
-    TFloatVecItr m_Base;
+    TFloatVecItr m_RowItr;
+    TInt32VecCItr m_DocIdItr;
 };
 }
 
@@ -169,16 +182,17 @@ class CORE_EXPORT CDataFrame final {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
-    using TSizeFloatVecPr = std::pair<std::size_t, TFloatVec>;
+    using TInt32Vec = std::vector<std::int32_t>;
     using TRowItr = data_frame_detail::CRowIterator;
     using TRowFunc = std::function<void(TRowItr, TRowItr)>;
     using TRowFuncVec = std::vector<TRowFunc>;
     using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
-    using TWriteFunc = std::function<void(TFloatVecItr)>;
+    using TWriteFunc = std::function<void(TFloatVecItr, std::int32_t&)>;
     using TRowSlicePtr = std::shared_ptr<CDataFrameRowSlice>;
     using TRowSlicePtrVec = std::vector<TRowSlicePtr>;
     using TSizeRowSliceHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
-    using TWriteSliceToStoreFunc = std::function<TRowSlicePtr(std::size_t, TFloatVec)>;
+    using TWriteSliceToStoreFunc =
+        std::function<TRowSlicePtr(std::size_t, TFloatVec, TInt32Vec)>;
 
     //! Controls whether to read and write to storage asynchronously.
     enum class EReadWriteToStorage { E_Async, E_Sync };
@@ -359,7 +373,8 @@ private:
         std::size_t m_SliceCapacityInRows;
         EReadWriteToStorage m_WriteToStoreSyncStrategy;
         TWriteSliceToStoreFunc m_WriteSliceToStore;
-        TFloatVec m_SliceBeingWritten;
+        TFloatVec m_RowsOfSliceBeingWritten;
+        TInt32Vec m_DocIdsOfSliceBeingWritten;
         future<TRowSlicePtr> m_SliceWrittenAsyncToStore;
         TRowSlicePtrVec m_SlicesWrittenToStore;
     };

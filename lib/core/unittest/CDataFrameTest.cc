@@ -43,6 +43,16 @@ TFloatVec testData(std::size_t numberRows, std::size_t numberColumns) {
     return components;
 }
 
+std::function<void(TFloatVecItr, std::int32_t&)>
+makeWriter(TFloatVec& components, std::size_t cols, std::size_t i) {
+    return [&components, cols, i](TFloatVecItr col, std::int32_t& docId) mutable {
+        docId = static_cast<std::int32_t>(i);
+        for (std::size_t end_ = i + cols; i < end_; ++i, ++col) {
+            *col = components[i];
+        }
+    };
+}
+
 std::function<void(std::size_t&, TRowItr, TRowItr)>
 makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
     return [&components, cols, &passed](std::size_t& i, TRowItr beginRows,
@@ -117,12 +127,7 @@ void CDataFrameTest::testInMainMemoryBasicReadWrite() {
             auto frame = core::makeMainStorageDataFrame(cols, capacity, readWriteToStoreAsync);
 
             for (std::size_t i = 0; i < end; i += cols) {
-                auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                    for (std::size_t end_ = i + cols; i < end_; ++i, ++output) {
-                        *output = components[i];
-                    }
-                };
-                frame->writeRow(writer);
+                frame->writeRow(makeWriter(components, cols, i));
             }
             frame->finishWritingRows();
 
@@ -153,12 +158,7 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity);
         for (std::size_t i = 0; i < components.size(); i += cols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -198,12 +198,7 @@ void CDataFrameTest::testOnDiskBasicReadWrite() {
         boost::filesystem::current_path().string(), cols, rows, capacity);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
-        auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-            for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                *output = components[i];
-            }
-        };
-        frame->writeRow(writer);
+        frame->writeRow(makeWriter(components, cols, i));
     }
     frame->finishWritingRows();
 
@@ -228,12 +223,7 @@ void CDataFrameTest::testOnDiskParallelRead() {
         boost::filesystem::current_path().string(), cols, rows, capacity);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
-        auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-            for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                *output = components[i];
-            }
-        };
-        frame->writeRow(writer);
+        frame->writeRow(makeWriter(components, cols, i));
     }
     frame->finishWritingRows();
 
@@ -277,8 +267,10 @@ void CDataFrameTest::testMemoryUsage() {
         std::bind(&core::makeMainStorageDataFrame, cols, capacity,
                   core::CDataFrame::EReadWriteToStorage::E_Sync);
 
-    // 800 bytes and data size + 200 byte overhead.
-    std::size_t maximumMemory[]{800, rows * cols * 4 + 200};
+    // Memory usage should be less than:
+    //   1) 800 bytes for on disk, and
+    //   2) data size + doc ids size + 200 byte overhead in main memory.
+    std::size_t maximumMemory[]{800, rows * (cols + 1) * 4 + 200};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -288,12 +280,7 @@ void CDataFrameTest::testMemoryUsage() {
         auto frame = factory();
 
         for (std::size_t i = 0; i < components.size(); i += cols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -329,12 +316,7 @@ void CDataFrameTest::testReserve() {
         frame->reserve(1, 20);
 
         for (std::size_t i = 0; i < components.size(); i += cols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -357,12 +339,7 @@ void CDataFrameTest::testReserve() {
         auto frame = factory();
 
         for (std::size_t i = 0; i < components.size(); i += cols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -404,12 +381,7 @@ void CDataFrameTest::testResizeColumns() {
         auto frame = factory();
 
         for (std::size_t i = 0; i < components.size(); i += cols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -463,12 +435,7 @@ void CDataFrameTest::testWriteColumns() {
         auto frame = factory();
 
         for (std::size_t i = 0; i < components.size(); i += cols + extraCols) {
-            auto writer = [&components, cols, i](TFloatVecItr output) mutable {
-                for (std::size_t end = i + cols; i < end; ++i, ++output) {
-                    *output = components[i];
-                }
-            };
-            frame->writeRow(writer);
+            frame->writeRow(makeWriter(components, cols, i));
         }
         frame->finishWritingRows();
 
@@ -488,6 +455,63 @@ void CDataFrameTest::testWriteColumns() {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols + extraCols, passed),
                          std::ref(i), std::placeholders::_1, std::placeholders::_2));
+        CPPUNIT_ASSERT(successful);
+        CPPUNIT_ASSERT(passed);
+    }
+}
+
+void CDataFrameTest::testDocIds() {
+
+    // Test we preserve the document ids we write originally.
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t extraCols{3};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols + extraCols)};
+
+    TFactoryFunc makeOnDisk = std::bind(
+        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
+        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
+    TFactoryFunc makeMainMemory =
+        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
+                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        LOG_DEBUG(<< "Test write columns " << type[t++]);
+
+        auto frame = factory();
+
+        for (std::size_t i = 0; i < components.size(); i += cols + extraCols) {
+            frame->writeRow(makeWriter(components, cols, i));
+        }
+        frame->finishWritingRows();
+
+        frame->resizeColumns(2, 18);
+        frame->writeColumns(2, [&](TRowItr beginRows, TRowItr endRows) mutable {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (std::size_t j = 15; j < 18; ++j) {
+                    std::size_t index{row->index() * (cols + extraCols) + j};
+                    row->writeColumn(j, components[index]);
+                }
+            }
+        });
+
+        bool successful;
+        bool passed{true};
+        std::tie(std::ignore, successful) = frame->readRows(1, [
+            &passed, cols, extraCols, expectedDocId = std::int32_t{0}
+        ](TRowItr beginRows, TRowItr endRows) mutable {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (row->docId() != expectedDocId) {
+                    LOG_ERROR(<< "Got doc id " << row->docId() << " expected " << expectedDocId);
+                    passed = false;
+                }
+                expectedDocId += cols + extraCols;
+            }
+        });
         CPPUNIT_ASSERT(successful);
         CPPUNIT_ASSERT(passed);
     }
@@ -514,6 +538,8 @@ CppUnit::Test* CDataFrameTest::suite() {
         "CDataFrameTest::testResizeColumns", &CDataFrameTest::testResizeColumns));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
         "CDataFrameTest::testWriteColumns", &CDataFrameTest::testWriteColumns));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
+        "CDataFrameTest::testDocIds", &CDataFrameTest::testDocIds));
 
     return suiteOfTests;
 }
