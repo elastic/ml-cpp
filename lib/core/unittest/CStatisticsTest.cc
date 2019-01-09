@@ -192,10 +192,6 @@ void CStatisticsTest::testPersist() {
         inserter.toXml(newStaticsXmlNoCaching);
     }
 
-    // we expect the persisted statistics to be all zeros,
-    // as persistence operates on the cached values and these haven't been updated yet
-    CPPUNIT_ASSERT_EQUAL(origStaticsXml, newStaticsXmlNoCaching);
-
     // Save the state after updating the cache
     std::string newStaticsXml;
     {
@@ -204,6 +200,11 @@ void CStatisticsTest::testPersist() {
         stats.staticsAcceptPersistInserter(inserter);
         inserter.toXml(newStaticsXml);
     }
+
+    // we expect the persisted statistics without first caching to be the
+    // same as those from when we do cache the live values,
+    // as persistence uses live values if the cache is not available
+    CPPUNIT_ASSERT_EQUAL(newStaticsXml, newStaticsXmlNoCaching);
 
     // Restore the original all-zero state
     {

@@ -68,8 +68,15 @@ CStat& CStatistics::stat(int index) {
 }
 
 void CStatistics::cacheStats() {
-    ms_Instance.m_Cache = std::make_unique<CStatsCache>();
-    ms_Instance.m_Cache->populate(ms_Instance.m_Stats);
+    if (ms_Instance.m_Cache != nullptr) {
+        // The cache should only exist for a very brief period of time,
+        // while persistence is in operation.
+        // Elsewhere there are checks to ensure that only one persistence
+        // operation occurs at any point in time,so the cache _should_ be
+        // null at this point.  Warn if that isn't the case.
+        LOG_WARN(<< "Overwriting existing, non-null, statistics cache.");
+    }
+    ms_Instance.m_Cache = std::make_unique<CStatsCache>(ms_Instance.m_Stats);
 }
 
 CStatistics::TStatsCacheUPtr CStatistics::transferCachedStats() {
@@ -85,13 +92,14 @@ void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter& inserter) 
     if (statsCache == nullptr) {
         // Programmatic error, either cacheStats has not been called immediately prior to this call
         // or transferCachedStats has been called twice in succession
-        // Choose not to abort here. Instead populate the persisted stats with zeros.
+        // Choose not to abort here. Instead populate the persisted stats with the live values.
         LOG_ERROR(<< "Null stats cache.");
     }
 
     for (int i = 0; i < stat_t::E_LastEnumStat; ++i) {
         inserter.insertValue(KEY_TAG, i);
-        inserter.insertValue(VALUE_TAG, statsCache ? statsCache->stat(i) : uint64_t(0));
+        inserter.insertValue(VALUE_TAG,
+                             statsCache ? statsCache->stat(i) : stat(i).value());
     }
 }
 
@@ -204,10 +212,7 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
     return o;
 }
 
-CStatistics::CStatsCache::CStatsCache() {
-}
-
-void CStatistics::CStatsCache::populate(const CStatistics::TStatArray& statArray) {
+CStatistics::CStatsCache::CStatsCache(const CStatistics::TStatArray& statArray) {
     for (const auto& stat : statArray) {
         m_Stats.push_back(stat.value());
     }

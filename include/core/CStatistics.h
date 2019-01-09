@@ -171,10 +171,8 @@ private:
     //! Instances of this class exist only transitorily, ownership is transferred by move semantics only.
     class CORE_EXPORT CStatsCache : private CNonCopyable {
     public:
-        CStatsCache();
-
-        //! populate the cache with current live values
-        void populate(const CStatistics::TStatArray& statArray);
+        //! Create the cache and populate with current live values
+        explicit CStatsCache(const CStatistics::TStatArray& statArray);
 
         //! Provide access to the relevant stat from the collection
         uint64_t stat(int index) const;
