@@ -327,6 +327,7 @@ protected:
         std::size_t dimension{las::dimension(points[0])};
         std::size_t bags, projectedDimension;
         std::tie(bags, projectedDimension) = computeBagsAndProjectedDimension(points);
+        compute.numberRuns(bags);
 
         // Use standard 2-stable Gaussian projections since we are
         // interested in Euclidean distances.
@@ -429,7 +430,7 @@ protected:
                     this->add(point, neighbours, scores);
                 },
                 [this](double fractionalProgress) {
-                    m_RecordProgress(fractionalProgress * this->addRuntimeWeight());
+                    this->recordProgress(fractionalProgress);
                 });
             this->compute(scores);
         }
@@ -443,12 +444,23 @@ protected:
 
         virtual void compute(TDoubleVec& scores) { normalize(scores); }
 
-        TProgressCallback progressCallback() const { return m_RecordProgress; }
+        //! \name Progress Monitoring
+        //@{
+        void recordProgress(double fractionalProgress) {
+            m_RecordProgress(fractionalProgress / m_NumberRuns);
+        }
 
-        virtual double addRuntimeWeight() const = 0;
+        void numberRuns(std::size_t numberRuns) {
+            m_NumberRuns = static_cast<double>(numberRuns);
+        }
+        //@}
+
+    protected:
+        TProgressCallback progressCallback() const { return m_RecordProgress; }
 
     private:
         NEAREST_NEIGHBOURS m_Lookup;
+        double m_NumberRuns = 1.0;
         TProgressCallback m_RecordProgress;
     };
 
@@ -516,10 +528,7 @@ protected:
                             m_Lrd[i] = -1.0;
                         }
                     },
-                    TMinAccumulator{}),
-                [this](double fractionalProgress) {
-                    (this->progressCallback())(fractionalProgress * 0.1);
-                });
+                    TMinAccumulator{}));
 
             TMinAccumulator min;
             for (const auto& result : results) {
@@ -551,8 +560,6 @@ protected:
             return numberPoints * (sizeof(TSizeDoublePrVec) +
                                    k * sizeof(TSizeDoublePr) + sizeof(double));
         }
-
-        virtual double addRuntimeWeight() const { return 0.9; }
 
     private:
         static std::size_t index(const TSizeDoublePr& neighbour) {
@@ -604,8 +611,6 @@ protected:
                                              : 0.0;
         }
 
-        virtual double addRuntimeWeight() const { return 1.0; }
-
     private:
         std::size_t m_K;
     };
@@ -632,8 +637,6 @@ protected:
             std::size_t k{std::min(m_K, neighbours.size() - 1)};
             scores[point.annotation()] = las::distance(point, neighbours[k]);
         }
-
-        virtual double addRuntimeWeight() const { return 1.0; }
 
     private:
         std::size_t m_K;
@@ -665,8 +668,6 @@ protected:
             }
             scores[i] /= static_cast<double>(k);
         }
-
-        virtual double addRuntimeWeight() const { return 1.0; }
 
     private:
         std::size_t m_K;
@@ -741,14 +742,6 @@ protected:
         static std::size_t estimateOwnMemoryOverhead(std::size_t numberPoints,
                                                      std::size_t numberMethods) {
             return numberMethods * (sizeof(TDoubleVec) + numberPoints * sizeof(double));
-        }
-
-        virtual double addRuntimeWeight() const {
-            double result{1.0};
-            for (const auto& method : m_Methods) {
-                result = std::min(result, method->addRuntimeWeight());
-            }
-            return result;
         }
 
     private:

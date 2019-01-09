@@ -16,6 +16,7 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <atomic>
 #include <numeric>
 
 using namespace ml;
@@ -502,6 +503,50 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     core::stopDefaultAsyncExecutor();
 }
 
+void CLocalOutlierFactorsTest::testProgressMonitoring() {
+
+    // Test progress monitoring invariants.
+
+    std::size_t numberInliers{100000};
+    std::size_t numberOutliers{500};
+
+    test::CRandomNumbers rng;
+
+    TVectorVec points(numberInliers + numberOutliers, TVector(6));
+
+    std::atomic_int totalFractionalProgress{0};
+
+    auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
+        totalFractionalProgress.fetch_add(static_cast<int>(1024.0 * fractionalProgress + 0.5));
+    };
+
+    std::atomic_bool finished{false};
+
+    std::thread worker{[&](TVectorVec points_) {
+                           maths::CLocalOutlierFactors lofs{reportProgress};
+                           TDoubleVec scores;
+                           lofs.ensemble(points_, scores);
+                           finished.store(true);
+                       },
+                       std::move(points)};
+
+    int lastTotalFractionalProgress{0};
+    int lastProgressReport{0};
+
+    while (finished.load() == false) {
+        if (totalFractionalProgress.load() > lastProgressReport) {
+            LOG_DEBUG(<< (static_cast<double>(lastProgressReport) / 10) << "% complete");
+            lastProgressReport += 100;
+        }
+        CPPUNIT_ASSERT(totalFractionalProgress.load() >= lastTotalFractionalProgress);
+        lastTotalFractionalProgress = totalFractionalProgress.load();
+    }
+
+    CPPUNIT_ASSERT_EQUAL(1024, totalFractionalProgress.load());
+
+    worker.join();
+}
+
 CppUnit::Test* CLocalOutlierFactorsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLocalOutlierFactorsTest");
 
@@ -516,6 +561,9 @@ CppUnit::Test* CLocalOutlierFactorsTest::suite() {
         &CLocalOutlierFactorsTest::testTotalDistancekNN));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
         "CLocalOutlierFactorsTest::testEnsemble", &CLocalOutlierFactorsTest::testEnsemble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
+        "CLocalOutlierFactorsTest::testProgressMonitoring",
+        &CLocalOutlierFactorsTest::testProgressMonitoring));
 
     return suiteOfTests;
 }

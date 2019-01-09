@@ -10,7 +10,10 @@
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
 
+#include <atomic>
+#include <exception>
 #include <numeric>
+#include <vector>
 
 using namespace ml;
 
@@ -91,7 +94,7 @@ void CConcurrencyTest::testParallelForEachWithEmpty() {
 
     core::stopDefaultAsyncExecutor();
 
-    std::vector<int> values;
+    TIntVec values;
     auto result = core::parallel_for_each(0, values.size(),
                                           core::bindRetrievableState(
                                               [&values](double& sum, std::size_t i) {
@@ -263,20 +266,22 @@ void CConcurrencyTest::testProgressMonitoring() {
     for (auto tag : {"sequential", "parallel"}) {
         LOG_DEBUG(<< "Testing " << tag << " indices");
 
-        std::thread worker{[&reportProgress]() {
-            core::parallel_for_each(4, std::size_t{0}, std::size_t{1000},
+        std::atomic_bool finished{false};
+        std::thread worker{[&reportProgress, &finished]() {
+            core::parallel_for_each(std::size_t{0}, std::size_t{1000},
                                     [](std::size_t) {
                                         std::chrono::microseconds pause{500};
                                         std::this_thread::sleep_for(pause);
                                     },
                                     reportProgress);
+            finished.store(true);
         }};
 
         double lastProgress{0.0};
         double progress{0.0};
 
         bool monotonic{true};
-        while (progress < 1.0) {
+        while (finished.load() == false) {
             progress += messages.pop();
             monotonic &= (progress > lastProgress);
             LOG_DEBUG(<< 100.0 * progress << "% complete");
@@ -296,20 +301,22 @@ void CConcurrencyTest::testProgressMonitoring() {
     for (auto tag : {"sequential", "parallel"}) {
         LOG_DEBUG(<< "Testing " << tag << " iterators");
 
-        std::thread worker{[&reportProgress, &values]() {
-            core::parallel_for_each(4, values.begin(), values.end(),
+        std::atomic_bool finished{false};
+        std::thread worker{[&values, &reportProgress, &finished]() {
+            core::parallel_for_each(values.begin(), values.end(),
                                     [](int) {
                                         std::chrono::microseconds pause{500};
                                         std::this_thread::sleep_for(pause);
                                     },
                                     reportProgress);
+            finished.store(true);
         }};
 
         double lastProgress{0.0};
         double progress{0.0};
 
         bool monotonic{true};
-        while (progress < 1.0) {
+        while (finished.load() == false) {
             progress += messages.pop();
             monotonic &= (progress > lastProgress);
             LOG_DEBUG(<< 100.0 * progress << "% complete");
