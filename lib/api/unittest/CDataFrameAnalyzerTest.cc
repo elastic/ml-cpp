@@ -89,7 +89,8 @@ void addTestData(TStrVec fieldNames,
         analyzer.handleRecord(fieldNames, fieldValues);
     }
 
-    maths::CLocalOutlierFactors::ensemble(points, expectedScores);
+    maths::CLocalOutlierFactors lofs;
+    lofs.ensemble(points, expectedScores);
 }
 }
 
