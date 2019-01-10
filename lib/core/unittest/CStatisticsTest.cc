@@ -53,6 +53,8 @@ CppUnit::Test* CStatisticsTest::suite() {
         "CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
         "CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
+        "CStatisticsTest::testCacheStatistics", &CStatisticsTest::testCacheStatistics));
 
     return suiteOfTests;
 }
@@ -97,6 +99,55 @@ void CStatisticsTest::testStatistics() {
     CPPUNIT_ASSERT_EQUAL(uint64_t(0x1000000), stats.stat(TEST_STAT).value());
 }
 
+void CStatisticsTest::testCacheStatistics() {
+    ml::core::CStatistics& stats = ml::core::CStatistics::instance();
+
+    {
+        //! obtain ownership of the stats cache
+        ml::core::CStatistics::TStatsCacheUPtr statsCache =
+            ml::core::CStatistics::transferCachedStats();
+
+        // confirm that initially the cache is non-existent
+        CPPUNIT_ASSERT(statsCache == nullptr);
+    }
+
+    // populate non-zero live stats
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
+        stats.stat(i).set(i + 1);
+    }
+
+    // copy the live values to the cache
+    stats.cacheStats();
+
+    // obtain ownership of the stats cache
+    ml::core::CStatistics::TStatsCacheUPtr statsCache =
+        ml::core::CStatistics::transferCachedStats();
+    CPPUNIT_ASSERT(statsCache != nullptr);
+
+    // check that the cached and live stats match and that the values are as expected
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
+        CPPUNIT_ASSERT_EQUAL(stats.stat(i).value(), statsCache->stat(i));
+        CPPUNIT_ASSERT_EQUAL(uint64_t(i + 1), statsCache->stat(i));
+    }
+
+    // Take a local copy of the cached stats
+    std::vector<uint64_t> origCache;
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
+        origCache.push_back(statsCache->stat(i));
+    }
+
+    // increment the live stats
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
+        stats.stat(i).increment();
+    }
+
+    // compare with the cached values, they should have not changed
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
+        CPPUNIT_ASSERT_EQUAL(uint64_t(1), stats.stat(i).value() - statsCache->stat(i));
+        CPPUNIT_ASSERT_EQUAL(origCache[i], statsCache->stat(i));
+    }
+}
+
 void CStatisticsTest::testPersist() {
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
@@ -107,6 +158,7 @@ void CStatisticsTest::testPersist() {
 
     std::string origStaticsXml;
     {
+        stats.cacheStats();
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         stats.staticsAcceptPersistInserter(inserter);
         inserter.toXml(origStaticsXml);
@@ -132,13 +184,27 @@ void CStatisticsTest::testPersist() {
         CPPUNIT_ASSERT_EQUAL(uint64_t(567 + (i * 3)), stats.stat(i).value());
     }
 
-    // Save this state
+    // Save this state, without first caching the live values
+    std::string newStaticsXmlNoCaching;
+    {
+        ml::core::CRapidXmlStatePersistInserter inserter("root");
+        stats.staticsAcceptPersistInserter(inserter);
+        inserter.toXml(newStaticsXmlNoCaching);
+    }
+
+    // Save the state after updating the cache
     std::string newStaticsXml;
     {
+        stats.cacheStats();
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         stats.staticsAcceptPersistInserter(inserter);
         inserter.toXml(newStaticsXml);
     }
+
+    // we expect the persisted statistics without first caching to be the
+    // same as those from when we do cache the live values,
+    // as persistence uses live values if the cache is not available
+    CPPUNIT_ASSERT_EQUAL(newStaticsXml, newStaticsXmlNoCaching);
 
     // Restore the original all-zero state
     {
@@ -174,6 +240,11 @@ void CStatisticsTest::testPersist() {
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
             &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
+
+    // Check that the cache is automatically cleaned up
+    ml::core::CStatistics::TStatsCacheUPtr statsCache =
+        ml::core::CStatistics::transferCachedStats();
+    CPPUNIT_ASSERT(statsCache == nullptr);
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(i).value());

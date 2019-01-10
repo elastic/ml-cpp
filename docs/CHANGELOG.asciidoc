@@ -35,6 +35,8 @@
 * Fixes CPoissonMeanConjugate sampling error. {ml-pull}335[#335]
 //NOTE: Remove from final 7.0.0 release notes if already in 6.x
 
+* Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
+
 == {es} version 7.0.0-alpha1
 
 == {es} version 6.7.0

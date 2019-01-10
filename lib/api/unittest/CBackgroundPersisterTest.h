@@ -16,11 +16,13 @@ public:
     void testDetectorPersistOver();
     void testDetectorPersistPartition();
     void testCategorizationOnlyPersist();
+    void testDetectorBackgroundPersistStaticsConsistency();
 
     static CppUnit::Test* suite();
 
 private:
     void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName);
+    void foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate(const std::string& configFileName);
 };
 
 #endif // INCLUDED_CBackgroundPersisterTest_h
