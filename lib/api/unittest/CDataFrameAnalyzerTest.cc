@@ -223,7 +223,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     }
 }
 
-void CDataFrameAnalyzerTest::testRoundTripDocIds() {
+void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -243,10 +243,10 @@ void CDataFrameAnalyzerTest::testRoundTripDocIds() {
     rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
-    int expectedId{0};
+    int expectedHash{0};
     for (const auto& result : results.GetArray()) {
-        LOG_DEBUG(<< "id = " << result["id_hash"].GetInt());
-        CPPUNIT_ASSERT_EQUAL(++expectedId, result["id_hash"].GetInt());
+        LOG_DEBUG(<< "checksum = " << result["checksum"].GetInt());
+        CPPUNIT_ASSERT_EQUAL(++expectedHash, result["checksum"].GetInt());
     }
 }
 
@@ -264,8 +264,8 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testErrors", &CDataFrameAnalyzerTest::testErrors));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRoundTripDocIds",
-        &CDataFrameAnalyzerTest::testRoundTripDocIds));
+        "CDataFrameAnalyzerTest::testRoundTripDocHashes",
+        &CDataFrameAnalyzerTest::testRoundTripDocHashes));
 
     return suiteOfTests;
 }

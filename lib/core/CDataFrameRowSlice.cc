@@ -38,14 +38,14 @@ using namespace data_frame_row_slice_detail;
 //! values stored in the data frame.
 class CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    CMainMemoryDataFrameRowSliceHandle(TFloatVec& rows, const TInt32Vec& docIds)
-        : m_Rows{rows}, m_DocIds{docIds} {}
+    CMainMemoryDataFrameRowSliceHandle(TFloatVec& rows, const TInt32Vec& docHashes)
+        : m_Rows{rows}, m_DocHashes{docHashes} {}
     virtual TImplPtr clone() const {
-        return std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocIds);
+        return std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocHashes);
     }
     virtual bool inMainMemory() const { return true; }
     virtual TFloatVec& rows() const { return m_Rows; }
-    virtual const TInt32Vec& docIds() const { return m_DocIds; }
+    virtual const TInt32Vec& docHashes() const { return m_DocHashes; }
     virtual bool bad() const { return false; }
 
 private:
@@ -54,7 +54,7 @@ private:
 
 private:
     TFloatVecRef m_Rows;
-    TInt32VecCRef m_DocIds;
+    TInt32VecCRef m_DocHashes;
 };
 
 //! \brief A handle for reading CRawDataFrameRowSlice objects.
@@ -64,18 +64,18 @@ private:
 //! the slice is inflated.
 class COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
 public:
-    COnDiskDataFrameRowSliceHandle(TFloatVec rows, TInt32Vec docIds)
-        : m_Rows{std::move(rows)}, m_DocIds{std::move(docIds)} {}
+    COnDiskDataFrameRowSliceHandle(TFloatVec rows, TInt32Vec docHashes)
+        : m_Rows{std::move(rows)}, m_DocHashes{std::move(docHashes)} {}
     virtual TImplPtr clone() const {
-        return std::make_unique<COnDiskDataFrameRowSliceHandle>(m_Rows, m_DocIds);
+        return std::make_unique<COnDiskDataFrameRowSliceHandle>(m_Rows, m_DocHashes);
     }
     virtual TFloatVec& rows() const { return m_Rows; }
-    virtual const TInt32Vec& docIds() const { return m_DocIds; }
+    virtual const TInt32Vec& docHashes() const { return m_DocHashes; }
     virtual bool bad() const { return false; }
 
 private:
     mutable TFloatVec m_Rows;
-    TInt32Vec m_DocIds;
+    TInt32Vec m_DocHashes;
 };
 
 //! \brief The implementation of a bad handle.
@@ -88,14 +88,14 @@ public:
         return std::make_unique<CBadDataFrameRowSliceHandle>();
     }
     virtual TFloatVec& rows() const { return m_EmptyRows; }
-    virtual const TInt32Vec& docIds() const { return m_EmptyDocIds; }
+    virtual const TInt32Vec& docHashes() const { return m_EmptyDocHashes; }
     virtual bool bad() const { return true; }
 
 private:
     //! Stub for the rows.
     mutable TFloatVec m_EmptyRows;
     //! Stub for the row document ids.
-    TInt32Vec m_EmptyDocIds;
+    TInt32Vec m_EmptyDocHashes;
 };
 
 //! Checksum \p vec.
@@ -104,9 +104,9 @@ std::uint64_t computeChecksum(const std::vector<T>& vec) {
     return CHashing::murmurHash64(vec.data(), static_cast<int>(sizeof(T) * vec.size()), 0);
 }
 
-//! Checksum \p rows and \p docIds.
-std::uint64_t computeChecksum(const TFloatVec& rows, const TInt32Vec& docIds) {
-    return CHashing::hashCombine(computeChecksum(rows), computeChecksum(docIds));
+//! Checksum \p rows and \p docHashes.
+std::uint64_t computeChecksum(const TFloatVec& rows, const TInt32Vec& docHashes) {
+    return CHashing::hashCombine(computeChecksum(rows), computeChecksum(docHashes));
 }
 }
 
@@ -149,20 +149,20 @@ TFloatVecItr CDataFrameRowSliceHandle::endRows() const {
     return m_Impl->rows().end();
 }
 
-TInt32VecCItr CDataFrameRowSliceHandle::beginDocIds() const {
-    return m_Impl->docIds().begin();
+TInt32VecCItr CDataFrameRowSliceHandle::beginDocHashes() const {
+    return m_Impl->docHashes().begin();
 }
 
-TInt32VecCItr CDataFrameRowSliceHandle::endDocIds() const {
-    return m_Impl->docIds().end();
+TInt32VecCItr CDataFrameRowSliceHandle::endDocHashes() const {
+    return m_Impl->docHashes().end();
 }
 
 const TFloatVec& CDataFrameRowSliceHandle::rows() const {
     return m_Impl->rows();
 }
 
-const CDataFrameRowSliceHandle::TInt32Vec& CDataFrameRowSliceHandle::docIds() const {
-    return m_Impl->docIds();
+const CDataFrameRowSliceHandle::TInt32Vec& CDataFrameRowSliceHandle::docHashes() const {
+    return m_Impl->docHashes();
 }
 
 bool CDataFrameRowSliceHandle::bad() const {
@@ -173,11 +173,11 @@ bool CDataFrameRowSliceHandle::bad() const {
 
 CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
                                                            TFloatVec rows,
-                                                           TInt32Vec docIds)
-    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocIds(docIds) {
+                                                           TInt32Vec docHashes)
+    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes(docHashes) {
     LOG_TRACE(<< "slice size = " << m_Rows.size() << " capacity = " << m_Rows.capacity());
     m_Rows.shrink_to_fit();
-    m_DocIds.shrink_to_fit();
+    m_DocHashes.shrink_to_fit();
 }
 
 bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
@@ -204,7 +204,7 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
     return {m_FirstRow,
-            {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocIds)}};
+            {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocHashes)}};
 }
 
 void CMainMemoryDataFrameRowSlice::write(const TFloatVec&, const TInt32Vec&) {
@@ -216,11 +216,11 @@ std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::memoryUsage() const {
-    return CMemory::dynamicSize(m_Rows) + CMemory::dynamicSize(m_DocIds);
+    return CMemory::dynamicSize(m_Rows) + CMemory::dynamicSize(m_DocHashes);
 }
 
 std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
-    return computeChecksum(m_Rows, m_DocIds);
+    return computeChecksum(m_Rows, m_DocHashes);
 }
 
 //////// COnDiskDataFrameRowSlice ////////
@@ -248,15 +248,15 @@ bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
 COnDiskDataFrameRowSlice::COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                                                    std::size_t firstRow,
                                                    TFloatVec rows,
-                                                   TInt32Vec docIds)
+                                                   TInt32Vec docHashes)
     : m_StateIsBad{directory->bad()}, m_FirstRow{firstRow},
-      m_RowsCapacity{rows.size()}, m_DocIdsCapacity{docIds.size()},
+      m_RowsCapacity{rows.size()}, m_DocHashesCapacity{docHashes.size()},
       m_Directory{directory}, m_FileName{directory->name()}, m_Checksum{0} {
 
     if (m_StateIsBad == false) {
         m_FileName /= boost::filesystem::unique_path(
             "rows-" + std::to_string(firstRow) + "-%%%%-%%%%-%%%%-%%%%");
-        this->writeToDisk(rows, docIds);
+        this->writeToDisk(rows, docHashes);
     }
 }
 
@@ -271,8 +271,8 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
 
     try {
         TFloatVec oldRows(m_RowsCapacity);
-        TInt32Vec docIds(m_DocIdsCapacity);
-        if (this->readFromDisk(oldRows, docIds) == false) {
+        TInt32Vec docHashes(m_DocHashesCapacity);
+        if (this->readFromDisk(oldRows, docHashes) == false) {
             LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
             m_StateIsBad = true;
             return false;
@@ -294,7 +294,7 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
             std::copy(i, i + numberColumns, j);
         }
 
-        this->writeToDisk(newRows, docIds);
+        this->writeToDisk(newRows, docHashes);
 
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to reserve " << extraColumns
@@ -313,16 +313,16 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
     }
 
     TFloatVec rows;
-    TInt32Vec docIds;
+    TInt32Vec docHashes;
 
     try {
-        if (this->readFromDisk(rows, docIds) == false) {
+        if (this->readFromDisk(rows, docHashes) == false) {
             LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
             m_StateIsBad = true;
             return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
 
-        if (computeChecksum(rows, docIds) != m_Checksum) {
+        if (computeChecksum(rows, docHashes) != m_Checksum) {
             LOG_ERROR(<< "Corrupt from row " << m_FirstRow);
             m_StateIsBad = true;
             return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
@@ -334,13 +334,13 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
     }
 
     return {m_FirstRow,
-            {std::make_unique<COnDiskDataFrameRowSliceHandle>(std::move(rows),
-                                                              std::move(docIds))}};
+            {std::make_unique<COnDiskDataFrameRowSliceHandle>(
+                std::move(rows), std::move(docHashes))}};
 }
 
-void COnDiskDataFrameRowSlice::write(const TFloatVec& rows, const TInt32Vec& docIds) {
+void COnDiskDataFrameRowSlice::write(const TFloatVec& rows, const TInt32Vec& docHashes) {
     if (m_StateIsBad == false) {
-        this->writeToDisk(rows, docIds);
+        this->writeToDisk(rows, docHashes);
     }
 }
 
@@ -352,38 +352,38 @@ std::size_t COnDiskDataFrameRowSlice::memoryUsage() const {
     return CMemory::dynamicSize(m_Directory) + CMemory::dynamicSize(m_FileName.string());
 }
 
-void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Vec& docIds) {
+void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Vec& docHashes) {
     m_RowsCapacity = rows.size();
-    m_DocIdsCapacity = docIds.size();
-    m_Checksum = CHashing::hashCombine(computeChecksum(rows), computeChecksum(docIds));
+    m_DocHashesCapacity = docHashes.size();
+    m_Checksum = CHashing::hashCombine(computeChecksum(rows), computeChecksum(docHashes));
     LOG_TRACE(<< "Checksum = " << m_Checksum);
 
     std::size_t rowBytes{sizeof(CFloatStorage) * rows.size()};
-    std::size_t docIdBytes{sizeof(std::int32_t) * docIds.size()};
+    std::size_t docHashesBytes{sizeof(std::int32_t) * docHashes.size()};
     LOG_TRACE(<< "row bytes = " << rowBytes);
-    LOG_TRACE(<< "doc ids bytes = " << docIdBytes);
+    LOG_TRACE(<< "doc hashes bytes = " << docHashesBytes);
 
     std::ofstream file{m_FileName.string(), std::ios_base::trunc | std::ios_base::binary};
     file.write(reinterpret_cast<const char*>(rows.data()), rowBytes);
-    file.write(reinterpret_cast<const char*>(docIds.data()), docIdBytes);
+    file.write(reinterpret_cast<const char*>(docHashes.data()), docHashesBytes);
 }
 
 std::uint64_t COnDiskDataFrameRowSlice::checksum() const {
     return m_Checksum;
 }
 
-bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docIds) const {
+bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docHashes) const {
     rows.resize(m_RowsCapacity);
-    docIds.resize(m_DocIdsCapacity);
+    docHashes.resize(m_DocHashesCapacity);
 
     std::size_t rowsBytes{sizeof(CFloatStorage) * m_RowsCapacity};
-    std::size_t docIdsBytes{sizeof(std::int32_t) * m_DocIdsCapacity};
+    std::size_t docHashesBytes{sizeof(std::int32_t) * m_DocHashesCapacity};
     LOG_TRACE(<< "row bytes = " << rowBytes);
-    LOG_TRACE(<< "doc ids bytes = " << docIdBytes);
+    LOG_TRACE(<< "doc hashes bytes = " << docHashesBytes);
 
     std::ifstream file{m_FileName.string(), std::ios_base::binary};
     file.read(reinterpret_cast<char*>(rows.data()), rowsBytes);
-    file.read(reinterpret_cast<char*>(docIds.data()), docIdsBytes);
+    file.read(reinterpret_cast<char*>(docHashes.data()), docHashesBytes);
     return file.bad() == false;
 }
 

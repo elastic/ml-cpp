@@ -20,8 +20,8 @@ namespace ml {
 namespace core {
 namespace data_frame_detail {
 
-CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docId)
-    : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocId{docId} {
+CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash)
+    : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocHash{docHash} {
 }
 
 CFloatStorage CRowRef::operator[](std::size_t i) const {
@@ -44,39 +44,39 @@ CFloatStorage* CRowRef::data() const {
     return &(*m_BeginColumns);
 }
 
-std::int32_t CRowRef::docId() const {
-    return m_DocId;
+std::int32_t CRowRef::docHash() const {
+    return m_DocHash;
 }
 
 CRowIterator::CRowIterator(std::size_t numberColumns,
                            std::size_t rowCapacity,
                            std::size_t index,
                            TFloatVecItr rowItr,
-                           TInt32VecCItr docIdItr)
+                           TInt32VecCItr docHashItr)
     : m_NumberColumns{numberColumns},
-      m_RowCapacity{rowCapacity}, m_Index{index}, m_RowItr{rowItr}, m_DocIdItr{docIdItr} {
+      m_RowCapacity{rowCapacity}, m_Index{index}, m_RowItr{rowItr}, m_DocHashItr{docHashItr} {
 }
 
 bool CRowIterator::operator==(const CRowIterator& rhs) const {
-    return m_RowItr == rhs.m_RowItr && m_DocIdItr == rhs.m_DocIdItr;
+    return m_RowItr == rhs.m_RowItr && m_DocHashItr == rhs.m_DocHashItr;
 }
 
 bool CRowIterator::operator!=(const CRowIterator& rhs) const {
-    return m_RowItr != rhs.m_RowItr || m_DocIdItr != rhs.m_DocIdItr;
+    return m_RowItr != rhs.m_RowItr || m_DocHashItr != rhs.m_DocHashItr;
 }
 
 CRowRef CRowIterator::operator*() const {
-    return CRowRef{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocIdItr};
+    return CRowRef{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocHashItr};
 }
 
 CRowPtr CRowIterator::operator->() const {
-    return CRowPtr{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocIdItr};
+    return CRowPtr{m_Index, m_RowItr, m_RowItr + m_NumberColumns, *m_DocHashItr};
 }
 
 CRowIterator& CRowIterator::operator++() {
     ++m_Index;
     m_RowItr += m_RowCapacity;
-    ++m_DocIdItr;
+    ++m_DocHashItr;
     return *this;
 }
 
@@ -84,7 +84,7 @@ CRowIterator CRowIterator::operator++(int) {
     CRowIterator result{*this};
     ++m_Index;
     m_RowItr += m_RowCapacity;
-    ++m_DocIdItr;
+    ++m_DocHashItr;
     return result;
 }
 }
@@ -259,7 +259,7 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, boo
                 this->applyToRowsOfOneSlice(func_, firstRow, readRow);
 
                 if (commitResult) {
-                    slice->write(readRow.rows(), readRow.docIds());
+                    slice->write(readRow.rows(), readRow.docHashes());
                 }
             },
             std::move(func)));
@@ -304,7 +304,7 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
             ] {
                 this->applyToRowsOfOneSlice(func, firstRow, readSlice_);
                 if (commitResult) {
-                    slice->write(readSlice_.rows(), readSlice_.docIds());
+                    slice->write(readSlice_.rows(), readSlice_.docHashes());
                 }
             });
         }
@@ -318,7 +318,7 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
             }
             this->applyToRowsOfOneSlice(func, firstRow, readSlice);
             if (commitResult) {
-                slice->write(readSlice.rows(), readSlice.docIds());
+                slice->write(readSlice.rows(), readSlice.docHashes());
             }
         }
         break;
@@ -334,9 +334,9 @@ void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
     std::size_t rows{slice.size() / m_RowCapacity};
     std::size_t lastRow{firstRow + rows};
     func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow,
-                      slice.beginRows(), slice.beginDocIds()},
+                      slice.beginRows(), slice.beginDocHashes()},
          CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.endRows(),
-                      slice.endDocIds()});
+                      slice.endDocHashes()});
 }
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
@@ -348,7 +348,7 @@ CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     : m_NumberRows{numberRows}, m_RowCapacity{rowCapacity}, m_SliceCapacityInRows{sliceCapacityInRows},
       m_WriteToStoreSyncStrategy{writeToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
     m_RowsOfSliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
-    m_DocIdsOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
+    m_DocHashesOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
 }
 
 void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow) {
@@ -358,12 +358,12 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
     std::size_t end{m_RowsOfSliceBeingWritten.size()};
 
     m_RowsOfSliceBeingWritten.resize(end + m_RowCapacity);
-    m_DocIdsOfSliceBeingWritten.emplace_back();
+    m_DocHashesOfSliceBeingWritten.emplace_back();
     writeRow(m_RowsOfSliceBeingWritten.begin() + end,
-             m_DocIdsOfSliceBeingWritten.back());
+             m_DocHashesOfSliceBeingWritten.back());
     ++m_NumberRows;
 
-    if (m_DocIdsOfSliceBeingWritten.size() == m_SliceCapacityInRows) {
+    if (m_DocHashesOfSliceBeingWritten.size() == m_SliceCapacityInRows) {
         std::size_t firstRow{m_NumberRows - m_SliceCapacityInRows};
         LOG_TRACE(<< "Storing slice [" << firstRow << "," << m_NumberRows << ")");
 
@@ -375,19 +375,19 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
             m_SliceWrittenAsyncToStore =
                 async(defaultAsyncExecutor(), m_WriteSliceToStore, firstRow,
                       std::move(m_RowsOfSliceBeingWritten),
-                      std::move(m_DocIdsOfSliceBeingWritten));
+                      std::move(m_DocHashesOfSliceBeingWritten));
             break;
         }
         case EReadWriteToStorage::E_Sync:
             m_SlicesWrittenToStore.push_back(
                 m_WriteSliceToStore(firstRow, std::move(m_RowsOfSliceBeingWritten),
-                                    std::move(m_DocIdsOfSliceBeingWritten)));
+                                    std::move(m_DocHashesOfSliceBeingWritten)));
             break;
         }
         m_RowsOfSliceBeingWritten.clear();
-        m_DocIdsOfSliceBeingWritten.clear();
+        m_DocHashesOfSliceBeingWritten.clear();
         m_RowsOfSliceBeingWritten.reserve(m_SliceCapacityInRows * m_RowCapacity);
-        m_DocIdsOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
+        m_DocHashesOfSliceBeingWritten.reserve(m_SliceCapacityInRows);
     }
 }
 
@@ -397,13 +397,13 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
         m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
     }
 
-    if (m_DocIdsOfSliceBeingWritten.size() > 0) {
+    if (m_DocHashesOfSliceBeingWritten.size() > 0) {
         std::size_t firstRow{m_NumberRows - m_RowsOfSliceBeingWritten.size() / m_RowCapacity};
         LOG_TRACE(<< "Last slice [" << std::to_string(firstRow) << ","
                   << std::to_string(m_NumberRows) + ")");
         m_SlicesWrittenToStore.push_back(
             m_WriteSliceToStore(firstRow, std::move(m_RowsOfSliceBeingWritten),
-                                std::move(m_DocIdsOfSliceBeingWritten)));
+                                std::move(m_DocHashesOfSliceBeingWritten)));
     }
 
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
@@ -413,9 +413,9 @@ std::unique_ptr<CDataFrame>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docIds) {
+    auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
-            firstRow, std::move(rows), std::move(docIds));
+            firstRow, std::move(rows), std::move(docHashes));
     };
 
     if (sliceCapacity != boost::none) {
@@ -443,9 +443,9 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
     // pointer is copied to the data frame. So this isn't destroyed, and
     // the folder cleaned up, until the data frame itself is destroyed.
 
-    auto writer = [directory](std::size_t firstRow, TFloatVec rows, TInt32Vec docIds) {
+    auto writer = [directory](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<COnDiskDataFrameRowSlice>(
-            directory, firstRow, std::move(rows), std::move(docIds));
+            directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
     if (sliceCapacity != boost::none) {
