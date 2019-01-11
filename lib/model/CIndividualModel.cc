@@ -10,7 +10,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
@@ -418,9 +418,8 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
         LOG_DEBUG(<< "Not enough memory to create models");
-        core::CStatistics::instance()
-            .stat(stat_t::E_NumberMemoryLimitModelCreationFailures)
-            .increment(numberNewPeople);
+        core::CProgramCounters::counter(
+            counter_t::E_TSADNumberMemoryLimitModelCreationFailures) += numberNewPeople;
         std::size_t toRemove = gatherer.numberPeople() - numberNewPeople;
         gatherer.removePeople(toRemove);
     }

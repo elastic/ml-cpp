@@ -7,9 +7,9 @@
 #include <model/CBucketGatherer.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 

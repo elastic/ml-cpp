@@ -3,18 +3,20 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CStatisticsTest_h
-#define INCLUDED_CStatisticsTest_h
+#ifndef INCLUDED_CProgramCountersTest_h
+#define INCLUDED_CProgramCountersTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticsTest : public CppUnit::TestFixture {
+#include <core/CProgramCounters.h>
+
+class CProgramCountersTest : public CppUnit::TestFixture {
 public:
-    void testStatistics();
+    void testCounters();
     void testPersist();
-    void testCacheStatistics();
+    void testCacheCounters();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CStatisticsTest_h
+#endif // INCLUDED_CProgramCountersTest_h

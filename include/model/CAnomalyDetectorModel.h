@@ -8,8 +8,8 @@
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
 #include <core/CMemory.h>
+#include <core/CProgramCounters.h>
 #include <core/CSmallVector.h>
-#include <core/CStatistics.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CTimeSeriesModel.h>
@@ -608,8 +608,8 @@ protected:
             std::size_t initialSize = data.size();
             data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
             if (updateStatistics && data.size() != initialSize) {
-                core::CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations)
-                    .increment(1);
+                core::CProgramCounters::counter(
+                    counter_t::E_TSADNumberExcludedFrequentInvocations)++;
             }
         }
     }

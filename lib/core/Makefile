@@ -91,6 +91,7 @@ CMemoryUsage.cc \
 CMemoryUsageJsonWriter.cc \
 CPatternSet.cc \
 CPersistUtils.cc \
+CProgramCounters.cc \
 CRapidJsonConcurrentLineWriter.cc \
 CRapidXmlParser.cc \
 CRapidXmlStatePersistInserter.cc \
@@ -102,12 +103,10 @@ CScopedFastLock.cc \
 CScopedLock.cc \
 CScopedReadLock.cc \
 CScopedWriteLock.cc \
-CStat.cc \
 CStateCompressor.cc \
 CStateDecompressor.cc \
 CStatePersistInserter.cc \
 CStateRestoreTraverser.cc \
-CStatistics.cc \
 CStopWatch.cc \
 CStoredStringPtr.cc \
 CStringCache.cc \

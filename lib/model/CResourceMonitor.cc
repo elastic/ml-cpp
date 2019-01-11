@@ -6,7 +6,7 @@
 
 #include <model/CResourceMonitor.h>
 
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
 #include <model/CAnomalyDetector.h>
@@ -108,7 +108,7 @@ void CResourceMonitor::refresh(CAnomalyDetector& detector) {
 
 void CResourceMonitor::forceRefresh(CAnomalyDetector& detector) {
     this->memUsage(&detector);
-    core::CStatistics::stat(stat_t::E_MemoryUsage).set(this->totalMemory());
+    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = this->totalMemory();
     LOG_TRACE(<< "Checking allocations: currently at " << this->totalMemory());
     this->updateAllowAllocations();
 }
