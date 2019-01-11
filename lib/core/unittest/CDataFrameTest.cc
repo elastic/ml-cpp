@@ -45,8 +45,8 @@ TFloatVec testData(std::size_t numberRows, std::size_t numberColumns) {
 
 std::function<void(TFloatVecItr, std::int32_t&)>
 makeWriter(TFloatVec& components, std::size_t cols, std::size_t i) {
-    return [&components, cols, i](TFloatVecItr col, std::int32_t& docId) mutable {
-        docId = static_cast<std::int32_t>(i);
+    return [&components, cols, i](TFloatVecItr col, std::int32_t& docHash) mutable {
+        docHash = static_cast<std::int32_t>(i);
         for (std::size_t end_ = i + cols; i < end_; ++i, ++col) {
             *col = components[i];
         }
@@ -460,9 +460,9 @@ void CDataFrameTest::testWriteColumns() {
     }
 }
 
-void CDataFrameTest::testDocIds() {
+void CDataFrameTest::testDocHashes() {
 
-    // Test we preserve the document ids we write originally.
+    // Test we preserve the document hashes we write originally.
 
     std::size_t rows{5000};
     std::size_t cols{15};
@@ -502,14 +502,15 @@ void CDataFrameTest::testDocIds() {
         bool successful;
         bool passed{true};
         std::tie(std::ignore, successful) = frame->readRows(1, [
-            &passed, cols, extraCols, expectedDocId = std::int32_t{0}
+            &passed, cols, extraCols, expectedDocHash = std::int32_t{0}
         ](TRowItr beginRows, TRowItr endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
-                if (row->docId() != expectedDocId) {
-                    LOG_ERROR(<< "Got doc id " << row->docId() << " expected " << expectedDocId);
+                if (row->docHash() != expectedDocHash) {
+                    LOG_ERROR(<< "Got doc hash " << row->docHash()
+                              << " expected " << expectedDocHash);
                     passed = false;
                 }
-                expectedDocId += cols + extraCols;
+                expectedDocHash += cols + extraCols;
             }
         });
         CPPUNIT_ASSERT(successful);
@@ -539,7 +540,7 @@ CppUnit::Test* CDataFrameTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
         "CDataFrameTest::testWriteColumns", &CDataFrameTest::testWriteColumns));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testDocIds", &CDataFrameTest::testDocIds));
+        "CDataFrameTest::testDocHashes", &CDataFrameTest::testDocHashes));
 
     return suiteOfTests;
 }

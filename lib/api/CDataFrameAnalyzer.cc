@@ -31,7 +31,7 @@ const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
-const std::string ID_HASH{"id_hash"};
+const std::string CHECKSUM{"checksum"};
 const std::string RESULTS{"results"};
 }
 
@@ -122,24 +122,24 @@ bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
 bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNames) {
     // If this is being called by the Java API we'll use the last two columns for
     // special purposes:
-    //   - penultimate contains a 32 bit hash of the document identifier.
+    //   - penultimate contains a 32 bit hash of the document.
     //   - last contains the control message.
     //
     // These will both be called . to avoid collision with any real field name.
 
-    auto posDocId = std::find(fieldNames.begin(), fieldNames.end(), SPECIAL_COLUMN_FIELD_NAME);
-    auto posControlMessage = posDocId == fieldNames.end()
+    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), SPECIAL_COLUMN_FIELD_NAME);
+    auto posControlMessage = posDocHash == fieldNames.end()
                                  ? fieldNames.end()
-                                 : std::find(posDocId + 1, fieldNames.end(),
+                                 : std::find(posDocHash + 1, fieldNames.end(),
                                              SPECIAL_COLUMN_FIELD_NAME);
 
-    if (posDocId == fieldNames.end() && posControlMessage == fieldNames.end()) {
+    if (posDocHash == fieldNames.end() && posControlMessage == fieldNames.end()) {
         m_ControlFieldIndex = FIELD_MISSING;
         m_BeginDataFieldValues = 0;
         m_EndDataFieldValues = static_cast<std::ptrdiff_t>(fieldNames.size());
-        m_DocIdFieldIndex = FIELD_MISSING;
+        m_DocHashFieldIndex = FIELD_MISSING;
 
-    } else if (fieldNames.size() < 2 || posDocId != fieldNames.end() - 2 ||
+    } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
         LOG_ERROR(<< "Expected exacly two special fields in last two positions, got "
@@ -149,8 +149,8 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else {
         m_ControlFieldIndex = posControlMessage - fieldNames.begin();
         m_BeginDataFieldValues = 0;
-        m_EndDataFieldValues = posDocId - fieldNames.begin();
-        m_DocIdFieldIndex = m_ControlFieldIndex - 1;
+        m_EndDataFieldValues = posDocHash - fieldNames.begin();
+        m_DocHashFieldIndex = m_ControlFieldIndex - 1;
     }
 
     return true;
@@ -206,7 +206,7 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     using TFloatVec = std::vector<core::CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
 
-    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docId) {
+    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
             double value;
@@ -225,10 +225,10 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                 *columns = truncateToFloatRange(value);
             }
         }
-        docId = 0;
-        if (m_DocIdFieldIndex != FIELD_MISSING &&
-            core::CStringUtils::stringToType(fieldValues[m_DocIdFieldIndex], docId) == false) {
-            ++m_BadDocIdCount;
+        docHash = 0;
+        if (m_DocHashFieldIndex != FIELD_MISSING &&
+            core::CStringUtils::stringToType(fieldValues[m_DocHashFieldIndex], docHash) == false) {
+            ++m_BadDocHashCount;
         }
     });
 }
@@ -248,8 +248,8 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
-            outputWriter.Key(ID_HASH);
-            outputWriter.Int(row->docId());
+            outputWriter.Key(CHECKSUM);
+            outputWriter.Int(row->docHash());
             outputWriter.Key(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
             outputWriter.EndObject();

@@ -47,8 +47,8 @@ public:
     //! \param[in] beginColumns The iterator for the columns of row \p index.
     //! \param[in] endColumns The iterator for the end of the columns of row
     //! \p index.
-    //! \param[in] docId The row's document identifier.
-    CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docId);
+    //! \param[in] docHash The row's hash.
+    CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash);
 
     //! Get column \p i value.
     CFloatStorage operator[](std::size_t i) const;
@@ -74,14 +74,14 @@ public:
         std::copy(m_BeginColumns, m_EndColumns, output);
     }
 
-    //! Get the row's document identifier.
-    std::int32_t docId() const;
+    //! Get the row's hash.
+    std::int32_t docHash() const;
 
 private:
     std::size_t m_Index;
     TFloatVecItr m_BeginColumns;
     TFloatVecItr m_EndColumns;
-    std::int32_t m_DocId;
+    std::int32_t m_DocHash;
 };
 
 //! \brief Decorates CRowCRef to give it pointer semantics.
@@ -109,13 +109,13 @@ public:
     //! \param[in] index The row index.
     //! \param[in] rowItr The iterator for the columns of the rows starting
     //! at \p index.
-    //! \param[in] docIdItr The iterator for the document identifiers of rows
+    //! \param[in] docHashItr The iterator for the document hashes of rows
     //! starting at \p index.
     CRowIterator(std::size_t numberColumns,
                  std::size_t rowCapacity,
                  std::size_t index,
                  TFloatVecItr rowItr,
-                 TInt32VecCItr docIdItr);
+                 TInt32VecCItr docHashItr);
 
     //! \name Forward Iterator Contract
     //@{
@@ -132,7 +132,7 @@ private:
     std::size_t m_RowCapacity = 0;
     std::size_t m_Index = 0;
     TFloatVecItr m_RowItr;
-    TInt32VecCItr m_DocIdItr;
+    TInt32VecCItr m_DocHashItr;
 };
 }
 
@@ -374,7 +374,7 @@ private:
         EReadWriteToStorage m_WriteToStoreSyncStrategy;
         TWriteSliceToStoreFunc m_WriteSliceToStore;
         TFloatVec m_RowsOfSliceBeingWritten;
-        TInt32Vec m_DocIdsOfSliceBeingWritten;
+        TInt32Vec m_DocHashesOfSliceBeingWritten;
         future<TRowSlicePtr> m_SliceWrittenAsyncToStore;
         TRowSlicePtrVec m_SlicesWrittenToStore;
     };

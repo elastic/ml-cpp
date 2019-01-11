@@ -71,9 +71,9 @@ private:
     std::ptrdiff_t m_ControlFieldIndex = FIELD_UNSET;
     std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
-    std::ptrdiff_t m_DocIdFieldIndex = FIELD_UNSET;
+    std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
     std::uint64_t m_BadValueCount;
-    std::uint64_t m_BadDocIdCount;
+    std::uint64_t m_BadDocHashCount;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
