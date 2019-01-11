@@ -28,94 +28,20 @@
 
 //=== Regressions
 
- == {es} version 6.6.0
-
-=== Breaking Changes
-
-=== Deprecations
-
-=== New Features
-
-=== Enhancements
+== {es} version 7.0.0-alpha2
 
 === Bug Fixes
 
-Fix cause of "Sample out of bounds" error message (See {ml-pull}355[355].}
+* Fixes CPoissonMeanConjugate sampling error. {ml-pull}335[#335]
+//NOTE: Remove from final 7.0.0 release notes if already in 6.x
 
-=== Regressions
+* Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
- == {es} version 6.5.3
+== {es} version 7.0.0-alpha1
 
-=== Bug Fixes
-
-Correct query times for model plot and forecast in the bucket to match the times we assign
-the samples we add to the model for each bucket. For long bucket lengths, this could result
-in apparently shifted model plot with respect to the data and increased errors in forecasts. 
-
- == {es} version 6.5.0
-
-//=== Breaking Changes
-
-//=== Deprecations
-
-//=== New Features
+== {es} version 6.7.0
 
 === Enhancements
 
-Perform anomaly detection on features derived from multiple bucket values to improve robustness
-of detection with respect to misconfigured bucket lengths and improve detection of long lasting
-anomalies. (See {ml-pull}175[#175].)
+* Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
 
-Support decomposing a time series into a piecewise linear trend and with piecewise constant
-scaling of the periodic components. This extends our decomposition functionality to handle the
-same types of change points that our modelling capabilities do. (See {ml-pull}198[198].)
-
-Increased independence of anomaly scores across partitions (See {ml-pull}182[182].)
-
-Avoid potential false positives at model start up when first detecting new components of the time
-series decomposition. (See {ml-pull}218[218].)
-
-Add a new label - multi_bucket_impact - to record level anomaly results.
-The value will be on a scale of -5 to +5 where -5 means the anomaly is purely single bucket
-and +5 means the anomaly is purely multi bucket. ({ml-pull}230[230])
-
-Improve our ability to detect change points in the presence of outliers. (See {ml-pull}265[265].)
-
-=== Bug Fixes
-
-Fix cause of "Bad density value..." log errors whilst forecasting. ({ml-pull}207[207])
-
-Fix incorrectly missing influencers when the influence field is one of the detector's partitioning
-fields and the bucket is empty. ({pull}219[#219])
-
-Fix cause of hard_limit memory error for jobs with bucket span greater than one day. ({ml-pull}243[243])
-
-Fix cause of "Failed to compute significance..." log errors ({ml-pull}272[272])"
-
-Prevent detecting a trend component during a possible change in the time series. The resulting
-model was poorly reinitialised in this case which damaged anomaly detection for some time. (See
-{ml-pull}287[#287].)
-
-Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors ({ml-pull}294[294]) 
-
-//=== Regressions
-
-== {es} version 6.4.3
-
-//=== Breaking Changes
-
-//=== Deprecations
-
-//=== New Features
-
-=== Enhancements
-
-Change linker options on macOS to allow Homebrew installs ({ml-pull}225[225])
-
-//=== Bug Fixes
-
-Rules that trigger the `skip_model_update` action should also apply to the anomaly model.
-This fixes an issue where anomaly scores of results that triggered the rule would decrease
-if they occurred frequently. (See {ml-pull}222[#222].)
-
-//=== Regressions

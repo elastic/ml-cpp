@@ -988,6 +988,11 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     std::string normaliserState;
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
+    // Persistence operates on a cached collection of statistics rather than on the live statistics directly.
+    // This is in order that background persistence operates on a consistent set of statistics however we
+    // also must ensure that foreground persistence has access to an up-to-date cache of statistics as well.
+    core::CStatistics::cacheStats();
+
     return this->persistState(
         "State persisted due to job close at ", m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
