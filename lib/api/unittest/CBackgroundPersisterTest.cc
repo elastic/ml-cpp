@@ -305,9 +305,9 @@ void CBackgroundPersisterTest::foregroundBackgroundCompAnomalyDetectionAfterStat
 
         ml::api::CDataProcessor* firstProcessor(&job);
 
-        ml::api::CLineifiedJsonInputParser parser(inputStrm);
+        ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(boost::bind(
             &ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
         // Ensure the model size stats are up to date
