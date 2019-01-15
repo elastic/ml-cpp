@@ -203,7 +203,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         if (std::strcmp(factory->name(), name) == 0) {
             m_Runner = analysis.HasMember(PARAMETERS)
                            ? factory->make(*this, analysis[PARAMETERS])
-                           : factory->make((*this));
+                           : factory->make(*this);
             return;
         }
     }
