@@ -29,29 +29,48 @@
 using namespace ml;
 
 namespace {
+using TIntVec = std::vector<int>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TStrVec = std::vector<std::string>;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
+std::unique_ptr<api::CDataFrameAnalysisSpecification>
+outlierSpec(std::string method = "", std::size_t numberNeighbours = 0) {
     std::string spec{"{\n"
                      "  \"rows\": 100,\n"
                      "  \"cols\": 5,\n"
                      "  \"memory_limit\": 100000,\n"
                      "  \"threads\": 1,\n"
                      "  \"analysis\": {\n"
-                     "    \"name\": \"outliers\""
-                     "  }"
-                     "}"};
+                     "    \"name\": \"outliers\""};
+    if (method != "" || numberNeighbours > 0) {
+        spec += ",\n    \"parameters\": {\n";
+        if (method != "") {
+            spec += "      \"method\": \"" + method + "\"";
+        }
+        spec += (method != "" && numberNeighbours > 0 ? ",\n" : "\n");
+        if (numberNeighbours > 0) {
+            spec += "      \"number_neighbours\": " +
+                    core::CStringUtils::typeToString(numberNeighbours) + "\n";
+        }
+        spec += "    }\n";
+    }
+    spec += "\n  }"
+            "}";
+
+    LOG_TRACE(<< "spec =\n" << spec);
+
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
 void addTestData(TStrVec fieldNames,
                  TStrVec fieldValues,
                  api::CDataFrameAnalyzer& analyzer,
-                 TDoubleVec& expectedScores) {
+                 TDoubleVec& expectedScores,
+                 const std::string& method = "",
+                 std::size_t numberNeighbours = 0) {
 
     std::size_t numberInliers{100};
     std::size_t numberOutliers{10};
@@ -90,7 +109,29 @@ void addTestData(TStrVec fieldNames,
     }
 
     maths::CLocalOutlierFactors lofs;
-    lofs.ensemble(points, expectedScores);
+    if (method == "lof") {
+        numberNeighbours == 0
+            ? lofs.normalizedLof(points, expectedScores)
+            : lofs.normalizedLof(numberNeighbours, true,
+                                                         points, expectedScores);
+    } else if (method == "ldof") {
+        numberNeighbours == 0
+            ? lofs.normalizedLdof(points, expectedScores)
+            : lofs.normalizedLdof(numberNeighbours, true,
+                                                          points, expectedScores);
+    } else if (method == "distance_kth_nn") {
+        numberNeighbours == 0
+            ? lofs.normalizedDistancekNN(points, expectedScores)
+            : lofs.normalizedDistancekNN(
+                  numberNeighbours, true, points, expectedScores);
+    } else if (method == "distance_knn") {
+        numberNeighbours == 0
+            ? lofs.normalizedTotalDistancekNN(points, expectedScores)
+            : lofs.normalizedTotalDistancekNN(
+                  numberNeighbours, true, points, expectedScores);
+    } else {
+        lofs.ensemble(points, expectedScores);
+    }
 }
 }
 
@@ -157,6 +198,48 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+}
+
+void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
+
+    TStrVec methods{"lof", "ldof", "distance_kth_nn", "distance_knn", ""};
+    TIntVec numberNeighbours{0, 5, 20};
+
+    for (const auto& method : methods) {
+        for (const auto k : numberNeighbours) {
+
+            LOG_DEBUG(<< "Testing '" << method << "' and '" << k << "'");
+
+            std::stringstream output;
+            auto outputWriterFactory = [&output]() {
+                return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+            };
+
+            api::CDataFrameAnalyzer analyzer{outlierSpec(method, k), outputWriterFactory};
+
+            TDoubleVec expectedScores;
+
+            TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+            TStrVec fieldValues{"", "", "", "", "", "0", ""};
+            addTestData(fieldNames, fieldValues, analyzer, expectedScores, method, k);
+
+            analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+            rapidjson::Document results;
+            rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+            CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+            auto expectedScore = expectedScores.begin();
+            for (const auto& result : results.GetArray()) {
+                CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    *expectedScore, result["results"]["outlier_score"].GetDouble(),
+                    1e-6 * *expectedScore);
+                ++expectedScore;
+            }
+            CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+        }
+    }
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -260,6 +343,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunOutlierDetection",
         &CDataFrameAnalyzerTest::testRunOutlierDetection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
+        &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(

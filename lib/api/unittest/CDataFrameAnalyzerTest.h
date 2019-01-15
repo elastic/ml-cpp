@@ -13,6 +13,7 @@ class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
 public:
     void testWithoutControlMessages();
     void testRunOutlierDetection();
+    void testRunOutlierDetectionWithParams();
     void testFlushMessage();
     void testErrors();
     void testRoundTripDocHashes();

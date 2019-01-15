@@ -48,9 +48,9 @@ private:
 private:
     //! \name Custom config
     //@{
-    //! If non-null this overrides default number of neighbours to use when computing
+    //! If non-zero this overrides default number of neighbours to use when computing
     //! outlier factors.
-    TOptionalSize m_NumberNeighbours;
+    std::size_t m_NumberNeighbours = 0;
 
     //! Selects the method to use to compute outlier factors; the default is an ensemble
     //! of all supported types.

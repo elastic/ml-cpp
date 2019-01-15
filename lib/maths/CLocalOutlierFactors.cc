@@ -72,6 +72,8 @@ void CLocalOutlierFactors::noop(double) {
 
 namespace {
 bool computeOutliersNoPartitions(std::size_t numberThreads,
+                                 CLocalOutlierFactors::EAlgorithm algorithm,
+                                 std::size_t k,
                                  std::function<void(double)> recordProgress,
                                  core::CDataFrame& frame) {
 
@@ -103,10 +105,34 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
         return false;
     }
 
-    CLocalOutlierFactors outliers{recordProgress};
-
     TDoubleVec scores;
-    outliers.ensemble(std::move(points), scores);
+
+    CLocalOutlierFactors outliers{recordProgress};
+    bool project{CLocalOutlierFactors::shouldProject(points)};
+
+    switch (algorithm) {
+    case CLocalOutlierFactors::E_Lof:
+        k == 0 ? outliers.normalizedLof(std::move(points), scores)
+               : outliers.normalizedLof(k, project, std::move(points), scores);
+        break;
+    case CLocalOutlierFactors::E_Ldof:
+        k == 0 ? outliers.normalizedLdof(std::move(points), scores)
+               : outliers.normalizedLdof(k, project, std::move(points), scores);
+        break;
+    case CLocalOutlierFactors::E_DistancekNN:
+        k == 0 ? outliers.normalizedDistancekNN(std::move(points), scores)
+               : outliers.normalizedDistancekNN(
+                     k, project, std::move(points), scores);
+        break;
+    case CLocalOutlierFactors::E_TotalDistancekNN:
+        k == 0 ? outliers.normalizedTotalDistancekNN(std::move(points), scores)
+               : outliers.normalizedTotalDistancekNN(
+                     k, project, std::move(points), scores);
+        break;
+    case CLocalOutlierFactors::E_Ensemble:
+        outliers.ensemble(std::move(points), scores);
+        break;
+    }
 
     // This never happens now, but it is a sanity check against someone
     // changing CLocalOutlierFactors to accidentally write to the data
@@ -134,13 +160,14 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
 }
 
 bool computeOutliers(std::size_t numberThreads,
+                     CLocalOutlierFactors::EAlgorithm algorithm,
+                     std::size_t k,
                      std::function<void(double)> recordProgress,
                      core::CDataFrame& frame) {
     // TODO memory monitoring.
-    // TODO different analysis types.
 
     if (frame.inMainMemory()) {
-        return computeOutliersNoPartitions(numberThreads, recordProgress, frame);
+        return computeOutliersNoPartitions(numberThreads, algorithm, k, recordProgress, frame);
     }
 
     // TODO this needs to work out the partitioning and run outlier detection

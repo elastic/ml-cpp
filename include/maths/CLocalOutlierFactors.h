@@ -233,6 +233,15 @@ public:
             numberPoints, dimension);
     }
 
+    //! Check whether to project the data.
+    template<typename POINT>
+    static bool shouldProject(const std::vector<POINT>& points) {
+        return shouldProject(points.size() > 0 ? las::dimension(points[0]) : true);
+    }
+
+    //! Check whether to project the data.
+    static bool shouldProject(std::size_t dimension) { return dimension > 4; }
+
 protected:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -254,15 +263,6 @@ protected:
             compute(method, annotate(std::move(points)), scores);
         }
     }
-
-    //! Check whether to project the data.
-    template<typename POINT>
-    static bool shouldProject(const std::vector<POINT>& points) {
-        return shouldProject(points.size() > 0 ? las::dimension(points[0]) : 1);
-    }
-
-    //! Check whether to project the data.
-    static bool shouldProject(std::size_t dimension) { return dimension > 4; }
 
     //! Get the number of nearest neighbours to use.
     template<typename POINT>
@@ -772,6 +772,8 @@ private:
 //! Compute outliers for \p frame and write to a new column.
 MATHS_EXPORT
 bool computeOutliers(std::size_t numberThreads,
+                     CLocalOutlierFactors::EAlgorithm algorithm,
+                     std::size_t k,
                      std::function<void(double)> recordProgress,
                      core::CDataFrame& frame);
 }

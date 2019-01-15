@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
         dataFrameAnalyzer.run();
     }
 
-    // TODO Error handling, writing results back, etc.
+    // TODO Error handling and progress monitoring.
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log

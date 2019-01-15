@@ -65,7 +65,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     if (params.HasMember(NUMBER_NEIGHBOURS)) {
         if (params[NUMBER_NEIGHBOURS].IsUint() && params[NUMBER_NEIGHBOURS].GetUint() > 0) {
-            m_NumberNeighbours.reset(params[NUMBER_NEIGHBOURS].GetUint());
+            m_NumberNeighbours = params[NUMBER_NEIGHBOURS].GetUint();
         } else {
             registerFailure(NUMBER_NEIGHBOURS);
         }
@@ -88,9 +88,13 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     // Check for any unrecognised fields; these might be typos.
     for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
         if (isValidMember(*i) == false) {
-            LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'")
+            LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'");
             this->setToBad();
         }
+    }
+
+    if (m_NumberNeighbours > 0 && m_Method == maths::CLocalOutlierFactors::E_Ensemble) {
+        LOG_WARN(<< "Number of neighbours not supported for ensemble, supplied value will be ignored");
     }
 }
 
@@ -115,6 +119,8 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::computeOutliers(this->spec().numberThreads(),
+                           static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method),
+                           m_NumberNeighbours, 
                            [this](double fractionalProgress) {
                                this->recordProgress(fractionalProgress);
                            },
@@ -143,11 +149,11 @@ std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows
                                                           std::size_t numberColumns) const {
     maths::CLocalOutlierFactors::EAlgorithm method{
         static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method)};
-    return m_NumberNeighbours != boost::none
+    return m_NumberNeighbours == 0
                ? maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
-                     method, *m_NumberNeighbours, numberRows, numberColumns)
+                     method, numberRows, numberColumns)
                : maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
-                     method, numberRows, numberColumns);
+                     method, m_NumberNeighbours, numberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

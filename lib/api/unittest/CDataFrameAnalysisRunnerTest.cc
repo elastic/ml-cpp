@@ -67,7 +67,6 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
         }
     }
 
-    // TODO test with params.
     // TODO test running memory is in acceptable range.
 }
 
