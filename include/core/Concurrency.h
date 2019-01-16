@@ -373,7 +373,6 @@ parallel_for_each(std::size_t partitions,
 
     std::vector<future<bool>> tasks;
 
-
     for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
