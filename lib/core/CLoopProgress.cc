@@ -10,6 +10,9 @@
 
 namespace ml {
 namespace core {
+namespace {
+const std::size_t STEPS{16};
+}
 
 CLoopProgress::CLoopProgress(std::size_t size, const TProgressCallback& recordProgress, double scale)
     : m_Size{size}, m_Steps{std::min(size, STEPS)},

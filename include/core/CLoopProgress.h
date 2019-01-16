@@ -55,9 +55,6 @@ public:
     void increment(std::size_t i = 1);
 
 private:
-    static const std::size_t STEPS = 16;
-
-private:
     std::size_t m_Size;
     std::size_t m_Steps;
     double m_StepProgress;
