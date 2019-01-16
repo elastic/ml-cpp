@@ -43,10 +43,7 @@
 Fix cause of "Sample out of bounds" error message. {ml-pull}335[335]
 
 Fix hanging autodetect process after it receives a warning about failed
-cleanup of forecasts. {ml-pull}357[#357] (issue: {ml-issue}350[#350])
-
-Prevent trend detection during a change in a time series that creates a poorly
-reinitialized model. {ml-pull}292[#292]
+cleanup of forecasts. {ml-pull}352[#352] (issue: {ml-issue}350[#350])
 
 === Regressions
 
