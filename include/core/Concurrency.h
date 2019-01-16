@@ -8,6 +8,7 @@
 #define INCLUDED_ml_core_Concurrency_h
 
 #include <core/CLogger.h>
+#include <core/CLoopProgress.h>
 #include <core/ImportExport.h>
 
 #include <boost/any.hpp>
@@ -266,19 +267,10 @@ parallel_for_each(std::size_t partitions,
     concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
 
     if (partitions < 2 || scope.wasBusy()) {
-        for (std::size_t i = start, lastProgress = 0; i < end; ++i) {
-
+        CLoopProgress progress{end - start, recordProgress};
+        for (std::size_t i = start; i < end; ++i, progress.increment()) {
             f(i);
-
-            std::size_t progress{(16 * (i - start)) / (end - start)};
-            if (progress > lastProgress) {
-                recordProgress(0.0625);
-                ++lastProgress;
-            }
         }
-
-        recordProgress(0.0625);
-
         return {std::forward<FUNCTION>(f)};
     }
 
@@ -301,28 +293,23 @@ parallel_for_each(std::size_t partitions,
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
+        CLoopProgress progress{end - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
+
         auto& g = functions[offset];
-        tasks.emplace_back(async(
-            defaultAsyncExecutor(),
-            [&g, &recordProgress, partitions](std::size_t start_, std::size_t end_) {
-                for (std::size_t i = start_, lastProgress = 0; i < end_; i += partitions) {
-
-                    g(i);
-
-                    std::size_t progress{(16 * (i - start_)) / (end_ - start_)};
-                    if (progress > lastProgress) {
-                        recordProgress(0.0625 / static_cast<double>(partitions));
-                        ++lastProgress;
-                    }
-                }
-                return true; // So we can check for exceptions via get.
-            },
-            start, end));
+        tasks.emplace_back(
+            async(defaultAsyncExecutor(),
+                  [&g, partitions, progress](std::size_t start_, std::size_t end_) mutable {
+                      for (std::size_t i = start_; i < end_;
+                           i += partitions, progress.increment(partitions)) {
+                          g(i);
+                      }
+                      return true; // So we can check for exceptions via get.
+                  },
+                  start, end));
     }
 
     get_conjunction_of_all(tasks);
-
-    recordProgress(0.0625);
 
     return functions;
 }
@@ -373,20 +360,10 @@ parallel_for_each(std::size_t partitions,
 
     if (partitions < 2 || scope.wasBusy()) {
 
-        std::size_t lastProgress{0};
-        std::size_t progress{0};
-        for (ITR i = start; i != end; ++i, progress += 16) {
-
+        CLoopProgress progress{size, recordProgress};
+        for (ITR i = start; i != end; ++i, progress.increment()) {
             f(*i);
-
-            if (progress / size > lastProgress) {
-                recordProgress(0.0625);
-                ++lastProgress;
-            }
         }
-
-        recordProgress(0.0625);
-
         return {std::forward<FUNCTION>(f)};
     }
 
@@ -396,17 +373,19 @@ parallel_for_each(std::size_t partitions,
 
     std::vector<future<bool>> tasks;
 
+
     for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
+        CLoopProgress progress{size - offset, recordProgress, 1.0 / static_cast<double>(partitions)};
+
         auto& g = functions[offset];
         tasks.emplace_back(async(
             defaultAsyncExecutor(),
-            [&g, partitions, offset, size, recordProgress](ITR start_) {
+            [&g, partitions, offset, size, progress](ITR start_) mutable {
 
                 std::size_t i{offset};
-                std::size_t lastProgress{0};
 
                 auto incrementByPartitions = [&i, partitions, size](ITR& j) {
                     if (i < size) {
@@ -414,15 +393,9 @@ parallel_for_each(std::size_t partitions,
                     }
                 };
 
-                for (ITR j = start_; i < size; i += partitions, incrementByPartitions(j)) {
-
+                for (ITR j = start_; i < size; i += partitions,
+                         incrementByPartitions(j), progress.increment(partitions)) {
                     g(*j);
-
-                    std::size_t progress{16 * (i - offset) / (size - offset)};
-                    if (progress > lastProgress) {
-                        recordProgress(0.0625 / static_cast<double>(partitions));
-                        ++lastProgress;
-                    }
                 }
                 return true; // So we can check for exceptions via get.
             },
@@ -430,8 +403,6 @@ parallel_for_each(std::size_t partitions,
     }
 
     get_conjunction_of_all(tasks);
-
-    recordProgress(0.0625);
 
     return functions;
 }

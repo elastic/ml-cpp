@@ -255,16 +255,20 @@ void CConcurrencyTest::testProgressMonitoring() {
 
     // Test progress monitoring invariants.
 
-    core::CConcurrentQueue<double, 1> messages;
+    double totalProgress{0.0};
+    std::mutex totalProgressMutex;
 
-    auto reportProgress = [&messages](double progress) {
-        messages.push(progress);
+    auto reportProgress = [&totalProgress, &totalProgressMutex](double progress) {
+        std::lock_guard<std::mutex> lock{totalProgressMutex};
+        totalProgress += progress;
     };
 
     core::stopDefaultAsyncExecutor();
 
     for (auto tag : {"sequential", "parallel"}) {
         LOG_DEBUG(<< "Testing " << tag << " indices");
+
+        totalProgress = 0.0;
 
         std::atomic_bool finished{false};
         std::thread worker{[&reportProgress, &finished]() {
@@ -277,19 +281,22 @@ void CConcurrencyTest::testProgressMonitoring() {
             finished.store(true);
         }};
 
-        double lastProgress{0.0};
-        double progress{0.0};
+        double lastTotalProgress{0.0};
 
         bool monotonic{true};
         while (finished.load() == false) {
-            progress += messages.pop();
-            monotonic &= (progress > lastProgress);
-            LOG_DEBUG(<< 100.0 * progress << "% complete");
+            std::this_thread::sleep_for(std::chrono::microseconds{500});
+            std::lock_guard<std::mutex> lock{totalProgressMutex};
+            monotonic &= (totalProgress >= lastTotalProgress);
+            if (totalProgress > lastTotalProgress) {
+                LOG_DEBUG(<< 100.0 * totalProgress << "% complete");
+                lastTotalProgress = totalProgress;
+            }
         }
         worker.join();
 
         CPPUNIT_ASSERT_EQUAL(true, monotonic);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, progress, 1e-14);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }
@@ -300,6 +307,8 @@ void CConcurrencyTest::testProgressMonitoring() {
 
     for (auto tag : {"sequential", "parallel"}) {
         LOG_DEBUG(<< "Testing " << tag << " iterators");
+
+        totalProgress = 0.0;
 
         std::atomic_bool finished{false};
         std::thread worker{[&values, &reportProgress, &finished]() {
@@ -312,19 +321,22 @@ void CConcurrencyTest::testProgressMonitoring() {
             finished.store(true);
         }};
 
-        double lastProgress{0.0};
-        double progress{0.0};
+        double lastTotalProgress{0.0};
 
         bool monotonic{true};
         while (finished.load() == false) {
-            progress += messages.pop();
-            monotonic &= (progress > lastProgress);
-            LOG_DEBUG(<< 100.0 * progress << "% complete");
+            std::this_thread::sleep_for(std::chrono::microseconds{500});
+            std::lock_guard<std::mutex> lock{totalProgressMutex};
+            monotonic &= (totalProgress >= lastTotalProgress);
+            if (totalProgress > lastTotalProgress) {
+                LOG_DEBUG(<< 100.0 * totalProgress << "% complete");
+                lastTotalProgress = totalProgress;
+            }
         }
         worker.join();
 
         CPPUNIT_ASSERT_EQUAL(true, monotonic);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, progress, 1e-14);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }

@@ -30,6 +30,7 @@
 #include "CJsonStatePersistInserterTest.h"
 #include "CJsonStateRestoreTraverserTest.h"
 #include "CLoggerTest.h"
+#include "CLoopProgressTest.h"
 #include "CMapPopulationTest.h"
 #include "CMemoryUsageJsonWriterTest.h"
 #include "CMemoryUsageTest.h"
@@ -106,6 +107,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CJsonStatePersistInserterTest::suite());
     runner.addTest(CJsonStateRestoreTraverserTest::suite());
     runner.addTest(CLoggerTest::suite());
+    runner.addTest(CLoopProgressTest::suite());
     runner.addTest(CMapPopulationTest::suite());
     runner.addTest(CMemoryUsageJsonWriterTest::suite());
     runner.addTest(CMemoryUsageTest::suite());
