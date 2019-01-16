@@ -12,15 +12,19 @@ namespace ml {
 namespace core {
 
 CLoopProgress::CLoopProgress(std::size_t size, const TProgressCallback& recordProgress, double scale)
-    : m_Size{size < STEPS ? 1 : size}, m_Steps{std::min(size, STEPS)},
+    : m_Size{size}, m_Steps{std::min(size, STEPS)},
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{&recordProgress} {
 }
 
 void CLoopProgress::increment(std::size_t i) {
     m_Pos += i;
-    if (m_Steps * m_Pos + 1 > m_LastProgress * m_Size) {
-        (*m_RecordProgress)(m_StepProgress);
-        ++m_LastProgress;
+
+    if (m_Steps * m_Pos + 1 > (m_LastProgress + 1) * m_Size) {
+        // Account for the fact that if i is large we may have jumped several steps.
+        std::size_t stride{m_Steps * std::min(m_Pos, m_Size) / m_Size - m_LastProgress};
+
+        (*m_RecordProgress)(static_cast<double>(stride) * m_StepProgress);
+        m_LastProgress += stride;
     }
 }
 }

@@ -19,7 +19,6 @@ void CLoopProgressTest::testShort() {
 
     double progress{0.0};
 
-    LOG_DEBUG(<< "Test short loops");
     for (std::size_t n = 1; n < 16; ++n) {
 
         LOG_DEBUG(<< "Testing " << n);
@@ -33,6 +32,21 @@ void CLoopProgressTest::testShort() {
         }
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, progress, 1e-15);
+    }
+
+    LOG_DEBUG(<< "Test with stride > 1");
+
+    for (std::size_t n = 2; n < 16; ++n) {
+
+        LOG_DEBUG(<< "Testing " << n);
+
+        progress = 0.0;
+        core::CLoopProgress loopProgress{n,
+                                         [&progress](double p) { progress += p; }};
+
+        for (std::size_t i = 0; i < n; i += 2, loopProgress.increment(2)) {
+            // Empty
+        }
     }
 }
 
@@ -55,6 +69,28 @@ void CLoopProgressTest::testRandom() {
                                          [&progress](double p) { progress += p; }};
 
         for (std::size_t i = 0; i < size[0]; ++i, loopProgress.increment()) {
+            // Empty
+        }
+
+        CPPUNIT_ASSERT_EQUAL(1.0, progress);
+    }
+
+    LOG_DEBUG(<< "Test with stride > 1");
+
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        TSizeVec size;
+        rng.generateUniformSamples(30, 100, 1, size);
+
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "Loop length = " << size[0]);
+        }
+
+        progress = 0.0;
+        core::CLoopProgress loopProgress{size[0],
+                                         [&progress](double p) { progress += p; }};
+
+        for (std::size_t i = 0; i < size[0]; i += 20, loopProgress.increment(20)) {
             // Empty
         }
 

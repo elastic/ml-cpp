@@ -62,7 +62,7 @@ private:
     std::size_t m_Steps;
     double m_StepProgress;
     std::size_t m_Pos = 0;
-    std::size_t m_LastProgress = 1;
+    std::size_t m_LastProgress = 0;
     const TProgressCallback* m_RecordProgress;
 };
 }
