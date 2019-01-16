@@ -6,10 +6,14 @@
 
 #include "CConcurrencyTest.h"
 
+#include <core/CConcurrentQueue.h>
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
 
+#include <atomic>
+#include <exception>
 #include <numeric>
+#include <vector>
 
 using namespace ml;
 
@@ -46,10 +50,9 @@ void CConcurrencyTest::testAsyncWithExecutors() {
 
     core::stopDefaultAsyncExecutor();
 
-    std::string tags[]{"sequential", "parallel"};
+    for (auto tag : {"sequential", "parallel"}) {
 
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t]);
+        LOG_DEBUG(<< "Testing " << tag);
 
         auto result =
             core::async(core::defaultAsyncExecutor(), []() { return 42; });
@@ -73,10 +76,9 @@ void CConcurrencyTest::testAsyncWithExecutorsAndExceptions() {
 
     core::stopDefaultAsyncExecutor();
 
-    std::string tags[]{"sequential", "parallel"};
+    for (auto tag : {"sequential", "parallel"}) {
 
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t]);
+        LOG_DEBUG(<< "Testing " << tag);
 
         auto result = core::async(core::defaultAsyncExecutor(),
                                   static_cast<double (*)()>(throws));
@@ -92,7 +94,7 @@ void CConcurrencyTest::testParallelForEachWithEmpty() {
 
     core::stopDefaultAsyncExecutor();
 
-    std::vector<int> values;
+    TIntVec values;
     auto result = core::parallel_for_each(0, values.size(),
                                           core::bindRetrievableState(
                                               [&values](double& sum, std::size_t i) {
@@ -111,11 +113,10 @@ void CConcurrencyTest::testParallelForEach() {
     std::iota(values.begin(), values.end(), 0);
     double expected{std::accumulate(values.begin(), values.end(), 0.0)};
 
-    std::string tags[]{"sequential", "parallel"};
-
     // Test sequential.
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t] << " indices");
+    for (auto tag : {"sequential", "parallel"}) {
+
+        LOG_DEBUG(<< "Testing " << tag << " indices");
 
         auto results =
             core::parallel_for_each(0, values.size(),
@@ -125,7 +126,7 @@ void CConcurrencyTest::testParallelForEach() {
                                         },
                                         0.0));
 
-        if (t == 0) {
+        if (std::strcmp(tag, "sequential") == 0) {
             CPPUNIT_ASSERT_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
@@ -143,15 +144,15 @@ void CConcurrencyTest::testParallelForEach() {
 
     core::stopDefaultAsyncExecutor();
 
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t] << " iterators");
+    for (auto tag : {"sequential", "parallel"}) {
+        LOG_DEBUG(<< "Testing " << tag << " iterators");
 
         auto results = core::parallel_for_each(
             values.begin(), values.end(),
             core::bindRetrievableState(
                 [](double& sum, int value) { sum += static_cast<double>(value); }, 0.0));
 
-        if (t == 0) {
+        if (std::strcmp(tag, "sequential") == 0) {
             CPPUNIT_ASSERT_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
@@ -179,10 +180,8 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
 
     TIntVec values(1000);
 
-    std::string tags[]{"sequential", "parallel"};
-
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t] << " indices");
+    for (auto tag : {"sequential", "parallel"}) {
+        LOG_DEBUG(<< "Testing " << tag << " indices");
 
         bool exceptionCaught{false};
         try {
@@ -201,8 +200,8 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
 
     core::stopDefaultAsyncExecutor();
 
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t] << " iterators");
+    for (auto tag : {"sequential", "parallel"}) {
+        LOG_DEBUG(<< "Testing " << tag << " iterators");
 
         bool exceptionCaught{false};
         try {
@@ -252,6 +251,99 @@ void CConcurrencyTest::testParallelForEachReentry() {
     }
 }
 
+void CConcurrencyTest::testProgressMonitoring() {
+
+    // Test progress monitoring invariants.
+
+    double totalProgress{0.0};
+    std::mutex totalProgressMutex;
+
+    auto reportProgress = [&totalProgress, &totalProgressMutex](double progress) {
+        std::lock_guard<std::mutex> lock{totalProgressMutex};
+        totalProgress += progress;
+    };
+
+    core::stopDefaultAsyncExecutor();
+
+    for (auto tag : {"sequential", "parallel"}) {
+        LOG_DEBUG(<< "Testing " << tag << " indices");
+
+        totalProgress = 0.0;
+
+        std::atomic_bool finished{false};
+        std::thread worker{[&reportProgress, &finished]() {
+            core::parallel_for_each(std::size_t{0}, std::size_t{1000},
+                                    [](std::size_t) {
+                                        std::chrono::microseconds pause{500};
+                                        std::this_thread::sleep_for(pause);
+                                    },
+                                    reportProgress);
+            finished.store(true);
+        }};
+
+        double lastTotalProgress{0.0};
+
+        bool monotonic{true};
+        while (finished.load() == false) {
+            std::this_thread::sleep_for(std::chrono::microseconds{500});
+            std::lock_guard<std::mutex> lock{totalProgressMutex};
+            monotonic &= (totalProgress >= lastTotalProgress);
+            if (totalProgress > lastTotalProgress) {
+                LOG_DEBUG(<< 100.0 * totalProgress << "% complete");
+                lastTotalProgress = totalProgress;
+            }
+        }
+        worker.join();
+
+        CPPUNIT_ASSERT_EQUAL(true, monotonic);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
+
+    TIntVec values(1000);
+
+    for (auto tag : {"sequential", "parallel"}) {
+        LOG_DEBUG(<< "Testing " << tag << " iterators");
+
+        totalProgress = 0.0;
+
+        std::atomic_bool finished{false};
+        std::thread worker{[&values, &reportProgress, &finished]() {
+            core::parallel_for_each(values.begin(), values.end(),
+                                    [](int) {
+                                        std::chrono::microseconds pause{500};
+                                        std::this_thread::sleep_for(pause);
+                                    },
+                                    reportProgress);
+            finished.store(true);
+        }};
+
+        double lastTotalProgress{0.0};
+
+        bool monotonic{true};
+        while (finished.load() == false) {
+            std::this_thread::sleep_for(std::chrono::microseconds{500});
+            std::lock_guard<std::mutex> lock{totalProgressMutex};
+            monotonic &= (totalProgress >= lastTotalProgress);
+            if (totalProgress > lastTotalProgress) {
+                LOG_DEBUG(<< 100.0 * totalProgress << "% complete");
+                lastTotalProgress = totalProgress;
+            }
+        }
+        worker.join();
+
+        CPPUNIT_ASSERT_EQUAL(true, monotonic);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
+}
+
 CppUnit::Test* CConcurrencyTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrencyTest");
 
@@ -271,6 +363,8 @@ CppUnit::Test* CConcurrencyTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
         "CConcurrencyTest::testParallelForEachReentry",
         &CConcurrencyTest::testParallelForEachReentry));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
+        "CConcurrencyTest::testProgressMonitoring", &CConcurrencyTest::testProgressMonitoring));
 
     return suiteOfTests;
 }

@@ -141,6 +141,9 @@ CDefaultAsyncExecutorBusyForScope::~CDefaultAsyncExecutorBusyForScope() {
 bool CDefaultAsyncExecutorBusyForScope::wasBusy() const {
     return m_WasBusy;
 }
+
+void noop(double) {
+}
 }
 }
 }
