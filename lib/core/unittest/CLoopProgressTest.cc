@@ -18,17 +18,20 @@ using TSizeVec = std::vector<std::size_t>;
 void CLoopProgressTest::testShort() {
 
     double progress{0.0};
+    auto recordProgress = [&progress](double p) { progress += p; };
+
+    LOG_DEBUG(<< "Test with stride == 1");
 
     for (std::size_t n = 1; n < 16; ++n) {
 
         LOG_DEBUG(<< "Testing " << n);
 
         progress = 0.0;
-        core::CLoopProgress loopProgress{n,
-                                         [&progress](double p) { progress += p; }};
+        core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; ++i, loopProgress.increment()) {
-            // Empty
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, progress, 1e-15);
@@ -41,11 +44,11 @@ void CLoopProgressTest::testShort() {
         LOG_DEBUG(<< "Testing " << n);
 
         progress = 0.0;
-        core::CLoopProgress loopProgress{n,
-                                         [&progress](double p) { progress += p; }};
+        core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; i += 2, loopProgress.increment(2)) {
-            // Empty
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
     }
 }
@@ -53,7 +56,11 @@ void CLoopProgressTest::testShort() {
 void CLoopProgressTest::testRandom() {
 
     double progress{0.0};
+    auto recordProgress = [&progress](double p) { progress += p; };
+
     test::CRandomNumbers rng;
+
+    LOG_DEBUG(<< "Test with stride == 1");
 
     for (std::size_t t = 0; t < 100; ++t) {
 
@@ -65,11 +72,10 @@ void CLoopProgressTest::testRandom() {
         }
 
         progress = 0.0;
-        core::CLoopProgress loopProgress{size[0],
-                                         [&progress](double p) { progress += p; }};
+        core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; ++i, loopProgress.increment()) {
-            // Empty
+            CPPUNIT_ASSERT_EQUAL(static_cast<double>(16 * i / size[0]) / 16.0, progress);
         }
 
         CPPUNIT_ASSERT_EQUAL(1.0, progress);
@@ -87,11 +93,10 @@ void CLoopProgressTest::testRandom() {
         }
 
         progress = 0.0;
-        core::CLoopProgress loopProgress{size[0],
-                                         [&progress](double p) { progress += p; }};
+        core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; i += 20, loopProgress.increment(20)) {
-            // Empty
+            CPPUNIT_ASSERT_EQUAL(static_cast<double>(16 * i / size[0]) / 16.0, progress);
         }
 
         CPPUNIT_ASSERT_EQUAL(1.0, progress);
@@ -101,6 +106,8 @@ void CLoopProgressTest::testRandom() {
 void CLoopProgressTest::testScaled() {
 
     double progress{0.0};
+    auto recordProgress = [&progress](double p) { progress += p; };
+
     test::CRandomNumbers rng;
 
     for (std::size_t t = 0; t < 100; ++t) {
@@ -115,13 +122,12 @@ void CLoopProgressTest::testScaled() {
         }
 
         progress = 0.0;
-        core::CLoopProgress loopProgress{size[0],
-                                         [&progress](double p) { progress += p; },
+        core::CLoopProgress loopProgress{size[0], recordProgress,
                                          1.0 / static_cast<double>(step[0])};
 
         for (std::size_t i = 0; i < size[0];
              i += step[0], loopProgress.increment(step[0])) {
-            // Empty
+            // We're only interested in checking the progress at the end.
         }
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(step[0]), progress, 1e-15);

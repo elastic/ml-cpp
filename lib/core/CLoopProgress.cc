@@ -13,7 +13,7 @@ namespace core {
 
 CLoopProgress::CLoopProgress(std::size_t size, const TProgressCallback& recordProgress, double scale)
     : m_Size{size}, m_Steps{std::min(size, STEPS)},
-      m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{&recordProgress} {
+      m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 
 void CLoopProgress::increment(std::size_t i) {
@@ -23,7 +23,7 @@ void CLoopProgress::increment(std::size_t i) {
         // Account for the fact that if i is large we may have jumped several steps.
         std::size_t stride{m_Steps * std::min(m_Pos, m_Size) / m_Size - m_LastProgress};
 
-        (*m_RecordProgress)(static_cast<double>(stride) * m_StepProgress);
+        m_RecordProgress(static_cast<double>(stride) * m_StepProgress);
         m_LastProgress += stride;
     }
 }
