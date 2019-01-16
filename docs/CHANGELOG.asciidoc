@@ -28,7 +28,7 @@
 
 //=== Regressions
 
- == {es} version 6.6.0
+== {es} version 6.6.0
 
 === Breaking Changes
 
@@ -40,9 +40,19 @@
 
 === Bug Fixes
 
-Fix cause of "Sample out of bounds" error message (See {ml-pull}355[355].}
+Fix cause of "Sample out of bounds" error message. {ml-pull}335[335]
+
+Fix hanging autodetect process after it receives a warning about failed
+cleanup of forecasts. {ml-pull}357[#357] (issue: {ml-issue}350[#350])
+
+Prevent trend detection during a change in a time series that creates a poorly
+reinitialized model. {ml-pull}292[#292]
 
 === Regressions
+
+== {es} version 6.5.4
+
+=== Bug Fixes
 
  == {es} version 6.5.3
 
