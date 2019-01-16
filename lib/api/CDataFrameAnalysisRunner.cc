@@ -26,8 +26,9 @@ std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& s
 const double MAXIMUM_FRACTIONAL_PROGRESS{1024.0};
 }
 
-CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
-    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0} {
+CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec,
+                                                   const TErrorHandler& errorHandler)
+    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0}, m_ErrorHandler{errorHandler} {
 }
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
@@ -126,12 +127,6 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
 }
 
-CDataFrameAnalysisRunner::TStrVec CDataFrameAnalysisRunner::errors() const {
-    core::CScopedFastLock lock(m_Mutex);
-    auto result = m_Errors;
-    return result;
-}
-
 void CDataFrameAnalysisRunner::setToBad() {
     m_Bad = true;
 }
@@ -141,14 +136,14 @@ void CDataFrameAnalysisRunner::setToFinished() {
     m_FractionalProgress.store(static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS));
 }
 
-void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
-    m_FractionalProgress.fetch_add(std::max(
-        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
+CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRecorder() {
+    return [this](double fractionalProgress) {
+        this->recordProgress(fractionalProgress);
+    };
 }
 
-void CDataFrameAnalysisRunner::addError(const std::string& error) {
-    core::CScopedFastLock lock(m_Mutex);
-    m_Errors.push_back(error);
+const CDataFrameAnalysisRunner::TErrorHandler& CDataFrameAnalysisRunner::errorHandler() const {
+    return m_ErrorHandler;
 }
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
@@ -158,19 +153,30 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
 }
 
+void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
+    m_FractionalProgress.fetch_add(std::max(
+        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
+}
+
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
-    auto result = this->makeImpl(spec);
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
+                                      const TErrorHandler& errorHandler) const {
+    auto result = this->makeImpl(spec, errorHandler);
     result->computeAndSaveExecutionStrategy();
     return result;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& params) const {
-    auto result = this->makeImpl(spec, params);
+                                      const rapidjson::Value& params,
+                                      const TErrorHandler& errorHandler) const {
+    auto result = this->makeImpl(spec, params, errorHandler);
     result->computeAndSaveExecutionStrategy();
     return result;
+}
+
+void CDataFrameAnalysisRunnerFactory::defaultErrorHandler(const std::string&) {
+    // No op since logging is handled where the error is emitted.
 }
 }
 }

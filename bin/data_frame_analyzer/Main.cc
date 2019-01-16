@@ -33,13 +33,32 @@
 #include <cstdlib>
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <vector>
 
 namespace {
-std::pair<std::string, bool> readFileToString(const std::string& fileName) {
+auto makeErrorHandler(std::vector<std::string>& userErrors, std::mutex& userErrorsMutex) {
+    return [&userErrors, &userErrorsMutex](const std::string& error) {
+        try {
+            std::lock_guard<std::mutex> lock{userErrorsMutex};
+            userErrors.push_back(error);
+        } catch (std::exception& e) {
+            // We want this to be nothrow. Copying strings can fail for example with
+            // with std::bad_alloc so we catch and swallow any exceptions here.
+            LOG_ERROR(<< "Failed to register user error '" << error
+                      << "' with '" << e.what() << "'");
+        }
+    };
+}
+
+std::pair<std::string, bool>
+readFileToString(const std::string& fileName,
+                 const std::function<void(const std::string&)>& errorHandler) {
     std::ifstream fileStream{fileName};
     if (fileStream.is_open() == false) {
-        LOG_ERROR(<< "Failed to open file '" << fileName << "'");
+        LOG_AND_REGISTER_ERROR(errorHandler, << "Internal error: failed to open file '" << fileName
+                                             << "'. Please report this problem.");
         return {std::string{}, false};
     }
     return {std::string{std::istreambuf_iterator<char>{fileStream},
@@ -63,6 +82,12 @@ int main(int argc, char** argv) {
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
+
+    std::vector<std::string> userErrors;
+    std::mutex userErrorsMutex;
+    auto userErrorHandler = makeErrorHandler(userErrors, userErrorsMutex);
+
+    // TODO RAII write error results on exit.
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
@@ -97,14 +122,15 @@ int main(int argc, char** argv) {
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
-    std::tie(analysisSpecificationJson, couldReadConfigFile) = readFileToString(configFile);
+    std::tie(analysisSpecificationJson, couldReadConfigFile) =
+        readFileToString(configFile, userErrorHandler);
     if (couldReadConfigFile == false) {
         LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
         return EXIT_FAILURE;
     }
 
-    auto analysisSpecification =
-        std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
+    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
+        analysisSpecificationJson, userErrorHandler);
     if (analysisSpecification->bad()) {
         LOG_FATAL("Failed to parse analysis specification");
         return EXIT_FAILURE;
@@ -114,9 +140,11 @@ int main(int argc, char** argv) {
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), [&ioMgr]() {
+        std::move(analysisSpecification),
+        [&ioMgr]() {
             return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
-        }};
+        },
+        userErrorHandler};
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
@@ -131,8 +159,6 @@ int main(int argc, char** argv) {
         // after closing the input pipe if control messages are not in use.
         dataFrameAnalyzer.run();
     }
-
-    // TODO Error handling, writing results back, etc.
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log

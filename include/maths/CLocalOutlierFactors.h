@@ -773,6 +773,7 @@ private:
 MATHS_EXPORT
 bool computeOutliers(std::size_t numberThreads,
                      std::function<void(double)> recordProgress,
+                     std::function<void(const std::string&)> errorHandler,
                      core::CDataFrame& frame);
 }
 }

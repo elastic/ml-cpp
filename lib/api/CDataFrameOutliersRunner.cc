@@ -55,11 +55,15 @@ std::string toString(const rapidjson::Value& value) {
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                                                   const rapidjson::Value& params)
-    : CDataFrameOutliersRunner{spec} {
+                                                   const rapidjson::Value& params,
+                                                   const TErrorHandler& errorHandler)
+    : CDataFrameOutliersRunner{spec, errorHandler} {
 
     auto registerFailure = [this, &params](const char* name) {
-        LOG_ERROR(<< "Bad input: '" << toString(params[name]) << "' for '" << name << "'");
+        LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                               << "Internal error: bad value '"
+                               << toString(params[name]) << "' for '" << name
+                               << "'. Please report this problem.");
         this->setToBad();
     };
 
@@ -88,15 +92,18 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     // Check for any unrecognised fields; these might be typos.
     for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
         if (isValidMember(*i) == false) {
-            LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'")
+            LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                                   << "Internal error: unexpected member '"
+                                   << i->name.GetString() << "'. Please report this problem.")
             this->setToBad();
         }
     }
 }
 
-CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
-                                          maths::CLocalOutlierFactors::E_Ensemble)} {
+CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
+                                                   const TErrorHandler& errorHandler)
+    : CDataFrameAnalysisRunner{spec, errorHandler}, m_Method{static_cast<std::size_t>(
+                                                        maths::CLocalOutlierFactors::E_Ensemble)} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
@@ -115,10 +122,7 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::computeOutliers(this->spec().numberThreads(),
-                           [this](double fractionalProgress) {
-                               this->recordProgress(fractionalProgress);
-                           },
-                           frame);
+                           this->progressRecorder(), this->errorHandler(), frame);
 }
 
 std::size_t
@@ -155,14 +159,16 @@ const char* CDataFrameOutliersRunnerFactory::name() const {
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameOutliersRunner>(spec);
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                          const TErrorHandler& errorHandler) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec, errorHandler);
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& params) const {
-    return std::make_unique<CDataFrameOutliersRunner>(spec, params);
+                                          const rapidjson::Value& params,
+                                          const TErrorHandler& errorHandler) const {
+    return std::make_unique<CDataFrameOutliersRunner>(spec, params, errorHandler);
 }
 }
 }

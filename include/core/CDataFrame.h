@@ -134,6 +134,9 @@ private:
     TFloatVecItr m_RowItr;
     TInt32VecCItr m_DocHashItr;
 };
+
+CORE_EXPORT
+void defaultErrorHandler(const std::string& error);
 }
 
 //! \brief A data frame representation.
@@ -342,8 +345,6 @@ public:
                                            std::size_t numberRows,
                                            std::size_t numberColumns);
 
-    // TODO Better error case diagnostics.
-
     // TODO We may want an architecture agnostic check pointing mechanism for long
     // running tasks.
 
@@ -419,16 +420,17 @@ private:
 //! Make a data frame which uses main memory storage for its slices.
 //!
 //! \param[in] numberColumns The number of columns in the data frame created.
+//! \param[in] errorHandler The error handler to use.
 //! \param[in] sliceCapacity If none null this overrides the default slice
 //! capacity in rows.
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
-makeMainStorageDataFrame(std::size_t numberColumns,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Sync);
+std::unique_ptr<CDataFrame> makeMainStorageDataFrame(
+    std::size_t numberColumns,
+    const std::function<void(const std::string&)>& errorHandler = data_frame_detail::defaultErrorHandler,
+    boost::optional<std::size_t> sliceCapacity = boost::none,
+    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy = CDataFrame::EReadWriteToStorage::E_Sync);
 
 //! Make a data frame which uses disk storage for its slices.
 //!
@@ -436,18 +438,19 @@ makeMainStorageDataFrame(std::size_t numberColumns,
 //! data frame slices.
 //! \param[in] numberColumns The number of columns in the data frame created.
 //! \param[in] numberRows The number of rows that will be added.
+//! \param[in] errorHandler The error handler to use.
 //! \param[in] sliceCapacity If none null this overrides the default slice
 //! capacity in rows.
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
-makeDiskStorageDataFrame(const std::string& rootDirectory,
-                         std::size_t numberColumns,
-                         std::size_t numberRows,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Async);
+std::unique_ptr<CDataFrame> makeDiskStorageDataFrame(
+    const std::string& rootDirectory,
+    std::size_t numberColumns,
+    std::size_t numberRows,
+    const std::function<void(const std::string&)>& errorHandler = data_frame_detail::defaultErrorHandler,
+    boost::optional<std::size_t> sliceCapacity = boost::none,
+    CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy = CDataFrame::EReadWriteToStorage::E_Async);
 }
 }
 

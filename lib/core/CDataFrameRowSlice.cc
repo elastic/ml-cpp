@@ -169,12 +169,24 @@ bool CDataFrameRowSliceHandle::bad() const {
     return m_Impl->bad();
 }
 
+//////// CDataFrameRowSlice ////////
+
+CDataFrameRowSlice::CDataFrameRowSlice(const TErrorHandler& errorHandler)
+    : m_ErrorHandler{errorHandler} {
+}
+
+void CDataFrameRowSlice::defaultErrorHandler(const std::string&) {
+    // No op since logging is handled where the error is emitted.
+}
+
 //////// CMainMemoryDataFrameRowSlice ////////
 
 CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
                                                            TFloatVec rows,
-                                                           TInt32Vec docHashes)
-    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes(docHashes) {
+                                                           TInt32Vec docHashes,
+                                                           const TErrorHandler& errorHandler)
+    : CDataFrameRowSlice{errorHandler}, m_FirstRow{firstRow}, m_Rows{std::move(rows)},
+      m_DocHashes(docHashes) {
     LOG_TRACE(<< "slice size = " << m_Rows.size() << " capacity = " << m_Rows.capacity());
     m_Rows.shrink_to_fit();
     m_DocHashes.shrink_to_fit();
@@ -226,19 +238,24 @@ std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
 //////// COnDiskDataFrameRowSlice ////////
 
 namespace {
+using TErrorHandler = std::function<void(const std::string&)>;
 
 //! Check if there is \p minimumSpace disk space available.
-bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size_t minimumSpace) {
+bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path,
+                                  std::size_t minimumSpace,
+                                  const TErrorHandler& errorHandler) {
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
     if (errorCode) {
-        LOG_ERROR(<< "Failed to retrieve disk information for " << path
-                  << " error " << errorCode.message());
+        LOG_AND_REGISTER_ERROR(errorHandler, << "Failed to retrieve disk information for '"
+                                             << path << "' error '"
+                                             << errorCode.message() << "'");
         return false;
     }
     if (spaceInfo.available < minimumSpace) {
-        LOG_ERROR(<< "Insufficient space have " << spaceInfo.available
-                  << " and need " << minimumSpace);
+        LOG_AND_REGISTER_ERROR(errorHandler, << "Insufficient space have '"
+                                             << spaceInfo.available << "' and need '"
+                                             << minimumSpace << "'");
         return false;
     }
     return true;
@@ -248,8 +265,9 @@ bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
 COnDiskDataFrameRowSlice::COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                                                    std::size_t firstRow,
                                                    TFloatVec rows,
-                                                   TInt32Vec docHashes)
-    : m_StateIsBad{directory->bad()}, m_FirstRow{firstRow},
+                                                   TInt32Vec docHashes,
+                                                   const TErrorHandler& errorHandler)
+    : CDataFrameRowSlice{errorHandler}, m_StateIsBad{directory->bad()}, m_FirstRow{firstRow},
       m_RowsCapacity{rows.size()}, m_DocHashesCapacity{docHashes.size()},
       m_Directory{directory}, m_FileName{directory->name()}, m_Checksum{0} {
 
@@ -280,9 +298,9 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
 
         std::size_t numberRows{oldRows.size() / numberColumns};
 
-        if (sufficientDiskSpaceAvailable(m_Directory->name(),
-                                         numberRows * extraColumns) == false) {
-            LOG_INFO(<< "Insufficient disk space to reserve " << extraColumns << " extra columns");
+        if (sufficientDiskSpaceAvailable(m_Directory->name(), numberRows * extraColumns,
+                                         m_ErrorHandler) == false) {
+            // Logging handled in sufficientDiskSpaceAvailable.
             m_StateIsBad = true;
             return false;
         }
@@ -388,7 +406,8 @@ bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docHashe
 }
 
 COnDiskDataFrameRowSlice::CTemporaryDirectory::CTemporaryDirectory(const std::string& name,
-                                                                   std::size_t minimumSpace)
+                                                                   std::size_t minimumSpace,
+                                                                   const TErrorHandler& errorHandler)
     : m_Name{name} {
     m_Name /= boost::filesystem::unique_path("dataframe-%%%%-%%%%-%%%%-%%%%");
     LOG_TRACE(<< "Trying to create directory '" << m_Name << "'");
@@ -396,16 +415,16 @@ COnDiskDataFrameRowSlice::CTemporaryDirectory::CTemporaryDirectory(const std::st
     boost::system::error_code errorCode;
     boost::filesystem::create_directories(m_Name, errorCode);
     if (errorCode) {
-        LOG_ERROR(<< "Failed to create temporary data from: '" << m_Name
-                  << "' error " << errorCode.message());
+        LOG_AND_REGISTER_ERROR(errorHandler, << "Failed to create temporary directory from: '"
+                                             << m_Name << "' error '"
+                                             << errorCode.message() << "'");
         m_StateIsBad = true;
     }
 
     if (m_StateIsBad == false) {
-        m_StateIsBad = (sufficientDiskSpaceAvailable(m_Name, minimumSpace) == false);
-        if (m_StateIsBad) {
-            LOG_INFO(<< "Insufficient disk space to create data frame");
-        }
+        m_StateIsBad =
+            (sufficientDiskSpaceAvailable(m_Name, minimumSpace, errorHandler) == false);
+        // Logging handled in sufficientDiskSpaceAvailable.
     }
 
     if (m_StateIsBad == false) {
@@ -418,16 +437,12 @@ COnDiskDataFrameRowSlice::CTemporaryDirectory::~CTemporaryDirectory() {
     boost::filesystem::remove_all(m_Name, errorCode);
     if (errorCode) {
         LOG_ERROR(<< "Failed to cleanup temporary data from: '" << m_Name
-                  << "' error " << errorCode.message());
+                  << "' error '" << errorCode.message());
     }
 }
 
 const std::string& COnDiskDataFrameRowSlice::CTemporaryDirectory::name() const {
     return m_Name.string();
-}
-
-bool COnDiskDataFrameRowSlice::CTemporaryDirectory::sufficientSpaceAvailable(std::size_t minimumSpace) const {
-    return sufficientDiskSpaceAvailable(m_Name, minimumSpace);
 }
 
 bool COnDiskDataFrameRowSlice::CTemporaryDirectory::bad() const {

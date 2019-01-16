@@ -58,9 +58,14 @@ class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
+    using TProgressRecorder = std::function<void(double)>;
+    using TErrorHandler = std::function<void(const std::string&)>;
 
 public:
-    CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
+    //! The intention is that concrete objects of this hierarchy are constructed
+    //! by the factory class.
+    CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec,
+                             const TErrorHandler& errorHandler);
     virtual ~CDataFrameAnalysisRunner();
 
     CDataFrameAnalysisRunner(const CDataFrameAnalysisRunner&) = delete;
@@ -124,14 +129,20 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    //! \return Any errors emitted during the analysis.
-    TStrVec errors() const;
-
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
 
     void setToBad();
     void setToFinished();
+    TProgressRecorder progressRecorder();
+    const TErrorHandler& errorHandler() const;
+
+private:
+    virtual void runImpl(core::CDataFrame& frame) = 0;
+    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                       std::size_t numberRows,
+                                                       std::size_t numberColumns) const = 0;
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
     //! This adds \p fractionalProgess to the current progress.
     //!
@@ -143,15 +154,6 @@ protected:
     //! and typically this would be called significantly less frequently.
     void recordProgress(double fractionalProgress);
 
-    void addError(const std::string& error);
-
-private:
-    virtual void runImpl(core::CDataFrame& frame) = 0;
-    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
-                                                       std::size_t numberRows,
-                                                       std::size_t numberColumns) const = 0;
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
-
 private:
     const CDataFrameAnalysisSpecification& m_Spec;
 
@@ -161,29 +163,34 @@ private:
     bool m_Bad = false;
     std::atomic_bool m_Finished;
     std::atomic_int m_FractionalProgress;
-    TStrVec m_Errors;
+    TErrorHandler m_ErrorHandler;
 
     std::thread m_Runner;
-    mutable core::CFastMutex m_Mutex;
 };
 
 //! \brief Makes a core::CDataFrame analysis runner.
 class API_EXPORT CDataFrameAnalysisRunnerFactory {
 public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
+    using TErrorHandler = CDataFrameAnalysisRunner::TErrorHandler;
 
 public:
     virtual ~CDataFrameAnalysisRunnerFactory() = default;
     virtual const char* name() const = 0;
 
-    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& params) const;
+                     const TErrorHandler& errorHandler = defaultErrorHandler) const;
+    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
+                     const rapidjson::Value& params,
+                     const TErrorHandler& errorHandler = defaultErrorHandler) const;
 
 private:
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const = 0;
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params) const = 0;
+                                 const TErrorHandler& errorHandler) const = 0;
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                 const rapidjson::Value& params,
+                                 const TErrorHandler& errorHandler) const = 0;
+    static void defaultErrorHandler(const std::string& error);
 };
 }
 }

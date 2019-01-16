@@ -21,6 +21,8 @@
 namespace ml {
 namespace api {
 namespace {
+using TStrVec = std::vector<std::string>;
+
 double truncateToFloatRange(double value) {
     double largest{static_cast<double>(std::numeric_limits<float>::max())};
     return maths::CTools::truncate(value, -largest, largest);
@@ -36,8 +38,10 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
+                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
+                                       const TErrorHandler& errorHandler)
+    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier},
+      m_ErrorHandler(errorHandler) {
 
     if (m_AnalysisSpecification != nullptr) {
         m_DataFrame = m_AnalysisSpecification->makeDataFrame();
@@ -59,22 +63,23 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     // Note if the the control message field name is missing the analysis must
     // be triggered to run by calling run explicitly.
 
+    // Note that returning false from this function immediately causes us to stop
+    // processing the input stream. Therefore, any error logged in this context is
+    // emitted at most once.
+
     if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad()) {
-        // TODO We need to communicate an error but don't want one for each row.
-        // Revisit this when we have finalized our monitoring strategy.
-        LOG_ERROR(<< "Specification is bad");
+        // Logging handled when the analysis specification is created.
         return false;
     }
 
     if (this->readyToReceiveControlMessages() == false &&
         this->prepareToReceiveControlMessages(fieldNames) == false) {
-        // Logging handled below.
+        // Logging handled in functions.
         return false;
     }
 
     if (this->sufficientFieldValues(fieldValues) == false) {
-        // TODO We need to communicate an error but don't want one for each row.
-        // Revisit this when we have finalized our monitoring strategy.
+        // Logging handled in sufficientFieldValues.
         return false;
     }
 
@@ -142,8 +147,10 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
-        LOG_ERROR(<< "Expected exacly two special fields in last two positions, got "
-                  << core::CContainerPrinter::print(fieldNames));
+        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: expected exacly two special "
+                                               << "fields in last two positions, got '"
+                                               << core::CContainerPrinter::print(fieldNames)
+                                               << "'. Please report this problem.");
         return false;
 
     } else {
@@ -164,8 +171,10 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        LOG_ERROR(<< "Expected " << expectedNumberFieldValues
-                  << " field values and got " << fieldValues.size());
+        LOG_AND_REGISTER_ERROR(m_ErrorHandler,
+                               << "Internal error: expected " << expectedNumberFieldValues
+                               << " field values and got " << fieldValues.size()
+                               << ". Please report this problem.");
         return false;
     }
     return true;
@@ -191,8 +200,9 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         break;
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
-        LOG_ERROR(<< "Invalid control message value '"
-                  << fieldValues[m_ControlFieldIndex] << "'");
+        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: invalid control message value '"
+                                               << fieldValues[m_ControlFieldIndex] << "'. Please "
+                                               << "report this problem.");
         return false;
     }
     return true;
@@ -257,6 +267,10 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     });
 
     outputWriter.flush();
+}
+
+void CDataFrameAnalyzer::defaultErrorHandler(const std::string&) {
+    // No op since logging is handled where the error is emitted.
 }
 }
 }

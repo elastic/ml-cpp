@@ -23,10 +23,12 @@ class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunne
 public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value& params);
+                             const rapidjson::Value& params,
+                             const TErrorHandler& errorHandler);
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
-    CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
+    CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
+                             const TErrorHandler& errorHandler);
 
     //! \return The number of columns this adds to the data frame.
     virtual std::size_t numberExtraColumns() const;
@@ -66,9 +68,11 @@ public:
     virtual const char* name() const;
 
 private:
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const;
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params) const;
+                                 const TErrorHandler& errorHandler) const;
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                 const rapidjson::Value& params,
+                                 const TErrorHandler& errorHandler) const;
 };
 }
 }

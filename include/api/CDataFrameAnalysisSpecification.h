@@ -15,6 +15,7 @@
 #include <rapidjson/fwd.h>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <thread>
@@ -43,6 +44,7 @@ public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
+    using TErrorHandler = std::function<void(const std::string&)>;
 
 public:
     //! Inititialize from a JSON object.
@@ -70,14 +72,16 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                    const TErrorHandler& errorHandler = defaultErrorHandler);
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification);
+                                    const std::string& jsonSpecification,
+                                    const TErrorHandler& errorHandler = defaultErrorHandler);
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -125,6 +129,7 @@ public:
 
 private:
     void initializeRunner(const char* name, const rapidjson::Value& analysis);
+    static void defaultErrorHandler(const std::string& error);
 
 private:
     bool m_Bad = false;
@@ -137,6 +142,7 @@ private:
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
+    TErrorHandler m_ErrorHandler;
 };
 }
 }

@@ -64,16 +64,21 @@ std::string toString(const rapidjson::Value& value) {
 }
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
-    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                                                 const TErrorHandler& errorHandler)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification, errorHandler} {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                                                 const std::string& jsonSpecification)
-    : m_RunnerFactories{std::move(runnerFactories)} {
+                                                                 const std::string& jsonSpecification,
+                                                                 const TErrorHandler& errorHandler)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_ErrorHandler{errorHandler} {
+
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
-        LOG_ERROR(<< "Failed to parse: '" << jsonSpecification << "'");
+        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: failed to parse analysis specification '"
+                                               << jsonSpecification
+                                               << "'. Please report this problem.");
         m_Bad = true;
     } else {
         auto isPositiveInteger = [](const rapidjson::Value& value) {
@@ -81,10 +86,15 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         };
         auto registerFailure = [this, &document](const char* name) {
             if (document.HasMember(name)) {
-                LOG_ERROR(<< "Internal error: bad value for '" << name
-                          << "': " << toString(document[name]));
+                LOG_AND_REGISTER_ERROR(m_ErrorHandler,
+                                       << "Internal error: bad value '"
+                                       << toString(document[name]) << "' for '"
+                                       << name << "' in analysis specification. "
+                                       << "Please report this problem.");
             } else {
-                LOG_ERROR(<< "Internal error: missing '" << name << "'");
+                LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: missing '"
+                                                       << name << "' in analysis specification. Please "
+                                                       << "report this problem.");
             }
             m_Bad = true;
         };
@@ -109,7 +119,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         } else {
             registerFailure(THREADS);
         }
-        // TODO Remove hack when being passed.
+        // TODO Remove if (false) hack when being passed.
         if (false) {
             if (document.HasMember(TEMPORARY_DIRECTORY) &&
                 document[TEMPORARY_DIRECTORY].IsString() &&
@@ -134,7 +144,10 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         // Check for any unrecognised fields; these might be typos.
         for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
             if (isValidMember(*i) == false) {
-                LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'")
+                LOG_AND_REGISTER_ERROR(m_ErrorHandler,
+                                       << "Internal error: unexpected member '"
+                                       << i->name.GetString() << "' of analysis "
+                                       << "specification. Please report this problem.");
                 m_Bad = true;
             }
         }
@@ -176,12 +189,13 @@ CDataFrameAnalysisSpecification::makeDataFrame() const {
     if (m_Runner->storeDataFrameInMainMemory() == false) {
         return {};
     }
-    ////
+    // END TODO
 
-    TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
-                              ? core::makeMainStorageDataFrame(m_NumberColumns)
-                              : core::makeDiskStorageDataFrame(
-                                    m_TemporaryDirectory, m_NumberColumns, m_NumberRows)};
+    TDataFrameUPtr result{
+        m_Runner->storeDataFrameInMainMemory()
+            ? core::makeMainStorageDataFrame(m_NumberColumns, m_ErrorHandler)
+            : core::makeDiskStorageDataFrame(m_TemporaryDirectory, m_NumberColumns,
+                                             m_NumberRows, m_ErrorHandler)};
     result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 
     return result;
@@ -208,8 +222,13 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         }
     }
 
-    LOG_ERROR(<< "Internal error: unexpected value for 'name': '" << name << "'");
+    LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: unexpected analysis name '"
+                                           << name << "'. Please report this problem.");
     m_Bad = true;
+}
+
+void CDataFrameAnalysisSpecification::defaultErrorHandler(const std::string&) {
+    // No op since logging is handled where the error is emitted.
 }
 }
 }

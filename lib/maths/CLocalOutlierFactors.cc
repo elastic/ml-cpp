@@ -135,12 +135,18 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
 
 bool computeOutliers(std::size_t numberThreads,
                      std::function<void(double)> recordProgress,
+                     std::function<void(const std::string&)> errorHandler,
                      core::CDataFrame& frame) {
     // TODO memory monitoring.
     // TODO different analysis types.
 
     if (frame.inMainMemory()) {
-        return computeOutliersNoPartitions(numberThreads, recordProgress, frame);
+        if (computeOutliersNoPartitions(numberThreads, recordProgress, frame) == false) {
+            LOG_AND_REGISTER_ERROR(errorHandler, << "Internal error while computing outliers for "
+                                                 << "data frame. There will be more details in the "
+                                                 << "logs. Please report this problem.");
+        }
+        return true;
     }
 
     // TODO this needs to work out the partitioning and run outlier detection

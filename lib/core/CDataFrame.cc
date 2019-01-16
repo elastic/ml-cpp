@@ -87,6 +87,10 @@ CRowIterator CRowIterator::operator++(int) {
     ++m_DocHashItr;
     return result;
 }
+
+void defaultErrorHandler(const std::string&) {
+    // No op since logging is handled where the error is emitted.
+}
 }
 using namespace data_frame_detail;
 
@@ -411,11 +415,12 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
 
 std::unique_ptr<CDataFrame>
 makeMainStorageDataFrame(std::size_t numberColumns,
+                         const std::function<void(const std::string&)>& errorHandler,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
+    auto writer = [errorHandler](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
-            firstRow, std::move(rows), std::move(docHashes));
+            firstRow, std::move(rows), std::move(docHashes), errorHandler);
     };
 
     if (sliceCapacity != boost::none) {
@@ -431,21 +436,23 @@ std::unique_ptr<CDataFrame>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
+                         const std::function<void(const std::string&)>& errorHandler,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     COnDiskDataFrameRowSlice::TTemporaryDirectoryPtr directory{
         std::make_shared<COnDiskDataFrameRowSlice::CTemporaryDirectory>(
-            rootDirectory, minimumSpace)};
+            rootDirectory, minimumSpace, errorHandler)};
 
     // Note the writer lambda holding a reference to the directory shared
     // pointer is copied to the data frame. So this isn't destroyed, and
     // the folder cleaned up, until the data frame itself is destroyed.
 
-    auto writer = [directory](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
+    auto writer = [directory, errorHandler](std::size_t firstRow, TFloatVec rows,
+                                            TInt32Vec docHashes) {
         return std::make_unique<COnDiskDataFrameRowSlice>(
-            directory, firstRow, std::move(rows), std::move(docHashes));
+            directory, firstRow, std::move(rows), std::move(docHashes), errorHandler);
     };
 
     if (sliceCapacity != boost::none) {

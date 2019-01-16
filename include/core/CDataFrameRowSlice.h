@@ -75,8 +75,10 @@ public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TSizeHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
     using TInt32Vec = std::vector<std::int32_t>;
+    using TErrorHandler = std::function<void(const std::string&)>;
 
 public:
+    CDataFrameRowSlice(const TErrorHandler& errorHandler);
     virtual ~CDataFrameRowSlice() = default;
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
     virtual TSizeHandlePr read() = 0;
@@ -84,6 +86,12 @@ public:
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
     virtual std::uint64_t checksum() const = 0;
+
+protected:
+    static void defaultErrorHandler(const std::string&);
+
+private:
+    TErrorHandler m_ErrorHandler;
 };
 
 //! \brief In main memory CDataFrame slice storage.
@@ -98,7 +106,11 @@ public:
 //! rows to adapt it for use by the data frame.
 class CORE_EXPORT CMainMemoryDataFrameRowSlice final : public CDataFrameRowSlice {
 public:
-    CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes);
+    CMainMemoryDataFrameRowSlice(std::size_t firstRow,
+                                 TFloatVec rows,
+                                 TInt32Vec docHashes,
+                                 const TErrorHandler& errorHandler = defaultErrorHandler);
+
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
     virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
@@ -144,10 +156,11 @@ public:
     //! which contains all the slices of a single data frame.
     class CORE_EXPORT CTemporaryDirectory {
     public:
-        CTemporaryDirectory(const std::string& name, std::size_t minimumSpace);
+        CTemporaryDirectory(const std::string& name,
+                            std::size_t minimumSpace,
+                            const TErrorHandler& errorHandler);
         ~CTemporaryDirectory();
         const std::string& name() const;
-        bool sufficientSpaceAvailable(std::size_t minimumSpace) const;
         bool bad() const;
 
     private:
@@ -161,7 +174,9 @@ public:
     COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                              std::size_t firstRow,
                              TFloatVec rows,
-                             TInt32Vec docHashes);
+                             TInt32Vec docHashes,
+                             const TErrorHandler& errorHandler = defaultErrorHandler);
+
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
     virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
@@ -184,6 +199,7 @@ private:
     TTemporaryDirectoryPtr m_Directory;
     boost::filesystem::path m_FileName;
     std::uint64_t m_Checksum;
+    TErrorHandler m_ErrorHandler;
 };
 }
 }

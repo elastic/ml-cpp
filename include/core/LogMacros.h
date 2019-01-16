@@ -73,3 +73,14 @@
 #define LOG_AT_LEVEL(level, message)                                           \
     LOG4CXX_LOGLS(ml::core::CLogger::instance().logger(),                      \
                   log4cxx::Level::toLevel(level), "" message)
+
+#ifdef LOG_AND_REGISTER_ERROR
+#undef LOG_AND_REGISTER_ERROR
+#endif
+#define LOG_AND_REGISTER_ERROR(callback, message)                              \
+    LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "" message);         \
+    {                                                                          \
+        std::ostringstream error;                                              \
+        error message;                                                         \
+        callback(error.str());                                                 \
+    }
