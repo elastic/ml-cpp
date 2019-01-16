@@ -377,7 +377,8 @@ parallel_for_each(std::size_t partitions,
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
-        CLoopProgress progress{size - offset, recordProgress, 1.0 / static_cast<double>(partitions)};
+        CLoopProgress progress{size - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
 
         auto& g = functions[offset];
         tasks.emplace_back(async(
