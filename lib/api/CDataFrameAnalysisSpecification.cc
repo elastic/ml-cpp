@@ -218,8 +218,8 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
     for (const auto& factory : m_RunnerFactories) {
         if (std::strcmp(factory->name(), name) == 0) {
             m_Runner = analysis.HasMember(PARAMETERS)
-                           ? factory->make(*this, analysis[PARAMETERS])
-                           : factory->make(*this);
+                           ? factory->make(*this, analysis[PARAMETERS], m_ErrorHandler)
+                           : factory->make(*this, m_ErrorHandler);
             return;
         }
     }

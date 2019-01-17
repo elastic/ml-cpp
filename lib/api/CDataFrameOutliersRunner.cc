@@ -60,10 +60,9 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameOutliersRunner{spec, errorHandler} {
 
     auto registerFailure = [this, &params](const char* name) {
-        LOG_AND_REGISTER_ERROR(this->errorHandler(),
-                               << "Internal error: bad value '"
-                               << toString(params[name]) << "' for '" << name
-                               << "'. Please report this problem.");
+        LOG_AND_REGISTER_ERROR(this->errorHandler(), << "Bad value '"
+                                                     << toString(params[name])
+                                                     << "' for '" << name << "'.");
         this->setToBad();
     };
 
