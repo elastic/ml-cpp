@@ -120,7 +120,7 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::computeOutliers(this->spec().numberThreads(),
                            static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method),
-                           m_NumberNeighbours, 
+                           m_NumberNeighbours,
                            [this](double fractionalProgress) {
                                this->recordProgress(fractionalProgress);
                            },

@@ -121,13 +121,11 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
         break;
     case CLocalOutlierFactors::E_DistancekNN:
         k == 0 ? outliers.normalizedDistancekNN(std::move(points), scores)
-               : outliers.normalizedDistancekNN(
-                     k, project, std::move(points), scores);
+               : outliers.normalizedDistancekNN(k, project, std::move(points), scores);
         break;
     case CLocalOutlierFactors::E_TotalDistancekNN:
         k == 0 ? outliers.normalizedTotalDistancekNN(std::move(points), scores)
-               : outliers.normalizedTotalDistancekNN(
-                     k, project, std::move(points), scores);
+               : outliers.normalizedTotalDistancekNN(k, project, std::move(points), scores);
         break;
     case CLocalOutlierFactors::E_Ensemble:
         outliers.ensemble(std::move(points), scores);

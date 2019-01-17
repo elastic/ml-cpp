@@ -112,23 +112,19 @@ void addTestData(TStrVec fieldNames,
     if (method == "lof") {
         numberNeighbours == 0
             ? lofs.normalizedLof(points, expectedScores)
-            : lofs.normalizedLof(numberNeighbours, true,
-                                                         points, expectedScores);
+            : lofs.normalizedLof(numberNeighbours, true, points, expectedScores);
     } else if (method == "ldof") {
         numberNeighbours == 0
             ? lofs.normalizedLdof(points, expectedScores)
-            : lofs.normalizedLdof(numberNeighbours, true,
-                                                          points, expectedScores);
+            : lofs.normalizedLdof(numberNeighbours, true, points, expectedScores);
     } else if (method == "distance_kth_nn") {
         numberNeighbours == 0
             ? lofs.normalizedDistancekNN(points, expectedScores)
-            : lofs.normalizedDistancekNN(
-                  numberNeighbours, true, points, expectedScores);
+            : lofs.normalizedDistancekNN(numberNeighbours, true, points, expectedScores);
     } else if (method == "distance_knn") {
         numberNeighbours == 0
             ? lofs.normalizedTotalDistancekNN(points, expectedScores)
-            : lofs.normalizedTotalDistancekNN(
-                  numberNeighbours, true, points, expectedScores);
+            : lofs.normalizedTotalDistancekNN(numberNeighbours, true, points, expectedScores);
     } else {
         lofs.ensemble(points, expectedScores);
     }
