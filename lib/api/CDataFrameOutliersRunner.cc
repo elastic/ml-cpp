@@ -60,9 +60,9 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameOutliersRunner{spec, errorHandler} {
 
     auto registerFailure = [this, &params](const char* name) {
-        LOG_AND_REGISTER_ERROR(this->errorHandler(), << "Bad value '"
-                                                     << toString(params[name])
-                                                     << "' for '" << name << "'.");
+        LOG_AND_REGISTER_INPUT_ERROR(this->errorHandler(),
+                                     << "bad value '" << toString(params[name])
+                                     << "' for '" << name << "'.");
         this->setToBad();
     };
 
@@ -91,9 +91,9 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     // Check for any unrecognised fields; these might be typos.
     for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
         if (isValidMember(*i) == false) {
-            LOG_AND_REGISTER_ERROR(this->errorHandler(),
-                                   << "Internal error: unexpected member '"
-                                   << i->name.GetString() << "'. Please report this problem.")
+            LOG_AND_REGISTER_INPUT_ERROR(this->errorHandler(),
+                                         << "unexpected member '" << i->name.GetString()
+                                         << "'. Please report this problem.")
             this->setToBad();
         }
     }

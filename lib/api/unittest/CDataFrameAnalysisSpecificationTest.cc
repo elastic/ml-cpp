@@ -53,7 +53,7 @@ protected:
 
             recordProgress(1.0 / 30.0);
             if (i % 10 == 0) {
-                LOG_AND_REGISTER_ERROR(this->errorHandler(), << "error " << i);
+                LOG_AND_REGISTER_INTERNAL_ERROR(this->errorHandler(), << i);
             }
         }
         this->setToFinished();
@@ -307,9 +307,17 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
         CPPUNIT_ASSERT(runner != nullptr);
 
-        std::string possibleErrors[]{"[]", "[error 0]", "[error 0, error 10]",
-                                     "[error 0, error 10, error 20]",
-                                     "[error 0, error 10, error 20, error 30]"};
+        std::string possibleErrors[]{
+            "[]", "[Internal error: 0. Please report this problem.]",
+            "[Internal error: 0. Please report this problem.,"
+            " Internal error: 10. Please report this problem.]",
+            "[Internal error: 0. Please report this problem.,"
+            " Internal error: 10. Please report this problem.,"
+            " Internal error: 20. Please report this problem.]",
+            "[Internal error: 0. Please report this problem.,"
+            " Internal error: 10. Please report this problem.,"
+            " Internal error: 20. Please report this problem.,"
+            " Internal error: 30. Please report this problem.]"};
 
         double lastProgress{runner->progress()};
         for (;;) {
@@ -333,8 +341,12 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
 
         CPPUNIT_ASSERT_EQUAL(1.0, runner->progress());
-        CPPUNIT_ASSERT_EQUAL(std::string{"[error 0, error 10, error 20, error 30]"},
-                             core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT_EQUAL(
+            std::string{"[Internal error: 0. Please report this problem.,"
+                        " Internal error: 10. Please report this problem.,"
+                        " Internal error: 20. Please report this problem.,"
+                        " Internal error: 30. Please report this problem.]"},
+            core::CContainerPrinter::print(errors));
     }
 }
 

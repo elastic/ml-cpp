@@ -147,10 +147,11 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
-        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: expected exacly two special "
-                                               << "fields in last two positions, got '"
-                                               << core::CContainerPrinter::print(fieldNames)
-                                               << "'. Please report this problem.");
+        LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler,
+                                     << "expected exacly two special "
+                                     << "fields in last two positions, got '"
+                                     << core::CContainerPrinter::print(fieldNames)
+                                     << "'. Please report this problem.");
         return false;
 
     } else {
@@ -171,10 +172,9 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        LOG_AND_REGISTER_ERROR(m_ErrorHandler,
-                               << "Internal error: expected " << expectedNumberFieldValues
-                               << " field values and got " << fieldValues.size()
-                               << ". Please report this problem.");
+        LOG_AND_REGISTER_INPUT_ERROR(
+            m_ErrorHandler, << "expected " << expectedNumberFieldValues << " field values and got "
+                            << fieldValues.size() << ". Please report this problem.");
         return false;
     }
     return true;
@@ -200,9 +200,9 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         break;
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
-        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: invalid control message value '"
-                                               << fieldValues[m_ControlFieldIndex] << "'. Please "
-                                               << "report this problem.");
+        LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler, << "invalid control message value '"
+                                                     << fieldValues[m_ControlFieldIndex]
+                                                     << "'. Please report this problem.");
         return false;
     }
     return true;

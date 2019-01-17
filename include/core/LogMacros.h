@@ -74,13 +74,35 @@
     LOG4CXX_LOGLS(ml::core::CLogger::instance().logger(),                      \
                   log4cxx::Level::toLevel(level), "" message)
 
-#ifdef LOG_AND_REGISTER_ERROR
-#undef LOG_AND_REGISTER_ERROR
+#ifdef LOG_AND_REGISTER_INPUT_ERROR
+#undef LOG_AND_REGISTER_INPUT_ERROR
 #endif
-#define LOG_AND_REGISTER_ERROR(callback, message)                              \
-    LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "" message);         \
-    {                                                                          \
-        std::ostringstream error;                                              \
-        error message;                                                         \
-        callback(error.str());                                                 \
+#define LOG_AND_REGISTER_INPUT_ERROR(callback, message)                             \
+    LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "Input error: " message); \
+    {                                                                               \
+        std::ostringstream error;                                                   \
+        error << "Input error: " message;                                           \
+        callback(error.str());                                                      \
+    }
+
+#ifdef LOG_AND_REGISTER_ENVIRONMENT_ERROR
+#undef LOG_AND_REGISTER_ENVIRONMENT_ERROR
+#endif
+#define LOG_AND_REGISTER_ENVIRONMENT_ERROR(callback, message)                             \
+    LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "Environment error: " message); \
+    {                                                                                     \
+        std::ostringstream error;                                                         \
+        error << "Environment error: " message;                                           \
+        callback(error.str());                                                            \
+    }
+
+#ifdef LOG_AND_REGISTER_INTERNAL_ERROR
+#undef LOG_AND_REGISTER_INTERNAL_ERROR
+#endif
+#define LOG_AND_REGISTER_INTERNAL_ERROR(callback, message)                             \
+    LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "Internal error: " message); \
+    {                                                                                  \
+        std::ostringstream error;                                                      \
+        error << "Internal error: " message << "  Please report this problem.";        \
+        callback(error.str());                                                         \
     }

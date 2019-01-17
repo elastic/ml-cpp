@@ -57,8 +57,9 @@ readFileToString(const std::string& fileName,
                  const std::function<void(const std::string&)>& errorHandler) {
     std::ifstream fileStream{fileName};
     if (fileStream.is_open() == false) {
-        LOG_AND_REGISTER_ERROR(errorHandler, << "Internal error: failed to open file '" << fileName
-                                             << "'. Please report this problem.");
+        LOG_AND_REGISTER_ENVIRONMENT_ERROR(errorHandler,
+                                           << "failed to open file '" << fileName
+                                           << "'. Please report this problem.");
         return {std::string{}, false};
     }
     return {std::string{std::istreambuf_iterator<char>{fileStream},

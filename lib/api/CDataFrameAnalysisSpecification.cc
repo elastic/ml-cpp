@@ -76,9 +76,9 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
 
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
-        LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: failed to parse analysis specification '"
-                                               << jsonSpecification
-                                               << "'. Please report this problem.");
+        LOG_AND_REGISTER_INPUT_ERROR(
+            m_ErrorHandler, << "failed to parse analysis specification '" << jsonSpecification
+                            << "'. Please report this problem.");
         m_Bad = true;
     } else {
         auto isPositiveInteger = [](const rapidjson::Value& value) {
@@ -86,15 +86,14 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         };
         auto registerFailure = [this, &document](const char* name) {
             if (document.HasMember(name)) {
-                LOG_AND_REGISTER_ERROR(m_ErrorHandler,
-                                       << "Internal error: bad value '"
-                                       << toString(document[name]) << "' for '"
-                                       << name << "' in analysis specification. "
-                                       << "Please report this problem.");
+                LOG_AND_REGISTER_INPUT_ERROR(
+                    m_ErrorHandler, << "bad value '" << toString(document[name])
+                                    << "' for '" << name << "' in analysis specification. "
+                                    << "Please report this problem.");
             } else {
-                LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: missing '"
-                                                       << name << "' in analysis specification. Please "
-                                                       << "report this problem.");
+                LOG_AND_REGISTER_INPUT_ERROR(
+                    m_ErrorHandler, << "missing '" << name << "' in analysis "
+                                    << "specification. Please report this problem.");
             }
             m_Bad = true;
         };
@@ -144,10 +143,9 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         // Check for any unrecognised fields; these might be typos.
         for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
             if (isValidMember(*i) == false) {
-                LOG_AND_REGISTER_ERROR(m_ErrorHandler,
-                                       << "Internal error: unexpected member '"
-                                       << i->name.GetString() << "' of analysis "
-                                       << "specification. Please report this problem.");
+                LOG_AND_REGISTER_INPUT_ERROR(
+                    m_ErrorHandler, << "unexpected member '" << i->name.GetString()
+                                    << "' of analysis specification. Please report this problem.");
                 m_Bad = true;
             }
         }
@@ -224,8 +222,8 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         }
     }
 
-    LOG_AND_REGISTER_ERROR(m_ErrorHandler, << "Internal error: unexpected analysis name '"
-                                           << name << "'. Please report this problem.");
+    LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler, << "unexpected analysis name '" << name
+                                                 << "'. Please report this problem.");
     m_Bad = true;
 }
 
