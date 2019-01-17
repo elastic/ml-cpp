@@ -40,10 +40,10 @@
 
 === Bug Fixes
 
-Fix cause of "Sample out of bounds" error message. {ml-pull}335[335]
+Fix cause of "Sample out of bounds" error message. {ml-pull}335[#335]
 
-Fix hanging autodetect process after it receives a warning about failed
-cleanup of forecasts. {ml-pull}352[#352] (issue: {ml-issue}350[#350])
+Fix hang when closing a job or creating a forecast. This problem occurs
+if you created a forecast for a large job and temporary storage was not cleaned up. {ml-pull}352[#352] (issue: {ml-issue}350[#350])
 
 === Regressions
 
