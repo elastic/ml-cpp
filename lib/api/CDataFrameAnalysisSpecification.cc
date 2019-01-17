@@ -178,8 +178,7 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
 }
 
-CDataFrameAnalysisSpecification::TDataFrameUPtr
-CDataFrameAnalysisSpecification::makeDataFrame() const {
+CDataFrameAnalysisSpecification::TDataFrameUPtr CDataFrameAnalysisSpecification::makeDataFrame() {
     if (m_Bad) {
         return {};
     }
@@ -196,7 +195,10 @@ CDataFrameAnalysisSpecification::makeDataFrame() const {
             ? core::makeMainStorageDataFrame(m_NumberColumns, m_ErrorHandler)
             : core::makeDiskStorageDataFrame(m_TemporaryDirectory, m_NumberColumns,
                                              m_NumberRows, m_ErrorHandler)};
-    result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
+    if (result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns()) == false) {
+        // Logging handled in reserve.
+        m_Bad = true;
+    }
 
     return result;
 }

@@ -175,6 +175,10 @@ CDataFrameRowSlice::CDataFrameRowSlice(const TErrorHandler& errorHandler)
     : m_ErrorHandler{errorHandler} {
 }
 
+CDataFrameRowSlice::TErrorHandler CDataFrameRowSlice::errorHandler() const {
+    return m_ErrorHandler;
+}
+
 void CDataFrameRowSlice::defaultErrorHandler(const std::string&) {
     // No op since logging is handled where the error is emitted.
 }
@@ -207,8 +211,10 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
         }
         std::swap(state, m_Rows);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to reserve " << extraColumns
-                  << " extra columns: caught '" << e.what() << "'");
+        LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                               << "Failed to reserve " << extraColumns
+                               << " extra columns: caught '" << e.what()
+                               << "'. The process is likely out of memory.");
         return false;
     }
     return true;
@@ -291,7 +297,9 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         TFloatVec oldRows(m_RowsCapacity);
         TInt32Vec docHashes(m_DocHashesCapacity);
         if (this->readFromDisk(oldRows, docHashes) == false) {
-            LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
+            LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                                   << "Internal error: failed to read from row "
+                                   << m_FirstRow << ". Please report this problem.");
             m_StateIsBad = true;
             return false;
         }
@@ -315,8 +323,10 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         this->writeToDisk(newRows, docHashes);
 
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to reserve " << extraColumns
-                  << " extra columns: caught '" << e.what() << "'");
+        LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                               << "Internal error: failed to reserve "
+                               << extraColumns << " extra columns: caught '"
+                               << e.what() << "'. Please report this problem.");
         return false;
     }
 
@@ -326,7 +336,9 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
 COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 
     if (m_StateIsBad) {
-        LOG_ERROR(<< "Bad row slice 'rows-" << m_FirstRow << "'");
+        LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                               << "Internal error: bad row slice 'rows-"
+                               << m_FirstRow << "'. Please report this problem.");
         return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
     }
 
@@ -335,18 +347,24 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 
     try {
         if (this->readFromDisk(rows, docHashes) == false) {
-            LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
+            LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                                   << "Internal error: failed to read from row "
+                                   << m_FirstRow << ". Please report this problem.");
             m_StateIsBad = true;
             return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
 
         if (computeChecksum(rows, docHashes) != m_Checksum) {
-            LOG_ERROR(<< "Corrupt from row " << m_FirstRow);
+            LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                                   << "Internal error: corrupt from row " << m_FirstRow
+                                   << ". Please report this problem.");
             m_StateIsBad = true;
             return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Caught '" << e.what() << "' while reading from row " << m_FirstRow);
+        LOG_AND_REGISTER_ERROR(this->errorHandler(),
+                               << "Internal error: caught '" << e.what() << "' while reading from row "
+                               << m_FirstRow << ". Please report this problem.");
         m_StateIsBad = true;
         return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
     }
@@ -436,8 +454,8 @@ COnDiskDataFrameRowSlice::CTemporaryDirectory::~CTemporaryDirectory() {
     boost::system::error_code errorCode;
     boost::filesystem::remove_all(m_Name, errorCode);
     if (errorCode) {
-        LOG_ERROR(<< "Failed to cleanup temporary data from: '" << m_Name
-                  << "' error '" << errorCode.message());
+        LOG_WARN(<< "Failed to cleanup temporary data from: '" << m_Name
+                 << "' error '" << errorCode.message() << "'.");
     }
 }
 

@@ -123,9 +123,12 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
         }
     };
 
-    frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
-    successful = frame.writeColumns(numberThreads, writeScores);
-    if (successful == false) {
+    if (frame.resizeColumns(numberThreads, frame.numberColumns() + 1) == false) {
+        LOG_ERROR(<< "Failed to resize data frame");
+        return false;
+    }
+
+    if (frame.writeColumns(numberThreads, writeScores) == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
         return false;
     }

@@ -88,6 +88,7 @@ public:
     virtual std::uint64_t checksum() const = 0;
 
 protected:
+    TErrorHandler errorHandler() const;
     static void defaultErrorHandler(const std::string&);
 
 private:

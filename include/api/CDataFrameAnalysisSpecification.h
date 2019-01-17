@@ -112,7 +112,7 @@ public:
     //! This chooses the storage strategy based on the analysis constraints and
     //! the number of rows and target number of columns and reserves capacity as
     //! appropriate.
-    TDataFrameUPtr makeDataFrame() const;
+    TDataFrameUPtr makeDataFrame();
 
     //! Run the analysis in a background thread.
     //!
