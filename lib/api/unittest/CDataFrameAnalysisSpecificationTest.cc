@@ -53,7 +53,7 @@ protected:
 
             recordProgress(1.0 / 30.0);
             if (i % 10 == 0) {
-                LOG_AND_REGISTER_INTERNAL_ERROR(this->errorHandler(), << i);
+                LOG_AND_REGISTER_INTERNAL_ERROR(this->errorHandler(), << i << ".");
             }
         }
         this->setToFinished();

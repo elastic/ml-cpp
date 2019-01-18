@@ -103,6 +103,6 @@
     LOG4CXX_ERROR(ml::core::CLogger::instance().logger(), "Internal error: " message); \
     {                                                                                  \
         std::ostringstream error;                                                      \
-        error << "Internal error: " message << "  Please report this problem.";        \
+        error << "Internal error: " message << " Please report this problem.";         \
         callback(error.str());                                                         \
     }
