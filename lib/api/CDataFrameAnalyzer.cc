@@ -42,7 +42,9 @@ CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analy
     : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
 
     if (m_AnalysisSpecification != nullptr) {
-        m_DataFrame = m_AnalysisSpecification->makeDataFrame();
+        auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
+        m_DataFrame = std::move(frameAndDirectory.first);
+        m_DataFrameDirectory = frameAndDirectory.second;
     }
 }
 
@@ -115,6 +117,10 @@ void CDataFrameAnalyzer::run() {
     analysis->waitToFinish();
 
     this->writeResultsOf(*analysis);
+}
+
+const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
+    return m_DataFrameDirectory;
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {

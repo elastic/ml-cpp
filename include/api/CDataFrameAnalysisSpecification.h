@@ -34,6 +34,7 @@
 namespace ml {
 namespace core {
 class CDataFrame;
+class CTemporaryDirectory;
 }
 namespace api {
 
@@ -51,6 +52,9 @@ class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
@@ -119,7 +123,7 @@ public:
     //! This chooses the storage strategy based on the analysis constraints and
     //! the number of rows and target number of columns and reserves capacity as
     //! appropriate.
-    TDataFrameUPtr makeDataFrame();
+    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
 
     //! Run the analysis in a background thread.
     //!

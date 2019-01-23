@@ -23,6 +23,7 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
+class CTemporaryDirectory;
 
 namespace data_frame_detail {
 
@@ -422,7 +423,7 @@ private:
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
@@ -439,7 +440,7 @@ makeMainStorageDataFrame(std::size_t numberColumns,
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,

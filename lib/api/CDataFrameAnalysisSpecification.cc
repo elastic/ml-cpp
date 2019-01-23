@@ -171,11 +171,12 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
 }
 
-CDataFrameAnalysisSpecification::TDataFrameUPtr CDataFrameAnalysisSpecification::makeDataFrame() {
+CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
+CDataFrameAnalysisSpecification::makeDataFrame() {
     if (m_Runner == nullptr) {
-        return  {};
+        return {};
     }
-    
+
     // TODO Remove hack when passing directory in config.
     ////
     if (m_Runner->storeDataFrameInMainMemory() == false) {
@@ -183,11 +184,11 @@ CDataFrameAnalysisSpecification::TDataFrameUPtr CDataFrameAnalysisSpecification:
     }
     // END TODO
 
-    TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
-                              ? core::makeMainStorageDataFrame(m_NumberColumns)
-                              : core::makeDiskStorageDataFrame(
-                                    m_TemporaryDirectory, m_NumberColumns, m_NumberRows)};
-    result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
+    auto result = m_Runner->storeDataFrameInMainMemory()
+                      ? core::makeMainStorageDataFrame(m_NumberColumns)
+                      : core::makeDiskStorageDataFrame(m_TemporaryDirectory,
+                                                       m_NumberColumns, m_NumberRows);
+    result.first->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 
     return result;
 }

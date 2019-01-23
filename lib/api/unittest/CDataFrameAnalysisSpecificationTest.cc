@@ -271,7 +271,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
 
-        std::unique_ptr<core::CDataFrame> frame{core::makeMainStorageDataFrame(10)};
+        auto frameAndDirectory = core::makeMainStorageDataFrame(10);
+        auto frame = std::move(frameAndDirectory.first);
 
         api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
         CPPUNIT_ASSERT(runner != nullptr);

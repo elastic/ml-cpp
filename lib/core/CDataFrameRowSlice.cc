@@ -221,7 +221,7 @@ std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
     return computeChecksum(m_Rows, m_DocHashes);
 }
 
-//////// COnDiskDataFrameRowSlice ////////
+//////// CTemporaryDirectory ////////
 
 namespace {
 
@@ -239,6 +239,42 @@ void sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
     }
 }
 }
+
+CTemporaryDirectory::CTemporaryDirectory(const std::string& name, std::size_t minimumSpace)
+    : m_Name{name} {
+    m_Name /= boost::filesystem::unique_path("dataframe-%%%%-%%%%-%%%%-%%%%");
+    LOG_TRACE(<< "Trying to create directory '" << m_Name << "'");
+
+    boost::system::error_code errorCode;
+    boost::filesystem::create_directories(m_Name, errorCode);
+    if (errorCode) {
+        LOG_AND_EXIT(<< "Environment error: failed to create temporary directory from: '"
+                     << m_Name << "' error '" << errorCode.message() << "'");
+    }
+
+    sufficientDiskSpaceAvailable(m_Name, minimumSpace);
+
+    LOG_TRACE(<< "Created '" << m_Name << "'");
+}
+
+CTemporaryDirectory::~CTemporaryDirectory() {
+    this->removeAll();
+}
+
+std::string CTemporaryDirectory::name() const {
+    return m_Name.string();
+}
+
+void CTemporaryDirectory::removeAll() {
+    boost::system::error_code errorCode;
+    boost::filesystem::remove_all(m_Name, errorCode);
+    if (errorCode) {
+        LOG_WARN(<< "Failed to cleanup temporary data from: '" << m_Name
+                 << "' error '" << errorCode.message() << "'.");
+    }
+}
+
+//////// COnDiskDataFrameRowSlice ////////
 
 COnDiskDataFrameRowSlice::COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                                                    std::size_t firstRow,
@@ -354,37 +390,6 @@ bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docHashe
     file.read(reinterpret_cast<char*>(rows.data()), rowsBytes);
     file.read(reinterpret_cast<char*>(docHashes.data()), docHashesBytes);
     return file.bad() == false;
-}
-
-COnDiskDataFrameRowSlice::CTemporaryDirectory::CTemporaryDirectory(const std::string& name,
-                                                                   std::size_t minimumSpace)
-    : m_Name{name} {
-    m_Name /= boost::filesystem::unique_path("dataframe-%%%%-%%%%-%%%%-%%%%");
-    LOG_TRACE(<< "Trying to create directory '" << m_Name << "'");
-
-    boost::system::error_code errorCode;
-    boost::filesystem::create_directories(m_Name, errorCode);
-    if (errorCode) {
-        LOG_AND_EXIT(<< "Environment error: failed to create temporary directory from: '"
-                     << m_Name << "' error '" << errorCode.message() << "'");
-    }
-
-    sufficientDiskSpaceAvailable(m_Name, minimumSpace);
-
-    LOG_TRACE(<< "Created '" << m_Name << "'");
-}
-
-COnDiskDataFrameRowSlice::CTemporaryDirectory::~CTemporaryDirectory() {
-    boost::system::error_code errorCode;
-    boost::filesystem::remove_all(m_Name, errorCode);
-    if (errorCode) {
-        LOG_WARN(<< "Failed to cleanup temporary data from: '" << m_Name
-                 << "' error '" << errorCode.message() << "'.");
-    }
-}
-
-const std::string& COnDiskDataFrameRowSlice::CTemporaryDirectory::name() const {
-    return m_Name.string();
 }
 }
 }

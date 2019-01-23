@@ -13,6 +13,7 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CDataFrameRowSlice.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
@@ -48,6 +49,26 @@ std::pair<std::string, bool> readFileToString(const std::string& fileName) {
                         std::istreambuf_iterator<char>{}},
             true};
 }
+
+class CCleanUpOnExit {
+public:
+    using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
+
+public:
+    static void add(TTemporaryDirectoryPtr directory) {
+        m_DataFrameDirectory = directory;
+    }
+
+    static void run() {
+        if (m_DataFrameDirectory != nullptr) {
+            m_DataFrameDirectory->removeAll();
+        }
+    }
+
+private:
+    static TTemporaryDirectoryPtr m_DataFrameDirectory;
+};
+CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 }
 
 int main(int argc, char** argv) {
@@ -66,7 +87,10 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    // TODO RAII write error results on exit.
+    // The static members of CCleanUpOnExit will all be fully initialised before
+    // this call (before the beginning main). Therefore, they will be destructed
+    // after CCleanUpOnExit::run is run and it is safe to act on them there.
+    std::atexit(CCleanUpOnExit::run);
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
@@ -117,6 +141,8 @@ int main(int argc, char** argv) {
         std::move(analysisSpecification), [&ioMgr]() {
             return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
         }};
+
+    CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {

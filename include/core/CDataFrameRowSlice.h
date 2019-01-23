@@ -113,6 +113,20 @@ private:
     TInt32Vec m_DocHashes;
 };
 
+//! \brief Manages the resource associated with the temporary directory
+//! which contains all the slices of a single data frame.
+class CORE_EXPORT CTemporaryDirectory {
+public:
+    CTemporaryDirectory(const std::string& name, std::size_t minimumSpace);
+    ~CTemporaryDirectory();
+
+    std::string name() const;
+    void removeAll();
+
+private:
+    boost::filesystem::path m_Name;
+};
+
 //! \brief On disk CDataFrame slice storage.
 //!
 //! DESCRIPTION:\n
@@ -141,18 +155,6 @@ private:
 //! stored bytes as floating point values.
 class CORE_EXPORT COnDiskDataFrameRowSlice final : public CDataFrameRowSlice {
 public:
-    //! \brief Manages the resource associated with the temporary directory
-    //! which contains all the slices of a single data frame.
-    class CORE_EXPORT CTemporaryDirectory {
-    public:
-        CTemporaryDirectory(const std::string& name, std::size_t minimumSpace);
-        ~CTemporaryDirectory();
-        const std::string& name() const;
-
-    private:
-        boost::filesystem::path m_Name;
-    };
-
     using TTemporaryDirectoryPtr = std::shared_ptr<CTemporaryDirectory>;
 
 public:
