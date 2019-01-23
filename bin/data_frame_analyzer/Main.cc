@@ -16,6 +16,7 @@
 #include <core/CDataFrameRowSlice.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CNonInstantiatable.h>
 #include <core/CProcessPriority.h>
 #include <core/Concurrency.h>
 
@@ -49,7 +50,7 @@ std::pair<std::string, bool> readFileToString(const std::string& fileName) {
             true};
 }
 
-class CCleanUpOnExit {
+class CCleanUpOnExit : private ml::core::CNonInstantiatable {
 public:
     using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
 
