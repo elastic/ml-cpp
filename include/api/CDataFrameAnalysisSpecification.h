@@ -21,6 +21,16 @@
 #include <thread>
 #include <vector>
 
+#ifdef HANDLE_FATAL_ERROR
+#undef HANDLE_FATAL_ERROR
+#endif
+#define HANDLE_FATAL_ERROR(handler, message)                                   \
+    {                                                                          \
+        std::ostringstream ss;                                                 \
+        ss message;                                                            \
+        handler(ss.str());                                                     \
+    }
+
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -44,7 +54,7 @@ public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
-    using TErrorHandler = std::function<void(const std::string&)>;
+    using TFatalErrorHandler = std::function<void(std::string)>;
 
 public:
     //! Inititialize from a JSON object.
@@ -73,7 +83,7 @@ public:
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
     CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    const TErrorHandler& errorHandler = defaultErrorHandler);
+                                    const TFatalErrorHandler& fatalErrorHandler = defaultFatalErrorHandler());
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
@@ -81,15 +91,12 @@ public:
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification,
-                                    const TErrorHandler& errorHandler = defaultErrorHandler);
+                                    const TFatalErrorHandler& fatalErrorHandler = defaultFatalErrorHandler());
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification(CDataFrameAnalysisSpecification&&) = delete;
     CDataFrameAnalysisSpecification& operator=(CDataFrameAnalysisSpecification&&) = delete;
-
-    //! Check if the specification is bad.
-    bool bad() const;
 
     //! \return The number of rows in the frame.
     std::size_t numberRows() const;
@@ -127,12 +134,15 @@ public:
     //! calling thread until the runner has finished.
     CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
 
-private:
-    void initializeRunner(const char* name, const rapidjson::Value& analysis);
-    static void defaultErrorHandler(const std::string& error);
+    //! Get the handler for any error which will prevent the analysis producing any
+    //! results.
+    const TFatalErrorHandler& fatalErrorHandler() const;
 
 private:
-    bool m_Bad = false;
+    void initializeRunner(const char* name, const rapidjson::Value& analysis);
+    static TFatalErrorHandler defaultFatalErrorHandler();
+
+private:
     std::size_t m_NumberRows = 0;
     std::size_t m_NumberColumns = 0;
     std::size_t m_MemoryLimit = 0;
@@ -142,7 +152,7 @@ private:
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
-    TErrorHandler m_ErrorHandler;
+    TFatalErrorHandler m_FatalErrorHandler;
 };
 }
 }

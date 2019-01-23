@@ -123,10 +123,7 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
         }
     };
 
-    if (frame.resizeColumns(numberThreads, frame.numberColumns() + 1) == false) {
-        LOG_ERROR(<< "Failed to resize data frame");
-        return false;
-    }
+    frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
 
     if (frame.writeColumns(numberThreads, writeScores) == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
@@ -138,17 +135,14 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
 
 bool computeOutliers(std::size_t numberThreads,
                      std::function<void(double)> recordProgress,
-                     std::function<void(const std::string&)> errorHandler,
                      core::CDataFrame& frame) {
     // TODO memory monitoring.
     // TODO different analysis types.
 
     if (frame.inMainMemory()) {
         if (computeOutliersNoPartitions(numberThreads, recordProgress, frame) == false) {
-            LOG_AND_REGISTER_INTERNAL_ERROR(
-                errorHandler, << "computing outliers for data frame. There "
-                              << "will be more details in the logs.");
-            return false;
+            LOG_AND_EXIT(<< "Internal error: computing outliers for data frame. There "
+                         << "may be more details in the logs. Please report this problem.");
         }
         return true;
     }

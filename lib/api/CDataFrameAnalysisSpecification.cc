@@ -65,37 +65,36 @@ std::string toString(const rapidjson::Value& value) {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                                                 const TErrorHandler& errorHandler)
-    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification, errorHandler} {
+                                                                 const TFatalErrorHandler& fatalErrorHandler)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification, fatalErrorHandler} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                                                 const std::string& jsonSpecification,
-                                                                 const TErrorHandler& errorHandler)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_ErrorHandler{errorHandler} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
+    TRunnerFactoryUPtrVec runnerFactories,
+    const std::string& jsonSpecification,
+    const TFatalErrorHandler& fatalErrorHandler)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_FatalErrorHandler{fatalErrorHandler} {
 
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
-        LOG_AND_REGISTER_INPUT_ERROR(
-            m_ErrorHandler, << "failed to parse analysis specification '" << jsonSpecification
-                            << "'. Please report this problem.");
-        m_Bad = true;
+        HANDLE_FATAL_ERROR(m_FatalErrorHandler,
+                           << "Input error: failed to parse analysis specification '"
+                           << jsonSpecification << "'. Please report this problem.");
     } else {
         auto isPositiveInteger = [](const rapidjson::Value& value) {
             return value.IsUint() && value.GetUint() > 0;
         };
         auto registerFailure = [this, &document](const char* name) {
             if (document.HasMember(name)) {
-                LOG_AND_REGISTER_INPUT_ERROR(
-                    m_ErrorHandler, << "bad value '" << toString(document[name])
-                                    << "' for '" << name << "' in analysis specification. "
-                                    << "Please report this problem.");
+                HANDLE_FATAL_ERROR(m_FatalErrorHandler,
+                                   << "Input error: bad value '"
+                                   << toString(document[name]) << "' for '"
+                                   << name << "' in analysis specification.");
             } else {
-                LOG_AND_REGISTER_INPUT_ERROR(
-                    m_ErrorHandler, << "missing '" << name << "' in analysis "
-                                    << "specification. Please report this problem.");
+                HANDLE_FATAL_ERROR(m_FatalErrorHandler,
+                                   << "Input error: missing '" << name << "' in analysis "
+                                   << "specification. Please report this problem.");
             }
-            m_Bad = true;
         };
 
         if (document.HasMember(ROWS) && isPositiveInteger(document[ROWS])) {
@@ -143,17 +142,13 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         // Check for any unrecognised fields; these might be typos.
         for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
             if (isValidMember(*i) == false) {
-                LOG_AND_REGISTER_INPUT_ERROR(
-                    m_ErrorHandler, << "unexpected member '" << i->name.GetString()
-                                    << "' of analysis specification. Please report this problem.");
-                m_Bad = true;
+                HANDLE_FATAL_ERROR(
+                    m_FatalErrorHandler,
+                    << "Input error: unexpected member '" << i->name.GetString()
+                    << "' of analysis specification. Please report this problem.");
             }
         }
     }
-}
-
-bool CDataFrameAnalysisSpecification::bad() const {
-    return m_Bad || m_Runner->bad();
 }
 
 std::size_t CDataFrameAnalysisSpecification::numberRows() const {
@@ -177,10 +172,10 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
 }
 
 CDataFrameAnalysisSpecification::TDataFrameUPtr CDataFrameAnalysisSpecification::makeDataFrame() {
-    if (m_Bad) {
-        return {};
+    if (m_Runner == nullptr) {
+        return  {};
     }
-
+    
     // TODO Remove hack when passing directory in config.
     ////
     if (m_Runner->storeDataFrameInMainMemory() == false) {
@@ -188,15 +183,11 @@ CDataFrameAnalysisSpecification::TDataFrameUPtr CDataFrameAnalysisSpecification:
     }
     // END TODO
 
-    TDataFrameUPtr result{
-        m_Runner->storeDataFrameInMainMemory()
-            ? core::makeMainStorageDataFrame(m_NumberColumns, m_ErrorHandler)
-            : core::makeDiskStorageDataFrame(m_TemporaryDirectory, m_NumberColumns,
-                                             m_NumberRows, m_ErrorHandler)};
-    if (result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns()) == false) {
-        // Logging handled in reserve.
-        m_Bad = true;
-    }
+    TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
+                              ? core::makeMainStorageDataFrame(m_NumberColumns)
+                              : core::makeDiskStorageDataFrame(
+                                    m_TemporaryDirectory, m_NumberColumns, m_NumberRows)};
+    result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 
     return result;
 }
@@ -216,19 +207,24 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
     for (const auto& factory : m_RunnerFactories) {
         if (std::strcmp(factory->name(), name) == 0) {
             m_Runner = analysis.HasMember(PARAMETERS)
-                           ? factory->make(*this, analysis[PARAMETERS], m_ErrorHandler)
-                           : factory->make(*this, m_ErrorHandler);
+                           ? factory->make(*this, analysis[PARAMETERS])
+                           : factory->make(*this);
             return;
         }
     }
 
-    LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler, << "unexpected analysis name '" << name
-                                                 << "'. Please report this problem.");
-    m_Bad = true;
+    HANDLE_FATAL_ERROR(m_FatalErrorHandler, << "Input error: unexpected analysis name '"
+                                            << name << "'. Please report this problem.");
 }
 
-void CDataFrameAnalysisSpecification::defaultErrorHandler(const std::string&) {
-    // No op since logging is handled where the error is emitted.
+const CDataFrameAnalysisSpecification::TFatalErrorHandler&
+CDataFrameAnalysisSpecification::fatalErrorHandler() const {
+    return m_FatalErrorHandler;
+}
+
+CDataFrameAnalysisSpecification::TFatalErrorHandler
+CDataFrameAnalysisSpecification::defaultFatalErrorHandler() {
+    return [](std::string message) { LOG_AND_EXIT(<< message); };
 }
 }
 }

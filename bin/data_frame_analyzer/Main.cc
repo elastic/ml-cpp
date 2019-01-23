@@ -38,28 +38,10 @@
 #include <vector>
 
 namespace {
-auto makeErrorHandler(std::vector<std::string>& userErrors, std::mutex& userErrorsMutex) {
-    return [&userErrors, &userErrorsMutex](const std::string& error) {
-        try {
-            std::lock_guard<std::mutex> lock{userErrorsMutex};
-            userErrors.push_back(error);
-        } catch (std::exception& e) {
-            // We want this to be nothrow. Copying strings can fail for example with
-            // with std::bad_alloc so we catch and swallow any exceptions here.
-            LOG_ERROR(<< "Failed to register user error '" << error
-                      << "' with '" << e.what() << "'");
-        }
-    };
-}
-
-std::pair<std::string, bool>
-readFileToString(const std::string& fileName,
-                 const std::function<void(const std::string&)>& errorHandler) {
+std::pair<std::string, bool> readFileToString(const std::string& fileName) {
     std::ifstream fileStream{fileName};
     if (fileStream.is_open() == false) {
-        LOG_AND_REGISTER_ENVIRONMENT_ERROR(errorHandler,
-                                           << "failed to open file '" << fileName
-                                           << "'. Please report this problem.");
+        LOG_FATAL(<< "Environment error: failed to open file '" << fileName << "'.");
         return {std::string{}, false};
     }
     return {std::string{std::istreambuf_iterator<char>{fileStream},
@@ -83,10 +65,6 @@ int main(int argc, char** argv) {
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
-
-    std::vector<std::string> userErrors;
-    std::mutex userErrorsMutex;
-    auto userErrorHandler = makeErrorHandler(userErrors, userErrorsMutex);
 
     // TODO RAII write error results on exit.
 
@@ -123,29 +101,22 @@ int main(int argc, char** argv) {
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
-    std::tie(analysisSpecificationJson, couldReadConfigFile) =
-        readFileToString(configFile, userErrorHandler);
+    std::tie(analysisSpecificationJson, couldReadConfigFile) = readFileToString(configFile);
     if (couldReadConfigFile == false) {
         LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
         return EXIT_FAILURE;
     }
 
-    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
-        analysisSpecificationJson, userErrorHandler);
-    if (analysisSpecification->bad()) {
-        LOG_FATAL("Failed to parse analysis specification");
-        return EXIT_FAILURE;
-    }
+    auto analysisSpecification =
+        std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
     if (analysisSpecification->numberThreads() > 1) {
         ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification),
-        [&ioMgr]() {
+        std::move(analysisSpecification), [&ioMgr]() {
             return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
-        },
-        userErrorHandler};
+        }};
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {

@@ -38,10 +38,8 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
-                                       const TErrorHandler& errorHandler)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier},
-      m_ErrorHandler(errorHandler) {
+                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
+    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
 
     if (m_AnalysisSpecification != nullptr) {
         m_DataFrame = m_AnalysisSpecification->makeDataFrame();
@@ -67,7 +65,7 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     // processing the input stream. Therefore, any error logged in this context is
     // emitted at most once.
 
-    if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad()) {
+    if (m_AnalysisSpecification == nullptr) {
         // Logging handled when the analysis specification is created.
         return false;
     }
@@ -100,8 +98,7 @@ void CDataFrameAnalyzer::receivedAllRows() {
 
 void CDataFrameAnalyzer::run() {
 
-    if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad() ||
-        m_DataFrame == nullptr) {
+    if (m_AnalysisSpecification == nullptr || m_DataFrame == nullptr) {
         return;
     }
 
@@ -113,7 +110,7 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    // TODO progress monitoring, etc.
+    // TODO report progress.
 
     analysis->waitToFinish();
 
@@ -147,11 +144,11 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
-        LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler,
-                                     << "expected exacly two special "
-                                     << "fields in last two positions, got '"
-                                     << core::CContainerPrinter::print(fieldNames)
-                                     << "'. Please report this problem.");
+        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
+                           << "Input error: expected exacly two special "
+                           << "fields in last two positions, got '"
+                           << core::CContainerPrinter::print(fieldNames)
+                           << "'. Please report this problem.");
         return false;
 
     } else {
@@ -172,9 +169,10 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        LOG_AND_REGISTER_INPUT_ERROR(
-            m_ErrorHandler, << "expected " << expectedNumberFieldValues << " field values and got "
-                            << fieldValues.size() << ". Please report this problem.");
+        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
+                           << "Input error: expected " << expectedNumberFieldValues
+                           << " field values and got " << fieldValues.size()
+                           << ". Please report this problem.");
         return false;
     }
     return true;
@@ -200,9 +198,10 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         break;
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
-        LOG_AND_REGISTER_INPUT_ERROR(m_ErrorHandler, << "invalid control message value '"
-                                                     << fieldValues[m_ControlFieldIndex]
-                                                     << "'. Please report this problem.");
+        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
+                           << "Input error: invalid control message value '"
+                           << fieldValues[m_ControlFieldIndex]
+                           << "'. Please report this problem.");
         return false;
     }
     return true;
@@ -267,10 +266,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     });
 
     outputWriter.flush();
-}
-
-void CDataFrameAnalyzer::defaultErrorHandler(const std::string&) {
-    // No op since logging is handled where the error is emitted.
 }
 }
 }

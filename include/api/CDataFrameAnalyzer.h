@@ -32,12 +32,10 @@ public:
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
-    using TErrorHandler = std::function<void(const std::string&)>;
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
-                       const TErrorHandler& errorHandler);
+                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
     ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
@@ -67,7 +65,6 @@ private:
     bool handleControlMessage(const TStrVec& fieldValues);
     void addRowToDataFrame(const TStrVec& fieldValues);
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis) const;
-    static void defaultErrorHandler(const std::string& error);
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
@@ -80,7 +77,6 @@ private:
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
-    TErrorHandler m_ErrorHandler;
 };
 }
 }

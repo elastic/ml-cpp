@@ -34,9 +34,8 @@ using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 class CDataFrameTestAnalysisRunner : public api::CDataFrameAnalysisRunner {
 public:
-    CDataFrameTestAnalysisRunner(const api::CDataFrameAnalysisSpecification& spec,
-                                 const TErrorHandler& errorHandler)
-        : api::CDataFrameAnalysisRunner{spec, errorHandler} {}
+    CDataFrameTestAnalysisRunner(const api::CDataFrameAnalysisSpecification& spec)
+        : api::CDataFrameAnalysisRunner{spec} {}
 
     virtual std::size_t numberOfPartitions() const { return 1; }
     virtual std::size_t numberExtraColumns() const { return 2; }
@@ -52,9 +51,6 @@ protected:
             std::this_thread::sleep_for(std::chrono::milliseconds(wait[0]));
 
             recordProgress(1.0 / 30.0);
-            if (i % 10 == 0) {
-                LOG_AND_REGISTER_INTERNAL_ERROR(this->errorHandler(), << i << ".");
-            }
         }
         this->setToFinished();
     }
@@ -76,15 +72,13 @@ public:
     virtual const char* name() const { return "test"; }
 
 private:
-    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec,
-                                 const TErrorHandler& errorHandler) const {
-        return std::make_unique<CDataFrameTestAnalysisRunner>(spec, errorHandler);
+    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec) const {
+        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 
     virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value&,
-                                 const TErrorHandler& errorHandler) const {
-        return std::make_unique<CDataFrameTestAnalysisRunner>(spec, errorHandler);
+                                 const rapidjson::Value&) const {
+        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
     }
 };
 }
@@ -95,9 +89,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     // input string and simply check validation for each field.
 
     TStrVec errors;
-    auto errorHandler = [&errors](const std::string& error) {
-        errors.push_back(error);
-    };
+    auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
 
     auto outliersFactory = []() {
         TRunnerFactoryUPtr factory{
@@ -145,7 +137,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("1000", "20", "100000", "2", "outliers"));
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "100000", "2", "outliers")};
-        CPPUNIT_ASSERT_EQUAL(false, spec.bad());
         CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
         CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
         CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
@@ -157,7 +148,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("", "20", "100000", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -166,7 +156,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "", "100000", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -175,7 +164,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -184,7 +172,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "100000", "", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -193,7 +180,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "100000", "2", ""), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -202,7 +188,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("-3", "20", "100000", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -211,7 +196,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "0", "100000", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -220,7 +204,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "\"ZZ\"", "2", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -229,7 +212,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("1000", "20", "100000", "-1", "outliers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -238,7 +220,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("100", "20", "100000", "2", "outl1ers"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -252,7 +233,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             outliersFactory(),
             jsonSpec("100", "20", "100000", "2", "outliers", "{\"number_neighbours\": 0}"),
             errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -264,7 +244,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(),
             jsonSpec("1000", "2", "100000", "2", "outliers", "", "threeds"), errorHandler};
-        CPPUNIT_ASSERT_EQUAL(true, spec.bad());
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -272,13 +251,6 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
 void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     // Test job running basics: start, wait, progress and errors.
-
-    TStrVec errors;
-    std::mutex errorsMutex;
-    auto errorHandler = [&errors, &errorsMutex](const std::string& error) {
-        std::lock_guard<std::mutex> lock{errorsMutex};
-        errors.push_back(error);
-    };
 
     auto testFactory = []() {
         TRunnerFactoryUPtr factory{boost::make_unique<CDataFrameTestAnalysisRunnerFactory>()};
@@ -297,27 +269,12 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
                          "}"};
 
     for (std::size_t i = 0; i < 10; ++i) {
-        errors.clear();
-
-        api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec, errorHandler};
-        CPPUNIT_ASSERT_EQUAL(false, spec.bad());
+        api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
 
         std::unique_ptr<core::CDataFrame> frame{core::makeMainStorageDataFrame(10)};
 
         api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
         CPPUNIT_ASSERT(runner != nullptr);
-
-        std::string possibleErrors[]{
-            "[]", "[Internal error: 0. Please report this problem.]",
-            "[Internal error: 0. Please report this problem.,"
-            " Internal error: 10. Please report this problem.]",
-            "[Internal error: 0. Please report this problem.,"
-            " Internal error: 10. Please report this problem.,"
-            " Internal error: 20. Please report this problem.]",
-            "[Internal error: 0. Please report this problem.,"
-            " Internal error: 10. Please report this problem.,"
-            " Internal error: 20. Please report this problem.,"
-            " Internal error: 30. Please report this problem.]"};
 
         double lastProgress{runner->progress()};
         for (;;) {
@@ -326,27 +283,15 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
             LOG_TRACE(<< "progress = " << lastProgress);
             CPPUNIT_ASSERT(runner->progress() >= lastProgress);
             lastProgress = runner->progress();
-
-            std::lock_guard<std::mutex> lock{errorsMutex};
-            LOG_TRACE(<< "errors = " << core::CContainerPrinter::print(errors));
-            CPPUNIT_ASSERT(std::find(std::begin(possibleErrors), std::end(possibleErrors),
-                                     core::CContainerPrinter::print(errors)) !=
-                           std::end(possibleErrors));
             if (runner->finished()) {
                 break;
             }
+            CPPUNIT_ASSERT(runner->progress() < 1.0);
         }
 
         LOG_DEBUG(<< "progress = " << lastProgress);
-        LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
 
         CPPUNIT_ASSERT_EQUAL(1.0, runner->progress());
-        CPPUNIT_ASSERT_EQUAL(
-            std::string{"[Internal error: 0. Please report this problem.,"
-                        " Internal error: 10. Please report this problem.,"
-                        " Internal error: 20. Please report this problem.,"
-                        " Internal error: 30. Please report this problem.]"},
-            core::CContainerPrinter::print(errors));
     }
 }
 

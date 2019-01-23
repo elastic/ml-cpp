@@ -26,9 +26,8 @@ std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& s
 const double MAXIMUM_FRACTIONAL_PROGRESS{1024.0};
 }
 
-CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec,
-                                                   const TErrorHandler& errorHandler)
-    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0}, m_ErrorHandler{errorHandler} {
+CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
+    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0} {
 }
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
@@ -59,7 +58,8 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (m_NumberPartitions == numberRows) {
-        m_Bad = true;
+        HANDLE_FATAL_ERROR(this->spec().fatalErrorHandler(),
+                           << "Input error: memory limit is too low to perform analysis.");
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
         // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
@@ -92,10 +92,6 @@ std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
 void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
-    } else if (m_Spec.bad()) {
-        LOG_ERROR(<< "Bad specification: not running analysis");
-        m_FractionalProgress.store(1.0);
-        m_Finished.store(true);
     } else {
         m_FractionalProgress.store(0.0);
         m_Finished.store(false);
@@ -107,10 +103,6 @@ void CDataFrameAnalysisRunner::waitToFinish() {
     if (m_Runner.joinable()) {
         m_Runner.join();
     }
-}
-
-bool CDataFrameAnalysisRunner::bad() const {
-    return m_Bad;
 }
 
 bool CDataFrameAnalysisRunner::finished() const {
@@ -127,10 +119,6 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
 }
 
-void CDataFrameAnalysisRunner::setToBad() {
-    m_Bad = true;
-}
-
 void CDataFrameAnalysisRunner::setToFinished() {
     m_Finished.store(true);
     m_FractionalProgress.store(static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS));
@@ -140,10 +128,6 @@ CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRe
     return [this](double fractionalProgress) {
         this->recordProgress(fractionalProgress);
     };
-}
-
-const CDataFrameAnalysisRunner::TErrorHandler& CDataFrameAnalysisRunner::errorHandler() const {
-    return m_ErrorHandler;
 }
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
@@ -159,24 +143,18 @@ void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const TErrorHandler& errorHandler) const {
-    auto result = this->makeImpl(spec, errorHandler);
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
+    auto result = this->makeImpl(spec);
     result->computeAndSaveExecutionStrategy();
     return result;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& params,
-                                      const TErrorHandler& errorHandler) const {
-    auto result = this->makeImpl(spec, params, errorHandler);
+                                      const rapidjson::Value& params) const {
+    auto result = this->makeImpl(spec, params);
     result->computeAndSaveExecutionStrategy();
     return result;
-}
-
-void CDataFrameAnalysisRunnerFactory::defaultErrorHandler(const std::string&) {
-    // No op since logging is handled where the error is emitted.
 }
 }
 }

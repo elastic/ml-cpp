@@ -87,10 +87,6 @@ CRowIterator CRowIterator::operator++(int) {
     ++m_DocHashItr;
     return result;
 }
-
-void defaultErrorHandler(const std::string&) {
-    // No op since logging is handled where the error is emitted.
-}
 }
 using namespace data_frame_detail;
 
@@ -135,33 +131,21 @@ std::size_t CDataFrame::numberColumns() const {
     return m_NumberColumns;
 }
 
-bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
+void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
     if (m_RowCapacity >= rowCapacity) {
-        return true;
+        return;
     }
 
     m_RowCapacity = rowCapacity;
 
-    std::atomic_bool successful{true};
-    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
-                      [this, &successful](TRowSlicePtr& slice) {
-                          if (successful.load() == false) {
-                              return;
-                          }
-                          if (slice->reserve(m_NumberColumns,
-                                             m_RowCapacity - m_NumberColumns) == false) {
-                              successful.store(false);
-                          }
-                      });
-    return successful.load();
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(), [this](TRowSlicePtr& slice) {
+        slice->reserve(m_NumberColumns, m_RowCapacity - m_NumberColumns);
+    });
 }
 
-bool CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
-    if (this->reserve(numberThreads, numberColumns) == false) {
-        return false;
-    }
+void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
+    this->reserve(numberThreads, numberColumns);
     m_NumberColumns = numberColumns;
-    return true;
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
@@ -415,12 +399,11 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
 
 std::unique_ptr<CDataFrame>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         const std::function<void(const std::string&)>& errorHandler,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
-    auto writer = [errorHandler](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
+    auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
-            firstRow, std::move(rows), std::move(docHashes), errorHandler);
+            firstRow, std::move(rows), std::move(docHashes));
     };
 
     if (sliceCapacity != boost::none) {
@@ -436,23 +419,21 @@ std::unique_ptr<CDataFrame>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         const std::function<void(const std::string&)>& errorHandler,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     COnDiskDataFrameRowSlice::TTemporaryDirectoryPtr directory{
         std::make_shared<COnDiskDataFrameRowSlice::CTemporaryDirectory>(
-            rootDirectory, minimumSpace, errorHandler)};
+            rootDirectory, minimumSpace)};
 
     // Note the writer lambda holding a reference to the directory shared
     // pointer is copied to the data frame. So this isn't destroyed, and
     // the folder cleaned up, until the data frame itself is destroyed.
 
-    auto writer = [directory, errorHandler](std::size_t firstRow, TFloatVec rows,
-                                            TInt32Vec docHashes) {
+    auto writer = [directory](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<COnDiskDataFrameRowSlice>(
-            directory, firstRow, std::move(rows), std::move(docHashes), errorHandler);
+            directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
     if (sliceCapacity != boost::none) {

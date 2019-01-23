@@ -60,13 +60,11 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
-    using TErrorHandler = std::function<void(const std::string&)>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
     //! by the factory class.
-    CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec,
-                             const TErrorHandler& errorHandler);
+    CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
     virtual ~CDataFrameAnalysisRunner();
 
     CDataFrameAnalysisRunner(const CDataFrameAnalysisRunner&) = delete;
@@ -120,9 +118,6 @@ public:
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
 
-    //! \return True if the analysis configuration failed and it can't be run.
-    bool bad() const;
-
     //! \return True if the running analysis has finished.
     bool finished() const;
 
@@ -133,10 +128,8 @@ public:
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
 
-    void setToBad();
     void setToFinished();
     TProgressRecorder progressRecorder();
-    const TErrorHandler& errorHandler() const;
 
 private:
     virtual void runImpl(core::CDataFrame& frame) = 0;
@@ -161,10 +154,8 @@ private:
     std::size_t m_NumberPartitions = 0;
     std::size_t m_MaximumNumberRowsPerPartition = 0;
 
-    bool m_Bad = false;
     std::atomic_bool m_Finished;
     std::atomic_int m_FractionalProgress;
-    TErrorHandler m_ErrorHandler;
 
     std::thread m_Runner;
 };
@@ -173,25 +164,19 @@ private:
 class API_EXPORT CDataFrameAnalysisRunnerFactory {
 public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
-    using TErrorHandler = CDataFrameAnalysisRunner::TErrorHandler;
 
 public:
     virtual ~CDataFrameAnalysisRunnerFactory() = default;
     virtual const char* name() const = 0;
 
+    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const TErrorHandler& errorHandler = defaultErrorHandler) const;
-    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& params,
-                     const TErrorHandler& errorHandler = defaultErrorHandler) const;
+                     const rapidjson::Value& params) const;
 
 private:
+    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const = 0;
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const TErrorHandler& errorHandler) const = 0;
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params,
-                                 const TErrorHandler& errorHandler) const = 0;
-    static void defaultErrorHandler(const std::string& error);
+                                 const rapidjson::Value& params) const = 0;
 };
 }
 }
