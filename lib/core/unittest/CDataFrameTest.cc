@@ -541,7 +541,7 @@ void CDataFrameTest::testDocHashes() {
                               << " expected " << expectedDocHash);
                     passed = false;
                 }
-                expectedDocHash += static_cast<int>(cols + extraCols);
+                expectedDocHash += static_cast<std::int32_t>(cols + extraCols);
             }
         });
         CPPUNIT_ASSERT(successful);
