@@ -150,11 +150,10 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
-        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
-                           << "Input error: expected exacly two special "
-                           << "fields in last two positions, got '"
-                           << core::CContainerPrinter::print(fieldNames)
-                           << "'. Please report this problem.");
+        HANDLE_FATAL(<< "Input error: expected exacly two special "
+                     << "fields in last two positions, got '"
+                     << core::CContainerPrinter::print(fieldNames)
+                     << "'. Please report this problem.");
         return false;
 
     } else {
@@ -175,10 +174,8 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
-                           << "Input error: expected " << expectedNumberFieldValues
-                           << " field values and got " << fieldValues.size()
-                           << ". Please report this problem.");
+        HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field values and got "
+                     << fieldValues.size() << ". Please report this problem.");
         return false;
     }
     return true;
@@ -204,10 +201,8 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
         break;
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
-        HANDLE_FATAL_ERROR(m_AnalysisSpecification->fatalErrorHandler(),
-                           << "Input error: invalid control message value '"
-                           << fieldValues[m_ControlFieldIndex]
-                           << "'. Please report this problem.");
+        HANDLE_FATAL(<< "Input error: invalid control message value '"
+                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.");
         return false;
     }
     return true;

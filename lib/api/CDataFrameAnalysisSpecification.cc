@@ -64,36 +64,29 @@ std::string toString(const rapidjson::Value& value) {
 }
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                                                 const TFatalErrorHandler& fatalErrorHandler)
-    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification, fatalErrorHandler} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
-    TRunnerFactoryUPtrVec runnerFactories,
-    const std::string& jsonSpecification,
-    const TFatalErrorHandler& fatalErrorHandler)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_FatalErrorHandler{fatalErrorHandler} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
+                                                                 const std::string& jsonSpecification)
+    : m_RunnerFactories{std::move(runnerFactories)} {
 
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
-        HANDLE_FATAL_ERROR(m_FatalErrorHandler,
-                           << "Input error: failed to parse analysis specification '"
-                           << jsonSpecification << "'. Please report this problem.");
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
+                     << jsonSpecification << "'. Please report this problem.");
     } else {
         auto isPositiveInteger = [](const rapidjson::Value& value) {
             return value.IsUint() && value.GetUint() > 0;
         };
         auto registerFailure = [this, &document](const char* name) {
             if (document.HasMember(name)) {
-                HANDLE_FATAL_ERROR(m_FatalErrorHandler,
-                                   << "Input error: bad value '"
-                                   << toString(document[name]) << "' for '"
-                                   << name << "' in analysis specification.");
+                HANDLE_FATAL(<< "Input error: bad value '" << toString(document[name])
+                             << "' for '" << name << "' in analysis specification.");
             } else {
-                HANDLE_FATAL_ERROR(m_FatalErrorHandler,
-                                   << "Input error: missing '" << name << "' in analysis "
-                                   << "specification. Please report this problem.");
+                HANDLE_FATAL(<< "Input error: missing '" << name << "' in analysis "
+                             << "specification. Please report this problem.");
             }
         };
 
@@ -142,10 +135,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         // Check for any unrecognised fields; these might be typos.
         for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
             if (isValidMember(*i) == false) {
-                HANDLE_FATAL_ERROR(
-                    m_FatalErrorHandler,
-                    << "Input error: unexpected member '" << i->name.GetString()
-                    << "' of analysis specification. Please report this problem.");
+                HANDLE_FATAL(<< "Input error: unexpected member '" << i->name.GetString()
+                             << "' of analysis specification. Please report this problem.");
             }
         }
     }
@@ -214,18 +205,8 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         }
     }
 
-    HANDLE_FATAL_ERROR(m_FatalErrorHandler, << "Input error: unexpected analysis name '"
-                                            << name << "'. Please report this problem.");
-}
-
-const CDataFrameAnalysisSpecification::TFatalErrorHandler&
-CDataFrameAnalysisSpecification::fatalErrorHandler() const {
-    return m_FatalErrorHandler;
-}
-
-CDataFrameAnalysisSpecification::TFatalErrorHandler
-CDataFrameAnalysisSpecification::defaultFatalErrorHandler() {
-    return [](std::string message) { LOG_AND_EXIT(<< message); };
+    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
+                 << "'. Please report this problem.");
 }
 }
 }

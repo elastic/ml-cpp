@@ -141,7 +141,7 @@ bool computeOutliers(std::size_t numberThreads,
 
     if (frame.inMainMemory()) {
         if (computeOutliersNoPartitions(numberThreads, recordProgress, frame) == false) {
-            LOG_AND_EXIT(<< "Internal error: computing outliers for data frame. There "
+            HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
                          << "may be more details in the logs. Please report this problem.");
         }
         return true;

@@ -195,7 +195,7 @@ void CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
         }
         std::swap(state, m_Rows);
     } catch (const std::exception& e) {
-        LOG_AND_EXIT(<< "Environment error: failed to reserve " << extraColumns << " extra columns: caught '"
+        HANDLE_FATAL(<< "Environment error: failed to reserve " << extraColumns << " extra columns: caught '"
                      << e.what() << "'. The process is likely out of memory.");
     }
 }
@@ -230,11 +230,11 @@ void sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
     if (errorCode) {
-        LOG_AND_EXIT(<< "Environment error: failed to retrieve disk information for '"
+        HANDLE_FATAL(<< "Environment error: failed to retrieve disk information for '"
                      << path << "' error '" << errorCode.message() << "'.");
     }
     if (spaceInfo.available < minimumSpace) {
-        LOG_AND_EXIT(<< "Environment error: insufficient disk space have '"
+        HANDLE_FATAL(<< "Environment error: insufficient disk space have '"
                      << spaceInfo.available << "' and need '" << minimumSpace << "'.");
     }
 }
@@ -248,7 +248,7 @@ CTemporaryDirectory::CTemporaryDirectory(const std::string& name, std::size_t mi
     boost::system::error_code errorCode;
     boost::filesystem::create_directories(m_Name, errorCode);
     if (errorCode) {
-        LOG_AND_EXIT(<< "Environment error: failed to create temporary directory from: '"
+        HANDLE_FATAL(<< "Environment error: failed to create temporary directory from: '"
                      << m_Name << "' error '" << errorCode.message() << "'");
     }
 
@@ -298,7 +298,7 @@ void COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         TFloatVec oldRows(m_RowsCapacity);
         TInt32Vec docHashes(m_DocHashesCapacity);
         if (this->readFromDisk(oldRows, docHashes) == false) {
-            LOG_AND_EXIT(<< "Environment error: failed to read from row "
+            HANDLE_FATAL(<< "Environment error: failed to read from row "
                          << m_FirstRow << ".");
         }
 
@@ -316,7 +316,7 @@ void COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         this->writeToDisk(newRows, docHashes);
 
     } catch (const std::exception& e) {
-        LOG_AND_EXIT(<< "Environment error: failed to reserve " << extraColumns
+        HANDLE_FATAL(<< "Environment error: failed to reserve " << extraColumns
                      << " extra columns: caught '" << e.what() << "'.");
     }
 }
@@ -328,15 +328,15 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 
     try {
         if (this->readFromDisk(rows, docHashes) == false) {
-            LOG_AND_EXIT(<< "Environment error: failed to read from row "
+            HANDLE_FATAL(<< "Environment error: failed to read from row "
                          << m_FirstRow << ".");
         }
 
         if (computeChecksum(rows, docHashes) != m_Checksum) {
-            LOG_AND_EXIT("Environment error: corrupt from row " << m_FirstRow << ".");
+            HANDLE_FATAL(<< "Environment error: corrupt from row " << m_FirstRow << ".");
         }
     } catch (const std::exception& e) {
-        LOG_AND_EXIT(<< "Environment error: caught '" << e.what()
+        HANDLE_FATAL(<< "Environment error: caught '" << e.what()
                      << "' while reading from row " << m_FirstRow << ".");
     }
 

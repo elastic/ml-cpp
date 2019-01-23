@@ -59,9 +59,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameOutliersRunner{spec} {
 
     auto registerFailure = [this, &params](const char* name) {
-        HANDLE_FATAL_ERROR(this->spec().fatalErrorHandler(),
-                           << "Input error: bad value '" << toString(params[name])
-                           << "' for '" << name << "'.");
+        HANDLE_FATAL(<< "Input error: bad value '" << toString(params[name])
+                     << "' for '" << name << "'.");
     };
 
     if (params.HasMember(NUMBER_NEIGHBOURS)) {
@@ -89,9 +88,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     // Check for any unrecognised fields; these might be typos.
     for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
         if (isValidMember(*i) == false) {
-            HANDLE_FATAL_ERROR(this->spec().fatalErrorHandler(),
-                               << "Input error: unexpected member '"
-                               << i->name.GetString() << "'. Please report this problem.")
+            HANDLE_FATAL(<< "Input error: unexpected member '"
+                         << i->name.GetString() << "'. Please report this problem.")
         }
     }
 }

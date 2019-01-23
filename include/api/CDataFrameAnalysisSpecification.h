@@ -21,16 +21,6 @@
 #include <thread>
 #include <vector>
 
-#ifdef HANDLE_FATAL_ERROR
-#undef HANDLE_FATAL_ERROR
-#endif
-#define HANDLE_FATAL_ERROR(handler, message)                                   \
-    {                                                                          \
-        std::ostringstream ss;                                                 \
-        ss message;                                                            \
-        handler(ss.str());                                                     \
-    }
-
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -86,16 +76,14 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    const TFatalErrorHandler& fatalErrorHandler = defaultFatalErrorHandler());
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification,
-                                    const TFatalErrorHandler& fatalErrorHandler = defaultFatalErrorHandler());
+                                    const std::string& jsonSpecification);
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -138,10 +126,6 @@ public:
     //! calling thread until the runner has finished.
     CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
 
-    //! Get the handler for any error which will prevent the analysis producing any
-    //! results.
-    const TFatalErrorHandler& fatalErrorHandler() const;
-
 private:
     void initializeRunner(const char* name, const rapidjson::Value& analysis);
     static TFatalErrorHandler defaultFatalErrorHandler();
@@ -156,7 +140,6 @@ private:
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
-    TFatalErrorHandler m_FatalErrorHandler;
 };
 }
 }

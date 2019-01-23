@@ -9,6 +9,8 @@
 
 #include <log4cxx/logger.h>
 
+#include <sstream>
+
 // Log at a level known at compile time
 
 #ifdef LOG_TRACE
@@ -57,19 +59,23 @@
 #endif
 #define LOG_FATAL(message)                                                     \
     LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), "" message)
+
+#ifdef HANDLE_FATAL
+#undef HANDLE_FATAL
+#endif
+#define HANDLE_FATAL(message)                                                  \
+    {                                                                          \
+        std::ostringstream ss;                                                 \
+        ss message;                                                            \
+        ml::core::CLogger::instance().handleFatal(ss.str());                   \
+    }
+
 #ifdef LOG_ABORT
 #undef LOG_ABORT
 #endif
 #define LOG_ABORT(message)                                                     \
     LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), "" message);         \
     ml::core::CLogger::fatal()
-
-#ifdef LOG_AND_EXIT
-#undef LOG_AND_EXIT
-#endif
-#define LOG_AND_EXIT(message)                                                  \
-    LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), "" message);         \
-    std::exit(EXIT_FAILURE);
 
 // Log at a level specified at runtime as a string, for example
 // LOG_AT_LEVEL("WARN", << "Stay away from here " << username)

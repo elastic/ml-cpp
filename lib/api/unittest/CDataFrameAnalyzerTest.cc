@@ -35,8 +35,7 @@ using TStrVec = std::vector<std::string>;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::unique_ptr<api::CDataFrameAnalysisSpecification>
-outlierSpec(std::function<void(std::string)> fatalErrorHandler = nullptr) {
+std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
     std::string spec{"{\n"
                      "  \"rows\": 100,\n"
                      "  \"cols\": 5,\n"
@@ -46,9 +45,7 @@ outlierSpec(std::function<void(std::string)> fatalErrorHandler = nullptr) {
                      "    \"name\": \"outliers\""
                      "  }"
                      "}"};
-    return fatalErrorHandler != nullptr
-               ? std::make_unique<api::CDataFrameAnalysisSpecification>(spec, fatalErrorHandler)
-               : std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
 void addTestData(TStrVec fieldNames,
@@ -191,12 +188,14 @@ void CDataFrameAnalyzerTest::testErrors() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
     // Test with bad analysis specification.
     {
         errors.clear();
-        api::CDataFrameAnalyzer analyzer{std::make_unique<api::CDataFrameAnalysisSpecification>(
-                                             std::string{"junk"}, errorHandler),
-                                         outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{
+            std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
+            outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
         CPPUNIT_ASSERT_EQUAL(false,
@@ -207,7 +206,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test special field in the wrong position
     {
         errors.clear();
-        api::CDataFrameAnalyzer analyzer{outlierSpec(errorHandler), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
@@ -217,7 +216,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test missing special field
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(errorHandler), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
@@ -228,7 +227,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test bad control message
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(errorHandler), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -239,7 +238,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test bad input
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(errorHandler), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},

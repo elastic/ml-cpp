@@ -58,8 +58,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (m_NumberPartitions == numberRows) {
-        HANDLE_FATAL_ERROR(this->spec().fatalErrorHandler(),
-                           << "Input error: memory limit is too low to perform analysis.");
+        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis.");
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
         // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
