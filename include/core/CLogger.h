@@ -73,13 +73,10 @@ public:
 
     //! \brief Sets the fatal error handler to a specified value for
     //! the object lifetime.
-    class CScopeSetFatalErrorHandler {
+    class CORE_EXPORT CScopeSetFatalErrorHandler : private CNonCopyable {
     public:
         CScopeSetFatalErrorHandler(const TFatalErrorHandler& handler);
         ~CScopeSetFatalErrorHandler();
-
-        CScopeSetFatalErrorHandler(const CScopeSetFatalErrorHandler&) = delete;
-        CScopeSetFatalErrorHandler& operator=(const CScopeSetFatalErrorHandler&) = delete;
 
     private:
         TFatalErrorHandler m_OriginalFatalErrorHandler;
