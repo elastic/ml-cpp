@@ -182,7 +182,7 @@ const CLogger::TFatalErrorHandler& CLogger::fatalErrorHandler() const {
 }
 
 void CLogger::handleFatal(std::string message) {
-    m_FatalErrorHandler(message);
+    m_FatalErrorHandler(std::move(message));
 }
 
 bool CLogger::setLoggingLevel(ELevel level) {

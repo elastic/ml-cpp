@@ -56,8 +56,7 @@ const std::string CTestRunner::XML_RESULT_FILE_NAME("cppunit_results.xml");
 
 CTestRunner::CTestRunner(int argc, const char** argv) {
     ml::core::CLogger::instance().fatalErrorHandler([](std::string message) {
-        LOG_FATAL(<< message);
-        CPPUNIT_ASSERT(false);
+        CPPUNIT_FAIL(message);
     });
     this->processCmdLine(argc, argv);
 }
