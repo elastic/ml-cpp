@@ -24,6 +24,7 @@
 #include <log4cxx/writerappender.h>
 
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 
@@ -43,6 +44,8 @@ namespace {
 // course, the instance may already be constructed before this if another static
 // object has used it.
 const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
+
+std::mutex fatalErrorHandlerMutex;
 }
 
 namespace ml {
@@ -50,7 +53,7 @@ namespace core {
 
 CLogger::CLogger()
     : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName::progName()),
-      m_OrigStderrFd(-1) {
+      m_OrigStderrFd(-1), m_FatalErrorHandler(defaultFatalErrorHandler) {
     CCrashHandler::installCrashHandler();
     this->reset();
 }
@@ -165,6 +168,21 @@ log4cxx::LoggerPtr CLogger::logger() {
 
 void CLogger::fatal() {
     throw std::runtime_error("Ml Fatal Exception");
+}
+
+void CLogger::fatalErrorHandler(const TFatalErrorHandler& handler) {
+    // This is purposely not thread safe. This is only meant to be called once from
+    // the main thread, typically from main of an executable or in single threaded
+    // test code.
+    m_FatalErrorHandler = handler;
+}
+
+const CLogger::TFatalErrorHandler& CLogger::fatalErrorHandler() const {
+    return m_FatalErrorHandler;
+}
+
+void CLogger::handleFatal(std::string message) {
+    m_FatalErrorHandler(std::move(message));
 }
 
 bool CLogger::setLoggingLevel(ELevel level) {
@@ -421,6 +439,20 @@ void CLogger::massageString(const TLogCharLogStrMap& mappings,
             newStr += *iter;
         }
     }
+}
+
+void CLogger::defaultFatalErrorHandler(std::string message) {
+    LOG_FATAL(<< message);
+    std::exit(EXIT_FAILURE);
+}
+
+CLogger::CScopeSetFatalErrorHandler::CScopeSetFatalErrorHandler(const TFatalErrorHandler& handler)
+    : m_OriginalFatalErrorHandler{CLogger::instance().fatalErrorHandler()} {
+    CLogger::instance().fatalErrorHandler(handler);
+}
+
+CLogger::CScopeSetFatalErrorHandler::~CScopeSetFatalErrorHandler() {
+    CLogger::instance().fatalErrorHandler(m_OriginalFatalErrorHandler);
 }
 }
 }

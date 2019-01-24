@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <thread>
@@ -58,8 +59,11 @@ class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
+    using TProgressRecorder = std::function<void(double)>;
 
 public:
+    //! The intention is that concrete objects of this hierarchy are constructed
+    //! by the factory class.
     CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
     virtual ~CDataFrameAnalysisRunner();
 
@@ -114,9 +118,6 @@ public:
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
 
-    //! \return True if the analysis configuration failed and it can't be run.
-    bool bad() const;
-
     //! \return True if the running analysis has finished.
     bool finished() const;
 
@@ -124,14 +125,18 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    //! \return Any errors emitted during the analysis.
-    TStrVec errors() const;
-
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
 
-    void setToBad();
     void setToFinished();
+    TProgressRecorder progressRecorder();
+
+private:
+    virtual void runImpl(core::CDataFrame& frame) = 0;
+    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                                       std::size_t numberRows,
+                                                       std::size_t numberColumns) const = 0;
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
     //! This adds \p fractionalProgess to the current progress.
     //!
@@ -143,28 +148,16 @@ protected:
     //! and typically this would be called significantly less frequently.
     void recordProgress(double fractionalProgress);
 
-    void addError(const std::string& error);
-
-private:
-    virtual void runImpl(core::CDataFrame& frame) = 0;
-    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
-                                                       std::size_t numberRows,
-                                                       std::size_t numberColumns) const = 0;
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
-
 private:
     const CDataFrameAnalysisSpecification& m_Spec;
 
     std::size_t m_NumberPartitions = 0;
     std::size_t m_MaximumNumberRowsPerPartition = 0;
 
-    bool m_Bad = false;
     std::atomic_bool m_Finished;
     std::atomic_int m_FractionalProgress;
-    TStrVec m_Errors;
 
     std::thread m_Runner;
-    mutable core::CFastMutex m_Mutex;
 };
 
 //! \brief Makes a core::CDataFrame analysis runner.

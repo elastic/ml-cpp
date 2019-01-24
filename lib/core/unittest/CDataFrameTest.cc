@@ -124,7 +124,9 @@ void CDataFrameTest::testInMainMemoryBasicReadWrite() {
                   << sync[static_cast<int>(readWriteToStoreAsync)]);
 
         for (auto end : {500 * cols, 2000 * cols, components.size()}) {
-            auto frame = core::makeMainStorageDataFrame(cols, capacity, readWriteToStoreAsync);
+            auto frameAndDirectory =
+                core::makeMainStorageDataFrame(cols, capacity, readWriteToStoreAsync);
+            auto frame = std::move(frameAndDirectory.first);
 
             for (std::size_t i = 0; i < end; i += cols) {
                 frame->writeRow(makeWriter(components, cols, i));
@@ -156,7 +158,8 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
 
         TFloatVec components{testData(rows, cols)};
 
-        auto frame = core::makeMainStorageDataFrame(cols, capacity);
+        auto frameAndDirectory = core::makeMainStorageDataFrame(cols, capacity);
+        auto frame = std::move(frameAndDirectory.first);
         for (std::size_t i = 0; i < components.size(); i += cols) {
             frame->writeRow(makeWriter(components, cols, i));
         }
@@ -194,8 +197,9 @@ void CDataFrameTest::testOnDiskBasicReadWrite() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols)};
 
-    auto frame = core::makeDiskStorageDataFrame(
+    auto frameAndDirectory = core::makeDiskStorageDataFrame(
         boost::filesystem::current_path().string(), cols, rows, capacity);
+    auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
         frame->writeRow(makeWriter(components, cols, i));
@@ -219,8 +223,9 @@ void CDataFrameTest::testOnDiskParallelRead() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols)};
 
-    auto frame = core::makeDiskStorageDataFrame(
+    auto frameAndDirectory = core::makeDiskStorageDataFrame(
         boost::filesystem::current_path().string(), cols, rows, capacity);
+    auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
         frame->writeRow(makeWriter(components, cols, i));
@@ -260,17 +265,22 @@ void CDataFrameTest::testMemoryUsage() {
     std::size_t capacity{5000};
     TFloatVec components{testData(rows, cols)};
 
-    TFactoryFunc makeOnDisk = std::bind(
-        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
-        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
-    TFactoryFunc makeMainMemory =
-        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
-                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
 
     // Memory usage should be less than:
     //   1) 800 bytes for on disk, and
     //   2) data size + doc ids size + 200 byte overhead in main memory.
-    std::size_t maximumMemory[]{800, rows * (cols + 1) * 4 + 200};
+    std::size_t maximumMemory[]{850, rows * (cols + 1) * 4 + 350};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -284,7 +294,8 @@ void CDataFrameTest::testMemoryUsage() {
         }
         frame->finishWritingRows();
 
-        LOG_DEBUG(<< "Memory = " << frame->memoryUsage());
+        LOG_DEBUG(<< "Memory = " << frame->memoryUsage()
+                  << ", limit = " << maximumMemory[t]);
         CPPUNIT_ASSERT(frame->memoryUsage() < maximumMemory[t++]);
     }
 }
@@ -298,12 +309,17 @@ void CDataFrameTest::testReserve() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols)};
 
-    TFactoryFunc makeOnDisk = std::bind(
-        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
-        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
-    TFactoryFunc makeMainMemory =
-        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
-                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
 
     LOG_DEBUG(<< "*** Test reserve before write ***");
 
@@ -366,12 +382,17 @@ void CDataFrameTest::testResizeColumns() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols)};
 
-    TFactoryFunc makeOnDisk = std::bind(
-        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
-        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
-    TFactoryFunc makeMainMemory =
-        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
-                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -420,12 +441,17 @@ void CDataFrameTest::testWriteColumns() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols + extraCols)};
 
-    TFactoryFunc makeOnDisk = std::bind(
-        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
-        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
-    TFactoryFunc makeMainMemory =
-        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
-                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -470,12 +496,17 @@ void CDataFrameTest::testDocHashes() {
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols + extraCols)};
 
-    TFactoryFunc makeOnDisk = std::bind(
-        &core::makeDiskStorageDataFrame, boost::filesystem::current_path().string(),
-        cols, rows, capacity, core::CDataFrame::EReadWriteToStorage::E_Async);
-    TFactoryFunc makeMainMemory =
-        std::bind(&core::makeMainStorageDataFrame, cols, capacity,
-                  core::CDataFrame::EReadWriteToStorage::E_Sync);
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -510,7 +541,7 @@ void CDataFrameTest::testDocHashes() {
                               << " expected " << expectedDocHash);
                     passed = false;
                 }
-                expectedDocHash += cols + extraCols;
+                expectedDocHash += static_cast<std::int32_t>(cols + extraCols);
             }
         });
         CPPUNIT_ASSERT(successful);

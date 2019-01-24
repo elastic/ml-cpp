@@ -180,7 +180,7 @@ CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
     m_DocHashes.shrink_to_fit();
 }
 
-bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
+void CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
     // "Reserve" space at the end of each row for extraColumns extra columns.
     // Padding is inserted into the underlying vector which is skipped over
     // by the CRowConstIterator object.
@@ -195,11 +195,9 @@ bool CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
         }
         std::swap(state, m_Rows);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to reserve " << extraColumns
-                  << " extra columns: caught '" << e.what() << "'");
-        return false;
+        HANDLE_FATAL(<< "Environment error: failed to reserve " << extraColumns << " extra columns: caught '"
+                     << e.what() << "'. The process is likely out of memory.");
     }
-    return true;
 }
 
 CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
@@ -223,69 +221,90 @@ std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
     return computeChecksum(m_Rows, m_DocHashes);
 }
 
-//////// COnDiskDataFrameRowSlice ////////
+//////// CTemporaryDirectory ////////
 
 namespace {
 
 //! Check if there is \p minimumSpace disk space available.
-bool sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size_t minimumSpace) {
+void sufficientDiskSpaceAvailable(const boost::filesystem::path& path, std::size_t minimumSpace) {
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
     if (errorCode) {
-        LOG_ERROR(<< "Failed to retrieve disk information for " << path
-                  << " error " << errorCode.message());
-        return false;
+        HANDLE_FATAL(<< "Environment error: failed to retrieve disk information for '"
+                     << path << "' error '" << errorCode.message() << "'.");
     }
     if (spaceInfo.available < minimumSpace) {
-        LOG_ERROR(<< "Insufficient space have " << spaceInfo.available
-                  << " and need " << minimumSpace);
-        return false;
+        HANDLE_FATAL(<< "Environment error: insufficient disk space have '"
+                     << spaceInfo.available << "' and need '" << minimumSpace << "'.");
     }
-    return true;
 }
 }
+
+CTemporaryDirectory::CTemporaryDirectory(const std::string& name, std::size_t minimumSpace)
+    : m_Name{name} {
+    m_Name /= boost::filesystem::unique_path("dataframe-%%%%-%%%%-%%%%-%%%%");
+    LOG_TRACE(<< "Trying to create directory '" << m_Name << "'");
+
+    boost::system::error_code errorCode;
+    boost::filesystem::create_directories(m_Name, errorCode);
+    if (errorCode) {
+        HANDLE_FATAL(<< "Environment error: failed to create temporary directory from: '"
+                     << m_Name << "' error '" << errorCode.message() << "'");
+    }
+
+    sufficientDiskSpaceAvailable(m_Name, minimumSpace);
+
+    LOG_TRACE(<< "Created '" << m_Name << "'");
+}
+
+CTemporaryDirectory::~CTemporaryDirectory() {
+    this->removeAll();
+}
+
+std::string CTemporaryDirectory::name() const {
+    return m_Name.string();
+}
+
+void CTemporaryDirectory::removeAll() {
+    boost::system::error_code errorCode;
+    boost::filesystem::remove_all(m_Name, errorCode);
+    if (errorCode) {
+        LOG_WARN(<< "Failed to cleanup temporary data from: '" << m_Name
+                 << "' error '" << errorCode.message() << "'.");
+    }
+}
+
+//////// COnDiskDataFrameRowSlice ////////
 
 COnDiskDataFrameRowSlice::COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                                                    std::size_t firstRow,
                                                    TFloatVec rows,
                                                    TInt32Vec docHashes)
-    : m_StateIsBad{directory->bad()}, m_FirstRow{firstRow},
-      m_RowsCapacity{rows.size()}, m_DocHashesCapacity{docHashes.size()},
-      m_Directory{directory}, m_FileName{directory->name()}, m_Checksum{0} {
+    : m_FirstRow{firstRow}, m_RowsCapacity{rows.size()},
+      m_DocHashesCapacity{docHashes.size()}, m_Directory{directory},
+      m_FileName{directory->name()}, m_Checksum{0} {
 
-    if (m_StateIsBad == false) {
-        m_FileName /= boost::filesystem::unique_path(
-            "rows-" + std::to_string(firstRow) + "-%%%%-%%%%-%%%%-%%%%");
-        this->writeToDisk(rows, docHashes);
-    }
+    m_FileName /= boost::filesystem::unique_path(
+        "rows-" + std::to_string(firstRow) + "-%%%%-%%%%-%%%%-%%%%");
+    this->writeToDisk(rows, docHashes);
 }
 
-bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
+void COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t extraColumns) {
     // "Reserve" space at the end of each row for extraColumns extra columns.
     // Padding is inserted into the underlying vector which is skipped over
     // by the CRowConstIterator object.
-
-    if (m_StateIsBad) {
-        return false;
-    }
 
     try {
         TFloatVec oldRows(m_RowsCapacity);
         TInt32Vec docHashes(m_DocHashesCapacity);
         if (this->readFromDisk(oldRows, docHashes) == false) {
-            LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
-            m_StateIsBad = true;
-            return false;
+            HANDLE_FATAL(<< "Environment error: failed to read from row "
+                         << m_FirstRow << ".");
         }
 
         std::size_t numberRows{oldRows.size() / numberColumns};
 
-        if (sufficientDiskSpaceAvailable(m_Directory->name(),
-                                         numberRows * extraColumns) == false) {
-            LOG_INFO(<< "Insufficient disk space to reserve " << extraColumns << " extra columns");
-            m_StateIsBad = true;
-            return false;
-        }
+        sufficientDiskSpaceAvailable(m_Directory->name(), numberRows * extraColumns);
 
         std::size_t newNumberColumns{numberColumns + extraColumns};
         TFloatVec newRows(numberRows * newNumberColumns, 0.0);
@@ -297,40 +316,28 @@ bool COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
         this->writeToDisk(newRows, docHashes);
 
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed to reserve " << extraColumns
-                  << " extra columns: caught '" << e.what() << "'");
-        return false;
+        HANDLE_FATAL(<< "Environment error: failed to reserve " << extraColumns
+                     << " extra columns: caught '" << e.what() << "'.");
     }
-
-    return true;
 }
 
 COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
-
-    if (m_StateIsBad) {
-        LOG_ERROR(<< "Bad row slice 'rows-" << m_FirstRow << "'");
-        return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
-    }
 
     TFloatVec rows;
     TInt32Vec docHashes;
 
     try {
         if (this->readFromDisk(rows, docHashes) == false) {
-            LOG_ERROR(<< "Failed to read from row " << m_FirstRow);
-            m_StateIsBad = true;
-            return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
+            HANDLE_FATAL(<< "Environment error: failed to read from row "
+                         << m_FirstRow << ".");
         }
 
         if (computeChecksum(rows, docHashes) != m_Checksum) {
-            LOG_ERROR(<< "Corrupt from row " << m_FirstRow);
-            m_StateIsBad = true;
-            return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
+            HANDLE_FATAL(<< "Environment error: corrupt from row " << m_FirstRow << ".");
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Caught '" << e.what() << "' while reading from row " << m_FirstRow);
-        m_StateIsBad = true;
-        return {0, {std::make_unique<CBadDataFrameRowSliceHandle>()}};
+        HANDLE_FATAL(<< "Environment error: caught '" << e.what()
+                     << "' while reading from row " << m_FirstRow << ".");
     }
 
     return {m_FirstRow,
@@ -339,9 +346,7 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
 }
 
 void COnDiskDataFrameRowSlice::write(const TFloatVec& rows, const TInt32Vec& docHashes) {
-    if (m_StateIsBad == false) {
-        this->writeToDisk(rows, docHashes);
-    }
+    this->writeToDisk(rows, docHashes);
 }
 
 std::size_t COnDiskDataFrameRowSlice::staticSize() const {
@@ -385,53 +390,6 @@ bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docHashe
     file.read(reinterpret_cast<char*>(rows.data()), rowsBytes);
     file.read(reinterpret_cast<char*>(docHashes.data()), docHashesBytes);
     return file.bad() == false;
-}
-
-COnDiskDataFrameRowSlice::CTemporaryDirectory::CTemporaryDirectory(const std::string& name,
-                                                                   std::size_t minimumSpace)
-    : m_Name{name} {
-    m_Name /= boost::filesystem::unique_path("dataframe-%%%%-%%%%-%%%%-%%%%");
-    LOG_TRACE(<< "Trying to create directory '" << m_Name << "'");
-
-    boost::system::error_code errorCode;
-    boost::filesystem::create_directories(m_Name, errorCode);
-    if (errorCode) {
-        LOG_ERROR(<< "Failed to create temporary data from: '" << m_Name
-                  << "' error " << errorCode.message());
-        m_StateIsBad = true;
-    }
-
-    if (m_StateIsBad == false) {
-        m_StateIsBad = (sufficientDiskSpaceAvailable(m_Name, minimumSpace) == false);
-        if (m_StateIsBad) {
-            LOG_INFO(<< "Insufficient disk space to create data frame");
-        }
-    }
-
-    if (m_StateIsBad == false) {
-        LOG_TRACE(<< "Created '" << m_Name << "'");
-    }
-}
-
-COnDiskDataFrameRowSlice::CTemporaryDirectory::~CTemporaryDirectory() {
-    boost::system::error_code errorCode;
-    boost::filesystem::remove_all(m_Name, errorCode);
-    if (errorCode) {
-        LOG_ERROR(<< "Failed to cleanup temporary data from: '" << m_Name
-                  << "' error " << errorCode.message());
-    }
-}
-
-const std::string& COnDiskDataFrameRowSlice::CTemporaryDirectory::name() const {
-    return m_Name.string();
-}
-
-bool COnDiskDataFrameRowSlice::CTemporaryDirectory::sufficientSpaceAvailable(std::size_t minimumSpace) const {
-    return sufficientDiskSpaceAvailable(m_Name, minimumSpace);
-}
-
-bool COnDiskDataFrameRowSlice::CTemporaryDirectory::bad() const {
-    return m_StateIsBad;
 }
 }
 }

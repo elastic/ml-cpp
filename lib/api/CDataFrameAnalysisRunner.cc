@@ -58,7 +58,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (m_NumberPartitions == numberRows) {
-        m_Bad = true;
+        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis.");
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
         // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
@@ -91,10 +91,6 @@ std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
 void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
-    } else if (m_Spec.bad()) {
-        LOG_ERROR(<< "Bad specification: not running analysis");
-        m_FractionalProgress.store(1.0);
-        m_Finished.store(true);
     } else {
         m_FractionalProgress.store(0.0);
         m_Finished.store(false);
@@ -106,10 +102,6 @@ void CDataFrameAnalysisRunner::waitToFinish() {
     if (m_Runner.joinable()) {
         m_Runner.join();
     }
-}
-
-bool CDataFrameAnalysisRunner::bad() const {
-    return m_Bad;
 }
 
 bool CDataFrameAnalysisRunner::finished() const {
@@ -126,29 +118,15 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
 }
 
-CDataFrameAnalysisRunner::TStrVec CDataFrameAnalysisRunner::errors() const {
-    core::CScopedFastLock lock(m_Mutex);
-    auto result = m_Errors;
-    return result;
-}
-
-void CDataFrameAnalysisRunner::setToBad() {
-    m_Bad = true;
-}
-
 void CDataFrameAnalysisRunner::setToFinished() {
     m_Finished.store(true);
     m_FractionalProgress.store(static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS));
 }
 
-void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
-    m_FractionalProgress.fetch_add(std::max(
-        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
-}
-
-void CDataFrameAnalysisRunner::addError(const std::string& error) {
-    core::CScopedFastLock lock(m_Mutex);
-    m_Errors.push_back(error);
+CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRecorder() {
+    return [this](double fractionalProgress) {
+        this->recordProgress(fractionalProgress);
+    };
 }
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
@@ -156,6 +134,11 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows
     return core::CDataFrame::estimateMemoryUsage(this->storeDataFrameInMainMemory(),
                                                  numberRows, numberColumns) +
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
+}
+
+void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
+    m_FractionalProgress.fetch_add(std::max(
+        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

@@ -71,22 +71,23 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::stri
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                                                  const std::string& jsonSpecification)
     : m_RunnerFactories{std::move(runnerFactories)} {
+
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
-        LOG_ERROR(<< "Failed to parse: '" << jsonSpecification << "'");
-        m_Bad = true;
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
+                     << jsonSpecification << "'. Please report this problem.");
     } else {
         auto isPositiveInteger = [](const rapidjson::Value& value) {
             return value.IsUint() && value.GetUint() > 0;
         };
         auto registerFailure = [this, &document](const char* name) {
             if (document.HasMember(name)) {
-                LOG_ERROR(<< "Internal error: bad value for '" << name
-                          << "': " << toString(document[name]));
+                HANDLE_FATAL(<< "Input error: bad value '" << toString(document[name])
+                             << "' for '" << name << "' in analysis specification.");
             } else {
-                LOG_ERROR(<< "Internal error: missing '" << name << "'");
+                HANDLE_FATAL(<< "Input error: missing '" << name << "' in analysis "
+                             << "specification. Please report this problem.");
             }
-            m_Bad = true;
         };
 
         if (document.HasMember(ROWS) && isPositiveInteger(document[ROWS])) {
@@ -109,7 +110,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         } else {
             registerFailure(THREADS);
         }
-        // TODO Remove hack when being passed.
+        // TODO Remove if (false) hack when being passed.
         if (false) {
             if (document.HasMember(TEMPORARY_DIRECTORY) &&
                 document[TEMPORARY_DIRECTORY].IsString() &&
@@ -134,15 +135,11 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         // Check for any unrecognised fields; these might be typos.
         for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
             if (isValidMember(*i) == false) {
-                LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'")
-                m_Bad = true;
+                HANDLE_FATAL(<< "Input error: unexpected member '" << i->name.GetString()
+                             << "' of analysis specification. Please report this problem.");
             }
         }
     }
-}
-
-bool CDataFrameAnalysisSpecification::bad() const {
-    return m_Bad || m_Runner->bad();
 }
 
 std::size_t CDataFrameAnalysisSpecification::numberRows() const {
@@ -165,9 +162,9 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
 }
 
-CDataFrameAnalysisSpecification::TDataFrameUPtr
-CDataFrameAnalysisSpecification::makeDataFrame() const {
-    if (m_Bad) {
+CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
+CDataFrameAnalysisSpecification::makeDataFrame() {
+    if (m_Runner == nullptr) {
         return {};
     }
 
@@ -176,13 +173,13 @@ CDataFrameAnalysisSpecification::makeDataFrame() const {
     if (m_Runner->storeDataFrameInMainMemory() == false) {
         return {};
     }
-    ////
+    // END TODO
 
-    TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
-                              ? core::makeMainStorageDataFrame(m_NumberColumns)
-                              : core::makeDiskStorageDataFrame(
-                                    m_TemporaryDirectory, m_NumberColumns, m_NumberRows)};
-    result->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
+    auto result = m_Runner->storeDataFrameInMainMemory()
+                      ? core::makeMainStorageDataFrame(m_NumberColumns)
+                      : core::makeDiskStorageDataFrame(m_TemporaryDirectory,
+                                                       m_NumberColumns, m_NumberRows);
+    result.first->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 
     return result;
 }
@@ -208,8 +205,8 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         }
     }
 
-    LOG_ERROR(<< "Internal error: unexpected value for 'name': '" << name << "'");
-    m_Bad = true;
+    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
+                 << "'. Please report this problem.");
 }
 }
 }

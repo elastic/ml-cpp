@@ -148,8 +148,8 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
     };
 
     frame.resizeColumns(numberThreads, frame.numberColumns() + 1);
-    successful = frame.writeColumns(numberThreads, writeScores);
-    if (successful == false) {
+
+    if (frame.writeColumns(numberThreads, writeScores) == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
         return false;
     }
@@ -165,7 +165,11 @@ bool computeOutliers(std::size_t numberThreads,
     // TODO memory monitoring.
 
     if (frame.inMainMemory()) {
-        return computeOutliersNoPartitions(numberThreads, algorithm, k, recordProgress, frame);
+        if (computeOutliersNoPartitions(numberThreads, algorithm, k, recordProgress, frame) == false) {
+            HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
+                         << "may be more details in the logs. Please report this problem.");
+        }
+        return true;
     }
 
     // TODO this needs to work out the partitioning and run outlier detection
