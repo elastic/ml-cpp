@@ -114,7 +114,11 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::computeOutliers(this->spec().numberThreads(), frame);
+    maths::computeOutliers(this->spec().numberThreads(),
+                           [this](double fractionalProgress) {
+                               this->recordProgress(fractionalProgress);
+                           },
+                           frame);
 }
 
 std::size_t

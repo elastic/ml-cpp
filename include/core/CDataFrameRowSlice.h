@@ -25,12 +25,14 @@ namespace data_frame_row_slice_detail {
 class CORE_EXPORT CDataFrameRowSliceHandleImpl {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
+    using TInt32Vec = std::vector<std::int32_t>;
     using TImplPtr = std::unique_ptr<CDataFrameRowSliceHandleImpl>;
 
 public:
     virtual ~CDataFrameRowSliceHandleImpl() = default;
     virtual TImplPtr clone() const = 0;
-    virtual TFloatVec& values() const = 0;
+    virtual TFloatVec& rows() const = 0;
+    virtual const TInt32Vec& docHashes() const = 0;
     virtual bool bad() const = 0;
 };
 }
@@ -41,6 +43,8 @@ class CORE_EXPORT CDataFrameRowSliceHandle {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
+    using TInt32Vec = std::vector<std::int32_t>;
+    using TInt32VecCItr = TInt32Vec::const_iterator;
     using TImplPtr = std::unique_ptr<data_frame_row_slice_detail::CDataFrameRowSliceHandleImpl>;
 
 public:
@@ -53,9 +57,12 @@ public:
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
     std::size_t size() const;
-    TFloatVecItr begin() const;
-    TFloatVecItr end() const;
-    const TFloatVec& values() const;
+    TFloatVecItr beginRows() const;
+    TFloatVecItr endRows() const;
+    TInt32VecCItr beginDocHashes() const;
+    TInt32VecCItr endDocHashes() const;
+    const TFloatVec& rows() const;
+    const TInt32Vec& docHashes() const;
     bool bad() const;
 
 private:
@@ -67,12 +74,13 @@ class CORE_EXPORT CDataFrameRowSlice {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TSizeHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
+    using TInt32Vec = std::vector<std::int32_t>;
 
 public:
     virtual ~CDataFrameRowSlice() = default;
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
     virtual TSizeHandlePr read() = 0;
-    virtual void write(const TFloatVec& values) = 0;
+    virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes) = 0;
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
     virtual std::uint64_t checksum() const = 0;
@@ -90,17 +98,18 @@ public:
 //! rows to adapt it for use by the data frame.
 class CORE_EXPORT CMainMemoryDataFrameRowSlice final : public CDataFrameRowSlice {
 public:
-    CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec state);
+    CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes);
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
-    virtual void write(const TFloatVec& values);
+    virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
     virtual std::uint64_t checksum() const;
 
 private:
     std::size_t m_FirstRow;
-    TFloatVec m_State;
+    TFloatVec m_Rows;
+    TInt32Vec m_DocHashes;
 };
 
 //! \brief On disk CDataFrame slice storage.
@@ -151,17 +160,18 @@ public:
 public:
     COnDiskDataFrameRowSlice(const TTemporaryDirectoryPtr& directory,
                              std::size_t firstRow,
-                             TFloatVec state);
+                             TFloatVec rows,
+                             TInt32Vec docHashes);
     virtual bool reserve(std::size_t numberColumns, std::size_t extraColumns);
     virtual TSizeHandlePr read();
-    virtual void write(const TFloatVec& values);
+    virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
     virtual std::size_t staticSize() const;
     virtual std::size_t memoryUsage() const;
     virtual std::uint64_t checksum() const;
 
 private:
-    void writeToDisk(const TFloatVec& state);
-    bool readFromDisk(TFloatVec& result) const;
+    void writeToDisk(const TFloatVec& rows, const TInt32Vec& docHashes);
+    bool readFromDisk(TFloatVec& rows, TInt32Vec& docHashes) const;
 
 private:
     using TByteVec = CCompressUtil::TByteVec;
@@ -169,10 +179,11 @@ private:
 private:
     mutable bool m_StateIsBad = false;
     std::size_t m_FirstRow;
-    std::size_t m_Capacity;
+    std::size_t m_RowsCapacity;
+    std::size_t m_DocHashesCapacity;
     TTemporaryDirectoryPtr m_Directory;
     boost::filesystem::path m_FileName;
-    uint64_t m_Checksum;
+    std::uint64_t m_Checksum;
 };
 }
 }

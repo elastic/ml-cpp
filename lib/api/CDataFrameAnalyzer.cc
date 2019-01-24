@@ -26,11 +26,12 @@ double truncateToFloatRange(double value) {
     return maths::CTools::truncate(value, -largest, largest);
 }
 
-const std::string CONTROL_MESSAGE_FIELD_NAME{"."};
+const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
+
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
-const std::string ID_HASH{"id_hash"};
+const std::string CHECKSUM{"checksum"};
 const std::string RESULTS{"results"};
 }
 
@@ -61,20 +62,19 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     if (m_AnalysisSpecification == nullptr || m_AnalysisSpecification->bad()) {
         // TODO We need to communicate an error but don't want one for each row.
         // Revisit this when we have finalized our monitoring strategy.
-        LOG_TRACE(<< "Specification is bad");
+        LOG_ERROR(<< "Specification is bad");
         return false;
     }
 
     if (this->readyToReceiveControlMessages() == false &&
         this->prepareToReceiveControlMessages(fieldNames) == false) {
+        // Logging handled below.
         return false;
     }
 
     if (this->sufficientFieldValues(fieldValues) == false) {
         // TODO We need to communicate an error but don't want one for each row.
         // Revisit this when we have finalized our monitoring strategy.
-        LOG_TRACE(<< "Expected " << m_AnalysisSpecification->numberColumns()
-                  << " field values and got " << fieldValues.size());
         return false;
     }
 
@@ -116,24 +116,43 @@ void CDataFrameAnalyzer::run() {
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
-    return m_ControlFieldIndex != CONTROL_FIELD_UNSET;
+    return m_ControlFieldIndex != FIELD_UNSET;
 }
 
 bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNames) {
-    if (fieldNames.empty() || fieldNames.back() != CONTROL_MESSAGE_FIELD_NAME) {
-        m_ControlFieldIndex = CONTROL_FIELD_MISSING;
+    // If this is being called by the Java API we'll use the last two columns for
+    // special purposes:
+    //   - penultimate contains a 32 bit hash of the document.
+    //   - last contains the control message.
+    //
+    // These will both be called . to avoid collision with any real field name.
+
+    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), SPECIAL_COLUMN_FIELD_NAME);
+    auto posControlMessage = posDocHash == fieldNames.end()
+                                 ? fieldNames.end()
+                                 : std::find(posDocHash + 1, fieldNames.end(),
+                                             SPECIAL_COLUMN_FIELD_NAME);
+
+    if (posDocHash == fieldNames.end() && posControlMessage == fieldNames.end()) {
+        m_ControlFieldIndex = FIELD_MISSING;
         m_BeginDataFieldValues = 0;
         m_EndDataFieldValues = static_cast<std::ptrdiff_t>(fieldNames.size());
+        m_DocHashFieldIndex = FIELD_MISSING;
+
+    } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
+               posControlMessage != fieldNames.end() - 1) {
+
+        LOG_ERROR(<< "Expected exacly two special fields in last two positions, got "
+                  << core::CContainerPrinter::print(fieldNames));
+        return false;
+
     } else {
-        m_ControlFieldIndex = static_cast<std::ptrdiff_t>(fieldNames.size() - 1);
+        m_ControlFieldIndex = posControlMessage - fieldNames.begin();
         m_BeginDataFieldValues = 0;
-        m_EndDataFieldValues = m_ControlFieldIndex;
-        auto pos = std::find(fieldNames.begin(), fieldNames.end(), CONTROL_MESSAGE_FIELD_NAME);
-        if (pos != fieldNames.end() - 1) {
-            LOG_ERROR(<< "Unexpected possible control field: ignoring");
-            return false;
-        }
+        m_EndDataFieldValues = posDocHash - fieldNames.begin();
+        m_DocHashFieldIndex = m_ControlFieldIndex - 1;
     }
+
     return true;
 }
 
@@ -142,10 +161,14 @@ bool CDataFrameAnalyzer::isControlMessage(const TStrVec& fieldValues) const {
 }
 
 bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const {
-    if (m_ControlFieldIndex >= 0) {
-        return fieldValues.size() == m_AnalysisSpecification->numberColumns() + 1;
+    std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
+                                          (m_ControlFieldIndex >= 0 ? 2 : 0)};
+    if (fieldValues.size() != expectedNumberFieldValues) {
+        LOG_ERROR(<< "Expected " << expectedNumberFieldValues
+                  << " field values and got " << fieldValues.size());
+        return false;
     }
-    return fieldValues.size() == m_AnalysisSpecification->numberColumns();
+    return true;
 }
 
 bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
@@ -183,9 +206,9 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     using TFloatVec = std::vector<core::CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
 
-    m_DataFrame->writeRow([&](TFloatVecItr output) {
+    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
-             i != m_EndDataFieldValues; ++i, ++output) {
+             i != m_EndDataFieldValues; ++i, ++columns) {
             double value;
             if (core::CStringUtils::stringToType(fieldValues[i], value) == false) {
                 ++m_BadValueCount;
@@ -193,15 +216,19 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                 // TODO this is a can of worms we can deal with later.
                 // Use NaN to indicate missing in the data frame, but this needs
                 // handling with care from an analysis perspective. If analyses
-                // can deal with missing values we need to make sure they would
-                // deal with NaNs correctly otherwise we need to impute or exit
-                // with failure.
-                *output = core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+                // can deal with missing values they need to treat NaNs as missing
+                // otherwise we must impute or exit with failure.
+                *columns = core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
             } else {
                 // Tuncation is very unlikely since the values will typically be
                 // standardised.
-                *output = truncateToFloatRange(value);
+                *columns = truncateToFloatRange(value);
             }
+        }
+        docHash = 0;
+        if (m_DocHashFieldIndex != FIELD_MISSING &&
+            core::CStringUtils::stringToType(fieldValues[m_DocHashFieldIndex], docHash) == false) {
+            ++m_BadDocHashCount;
         }
     });
 }
@@ -221,8 +248,8 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
-            outputWriter.Key(ID_HASH);
-            outputWriter.String(ID_HASH); // TODO this should be the actual hash
+            outputWriter.Key(CHECKSUM);
+            outputWriter.Int(row->docHash());
             outputWriter.Key(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
             outputWriter.EndObject();

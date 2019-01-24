@@ -48,7 +48,7 @@ protected:
 
             std::this_thread::sleep_for(std::chrono::milliseconds(wait[0]));
 
-            this->updateProgress(static_cast<double>(i) / 30.0);
+            this->recordProgress(1.0 / 30.0);
             if (i % 10 == 0) {
                 this->addError("error " + std::to_string(i));
             }

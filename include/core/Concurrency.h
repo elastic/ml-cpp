@@ -8,6 +8,7 @@
 #define INCLUDED_ml_core_Concurrency_h
 
 #include <core/CLogger.h>
+#include <core/CLoopProgress.h>
 #include <core/ImportExport.h>
 
 #include <boost/any.hpp>
@@ -212,6 +213,9 @@ public:
 private:
     bool m_WasBusy;
 };
+
+CORE_EXPORT
+void noop(double);
 }
 
 //! Run \p f in parallel using async.
@@ -229,9 +233,14 @@ private:
 //! \note If f throws this will throw.
 template<typename FUNCTION>
 std::vector<FUNCTION>
-parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FUNCTION&& f) {
+parallel_for_each(std::size_t partitions,
+                  std::size_t start,
+                  std::size_t end,
+                  FUNCTION&& f,
+                  const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
 
     if (end <= start) {
+        recordProgress(1.0);
         return {std::forward<FUNCTION>(f)};
     }
 
@@ -258,7 +267,8 @@ parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FU
     concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
 
     if (partitions < 2 || scope.wasBusy()) {
-        for (std::size_t i = start; i < end; ++i) {
+        CLoopProgress progress{end - start, recordProgress};
+        for (std::size_t i = start; i < end; ++i, progress.increment()) {
             f(i);
         }
         return {std::forward<FUNCTION>(f)};
@@ -283,15 +293,20 @@ parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FU
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
+        CLoopProgress progress{end - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
+
         auto& g = functions[offset];
-        tasks.emplace_back(async(defaultAsyncExecutor(),
-                                 [&g, partitions](std::size_t start_, std::size_t end_) {
-                                     for (std::size_t i = start_; i < end_; i += partitions) {
-                                         g(i);
-                                     }
-                                     return true; // So we can check for exceptions via get.
-                                 },
-                                 start, end));
+        tasks.emplace_back(
+            async(defaultAsyncExecutor(),
+                  [&g, partitions, progress](std::size_t start_, std::size_t end_) mutable {
+                      for (std::size_t i = start_; i < end_;
+                           i += partitions, progress.increment(partitions)) {
+                          g(i);
+                      }
+                      return true; // So we can check for exceptions via get.
+                  },
+                  start, end));
     }
 
     get_conjunction_of_all(tasks);
@@ -301,9 +316,13 @@ parallel_for_each(std::size_t partitions, std::size_t start, std::size_t end, FU
 
 //! Overload with number of threads partitions.
 template<typename FUNCTION>
-std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNCTION&& f) {
+std::vector<FUNCTION>
+parallel_for_each(std::size_t start,
+                  std::size_t end,
+                  FUNCTION&& f,
+                  const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
     return parallel_for_each(defaultAsyncThreadPoolSize(), start, end,
-                             std::forward<FUNCTION>(f));
+                             std::forward<FUNCTION>(f), recordProgress);
 }
 
 //! Run \p f in parallel using async.
@@ -321,10 +340,15 @@ std::vector<FUNCTION> parallel_for_each(std::size_t start, std::size_t end, FUNC
 //! \note If f throws this will throw.
 template<typename ITR, typename FUNCTION>
 std::vector<FUNCTION>
-parallel_for_each(std::size_t partitions, ITR start, ITR end, FUNCTION&& f) {
+parallel_for_each(std::size_t partitions,
+                  ITR start,
+                  ITR end,
+                  FUNCTION&& f,
+                  const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
 
     std::size_t size(std::distance(start, end));
     if (size == 0) {
+        recordProgress(1.0);
         return {std::forward<FUNCTION>(f)};
     }
 
@@ -335,7 +359,12 @@ parallel_for_each(std::size_t partitions, ITR start, ITR end, FUNCTION&& f) {
     concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
 
     if (partitions < 2 || scope.wasBusy()) {
-        return {std::for_each(start, end, std::forward<FUNCTION>(f))};
+
+        CLoopProgress progress{size, recordProgress};
+        for (ITR i = start; i != end; ++i, progress.increment()) {
+            f(*i);
+        }
+        return {std::forward<FUNCTION>(f)};
     }
 
     std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
@@ -348,23 +377,29 @@ parallel_for_each(std::size_t partitions, ITR start, ITR end, FUNCTION&& f) {
         // Note there is one copy of g for each thread so capture by reference
         // is thread safe provided f is thread safe.
 
+        CLoopProgress progress{size - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
+
         auto& g = functions[offset];
-        tasks.emplace_back(
-            async(defaultAsyncExecutor(),
-                  [&g, partitions, offset, size](ITR start_) {
-                      std::size_t i{offset};
-                      auto incrementByPartitions = [&i, partitions, size](ITR& j) {
-                          if (i < size) {
-                              std::advance(j, partitions);
-                          }
-                      };
-                      for (ITR j = start_; i < size;
-                           i += partitions, incrementByPartitions(j)) {
-                          g(*j);
-                      }
-                      return true; // So we can check for exceptions via get.
-                  },
-                  start));
+        tasks.emplace_back(async(
+            defaultAsyncExecutor(),
+            [&g, partitions, offset, size, progress](ITR start_) mutable {
+
+                std::size_t i{offset};
+
+                auto incrementByPartitions = [&i, partitions, size](ITR& j) {
+                    if (i < size) {
+                        std::advance(j, partitions);
+                    }
+                };
+
+                for (ITR j = start_; i < size; i += partitions,
+                         incrementByPartitions(j), progress.increment(partitions)) {
+                    g(*j);
+                }
+                return true; // So we can check for exceptions via get.
+            },
+            start));
     }
 
     get_conjunction_of_all(tasks);
@@ -374,9 +409,13 @@ parallel_for_each(std::size_t partitions, ITR start, ITR end, FUNCTION&& f) {
 
 //! Overload with number of threads partitions.
 template<typename ITR, typename FUNCTION>
-std::vector<FUNCTION> parallel_for_each(ITR start, ITR end, FUNCTION&& f) {
+std::vector<FUNCTION>
+parallel_for_each(ITR start,
+                  ITR end,
+                  FUNCTION&& f,
+                  const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
     return parallel_for_each(defaultAsyncThreadPoolSize(), start, end,
-                             std::forward<FUNCTION>(f));
+                             std::forward<FUNCTION>(f), recordProgress);
 }
 }
 }

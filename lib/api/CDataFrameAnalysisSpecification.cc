@@ -172,9 +172,11 @@ CDataFrameAnalysisSpecification::makeDataFrame() const {
     }
 
     // TODO Remove hack when passing directory in config.
+    ////
     if (m_Runner->storeDataFrameInMainMemory() == false) {
         return {};
     }
+    ////
 
     TDataFrameUPtr result{m_Runner->storeDataFrameInMainMemory()
                               ? core::makeMainStorageDataFrame(m_NumberColumns)
@@ -201,7 +203,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
         if (std::strcmp(factory->name(), name) == 0) {
             m_Runner = analysis.HasMember(PARAMETERS)
                            ? factory->make(*this, analysis[PARAMETERS])
-                           : factory->make((*this));
+                           : factory->make(*this);
             return;
         }
     }

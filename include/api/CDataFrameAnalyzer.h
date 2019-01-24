@@ -54,8 +54,8 @@ private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
 private:
-    static const std::ptrdiff_t CONTROL_FIELD_UNSET{-2};
-    static const std::ptrdiff_t CONTROL_FIELD_MISSING{-1};
+    static const std::ptrdiff_t FIELD_UNSET{-2};
+    static const std::ptrdiff_t FIELD_MISSING{-1};
 
 private:
     bool sufficientFieldValues(const TStrVec& fieldNames) const;
@@ -68,10 +68,12 @@ private:
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
-    std::ptrdiff_t m_ControlFieldIndex = CONTROL_FIELD_UNSET;
-    std::ptrdiff_t m_BeginDataFieldValues = -1;
-    std::ptrdiff_t m_EndDataFieldValues = -1;
+    std::ptrdiff_t m_ControlFieldIndex = FIELD_UNSET;
+    std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
+    std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
+    std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
     std::uint64_t m_BadValueCount;
+    std::uint64_t m_BadDocHashCount;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;

@@ -22,10 +22,12 @@ namespace {
 std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& spec) {
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
+
+const double MAXIMUM_FRACTIONAL_PROGRESS{1024.0};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
-    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0.0} {
+    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0} {
 }
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
@@ -115,7 +117,9 @@ bool CDataFrameAnalysisRunner::finished() const {
 }
 
 double CDataFrameAnalysisRunner::progress() const {
-    return m_FractionalProgress.load();
+    return static_cast<double>(std::min(m_FractionalProgress.load(),
+                                        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS))) /
+           MAXIMUM_FRACTIONAL_PROGRESS;
 }
 
 const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
@@ -134,11 +138,12 @@ void CDataFrameAnalysisRunner::setToBad() {
 
 void CDataFrameAnalysisRunner::setToFinished() {
     m_Finished.store(true);
-    m_FractionalProgress.store(1.0);
+    m_FractionalProgress.store(static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS));
 }
 
-void CDataFrameAnalysisRunner::updateProgress(double fractionalProgress) {
-    m_FractionalProgress.store(fractionalProgress);
+void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
+    m_FractionalProgress.fetch_add(std::max(
+        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
 }
 
 void CDataFrameAnalysisRunner::addError(const std::string& error) {

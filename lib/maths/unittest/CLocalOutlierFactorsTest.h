@@ -17,6 +17,7 @@ public:
     void testTotalDistancekNN();
     void testEnsemble();
     void testDataFrame();
+    void testProgressMonitoring();
 
     static CppUnit::Test* suite();
 };

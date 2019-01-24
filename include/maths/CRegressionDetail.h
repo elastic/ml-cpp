@@ -189,8 +189,8 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
         return false;
     }
 
-    // Don't bother checking the solution since we check
-    // the matrix condition above.
+    // Don't bother checking the solution since we check the matrix
+    // condition above.
     VECTOR r = svd.solve(y);
     for (std::size_t i = 0u; i < n; ++i) {
         result[i] = r(i);
@@ -215,7 +215,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
                                           Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
-        LOG_TRACE(<< "singular values = " << x_.singularValues());
+        LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
     }
 

@@ -17,6 +17,7 @@ public:
     void testParallelForEach();
     void testParallelForEachWithExceptions();
     void testParallelForEachReentry();
+    void testProgressMonitoring();
 
     static CppUnit::Test* suite();
 };

@@ -19,6 +19,10 @@
 namespace ml {
 namespace maths {
 
+CLocalOutlierFactors::CLocalOutlierFactors(TProgressCallback recordProgress)
+    : m_RecordProgress{recordProgress} {
+}
+
 void CLocalOutlierFactors::normalize(TDoubleVec& scores) {
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
@@ -63,8 +67,13 @@ double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
     return logInterpolate(std::numeric_limits<double>::min(), 100.0, 1e-10, 50.0, cdfComplement);
 }
 
+void CLocalOutlierFactors::noop(double) {
+}
+
 namespace {
-bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& frame) {
+bool computeOutliersNoPartitions(std::size_t numberThreads,
+                                 std::function<void(double)> recordProgress,
+                                 core::CDataFrame& frame) {
 
     using TDoubleVec = std::vector<double>;
     using TVector = CMemoryMappedDenseVector<CFloatStorage>;
@@ -94,8 +103,10 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
         return false;
     }
 
+    CLocalOutlierFactors outliers{recordProgress};
+
     TDoubleVec scores;
-    CLocalOutlierFactors::ensemble(std::move(points), scores);
+    outliers.ensemble(std::move(points), scores);
 
     // This never happens now, but it is a sanity check against someone
     // changing CLocalOutlierFactors to accidentally write to the data
@@ -122,14 +133,14 @@ bool computeOutliersNoPartitions(std::size_t numberThreads, core::CDataFrame& fr
 }
 }
 
-bool computeOutliers(std::size_t numberThreads, core::CDataFrame& frame) {
-    // TODO threading of outlier scores.
-    // TODO progress monitoring.
+bool computeOutliers(std::size_t numberThreads,
+                     std::function<void(double)> recordProgress,
+                     core::CDataFrame& frame) {
     // TODO memory monitoring.
     // TODO different analysis types.
 
     if (frame.inMainMemory()) {
-        return computeOutliersNoPartitions(numberThreads, frame);
+        return computeOutliersNoPartitions(numberThreads, recordProgress, frame);
     }
 
     // TODO this needs to work out the partitioning and run outlier detection

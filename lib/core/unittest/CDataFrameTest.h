@@ -21,6 +21,7 @@ public:
     void testReserve();
     void testResizeColumns();
     void testWriteColumns();
+    void testDocHashes();
 
     static CppUnit::Test* suite();
 };

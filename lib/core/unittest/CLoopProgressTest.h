@@ -3,18 +3,19 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CStatisticsTest_h
-#define INCLUDED_CStatisticsTest_h
+
+#ifndef INCLUDED_CLoopProgressTest_h
+#define INCLUDED_CLoopProgressTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticsTest : public CppUnit::TestFixture {
+class CLoopProgressTest : public CppUnit::TestFixture {
 public:
-    void testStatistics();
-    void testPersist();
-    void testCacheStatistics();
+    void testShort();
+    void testRandom();
+    void testScaled();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CStatisticsTest_h
+#endif // INCLUDED_CLoopProgressTest_h

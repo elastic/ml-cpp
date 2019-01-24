@@ -17,6 +17,7 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <atomic>
 #include <numeric>
 
 using namespace ml;
@@ -119,8 +120,10 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);
 
+        maths::CLocalOutlierFactors lofs;
+
         TDoubleVec scores;
-        maths::CLocalOutlierFactors::ensemble(points, scores);
+        lofs.ensemble(points, scores);
 
         TSizeVec outliers[3];
         for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -199,8 +202,10 @@ void CLocalOutlierFactorsTest::testLof() {
                            "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, "
                            "-1, -1, -1, -1, -1]"};
     for (auto k : {5, 10, 15}) {
+        maths::CLocalOutlierFactors lofs;
+
         TDoubleVec scores;
-        maths::CLocalOutlierFactors::normalizedLof(k, false, points, scores);
+        lofs.normalizedLof(k, false, points, scores);
 
         TMaxAccumulator outliers_(numberOutliers);
         for (std::size_t i = 0u; i < scores.size(); ++i) {
@@ -228,9 +233,11 @@ void CLocalOutlierFactorsTest::testDlof() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
+    maths::CLocalOutlierFactors lofs;
+
     TDoubleVec scores;
     std::size_t k{10};
-    maths::CLocalOutlierFactors::normalizedLdof(k, false, points, scores);
+    lofs.normalizedLdof(k, false, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -260,7 +267,7 @@ void CLocalOutlierFactorsTest::testDlof() {
 
     // Compare outliers when projecting (should be similar).
 
-    maths::CLocalOutlierFactors::normalizedLdof(k, true, points, scores);
+    lofs.normalizedLdof(k, true, points, scores);
 
     TMaxAccumulator outlierScoresProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -297,9 +304,11 @@ void CLocalOutlierFactorsTest::testDistancekNN() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
+    maths::CLocalOutlierFactors lofs;
+
     TDoubleVec scores;
     std::size_t k{10};
-    maths::CLocalOutlierFactors::normalizedDistancekNN(k, false, points, scores);
+    lofs.normalizedDistancekNN(k, false, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -322,7 +331,7 @@ void CLocalOutlierFactorsTest::testDistancekNN() {
 
     // Compare outliers when projecting (should be similar).
 
-    maths::CLocalOutlierFactors::normalizedDistancekNN(k, true, points, scores);
+    lofs.normalizedDistancekNN(k, true, points, scores);
 
     TMaxAccumulator outlierScoresProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -358,9 +367,11 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
+    maths::CLocalOutlierFactors lofs;
+
     TDoubleVec scores;
     std::size_t k{10};
-    maths::CLocalOutlierFactors::normalizedTotalDistancekNN(k, false, points, scores);
+    lofs.normalizedTotalDistancekNN(k, false, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -387,7 +398,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
 
     // Compare outliers when projecting (should be similar).
 
-    maths::CLocalOutlierFactors::normalizedTotalDistancekNN(k, true, points, scores);
+    lofs.normalizedTotalDistancekNN(k, true, points, scores);
 
     TMaxAccumulator outlierScoresProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -493,6 +504,51 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     core::stopDefaultAsyncExecutor();
 }
 
+void CLocalOutlierFactorsTest::testProgressMonitoring() {
+
+    // Test progress monitoring invariants.
+
+    std::size_t numberInliers{100000};
+    std::size_t numberOutliers{500};
+
+    test::CRandomNumbers rng;
+
+    TVectorVec points(numberInliers + numberOutliers, TVector(6));
+
+    std::atomic_int totalFractionalProgress{0};
+
+    auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
+        totalFractionalProgress.fetch_add(static_cast<int>(1024.0 * fractionalProgress + 0.5));
+    };
+
+    std::atomic_bool finished{false};
+
+    std::thread worker{[&](TVectorVec points_) {
+                           maths::CLocalOutlierFactors lofs{reportProgress};
+                           TDoubleVec scores;
+                           lofs.ensemble(points_, scores);
+                           finished.store(true);
+                       },
+                       std::move(points)};
+
+    int lastTotalFractionalProgress{0};
+    int lastProgressReport{0};
+
+    bool monotonic{true};
+    while (finished.load() == false) {
+        if (totalFractionalProgress.load() > lastProgressReport) {
+            LOG_DEBUG(<< (static_cast<double>(lastProgressReport) / 10) << "% complete");
+            lastProgressReport += 100;
+        }
+        monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
+        lastTotalFractionalProgress = totalFractionalProgress.load();
+    }
+    worker.join();
+
+    CPPUNIT_ASSERT(monotonic);
+    CPPUNIT_ASSERT_EQUAL(1024, totalFractionalProgress.load());
+}
+
 CppUnit::Test* CLocalOutlierFactorsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLocalOutlierFactorsTest");
 
@@ -507,6 +563,9 @@ CppUnit::Test* CLocalOutlierFactorsTest::suite() {
         &CLocalOutlierFactorsTest::testTotalDistancekNN));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
         "CLocalOutlierFactorsTest::testEnsemble", &CLocalOutlierFactorsTest::testEnsemble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
+        "CLocalOutlierFactorsTest::testProgressMonitoring",
+        &CLocalOutlierFactorsTest::testProgressMonitoring));
 
     return suiteOfTests;
 }
