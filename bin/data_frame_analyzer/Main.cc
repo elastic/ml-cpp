@@ -13,8 +13,10 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CDataFrameRowSlice.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CNonInstantiatable.h>
 #include <core/CProcessPriority.h>
 #include <core/Concurrency.h>
 
@@ -34,18 +36,39 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace {
 std::pair<std::string, bool> readFileToString(const std::string& fileName) {
     std::ifstream fileStream{fileName};
     if (fileStream.is_open() == false) {
-        LOG_ERROR(<< "Failed to open file '" << fileName << "'");
+        LOG_FATAL(<< "Environment error: failed to open file '" << fileName << "'.");
         return {std::string{}, false};
     }
     return {std::string{std::istreambuf_iterator<char>{fileStream},
                         std::istreambuf_iterator<char>{}},
             true};
 }
+
+class CCleanUpOnExit : private ml::core::CNonInstantiatable {
+public:
+    using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
+
+public:
+    static void add(TTemporaryDirectoryPtr directory) {
+        m_DataFrameDirectory = directory;
+    }
+
+    static void run() {
+        if (m_DataFrameDirectory != nullptr) {
+            m_DataFrameDirectory->removeAll();
+        }
+    }
+
+private:
+    static TTemporaryDirectoryPtr m_DataFrameDirectory;
+};
+CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 }
 
 int main(int argc, char** argv) {
@@ -63,6 +86,11 @@ int main(int argc, char** argv) {
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
+
+    // The static members of CCleanUpOnExit will all be fully initialised before
+    // this call (before the beginning main). Therefore, they will be destructed
+    // after CCleanUpOnExit::run is run and it is safe to act on them there.
+    std::atexit(CCleanUpOnExit::run);
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
@@ -105,10 +133,6 @@ int main(int argc, char** argv) {
 
     auto analysisSpecification =
         std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
-    if (analysisSpecification->bad()) {
-        LOG_FATAL("Failed to parse analysis specification");
-        return EXIT_FAILURE;
-    }
     if (analysisSpecification->numberThreads() > 1) {
         ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
@@ -117,6 +141,8 @@ int main(int argc, char** argv) {
         std::move(analysisSpecification), [&ioMgr]() {
             return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
         }};
+
+    CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
@@ -131,8 +157,6 @@ int main(int argc, char** argv) {
         // after closing the input pipe if control messages are not in use.
         dataFrameAnalyzer.run();
     }
-
-    // TODO Error handling, writing results back, etc.
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log

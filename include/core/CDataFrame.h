@@ -23,6 +23,7 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
+class CTemporaryDirectory;
 
 namespace data_frame_detail {
 
@@ -243,13 +244,13 @@ public:
     //!
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] rowCapacity The desired number of columns.
-    bool reserve(std::size_t numberThreads, std::size_t rowCapacity);
+    void reserve(std::size_t numberThreads, std::size_t rowCapacity);
 
     //! Resize to contain \p numberColumns columns.
     //!
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] numberColumns The desired number of columns.
-    bool resizeColumns(std::size_t numberThreads, std::size_t numberColumns);
+    void resizeColumns(std::size_t numberThreads, std::size_t numberColumns);
 
     //! This reads rows using one or more readers.
     //!
@@ -342,8 +343,6 @@ public:
                                            std::size_t numberRows,
                                            std::size_t numberColumns);
 
-    // TODO Better error case diagnostics.
-
     // TODO We may want an architecture agnostic check pointing mechanism for long
     // running tasks.
 
@@ -424,7 +423,7 @@ private:
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
@@ -441,7 +440,7 @@ makeMainStorageDataFrame(std::size_t numberColumns,
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
 CORE_EXPORT
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,

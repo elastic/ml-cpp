@@ -19,6 +19,7 @@ namespace ml {
 namespace core {
 class CDataFrame;
 class CJsonOutputStreamWrapper;
+class CTemporaryDirectory;
 }
 namespace api {
 class CDataFrameAnalysisRunner;
@@ -32,6 +33,7 @@ public:
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
+    using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
@@ -49,6 +51,9 @@ public:
 
     //! Run the configured analysis.
     void run();
+
+    //! Get the data frame's temporary directory if there is one.
+    const TTemporaryDirectoryPtr& dataFrameDirectory() const;
 
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
@@ -76,6 +81,7 @@ private:
     std::uint64_t m_BadDocHashCount;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
+    TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
 };
 }

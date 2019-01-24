@@ -15,6 +15,7 @@
 #include <rapidjson/fwd.h>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <thread>
@@ -23,6 +24,7 @@
 namespace ml {
 namespace core {
 class CDataFrame;
+class CTemporaryDirectory;
 }
 namespace api {
 
@@ -40,9 +42,13 @@ class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
+    using TFatalErrorHandler = std::function<void(std::string)>;
 
 public:
     //! Inititialize from a JSON object.
@@ -84,9 +90,6 @@ public:
     CDataFrameAnalysisSpecification(CDataFrameAnalysisSpecification&&) = delete;
     CDataFrameAnalysisSpecification& operator=(CDataFrameAnalysisSpecification&&) = delete;
 
-    //! Check if the specification is bad.
-    bool bad() const;
-
     //! \return The number of rows in the frame.
     std::size_t numberRows() const;
 
@@ -108,7 +111,7 @@ public:
     //! This chooses the storage strategy based on the analysis constraints and
     //! the number of rows and target number of columns and reserves capacity as
     //! appropriate.
-    TDataFrameUPtr makeDataFrame() const;
+    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
 
     //! Run the analysis in a background thread.
     //!
@@ -125,9 +128,9 @@ public:
 
 private:
     void initializeRunner(const char* name, const rapidjson::Value& analysis);
+    static TFatalErrorHandler defaultFatalErrorHandler();
 
 private:
-    bool m_Bad = false;
     std::size_t m_NumberRows = 0;
     std::size_t m_NumberColumns = 0;
     std::size_t m_MemoryLimit = 0;

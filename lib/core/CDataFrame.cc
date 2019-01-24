@@ -131,33 +131,21 @@ std::size_t CDataFrame::numberColumns() const {
     return m_NumberColumns;
 }
 
-bool CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
+void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
     if (m_RowCapacity >= rowCapacity) {
-        return true;
+        return;
     }
 
     m_RowCapacity = rowCapacity;
 
-    std::atomic_bool successful{true};
-    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
-                      [this, &successful](TRowSlicePtr& slice) {
-                          if (successful.load() == false) {
-                              return;
-                          }
-                          if (slice->reserve(m_NumberColumns,
-                                             m_RowCapacity - m_NumberColumns) == false) {
-                              successful.store(false);
-                          }
-                      });
-    return successful.load();
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(), [this](TRowSlicePtr& slice) {
+        slice->reserve(m_NumberColumns, m_RowCapacity - m_NumberColumns);
+    });
 }
 
-bool CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
-    if (this->reserve(numberThreads, numberColumns) == false) {
-        return false;
-    }
+void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
+    this->reserve(numberThreads, numberColumns);
     m_NumberColumns = numberColumns;
-    return true;
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
@@ -409,7 +397,7 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
 }
 
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
@@ -419,15 +407,17 @@ makeMainStorageDataFrame(std::size_t numberColumns,
     };
 
     if (sliceCapacity != boost::none) {
-        return std::make_unique<CDataFrame>(true, numberColumns, *sliceCapacity,
-                                            readWriteToStoreSyncStrategy, writer);
+        return {std::make_unique<CDataFrame>(true, numberColumns, *sliceCapacity,
+                                             readWriteToStoreSyncStrategy, writer),
+                nullptr};
     }
 
-    return std::make_unique<CDataFrame>(true, numberColumns,
-                                        readWriteToStoreSyncStrategy, writer);
+    return {std::make_unique<CDataFrame>(true, numberColumns,
+                                         readWriteToStoreSyncStrategy, writer),
+            nullptr};
 }
 
-std::unique_ptr<CDataFrame>
+std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
@@ -435,9 +425,7 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
-    COnDiskDataFrameRowSlice::TTemporaryDirectoryPtr directory{
-        std::make_shared<COnDiskDataFrameRowSlice::CTemporaryDirectory>(
-            rootDirectory, minimumSpace)};
+    auto directory = std::make_shared<CTemporaryDirectory>(rootDirectory, minimumSpace);
 
     // Note the writer lambda holding a reference to the directory shared
     // pointer is copied to the data frame. So this isn't destroyed, and
@@ -449,11 +437,13 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
     };
 
     if (sliceCapacity != boost::none) {
-        return std::make_unique<CDataFrame>(false, numberColumns, *sliceCapacity,
-                                            readWriteToStoreSyncStrategy, writer);
+        return {std::make_unique<CDataFrame>(false, numberColumns, *sliceCapacity,
+                                             readWriteToStoreSyncStrategy, writer),
+                directory};
     }
-    return std::make_unique<CDataFrame>(false, numberColumns,
-                                        readWriteToStoreSyncStrategy, writer);
+    return {std::make_unique<CDataFrame>(false, numberColumns,
+                                         readWriteToStoreSyncStrategy, writer),
+            directory};
 }
 }
 }

@@ -59,8 +59,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameOutliersRunner{spec} {
 
     auto registerFailure = [this, &params](const char* name) {
-        LOG_ERROR(<< "Bad input: '" << toString(params[name]) << "' for '" << name << "'");
-        this->setToBad();
+        HANDLE_FATAL(<< "Input error: bad value '" << toString(params[name])
+                     << "' for '" << name << "'.");
     };
 
     if (params.HasMember(NUMBER_NEIGHBOURS)) {
@@ -88,8 +88,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     // Check for any unrecognised fields; these might be typos.
     for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
         if (isValidMember(*i) == false) {
-            LOG_ERROR(<< "Bad input: unexpected member '" << i->name.GetString() << "'")
-            this->setToBad();
+            HANDLE_FATAL(<< "Input error: unexpected member '"
+                         << i->name.GetString() << "'. Please report this problem.")
         }
     }
 }
@@ -114,11 +114,7 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::computeOutliers(this->spec().numberThreads(),
-                           [this](double fractionalProgress) {
-                               this->recordProgress(fractionalProgress);
-                           },
-                           frame);
+    maths::computeOutliers(this->spec().numberThreads(), this->progressRecorder(), frame);
 }
 
 std::size_t
