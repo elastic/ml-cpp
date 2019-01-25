@@ -311,7 +311,7 @@ private:
         m_Nodes.emplace_back(parent, std::move(point));
     }
 
-    //! Append a node coping \p point into place.
+    //! Append a node copying \p point into place.
     void append(std::false_type, SNode* parent, const POINT& point) {
         m_Nodes.emplace_back(parent, point);
     }

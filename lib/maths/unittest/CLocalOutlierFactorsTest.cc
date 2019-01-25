@@ -8,7 +8,6 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CStopWatch.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
