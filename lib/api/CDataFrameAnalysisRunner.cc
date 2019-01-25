@@ -24,7 +24,8 @@ std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& s
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
 
-const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{1ull << ((sizeof(std::size_t) - 2) * 8)};
+const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
+                                              << ((sizeof(std::size_t) - 2) * 8)};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
