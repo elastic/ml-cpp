@@ -80,7 +80,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         auto isPositiveInteger = [](const rapidjson::Value& value) {
             return value.IsUint() && value.GetUint() > 0;
         };
-        auto registerFailure = [this, &document](const char* name) {
+        auto registerFailure = [&document](const char* name) {
             if (document.HasMember(name)) {
                 HANDLE_FATAL(<< "Input error: bad value '" << toString(document[name])
                              << "' for '" << name << "' in analysis specification.");
