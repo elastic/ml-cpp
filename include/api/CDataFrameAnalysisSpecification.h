@@ -48,7 +48,6 @@ public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
-    using TFatalErrorHandler = std::function<void(std::string)>;
 
 public:
     //! Inititialize from a JSON object.
@@ -128,7 +127,6 @@ public:
 
 private:
     void initializeRunner(const char* name, const rapidjson::Value& analysis);
-    static TFatalErrorHandler defaultFatalErrorHandler();
 
 private:
     std::size_t m_NumberRows = 0;

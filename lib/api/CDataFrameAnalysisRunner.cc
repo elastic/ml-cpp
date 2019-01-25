@@ -15,6 +15,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 
 #include <algorithm>
+#include <cstddef>
 
 namespace ml {
 namespace api {
@@ -23,7 +24,8 @@ std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& s
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
 
-const double MAXIMUM_FRACTIONAL_PROGRESS{1024.0};
+const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
+                                              << ((sizeof(std::size_t) - 2) * 8)};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
@@ -94,7 +96,10 @@ void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     } else {
         m_FractionalProgress.store(0.0);
         m_Finished.store(false);
-        m_Runner = std::thread([this, &frame]() { this->runImpl(frame); });
+        m_Runner = std::thread([this, &frame]() {
+            this->runImpl(frame);
+            this->setToFinished();
+        });
     }
 }
 
@@ -109,18 +114,15 @@ bool CDataFrameAnalysisRunner::finished() const {
 }
 
 double CDataFrameAnalysisRunner::progress() const {
-    return static_cast<double>(std::min(m_FractionalProgress.load(),
-                                        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS))) /
-           MAXIMUM_FRACTIONAL_PROGRESS;
+    return this->finished()
+               ? 1.0
+               : static_cast<double>(std::min(m_FractionalProgress.load(),
+                                              MAXIMUM_FRACTIONAL_PROGRESS - 1)) /
+                     static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
 const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
-}
-
-void CDataFrameAnalysisRunner::setToFinished() {
-    m_Finished.store(true);
-    m_FractionalProgress.store(static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS));
 }
 
 CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRecorder() {
@@ -137,8 +139,13 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows
 }
 
 void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
-    m_FractionalProgress.fetch_add(std::max(
-        static_cast<int>(MAXIMUM_FRACTIONAL_PROGRESS * fractionalProgress + 0.5), 1));
+    m_FractionalProgress.fetch_add(static_cast<std::size_t>(std::max(
+        static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS) * fractionalProgress + 0.5, 1.0)));
+}
+
+void CDataFrameAnalysisRunner::setToFinished() {
+    m_Finished.store(true);
+    m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

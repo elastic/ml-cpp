@@ -17,7 +17,7 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/make_unique.hpp>
+#include "CDataFrameMockAnalysisRunner.h"
 
 #include <chrono>
 #include <memory>
@@ -31,56 +31,6 @@ namespace {
 using TStrVec = std::vector<std::string>;
 using TRunnerFactoryUPtr = std::unique_ptr<api::CDataFrameAnalysisRunnerFactory>;
 using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
-
-class CDataFrameTestAnalysisRunner : public api::CDataFrameAnalysisRunner {
-public:
-    CDataFrameTestAnalysisRunner(const api::CDataFrameAnalysisSpecification& spec)
-        : api::CDataFrameAnalysisRunner{spec} {}
-
-    virtual std::size_t numberOfPartitions() const { return 1; }
-    virtual std::size_t numberExtraColumns() const { return 2; }
-    virtual void writeOneRow(TRowRef, core::CRapidJsonConcurrentLineWriter&) const {}
-
-protected:
-    void runImpl(core::CDataFrame&) {
-        TProgressRecorder recordProgress{this->progressRecorder()};
-        for (std::size_t i = 0; i < 31; ++i) {
-            std::vector<std::size_t> wait;
-            ms_Rng.generateUniformSamples(1, 20, 1, wait);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(wait[0]));
-
-            recordProgress(1.0 / 30.0);
-        }
-        this->setToFinished();
-    }
-
-private:
-    virtual std::size_t
-    estimateBookkeepingMemoryUsage(std::size_t, std::size_t, std::size_t) const {
-        return 0;
-    }
-
-private:
-    static test::CRandomNumbers ms_Rng;
-};
-
-test::CRandomNumbers CDataFrameTestAnalysisRunner::ms_Rng;
-
-class CDataFrameTestAnalysisRunnerFactory : public api::CDataFrameAnalysisRunnerFactory {
-public:
-    virtual const char* name() const { return "test"; }
-
-private:
-    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec) const {
-        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
-    }
-
-    virtual TRunnerUPtr makeImpl(const api::CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value&) const {
-        return std::make_unique<CDataFrameTestAnalysisRunner>(spec);
-    }
-};
 }
 
 void CDataFrameAnalysisSpecificationTest::testCreate() {
@@ -93,8 +43,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
     auto outliersFactory = []() {
-        TRunnerFactoryUPtr factory{
-            boost::make_unique<api::CDataFrameOutliersRunnerFactory>()};
+        TRunnerFactoryUPtr factory{std::make_unique<api::CDataFrameOutliersRunnerFactory>()};
         TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(factory));
         return factories;
@@ -250,14 +199,16 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 }
 
 void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
-    // Test job running basics: start, wait, progress and errors.
+    // Check progress is monotonic and that it remains less than one until the end
+    // of the analysis.
 
     auto testFactory = []() {
-        TRunnerFactoryUPtr factory{boost::make_unique<CDataFrameTestAnalysisRunnerFactory>()};
+        TRunnerFactoryUPtr factory{std::make_unique<CDataFrameMockAnalysisRunnerFactory>()};
         TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(factory));
         return factories;
     };
+
     std::string jsonSpec{"{\n"
                          "  \"rows\": 100,\n"
                          "  \"cols\": 10,\n"
@@ -291,7 +242,6 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         }
 
         LOG_DEBUG(<< "progress = " << lastProgress);
-
         CPPUNIT_ASSERT_EQUAL(1.0, runner->progress());
     }
 }

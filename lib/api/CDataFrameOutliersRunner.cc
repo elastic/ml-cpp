@@ -58,7 +58,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
                                                    const rapidjson::Value& params)
     : CDataFrameOutliersRunner{spec} {
 
-    auto registerFailure = [this, &params](const char* name) {
+    auto registerFailure = [&params](const char* name) {
         HANDLE_FATAL(<< "Input error: bad value '" << toString(params[name])
                      << "' for '" << name << "'.");
     };

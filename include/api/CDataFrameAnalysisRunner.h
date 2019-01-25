@@ -127,8 +127,6 @@ public:
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
-
-    void setToFinished();
     TProgressRecorder progressRecorder();
 
 private:
@@ -147,6 +145,7 @@ private:
     //! than 0.001. In fact, it is unlikely that such high resolution is needed
     //! and typically this would be called significantly less frequently.
     void recordProgress(double fractionalProgress);
+    void setToFinished();
 
 private:
     const CDataFrameAnalysisSpecification& m_Spec;
@@ -155,7 +154,7 @@ private:
     std::size_t m_MaximumNumberRowsPerPartition = 0;
 
     std::atomic_bool m_Finished;
-    std::atomic_int m_FractionalProgress;
+    std::atomic_size_t m_FractionalProgress;
 
     std::thread m_Runner;
 };
