@@ -55,7 +55,7 @@ private:
     //! Selects the method to use to compute outlier factors; the default is an ensemble
     //! of all supported types.
     //!
-    //! \see maths::CLocalOutlierFactors for more details.
+    //! \see maths::COutliers for more details.
     std::size_t m_Method;
     //@}
 };

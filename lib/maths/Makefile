@@ -46,7 +46,6 @@ CKMostCorrelated.cc \
 CLassoLogisticRegression.cc \
 CLinearAlgebra.cc \
 CLinearAlgebraTools.cc \
-CLocalOutlierFactors.cc \
 CLogNormalMeanPrecConjugate.cc \
 CLogTDistribution.cc \
 CMathsFuncs.cc \
@@ -70,6 +69,7 @@ COneOfNPrior.cc \
 Constants.cc \
 COrderings.cc \
 COrdinal.cc \
+COutliers.cc \
 CPackedBitVector.cc \
 CPca.cc \
 CPeriodicityHypothesisTests.cc \

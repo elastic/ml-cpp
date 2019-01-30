@@ -4,14 +4,14 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CLocalOutlierFactorsTest.h"
+#include "COutliersTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
-#include <maths/CLocalOutlierFactors.h>
+#include <maths/COutliers.h>
 #include <maths/CSetTools.h>
 
 #include <test/CRandomNumbers.h>
@@ -32,10 +32,10 @@ using TMaxAccumulator =
 using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 
-class CLocalOutlierFactorsInternals : public maths::CLocalOutlierFactors {
+class COutliersTestInternals : public maths::COutliers {
 public:
     static void normalize(TDoubleVec& scores) {
-        maths::CLocalOutlierFactors::normalize(scores);
+        maths::COutliers::normalize(scores);
     }
 };
 
@@ -119,7 +119,7 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoiseForPresizedPoints(rng, numberInliers, numberOutliers, points);
 
-        maths::CLocalOutlierFactors lofs;
+        maths::COutliers lofs;
 
         TDoubleVec scores;
         lofs.ensemble(points, scores);
@@ -167,7 +167,7 @@ void outlierErrorStatisticsForEnsemble(test::CRandomNumbers& rng,
 }
 }
 
-void CLocalOutlierFactorsTest::testLof() {
+void COutliersTest::testLof() {
     // Test vanilla verses sklearn.
 
     test::CRandomNumbers rng;
@@ -201,7 +201,7 @@ void CLocalOutlierFactorsTest::testLof() {
                            "-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, "
                            "-1, -1, -1, -1, -1]"};
     for (auto k : {5, 10, 15}) {
-        maths::CLocalOutlierFactors lofs;
+        maths::COutliers lofs;
 
         TDoubleVec scores;
         lofs.normalizedLof(k, false, points, scores);
@@ -223,7 +223,7 @@ void CLocalOutlierFactorsTest::testLof() {
     }
 }
 
-void CLocalOutlierFactorsTest::testDlof() {
+void COutliersTest::testDlof() {
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -232,7 +232,7 @@ void CLocalOutlierFactorsTest::testDlof() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-    maths::CLocalOutlierFactors lofs;
+    maths::COutliers lofs;
 
     TDoubleVec scores;
     std::size_t k{10};
@@ -257,7 +257,7 @@ void CLocalOutlierFactorsTest::testDlof() {
         }
         ldof.push_back(maths::CBasicStatistics::mean(d) / maths::CBasicStatistics::mean(D));
     }
-    CLocalOutlierFactorsInternals::normalize(ldof);
+    COutliersTestInternals::normalize(ldof);
     LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -294,7 +294,7 @@ void CLocalOutlierFactorsTest::testDlof() {
     CPPUNIT_ASSERT(similarity > 0.4);
 }
 
-void CLocalOutlierFactorsTest::testDistancekNN() {
+void COutliersTest::testDistancekNN() {
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -303,7 +303,7 @@ void CLocalOutlierFactorsTest::testDistancekNN() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-    maths::CLocalOutlierFactors lofs;
+    maths::COutliers lofs;
 
     TDoubleVec scores;
     std::size_t k{10};
@@ -321,7 +321,7 @@ void CLocalOutlierFactorsTest::testDistancekNN() {
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(maths::las::distance(point, neighbours.back()));
     }
-    CLocalOutlierFactorsInternals::normalize(distances);
+    COutliersTestInternals::normalize(distances);
     LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -357,7 +357,7 @@ void CLocalOutlierFactorsTest::testDistancekNN() {
     CPPUNIT_ASSERT(similarity > 0.9);
 }
 
-void CLocalOutlierFactorsTest::testTotalDistancekNN() {
+void COutliersTest::testTotalDistancekNN() {
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -366,7 +366,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
     TVectorVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-    maths::CLocalOutlierFactors lofs;
+    maths::COutliers lofs;
 
     TDoubleVec scores;
     std::size_t k{10};
@@ -388,7 +388,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
                                 return total + maths::las::distance(point, neighbour);
                             }));
     }
-    CLocalOutlierFactorsInternals::normalize(distances);
+    COutliersTestInternals::normalize(distances);
     LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -424,7 +424,7 @@ void CLocalOutlierFactorsTest::testTotalDistancekNN() {
     CPPUNIT_ASSERT(similarity > 0.9);
 }
 
-void CLocalOutlierFactorsTest::testEnsemble() {
+void COutliersTest::testEnsemble() {
     // Check error stats for scores, 0.1, 1.0 and 10.0. We should see precision increase
     // for higher scores but recall decrease.
     //
@@ -503,7 +503,7 @@ void CLocalOutlierFactorsTest::testEnsemble() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CLocalOutlierFactorsTest::testProgressMonitoring() {
+void COutliersTest::testProgressMonitoring() {
 
     // Test progress monitoring invariants.
 
@@ -523,7 +523,7 @@ void CLocalOutlierFactorsTest::testProgressMonitoring() {
     std::atomic_bool finished{false};
 
     std::thread worker{[&](TVectorVec points_) {
-                           maths::CLocalOutlierFactors lofs{reportProgress};
+                           maths::COutliers lofs{reportProgress};
                            TDoubleVec scores;
                            lofs.ensemble(points_, scores);
                            finished.store(true);
@@ -548,23 +548,21 @@ void CLocalOutlierFactorsTest::testProgressMonitoring() {
     CPPUNIT_ASSERT_EQUAL(1024, totalFractionalProgress.load());
 }
 
-CppUnit::Test* CLocalOutlierFactorsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLocalOutlierFactorsTest");
+CppUnit::Test* COutliersTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutliersTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testLof", &CLocalOutlierFactorsTest::testLof));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testDlof", &CLocalOutlierFactorsTest::testDlof));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testDistancekNN", &CLocalOutlierFactorsTest::testDistancekNN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testTotalDistancekNN",
-        &CLocalOutlierFactorsTest::testTotalDistancekNN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testEnsemble", &CLocalOutlierFactorsTest::testEnsemble));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLocalOutlierFactorsTest>(
-        "CLocalOutlierFactorsTest::testProgressMonitoring",
-        &CLocalOutlierFactorsTest::testProgressMonitoring));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testLof", &COutliersTest::testLof));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testDlof", &COutliersTest::testDlof));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testDistancekNN", &COutliersTest::testDistancekNN));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testTotalDistancekNN", &COutliersTest::testTotalDistancekNN));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testEnsemble", &COutliersTest::testEnsemble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
 
     return suiteOfTests;
 }

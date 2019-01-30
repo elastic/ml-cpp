@@ -47,7 +47,6 @@ SRCS=\
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
 	CLinearAlgebraTest.cc \
-	CLocalOutlierFactorsTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
 	CMathsFuncsTest.cc \
@@ -67,6 +66,7 @@ SRCS=\
 	COrderingsTest.cc \
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
+	COutliersTest.cc \
 	CPackedBitVectorTest.cc \
 	CPcaTest.cc \
 	CPeriodicityHypothesisTestsTest.cc \

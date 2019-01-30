@@ -10,7 +10,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CLocalOutlierFactors.h>
+#include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -89,7 +89,7 @@ void addTestData(TStrVec fieldNames,
         analyzer.handleRecord(fieldNames, fieldValues);
     }
 
-    maths::CLocalOutlierFactors lofs;
+    maths::COutliers lofs;
     lofs.ensemble(points, expectedScores);
 }
 }

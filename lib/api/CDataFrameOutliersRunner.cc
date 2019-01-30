@@ -10,7 +10,7 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CLocalOutlierFactors.h>
+#include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <rapidjson/document.h>
@@ -73,13 +73,13 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     if (params.HasMember(METHOD)) {
         if (std::strcmp(LOF, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Lof);
+            m_Method = static_cast<std::size_t>(maths::COutliers::E_Lof);
         } else if (std::strcmp(LDOF, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_Ldof);
+            m_Method = static_cast<std::size_t>(maths::COutliers::E_Ldof);
         } else if (std::strcmp(DISTANCE_KTH_NN, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_DistancekNN);
+            m_Method = static_cast<std::size_t>(maths::COutliers::E_DistancekNN);
         } else if (std::strcmp(DISTANCE_KNN, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::CLocalOutlierFactors::E_TotalDistancekNN);
+            m_Method = static_cast<std::size_t>(maths::COutliers::E_TotalDistancekNN);
         } else {
             registerFailure(METHOD);
         }
@@ -96,7 +96,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
     : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
-                                          maths::CLocalOutlierFactors::E_Ensemble)} {
+                                          maths::COutliers::E_Ensemble)} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
@@ -137,13 +137,11 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
 template<typename POINT>
 std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows,
                                                           std::size_t numberColumns) const {
-    maths::CLocalOutlierFactors::EAlgorithm method{
-        static_cast<maths::CLocalOutlierFactors::EAlgorithm>(m_Method)};
+    maths::COutliers::EAlgorithm method{static_cast<maths::COutliers::EAlgorithm>(m_Method)};
     return m_NumberNeighbours != boost::none
-               ? maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
+               ? maths::COutliers::estimateMemoryUsage<POINT>(
                      method, *m_NumberNeighbours, numberRows, numberColumns)
-               : maths::CLocalOutlierFactors::estimateMemoryUsage<POINT>(
-                     method, numberRows, numberColumns);
+               : maths::COutliers::estimateMemoryUsage<POINT>(method, numberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

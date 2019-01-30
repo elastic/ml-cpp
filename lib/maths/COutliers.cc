@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CLocalOutlierFactors.h>
+#include <maths/COutliers.h>
 
 #include <core/CDataFrame.h>
 
@@ -19,11 +19,11 @@
 namespace ml {
 namespace maths {
 
-CLocalOutlierFactors::CLocalOutlierFactors(TProgressCallback recordProgress)
+COutliers::COutliers(TProgressCallback recordProgress)
     : m_RecordProgress{recordProgress} {
 }
 
-void CLocalOutlierFactors::normalize(TDoubleVec& scores) {
+void COutliers::normalize(TDoubleVec& scores) {
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
 
@@ -52,7 +52,7 @@ void CLocalOutlierFactors::normalize(TDoubleVec& scores) {
     }
 }
 
-double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
+double COutliers::cdfComplementToScore(double cdfComplement) {
     auto logInterpolate = [](double xa, double fa, double xb, double fb, double x) {
         x = CTools::truncate(x, std::min(xa, xb), std::max(xa, xb));
         return CTools::linearlyInterpolate(CTools::fastLog(xa), CTools::fastLog(xb),
@@ -67,7 +67,7 @@ double CLocalOutlierFactors::cdfComplementToScore(double cdfComplement) {
     return logInterpolate(std::numeric_limits<double>::min(), 100.0, 1e-10, 50.0, cdfComplement);
 }
 
-void CLocalOutlierFactors::noop(double) {
+void COutliers::noop(double) {
 }
 
 namespace {
@@ -103,15 +103,15 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
         return false;
     }
 
-    CLocalOutlierFactors outliers{recordProgress};
+    COutliers outliers{recordProgress};
 
     TDoubleVec scores;
     outliers.ensemble(std::move(points), scores);
 
     // This never happens now, but it is a sanity check against someone
-    // changing CLocalOutlierFactors to accidentally write to the data
-    // frame via one of the memory mapped vectors. All bets are off as to
-    // if we generate anything meaningful if this happens.
+    // changing COutliers to accidentally write to the data frame via one
+    // of the memory mapped vectors. All bets are off as to if we generate
+    // anything meaningful if this happens.
     if (checksum != frame.checksum()) {
         LOG_ERROR(<< "Accidentally modified the data frame");
         return false;

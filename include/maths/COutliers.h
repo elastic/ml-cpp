@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_maths_CLocalOutlierFactors_h
-#define INCLUDED_ml_maths_CLocalOutlierFactors_h
+#ifndef INCLUDED_ml_maths_COutliers_h
+#define INCLUDED_ml_maths_COutliers_h
 
 #include <core/CHashing.h>
 #include <core/Concurrency.h>
@@ -35,7 +35,7 @@ namespace maths {
 
 //! \brief Utilities for computing outlier scores for collections
 //! of points.
-class MATHS_EXPORT CLocalOutlierFactors {
+class MATHS_EXPORT COutliers {
 private:
     template<typename POINT>
     using TKdTree = CKdTree<CAnnotatedVector<POINT, std::size_t>>;
@@ -55,7 +55,7 @@ public:
     };
 
 public:
-    CLocalOutlierFactors(TProgressCallback recordProgress = noop);
+    COutliers(TProgressCallback recordProgress = noop);
 
     //! Compute the normalized LOF scores for \p points.
     //!
@@ -782,8 +782,8 @@ private:
 };
 
 template<typename POINT, typename NEAREST_NEIGHBOURS>
-const typename CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
-    CLocalOutlierFactors::CLof<POINT, NEAREST_NEIGHBOURS>::UNSET_DISTANCE = -1.0;
+const typename COutliers::CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
+    COutliers::CLof<POINT, NEAREST_NEIGHBOURS>::UNSET_DISTANCE = -1.0;
 
 //! Compute outliers for \p frame and write to a new column.
 MATHS_EXPORT
@@ -793,4 +793,4 @@ bool computeOutliers(std::size_t numberThreads,
 }
 }
 
-#endif // INCLUDED_ml_maths_CLocalOutlierFactors_h
+#endif // INCLUDED_ml_maths_COutliers_h

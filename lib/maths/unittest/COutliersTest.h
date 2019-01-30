@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CLocalOutlierFactorsTest_h
-#define INCLUDED_CLocalOutlierFactorsTest_h
+#ifndef INCLUDED_COutliersTest_h
+#define INCLUDED_COutliersTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLocalOutlierFactorsTest : public CppUnit::TestFixture {
+class COutliersTest : public CppUnit::TestFixture {
 public:
     void testLof();
     void testDlof();
@@ -21,4 +21,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CLocalOutlierFactorsTest_h
+#endif // INCLUDED_COutliersTest_h

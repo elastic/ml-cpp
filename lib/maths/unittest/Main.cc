@@ -36,7 +36,6 @@
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
 #include "CLinearAlgebraTest.h"
-#include "CLocalOutlierFactorsTest.h"
 #include "CLogNormalMeanPrecConjugateTest.h"
 #include "CLogTDistributionTest.h"
 #include "CMathsFuncsTest.h"
@@ -56,6 +55,7 @@
 #include "COrderingsTest.h"
 #include "COrdinalTest.h"
 #include "COrthogonaliserTest.h"
+#include "COutliersTest.h"
 #include "CPRNGTest.h"
 #include "CPackedBitVectorTest.h"
 #include "CPcaTest.h"
@@ -122,7 +122,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
-    runner.addTest(CLocalOutlierFactorsTest::suite());
+    runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());
     runner.addTest(CLogTDistributionTest::suite());
     runner.addTest(CMathsFuncsTest::suite());
