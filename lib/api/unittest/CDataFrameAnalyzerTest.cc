@@ -42,7 +42,7 @@ std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
                      "  \"memory_limit\": 100000,\n"
                      "  \"threads\": 1,\n"
                      "  \"analysis\": {\n"
-                     "    \"name\": \"outliers\""
+                     "    \"name\": \"outlier_detection\""
                      "  }"
                      "}"};
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
