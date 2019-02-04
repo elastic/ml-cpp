@@ -32,7 +32,7 @@ struct SRowTo<CMemoryMappedDenseVector<T>> {
 template<typename T>
 struct SRowTo<CDenseVector<T>> {
     static CDenseVector<T> dispatch(const core::CDataFrame::TRowRef& row) {
-        std::size_t n{n = row.numberColumns()};
+        std::size_t n{row.numberColumns()};
         CDenseVector<T> result{n};
         for (std::size_t i = 0; i < n; ++i) {
             result(i) = row[i];
