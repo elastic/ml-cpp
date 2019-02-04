@@ -73,6 +73,8 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
 
             CPPUNIT_ASSERT(maths::CDataFrameUtils::standardizeColumns(threads, *frame));
 
+            // Check the column values are what we expect given the data we generated.
+
             bool passed{true};
             frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
                                    core::CDataFrame::TRowItr endRows) {
@@ -90,6 +92,27 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
             });
 
             CPPUNIT_ASSERT(passed);
+
+            // Check that the mean and variance of the columns are zero and one,
+            // respectively.
+
+            TMeanVarAccumulatorVec columnsMoments(cols);
+            frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                                   core::CDataFrame::TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (std::size_t j = 0; j < row->numberColumns(); ++j) {
+                        columnsMoments[j].add((*row)[j]);
+                    }
+                }
+            });
+
+            for (const auto& columnMoments : columnsMoments) {
+                double mean{maths::CBasicStatistics::mean(columnMoments)};
+                double variance{maths::CBasicStatistics::variance(columnMoments)};
+                LOG_DEBUG(<< "mean = " << mean << ", variance = " << variance);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, mean, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, variance, 1e-6);
+            }
         }
 
         core::startDefaultAsyncExecutor();
