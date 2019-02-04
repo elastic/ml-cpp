@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 
+#include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTools.h>
 
@@ -88,8 +89,7 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
 
     auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            points[row->index()] =
-                TVector{row->data(), static_cast<long>(row->numberColumns())};
+            points[row->index()] = CDataFrameUtils::rowTo<TVector>(*row);
         }
     };
 
@@ -138,6 +138,8 @@ bool computeOutliers(std::size_t numberThreads,
                      core::CDataFrame& frame) {
     // TODO memory monitoring.
     // TODO different analysis types.
+
+    CDataFrameUtils::standardizeColumns(numberThreads, frame);
 
     if (frame.inMainMemory()) {
         if (computeOutliersNoPartitions(numberThreads, recordProgress, frame) == false) {

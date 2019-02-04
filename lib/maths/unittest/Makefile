@@ -8,6 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
+USE_BOOST_FILESYSTEM_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -31,6 +32,7 @@ SRCS=\
 	CClustererTest.cc \
 	CClusterEvaluationTest.cc \
 	CCountMinSketchTest.cc \
+	CDataFrameUtilsTest.cc \
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
 	CEqualWithToleranceTest.cc \

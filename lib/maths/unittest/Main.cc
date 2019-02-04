@@ -20,6 +20,7 @@
 #include "CClusterEvaluationTest.h"
 #include "CClustererTest.h"
 #include "CCountMinSketchTest.h"
+#include "CDataFrameUtilsTest.h"
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
 #include "CEqualWithToleranceTest.h"
@@ -106,6 +107,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CClustererTest::suite());
     runner.addTest(CClusterEvaluationTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
+    runner.addTest(CDataFrameUtilsTest::suite());
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());
     runner.addTest(CEntropySketchTest::suite());
