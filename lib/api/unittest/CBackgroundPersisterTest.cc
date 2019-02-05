@@ -323,7 +323,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompAnomalyDetectionAfterStat
         CPPUNIT_ASSERT(backgroundPersister.startPersist());
 
         //Increment one of the counter values
-        ml::core::CProgramCounters::counter(ml::counter_t::E_TSADMemoryUsage)++;
+        ++ml::core::CProgramCounters::counter(ml::counter_t::E_TSADMemoryUsage);
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
         CPPUNIT_ASSERT(backgroundPersister.waitForIdle());

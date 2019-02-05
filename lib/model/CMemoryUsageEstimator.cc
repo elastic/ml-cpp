@@ -89,7 +89,7 @@ CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
     std::size_t mem = static_cast<std::size_t>(predicted + 0.5);
     ++m_NumEstimatesSinceValue;
 
-    core::CProgramCounters::counter(counter_t::E_TSADNumberMemoryUsageEstimates)++;
+    ++core::CProgramCounters::counter(counter_t::E_TSADNumberMemoryUsageEstimates);
     return TOptionalSize(mem);
 }
 
@@ -117,7 +117,7 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
         m_Values.erase(m_Values.begin() + closest);
     }
     m_Values.push_back(TSizeArraySizePr(predictors, memory));
-    core::CProgramCounters::counter(counter_t::E_TSADNumberMemoryUsageChecks)++;
+    ++core::CProgramCounters::counter(counter_t::E_TSADNumberMemoryUsageChecks);
 }
 
 void CMemoryUsageEstimator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {

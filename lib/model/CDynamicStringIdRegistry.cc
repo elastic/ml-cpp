@@ -110,7 +110,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
         if (itr == m_Uids.end()) {
             LOG_TRACE(<< "Can't add new " << m_NameType << " - allocations not allowed");
             resourceMonitor.acceptAllocationFailureResult(time);
-            core::CProgramCounters::counter(m_AddNotAllowedCounter)++;
+            ++core::CProgramCounters::counter(m_AddNotAllowedCounter);
             return INVALID_ID;
         }
         id = itr->second;
@@ -119,7 +119,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
     if (id >= m_Names.size()) {
         m_Names.push_back(CStringStore::names().get(name));
         addedPerson = true;
-        core::CProgramCounters::counter(m_AddedCounter)++;
+        ++core::CProgramCounters::counter(m_AddedCounter);
     } else if (id == newId) {
         LOG_TRACE(<< "Recycling " << id << " for " << m_NameType << " " << name);
         m_Names[id] = CStringStore::names().get(name);
@@ -129,7 +129,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
             m_FreeUids.pop_back();
         }
         m_RecycledUids.push_back(id);
-        core::CProgramCounters::counter(m_RecycledCounter)++;
+        ++core::CProgramCounters::counter(m_RecycledCounter);
     }
 
     return id;

@@ -65,7 +65,7 @@ void CPopulationModel::applyFilters(bool updateStatistics,
         data.erase(std::remove_if(data.begin(), data.end(), attributeFilter), data.end());
     }
     if (updateStatistics && data.size() != initialSize) {
-        core::CProgramCounters::counter(counter_t::E_TSADNumberExcludedFrequentInvocations)++;
+        ++core::CProgramCounters::counter(counter_t::E_TSADNumberExcludedFrequentInvocations);
     }
 }
 }

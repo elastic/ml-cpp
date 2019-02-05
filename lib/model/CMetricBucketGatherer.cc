@@ -1210,9 +1210,9 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
         resourceMonitor.addExtraMemory(m_DataGatherer.isPopulation()
                                            ? CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD
                                            : CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-        (m_DataGatherer.isPopulation()
+        ++(m_DataGatherer.isPopulation()
              ? core::CProgramCounters::counter(counter_t::E_TSADNumberOverFields)
-             : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields))++;
+             : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields));
     }
 
     if (!result.person(pid)) {
@@ -1248,7 +1248,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
         if (addedAttribute) {
             resourceMonitor.addExtraMemory(CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-            core::CProgramCounters::counter(counter_t::E_TSADNumberByFields)++;
+            ++core::CProgramCounters::counter(counter_t::E_TSADNumberByFields);
         }
     } else {
         // Add the unique attribute.

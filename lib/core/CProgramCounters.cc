@@ -53,24 +53,27 @@ void addStringInt(TGenericLineWriter& writer,
 }
 }
 
-CProgramCounters::CProgramCounters()
-    : m_Counters(), m_Cache(), m_ProgramCounterTypes() {
-}
-
 CProgramCounters& CProgramCounters::instance() {
     return ms_Instance;
 }
 
 CProgramCounters::TCounter& CProgramCounters::counter(counter_t::ECounterTypes counterType) {
-    if (counterType >= counter_t::E_LastEnumCounter) {
-        LOG_ABORT(<< "Bad index " << counterType);
+    size_t counterPos = static_cast<size_t>(counterType);
+    if (counterPos >= counter_t::NUM_COUNTERS) {
+        // If the enum values in ECounterTypes have been maintained in a contiguous block then logically this
+        // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
+        // As this doesn't indicate a problem with the analytics in the running application we simply log a warning.
+        // A dummy counter is returned in which to store the unknown counter.
+        LOG_WARN(<< "Bad index " << counterPos);
+        return ms_Instance.m_DummyCounter;
     }
-    return ms_Instance.m_Counters[counterType];
+    return ms_Instance.m_Counters[counterPos];
 }
 
 CProgramCounters::TCounter& CProgramCounters::counter(size_t index) {
     if (index >= ms_Instance.m_Counters.size()) {
-        LOG_ABORT(<< "Bad index " << index);
+        LOG_WARN(<< "Bad index " << index);
+        return ms_Instance.m_DummyCounter;
     }
     return ms_Instance.m_Counters[index];
 }
@@ -97,11 +100,25 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
     // live values. Instead, we access a cached set of self consistent counters for persistence.
 
     auto staticsAcceptPersistInserter = [&](const auto& container) {
-        int i = 0;
-        for (const auto& counter : container) {
-            inserter.insertValue(KEY_TAG, i);
-            inserter.insertValue(VALUE_TAG, counter);
-            ++i;
+        // Only persist counter values the current program has registered interest in.
+        // If no such limited set has been registered then persist all values.
+        if (ms_Instance.m_ProgramCounterTypes.size() > 0) {
+            for (const auto& counterType : ms_Instance.m_ProgramCounterTypes) {
+            	const auto &counter = container[counterType];
+            	if (counter != uint64_t{0}) {
+                    inserter.insertValue(KEY_TAG, counterType);
+                    inserter.insertValue(VALUE_TAG, counter);
+            	}
+            }
+        } else {
+            int i = 0;
+            for (const auto& counter : container) {
+            	if (counter != 0) {
+                    inserter.insertValue(KEY_TAG, i);
+                    inserter.insertValue(VALUE_TAG, counter);
+            	}
+                ++i;
+            }
         }
     };
 
@@ -136,7 +153,7 @@ bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& tra
                 return false;
             }
             // Only restore counter values the current program has registered interest in. Set all other values to zero.
-            // If no such limited set has been registered the all values are restored.
+            // If no such limited set has been registered then all values are restored.
             if (ms_Instance.m_ProgramCounterTypes.size() != 0) {
                 const auto& itr = ms_Instance.m_ProgramCounterTypes.find(
                     static_cast<counter_t::ECounterTypes>(key));
@@ -167,15 +184,18 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
 
     // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set
     // Take care to print in definition order
+    // We skip 0 values
     if (counters.m_ProgramCounterTypes.size() == 0) {
         for (const auto& ctr : counters.m_CounterDefinitions) {
-            addStringInt(writer, ctr.s_Name, ctr.s_Description,
-                         counters.counter(ctr.s_Type));
+        	if (counters.counter(ctr.s_Type) != 0) {
+        		addStringInt(writer, ctr.s_Name, ctr.s_Description,
+        		                         counters.counter(ctr.s_Type));
+        	}
         }
     } else {
         for (const auto& ctr : counters.m_CounterDefinitions) {
             if (counters.m_ProgramCounterTypes.find(ctr.s_Type) !=
-                counters.m_ProgramCounterTypes.end()) {
+                counters.m_ProgramCounterTypes.end() && (counters.counter(ctr.s_Type) != 0)) {
                 addStringInt(writer, ctr.s_Name, ctr.s_Description,
                              counters.counter(ctr.s_Type));
             }

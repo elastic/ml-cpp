@@ -143,14 +143,14 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
     core_t::TTime time(0);
     iter = dataRowFields.find(m_TimeFieldName);
     if (iter == dataRowFields.end()) {
-        core::CProgramCounters::counter(counter_t::E_TSADNumberRecordsNoTimeField)++;
+        ++core::CProgramCounters::counter(counter_t::E_TSADNumberRecordsNoTimeField);
         LOG_ERROR(<< "Found record with no " << m_TimeFieldName << " field:"
                   << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
         return true;
     }
     if (m_TimeFieldFormat.empty()) {
         if (core::CStringUtils::stringToType(iter->second, time) == false) {
-            core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors)++;
+            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
             LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName
                       << " field in record:" << core_t::LINE_ENDING
                       << this->debugPrintRecord(dataRowFields));
@@ -160,7 +160,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         // Use this library function instead of raw strptime() as it works
         // around many operating system specific issues.
         if (core::CTimeUtils::strptime(m_TimeFieldFormat, iter->second, time) == false) {
-            core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors)++;
+            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
             LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName << " field using format "
                       << m_TimeFieldFormat << " in record:" << core_t::LINE_ENDING
                       << this->debugPrintRecord(dataRowFields));
@@ -173,7 +173,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
     // latency is non-zero, then it should be after the current bucket
     // end minus the latency.
     if (time < m_LastFinalisedBucketEndTime) {
-        core::CProgramCounters::counter(counter_t::E_TSADNumberTimeOrderErrors)++;
+        ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeOrderErrors);
         std::ostringstream ss;
         ss << "Records must be in ascending time order. "
            << "Record '" << this->debugPrintRecord(dataRowFields) << "' time "
@@ -211,7 +211,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         this->addRecord(detector, time, dataRowFields);
     }
 
-    core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled)++;
+   ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
 
     ++m_NumRecordsHandled;
     m_LatestRecordTime = std::max(m_LatestRecordTime, time);
