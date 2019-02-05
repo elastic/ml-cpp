@@ -103,7 +103,7 @@ class CStateRestoreTraverser;
 class CStatePersistInserter;
 
 struct SCounterDefinition {
-    ml::counter_t::ECounterTypes s_Type;
+    counter_t::ECounterTypes s_Type;
     std::string s_Name;
     std::string s_Description;
 };
