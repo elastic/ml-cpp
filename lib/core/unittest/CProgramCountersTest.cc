@@ -77,13 +77,13 @@ void CProgramCountersTest::testUnknownCounter() {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // Name of the log file to use. It must match the name specified
-    // in testfiles/testLogErrorsLog4cxx.properties in the A2 appender
+    // in testfiles/testLogWarningsLog4cxx.properties in the A2 appender
     const char* logFile = "test.log";
 
     std::remove(logFile);
     // start logging at level WARN
     CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogErrorsLog4cxx.properties"));
+        "testfiles/testLogWarningsLog4cxx.properties"));
 
     // Attempt to access a counter at an unknown/invalid index
     ++counters.counter(ml::counter_t::E_LastEnumCounter);
