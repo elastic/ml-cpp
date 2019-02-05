@@ -9,7 +9,7 @@
 
 #include <core/CCompressedDictionary.h>
 #include <core/CMemory.h>
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
@@ -50,18 +50,18 @@ public:
     static const std::size_t INVALID_ID;
 
 public:
-    //! Constructs a registry for that expects names of type \p nameType.
+    //! Constructs a registry that expects names of type \p nameType.
     //!
     //! \param[in] nameType The type of the names expected to be registered.
     //! Mainly used to disambiguate log messages.
-    //! \param[in] addedStat The statistic to be increased when a new name is registered.
-    //! \param[in] addNotAllowedStat The statistic to be increased when a new name failed
+    //! \param[in] addedCounter The counter to be increased when a new name is registered.
+    //! \param[in] addNotAllowedCounter The counter to be increased when a new name failed
     //! to register because no more additions are allowed.
-    //! \param[in] recycledStat The statistic to be increased when an ID is recycled.
+    //! \param[in] recycledCounter The counter to be increased when an ID is recycled.
     CDynamicStringIdRegistry(const std::string& nameType,
-                             stat_t::EStatTypes addedStat,
-                             stat_t::EStatTypes addNotAllowedStat,
-                             stat_t::EStatTypes recycledStat);
+                             counter_t::ECounterTypes addedCounter,
+                             counter_t::ECounterTypes addNotAllowedCounter,
+                             counter_t::ECounterTypes recycledCounter);
 
     //! Create a copy that will result in the same persisted state as the
     //! original. This is effectively a copy constructor that creates a
@@ -145,14 +145,14 @@ private:
     std::string m_NameType;
 
     //! The statistic to be increased when a new name is registered.
-    stat_t::EStatTypes m_AddedStat;
+    counter_t::ECounterTypes m_AddedCounter;
 
     //! The statistic to be increased when a new name failed
     //! to register because no more additions are allowed.
-    stat_t::EStatTypes m_AddNotAllowedStat;
+    counter_t::ECounterTypes m_AddNotAllowedCounter;
 
     //! The statistic to be increased when an ID is recycled.
-    stat_t::EStatTypes m_RecycledStat;
+    counter_t::ECounterTypes m_RecycledCounter;
 
     //! A compressed dictionary.
     TDictionary m_Dictionary;

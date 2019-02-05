@@ -8,7 +8,6 @@
 #define INCLUDED_ml_model_CIndividualModel_h
 
 #include <core/CMemory.h>
-#include <core/CStatistics.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 

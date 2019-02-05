@@ -8,7 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
@@ -1210,10 +1210,9 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
         resourceMonitor.addExtraMemory(m_DataGatherer.isPopulation()
                                            ? CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD
                                            : CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-        (m_DataGatherer.isPopulation()
-             ? core::CStatistics::stat(stat_t::E_NumberOverFields)
-             : core::CStatistics::stat(stat_t::E_NumberByFields))
-            .increment();
+        ++(m_DataGatherer.isPopulation()
+               ? core::CProgramCounters::counter(counter_t::E_TSADNumberOverFields)
+               : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields));
     }
 
     if (!result.person(pid)) {
@@ -1249,7 +1248,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
         if (addedAttribute) {
             resourceMonitor.addExtraMemory(CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-            core::CStatistics::stat(stat_t::E_NumberByFields).increment();
+            ++core::CProgramCounters::counter(counter_t::E_TSADNumberByFields);
         }
     } else {
         // Add the unique attribute.

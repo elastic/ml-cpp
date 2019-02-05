@@ -43,6 +43,7 @@
 #include "CProcessPriorityTest.h"
 #include "CProcessTest.h"
 #include "CProgNameTest.h"
+#include "CProgramCountersTest.h"
 #include "CRapidJsonLineWriterTest.h"
 #include "CRapidJsonWriterBaseTest.h"
 #include "CRapidXmlParserTest.h"
@@ -57,7 +58,6 @@
 #include "CSmallVectorTest.h"
 #include "CStateCompressorTest.h"
 #include "CStateMachineTest.h"
-#include "CStatisticsTest.h"
 #include "CStopWatchTest.h"
 #include "CStoredStringPtrTest.h"
 #include "CStringSimilarityTesterTest.h"
@@ -117,6 +117,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CProcessTest::suite());
     runner.addTest(CProcessPriorityTest::suite());
     runner.addTest(CProgNameTest::suite());
+    runner.addTest(CProgramCountersTest::suite());
     runner.addTest(CRapidJsonLineWriterTest::suite());
     runner.addTest(CRapidJsonWriterBaseTest::suite());
     runner.addTest(CRapidXmlParserTest::suite());
@@ -131,7 +132,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CSmallVectorTest::suite());
     runner.addTest(CStateCompressorTest::suite());
     runner.addTest(CStateMachineTest::suite());
-    runner.addTest(CStatisticsTest::suite());
     runner.addTest(CStopWatchTest::suite());
     runner.addTest(CStoredStringPtrTest::suite());
     runner.addTest(CStringSimilarityTesterTest::suite());

@@ -7,9 +7,9 @@
 #include <model/CDataGatherer.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -183,13 +183,13 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
       m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
       m_PeopleRegistry(PERSON,
-                       stat_t::E_NumberNewPeople,
-                       stat_t::E_NumberNewPeopleNotAllowed,
-                       stat_t::E_NumberNewPeopleRecycled),
+                       counter_t::E_TSADNumberNewPeople,
+                       counter_t::E_TSADNumberNewPeopleNotAllowed,
+                       counter_t::E_TSADNumberNewPeopleRecycled),
       m_AttributesRegistry(ATTRIBUTE,
-                           stat_t::E_NumberNewAttributes,
-                           stat_t::E_NumberNewAttributesNotAllowed,
-                           stat_t::E_NumberNewAttributesRecycled),
+                           counter_t::E_TSADNumberNewAttributes,
+                           counter_t::E_TSADNumberNewAttributesNotAllowed,
+                           counter_t::E_TSADNumberNewAttributesRecycled),
       m_Population(detail::isPopulation(gathererType)), m_UseNull(key.useNull()) {
 
     std::sort(m_Features.begin(), m_Features.end());
@@ -213,13 +213,13 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
       m_Params(modelParams), m_SearchKey(key),
       m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
       m_PeopleRegistry(PERSON,
-                       stat_t::E_NumberNewPeople,
-                       stat_t::E_NumberNewPeopleNotAllowed,
-                       stat_t::E_NumberNewPeopleRecycled),
+                       counter_t::E_TSADNumberNewPeople,
+                       counter_t::E_TSADNumberNewPeopleNotAllowed,
+                       counter_t::E_TSADNumberNewPeopleRecycled),
       m_AttributesRegistry(ATTRIBUTE,
-                           stat_t::E_NumberNewAttributes,
-                           stat_t::E_NumberNewAttributesNotAllowed,
-                           stat_t::E_NumberNewAttributesRecycled),
+                           counter_t::E_TSADNumberNewAttributes,
+                           counter_t::E_TSADNumberNewAttributesNotAllowed,
+                           counter_t::E_TSADNumberNewAttributesRecycled),
       m_Population(detail::isPopulation(gathererType)), m_UseNull(key.useNull()) {
     if (traverser.traverseSubLevel(boost::bind(
             &CDataGatherer::acceptRestoreTraverser, this, boost::cref(summaryCountFieldName),
@@ -411,9 +411,8 @@ void CDataGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
     }
 
     m_PeopleRegistry.recycleNames(peopleToRemove, DEFAULT_PERSON_NAME);
-    core::CStatistics::instance()
-        .stat(stat_t::E_NumberPrunedItems)
-        .increment(peopleToRemove.size());
+    core::CProgramCounters::counter(counter_t::E_TSADNumberPrunedItems) +=
+        peopleToRemove.size();
 }
 
 void CDataGatherer::removePeople(std::size_t lowestPersonToRemove) {
@@ -482,9 +481,8 @@ void CDataGatherer::recycleAttributes(const TSizeVec& attributesToRemove) {
     m_BucketGatherer->recycleAttributes(attributesToRemove);
 
     m_AttributesRegistry.recycleNames(attributesToRemove, DEFAULT_ATTRIBUTE_NAME);
-    core::CStatistics::instance()
-        .stat(stat_t::E_NumberPrunedItems)
-        .increment(attributesToRemove.size());
+    core::CProgramCounters::counter(counter_t::E_TSADNumberPrunedItems) +=
+        attributesToRemove.size();
 }
 
 void CDataGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {

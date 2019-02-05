@@ -18,7 +18,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -55,6 +55,31 @@
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
+
+    // Register the set of counters in which this program is interested
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_TSADNumberNewPeopleNotAllowed,
+        ml::counter_t::E_TSADNumberNewPeople,
+        ml::counter_t::E_TSADNumberNewPeopleRecycled,
+        ml::counter_t::E_TSADNumberApiRecordsHandled,
+        ml::counter_t::E_TSADMemoryUsage,
+        ml::counter_t::E_TSADNumberMemoryUsageChecks,
+        ml::counter_t::E_TSADNumberMemoryUsageEstimates,
+        ml::counter_t::E_TSADNumberRecordsNoTimeField,
+        ml::counter_t::E_TSADNumberTimeFieldConversionErrors,
+        ml::counter_t::E_TSADNumberTimeOrderErrors,
+        ml::counter_t::E_TSADNumberNewAttributesNotAllowed,
+        ml::counter_t::E_TSADNumberNewAttributes,
+        ml::counter_t::E_TSADNumberNewAttributesRecycled,
+        ml::counter_t::E_TSADNumberByFields,
+        ml::counter_t::E_TSADNumberOverFields,
+        ml::counter_t::E_TSADNumberExcludedFrequentInvocations,
+        ml::counter_t::E_TSADNumberSamplesOutsideLatencyWindow,
+        ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
+        ml::counter_t::E_TSADNumberPrunedItems};
+
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     using TStrVec = ml::autodetect::CCmdLineParser::TStrVec;
 
     // Read command line options
@@ -273,8 +298,8 @@ int main(int argc, char** argv) {
         job.descriptionAndDebugMemoryUsage();
     }
 
-    // Print out the runtime stats generated during this execution context
-    LOG_DEBUG(<< ml::core::CStatistics::instance());
+    // Print out the runtime counters generated during this execution context
+    LOG_DEBUG(<< ml::core::CProgramCounters::instance());
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log

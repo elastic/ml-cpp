@@ -10,7 +10,6 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
-#include <core/CStatistics.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>

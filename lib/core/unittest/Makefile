@@ -62,6 +62,7 @@ CPersistUtilsTest.cc \
 CPolymorphicStackObjectCPtrTest.cc \
 CProcessTest.cc \
 CProgNameTest.cc \
+CProgramCountersTest.cc \
 CRapidJsonLineWriterTest.cc\
 CRapidJsonWriterBaseTest.cc\
 CRapidXmlParserTest.cc \
@@ -76,7 +77,6 @@ CSleepTest.cc \
 CSmallVectorTest.cc \
 CStateCompressorTest.cc \
 CStateMachineTest.cc \
-CStatisticsTest.cc \
 CStopWatchTest.cc \
 CStoredStringPtrTest.cc \
 CStringSimilarityTesterTest.cc \
