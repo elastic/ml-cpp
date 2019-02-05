@@ -10,6 +10,7 @@
 #include <core/ImportExport.h>
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <iosfwd>
 #include <set>
