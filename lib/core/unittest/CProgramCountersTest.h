@@ -46,6 +46,7 @@ private:
         int m_I;
         int m_N;
     };
+
 private:
     std::string persist(bool doCachCounters = true);
     void restore(const std::string& staticsXml);

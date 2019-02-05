@@ -908,8 +908,8 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                                            ? CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD
                                            : CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
         ++(m_DataGatherer.isPopulation()
-             ? core::CProgramCounters::counter(counter_t::E_TSADNumberOverFields)
-             : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields));
+               ? core::CProgramCounters::counter(counter_t::E_TSADNumberOverFields)
+               : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields));
     }
     if (!result.person(personId)) {
         LOG_ERROR(<< "Bad by field value: " << *person);

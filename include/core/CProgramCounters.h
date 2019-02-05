@@ -107,8 +107,6 @@ struct SCounterDefinition {
     std::string s_Description;
 };
 
-
-
 //! \brief
 //! A collection of runtime global counters
 //!
@@ -132,62 +130,57 @@ struct SCounterDefinition {
 //!
 class CORE_EXPORT CProgramCounters {
 private:
+    //! \brief
+    //! An atomic counter object
+    //!
+    //! DESCRIPTION:\n
+    //! A wrapper for an atomic uint64_t
+    //!
+    //! This provides a thread-safe way to aggregate runtime counts
+    //!
+    //! IMPLEMENTATION DECISIONS:\n
+    //! Implicitly not copyable - because the atomic member is not copyable.
+    //! Counter values are assumed to only ever increase, therefore incrementing
+    //! and assigning are publicly accessible, decrementing is not.
+    //! Post increment is not supported - to enforce best practice
+    //! Implicit conversion to/from uint64_t is also allowed.
+    //!
+    class CORE_EXPORT CCounter {
+    public:
+        CCounter() : m_Counter(0) {}
 
-	//! \brief
-	//! An atomic counter object
-	//!
-	//! DESCRIPTION:\n
-	//! A wrapper for an atomic uint64_t
-	//!
-	//! This provides a thread-safe way to aggregate runtime counts
-	//!
-	//! IMPLEMENTATION DECISIONS:\n
-	//! Implicitly not copyable - because the atomic member is not copyable.
-	//! Counter values are assumed to only ever increase, therefore incrementing
-	//! and assigning are publicly accessible, decrementing is not.
-	//! Post increment is not supported - to enforce best practice
-	//! Implicit conversion to/from uint64_t is also allowed.
-	//!
-	class CORE_EXPORT CCounter {
-	public:
-	    CCounter() : m_Counter(0) {
-		}
+        explicit CCounter(std::uint64_t counter) : m_Counter(counter) {}
 
-		explicit CCounter(std::uint64_t counter) : m_Counter(counter) {
-		}
+        CCounter& operator=(uint64_t counter) {
+            m_Counter = counter;
+            return *this;
+        }
 
-		CCounter& operator=(uint64_t counter) {
-			m_Counter = counter;
-			return *this;
-		}
+        CCounter& operator++() {
+            ++m_Counter;
+            return *this;
+        }
 
-		CCounter& operator++() {
-			++m_Counter;
-			return *this;
-		}
+        CCounter& operator+=(uint64_t counter) {
+            m_Counter += counter;
+            return *this;
+        }
 
-		CCounter& operator+=(uint64_t counter) {
-			m_Counter += counter;
-			return *this;
-		}
+        operator std::uint64_t() const { return m_Counter; }
 
-	    operator std::uint64_t() const {
-	        return m_Counter;
-	    }
-
-	private:
+    private:
         //! Decrement operator - for test cases only.
-		CCounter& operator--() {
-			--m_Counter;
-			return *this;
-		}
+        CCounter& operator--() {
+            --m_Counter;
+            return *this;
+        }
 
-	private:
-	    std::atomic_uint_fast64_t m_Counter;
+    private:
+        std::atomic_uint_fast64_t m_Counter;
 
-	    //! Befriend the test suite
-	    friend class ::CProgramCountersTest;
-	};
+        //! Befriend the test suite
+        friend class ::CProgramCountersTest;
+    };
 
 private:
     using TCounter = CCounter;

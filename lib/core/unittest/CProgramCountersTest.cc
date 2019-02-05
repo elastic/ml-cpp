@@ -159,7 +159,8 @@ void CProgramCountersTest::testCacheCounters() {
 
     // check that the cached and live counters match and that the values are as expected
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(counters.counter(i)), counters.m_Cache[i]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(counters.counter(i)),
+                             counters.m_Cache[i]);
         CPPUNIT_ASSERT_EQUAL(uint64_t(i + 1), counters.m_Cache[i]);
     }
 
@@ -341,7 +342,7 @@ std::string CProgramCountersTest::persist(bool doCacheCounters) {
 }
 
 void CProgramCountersTest::restore(const std::string& staticsXml) {
-	ml::core::CRapidXmlParser parser;
+    ml::core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(staticsXml));
     ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
     CPPUNIT_ASSERT(traverser.traverseSubLevel(

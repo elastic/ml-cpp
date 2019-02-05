@@ -104,19 +104,19 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
         // If no such limited set has been registered then persist all values.
         if (ms_Instance.m_ProgramCounterTypes.size() > 0) {
             for (const auto& counterType : ms_Instance.m_ProgramCounterTypes) {
-            	const auto &counter = container[counterType];
-            	if (counter != uint64_t{0}) {
+                const auto& counter = container[counterType];
+                if (counter != uint64_t{0}) {
                     inserter.insertValue(KEY_TAG, counterType);
                     inserter.insertValue(VALUE_TAG, counter);
-            	}
+                }
             }
         } else {
             int i = 0;
             for (const auto& counter : container) {
-            	if (counter != 0) {
+                if (counter != 0) {
                     inserter.insertValue(KEY_TAG, i);
                     inserter.insertValue(VALUE_TAG, counter);
-            	}
+                }
                 ++i;
             }
         }
@@ -187,15 +187,16 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
     // We skip 0 values
     if (counters.m_ProgramCounterTypes.size() == 0) {
         for (const auto& ctr : counters.m_CounterDefinitions) {
-        	if (counters.counter(ctr.s_Type) != 0) {
-        		addStringInt(writer, ctr.s_Name, ctr.s_Description,
-        		                         counters.counter(ctr.s_Type));
-        	}
+            if (counters.counter(ctr.s_Type) != 0) {
+                addStringInt(writer, ctr.s_Name, ctr.s_Description,
+                             counters.counter(ctr.s_Type));
+            }
         }
     } else {
         for (const auto& ctr : counters.m_CounterDefinitions) {
             if (counters.m_ProgramCounterTypes.find(ctr.s_Type) !=
-                counters.m_ProgramCounterTypes.end() && (counters.counter(ctr.s_Type) != 0)) {
+                    counters.m_ProgramCounterTypes.end() &&
+                (counters.counter(ctr.s_Type) != 0)) {
                 addStringInt(writer, ctr.s_Name, ctr.s_Description,
                              counters.counter(ctr.s_Type));
             }

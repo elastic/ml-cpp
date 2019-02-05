@@ -211,7 +211,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         this->addRecord(detector, time, dataRowFields);
     }
 
-   ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
+    ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
 
     ++m_NumRecordsHandled;
     m_LatestRecordTime = std::max(m_LatestRecordTime, time);
