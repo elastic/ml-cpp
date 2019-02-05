@@ -59,19 +59,15 @@ CProgramCounters& CProgramCounters::instance() {
 
 CProgramCounters::TCounter& CProgramCounters::counter(counter_t::ECounterTypes counterType) {
     size_t counterPos = static_cast<size_t>(counterType);
-    if (counterPos >= counter_t::NUM_COUNTERS) {
-        // If the enum values in ECounterTypes have been maintained in a contiguous block then logically this
-        // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
-        // As this doesn't indicate a problem with the analytics in the running application we simply log a warning.
-        // A dummy counter is returned in which to store the unknown counter.
-        LOG_WARN(<< "Bad index " << counterPos);
-        return ms_Instance.m_DummyCounter;
-    }
-    return ms_Instance.m_Counters[counterPos];
+    return counter(counterPos);
 }
 
 CProgramCounters::TCounter& CProgramCounters::counter(size_t index) {
     if (index >= ms_Instance.m_Counters.size()) {
+        // If the enum values in ECounterTypes have been maintained in a contiguous block then logically this
+        // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
+        // As this doesn't indicate a problem with the analytics in the running application we simply log a warning.
+        // A dummy counter is returned in which to store the unknown counter.
         LOG_WARN(<< "Bad index " << index);
         return ms_Instance.m_DummyCounter;
     }

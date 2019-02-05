@@ -76,6 +76,8 @@ void CProgramCountersTest::testCounters() {
 void CProgramCountersTest::testUnknownCounter() {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
+    // Name of the log file to use. It must match the name specified
+    // in testfiles/testLogErrorsLog4cxx.properties in the A2 appender
     const char* logFile = "test.log";
 
     std::remove(logFile);

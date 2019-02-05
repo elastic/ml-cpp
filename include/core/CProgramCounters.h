@@ -144,7 +144,7 @@ private:
     //! Counter values are assumed to only ever increase, therefore incrementing
     //! and assigning are publicly accessible, decrementing is not.
     //! Post increment is not supported - to enforce best practice
-    //! Implicit conversion to/from uint64_t is also allowed.
+    //! Implicit conversion to/from std::uint64_t is also allowed.
     //!
     class CORE_EXPORT CCounter {
     public:
@@ -152,7 +152,7 @@ private:
 
         explicit CCounter(std::uint64_t counter) : m_Counter(counter) {}
 
-        CCounter& operator=(uint64_t counter) {
+        CCounter& operator=(std::uint64_t counter) {
             m_Counter = counter;
             return *this;
         }
@@ -162,7 +162,7 @@ private:
             return *this;
         }
 
-        CCounter& operator+=(uint64_t counter) {
+        CCounter& operator+=(std::uint64_t counter) {
             m_Counter += counter;
             return *this;
         }
