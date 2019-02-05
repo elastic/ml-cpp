@@ -33,6 +33,10 @@ const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
+// Result types
+const std::string ROW_RESULTS{"row_results"};
+
+// Row result fields
 const std::string CHECKSUM{"checksum"};
 const std::string RESULTS{"results"};
 }
@@ -258,10 +262,13 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
+            outputWriter.String(ROW_RESULTS);
+            outputWriter.StartObject();
             outputWriter.Key(CHECKSUM);
             outputWriter.Int(row->docHash());
             outputWriter.Key(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
+            outputWriter.EndObject();
             outputWriter.EndObject();
         }
     });
