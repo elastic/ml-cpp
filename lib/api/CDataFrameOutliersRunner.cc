@@ -145,7 +145,7 @@ std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {
-    return "outliers";
+    return "outlier_detection";
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr

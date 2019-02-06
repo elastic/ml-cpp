@@ -43,7 +43,7 @@ std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
                      "  \"memory_limit\": 100000,\n"
                      "  \"threads\": 1,\n"
                      "  \"analysis\": {\n"
-                     "    \"name\": \"outliers\""
+                     "    \"name\": \"outlier_detection\""
                      "  }"
                      "}"};
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
@@ -136,7 +136,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
-                                     result["results"]["outlier_score"].GetDouble(),
+                                     result["row_results"]["results"]["outlier_score"].GetDouble(),
                                      1e-5 * *expectedScore);
         ++expectedScore;
     }
@@ -168,7 +168,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
-                                     result["results"]["outlier_score"].GetDouble(),
+                                     result["row_results"]["results"]["outlier_score"].GetDouble(),
                                      1e-5 * *expectedScore);
         ++expectedScore;
     }
@@ -286,8 +286,8 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
 
     int expectedHash{0};
     for (const auto& result : results.GetArray()) {
-        LOG_DEBUG(<< "checksum = " << result["checksum"].GetInt());
-        CPPUNIT_ASSERT_EQUAL(++expectedHash, result["checksum"].GetInt());
+        LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
+        CPPUNIT_ASSERT_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
     }
 }
 

@@ -38,7 +38,7 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
                                  "  \"memory_limit\": 100000000,\n"
                                  "  \"threads\": 1,\n"
                                  "  \"analysis\": {\n"
-                                 "    \"name\": \"outliers\""
+                                 "    \"name\": \"outlier_detection\""
                                  "  }"
                                  "}"};
 
