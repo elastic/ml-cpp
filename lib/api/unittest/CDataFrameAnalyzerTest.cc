@@ -10,6 +10,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CStringUtils.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -53,6 +54,9 @@ void addTestData(TStrVec fieldNames,
                  api::CDataFrameAnalyzer& analyzer,
                  TDoubleVec& expectedScores) {
 
+    using TMeanVarAccumulatorVec =
+        std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
+
     std::size_t numberInliers{100};
     std::size_t numberOutliers{10};
 
@@ -72,11 +76,14 @@ void addTestData(TStrVec fieldNames,
     rng.generateUniformSamples(0.0, 10.0, numberOutliers * 5, outliers);
 
     TPointVec points(numberInliers + numberOutliers, TPoint(5));
+    TMeanVarAccumulatorVec columnMoments(5);
+
     for (std::size_t i = 0; i < inliers.size(); ++i) {
         for (std::size_t j = 0; j < 5; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 inliers[i][j], core::CIEEE754::E_DoublePrecision);
             points[i](j) = inliers[i][j];
+            columnMoments[j].add(inliers[i][j]);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
     }
@@ -85,8 +92,17 @@ void addTestData(TStrVec fieldNames,
             fieldValues[k] = core::CStringUtils::typeToStringPrecise(
                 outliers[i], core::CIEEE754::E_DoublePrecision);
             points[j](k) = outliers[i];
+            columnMoments[k].add(outliers[i]);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
+    }
+
+    for (std::size_t j = 0; j < 5; ++j) {
+        double shift{maths::CBasicStatistics::mean(columnMoments[j])};
+        double scale{1.0 / std::sqrt(maths::CBasicStatistics::variance(columnMoments[j]))};
+        for (auto& point : points) {
+            point(j) = scale * (point(j) - shift);
+        }
     }
 
     maths::COutliers lofs;
@@ -121,7 +137,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
                                      result["results"]["outlier_score"].GetDouble(),
-                                     1e-6 * *expectedScore);
+                                     1e-5 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -153,7 +169,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
                                      result["results"]["outlier_score"].GetDouble(),
-                                     1e-6 * *expectedScore);
+                                     1e-5 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
