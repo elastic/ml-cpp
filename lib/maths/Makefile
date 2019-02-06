@@ -31,6 +31,7 @@ CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \
 CEntropySketch.cc \

@@ -155,6 +155,7 @@ int main(int argc, char** argv) {
     if (dataFrameAnalyzer.usingControlMessages() == false) {
         // To make running from the command line easy, we'll run the analysis
         // after closing the input pipe if control messages are not in use.
+        dataFrameAnalyzer.receivedAllRows();
         dataFrameAnalyzer.run();
     }
 

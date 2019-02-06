@@ -184,6 +184,7 @@ public:
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
+    using TRowRef = data_frame_detail::CRowRef;
     using TRowItr = data_frame_detail::CRowIterator;
     using TRowFunc = std::function<void(TRowItr, TRowItr)>;
     using TRowFuncVec = std::vector<TRowFunc>;
