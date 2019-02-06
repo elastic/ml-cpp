@@ -135,9 +135,9 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
-                                     result["row_results"]["results"]["outlier_score"].GetDouble(),
-                                     1e-5 * *expectedScore);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
+            1e-5 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -167,9 +167,9 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(*expectedScore,
-                                     result["row_results"]["results"]["outlier_score"].GetDouble(),
-                                     1e-5 * *expectedScore);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
+            1e-5 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
