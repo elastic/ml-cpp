@@ -88,7 +88,9 @@ void CBjkstUniqueValuesTest::testNumber() {
         double e6 = static_cast<double>(approxUniqueValues6.number());
         double error6 = std::fabs(e6 - n) / std::max(e6, n);
 
-        LOG_DEBUG(<< "error5 = " << error5 << ", error6 = " << error6);
+        if (i % 20 == 0) {
+            LOG_DEBUG(<< "error5 = " << error5 << ", error6 = " << error6);
+        }
         CPPUNIT_ASSERT(error5 < 0.35);
         CPPUNIT_ASSERT(error6 < 0.30);
 
@@ -135,8 +137,9 @@ void CBjkstUniqueValuesTest::testRemove() {
     TMeanAccumulator meanRelativeErrorAfterRemove;
 
     for (std::size_t t = 0u; t < numberTests; ++t) {
-        LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
-
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
+        }
         maths::CBjkstUniqueValues sketch(2, 150);
         TUInt32Set unique;
         for (std::size_t i = 0u; i < categories.size(); ++i) {
@@ -144,8 +147,10 @@ void CBjkstUniqueValuesTest::testRemove() {
             sketch.add(category);
             unique.insert(category);
         }
-        LOG_DEBUG(<< "exact  = " << unique.size());
-        LOG_DEBUG(<< "approx = " << sketch.number());
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "exact  = " << unique.size());
+            LOG_DEBUG(<< "approx = " << sketch.number());
+        }
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.3 * static_cast<double>(unique.size()));
@@ -159,8 +164,10 @@ void CBjkstUniqueValuesTest::testRemove() {
             sketch.remove(category);
             unique.erase(category);
         }
-        LOG_DEBUG(<< "exact  = " << unique.size());
-        LOG_DEBUG(<< "approx = " << sketch.number());
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "exact  = " << unique.size());
+            LOG_DEBUG(<< "approx = " << sketch.number());
+        }
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.25 * static_cast<double>(unique.size()));
@@ -264,8 +271,10 @@ void CBjkstUniqueValuesTest::testSmall() {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
-        LOG_DEBUG(<< "exact  = " << unique.size());
-        LOG_DEBUG(<< "approx = " << sketch.number());
+        if (i % 20 == 0) {
+            LOG_DEBUG(<< "exact  = " << unique.size());
+            LOG_DEBUG(<< "approx = " << sketch.number());
+        }
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.15 * static_cast<double>(unique.size()));

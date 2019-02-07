@@ -26,7 +26,7 @@ namespace core {
 //! Contains methods that require data be known in advance, plus a
 //! method that returns a stream to which the data to be persisted
 //! can be written.  This latter method is obviously much more
-//! memory-efficient in cases where is is a viable option.
+//! memory-efficient in cases where it is a viable option.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! There's an assumption that persisted state will be saved to a

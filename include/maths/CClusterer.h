@@ -15,7 +15,7 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 

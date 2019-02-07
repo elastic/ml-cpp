@@ -44,11 +44,6 @@ public:
 
 class CTestOutputHandler : public COutputHandler {
 public:
-    CTestOutputHandler()
-        : COutputHandler(), m_NewStream(false), m_Finalised(false), m_Records(0) {}
-
-    virtual ~CTestOutputHandler() {}
-
     virtual void finalise() { m_Finalised = true; }
 
     bool hasFinalised() const { return m_Finalised; }
@@ -61,24 +56,20 @@ public:
         return true;
     }
 
-    virtual const TStrVec& fieldNames() const { return m_FieldNames; }
-
     virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/,
                           const TStrStrUMap& /*overrideDataRowFields*/) {
-        m_Records++;
+        ++m_Records;
         return true;
     }
 
     uint64_t getNumRows() const { return m_Records; }
 
 private:
-    TStrVec m_FieldNames;
+    bool m_NewStream = false;
 
-    bool m_NewStream;
+    bool m_Finalised = false;
 
-    bool m_Finalised;
-
-    uint64_t m_Records;
+    uint64_t m_Records = 0;
 };
 
 class CTestDataSearcher : public core::CDataSearcher {

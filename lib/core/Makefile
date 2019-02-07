@@ -71,9 +71,10 @@ CBase64Filter.cc \
 CBufferFlushTimer.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
-CompressUtils.cc \
 CContainerPrinter.cc \
 CDataAdder.cc \
+CDataFrame.cc \
+CDataFrameRowSlice.cc \
 CDataSearcher.cc \
 CDelimiter.cc \
 CDualThreadStreamBuf.cc \
@@ -86,9 +87,12 @@ CJsonOutputStreamWrapper.cc \
 CJsonStatePersistInserter.cc \
 CJsonStateRestoreTraverser.cc \
 CLogger.cc \
+CLoopProgress.cc \
 CMemory.cc \
 CMemoryUsage.cc \
 CMemoryUsageJsonWriter.cc \
+CompressUtils.cc \
+Concurrency.cc \
 CPatternSet.cc \
 CPersistUtils.cc \
 CProgramCounters.cc \
@@ -107,7 +111,9 @@ CStateCompressor.cc \
 CStateDecompressor.cc \
 CStatePersistInserter.cc \
 CStateRestoreTraverser.cc \
+CStaticThreadPool.cc \
 CStopWatch.cc \
+CStreamUtils.cc \
 CStoredStringPtr.cc \
 CStringCache.cc \
 CStringSimilarityTester.cc \

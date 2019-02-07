@@ -162,7 +162,9 @@ void CNaturalBreaksClassifierTest::testCategories() {
             classifier.add(samples[i]);
             if (i > 0 && i % 50 == 0) {
                 for (std::size_t j = 3u; j < 7; ++j) {
-                    LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j);
+                    if (i % 100) {
+                        LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j);
+                    }
 
                     TTupleVec split;
                     classifier.categories(j, 0, split);
@@ -172,9 +174,11 @@ void CNaturalBreaksClassifierTest::testCategories() {
                     TTupleVec expectedSplit;
                     naturalBreaksBranchAndBound(all, j, 0, expectedSplit);
 
-                    LOG_DEBUG(<< "expected = "
-                              << core::CContainerPrinter::print(expectedSplit));
-                    LOG_DEBUG(<< "actual =   " << core::CContainerPrinter::print(split));
+                    if (i % 100) {
+                        LOG_DEBUG(<< "expected = "
+                                  << core::CContainerPrinter::print(expectedSplit));
+                        LOG_DEBUG(<< "actual =   " << core::CContainerPrinter::print(split));
+                    }
 
                     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                          core::CContainerPrinter::print(split));
@@ -201,8 +205,10 @@ void CNaturalBreaksClassifierTest::testCategories() {
                     do {
                         k *= 2;
 
-                        LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j
-                                  << ", minimum cluster size = " << k);
+                        if (i % 20 == 0) {
+                            LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j
+                                      << ", minimum cluster size = " << k);
+                        }
 
                         TTupleVec split;
                         bool haveSplit = classifier.categories(j, k, split);
@@ -215,11 +221,12 @@ void CNaturalBreaksClassifierTest::testCategories() {
                         CPPUNIT_ASSERT_EQUAL(expectSplit, haveSplit);
 
                         if (expectSplit && haveSplit) {
-                            LOG_DEBUG(<< "expected = "
-                                      << core::CContainerPrinter::print(expectedSplit));
-                            LOG_DEBUG(<< "actual =   "
-                                      << core::CContainerPrinter::print(split));
-
+                            if (i % 20 == 0) {
+                                LOG_DEBUG(<< "expected = "
+                                          << core::CContainerPrinter::print(expectedSplit));
+                                LOG_DEBUG(<< "actual =   "
+                                          << core::CContainerPrinter::print(split));
+                            }
                             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                                  core::CContainerPrinter::print(split));
                         }
@@ -334,8 +341,10 @@ void CNaturalBreaksClassifierTest::testCategories() {
             TTupleVec twoSplit;
             classifier.categories(2u, 0, twoSplit);
 
-            LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
-                      << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
+            if (i % 10 == 0) {
+                LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
+                          << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
+            }
 
             CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
             CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
@@ -433,9 +442,11 @@ void CNaturalBreaksClassifierTest::testCategories() {
             TTupleVec twoSplit;
             classifier.categories(3u, 0, twoSplit);
 
-            LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
-                      << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
-                      << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
+            if (i % 10 == 0) {
+                LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
+                          << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
+                          << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
+            }
 
             CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
             CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);

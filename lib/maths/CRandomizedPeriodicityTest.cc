@@ -82,7 +82,7 @@ const std::string WEEK_STATISTICS_TAG("e");
 const std::string WEEK_REFRESHED_PROJECTIONS_TAG("f");
 }
 
-//////// CRandomizedPeriodicitytest ////////
+//////// CRandomizedPeriodicityTest ////////
 
 CRandomizedPeriodicityTest::CRandomizedPeriodicityTest()
     : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL),

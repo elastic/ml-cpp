@@ -15,6 +15,7 @@
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <ostream>
@@ -500,7 +501,7 @@ CSymmetricMatrixNxN<T, N> max(const T& lhs, const CSymmetricMatrixNxN<T, N>& rhs
     return result;
 }
 
-//! Overload ::fabs for CVectorNx1.
+//! Overload std::fabs for CVectorNx1.
 template<typename T, std::size_t N>
 CVectorNx1<T, N> fabs(const CVectorNx1<T, N>& v) {
     CVectorNx1<T, N> result(v);
@@ -508,7 +509,7 @@ CVectorNx1<T, N> fabs(const CVectorNx1<T, N>& v) {
         N, result);
     return result;
 }
-//! Overload ::fabs for CSymmetricMatrixNxN.
+//! Overload std::fabs for CSymmetricMatrixNxN.
 template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> fabs(const CSymmetricMatrixNxN<T, N>& m) {
     CSymmetricMatrixNxN<T, N> result(m);
@@ -632,7 +633,7 @@ CSymmetricMatrix<T> max(const T& lhs, const CSymmetricMatrix<T>& rhs) {
     return result;
 }
 
-//! Overload ::fabs for CVector.
+//! Overload std::fabs for CVector.
 template<typename T>
 CVector<T> fabs(const CVector<T>& v) {
     CVector<T> result(v);
@@ -640,7 +641,7 @@ CVector<T> fabs(const CVector<T>& v) {
         result.dimension(), result);
     return result;
 }
-//! Overload ::fabs for CSymmetricMatrix.
+//! Overload std::fabs for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
     CSymmetricMatrix<T> result(m);
@@ -649,43 +650,43 @@ CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
     return result;
 }
 
-//! Efficiently scale the \p i'th row and column by \p scale.
-template<typename T, std::size_t N>
-void scaleCovariances(std::size_t i, T scale, CSymmetricMatrixNxN<T, N>& m) {
+//! Scale the \p i'th row and column by \p scale.
+template<typename T, typename MATRIX>
+void scaleCovariances(std::size_t i, T scale, MATRIX& m) {
     scale = std::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j) {
-        if (i == j) {
+        if (i != j) {
             m(i, j) *= scale;
+        } else {
+            m(i, i) *= scale * scale;
         }
-        m(i, j) *= scale;
     }
 }
-
-//! Efficiently scale the rows and columns by \p scale.
-template<typename T, std::size_t N>
-void scaleCovariances(const CVectorNx1<T, N>& scale, CSymmetricMatrixNxN<T, N>& m) {
+//! Scale the rows and columns by \p scale.
+template<typename VECTOR, typename MATRIX>
+void scaleCovariances(const VECTOR& scale, MATRIX& m) {
     for (std::size_t i = 0u; i < scale.dimension(); ++i) {
         scaleCovariances(i, scale(i), m);
     }
 }
 
-//! Efficiently scale the \p i'th row and column by \p scale.
-template<typename T>
-void scaleCovariances(std::size_t i, T scale, CSymmetricMatrix<T>& m) {
+//! Scale the \p i'th row and column by \p scale.
+template<typename SCALAR>
+void scaleCovariances(std::ptrdiff_t i, SCALAR scale, CDenseMatrix<SCALAR>& m) {
     scale = std::sqrt(scale);
-    for (std::size_t j = 0u; j < m.columns(); ++j) {
-        if (i == j) {
-            m(i, j) = scale;
+    for (std::ptrdiff_t j = 0u; j < m.cols(); ++j) {
+        if (i != j) {
+            m(i, j) = m(j, i) = scale * m(i, j);
+        } else {
+            m(i, i) *= scale * scale;
         }
-        m(i, j) = scale;
     }
 }
-
-//! Efficiently scale the rows and columns by \p scale.
-template<typename T>
-void scaleCovariances(const CVector<T>& scale, CSymmetricMatrix<T>& m) {
-    for (std::size_t i = 0u; i < scale.dimension(); ++i) {
-        scaleRowAndColumn(i, scale(i), m);
+//! Scale the rows and columns by \p scale.
+template<typename SCALAR>
+void scaleCovariances(const CDenseVector<SCALAR>& scale, CDenseMatrix<SCALAR>& m) {
+    for (std::ptrdiff_t i = 0u; i < scale.size(); ++i) {
+        scaleCovariances(i, scale(i), m);
     }
 }
 

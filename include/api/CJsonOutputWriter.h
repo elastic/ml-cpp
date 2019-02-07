@@ -181,15 +181,12 @@ public:
     //! Destructor flushes the stream
     virtual ~CJsonOutputWriter();
 
-    //! Set field names.  In this class this function has no effect and it
-    //! always returns true
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
-
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
-    //! Returns an empty vector
-    virtual const TStrVec& fieldNames() const;
+    //! Set field names.  In this class this function has no effect and it
+    //! always returns true
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields,

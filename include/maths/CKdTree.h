@@ -12,11 +12,16 @@
 #include <maths/CAnnotatedVector.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CTypeConversions.h>
+#include <maths/CLinearAlgebraShims.h>
+#include <maths/CLinearAlgebraTools.h>
+#include <maths/COrderings.h>
+#include <maths/CTypeTraits.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <limits>
+#include <type_traits>
 #include <vector>
 
 namespace ml {
@@ -26,15 +31,6 @@ namespace kdtree_detail {
 
 //! \brief Stubs out the node data parameter for k-d tree.
 struct SEmptyNodeData {};
-
-//! Euclidean norm implementation for our internal vector classes.
-//!
-//! Overload to adapt the Euclidean norm calculation for different
-//! point implementations.
-template<typename POINT>
-typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POINT& point) {
-    return point.euclidean();
-}
 
 } // kdtree_detail::
 
@@ -51,8 +47,8 @@ typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POIN
 //!
 //! The POINT type must have value semantics, support coordinate access,
 //! via operator(), support subtraction, via operator-, and provide a
-//! Euclidean norm, i.e. \f$\sqrt{\sum_i x_i^2}\f$, this is handled by
-//! overloading the kdtree_detail::euclidean functions.
+//! Euclidean norm, i.e. \f$\sqrt{\sum_i x_i^2}\f$. This is handled by
+//! overloading the las::distance functions.
 //!
 //! Extra node data can be supplied as a template parameter. The nodes
 //! inherit this publicly (so that the Empty Base Optimization is used
@@ -62,8 +58,8 @@ typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POIN
 template<typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
 public:
+    using TDoubleVec = std::vector<double>;
     using TPointVec = std::vector<POINT>;
-    using TPointVecItr = typename TPointVec::iterator;
     using TCoordinate = typename SCoordinate<POINT>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
     using TCoordinatePrecisePointPr = std::pair<TCoordinatePrecise, POINT>;
@@ -83,9 +79,22 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
+        //! Copy \p point into place.
         SNode(SNode* parent, const POINT& point)
-            : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr),
-              s_RightChild(nullptr), s_Point(point) {}
+            : s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr),
+              s_Point(point) {}
+
+        //! Move \p point into place.
+        //!
+        //! \note Since this is an internal class and we ensure that this
+        //! constructor is called by explicitly calling std::move(point)
+        //! in the version of append with move semantics we prefer to
+        //! explicitly define a constructor taking an rvalue reference
+        //! since not all our vector types can be moved and calling the
+        //! other constructor saves us a redundant copy in these cases.
+        SNode(SNode* parent, POINT&& point)
+            : s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr),
+              s_Point(std::forward<POINT>(point)) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
@@ -96,7 +105,7 @@ public:
                 }
             }
 
-            std::size_t coordinate = this->depth() % dimension;
+            std::size_t coordinate{this->depth() % dimension};
             CCoordinateLess less(coordinate);
             if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
                 LOG_ERROR(<< "parent = " << s_Point << ", left child = "
@@ -113,11 +122,16 @@ public:
 
         //! Get the coordinate the points are split on.
         std::size_t depth() const {
-            std::size_t depth = 0u;
+            std::size_t depth{0};
             for (const SNode* ancestor = s_Parent; ancestor; ancestor = ancestor->s_Parent) {
                 ++depth;
             }
             return depth;
+        }
+
+        //! Estimate the amount of memory this node will use.
+        static std::size_t estimateMemoryUsage(std::size_t dimension) {
+            return sizeof(SNode) + las::estimateMemoryUsage<POINT>(dimension);
         }
 
         //! The parent.
@@ -129,6 +143,31 @@ public:
         //! The point at this node.
         POINT s_Point;
     };
+    using TNodeVec = std::vector<SNode>;
+    using TNodeVecCItr = typename TNodeVec::const_iterator;
+
+    //! \brief Iterates points in the tree.
+    class TPointIterator : public std::iterator<std::forward_iterator_tag, const POINT> {
+    public:
+        TPointIterator() = default;
+        TPointIterator(TNodeVecCItr itr) : m_Itr(itr) {}
+        const POINT& operator*() const { return m_Itr->s_Point; }
+        const POINT* operator->() const { return &m_Itr->s_Point; }
+        bool operator==(const TPointIterator& rhs) const {
+            return m_Itr == rhs.m_Itr;
+        }
+        bool operator!=(const TPointIterator& rhs) const {
+            return m_Itr != rhs.m_Itr;
+        }
+        TPointIterator& operator++() {
+            ++m_Itr;
+            return *this;
+        }
+        TPointIterator operator++(int) { return m_Itr++; }
+
+    private:
+        TNodeVecCItr m_Itr;
+    };
 
 public:
     //! Reserve space for \p n points.
@@ -136,17 +175,35 @@ public:
 
     //! Build a k-d tree on the collection of points \p points.
     //!
-    //! \note \p points are reordered by this operation.
+    //! \note The vector \p points is reordered.
     void build(TPointVec& points) {
-        if (points.empty()) {
+        this->build(points.begin(), points.end(), std::false_type{});
+    }
+
+    //! Build a k-d tree on the collection of points \p points.
+    //!
+    //! \note The \p points are moved into place.
+    void build(TPointVec&& points) {
+        // We forward to a local variable so the the space allocated for
+        // the vector buffer is freed at the end of this function.
+        TPointVec points_{std::forward<TPointVec>(points)};
+        this->build(points_.begin(), points_.end(), std::true_type{});
+    }
+
+    //! Build from a pair of output random access iterators.
+    //!
+    //! \note The range [\p begin, \p end) is reordered.
+    template<typename ITR, typename MOVE = std::false_type>
+    void build(ITR begin, ITR end, MOVE move = MOVE{}) {
+        if (begin == end) {
             return;
         }
-        m_Dimension = points[0].dimension();
+        m_Dimension = las::dimension(*begin);
         m_Nodes.clear();
-        m_Nodes.reserve(points.size());
+        m_Nodes.reserve(std::distance(begin, end));
         this->buildRecursively(nullptr, // Parent pointer
                                0,       // Split coordinate
-                               points.begin(), points.end());
+                               begin, end, move);
     }
 
     //! Get the number of points in the tree.
@@ -154,38 +211,56 @@ public:
 
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
-        const POINT* nearest = nullptr;
+        const POINT* nearest{nullptr};
 
-        if (m_Nodes.empty()) {
-            return nearest;
+        if (m_Nodes.size() > 0) {
+            auto inf = std::numeric_limits<TCoordinatePrecise>::max();
+
+            return this->nearestNeighbour(point, m_Nodes[0],
+                                          0, // Split coordinate
+                                          nearest, inf);
         }
-
-        TCoordinatePrecise distanceToNearest =
-            std::numeric_limits<TCoordinatePrecise>::max();
-        return this->nearestNeighbour(point, m_Nodes[0],
-                                      0, // Split coordinate,
-                                      nearest, distanceToNearest);
+        return nearest;
     }
 
     //! Branch and bound search for nearest \p n neighbours of \p point.
     void nearestNeighbours(std::size_t n, const POINT& point, TPointVec& result) const {
         result.clear();
 
-        if (n == 0 || m_Nodes.empty()) {
-            return;
-        }
+        if (n > 0 && n < m_Nodes.size()) {
+            auto inf = std::numeric_limits<TCoordinatePrecise>::max();
 
-        TNearestAccumulator nearest(n);
-        this->nearestNeighbours(point, m_Nodes[0],
-                                0, // Split coordinate,
-                                nearest);
+            // These neighbour points will be completely replaced by the call
+            // to nearestNeighbours, but we need the collection to be initialized
+            // with infinite distances so we get the correct value for the furthest
+            // nearest neighbour at the start of the branch and bound search.
+            TNearestAccumulator neighbours(n, {inf, m_Nodes[0].s_Point});
+            this->nearestNeighbours(point, m_Nodes[0],
+                                    0, // Split coordinate
+                                    neighbours);
 
-        result.reserve(nearest.count());
-        nearest.sort();
-        for (std::size_t i = 0u; i < nearest.count(); ++i) {
-            result.push_back(nearest[i].second);
+            result.reserve(neighbours.count());
+            neighbours.sort();
+            for (const auto& neighbour : neighbours) {
+                result.push_back(std::move(neighbour.second));
+            }
+        } else if (n > m_Nodes.size()) {
+            TDoubleVec distances;
+            distances.reserve(m_Nodes.size());
+            result.reserve(m_Nodes.size());
+            for (const auto& node : m_Nodes) {
+                distances.push_back(las::distance(point, node.s_Point));
+                result.push_back(node.s_Point);
+            }
+            COrderings::simultaneousSort(distances, result);
         }
     }
+
+    //! Get an iterator over the points in the tree.
+    TPointIterator begin() const { return TPointIterator(m_Nodes.begin()); }
+
+    //! Get an iterator to the end of the points in the tree.
+    TPointIterator end() const { return TPointIterator(m_Nodes.end()); }
 
     //! A pre-order depth first traversal of the k-d tree nodes.
     //!
@@ -214,33 +289,49 @@ public:
 
     //! Check the tree invariants.
     bool checkInvariants() const {
-        for (std::size_t i = 0u; i < m_Nodes.size(); ++i) {
-            if (!m_Nodes[i].checkInvariants(m_Dimension)) {
+        for (const auto& node : m_Nodes) {
+            if (!node.checkInvariants(m_Dimension)) {
                 return false;
             }
         }
         return true;
     }
 
-private:
-    using TNodeVec = std::vector<SNode>;
+    //! Estimate the amount of memory the k-d tree will use.
+    //!
+    //! \param[in] numberPoints The number of points it will hold.
+    //! \param[in] dimension The dimension of points it will hold.
+    static std::size_t estimateMemoryUsage(std::size_t numberPoints, std::size_t dimension) {
+        return numberPoints * SNode::estimateMemoryUsage(dimension);
+    }
 
 private:
+    //! Append a node moving \p point into place.
+    void append(std::true_type, SNode* parent, POINT& point) {
+        m_Nodes.emplace_back(parent, std::move(point));
+    }
+
+    //! Append a node copying \p point into place.
+    void append(std::false_type, SNode* parent, const POINT& point) {
+        m_Nodes.emplace_back(parent, point);
+    }
+
     //! Recursively build the k-d tree.
-    SNode* buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
-        std::size_t n = static_cast<std::size_t>(end - begin) / 2;
-        TPointVecItr median = begin + n;
+    template<typename ITR, typename MOVE>
+    SNode* buildRecursively(SNode* parent, std::size_t coordinate, ITR begin, ITR end, MOVE move) {
+        std::size_t n{static_cast<std::size_t>(end - begin) / 2};
+        ITR median{begin + n};
         std::nth_element(begin, median, end, CCoordinateLess(coordinate));
-        m_Nodes.push_back(SNode(parent, *median));
-        SNode* node = &m_Nodes.back();
+        this->append(move, parent, *median);
+        SNode* node{&m_Nodes.back()};
         if (median - begin > 0) {
-            SNode* leftChild = this->buildRecursively(
-                node, (coordinate + 1) % m_Dimension, begin, median);
+            std::size_t next{(coordinate + 1) % m_Dimension};
+            SNode* leftChild{this->buildRecursively(node, next, begin, median, move)};
             node->s_LeftChild = leftChild;
         }
         if (end - median > 1) {
-            SNode* rightChild = this->buildRecursively(
-                node, (coordinate + 1) % m_Dimension, median + 1, end);
+            std::size_t next{(coordinate + 1) % m_Dimension};
+            SNode* rightChild{this->buildRecursively(node, next, median + 1, end, move)};
             node->s_RightChild = rightChild;
         }
         return node;
@@ -252,7 +343,7 @@ private:
                                   std::size_t coordinate,
                                   const POINT* nearest,
                                   TCoordinatePrecise& distanceToNearest) const {
-        TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
+        TCoordinatePrecise distance{las::distance(point, node.s_Point)};
 
         if (distance < distanceToNearest) {
             nearest = &node.s_Point;
@@ -260,16 +351,16 @@ private:
         }
 
         if (node.s_LeftChild || node.s_RightChild) {
-            TCoordinatePrecise distanceToHyperplane = point(coordinate) -
-                                                      node.s_Point(coordinate);
+            TCoordinatePrecise distanceToHyperplane{point(coordinate) -
+                                                    node.s_Point(coordinate)};
 
-            SNode* primary = node.s_LeftChild;
-            SNode* secondary = node.s_RightChild;
+            SNode* primary{node.s_LeftChild};
+            SNode* secondary{node.s_RightChild};
             if (!primary || (secondary && distanceToHyperplane > 0)) {
                 std::swap(primary, secondary);
             }
 
-            std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
+            std::size_t nextCoordinate{(coordinate + 1) % m_Dimension};
             nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
                                              nearest, distanceToNearest);
             if (secondary && std::fabs(distanceToHyperplane) < distanceToNearest) {
@@ -286,9 +377,9 @@ private:
                            const SNode& node,
                            std::size_t coordinate,
                            TNearestAccumulator& nearest) const {
-        TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
+        TCoordinatePrecise distance = las::distance(point, node.s_Point);
 
-        nearest.add(TCoordinatePrecisePointPr(distance, node.s_Point));
+        nearest.add({distance, node.s_Point});
 
         if (node.s_LeftChild || node.s_RightChild) {
             TCoordinatePrecise distanceToHyperplane = point(coordinate) -
@@ -336,6 +427,7 @@ private:
 private:
     //! The point dimension.
     std::size_t m_Dimension;
+
     //! The representation of the points.
     TNodeVec m_Nodes;
 };

@@ -9,7 +9,8 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CTypeConversions.h>
+#include <maths/CLinearAlgebraShims.h>
+#include <maths/CTypeTraits.h>
 
 #include <cstddef>
 #include <ostream>
@@ -34,7 +35,6 @@ public:
 
 public:
     CBoundingBox() : m_Empty(true), m_A(), m_B() {}
-
     CBoundingBox(const POINT& x) : m_Empty(false), m_A(x), m_B(x) {}
 
     //! Clear the bounding box.
@@ -49,8 +49,8 @@ public:
         if (m_Empty) {
             m_A = m_B = p;
         } else {
-            m_A = min(m_A, p);
-            m_B = max(m_B, p);
+            las::min(p, m_A);
+            las::max(p, m_B);
         }
         m_Empty = false;
     }
@@ -61,8 +61,8 @@ public:
         if (m_Empty) {
             *this = other;
         } else if (!other.m_Empty) {
-            m_A = min(m_A, other.m_A);
-            m_B = max(m_B, other.m_B);
+            las::min(other.m_A, m_A);
+            las::max(other.m_B, m_B);
             m_Empty = false;
         }
     }
@@ -88,11 +88,13 @@ public:
     //! to \p y than \p x.
     bool closerToX(const POINT& x, const POINT& y) const {
         POINT xy = y - x;
-        POINT f(0);
-        for (std::size_t i = 0u; i < x.dimension(); ++i) {
-            f(i) = xy(i) < 0 ? m_A(i) : m_B(i);
+        POINT f(m_B);
+        for (std::size_t i = 0u; i < las::dimension(x); ++i) {
+            if (xy(i) < 0) {
+                f(i) = m_A(i);
+            }
         }
-        return (f - x).euclidean() <= (f - y).euclidean();
+        return las::distance(f, x) <= las::distance(f, y);
     }
 
     //! Print this bounding box.

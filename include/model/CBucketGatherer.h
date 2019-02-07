@@ -74,7 +74,7 @@ public:
     using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TDictionary = core::CCompressedDictionary<2>;
-    using TWordSizeUMap = TDictionary::CWordUMap<std::size_t>::Type;
+    using TWordSizeUMap = TDictionary::TWordTUMap<std::size_t>;
     using TWordSizeUMapItr = TWordSizeUMap::iterator;
     using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
     using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;

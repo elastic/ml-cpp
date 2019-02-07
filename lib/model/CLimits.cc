@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <model/CLimits.h>
+
+#include <core/CStreamUtils.h>
+
 #include <model/CResourceMonitor.h>
 
 #include <boost/property_tree/ini_parser.hpp>
@@ -38,7 +41,7 @@ bool CLimits::init(const std::string& configFile) {
             LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
-        this->skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
@@ -88,27 +91,6 @@ size_t CLimits::memoryLimitMB() const {
 
 CResourceMonitor& CLimits::resourceMonitor() {
     return m_ResourceMonitor;
-}
-
-void CLimits::skipUtf8Bom(std::ifstream& strm) {
-    if (strm.tellg() != std::streampos(0)) {
-        return;
-    }
-    std::ios_base::iostate origState(strm.rdstate());
-    // The 3 bytes 0xEF, 0xBB, 0xBF form a UTF-8 byte order marker (BOM)
-    if (strm.get() == 0xEF) {
-        if (strm.get() == 0xBB) {
-            if (strm.get() == 0xBF) {
-                LOG_DEBUG(<< "Skipping UTF-8 BOM");
-                return;
-            }
-        }
-    }
-    // Set the stream state back to how it was originally so subsequent code can
-    // report errors
-    strm.clear(origState);
-    // There was no BOM, so seek back to the beginning of the file
-    strm.seekg(0);
 }
 }
 }

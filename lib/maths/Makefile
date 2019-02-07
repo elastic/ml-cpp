@@ -8,6 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=$(OBJS_DIR)/libMlMaths$(DYNAMIC_LIB_EXT)
 
 USE_BOOST=1
+USE_BOOST_FILESYSTEM_LIBS=1
 USE_EIGEN=1
 
 LIBS:=$(LIB_ML_CORE)
@@ -30,13 +31,13 @@ CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \
 CEntropySketch.cc \
 CExpandingWindow.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
-CGramSchmidt.cc \
 CInformationCriteria.cc \
 CIntegerTools.cc \
 CIntegration.cc \
@@ -68,6 +69,7 @@ COneOfNPrior.cc \
 Constants.cc \
 COrderings.cc \
 COrdinal.cc \
+COutliers.cc \
 CPackedBitVector.cc \
 CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \

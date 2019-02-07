@@ -38,11 +38,8 @@ public:
     using TDictionary1 = core::CCompressedDictionary<1>;
     using TWord = TDictionary1::CWord;
     using TWordSet = TDictionary1::TWordSet;
-    using TWordSetCItr = TWordSet::const_iterator;
-    using TWordStringUMap = TDictionary1::CWordUMap<std::string>::Type;
-    using TWordStringUMapCItr = TWordStringUMap::const_iterator;
+    using TWordStringUMap = TDictionary1::TWordTUMap<std::string>;
     using TStoredStringPtrWordSetUMap = boost::unordered_map<core::CStoredStringPtr, TWordSet>;
-    using TStoredStringPtrWordSetUMapCItr = TStoredStringPtrWordSetUMap::const_iterator;
     using TStoredStringPtrWordSetUMapVec = std::vector<TStoredStringPtrWordSetUMap>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;

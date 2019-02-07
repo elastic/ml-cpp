@@ -15,6 +15,7 @@ public:
     void testReduce();
     void testMerge();
     void testMedian();
+    void testMad();
     void testPropagateForwardByTime();
     void testQuantileAccuracy();
     void testCdf();

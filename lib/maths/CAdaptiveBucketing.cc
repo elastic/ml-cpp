@@ -238,9 +238,8 @@ void CAdaptiveBucketing::clear() {
 }
 
 void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weight) {
-    using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-    TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(
-        this->bucketCount(bucket), static_cast<double>(m_Centres[bucket]))};
+    auto centre = CBasicStatistics::momentsAccumulator(
+        this->bucketCount(bucket), static_cast<double>(m_Centres[bucket]));
     centre.add(this->offset(time), weight);
     m_Centres[bucket] = CBasicStatistics::mean(centre);
     m_MeanWeight.add(weight);

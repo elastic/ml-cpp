@@ -205,31 +205,31 @@ void CLG(std::size_t maxIterations,
 
 namespace lasso_logistic_regression_detail {
 
-////// CDenseMatrix //////
+////// CLrDenseMatrix //////
 
-CDenseMatrix::CDenseMatrix() {
+CLrDenseMatrix::CLrDenseMatrix() {
 }
 
-CDenseMatrix::CDenseMatrix(TDoubleVecVec& elements) {
+CLrDenseMatrix::CLrDenseMatrix(TDoubleVecVec& elements) {
     m_Elements.swap(elements);
 }
 
-void CDenseMatrix::swap(CDenseMatrix& other) {
+void CLrDenseMatrix::swap(CLrDenseMatrix& other) {
     m_Elements.swap(other.m_Elements);
 }
 
-////// CSparseMatrix //////
+////// CLrSparseMatrix //////
 
-CSparseMatrix::CSparseMatrix() : m_Rows(0), m_Columns(0) {
+CLrSparseMatrix::CLrSparseMatrix() : m_Rows(0), m_Columns(0) {
 }
 
-CSparseMatrix::CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements)
+CLrSparseMatrix::CLrSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements)
     : m_Rows(rows), m_Columns(columns) {
     m_Elements.swap(elements);
     std::sort(m_Elements.begin(), m_Elements.end(), COrderings::SFirstLess());
 }
 
-void CSparseMatrix::swap(CSparseMatrix& other) {
+void CLrSparseMatrix::swap(CLrSparseMatrix& other) {
     std::swap(m_Rows, other.m_Rows);
     std::swap(m_Columns, other.m_Columns);
     m_Elements.swap(other.m_Elements);
@@ -262,7 +262,7 @@ bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::run(const CDenseMatrix& x,
+bool CCyclicCoordinateDescent::run(const CLrDenseMatrix& x,
                                    const TDoubleVec& y,
                                    const TDoubleVec& lambda,
                                    TDoubleVec& beta,
@@ -277,7 +277,7 @@ bool CCyclicCoordinateDescent::run(const CDenseMatrix& x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::run(const CSparseMatrix& x,
+bool CCyclicCoordinateDescent::run(const CLrSparseMatrix& x,
                                    const TDoubleVec& y,
                                    const TDoubleVec& lambda,
                                    TDoubleVec& beta,
@@ -292,7 +292,7 @@ bool CCyclicCoordinateDescent::run(const CSparseMatrix& x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
+bool CCyclicCoordinateDescent::runIncremental(const CLrDenseMatrix& x,
                                               const TDoubleVec& y,
                                               const TDoubleVec& lambda,
                                               TDoubleVec& beta,
@@ -311,7 +311,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
     TDoubleVec r(x.rows(), 0.0);
     for (std::size_t j = 0u; j < x.columns(); ++j) {
         double bj = beta[j];
-        for (CDenseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
+        for (CLrDenseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
             r[i] = bj * x.element(itr) * y[i];
         }
@@ -321,7 +321,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
+bool CCyclicCoordinateDescent::runIncremental(const CLrSparseMatrix& x,
                                               const TDoubleVec& y,
                                               const TDoubleVec& lambda,
                                               TDoubleVec& beta,
@@ -340,7 +340,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
     TDoubleVec r(x.rows(), 0.0);
     for (std::size_t j = 0u; j < x.columns(); ++j) {
         double bj = beta[j];
-        for (CSparseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
+        for (CLrSparseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
             r[i] = bj * x.element(itr) * y[i];
         }
@@ -425,9 +425,9 @@ using TSizeUSet = boost::unordered_set<std::size_t>;
 void setupTrainingData(const TDoubleVecVec& x,
                        const TDoubleVec& y,
                        const TSizeUSet& mask,
-                       CDenseMatrix& xMasked,
+                       CLrDenseMatrix& xMasked,
                        TDoubleVec& yMasked) {
-    xMasked = CDenseMatrix();
+    xMasked = CLrDenseMatrix();
     yMasked.clear();
 
     if (x.empty()) {
@@ -450,7 +450,7 @@ void setupTrainingData(const TDoubleVecVec& x,
             ++i_;
         }
     }
-    CDenseMatrix tmp(xTranspose);
+    CLrDenseMatrix tmp(xTranspose);
     xMasked.swap(tmp);
 }
 
@@ -458,9 +458,9 @@ void setupTrainingData(const TDoubleVecVec& x,
 void setupTrainingData(const TSizeDoublePrVecVec& x,
                        const TDoubleVec& y,
                        const TSizeUSet& mask,
-                       CSparseMatrix& xMasked,
+                       CLrSparseMatrix& xMasked,
                        TDoubleVec& yMasked) {
-    xMasked = CSparseMatrix();
+    xMasked = CLrSparseMatrix();
     yMasked.clear();
 
     if (x.empty()) {
@@ -490,7 +490,7 @@ void setupTrainingData(const TSizeDoublePrVecVec& x,
     for (std::size_t i = 0u; i < rows; ++i) {
         xTranspose.emplace_back(TSizeSizePr(columns, i), 1.0);
     }
-    CSparseMatrix tmp(rows, columns + 1, xTranspose);
+    CLrSparseMatrix tmp(rows, columns + 1, xTranspose);
     xMasked.swap(tmp);
 }
 
@@ -804,11 +804,11 @@ void CLassoLogisticRegressionDense::addTrainingData(const TDoubleVec& x, bool in
 }
 
 void CLassoLogisticRegressionDense::learnHyperparameter(EHyperparametersStyle style) {
-    this->doLearnHyperparameter<CDenseMatrix>(style);
+    this->doLearnHyperparameter<CLrDenseMatrix>(style);
 }
 
 bool CLassoLogisticRegressionDense::learn(CLogisticRegressionModel& result) {
-    return this->doLearn<CDenseMatrix>(result);
+    return this->doLearn<CLrDenseMatrix>(result);
 }
 
 ////// CLassoLogisticRegressionSparse //////
@@ -822,11 +822,11 @@ void CLassoLogisticRegressionSparse::addTrainingData(const TSizeDoublePrVec& x, 
 }
 
 void CLassoLogisticRegressionSparse::learnHyperparameter(EHyperparametersStyle style) {
-    this->doLearnHyperparameter<CSparseMatrix>(style);
+    this->doLearnHyperparameter<CLrSparseMatrix>(style);
 }
 
 bool CLassoLogisticRegressionSparse::learn(CLogisticRegressionModel& result) {
-    return this->doLearn<CSparseMatrix>(result);
+    return this->doLearn<CLrSparseMatrix>(result);
 }
 }
 }

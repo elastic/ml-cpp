@@ -10,7 +10,7 @@
 
 class CBuildInfoTest : public CppUnit::TestFixture {
 public:
-    void testFullInfo(void);
+    void testFullInfo();
 
     static CppUnit::Test* suite();
 };
