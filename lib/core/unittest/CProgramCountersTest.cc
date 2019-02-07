@@ -89,7 +89,8 @@ void CProgramCountersTest::testUnknownCounter() {
     ++counters.counter(ml::counter_t::E_LastEnumCounter);
 
     // Revert to the default properties for the test framework - very similar to the hardcoded default.
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile("testfiles/log4cxx.properties"));
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+        "testfiles/testLogDebugLog4cxx.properties"));
 
     std::ifstream log(logFile);
     CPPUNIT_ASSERT_EQUAL(true, log.is_open());
