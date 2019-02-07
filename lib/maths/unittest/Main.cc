@@ -17,7 +17,6 @@
 #include "CCalendarFeatureTest.h"
 #include "CCategoricalToolsTest.h"
 #include "CChecksumTest.h"
-#include "CClusterEvaluationTest.h"
 #include "CClustererTest.h"
 #include "CCountMinSketchTest.h"
 #include "CDataFrameUtilsTest.h"
@@ -103,7 +102,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CCalendarFeatureTest::suite());
     runner.addTest(CChecksumTest::suite());
     runner.addTest(CClustererTest::suite());
-    runner.addTest(CClusterEvaluationTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
     runner.addTest(CDataFrameUtilsTest::suite());
     runner.addTest(CDecayRateControllerTest::suite());

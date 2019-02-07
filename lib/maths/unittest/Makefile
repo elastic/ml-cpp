@@ -30,7 +30,6 @@ SRCS=\
 	CCategoricalToolsTest.cc \
 	CChecksumTest.cc \
 	CClustererTest.cc \
-	CClusterEvaluationTest.cc \
 	CCountMinSketchTest.cc \
 	CDataFrameUtilsTest.cc \
 	CDecayRateControllerTest.cc \
