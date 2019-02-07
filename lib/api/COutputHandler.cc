@@ -12,12 +12,6 @@ namespace api {
 const COutputHandler::TStrVec COutputHandler::EMPTY_FIELD_NAMES;
 const COutputHandler::TStrStrUMap COutputHandler::EMPTY_FIELD_OVERRIDES;
 
-COutputHandler::COutputHandler() {
-}
-
-COutputHandler::~COutputHandler() {
-}
-
 void COutputHandler::newOutputStream() {
     // NOOP unless overridden
 }

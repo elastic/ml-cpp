@@ -167,10 +167,18 @@ uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     return hasher(raw.str());
 }
 
-template<typename T, std::size_t N>
-bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) {
+template<typename POINT>
+bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str) {
+    std::size_t dimension{0u};
+    std::size_t pos{str.find_first_of(CLinearAlgebra::DELIMITER)};
+    if (!core::CStringUtils::stringToType(str.substr(0, pos), dimension)) {
+        LOG_ERROR(<< "Failed to extract dimension from " << str.substr(0, pos));
+        return false;
+    }
+    str = str.substr(pos + 1);
+
     std::size_t count{0u};
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0u; i < dimension; ++i) {
         count = str.find_first_of(CLinearAlgebra::DELIMITER, count + 1);
     }
     if (!s_Count.fromDelimited(str.substr(0, count))) {
@@ -180,7 +188,7 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
 
     str = str.substr(count + 1);
     std::size_t means{0u};
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0u; i < dimension; ++i) {
         means = str.find_first_of(CLinearAlgebra::DELIMITER, means + 1);
     }
     if (!s_Mean.fromDelimited(str.substr(0, means))) {
@@ -197,14 +205,16 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
     return true;
 }
 
-template<typename T, std::size_t N>
-std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited() const {
-    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
+template<typename POINT>
+std::string CBasicStatistics::SSampleCovariances<POINT>::toDelimited() const {
+    return core::CStringUtils::typeToString(s_Count.dimension()) +
+           CLinearAlgebra::DELIMITER + s_Count.toDelimited() +
+           CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
            CLinearAlgebra::DELIMITER + s_Covariances.toDelimited();
 }
 
-template<typename T, std::size_t N>
-uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum() const {
+template<typename POINT>
+uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     raw << ' ';

@@ -148,10 +148,11 @@ residualMoments(ITR begin, ITR end, double startTime, double dt, const TRegressi
 template<typename ITR>
 TMeanVarAccumulator centredResidualMoments(ITR begin, ITR end, double startTime, double dt) {
     if (begin == end) {
-        return CBasicStatistics::accumulator(0.0, 0.0, 0.0);
+        return CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
     }
     if (std::distance(begin, end) == 1) {
-        return CBasicStatistics::accumulator(CBasicStatistics::count(*begin), 0.0, 0.0);
+        return CBasicStatistics::momentsAccumulator(CBasicStatistics::count(*begin),
+                                                    0.0, 0.0);
     }
     TRegression model{fitLinearModel(begin, end, startTime, dt)};
     TMeanVarAccumulator moments{residualMoments(begin, end, startTime, dt, model)};
@@ -165,10 +166,11 @@ template<typename ITR>
 TMeanVarAccumulator
 centredResidualMoments(ITR begin, ITR end, std::size_t offset, const TDoubleVec& model) {
     if (begin == end) {
-        return CBasicStatistics::accumulator(0.0, 0.0, 0.0);
+        return CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
     }
     if (std::distance(begin, end) == 1) {
-        return CBasicStatistics::accumulator(CBasicStatistics::count(*begin), 0.0, 0.0);
+        return CBasicStatistics::momentsAccumulator(CBasicStatistics::count(*begin),
+                                                    0.0, 0.0);
     }
     std::size_t period{model.size()};
 

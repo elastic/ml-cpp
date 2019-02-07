@@ -625,7 +625,7 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
     TMeanAccumulator pRelError;
 
     for (/**/; i < samples.size(); ++i) {
-        maths::CBasicStatistics::SSampleCovariances<double, 2> covariances;
+        maths::CBasicStatistics::SSampleCovariances<TVector2> covariances(2);
 
         TVector2 likelihoodMean(filter.marginalLikelihoodMean());
         TMatrix2 likelihoodCov(filter.marginalLikelihoodCovariance());

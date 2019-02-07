@@ -469,9 +469,9 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
                 sample.add(categorySamples[j], nij);
                 if (CBasicStatistics::count(sample) > ALMOST_ONE) {
                     result.push_back(CBasicStatistics::mean(sample));
-                    sample = nij < ni ? CBasicStatistics::accumulator(
+                    sample = nij < ni ? CBasicStatistics::momentsAccumulator(
                                             ni - nij, categorySamples[j])
-                                      : TMeanAccumulator();
+                                      : TMeanAccumulator{};
                 }
             }
         }

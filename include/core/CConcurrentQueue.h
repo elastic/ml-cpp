@@ -10,6 +10,7 @@
 #include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/optional.hpp>
 
 #include <condition_variable>
 #include <mutex>
@@ -34,6 +35,9 @@ namespace core {
 template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
+    using TOptional = boost::optional<T>;
+
+public:
     CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
         static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
         static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY,
@@ -43,57 +47,72 @@ public:
     //! Pop an item out of the queue, this blocks until an item is available
     T pop() {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        while (m_Queue.empty()) {
-            m_ConsumerCondition.wait(lock);
-        }
-        size_t oldSize = m_Queue.size();
-        auto val = m_Queue.front();
+        this->waitWhileEmpty(lock);
+
+        size_t oldSize{m_Queue.size()};
+        T result{std::move(m_Queue.front())};
         m_Queue.pop_front();
 
-        // notification in case buffer was full
-        if (oldSize >= NOTIFY_CAPACITY) {
-            lock.unlock();
-            m_ProducerCondition.notify_all();
-        }
-        return val;
+        this->notifyIfNoLongerFull(lock, oldSize);
+        return result;
     }
 
-    //! Pop an item out of the queue, this blocks until an item is available
-    void pop(T& item) {
+    //! Pop an item out of the queue, this returns none if an item isn't available
+    //! or the pop isn't allowed
+    template<typename PREDICATE>
+    TOptional tryPop(PREDICATE allowed) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        while (m_Queue.empty()) {
-            m_ConsumerCondition.wait(lock);
+        if (m_Queue.empty() || allowed(m_Queue.front()) == false) {
+            return boost::none;
         }
 
-        size_t oldSize = m_Queue.size();
-        item = m_Queue.front();
+        size_t oldSize{m_Queue.size()};
+        TOptional result{std::move(m_Queue.front())};
         m_Queue.pop_front();
 
-        // notification in case buffer was full
-        if (oldSize >= NOTIFY_CAPACITY) {
-            lock.unlock();
-            m_ProducerCondition.notify_all();
-        }
+        this->notifyIfNoLongerFull(lock, oldSize);
+        return result;
     }
 
-    //! Pop an item out of the queue, this blocks if the queue is full
-    //! which means it can deadlock if no one consumes items (implementor's responsibility)
+    //! Pop an item out of the queue, this returns none if an item isn't available
+    TOptional tryPop() { return this->tryPop(always); }
+
+    //! Push a copy of \p item onto the queue, this blocks if the queue is full which
+    //! means it can deadlock if no one consumes items (implementor's responsibility)
     void push(const T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        size_t pending = m_Queue.size();
-        // block if buffer is full, this can deadlock if no one consumes items,
-        // implementor has to take care
-        while (pending >= QUEUE_CAPACITY) {
-            m_ProducerCondition.wait(lock);
-            pending = m_Queue.size();
-        }
+        this->waitWhileFull(lock);
 
+        std::size_t oldSize{m_Queue.size()};
         m_Queue.push_back(item);
 
-        lock.unlock();
-        if (pending == 0) {
-            m_ConsumerCondition.notify_all();
+        this->notifyIfNoLongerEmpty(lock, oldSize);
+    }
+
+    //! Forward \p item to the queue, this blocks if the queue is full which means
+    //! it can deadlock if no one consumes items (implementor's responsibility)
+    void push(T&& item) {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        this->waitWhileFull(lock);
+
+        size_t oldSize{m_Queue.size()};
+        m_Queue.push_back(std::forward<T>(item));
+
+        this->notifyIfNoLongerEmpty(lock, oldSize);
+    }
+
+    //! Forward \p item to the queue, if the queue is full this fails and returns false
+    bool tryPush(T&& item) {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        if (m_Queue.size() >= QUEUE_CAPACITY) {
+            return false;
         }
+
+        size_t oldSize{m_Queue.size()};
+        m_Queue.push_back(std::forward<T>(item));
+
+        this->notifyIfNoLongerEmpty(lock, oldSize);
+        return true;
     }
 
     //! Debug the memory used by this component.
@@ -105,8 +124,38 @@ public:
     //! Get the memory used by this component.
     std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
 
-    // ! Return the number of items currently in the queue
-    size_t size() const { return m_Queue.size(); }
+    //! Return the number of items currently in the queue
+    size_t size() {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        return m_Queue.size();
+    }
+
+private:
+    void waitWhileEmpty(std::unique_lock<std::mutex>& lock) {
+        while (m_Queue.empty()) {
+            m_ConsumerCondition.wait(lock);
+        }
+    }
+    void waitWhileFull(std::unique_lock<std::mutex>& lock) {
+        while (m_Queue.size() >= QUEUE_CAPACITY) {
+            m_ProducerCondition.wait(lock);
+        }
+    }
+
+    void notifyIfNoLongerFull(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
+        lock.unlock();
+        if (oldSize >= NOTIFY_CAPACITY) {
+            m_ProducerCondition.notify_all();
+        }
+    }
+    void notifyIfNoLongerEmpty(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
+        lock.unlock();
+        if (oldSize == 0) {
+            m_ConsumerCondition.notify_all();
+        }
+    }
+
+    static bool always(const T&) { return true; }
 
 private:
     //! The internal queue

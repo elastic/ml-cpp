@@ -9,11 +9,11 @@
 
 #include <maths/CAgglomerativeClusterer.h>
 #include <maths/CBasicStatistics.h>
-#include <maths/CGramSchmidt.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CNaturalBreaksClassifier.h>
+#include <maths/COrthogonaliser.h>
 #include <maths/CSampling.h>
 #include <maths/CXMeans.h>
 
@@ -67,7 +67,7 @@ public:
     //! Set up the projections.
     virtual bool initialise(std::size_t numberProjections, std::size_t dimension) {
         m_Dimension = dimension;
-        if (!this->generateProjections(numberProjections)) {
+        if (this->generateProjections(numberProjections) == false) {
             LOG_ERROR(<< "Failed to generate projections");
             return false;
         }
@@ -110,21 +110,19 @@ protected:
         m_Projections.resize(b);
 
         TDoubleVec components;
-        CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * m_Dimension, components);
-        for (std::size_t i = 0u; i < b; ++i) {
-            TVectorArray& projection = m_Projections[i];
-            for (std::size_t j = 0u; j < N; ++j) {
-                projection[j].assign(&components[(i * N + j) * m_Dimension],
-                                     &components[(i * N + j + 1) * m_Dimension]);
+        CSampling::normalSample(m_Rng, 0.0, 1.0, 2 * b * N * m_Dimension, components);
+        auto projection = m_Projections.begin();
+        for (std::size_t i = 0; i < 2 * b && projection != m_Projections.end(); ++i) {
+            for (std::size_t j = 0; j < N; ++j) {
+                (*projection)[j].assign(&components[(i * N + j) * m_Dimension],
+                                        &components[(i * N + j + 1) * m_Dimension]);
             }
-
-            if (!CGramSchmidt::basis(projection)) {
-                LOG_ERROR(<< "Failed to construct basis");
-                return false;
+            if (COrthogonaliser::orthonormalBasis(*projection)) {
+                ++projection;
             }
         }
 
-        return true;
+        return projection == m_Projections.end();
     }
 
     //! Extend the projections for an increase in data
@@ -156,7 +154,7 @@ protected:
                                     &components[(i * N + j + 1) * d]);
             }
 
-            if (!CGramSchmidt::basis(extension)) {
+            if (COrthogonaliser::orthonormalBasis(extension) == false) {
                 LOG_ERROR(<< "Failed to construct basis");
                 return false;
             }
@@ -209,7 +207,8 @@ public:
     using TVectorNx1Vec = std::vector<TVectorNx1>;
     using TVectorNx1VecVec = std::vector<TVectorNx1Vec>;
     using TSymmetricMatrixNxN = CSymmetricMatrixNxN<double, N>;
-    using TSvdNxN = Eigen::JacobiSVD<typename SDenseMatrix<TSymmetricMatrixNxN>::Type>;
+    using TSvdNxN =
+        typename SJacobiSvd<typename SDenseMatrix<TSymmetricMatrixNxN>::Type>::Type;
     using TSvdNxNVec = std::vector<TSvdNxN>;
     using TSvdNxNVecVec = std::vector<TSvdNxNVec>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -328,7 +327,7 @@ protected:
         using TVectorNx1CRefSizeUMap =
             boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
         using TClusterVec = typename CLUSTERER::TClusterVec;
-        using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<double, N>;
+        using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<TVectorNx1>;
 
         std::size_t b = m_ProjectedData.size();
         std::size_t n = m_ProjectedData[0].size();
@@ -376,7 +375,7 @@ protected:
                 LOG_TRACE(<< "wij = " << wij << ", nsij = " << nsij);
 
                 // Compute the cluster sample mean and covariance matrix.
-                TSampleCovariancesNxN covariances;
+                TSampleCovariancesNxN covariances(N);
                 covariances.add(points);
                 TVectorNx1 mij = CBasicStatistics::mean(covariances);
                 TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
@@ -691,9 +690,9 @@ forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST>& xmeans,
 
 //! \brief Adapts k-means for use by the random projection clusterer.
 template<std::size_t N>
-class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>> {
+class CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>> {
 public:
-    using TClusterer = CKMeansFast<CVectorNx1<double, N>>;
+    using TClusterer = CKMeans<CVectorNx1<double, N>>;
     using TClusterVec = typename TClusterer::TClusterVec;
     using TVectorNx1 = CVectorNx1<double, N>;
     using TVectorNx1Vec = std::vector<TVectorNx1>;
@@ -735,11 +734,11 @@ private:
 
 //! Makes a k-means adapter for random projection clustering.
 template<std::size_t N>
-CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans,
+CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>>
+forRandomProjectionClusterer(const CKMeans<CVectorNx1<double, N>>& kmeans,
                              std::size_t k,
                              std::size_t maxIterations) {
-    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(
+    return CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>>(
         kmeans, k, maxIterations);
 }
 }

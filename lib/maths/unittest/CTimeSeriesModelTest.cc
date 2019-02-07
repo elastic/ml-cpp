@@ -187,7 +187,7 @@ void reinitialize(const TTimeFloatMeanAccumulatorPrVec& window,
 
     for (const auto& value : window) {
         double weight(maths::CBasicStatistics::count(value.second));
-        samples.push_back(maths::CBasicStatistics::accumulator(
+        samples.push_back(maths::CBasicStatistics::momentsAccumulator(
             maths::CFloatStorage(weight),
             maths::CFloatStorage(trend.detrend(
                 value.first, maths::CBasicStatistics::mean(value.second), 0.0))));
@@ -237,7 +237,7 @@ void reinitialize(const TTimeFloatMeanAccumulatorPrVecVec& window,
         samplesForDimension.reserve(window[d].size());
 
         for (const auto& value : window[d]) {
-            samplesForDimension.push_back(maths::CBasicStatistics::accumulator(
+            samplesForDimension.push_back(maths::CBasicStatistics::momentsAccumulator(
                 maths::CBasicStatistics::count(value.second),
                 maths::CFloatStorage(trends[d]->detrend(
                     value.first, maths::CBasicStatistics::mean(value.second), 0.0))));
@@ -1188,7 +1188,6 @@ void CTimeSeriesModelTest::testProbability() {
     //       3) Test manually injected anomalies have low probabilities.
 
     using TDoubleSizePr = std::pair<double, std::size_t>;
-    using TSizeVec = std::vector<std::size_t>;
 
     test::CRandomNumbers rng;
 
@@ -1910,7 +1909,6 @@ void CTimeSeriesModelTest::testProbabilityWithCorrelations() {
 void CTimeSeriesModelTest::testAnomalyModel() {
     // We test we can find the "odd anomaly out".
 
-    using TSizeVec = std::vector<std::size_t>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
 
     test::CRandomNumbers rng;

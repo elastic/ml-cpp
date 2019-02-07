@@ -19,18 +19,18 @@
 #include "CChecksumTest.h"
 #include "CClustererTest.h"
 #include "CCountMinSketchTest.h"
+#include "CDataFrameUtilsTest.h"
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
 #include "CEqualWithToleranceTest.h"
 #include "CExpandingWindowTest.h"
 #include "CForecastTest.h"
 #include "CGammaRateConjugateTest.h"
-#include "CGramSchmidtTest.h"
 #include "CInformationCriteriaTest.h"
 #include "CIntegerToolsTest.h"
 #include "CIntegrationTest.h"
-#include "CKMeansFastTest.h"
 #include "CKMeansOnlineTest.h"
+#include "CKMeansTest.h"
 #include "CKMostCorrelatedTest.h"
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
@@ -53,6 +53,8 @@
 #include "COneOfNPriorTest.h"
 #include "COrderingsTest.h"
 #include "COrdinalTest.h"
+#include "COrthogonaliserTest.h"
+#include "COutliersTest.h"
 #include "CPRNGTest.h"
 #include "CPackedBitVectorTest.h"
 #include "CPeriodicityHypothesisTestsTest.h"
@@ -101,22 +103,23 @@ int main(int argc, const char** argv) {
     runner.addTest(CChecksumTest::suite());
     runner.addTest(CClustererTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
+    runner.addTest(CDataFrameUtilsTest::suite());
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());
     runner.addTest(CEntropySketchTest::suite());
     runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CForecastTest::suite());
     runner.addTest(CGammaRateConjugateTest::suite());
-    runner.addTest(CGramSchmidtTest::suite());
     runner.addTest(CInformationCriteriaTest::suite());
     runner.addTest(CIntegerToolsTest::suite());
     runner.addTest(CIntegrationTest::suite());
     runner.addTest(CKdTreeTest::suite());
-    runner.addTest(CKMeansFastTest::suite());
+    runner.addTest(CKMeansTest::suite());
     runner.addTest(CKMeansOnlineTest::suite());
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
+    runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());
     runner.addTest(CLogTDistributionTest::suite());
     runner.addTest(CMathsFuncsTest::suite());
@@ -135,6 +138,7 @@ int main(int argc, const char** argv) {
     runner.addTest(COneOfNPriorTest::suite());
     runner.addTest(COrderingsTest::suite());
     runner.addTest(COrdinalTest::suite());
+    runner.addTest(COrthogonaliserTest::suite());
     runner.addTest(CPackedBitVectorTest::suite());
     runner.addTest(CPeriodicityHypothesisTestsTest::suite());
     runner.addTest(CPoissonMeanConjugateTest::suite());

@@ -9,7 +9,7 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 
 #include <cstddef>
 
@@ -38,10 +38,11 @@ public:
                      const ANNOTATION& annotation = ANNOTATION())
         : VECTOR(vector), m_Annotation(annotation) {}
 
-    //! Construct with a vector initialized with \p coordinate
-    //! and some default constructed annotation data.
-    explicit CAnnotatedVector(TCoordinate coordinate)
-        : VECTOR(coordinate), m_Annotation() {}
+    //! Assign from \p rhs.
+    const CAnnotatedVector& operator=(const VECTOR& rhs) {
+        static_cast<VECTOR&>(*this) = rhs;
+        return *this;
+    }
 
     //! Get the annotation data by constant reference.
     const ANNOTATION& annotation() const { return m_Annotation; }
@@ -52,6 +53,16 @@ public:
 private:
     //! The data which has been annotated onto the vector.
     ANNOTATION m_Annotation;
+};
+
+//! Get the concomitant constant annotated vector.
+template<typename VECTOR, typename ANNOTATION>
+struct SConstant<CAnnotatedVector<VECTOR, ANNOTATION>> {
+    static auto get(std::size_t dimension,
+                    typename CAnnotatedVector<VECTOR, ANNOTATION>::TCoordinate constant)
+        -> CAnnotatedVector<decltype(SConstant<VECTOR>::get(dimension, constant)), ANNOTATION> {
+        return {SConstant<VECTOR>::get(dimension, constant)};
+    }
 };
 }
 }

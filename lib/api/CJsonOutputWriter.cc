@@ -348,10 +348,6 @@ bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
     return true;
 }
 
-const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames() const {
-    return EMPTY_FIELD_NAMES;
-}
-
 bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
                                  const TStrStrUMap& overrideDataRowFields) {
     using TScopedAllocator =

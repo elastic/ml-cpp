@@ -218,7 +218,7 @@ public:
 
     //! write the rapidjson value document to the output stream
     //! \p[in] doc rapidjson document value to write out
-    virtual void write(TValue& doc) { doc.Accept(*this); }
+    virtual void write(const TValue& doc) { doc.Accept(*this); }
 
     //! Return a new rapidjson document
     TDocument makeDoc() const {

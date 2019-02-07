@@ -117,10 +117,6 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     return true;
 }
 
-const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames() const {
-    return m_FieldNames;
-}
-
 bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
                                 const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {

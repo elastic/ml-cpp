@@ -16,6 +16,7 @@
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/XmlOutputter.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include <boost/filesystem.hpp>
 
@@ -54,6 +55,8 @@ const std::string CTestRunner::SKIP_FILE_NAME("unit_test_skip_dirs.csv");
 const std::string CTestRunner::XML_RESULT_FILE_NAME("cppunit_results.xml");
 
 CTestRunner::CTestRunner(int argc, const char** argv) {
+    ml::core::CLogger::instance().fatalErrorHandler(
+        [](std::string message) { CPPUNIT_FAIL(message); });
     this->processCmdLine(argc, argv);
 }
 

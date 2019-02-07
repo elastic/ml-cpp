@@ -1700,7 +1700,7 @@ double CTools::safeCdfComplement(const chi_squared& chi2, double x) {
     return continuousSafeCdfComplement(allowOverflow(chi2), x);
 }
 
-//////// deviation Implementation ////////
+//////// anomalyScore Implementation ////////
 
 namespace {
 const double SMALL_PROBABILITY_ANOMALY_SCORE = 1.0;
@@ -1743,33 +1743,33 @@ double CTools::anomalyScore(double p) {
     }
 
     if (!(result >= 0.0 && result <= MAX_ANOMALY_SCORE)) {
-        LOG_ERROR(<< "Deviation " << result << " out of range, p =" << p);
+        LOG_ERROR(<< "Score " << result << " out of range, p = " << p);
     }
 
     return result;
 }
 
-double CTools::inverseAnomalyScore(double deviation) {
+double CTools::inverseAnomalyScore(double score) {
     const double MINUS_LOG_SMALLEST_PROBABILITY = -std::log(smallestProbability());
 
     double result = 0.0;
 
-    double adjDeviation = truncate(deviation, 0.0, MAX_ANOMALY_SCORE);
-    if (adjDeviation == 0.0) {
+    double adjScore = truncate(score, 0.0, MAX_ANOMALY_SCORE);
+    if (adjScore == 0.0) {
         result = (1.0 + LARGEST_SIGNIFICANT_PROBABILITY) / 2.0;
-    } else if (adjDeviation <= SMALL_PROBABILITY_ANOMALY_SCORE) {
+    } else if (adjScore <= SMALL_PROBABILITY_ANOMALY_SCORE) {
         // We invert the linear scaling of the inverse probability
         // into the range (0.0, 1.0].
         result = 1.0 / (INV_LARGEST_SIGNIFICANT_PROBABILITY +
                         (INV_SMALL_PROBABILITY - INV_LARGEST_SIGNIFICANT_PROBABILITY) *
-                            deviation / SMALL_PROBABILITY_ANOMALY_SCORE);
-    } else if (adjDeviation <= MINUSCULE_PROBABILITY_ANOMALY_SCORE) {
+                            score / SMALL_PROBABILITY_ANOMALY_SCORE);
+    } else if (adjScore <= MINUSCULE_PROBABILITY_ANOMALY_SCORE) {
         // We invert the linear scaling of the log probability
         // into the range (1.0, 50.0].
         result = std::exp(
             -(MINUS_LOG_SMALL_PROBABILITY +
               (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY) *
-                  (deviation - SMALL_PROBABILITY_ANOMALY_SCORE) /
+                  (score - SMALL_PROBABILITY_ANOMALY_SCORE) /
                   (MINUSCULE_PROBABILITY_ANOMALY_SCORE - SMALL_PROBABILITY_ANOMALY_SCORE)));
     } else {
         // We invert the linear scaling of the log probability
@@ -1777,12 +1777,12 @@ double CTools::inverseAnomalyScore(double deviation) {
         result = std::exp(
             -(MINUS_LOG_MINUSCULE_PROBABILITY +
               (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY) *
-                  (deviation - MINUSCULE_PROBABILITY_ANOMALY_SCORE) /
+                  (score - MINUSCULE_PROBABILITY_ANOMALY_SCORE) /
                   (MAX_ANOMALY_SCORE - MINUSCULE_PROBABILITY_ANOMALY_SCORE)));
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
-        LOG_ERROR(<< "Probability " << result << " out of range, deviation =" << deviation);
+        LOG_ERROR(<< "Probability " << result << " out of range, score = " << score);
     }
 
     return result;

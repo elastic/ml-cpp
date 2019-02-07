@@ -12,6 +12,8 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CTimeSeriesMultibucketFeatures.h>
 
 #include <test/CRandomNumbers.h>
@@ -174,7 +176,7 @@ void CTimeSeriesMultibucketFeaturesTest::testUnivariateMean() {
         TDoubleVec samples;
         rng.generateNormalSamples(0.0, 1.0, 300, samples);
 
-        maths::CBasicStatistics::SSampleCovariances<double, 2> covariance;
+        maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 2>> covariance(2);
         for (std::size_t i = 0; i < samples.size(); i += 3) {
             for (std::size_t j = 0; j < 3; ++j) {
                 feature.add(static_cast<core_t::TTime>(10 * (i + j)), 10,

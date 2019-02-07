@@ -55,10 +55,11 @@ public:
     }
 
     //! Write JSON document to outputstream
-    //! Note this non-virtual overwrite is needed to avoid slicing of the writer
-    //! and hence ensure the correct StartObject/EndObject functions are called
-    //! \p doc reference to rapidjson document value
-    void write(rapidjson::Value& doc) { doc.Accept(*this); }
+    //! \note This overwrite is needed because the members of rapidjson::Writer
+    //! are not virtual and we need to avoid "slicing" the writer to ensure that
+    //! that the correct StartObject/EndObject functions are called when this is
+    //! passed to \p doc Accept.
+    void write(const rapidjson::Value& doc) { doc.Accept(*this); }
 
 private:
     size_t m_ObjectCount = 0;

@@ -18,7 +18,7 @@
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 #include <maths/MathsTypes.h>
 
 #include <boost/circular_buffer.hpp>

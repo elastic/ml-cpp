@@ -7,14 +7,14 @@
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CStaticThreadPool.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 
-#include <boost/threadpool.hpp>
-
 #include <algorithm>
 #include <chrono>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -53,16 +53,15 @@ void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
 void CJsonOutputStreamWrapperTest::testConcurrentWrites() {
     std::ostringstream stringStream;
 
-    static const size_t WRITERS(1500);
+    static const int WRITERS(1500);
     static const size_t DOCUMENTS_PER_WRITER(10);
     {
         ml::core::CJsonOutputStreamWrapper wrapper(stringStream);
 
-        boost::threadpool::pool tp(100);
-        for (size_t i = 0; i < WRITERS; ++i) {
-            tp.schedule(boost::bind(task, boost::ref(wrapper), i, DOCUMENTS_PER_WRITER));
+        ml::core::CStaticThreadPool tp(100);
+        for (int i = 0; i < WRITERS; ++i) {
+            tp.schedule([&wrapper, i] { task(wrapper, i, DOCUMENTS_PER_WRITER); });
         }
-        tp.wait();
     }
 
     rapidjson::Document doc;

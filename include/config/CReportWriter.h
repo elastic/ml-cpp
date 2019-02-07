@@ -83,21 +83,18 @@ public:
 public:
     explicit CReportWriter(std::ostream& writeStream);
 
-    //! No-op.
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
-
-    //! Return an empty string vector.
-    virtual const TStrVec& fieldNames() const;
-
     // Bring the other overload of fieldNames() into scope.
     using api::COutputHandler::fieldNames;
 
     //! No-op.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     // Bring the other overload of writeRow() into scope.
     using api::COutputHandler::writeRow;
+
+    //! No-op.
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     //! Add the total number of records processed.
     void addTotalRecords(uint64_t n);
