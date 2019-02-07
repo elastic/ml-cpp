@@ -15,6 +15,7 @@
 #include <maths/COutliers.h>
 #include <maths/CSetTools.h>
 
+#include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 
 #include <atomic>
@@ -90,25 +91,8 @@ void gaussianWithUniformNoise(test::CRandomNumbers& rng,
     }
 }
 
-auto toMainMemoryDataFrame(const TVectorVec& points) {
-    CPPUNIT_ASSERT(points.size() > 0);
-
-    auto result =
-        core::makeMainStorageDataFrame(maths::las::dimension(points[0])).first;
-
-    for (const auto& point : points) {
-        result->writeRow([&point](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-            for (std::size_t d = 0; d < maths::las::dimension(point); ++d, ++column) {
-                *column = point(d);
-            }
-        });
-    }
-    result->finishWritingRows();
-
-    return result;
-}
-
-void outlierErrorStatisticsForEnsemble(TFactoryFunc pointsToDataFrame,
+template<typename FACTORY>
+void outlierErrorStatisticsForEnsemble(FACTORY pointsToDataFrame,
                                        std::size_t numberInliers,
                                        std::size_t numberOutliers,
                                        TDoubleVec& TP,
@@ -377,8 +361,9 @@ void COutliersTest::testEnsemble() {
     for (std::size_t t = 0; t < 2; ++t) {
         LOG_DEBUG(<< "Testing " << tags[t]);
 
-        outlierErrorStatisticsForEnsemble(toMainMemoryDataFrame, numberInliers,
-                                          numberOutliers, TP, TN, FP, FN);
+        outlierErrorStatisticsForEnsemble(
+            test::CDataFrameTestUtils::SToMainMemoryDataFrame(), numberInliers,
+            numberOutliers, TP, TN, FP, FN);
 
         for (std::size_t i = 0; i < 3; ++i) {
             double precision{TP[i] / (TP[i] + FP[i])};
@@ -409,7 +394,7 @@ void COutliersTest::testProgressMonitoring() {
     TVectorVec points(numberInliers + numberOutliers, TVector(6));
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-    auto dataFrame = toMainMemoryDataFrame(points);
+    auto dataFrame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
     std::atomic_int totalFractionalProgress{0};
 

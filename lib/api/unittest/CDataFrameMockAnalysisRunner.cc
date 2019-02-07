@@ -13,10 +13,6 @@ CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataF
     : ml::api::CDataFrameAnalysisRunner{spec} {
 }
 
-std::size_t CDataFrameMockAnalysisRunner::numberOfPartitions() const {
-    return 1;
-}
-
 std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
     return 2;
 }
@@ -35,6 +31,7 @@ void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
 }
 
 std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::size_t,
+                                                                         std::size_t,
                                                                          std::size_t,
                                                                          std::size_t) const {
     return 0;
