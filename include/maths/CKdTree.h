@@ -17,6 +17,8 @@
 #include <maths/COrderings.h>
 #include <maths/CTypeTraits.h>
 
+#include <boost/operators.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -147,23 +149,39 @@ public:
     using TNodeVecCItr = typename TNodeVec::const_iterator;
 
     //! \brief Iterates points in the tree.
-    class TPointIterator : public std::iterator<std::forward_iterator_tag, const POINT> {
+    class TPointIterator
+        : public boost::random_access_iterator_helper<TPointIterator, POINT, std::ptrdiff_t, const POINT*, const POINT&> {
     public:
         TPointIterator() = default;
         TPointIterator(TNodeVecCItr itr) : m_Itr(itr) {}
         const POINT& operator*() const { return m_Itr->s_Point; }
         const POINT* operator->() const { return &m_Itr->s_Point; }
+        const POINT& operator[](std::ptrdiff_t n) { return m_Itr[n].s_Point; }
         bool operator==(const TPointIterator& rhs) const {
             return m_Itr == rhs.m_Itr;
         }
-        bool operator!=(const TPointIterator& rhs) const {
-            return m_Itr != rhs.m_Itr;
+        bool operator<(const TPointIterator& rhs) const {
+            return m_Itr < rhs.m_Itr;
         }
         TPointIterator& operator++() {
             ++m_Itr;
             return *this;
         }
-        TPointIterator operator++(int) { return m_Itr++; }
+        TPointIterator& operator--() {
+            --m_Itr;
+            return *this;
+        }
+        TPointIterator& operator+=(std::ptrdiff_t n) {
+            m_Itr += n;
+            return *this;
+        }
+        TPointIterator& operator-=(std::ptrdiff_t n) {
+            m_Itr -= n;
+            return *this;
+        }
+        std::ptrdiff_t operator-(const TPointIterator& rhs) const {
+            return m_Itr - rhs.m_Itr;
+        }
 
     private:
         TNodeVecCItr m_Itr;

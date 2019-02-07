@@ -20,6 +20,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -39,6 +40,95 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
     using TPtrdiffVec = std::vector<std::ptrdiff_t>;
+
+    //! \brief This produces (very nearly) a uniform random sample of a stream of values
+    //! of a specified cardinality where the stream cardinality is not known in advance.
+    //!
+    //! DESCRIPTION:\n
+    //! For desired cardinality k, the sampling strategy is as follows:
+    //! <pre>
+    //! Initialise n to 0 and S to empty
+    //! for items x in stream
+    //!   Add x to S with probability min(|S| / n, 1)
+    //!   if |S| > k evict an item from k at random
+    //!   n <- n + 1
+    //! </pre>
+    //! Provided k is not too small it is easy to show that the chance of any item being
+    //! in the final set is very close to 1 / n as required. Since k is specified, if it
+    //! is too small this uses a larger value. At the end a random k sample of this has
+    //! the desired property.
+    //!
+    //! IMPLEMENTATION:\n
+    //! To allow greater flexibility, this doesn't maintain the sample set, but instead a
+    //! function is provided which is called when a value is sampled. This is passed the
+    //! index of the the item overwritten and the overwriting value. If the sample set is
+    //! wanted it is easy to provide a callback to achieve this as follows:
+    //! \code{.cpp}
+    //! std::vector<double> sample;
+    //! CRandomStreamSampler sampler{[&sample](std::size_t i, const double& x) {
+    //!     if (i > sample.size()) {
+    //!         sample.push_back(x);
+    //!     } else {
+    //!         sample[i] = x;
+    //!     }}};
+    //!
+    //! for (auto x : stream) {
+    //!     sampler.sample(x);
+    //! }
+    //! \endcode
+    template<typename T>
+    class CRandomStreamSampler {
+    public:
+        using TOnSampleCallback = std::function<void(std::size_t, const T&)>;
+
+    public:
+        static const std::size_t MINIMUM_TARGET_SAMPLE_SIZE{100};
+
+    public:
+        CRandomStreamSampler(std::size_t targetSampleSize,
+                             const TOnSampleCallback& onSample,
+                             const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
+            : m_Rng{rng}, m_TargetSampleSize{std::max(targetSampleSize, MINIMUM_TARGET_SAMPLE_SIZE)},
+              m_OnSample{onSample} {}
+
+        //! Get the sampler's random number generator.
+        CPRNG::CXorOShiro128Plus& rng() { return m_Rng; }
+
+        //! Get the size of the sample we're targeting.
+        std::size_t targetSampleSize() const { return m_TargetSampleSize; }
+
+        //! Get the sample size.
+        std::size_t sampleSize() const { return m_SampleSize; }
+
+        //! Get the size of the stream processed.
+        std::size_t streamSize() const { return m_StreamSize; }
+
+        //! Sample the value \p x uniformly at random.
+        void sample(const T& x) {
+            if (m_SampleSize < m_TargetSampleSize) {
+                m_OnSample(m_SampleSize, x);
+                ++m_SampleSize;
+
+            } else {
+                double p{uniformSample(m_Rng, 0.0, 1.0)};
+                if (p * static_cast<double>(m_StreamSize) < static_cast<double>(m_SampleSize)) {
+                    std::size_t slot{uniformSample(m_Rng, 0, m_SampleSize + 1)};
+                    if (slot < m_SampleSize) {
+                        m_OnSample(slot, x);
+                    }
+                }
+            }
+
+            ++m_StreamSize;
+        }
+
+    private:
+        CPRNG::CXorOShiro128Plus m_Rng;
+        std::size_t m_TargetSampleSize;
+        std::size_t m_StreamSize = 0;
+        std::size_t m_SampleSize = 0;
+        TOnSampleCallback m_OnSample;
+    };
 
     //! \brief A mockable random number generator which uses boost::random::mt11213b.
     class MATHS_EXPORT CRandomNumberGenerator {

@@ -40,10 +40,13 @@ private:
 private:
     virtual void runImpl(core::CDataFrame& frame);
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
-                                                       std::size_t numberRows,
+                                                       std::size_t totalNumberRows,
+                                                       std::size_t partitionNumberRows,
                                                        std::size_t numberColumns) const;
     template<typename POINT>
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
+                                    std::size_t partitionNumberRows,
+                                    std::size_t numberColumns) const;
 
 private:
     //! \name Custom config
