@@ -39,7 +39,6 @@ SRCS=\
 	CExpandingWindowTest.cc \
 	CForecastTest.cc \
 	CGammaRateConjugateTest.cc \
-	CImputerTest.cc \
 	CInformationCriteriaTest.cc \
 	CIntegerToolsTest.cc \
 	CIntegrationTest.cc \
@@ -70,7 +69,6 @@ SRCS=\
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
 	CPackedBitVectorTest.cc \
-	CPcaTest.cc \
 	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \

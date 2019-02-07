@@ -27,7 +27,6 @@
 #include "CExpandingWindowTest.h"
 #include "CForecastTest.h"
 #include "CGammaRateConjugateTest.h"
-#include "CImputerTest.h"
 #include "CInformationCriteriaTest.h"
 #include "CIntegerToolsTest.h"
 #include "CIntegrationTest.h"
@@ -59,7 +58,6 @@
 #include "COutliersTest.h"
 #include "CPRNGTest.h"
 #include "CPackedBitVectorTest.h"
-#include "CPcaTest.h"
 #include "CPeriodicityHypothesisTestsTest.h"
 #include "CPoissonMeanConjugateTest.h"
 #include "CPriorTest.h"
@@ -114,7 +112,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CExpandingWindowTest::suite());
     runner.addTest(CForecastTest::suite());
     runner.addTest(CGammaRateConjugateTest::suite());
-    runner.addTest(CImputerTest::suite());
     runner.addTest(CInformationCriteriaTest::suite());
     runner.addTest(CIntegerToolsTest::suite());
     runner.addTest(CIntegrationTest::suite());
@@ -145,7 +142,6 @@ int main(int argc, const char** argv) {
     runner.addTest(COrdinalTest::suite());
     runner.addTest(COrthogonaliserTest::suite());
     runner.addTest(CPackedBitVectorTest::suite());
-    runner.addTest(CPcaTest::suite());
     runner.addTest(CPeriodicityHypothesisTestsTest::suite());
     runner.addTest(CPoissonMeanConjugateTest::suite());
     runner.addTest(CPriorTest::suite());

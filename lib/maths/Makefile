@@ -38,7 +38,6 @@ CEntropySketch.cc \
 CExpandingWindow.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
-CImputer.cc \
 CInformationCriteria.cc \
 CIntegerTools.cc \
 CIntegration.cc \
@@ -72,7 +71,6 @@ COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
 CPackedBitVector.cc \
-CPca.cc \
 CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
