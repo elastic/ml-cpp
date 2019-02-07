@@ -38,12 +38,6 @@ public:
                      const ANNOTATION& annotation = ANNOTATION())
         : VECTOR(vector), m_Annotation(annotation) {}
 
-    //! Construct with a vector initialized with \p coordinate
-    //! and some default constructed annotation data.
-    //! TODO this needs to be removed since it assumes the dimension
-    //! is available at compile time.
-    explicit CAnnotatedVector(TCoordinate coordinate) : VECTOR(coordinate) {}
-
     //! Assign from \p rhs.
     const CAnnotatedVector& operator=(const VECTOR& rhs) {
         static_cast<VECTOR&>(*this) = rhs;
