@@ -9,6 +9,8 @@
 
 #include <api/ImportExport.h>
 
+#include <core/CRapidJsonConcurrentLineWriter.h>
+
 #include <cinttypes>
 #include <functional>
 #include <memory>
@@ -69,7 +71,11 @@ private:
     bool isControlMessage(const TStrVec& fieldValues) const;
     bool handleControlMessage(const TStrVec& fieldValues);
     void addRowToDataFrame(const TStrVec& fieldValues);
-    void writeResultsOf(const CDataFrameAnalysisRunner& analysis) const;
+    void reportProgress(const CDataFrameAnalysisRunner& analysis,
+                        core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeProgress(double progress, core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
+                        core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).

@@ -143,12 +143,22 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
+    bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
-        CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-4 * *expectedScore);
-        ++expectedScore;
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedScore,
+                result["row_results"]["results"]["outlier_score"].GetDouble(),
+                1e-4 * *expectedScore);
+            CPPUNIT_ASSERT(result.HasMember("progress") == false);
+            ++expectedScore;
+        } else if (result.HasMember("progress")) {
+            CPPUNIT_ASSERT(result["progress"].GetDouble() >= 0.0);
+            CPPUNIT_ASSERT(result["progress"].GetDouble() <= 1.0);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress"].GetDouble() == 1.0;
+        }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
@@ -175,14 +185,25 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
+    bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
-        CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-4 * *expectedScore);
-        ++expectedScore;
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedScore,
+                result["row_results"]["results"]["outlier_score"].GetDouble(),
+                1e-4 * *expectedScore);
+            ++expectedScore;
+            CPPUNIT_ASSERT(result.HasMember("progress") == false);
+        } else if (result.HasMember("progress")) {
+            CPPUNIT_ASSERT(result["progress"].GetDouble() >= 0.0);
+            CPPUNIT_ASSERT(result["progress"].GetDouble() <= 1.0);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress"].GetDouble() == 1.0;
+        }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+    CPPUNIT_ASSERT(progressCompleted);
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -296,8 +317,11 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
 
     int expectedHash{0};
     for (const auto& result : results.GetArray()) {
-        LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-        CPPUNIT_ASSERT_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
+        if (result.HasMember("row_results")) {
+            LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
+            CPPUNIT_ASSERT_EQUAL(++expectedHash,
+                                 result["row_results"]["checksum"].GetInt());
+        }
     }
 }
 
