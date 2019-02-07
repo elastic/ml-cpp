@@ -26,18 +26,19 @@ const std::string RECYCLED_NAMES_TAG("c");
 }
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string& nameType,
-                                                   stat_t::EStatTypes addedStat,
-                                                   stat_t::EStatTypes addNotAllowedStat,
-                                                   stat_t::EStatTypes recycledStat)
-    : m_NameType(nameType), m_AddedStat(addedStat),
-      m_AddNotAllowedStat(addNotAllowedStat), m_RecycledStat(recycledStat), m_Uids(1) {
+                                                   counter_t::ECounterTypes addedCounter,
+                                                   counter_t::ECounterTypes addNotAllowedCounter,
+                                                   counter_t::ECounterTypes recycledCounter)
+    : m_NameType(nameType), m_AddedCounter(addedCounter),
+      m_AddNotAllowedCounter(addNotAllowedCounter),
+      m_RecycledCounter(recycledCounter), m_Uids(1) {
 }
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
                                                    const CDynamicStringIdRegistry& other)
-    : m_NameType(other.m_NameType), m_AddedStat(other.m_AddedStat),
-      m_AddNotAllowedStat(other.m_AddNotAllowedStat),
-      m_RecycledStat(other.m_RecycledStat), m_Dictionary(other.m_Dictionary),
+    : m_NameType(other.m_NameType), m_AddedCounter(other.m_AddedCounter),
+      m_AddNotAllowedCounter(other.m_AddNotAllowedCounter),
+      m_RecycledCounter(other.m_RecycledCounter), m_Dictionary(other.m_Dictionary),
       m_Uids(other.m_Uids), m_Names(other.m_Names),
       m_FreeUids(other.m_FreeUids), m_RecycledUids(other.m_RecycledUids) {
     if (!isForPersistence) {
@@ -109,7 +110,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
         if (itr == m_Uids.end()) {
             LOG_TRACE(<< "Can't add new " << m_NameType << " - allocations not allowed");
             resourceMonitor.acceptAllocationFailureResult(time);
-            core::CStatistics::stat(m_AddNotAllowedStat).increment();
+            ++core::CProgramCounters::counter(m_AddNotAllowedCounter);
             return INVALID_ID;
         }
         id = itr->second;
@@ -118,7 +119,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
     if (id >= m_Names.size()) {
         m_Names.push_back(CStringStore::names().get(name));
         addedPerson = true;
-        core::CStatistics::stat(m_AddedStat).increment();
+        ++core::CProgramCounters::counter(m_AddedCounter);
     } else if (id == newId) {
         LOG_TRACE(<< "Recycling " << id << " for " << m_NameType << " " << name);
         m_Names[id] = CStringStore::names().get(name);
@@ -128,7 +129,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
             m_FreeUids.pop_back();
         }
         m_RecycledUids.push_back(id);
-        core::CStatistics::stat(m_RecycledStat).increment();
+        ++core::CProgramCounters::counter(m_RecycledCounter);
     }
 
     return id;

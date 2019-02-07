@@ -7,7 +7,7 @@
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
-#include <core/CStatistics.h>
+#include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
@@ -322,8 +322,8 @@ void CBackgroundPersisterTest::foregroundBackgroundCompAnomalyDetectionAfterStat
         CPPUNIT_ASSERT(firstProcessor->periodicPersistState(backgroundPersister));
         CPPUNIT_ASSERT(backgroundPersister.startPersist());
 
-        //Increment one of the statistics values
-        ml::core::CStatistics::stat(ml::stat_t::E_MemoryUsage).increment();
+        //Increment one of the counter values
+        ++ml::core::CProgramCounters::counter(ml::counter_t::E_TSADMemoryUsage);
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
         CPPUNIT_ASSERT(backgroundPersister.waitForIdle());

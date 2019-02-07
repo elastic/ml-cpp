@@ -95,6 +95,7 @@ CompressUtils.cc \
 Concurrency.cc \
 CPatternSet.cc \
 CPersistUtils.cc \
+CProgramCounters.cc \
 CRapidJsonConcurrentLineWriter.cc \
 CRapidXmlParser.cc \
 CRapidXmlStatePersistInserter.cc \
@@ -106,13 +107,11 @@ CScopedFastLock.cc \
 CScopedLock.cc \
 CScopedReadLock.cc \
 CScopedWriteLock.cc \
-CStat.cc \
 CStateCompressor.cc \
 CStateDecompressor.cc \
 CStatePersistInserter.cc \
 CStateRestoreTraverser.cc \
 CStaticThreadPool.cc \
-CStatistics.cc \
 CStopWatch.cc \
 CStreamUtils.cc \
 CStoredStringPtr.cc \
