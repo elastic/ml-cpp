@@ -125,11 +125,11 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
     std::size_t result{0};
     switch (numberPartitions) {
     case 1:
-        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<float>>(
+        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<maths::CFloatStorage>>(
             totalNumberRows, partitionNumberRows, numberColumns);
         break;
     default:
-        result = estimateMemoryUsage<maths::CDenseVector<float>>(
+        result = estimateMemoryUsage<maths::CDenseVector<maths::CFloatStorage>>(
             totalNumberRows, partitionNumberRows, numberColumns);
         break;
     }

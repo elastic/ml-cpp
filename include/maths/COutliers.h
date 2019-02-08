@@ -598,9 +598,12 @@ public:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TProgressCallback = outliers_detail::TProgressCallback;
     template<typename POINT>
+    using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
+    template<typename POINT>
     using TEnsemble = outliers_detail::CEnsemble<POINT>;
     template<typename POINT>
-    using TLof = outliers_detail::CLof<POINT, CKdTree<POINT>>;
+    using TLof =
+        outliers_detail::CLof<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>>;
 
     //! The outlier detection methods which are available.
     enum EMethod {
@@ -712,14 +715,13 @@ protected:
     template<template<typename, typename> class METHOD, typename POINT>
     static void normalized(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
         if (points.size() > 0) {
-            using TPoint = CAnnotatedVector<POINT, std::size_t>;
-
             auto annotatedPoints = annotate(std::move(points));
-            CKdTree<TPoint> lookup;
+            CKdTree<TAnnotatedPoint<POINT>> lookup;
             lookup.reserve(points.size());
             lookup.build(annotatedPoints);
 
-            METHOD<TPoint, CKdTree<TPoint>> scorer{k, noop, std::move(lookup)};
+            METHOD<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>> scorer{
+                k, noop, std::move(lookup)};
 
             scorer.run(annotatedPoints, annotatedPoints.size(), [&scores](TDoubleVecVec scores_) {
                 scores = std::move(scores_[0]);
@@ -730,9 +732,8 @@ protected:
 
     //! Create points annotated with their index in \p points.
     template<typename POINT>
-    static std::vector<CAnnotatedVector<POINT, std::size_t>>
-    annotate(std::vector<POINT> points) {
-        std::vector<CAnnotatedVector<POINT, std::size_t>> annotatedPoints;
+    static std::vector<TAnnotatedPoint<POINT>> annotate(std::vector<POINT> points) {
+        std::vector<TAnnotatedPoint<POINT>> annotatedPoints;
         annotatedPoints.reserve(points.size());
         for (std::size_t i = 0; i < points.size(); ++i) {
             annotatedPoints.emplace_back(std::move(points[i]), i);
