@@ -363,13 +363,13 @@ void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Ve
     m_Checksum = CHashing::hashCombine(computeChecksum(rows), computeChecksum(docHashes));
     LOG_TRACE(<< "Checksum = " << m_Checksum);
 
-    std::size_t rowBytes{sizeof(CFloatStorage) * rows.size()};
+    std::size_t rowsBytes{sizeof(CFloatStorage) * rows.size()};
     std::size_t docHashesBytes{sizeof(std::int32_t) * docHashes.size()};
-    LOG_TRACE(<< "row bytes = " << rowBytes);
+    LOG_TRACE(<< "rows bytes = " << rowsBytes);
     LOG_TRACE(<< "doc hashes bytes = " << docHashesBytes);
 
     std::ofstream file{m_FileName.string(), std::ios_base::trunc | std::ios_base::binary};
-    file.write(reinterpret_cast<const char*>(rows.data()), rowBytes);
+    file.write(reinterpret_cast<const char*>(rows.data()), rowsBytes);
     file.write(reinterpret_cast<const char*>(docHashes.data()), docHashesBytes);
 }
 
@@ -383,7 +383,7 @@ bool COnDiskDataFrameRowSlice::readFromDisk(TFloatVec& rows, TInt32Vec& docHashe
 
     std::size_t rowsBytes{sizeof(CFloatStorage) * m_RowsCapacity};
     std::size_t docHashesBytes{sizeof(std::int32_t) * m_DocHashesCapacity};
-    LOG_TRACE(<< "row bytes = " << rowBytes);
+    LOG_TRACE(<< "rows bytes = " << rowsBytes);
     LOG_TRACE(<< "doc hashes bytes = " << docHashesBytes);
 
     std::ifstream file{m_FileName.string(), std::ios_base::binary};
