@@ -258,7 +258,7 @@ void COutliersTest::testDlof() {
     LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-5);
     }
 }
 
@@ -291,7 +291,7 @@ void COutliersTest::testDistancekNN() {
     LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
     }
 }
 
@@ -328,7 +328,7 @@ void COutliersTest::testTotalDistancekNN() {
     LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-6);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
     }
 }
 

@@ -90,7 +90,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
         }
 
         result.emplace_back(rng, std::move(methodsAndNumberNeighbours),
-                            (4 * sampleSize) * 3, std::move(projections[model]));
+                            (4 * sampleSize) / 3, std::move(projections[model]));
 
         rng.discard(1ull < 63);
     }
