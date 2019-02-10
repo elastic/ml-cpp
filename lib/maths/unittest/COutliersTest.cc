@@ -35,13 +35,6 @@ using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TVectorVec&)>;
 
-class COutliersTestInternals : public maths::COutliers {
-public:
-    static void normalize(TDoubleVec& scores) {
-        maths::COutliers::normalize(scores);
-    }
-};
-
 void nearestNeightbours(std::size_t k, const TVectorVec& points, const TVector& point, TVectorVec& result) {
     using TDoubleVectorPr = std::pair<double, TVector>;
     using TMinDoubleVectorPrAccumulator =
@@ -203,7 +196,7 @@ void COutliersTest::testLof() {
                            "-1, -1, -1, -1, -1]"};
     for (auto k : {5, 10, 15}) {
         TDoubleVec scores;
-        maths::COutliers::normalizedLof(k, points, scores);
+        maths::COutliers::lof(k, points, scores);
 
         TMaxAccumulator outliers_(numberOutliers);
         for (std::size_t i = 0u; i < scores.size(); ++i) {
@@ -233,7 +226,7 @@ void COutliersTest::testDlof() {
 
     TDoubleVec scores;
     std::size_t k{10};
-    maths::COutliers::normalizedLdof(k, points, scores);
+    maths::COutliers::ldof(k, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -254,8 +247,7 @@ void COutliersTest::testDlof() {
         }
         ldof.push_back(maths::CBasicStatistics::mean(d) / maths::CBasicStatistics::mean(D));
     }
-    COutliersTestInternals::normalize(ldof);
-    LOG_DEBUG(<< "normalized ldof = " << core::CContainerPrinter::print(ldof));
+    LOG_DEBUG(<< "ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-5);
@@ -273,7 +265,7 @@ void COutliersTest::testDistancekNN() {
 
     TDoubleVec scores;
     std::size_t k{10};
-    maths::COutliers::normalizedDistancekNN(k, points, scores);
+    maths::COutliers::distancekNN(k, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -287,8 +279,7 @@ void COutliersTest::testDistancekNN() {
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(maths::las::distance(point, neighbours.back()));
     }
-    COutliersTestInternals::normalize(distances);
-    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
@@ -306,7 +297,7 @@ void COutliersTest::testTotalDistancekNN() {
 
     TDoubleVec scores;
     std::size_t k{10};
-    maths::COutliers::normalizedTotalDistancekNN(k, points, scores);
+    maths::COutliers::totalDistancekNN(k, points, scores);
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
@@ -322,10 +313,10 @@ void COutliersTest::testTotalDistancekNN() {
             std::accumulate(neighbours.begin(), neighbours.end(), 0.0,
                             [&point](double total, const TVector& neighbour) {
                                 return total + maths::las::distance(point, neighbour);
-                            }));
+                            }) /
+            static_cast<double>(k));
     }
-    COutliersTestInternals::normalize(distances);
-    LOG_DEBUG(<< "normalized distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
@@ -342,15 +333,15 @@ void COutliersTest::testEnsemble() {
 
     // TODO test outlier detection with and without partitioning are equivalent.
 
-    std::size_t numberInliers{100};
+    std::size_t numberInliers{400};
     std::size_t numberOutliers{20};
 
     TDoubleVec TP;
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.66, 0.92, 1.0};
-    double recallLowerBounds[]{0.97, 0.94, 0.07};
+    double precisionLowerBounds[]{0.28, 0.94, 0.99};
+    double recallLowerBounds[]{0.98, 0.86, 0.33};
 
     // Test sequential then parallel.
 

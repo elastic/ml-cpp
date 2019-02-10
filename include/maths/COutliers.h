@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_COutliers_h
 #define INCLUDED_ml_maths_COutliers_h
 
+#include <core/CDataFrame.h>
 #include <core/CHashing.h>
 #include <core/CNonInstantiatable.h>
 #include <core/Concurrency.h>
@@ -30,9 +31,6 @@
 #include <vector>
 
 namespace ml {
-namespace core {
-class CDataFrame;
-}
 namespace maths {
 namespace outliers_detail {
 using TDoubleVec = std::vector<double>;
@@ -415,19 +413,22 @@ public:
     //! \brief Builds (online) one model of the points for the ensemble.
     class CModelBuilder {
     public:
+        using TRowRef = core::CDataFrame::TRowRef;
+
+    public:
         CModelBuilder(CPRNG::CXorOShiro128Plus& rng,
                       TSizeSizePrVec&& methodAndNumberNeighbours,
                       std::size_t sampleSize,
                       TPointVec&& projection);
 
         //! Maybe sample the point.
-        void addPoint(const POINT& point) { m_Sampler.sample(point); }
+        void addPoint(const TRowRef& point) { m_Sampler.sample(point); }
 
         //! \note Only call once: this moves state into place.
         CModel make(const TMethodFactoryVec& methodFactories);
 
     private:
-        using TSampler = CSampling::CRandomStreamSampler<POINT>;
+        using TSampler = CSampling::CRandomStreamSampler<TRowRef>;
 
     private:
         TSampler makeSampler(CPRNG::CXorOShiro128Plus& rng, std::size_t sampleSize);
@@ -505,16 +506,16 @@ private:
         double compute(double pOutlier) const;
 
     private:
-        double m_LogLikelihoodOutlierGivenScores;
-        double m_LogLikelihoodInlierGivenScores;
+        double m_EnsembleSize = 0.0;
+        double m_LogLikelihoodOutlierGivenScores = 0.0;
+        double m_LogLikelihoodInlierGivenScores = 0.0;
     };
     using TScorerVec = std::vector<CScorer>;
 
     //! \brief A model of the points used as part of the ensemble.
     class CModel {
     public:
-        CModel(CPRNG::CXorOShiro128Plus& rng,
-               const TMethodFactoryVec& methodFactories,
+        CModel(const TMethodFactoryVec& methodFactories,
                TSizeSizePrVec methodAndNumberNeighbours,
                TPointVec samples,
                TPointVec projection);
@@ -669,8 +670,8 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void normalizedLof(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
-        normalized<outliers_detail::CLof>(k, std::move(points), scores);
+    static void lof(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+        compute<outliers_detail::CLof>(k, std::move(points), scores);
     }
 
     //! Compute normalized local distance based outlier scores for \p points.
@@ -681,8 +682,8 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void normalizedLdof(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
-        normalized<outliers_detail::CLdof>(k, std::move(points), scores);
+    static void ldof(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+        compute<outliers_detail::CLdof>(k, std::move(points), scores);
     }
 
     //! Compute the normalized distance to the k-th nearest neighbour
@@ -692,9 +693,8 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void
-    normalizedDistancekNN(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
-        normalized<outliers_detail::CDistancekNN>(k, std::move(points), scores);
+    static void distancekNN(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+        compute<outliers_detail::CDistancekNN>(k, std::move(points), scores);
     }
 
     //! Compute the normalized mean distance to the k nearest neighbours
@@ -704,16 +704,15 @@ public:
     //! \param[in] points The points for which to compute scores.
     //! \param[out] scores The scores of \p points.
     template<typename POINT>
-    static void
-    normalizedTotalDistancekNN(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
-        normalized<outliers_detail::CTotalDistancekNN>(k, std::move(points), scores);
+    static void totalDistancekNN(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+        compute<outliers_detail::CTotalDistancekNN>(k, std::move(points), scores);
     }
     //@}
 
-protected:
+private:
     //! Compute normalised outlier scores for a specified method.
     template<template<typename, typename> class METHOD, typename POINT>
-    static void normalized(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+    static void compute(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
         if (points.size() > 0) {
             auto annotatedPoints = annotate(std::move(points));
             CKdTree<TAnnotatedPoint<POINT>> lookup;
@@ -726,7 +725,6 @@ protected:
             scorer.run(annotatedPoints, annotatedPoints.size(), [&scores](TDoubleVecVec scores_) {
                 scores = std::move(scores_[0]);
             });
-            normalize(scores);
         }
     }
 
@@ -740,18 +738,6 @@ protected:
         }
         return annotatedPoints;
     }
-
-    //! This is based on the Gaussian normalization scheme proposed in
-    //! "Interpreting and Unifying Outlier Scores" by Kreigel et al.
-    //!
-    //! The main departure is it compute a conditional probability that
-    //! a point is an outlier given a prior probability which can be user
-    //! defined.
-    static void normalize(TDoubleVec& scores, double pOutlier = 0.05);
-
-    //! Converts the score percentile into a conditional probability that
-    //! the point is an outlier.
-    static double probabilityOutlierGiven(double scorePercentile);
 
 private:
     static void noop(double);

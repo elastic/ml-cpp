@@ -9,6 +9,7 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CDataFrameUtils.h>
+#include <maths/CIntegration.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTools.h>
 
@@ -20,16 +21,11 @@
 
 namespace ml {
 namespace maths {
-namespace {
-double shrink(double scorePercentile, double shrinkage) {
-    // We treat the score "percentile" as a rough proxy to the chance that the
-    // point is from the outlier class. However, we shrink probabilities towards
-    // 0.5 to account for the fact that the scoring methodology is not perfect.
-    return 0.5 + shrinkage * (scorePercentile - 0.5);
-}
-}
-
 namespace outliers_detail {
+
+double shift(double score) {
+    return 1e-4 + score;
+}
 
 template<typename POINT>
 CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories,
@@ -90,7 +86,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
         }
 
         result.emplace_back(rng, std::move(methodsAndNumberNeighbours),
-                            (4 * sampleSize) / 3, std::move(projections[model]));
+                            sampleSize, std::move(projections[model]));
 
         rng.discard(1ull < 63);
     }
@@ -225,8 +221,8 @@ typename CEnsemble<POINT>::CModel
 CEnsemble<POINT>::CModelBuilder::make(const TMethodFactoryVec& methodFactories) {
 
     if (m_SampledProjectedPoints.size() > m_SampleSize) {
-        // We want a random subset of size m_SampleSize. Randomly permute and grab
-        // the first m_SampleSize elements is equivalent.
+        // We want a random subset of size m_SampleSize. Randomly permute and
+        // grab the first m_SampleSize elements is equivalent.
         CSampling::random_shuffle(m_Sampler.rng(), m_SampledProjectedPoints.begin(),
                                   m_SampledProjectedPoints.end());
         m_SampledProjectedPoints.resize(m_SampleSize);
@@ -236,7 +232,7 @@ CEnsemble<POINT>::CModelBuilder::make(const TMethodFactoryVec& methodFactories) 
         m_SampledProjectedPoints[i].annotation() = i;
     }
 
-    return {m_Sampler.rng(), methodFactories, std::move(m_MethodsAndNumberNeighbours),
+    return {methodFactories, std::move(m_MethodsAndNumberNeighbours),
             std::move(m_SampledProjectedPoints), std::move(m_Projection)};
 }
 
@@ -244,11 +240,13 @@ template<typename POINT>
 typename CEnsemble<POINT>::CModelBuilder::TSampler
 CEnsemble<POINT>::CModelBuilder::makeSampler(CPRNG::CXorOShiro128Plus& rng,
                                              std::size_t sampleSize) {
-    auto onSample = [this](std::size_t index, const POINT& point) {
+    auto onSample = [this](std::size_t index, const TRowRef& row) {
         if (index >= m_SampledProjectedPoints.size()) {
-            m_SampledProjectedPoints.push_back(project(m_Projection, point));
+            m_SampledProjectedPoints.push_back(
+                project(m_Projection, CDataFrameUtils::rowTo<POINT>(row)));
         } else {
-            m_SampledProjectedPoints[index] = project(m_Projection, point);
+            m_SampledProjectedPoints[index] =
+                project(m_Projection, CDataFrameUtils::rowTo<POINT>(row));
         }
     };
     return {sampleSize, onSample, rng};
@@ -267,10 +265,36 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulatorVec& logScoreMoment
     // of benchmark sets to make this effective a priori. We also account for the
     // fact that the scores will be somewhat correlated.
 
-    static const double KNOTS[]{1e-5, 1e-3, 0.01, 0.1, 0.2,
-                                0.4,  0.5,  0.6,  0.7, 1.0};
-    static const double KNOT_PROBABILITIES[]{0.98, 0.87, 0.76, 0.65, 0.6,
-                                             0.5,  0.5,  0.5,  0.3,  0.3};
+    auto pOutlier = [](double cdfComplement) {
+        static const double LOG_KNOTS[]{
+            CTools::fastLog(1e-5), CTools::fastLog(1e-3), CTools::fastLog(0.01),
+            CTools::fastLog(0.1),  CTools::fastLog(0.2),  CTools::fastLog(0.4),
+            CTools::fastLog(0.5),  CTools::fastLog(0.6),  CTools::fastLog(0.8),
+            CTools::fastLog(1.0)};
+        static const double KNOT_PROBABILITIES[]{0.98, 0.87, 0.76, 0.65, 0.6,
+                                                 0.5,  0.5,  0.5,  0.3,  0.3};
+
+        double logCdfComplement{CTools::fastLog(std::max(cdfComplement, 1e-5))};
+        auto k = std::upper_bound(std::begin(LOG_KNOTS), std::end(LOG_KNOTS), logCdfComplement);
+        return CTools::linearlyInterpolate(
+            *(k - 1), *k, KNOT_PROBABILITIES[k - std::begin(LOG_KNOTS) - 1],
+            KNOT_PROBABILITIES[k - std::begin(LOG_KNOTS)], logCdfComplement);
+    };
+
+    static const double EXPECTED_PROBABILITY{[pOutlier] {
+        double result{0.0};
+        for (double x = 0.0; x < 0.99; x += 0.1) {
+            double interval;
+            CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                [pOutlier](double x_, double& r) {
+                    r = pOutlier(x_);
+                    return true;
+                },
+                x, x + 0.1, interval);
+            result += interval;
+        }
+        return result;
+    }()};
 
     double logLikelihoodOutlierGivenScores{0.0};
     double logLikelihoodInlierGivenScores{0.0};
@@ -282,18 +306,13 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulatorVec& logScoreMoment
         if (scale > 0.0) {
             try {
                 boost::math::lognormal lognormal{location, scale};
-                cdfComplement =
-                    std::max(CTools::safeCdfComplement(lognormal, scores[i]), 1e-6);
+                cdfComplement = CTools::safeCdfComplement(lognormal, shift(scores[i]));
             } catch (const std::exception& e) {
                 LOG_ERROR(<< "Failed to normalise scores: " << e.what());
             }
         }
 
-        auto k = std::upper_bound(std::begin(KNOTS), std::end(KNOTS), cdfComplement);
-        double pOutlierGivenScore{CTools::linearlyInterpolate(
-            CTools::fastLog(*(k - 1)), CTools::fastLog(*k),
-            KNOT_PROBABILITIES[k - std::begin(KNOTS) - 1],
-            KNOT_PROBABILITIES[k - std::begin(KNOTS)], CTools::fastLog(cdfComplement))};
+        double pOutlierGivenScore{pOutlier(cdfComplement) * 0.5 / EXPECTED_PROBABILITY};
 
         logLikelihoodOutlierGivenScores += CTools::fastLog(pOutlierGivenScore);
         logLikelihoodInlierGivenScores += CTools::fastLog(1.0 - pOutlierGivenScore);
@@ -303,6 +322,7 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulatorVec& logScoreMoment
     double pInlierGivenScores{std::exp(logLikelihoodInlierGivenScores)};
     double Z{pInlierGivenScores + pOutlierGivenScores};
 
+    m_EnsembleSize += 1.0;
     m_LogLikelihoodOutlierGivenScores += CTools::fastLog(pOutlierGivenScores / Z);
     m_LogLikelihoodInlierGivenScores += CTools::fastLog(pInlierGivenScores / Z);
 }
@@ -311,49 +331,35 @@ template<typename POINT>
 double CEnsemble<POINT>::CScorer::compute(double pOutlier) const {
 
     double pInlier{1.0 - pOutlier};
-    double logLikelihoodOutlierGivenScores{m_LogLikelihoodOutlierGivenScores +
-                                           CTools::fastLog(pOutlier)};
-    double logLikelihoodInlierGivenScores{m_LogLikelihoodInlierGivenScores +
-                                          CTools::fastLog(pInlier)};
 
-    double renorm{std::max(logLikelihoodOutlierGivenScores, logLikelihoodInlierGivenScores)};
-    logLikelihoodOutlierGivenScores -= renorm;
-    logLikelihoodInlierGivenScores -= renorm;
+    double logLikelihoodOutlier{m_LogLikelihoodOutlierGivenScores};
+    double logLikelihoodInlier{m_LogLikelihoodInlierGivenScores};
+
+    double renorm{std::max(logLikelihoodOutlier, logLikelihoodInlier)};
+    logLikelihoodOutlier -= renorm;
+    logLikelihoodInlier -= renorm;
 
     // We want improved sensitivity for high scores. In the following, we use
-    // the fact that if P(outlier) > P(inlier) it's zero after renormalisation.
+    // the fact that max(P(outlier), P(inlier)) is zero after renormalisation.
 
-    if (m_LogLikelihoodOutlierGivenScores > m_LogLikelihoodInlierGivenScores) {
-        logLikelihoodInlierGivenScores *= 0.25;
-    }
+    (logLikelihoodInlier < logLikelihoodOutlier ? logLikelihoodInlier
+                                                : logLikelihoodOutlier) /= m_EnsembleSize;
 
     // The conditional probability follows from Bayes rule.
-
-    double pOutlierGivenScores{std::exp(logLikelihoodOutlierGivenScores)};
-    double pInlierGivenScores{std::exp(logLikelihoodInlierGivenScores)};
-    return pOutlierGivenScores / (pOutlierGivenScores + pInlierGivenScores);
+    double likelihoodOutlier{std::exp(logLikelihoodOutlier + CTools::fastLog(pOutlier))};
+    double likelihoodInlier{std::exp(logLikelihoodInlier + CTools::fastLog(pInlier))};
+    return likelihoodOutlier / (likelihoodOutlier + likelihoodInlier);
 }
 
 template<typename POINT>
-CEnsemble<POINT>::CModel::CModel(CPRNG::CXorOShiro128Plus& rng,
-                                 const TMethodFactoryVec& methodFactories,
+CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
                                  TSizeSizePrVec methodsAndNumberNeighbours,
                                  TPointVec sample,
                                  TPointVec projection)
     : m_Lookup{std::make_unique<TKdTree>()}, m_Projection{std::move(projection)} {
 
-    CSampling::random_shuffle(rng, sample.begin(), sample.end());
-
-    std::size_t n{3 * (sample.size() + 1) / 4};
-
-    TPointVec lookup;
-    lookup.reserve(n);
-    for (std::size_t i = 0; i < n; ++i) {
-        lookup.push_back(sample[i]);
-    }
-
-    m_Lookup->reserve(lookup.size());
-    m_Lookup->build(std::move(lookup));
+    m_Lookup->reserve(sample.size());
+    m_Lookup->build(sample);
 
     TMethodUPtrVec methods;
     methods.reserve(methodsAndNumberNeighbours.size());
@@ -378,7 +384,7 @@ CEnsemble<POINT>::CModel::CModel(CPRNG::CXorOShiro128Plus& rng,
         });
         method->progressRecorder().swap(noop);
         for (auto& score : scores) {
-            score = CTools::fastLog(score);
+            score = CTools::fastLog(shift(score));
         }
         TMeanVarAccumulator moments;
         moments.add(scores);
@@ -480,7 +486,7 @@ CEnsemble<POINT> buildEnsemble(TProgressCallback recordProgress, core::CDataFram
     frame.readRows(1, [&builders](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (auto& builder : builders) {
-                builder.addPoint(CDataFrameUtils::rowTo<POINT>(*row));
+                builder.addPoint(*row);
             }
         }
     });
@@ -499,10 +505,10 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
     CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(recordProgress, frame)};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
-    // The points will be entirely overwritten by readRows so the initial
-    // value is not important. This is presized so that rowsToPoints only
-    // needs to access and write to each element. Since it does this once
-    // per element it is thread safe.
+    // The points will be entirely overwritten by readRows so the initial value
+    // is not important. This is presized so that rowsToPoints only needs to
+    // access and write to each element. Since it does this once per element it
+    // is thread safe.
     TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
 
     auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
@@ -524,10 +530,9 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
     TDoubleVec scores;
     ensemble.computeOutlierScores(points, scores);
 
-    // This never happens now, but it is a sanity check against someone
-    // changing CLocalOutlierFactors to accidentally write to the data
-    // frame via one of the memory mapped vectors. All bets are off as to
-    // if we generate anything meaningful if this happens.
+    // This is a sanity check against CEnsemble accidentally writing to the data
+    // frame via one of the memory mapped vectors. All bets are off as to whether
+    // we generate anything meaningful if this happens.
     if (checksum != frame.checksum()) {
         LOG_ERROR(<< "Accidentally modified the data frame");
         return false;
@@ -567,39 +572,6 @@ void COutliers::compute(std::size_t numberThreads,
 
     // TODO this needs to work out the partitioning and run outlier detection
     // one partition at a time.
-}
-
-void COutliers::normalize(TDoubleVec& scores, double pOutlier) {
-
-    TMeanVarAccumulator moments;
-    for (const auto& score : scores) {
-        moments.add(CTools::fastLog(score));
-    }
-    double location{CBasicStatistics::mean(moments)};
-    double scale{std::sqrt(CBasicStatistics::variance(moments))};
-
-    double pInlier{1.0 - pOutlier};
-
-    if (scale > 0.0) {
-        try {
-            boost::math::lognormal lognormal(location, scale);
-            for (auto& score : scores) {
-                // The conditional probability follows from Bayes rule.
-                double pOutlierGivenScore{
-                    probabilityOutlierGiven(CTools::safeCdf(lognormal, score))};
-                score = pOutlierGivenScore * pOutlier /
-                        (pOutlierGivenScore * pOutlier + (1.0 - pOutlierGivenScore) * pInlier);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to normalise scores: " << e.what());
-        }
-    } else {
-        scores.assign(scores.size(), 0.0);
-    }
-}
-
-double COutliers::probabilityOutlierGiven(double scorePercentile) {
-    return shrink(scorePercentile, 0.99);
 }
 
 void COutliers::noop(double) {
