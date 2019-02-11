@@ -22,7 +22,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
 using TVector = maths::CVector<double>;
 using TVector5 = maths::CVectorNx1<double, 5>;
-using TCovariances = maths::CBasicStatistics::SSampleCovariances<double, 5>;
+using TCovariances5 = maths::CBasicStatistics::SSampleCovariances<TVector5>;
 
 struct SFirstLess {
     bool operator()(const TSizeVec& lhs, const TSizeVec& rhs) const {
@@ -200,7 +200,7 @@ void CRandomProjectionClustererTest::testClusterProjections() {
     for (std::size_t i = 0u; i < clusterer.projections().size(); ++i) {
         CRandomProjectionClustererForTest<5>::TVectorNx1Vec means;
         {
-            TCovariances covariances;
+            TCovariances5 covariances(5);
             for (std::size_t j = 0u; j < samples1.size(); ++j) {
                 TVector x(samples1[j].begin(), samples1[j].end());
                 TVector5 projection;
@@ -212,7 +212,7 @@ void CRandomProjectionClustererTest::testClusterProjections() {
             means.push_back(maths::CBasicStatistics::mean(covariances));
         }
         {
-            TCovariances covariances;
+            TCovariances5 covariances(5);
             for (std::size_t j = 0u; j < samples2.size(); ++j) {
                 TVector x(samples2[j].begin(), samples2[j].end());
                 TVector5 projection;
@@ -234,7 +234,7 @@ void CRandomProjectionClustererTest::testClusterProjections() {
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec covariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet samples;
     clusterer.clusterProjections(
-        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 2, 5),
+        maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 2, 5),
         weights_, means, covariances, samples);
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), weights_.size());
@@ -303,7 +303,7 @@ void CRandomProjectionClustererTest::testNeighbourhoods() {
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet examples;
     clusterer.clusterProjections(
-        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
+        maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 3, 5),
         weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG(<< "examples = " << core::CContainerPrinter::print(examples));
 
@@ -349,86 +349,110 @@ void CRandomProjectionClustererTest::testNeighbourhoods() {
 }
 
 void CRandomProjectionClustererTest::testSimilarities() {
+    // Test that thresholding similarities has a very high chance of
+    // grouping points in the same cluster and separating points in
+    // different clusters.
+
     test::CRandomNumbers rng;
 
-    std::size_t dimension = 30u;
-    std::size_t n[] = {30, 50, 40};
-    TDoubleVec means[3] = {};
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
-        rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
-        LOG_DEBUG(<< "mean = " << core::CContainerPrinter::print(means[i]));
-    }
-    TDoubleVecVec covariances[] = {
-        TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
-        TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
-        TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0))};
-    for (std::size_t i = 0u; i < boost::size(covariances); ++i) {
-        for (std::size_t j = 0u; j < 30; ++j) {
-            covariances[i][j][j] = 1.0 + static_cast<double>(i);
+    std::size_t TP{0};
+    std::size_t TN{0};
+    std::size_t FP{0};
+    std::size_t FN{0};
+
+    for (std::size_t t = 0; t < 20; ++t) {
+        LOG_TRACE(<< "Test " << t);
+
+        std::size_t dimension = 30u;
+        std::size_t n[] = {30, 50, 40};
+        TDoubleVec means[3] = {};
+        for (std::size_t i = 0u; i < boost::size(means); ++i) {
+            rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
+            LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(means[i]));
+        }
+        TDoubleVecVec covariances[] = {
+            TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
+            TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
+            TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0))};
+        for (std::size_t i = 0u; i < boost::size(covariances); ++i) {
+            for (std::size_t j = 0u; j < 30; ++j) {
+                covariances[i][j][j] = 1.0 + static_cast<double>(i);
+            }
+        }
+
+        TSizeVec clusters;
+
+        CRandomProjectionClustererForTest<5> clusterer(1.5);
+        clusterer.initialise(4, dimension);
+        for (std::size_t i = 0u; i < boost::size(n); ++i) {
+            TDoubleVecVec samples;
+            rng.generateMultivariateNormalSamples(means[i], covariances[i], n[i], samples);
+            for (std::size_t j = 0u; j < samples.size(); ++j) {
+                clusterer.add(TVector(samples[j]));
+                clusters.push_back(i);
+            }
+        }
+
+        TDoubleVecVec weights;
+        CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
+        CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
+        CRandomProjectionClustererForTest<5>::TSizeUSet examples;
+        clusterer.clusterProjections(
+            maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 3, 5),
+            weights, clusterMeans, clusterCovariances, examples);
+        LOG_TRACE(<< "examples = " << core::CContainerPrinter::print(examples));
+
+        TSizeVecVec expectedConnectivity(examples.size(), TSizeVec(examples.size()));
+        TSizeVec examples_(examples.begin(), examples.end());
+        for (std::size_t i = 0u; i < examples_.size(); ++i) {
+            for (std::size_t j = 0u; j <= i; ++j) {
+                expectedConnectivity[i][j] = expectedConnectivity[j][i] =
+                    clusters[examples_[i]] == clusters[examples_[j]] ? 1 : 0;
+            }
+        }
+
+        TSizeVecVec neighbourhoods(examples.size());
+        clusterer.neighbourhoods(examples, neighbourhoods);
+
+        TDoubleVecVec similarities(examples.size());
+        clusterer.similarities(weights, clusterMeans, clusterCovariances,
+                               neighbourhoods, similarities);
+
+        TSizeVecVec connectivity(examples.size(), TSizeVec(examples.size()));
+        for (std::size_t i = 0u; i < similarities.size(); ++i) {
+            for (std::size_t j = 0u; j <= i; ++j) {
+                connectivity[i][j] = connectivity[j][i] = similarities[i][j] < 8.0 ? 1 : 0;
+            }
+            LOG_TRACE(<< "similarities = "
+                      << core::CContainerPrinter::print(similarities[i]));
+        }
+
+        for (std::size_t i = 0u; i < expectedConnectivity.size(); ++i) {
+            LOG_TRACE(<< "expected connectivity = "
+                      << core::CContainerPrinter::print(expectedConnectivity[i]));
+            LOG_TRACE(<< "actual connectivity   = "
+                      << core::CContainerPrinter::print(connectivity[i]));
+            for (std::size_t j = 0u; j <= i; ++j) {
+                // clang-format off
+                switch (2 * expectedConnectivity[i][j] + connectivity[i][j]) {
+                case 0: ++TN; break;
+                case 1: ++FP; break;
+                case 2: ++FN; break;
+                case 3: ++TP; break;
+                default: CPPUNIT_ASSERT(false); // Never happens.
+                }
+                // clang-format on
+            }
         }
     }
 
-    TSizeVec clusters;
+    LOG_DEBUG(<< "TP = " << TP << ", TN = " << TN << ", FP = " << FP << ", FN = " << FN);
 
-    CRandomProjectionClustererForTest<5> clusterer(1.5);
-    clusterer.initialise(4, dimension);
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
-        TDoubleVecVec samples;
-        rng.generateMultivariateNormalSamples(means[i], covariances[i], n[i], samples);
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
-            clusterer.add(TVector(samples[j]));
-            clusters.push_back(i);
-        }
-    }
+    // Proportion of points correctly separated.
+    CPPUNIT_ASSERT(static_cast<double>(TN) / static_cast<double>(TN + FP) > 0.99);
 
-    TDoubleVecVec weights;
-    CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
-    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
-    CRandomProjectionClustererForTest<5>::TSizeUSet examples;
-    clusterer.clusterProjections(
-        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
-        weights, clusterMeans, clusterCovariances, examples);
-    LOG_DEBUG(<< "examples = " << core::CContainerPrinter::print(examples));
-
-    TSizeVecVec expectedConnectivity(examples.size(), TSizeVec(examples.size()));
-    TSizeVec examples_(examples.begin(), examples.end());
-    for (std::size_t i = 0u; i < examples_.size(); ++i) {
-        for (std::size_t j = 0u; j <= i; ++j) {
-            expectedConnectivity[i][j] = expectedConnectivity[j][i] =
-                clusters[examples_[i]] == clusters[examples_[j]] ? 1 : 0;
-        }
-    }
-    LOG_DEBUG(<< "expected connectivity =");
-    for (std::size_t i = 0u; i < expectedConnectivity.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(expectedConnectivity[i]));
-    }
-
-    TSizeVecVec neighbourhoods(examples.size());
-    clusterer.neighbourhoods(examples, neighbourhoods);
-
-    TDoubleVecVec similarities(examples.size());
-    clusterer.similarities(weights, clusterMeans, clusterCovariances,
-                           neighbourhoods, similarities);
-
-    TSizeVecVec connectivity(examples.size(), TSizeVec(examples.size()));
-    for (std::size_t i = 0u; i < similarities.size(); ++i) {
-        TDoubleVec s;
-        for (std::size_t j = 0u; j <= i; ++j) {
-            s.push_back(similarities[i][j]);
-            connectivity[i][j] = connectivity[j][i] = similarities[i][j] < 10.0 ? 1 : 0;
-        }
-        LOG_DEBUG(<< core::CContainerPrinter::print(s));
-    }
-    LOG_DEBUG(<< "connectivity =");
-    for (std::size_t i = 0u; i < connectivity.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(connectivity[i]));
-    }
-
-    for (std::size_t i = 0u; i < expectedConnectivity.size(); ++i) {
-        for (std::size_t j = 0u; j <= i; ++j) {
-            CPPUNIT_ASSERT_EQUAL(expectedConnectivity[i][j], connectivity[i][j]);
-        }
-    }
+    // Proportion of points correctly clustered.
+    CPPUNIT_ASSERT(static_cast<double>(TP) / static_cast<double>(TP + FN) > 0.99);
 }
 
 void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
@@ -471,7 +495,7 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet examples;
     clusterer.clusterProjections(
-        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
+        maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 3, 5),
         weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG(<< "examples = " << core::CContainerPrinter::print(examples));
 

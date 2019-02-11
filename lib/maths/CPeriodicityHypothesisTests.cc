@@ -451,8 +451,9 @@ double residualVariance(const TMeanAccumulator& mean) {
 
 //! Extract the residual variance of \p bucket of a trend.
 TMeanAccumulator residualVariance(const TMeanVarAccumulator& bucket, double scale) {
-    return CBasicStatistics::accumulator(scale * CBasicStatistics::count(bucket),
-                                         CBasicStatistics::maximumLikelihoodVariance(bucket));
+    return CBasicStatistics::momentsAccumulator(
+        scale * CBasicStatistics::count(bucket),
+        CBasicStatistics::maximumLikelihoodVariance(bucket));
 }
 
 //! \brief Partially specialized helper class to get the trend

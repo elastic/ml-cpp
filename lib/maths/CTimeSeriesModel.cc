@@ -1615,7 +1615,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
 
         for (const auto& value : initialValues) {
             CFloatStorage weight(CBasicStatistics::count(value.second));
-            samples.push_back(CBasicStatistics::accumulator(
+            samples.push_back(CBasicStatistics::momentsAccumulator(
                 weight, CFloatStorage(m_TrendModel->detrend(
                             value.first, CBasicStatistics::mean(value.second), 0.0))));
             totalWeight += weight;
@@ -2940,7 +2940,7 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
             samplesForDimension.reserve(initialValues[d].size());
 
             for (const auto& value : initialValues[d]) {
-                samplesForDimension.push_back(CBasicStatistics::accumulator(
+                samplesForDimension.push_back(CBasicStatistics::momentsAccumulator(
                     CBasicStatistics::count(value.second),
                     CFloatStorage(m_TrendModel[d]->detrend(
                         value.first, CBasicStatistics::mean(value.second), 0.0))));

@@ -78,13 +78,13 @@ public:
 public:
     CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec& value, double count)
         : m_Tail(tail),
-          m_Mean(maths::CBasicStatistics::accumulator(count, value[0])) {}
+          m_Mean(maths::CBasicStatistics::momentsAccumulator(count, value[0])) {}
 
     bool operator()(const TStrCRefDouble1VecDoublePrPr& lhs,
                     const TStrCRefDouble1VecDoublePrPr& rhs) const {
-        TMeanAccumulator l = m_Mean - maths::CBasicStatistics::accumulator(
+        TMeanAccumulator l = m_Mean - maths::CBasicStatistics::momentsAccumulator(
                                           lhs.second.second, lhs.second.first[0]);
-        TMeanAccumulator r = m_Mean - maths::CBasicStatistics::accumulator(
+        TMeanAccumulator r = m_Mean - maths::CBasicStatistics::momentsAccumulator(
                                           rhs.second.second, rhs.second.first[0]);
         double ml = maths::CBasicStatistics::mean(l);
         double nl = maths::CBasicStatistics::count(l);
@@ -108,16 +108,16 @@ public:
 public:
     CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec& value, double count)
         : m_Tail(tail),
-          m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0])) {}
+          m_Variance(maths::CBasicStatistics::momentsAccumulator(count, value[1], value[0])) {}
 
     bool operator()(const TStrCRefDouble1VecDoublePrPr& lhs,
                     const TStrCRefDouble1VecDoublePrPr& rhs) const {
-        TMeanVarAccumulator l = m_Variance - maths::CBasicStatistics::accumulator(
-                                                 lhs.second.second, lhs.second.first[1],
-                                                 lhs.second.first[0]);
-        TMeanVarAccumulator r = m_Variance - maths::CBasicStatistics::accumulator(
-                                                 rhs.second.second, rhs.second.first[1],
-                                                 rhs.second.first[0]);
+        TMeanVarAccumulator l =
+            m_Variance - maths::CBasicStatistics::momentsAccumulator(
+                             lhs.second.second, lhs.second.first[1], lhs.second.first[0]);
+        TMeanVarAccumulator r =
+            m_Variance - maths::CBasicStatistics::momentsAccumulator(
+                             rhs.second.second, rhs.second.first[1], rhs.second.first[0]);
         double vl = maths::CBasicStatistics::maximumLikelihoodVariance(l);
         double nl = maths::CBasicStatistics::count(l);
         double vr = maths::CBasicStatistics::maximumLikelihoodVariance(r);
@@ -246,8 +246,8 @@ public:
         std::size_t dimension = v.size();
         for (std::size_t d = 0u; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::mean(
-                maths::CBasicStatistics::accumulator(n, v[d]) -
-                maths::CBasicStatistics::accumulator(ni, vi[d]));
+                maths::CBasicStatistics::momentsAccumulator(n, v[d]) -
+                maths::CBasicStatistics::momentsAccumulator(ni, vi[d]));
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -271,8 +271,8 @@ public:
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::mean(
-                maths::CBasicStatistics::accumulator(n[d], v[d]) -
-                maths::CBasicStatistics::accumulator(ni[d], vi[d]));
+                maths::CBasicStatistics::momentsAccumulator(n[d], v[d]) -
+                maths::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
         }
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -306,8 +306,8 @@ public:
         std::size_t dimension = v.size() / 2;
         for (std::size_t d = 0u; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
-                maths::CBasicStatistics::accumulator(n, v[dimension + d], v[d]) -
-                maths::CBasicStatistics::accumulator(ni, vi[dimension + d], vi[d]));
+                maths::CBasicStatistics::momentsAccumulator(n, v[dimension + d], v[d]) -
+                maths::CBasicStatistics::momentsAccumulator(ni, vi[dimension + d], vi[d]));
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -331,8 +331,8 @@ public:
         for (std::size_t d = 0u; d < 2; ++d) {
             bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
-                maths::CBasicStatistics::accumulator(n[d], v[2 + d], v[d]) -
-                maths::CBasicStatistics::accumulator(ni[d], vi[2 + d], vi[d]));
+                maths::CBasicStatistics::momentsAccumulator(n[d], v[2 + d], v[d]) -
+                maths::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d], vi[d]));
         }
         params.bucketEmpty({bucketEmpty});
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};

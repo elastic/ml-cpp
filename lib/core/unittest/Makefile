@@ -31,9 +31,11 @@ CBlockingMessageQueueTest.cc \
 CByteSwapperTest.cc \
 CCompressedDictionaryTest.cc \
 CCompressUtilsTest.cc \
+CConcurrencyTest.cc \
 CConcurrentWrapperTest.cc \
 CContainerPrinterTest.cc \
 CContainerThroughputTest.cc \
+CDataFrameTest.cc \
 CDelimiterTest.cc \
 CDetachedProcessSpawnerTest.cc \
 CDualThreadStreamBufTest.cc \
@@ -48,6 +50,7 @@ CJsonOutputStreamWrapperTest.cc \
 CJsonStatePersistInserterTest.cc \
 CJsonStateRestoreTraverserTest.cc \
 CLoggerTest.cc \
+CLoopProgressTest.cc \
 CMemoryUsageJsonWriterTest.cc \
 CMemoryUsageTest.cc \
 CMessageBufferTest.cc \
@@ -77,12 +80,12 @@ CSleepTest.cc \
 CSmallVectorTest.cc \
 CStateCompressorTest.cc \
 CStateMachineTest.cc \
+CStaticThreadPoolTest.cc \
 CStopWatchTest.cc \
 CStoredStringPtrTest.cc \
 CStringSimilarityTesterTest.cc \
 CStringUtilsTest.cc \
 CThreadFarmTest.cc \
-CThreadPoolTest.cc \
 CThreadMutexConditionTest.cc \
 CTickerTest.cc \
 CTimeUtilsTest.cc \

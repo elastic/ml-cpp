@@ -254,14 +254,14 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
             double interval{xr - newEndpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l - 1], w)};
-            TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(
+            TDoubleMeanAccumulator centre{CBasicStatistics::momentsAccumulator(
                 w * CBasicStatistics::count(m_Values[l - 1]),
                 static_cast<double>(oldCentres[l - 1]))};
             double largeErrorCount{w * oldLargeErrorCounts[l - 1]};
             double count{w * w * CBasicStatistics::count(m_Values[l - 1])};
             while (++l < r) {
                 value += m_Values[l - 1];
-                centre += CBasicStatistics::accumulator(
+                centre += CBasicStatistics::momentsAccumulator(
                     CBasicStatistics::count(m_Values[l - 1]),
                     static_cast<double>(oldCentres[l - 1]));
                 largeErrorCount += oldLargeErrorCounts[l - 1];
@@ -272,7 +272,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
             interval = newEndpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
             value += CBasicStatistics::scaled(m_Values[l - 1], w);
-            centre += CBasicStatistics::accumulator(
+            centre += CBasicStatistics::momentsAccumulator(
                 w * CBasicStatistics::count(m_Values[l - 1]),
                 static_cast<double>(oldCentres[l - 1]));
             largeErrorCount += w * oldLargeErrorCounts[l - 1];

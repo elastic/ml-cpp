@@ -138,21 +138,13 @@ public:
     //! The type of an unordered set of words.
     using TWordUSet = boost::unordered_set<CWord, CHash>;
 
-    //! A "template typedef" of an ordered map from words to
-    //! objects of type T.
+    //! A template typedef of an ordered map from words to objects of type T.
     template<typename T>
-    class CWordMap {
-    public:
-        using Type = std::map<CWord, T>;
-    };
+    using TWordTMap = std::map<CWord, T, CHash>;
 
-    //! A "template typedef" of an unordered map from words to
-    //! objects of type T.
+    //! A template typedef of an unordered map from words to objects of type T.
     template<typename T>
-    class CWordUMap {
-    public:
-        using Type = boost::unordered_map<CWord, T, CHash>;
-    };
+    using TWordTUMap = boost::unordered_map<CWord, T, CHash>;
 
 public:
     CCompressedDictionary() {

@@ -19,10 +19,10 @@ namespace log4cxx {
 namespace helpers {
 
 //! \brief
-//! Output log messages as lineified JSON.
+//! Output log messages as ND-JSON.
 //!
 //! DESCRIPTION:\n
-//! Logs messages as lineified JSON (one log message on one line).  The
+//! Logs messages as ND-JSON (one log message on one line).  The
 //! fields are based on those used by log4cxx's built in XMLLayout class.
 //!
 //! IMPLEMENTATION DECISIONS:\n

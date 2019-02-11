@@ -5,6 +5,7 @@
  */
 #include "CLengthEncodedInputParserTest.h"
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
@@ -42,24 +43,25 @@ CppUnit::Test* CLengthEncodedInputParserTest::suite() {
 
 namespace {
 
+//! To save having binary files in the git repo, this class accepts records
+//! from some text format and writes them to a temporary length encoded file
 class CSetupVisitor {
 public:
     CSetupVisitor() : m_RecordsPerBlock(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrVec& fieldNames,
+                    const ml::api::CCsvInputParser::TStrVec& fieldValues) {
         if (m_EncodedFieldNames.empty()) {
-            this->appendNumber(dataRowFields.size(), m_EncodedFieldNames);
-            for (const auto& entry : dataRowFields) {
-                const std::string& fieldName = entry.first;
+            this->appendNumber(fieldNames.size(), m_EncodedFieldNames);
+            for (const auto& fieldName : fieldNames) {
                 this->appendNumber(fieldName.length(), m_EncodedFieldNames);
                 m_EncodedFieldNames += fieldName;
             }
         }
 
-        this->appendNumber(dataRowFields.size(), m_EncodedDataBlock);
-        for (const auto& entry : dataRowFields) {
-            const std::string& fieldValue = entry.second;
+        this->appendNumber(fieldValues.size(), m_EncodedDataBlock);
+        for (const auto& fieldValue : fieldValues) {
             this->appendNumber(fieldValue.length(), m_EncodedDataBlock);
             m_EncodedDataBlock += fieldValue;
         }
@@ -109,7 +111,10 @@ public:
     CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
         : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
 
-    //! Handle a record
+    //! Reset the record count ready for another run
+    void reset() { m_RecordCount = 0; }
+
+    //! Handle a record in map form
     bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordCount;
 
@@ -145,6 +150,39 @@ public:
         return true;
     }
 
+    //! Handle a record in vector form
+    bool operator()(const ml::api::CCsvInputParser::TStrVec& fieldNames,
+                    const ml::api::CCsvInputParser::TStrVec& fieldValues) {
+        ++m_RecordCount;
+
+        // For the throughput test, the assertions below will skew the
+        // results, so bypass them
+        if (m_Fast) {
+            return true;
+        }
+
+        // Check the field names
+        CPPUNIT_ASSERT_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+                             ml::core::CContainerPrinter::print(fieldNames));
+
+        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+
+        // Check the line count is consistent with the _raw field
+        auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
+        CPPUNIT_ASSERT(rawIter != fieldNames.end());
+        auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
+        CPPUNIT_ASSERT(lineCountIter != fieldNames.end());
+
+        const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
+        std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
+        std::size_t lineCount(0);
+        const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
+        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
+        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+
+        return true;
+    }
+
     size_t recordCount() const { return m_RecordCount; }
 
 private:
@@ -162,45 +200,53 @@ void CLengthEncodedInputParserTest::testCsvEquivalence() {
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStream(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Input must be binary otherwise Windows will stop at CTRL+Z
     std::istringstream input(setupVisitor.input(1), std::ios::in | std::ios::binary);
 
-    ml::api::CLengthEncodedInputParser parser(input);
-
     ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.push_back("_cd");
-    expectedFieldNames.push_back("_indextime");
-    expectedFieldNames.push_back("_kv");
-    expectedFieldNames.push_back("_raw");
-    expectedFieldNames.push_back("_serial");
-    expectedFieldNames.push_back("_si");
-    expectedFieldNames.push_back("_sourcetype");
-    expectedFieldNames.push_back("_time");
-    expectedFieldNames.push_back("date_hour");
-    expectedFieldNames.push_back("date_mday");
-    expectedFieldNames.push_back("date_minute");
-    expectedFieldNames.push_back("date_month");
-    expectedFieldNames.push_back("date_second");
-    expectedFieldNames.push_back("date_wday");
-    expectedFieldNames.push_back("date_year");
-    expectedFieldNames.push_back("date_zone");
-    expectedFieldNames.push_back("eventtype");
-    expectedFieldNames.push_back("host");
-    expectedFieldNames.push_back("index");
-    expectedFieldNames.push_back("linecount");
-    expectedFieldNames.push_back("punct");
-    expectedFieldNames.push_back("source");
-    expectedFieldNames.push_back("sourcetype");
-    expectedFieldNames.push_back("server");
-    expectedFieldNames.push_back("timeendpos");
-    expectedFieldNames.push_back("timestartpos");
+    expectedFieldNames.emplace_back("_cd");
+    expectedFieldNames.emplace_back("_indextime");
+    expectedFieldNames.emplace_back("_kv");
+    expectedFieldNames.emplace_back("_raw");
+    expectedFieldNames.emplace_back("_serial");
+    expectedFieldNames.emplace_back("_si");
+    expectedFieldNames.emplace_back("_sourcetype");
+    expectedFieldNames.emplace_back("_time");
+    expectedFieldNames.emplace_back("date_hour");
+    expectedFieldNames.emplace_back("date_mday");
+    expectedFieldNames.emplace_back("date_minute");
+    expectedFieldNames.emplace_back("date_month");
+    expectedFieldNames.emplace_back("date_second");
+    expectedFieldNames.emplace_back("date_wday");
+    expectedFieldNames.emplace_back("date_year");
+    expectedFieldNames.emplace_back("date_zone");
+    expectedFieldNames.emplace_back("eventtype");
+    expectedFieldNames.emplace_back("host");
+    expectedFieldNames.emplace_back("index");
+    expectedFieldNames.emplace_back("linecount");
+    expectedFieldNames.emplace_back("punct");
+    expectedFieldNames.emplace_back("source");
+    expectedFieldNames.emplace_back("sourcetype");
+    expectedFieldNames.emplace_back("server");
+    expectedFieldNames.emplace_back("timeendpos");
+    expectedFieldNames.emplace_back("timestartpos");
 
     CVisitor visitor(expectedFieldNames);
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    // First read to a map
+    ml::api::CLengthEncodedInputParser parser1(input);
+    CPPUNIT_ASSERT(parser1.readStreamIntoMaps(std::ref(visitor)));
+    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 
+    // Now re-read to vectors
+    ifs.clear();
+    ifs.seekg(0);
+    visitor.reset();
+
+    ml::api::CCsvInputParser parser2(ifs);
+    CPPUNIT_ASSERT(parser2.readStreamIntoVecs(std::ref(visitor)));
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
@@ -217,7 +263,7 @@ void CLengthEncodedInputParserTest::testThroughput() {
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStream(std::ref(setupVisitor)));
+    CPPUNIT_ASSERT(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
@@ -231,7 +277,7 @@ void CLengthEncodedInputParserTest::testThroughput() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
@@ -258,5 +304,5 @@ void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
     CVisitor visitor;
 
     LOG_INFO(<< "Expect the next parse to report a suspiciously long length");
-    CPPUNIT_ASSERT(!parser.readStream(std::ref(visitor)));
+    CPPUNIT_ASSERT(!parser.readStreamIntoMaps(std::ref(visitor)));
 }

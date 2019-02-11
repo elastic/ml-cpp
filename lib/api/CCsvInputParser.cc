@@ -39,13 +39,53 @@ const std::string& CCsvInputParser::fieldNameStr() const {
     return m_FieldNameStr;
 }
 
-bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
+bool CCsvInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+
+    if (this->readFieldNames() == false) {
+        return false;
+    }
+
+    TStrVec& fieldNames = this->fieldNames();
+
+    // We reuse the same field map for every record
+    TStrStrUMap recordFields;
+
+    // Cache references to the strings in the map corresponding to each field
+    // name - this avoids the need to repeatedly compute the same hashes
+    TStrRefVec fieldValRefs;
+    fieldValRefs.reserve(fieldNames.size());
+    for (const auto& name : fieldNames) {
+        fieldValRefs.emplace_back(recordFields[name]);
+    }
+
+    return this->parseRecordLoop(
+        [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
+}
+
+bool CCsvInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
+
+    if (this->readFieldNames() == false) {
+        return false;
+    }
+
+    TStrVec& fieldNames = this->fieldNames();
+
+    // We reuse the same value vector for every record
+    TStrVec fieldValues(fieldNames.size());
+
+    return parseRecordLoop(
+        [&readerFunc, &fieldNames, &fieldValues] {
+            return readerFunc(fieldNames, fieldValues);
+        },
+        fieldValues);
+}
+
+bool CCsvInputParser::readFieldNames() {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
-    TStrVec& fieldNames = this->fieldNames();
 
-    if (!this->gotFieldNames()) {
+    if (this->gotFieldNames() == false) {
         if (this->parseCsvRecordFromStream() == false) {
             LOG_ERROR(<< "Failed to parse CSV record from stream");
             return false;
@@ -56,16 +96,11 @@ bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
             return false;
         }
     }
-    // We reuse the same field map for every record
-    TStrStrUMap recordFields;
+    return true;
+}
 
-    // Cache references to the strings in the map corresponding to each field
-    // name - this avoids the need to repeatedly compute the same hashes
-    TStrRefVec fieldValRefs;
-    fieldValRefs.reserve(fieldNames.size());
-    for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
-        fieldValRefs.push_back(boost::ref(recordFields[*iter]));
-    }
+template<typename READER_FUNC, typename STR_VEC>
+bool CCsvInputParser::parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace) {
 
     while (!m_NoMoreRecords) {
         if (this->parseCsvRecordFromStream() == false) {
@@ -77,12 +112,12 @@ bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
             break;
         }
 
-        if (this->parseDataRecord(fieldValRefs) == false) {
+        if (this->parseDataRecord(workSpace) == false) {
             LOG_ERROR(<< "Failed to parse data record from stream");
             return false;
         }
 
-        if (readerFunc(recordFields) == false) {
+        if (readerFunc() == false) {
             LOG_ERROR(<< "Record handler function forced exit");
             return false;
         }
@@ -211,9 +246,10 @@ bool CCsvInputParser::parseFieldNames() {
     return true;
 }
 
-bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
-    for (TStrRefVecCItr iter = fieldValRefs.begin(); iter != fieldValRefs.end(); ++iter) {
-        if (m_LineParser.parseNext(iter->get()) == false) {
+template<typename STR_VEC>
+bool CCsvInputParser::parseDataRecord(STR_VEC& values) {
+    for (auto& value : values) {
+        if (m_LineParser.parseNext(value) == false) {
             LOG_ERROR(<< "Failed to get next CSV token");
             return false;
         }

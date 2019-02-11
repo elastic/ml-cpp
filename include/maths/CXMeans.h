@@ -13,7 +13,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CInformationCriteria.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/COrderings.h>
 
@@ -51,7 +51,6 @@ public:
     using TPointVec = std::vector<POINT>;
     using TPointVecVec = std::vector<TPointVec>;
     using TUInt64USet = boost::unordered_set<uint64_t>;
-    using TUInt64USetItr = TUInt64USet::iterator;
     using TMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
     //! A cluster.
@@ -127,17 +126,19 @@ public:
     //!
     //! \note These are swapped in to place.
     void setPoints(TPointVec& points) {
-        m_Kmeans.setPoints(points);
-        m_Clusters.clear();
-        m_Clusters.push_back(CCluster());
-        double cost = COST(points).calculate();
-        m_Clusters[0].cost(cost);
-        TMeanAccumulator centroid;
-        centroid.add(points);
-        m_Clusters[0].centre(CBasicStatistics::mean(centroid));
-        m_Clusters[0].points(points);
-        m_MinCost = cost;
-        m_BestCentres.push_back(CBasicStatistics::mean(centroid));
+        if (points.size() > 0) {
+            m_Kmeans.setPoints(points);
+            m_Clusters.clear();
+            m_Clusters.push_back(CCluster());
+            double cost = COST(points).calculate();
+            TMeanAccumulator centroid(las::zero(points[0]));
+            centroid.add(points);
+            m_MinCost = cost;
+            m_Clusters[0].cost(cost);
+            m_Clusters[0].centre(CBasicStatistics::mean(centroid));
+            m_Clusters[0].points(points);
+            m_BestCentres.push_back(CBasicStatistics::mean(centroid));
+        }
     }
 
     //! Get the best centres found to date.
@@ -189,7 +190,7 @@ protected:
         oldCentres.reserve(n);
         TClusterCPtrVec oldClusters;
         oldClusters.reserve(n);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             oldCentres.push_back(m_Clusters[i].centre());
             oldClusters.push_back(&m_Clusters[i]);
         }
@@ -211,13 +212,13 @@ protected:
         TUInt64USet preserved;
         COST cost_;
 
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             newClusters.push_back(CCluster());
             CCluster& cluster = newClusters.back();
             cluster.centre(newCentres[i]);
             cluster.points(newClusterPoints[i]);
-            typename TClusterCPtrVec::const_iterator j = std::lower_bound(
-                oldClusters.begin(), oldClusters.end(), &cluster, COrderings::SPtrLess());
+            auto j = std::lower_bound(oldClusters.begin(), oldClusters.end(),
+                                      &cluster, COrderings::SPtrLess());
             if (j != oldClusters.end() && **j == cluster) {
                 cluster.cost((*j)->cost());
                 preserved.insert(cluster.checksum());
@@ -229,7 +230,7 @@ protected:
 
         // Refresh the clusters and inactive list.
         m_Clusters.swap(newClusters);
-        for (TUInt64USetItr i = m_Inactive.begin(); i != m_Inactive.end(); /**/) {
+        for (auto i = m_Inactive.begin(); i != m_Inactive.end(); /**/) {
             if (preserved.count(*i) > 0) {
                 ++i;
             } else {
@@ -241,8 +242,8 @@ protected:
         double cost = cost_.calculate();
         if (cost < m_MinCost) {
             m_BestCentres.clear();
-            for (std::size_t i = 0u; i < n; ++i) {
-                m_BestCentres.push_back(m_Clusters[i].centre());
+            for (const auto& cluster : m_Clusters) {
+                m_BestCentres.push_back(cluster.centre());
             }
             m_MinCost = cost;
         }
@@ -261,28 +262,28 @@ protected:
         }
 
         // Declared outside the loop to minimize allocations.
-        CKMeansFast<POINT> kmeans;
+        CKMeans<POINT> kmeans;
         TPointVec points;
+        TPointVec seedCentres;
         TPointVecVec clusterPoints;
         TPointVec bestClusterCentres;
         TPointVecVec bestClusterPoints;
-        TPointVec seedClusterCentres;
 
         std::size_t largest = 0;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            largest = std::max(largest, m_Clusters[i].size());
+        for (const auto& cluster : m_Clusters) {
+            largest = std::max(largest, cluster.size());
         }
 
         kmeans.reserve(largest);
         points.reserve(largest);
+        seedCentres.reserve(2);
         clusterPoints.reserve(2);
         bestClusterCentres.reserve(2);
         bestClusterPoints.reserve(2);
-        seedClusterCentres.reserve(2);
 
         bool split = false;
 
-        for (std::size_t i = 0u, n = m_Clusters.size();
+        for (std::size_t i = 0, n = m_Clusters.size();
              i < n && m_Clusters.size() < m_Kmax; ++i) {
             if (m_Inactive.count(m_Clusters[i].checksum()) > 0) {
                 continue;
@@ -296,12 +297,11 @@ protected:
             kmeans.setPoints(points);
             double minCost = std::numeric_limits<double>::max();
 
-            for (std::size_t j = 0u; j < clusterSeeds; ++j) {
-                this->generateSeedCentres(points, 2, seedClusterCentres);
-                LOG_TRACE(<< "seed centres = "
-                          << core::CContainerPrinter::print(seedClusterCentres));
+            for (std::size_t j = 0; j < clusterSeeds; ++j) {
+                this->generateSeedCentres(points, 2, seedCentres);
+                LOG_TRACE(<< "seed centres = " << core::CContainerPrinter::print(seedCentres));
 
-                kmeans.setCentres(seedClusterCentres);
+                kmeans.setCentres(seedCentres);
                 kmeans.run(kmeansIterations);
 
                 const TPointVec& centres = kmeans.centres();
@@ -351,8 +351,8 @@ private:
     //! These are used to initialize the k-means centres in the
     //! step to improve structure.
     void generateSeedCentres(const TPointVec& points, std::size_t k, TPointVec& result) const {
-        CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> kmeansPlusPlus(m_Rng);
-        kmeansPlusPlus.run(points, k, result);
+        CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> initializer(m_Rng);
+        initializer.run(points, k, result);
     }
 
     //! Run k-means to improve the best centres.
@@ -368,7 +368,7 @@ private:
             m_Kmeans.clusters(polishedClusterPoints);
             m_Clusters.clear();
             m_Clusters.reserve(m_BestCentres.size());
-            for (std::size_t i = 0u; i < m_BestCentres.size(); ++i) {
+            for (std::size_t i = 0; i < m_BestCentres.size(); ++i) {
                 m_Clusters.push_back(CCluster());
                 CCluster& cluster = m_Clusters.back();
                 cluster.cost(COST(polishedClusterPoints[i]).calculate());
@@ -393,7 +393,7 @@ private:
     TUInt64USet m_Inactive;
 
     //! The fast k-means state for the full set of points.
-    CKMeansFast<POINT> m_Kmeans;
+    CKMeans<POINT> m_Kmeans;
 
     //! The minimum cost clustering found to date.
     double m_MinCost;

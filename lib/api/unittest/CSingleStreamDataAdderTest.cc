@@ -20,7 +20,7 @@
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -151,10 +151,10 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
             return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
         }
-        return std::make_unique<ml::api::CLineifiedJsonInputParser>(inputStrm);
+        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStream(
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
         boost::bind(&ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
     // Persist the detector state to a stringstream

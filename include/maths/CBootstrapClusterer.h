@@ -10,7 +10,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/COrderings.h>
 #include <maths/CPRNG.h>
 #include <maths/CSetTools.h>
@@ -1022,7 +1022,7 @@ private:
 //! \brief Adapts the x-means implementation for use by the bootstrap
 //! clusterer.
 template<typename POINT>
-class CBootstrapClustererFacade<CKMeansFast<POINT>>
+class CBootstrapClustererFacade<CKMeans<POINT>>
     : private CBootstrapClustererFacadeExtractClusters<POINT> {
 public:
     using TSizeVec = std::vector<std::size_t>;
@@ -1030,7 +1030,7 @@ public:
     using TPointVec = std::vector<POINT>;
 
 public:
-    CBootstrapClustererFacade(const CKMeansFast<POINT>& kmeans, std::size_t k, std::size_t maxIterations)
+    CBootstrapClustererFacade(const CKMeans<POINT>& kmeans, std::size_t k, std::size_t maxIterations)
         : m_Kmeans(kmeans), m_K(k), m_MaxIterations(maxIterations) {}
 
     //! \note Assumes \p points are sorted.
@@ -1058,7 +1058,7 @@ private:
     //! The random number generator.
     CPRNG::CXorShift1024Mult m_Rng;
     //! The k-means implementation.
-    CKMeansFast<POINT> m_Kmeans;
+    CKMeans<POINT> m_Kmeans;
     //! The number of clusters to use.
     std::size_t m_K;
     //! The number of iterations to use in k-means.
@@ -1106,13 +1106,13 @@ void bootstrapCluster(std::vector<POINT>& points,
 template<typename POINT>
 void bootstrapCluster(std::vector<POINT>& points,
                       std::size_t B,
-                      const CKMeansFast<POINT>& kmeans,
+                      const CKMeans<POINT>& kmeans,
                       std::size_t k,
                       std::size_t maxIterations,
                       double overlapThreshold,
                       double chainingFactor,
                       std::vector<std::vector<POINT>>& result) {
-    CBootstrapClustererFacade<CKMeansFast<POINT>> clusterer(kmeans, k, maxIterations);
+    CBootstrapClustererFacade<CKMeans<POINT>> clusterer(kmeans, k, maxIterations);
     CBootstrapClusterer<POINT> bootstrapClusterer(overlapThreshold, chainingFactor);
     bootstrapClusterer.run(B, clusterer, points, result);
 }

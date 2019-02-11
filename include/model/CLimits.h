@@ -81,11 +81,6 @@ public:
     //! Access to the resource monitor
     CResourceMonitor& resourceMonitor();
 
-    //! boost::ini_parser doesn't like UTF-8 ini files that begin with byte
-    //! order markers.  This function advances the seek pointer of the
-    //! stream over a UTF-8 BOM, but only if one exists.
-    static void skipUtf8Bom(std::ifstream& strm);
-
 private:
     //! Helper method for init().
     template<typename FIELDTYPE>

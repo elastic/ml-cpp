@@ -263,7 +263,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double count{this->count()};
     if (count > 0.0) {
-        TMeanVarAccumulator moments{CBasicStatistics::accumulator(
+        TMeanVarAccumulator moments{CBasicStatistics::momentsAccumulator(
             count, prediction, m_PredictionErrorVariance)};
         moments.add(value, weight);
         m_PredictionErrorVariance = CBasicStatistics::maximumLikelihoodVariance(moments);

@@ -35,8 +35,8 @@
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
@@ -197,10 +197,11 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
             return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
         }
-        return std::make_unique<ml::api::CLineifiedJsonInputParser>(inputStrm);
+        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStream(boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
+    if (!parser->readStreamIntoMaps(
+            boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }

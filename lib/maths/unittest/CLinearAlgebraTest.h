@@ -17,10 +17,12 @@ public:
     void testVector();
     void testNorms();
     void testUtils();
+    void testScaleCovariances();
     void testGaussianLogLikelihood();
     void testSampleGaussian();
     void testLogDeterminant();
     void testProjected();
+    void testShims();
     void testPersist();
 
     static CppUnit::Test* suite();

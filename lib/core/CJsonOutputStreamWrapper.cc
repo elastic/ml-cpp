@@ -27,7 +27,10 @@ CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
 }
 
 CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
-    m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_END); });
+    m_ConcurrentOutputStream([](std::ostream& o) {
+        o.put(JSON_ARRAY_END);
+        o.flush();
+    });
 }
 
 void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,

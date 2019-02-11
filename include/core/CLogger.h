@@ -15,6 +15,8 @@
 #include <log4cxx/level.h>
 #include <log4cxx/logger.h>
 
+#include <functional>
+#include <memory>
 #include <stdio.h>
 
 class CLoggerTest;
@@ -64,8 +66,21 @@ namespace core {
 //!
 class CORE_EXPORT CLogger : private CNonCopyable {
 public:
+    using TFatalErrorHandler = std::function<void(std::string)>;
+
     //! Used to set the level we should log at
     enum ELevel { E_Fatal, E_Error, E_Warn, E_Info, E_Debug, E_Trace };
+
+    //! \brief Sets the fatal error handler to a specified value for
+    //! the object lifetime.
+    class CORE_EXPORT CScopeSetFatalErrorHandler : private CNonCopyable {
+    public:
+        CScopeSetFatalErrorHandler(const TFatalErrorHandler& handler);
+        ~CScopeSetFatalErrorHandler();
+
+    private:
+        TFatalErrorHandler m_OriginalFatalErrorHandler;
+    };
 
 public:
     //! Access to singleton - use MACROS to get to this when logging
@@ -103,13 +118,21 @@ public:
     //! Access to underlying logger (must only be called from macros)
     log4cxx::LoggerPtr logger();
 
-#ifdef Windows
     //! Throw a fatal exception
-    __declspec(noreturn) static void fatal();
-#else
-    //! Throw a fatal exception
-    __attribute__((noreturn)) static void fatal();
-#endif
+    [[noreturn]] static void fatal();
+
+    //! Register a new global fatal error handler.
+    //!
+    //! \note This is not thread safe as the intention is that it is invoked
+    //! once, usually at the beginning of main or in single threaded test code.
+    //! \note The default behaviour is to exit the process with an error status.
+    void fatalErrorHandler(const TFatalErrorHandler& handler);
+
+    //! Get the current fatal error handler.
+    const TFatalErrorHandler& fatalErrorHandler() const;
+
+    //! Handle a fatal problem using the registered fatal error handler.
+    void handleFatal(std::string message);
 
 private:
     //! Constructor for a singleton is private.
@@ -139,6 +162,10 @@ private:
     //! CLogger is a singleton, so we can not just create new instances
     void reset();
 
+    //! The default implementation of the fatal error handler causes the process
+    //! to exit with non zero return code.
+    [[noreturn]] static void defaultFatalErrorHandler(std::string message);
+
 private:
     log4cxx::LoggerPtr m_Logger;
 
@@ -158,6 +185,9 @@ private:
     //! When logging to a pipe, the file descriptor that stderr was
     //! originally associated with.
     int m_OrigStderrFd;
+
+    //! The default handler for fatal errors.
+    TFatalErrorHandler m_FatalErrorHandler;
 
     //! friend class for testing
     friend class ::CLoggerTest;

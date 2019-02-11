@@ -552,11 +552,11 @@ void CEventRateModelTest::testProbabilityCalculation() {
                   << ", # events = " << eventTimes.size());
 
         // Play the data through the model and get the lowest probability buckets.
-        TMinAccumulator minProbabilities(
-            2, [](const TDoubleSizeAnotatedProbabilityTr& lhs,
-                  const TDoubleSizeAnotatedProbabilityTr& rhs) {
-                return lhs.first < rhs.first;
-            });
+        TMinAccumulator minProbabilities(2, TDoubleSizeAnotatedProbabilityTr{},
+                                         [](const TDoubleSizeAnotatedProbabilityTr& lhs,
+                                            const TDoubleSizeAnotatedProbabilityTr& rhs) {
+                                             return lhs.first < rhs.first;
+                                         });
 
         std::size_t i = 0;
         for (core_t::TTime j = 0, bucketStartTime = startTime;

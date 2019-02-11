@@ -16,12 +16,20 @@
 // Unfortunately, Eigen headers seem to be super fragile to
 // include directly so we just forward declare here ourselves.
 namespace Eigen {
-template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-class SparseMatrix;
-template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-class SparseVector;
-template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
+template<typename, int, int, int, int, int>
 class Matrix;
+template<typename, int, typename>
+class SparseMatrix;
+template<typename, int, typename>
+class SparseVector;
+template<typename>
+class ArrayWrapper;
+template<typename, int, typename>
+class Map;
+template<typename, int>
+class JacobiSVD;
+template<int, int>
+class Stride;
 }
 
 namespace ml {
@@ -36,15 +44,17 @@ public:
     static const char DELIMITER = ',';
 };
 
-//! \brief Base class to get a zero of type \p TYPE.
+//! \brief Get a constant initialized version of \p TYPE.
 //!
 //! Each of our vector and matrix types provides a specialization
 //! of this class and define a static get method which takes the
-//! dimension(s).
+//! dimension(s) and the constant value.
 template<typename TYPE>
-struct SZero {};
+struct SConstant {
+    static_assert(sizeof(TYPE) < 0, "Missing specialisation of SConstant");
+};
 
-template<typename T, std::size_t>
+template<typename T, std::size_t N>
 class CVectorNx1;
 template<typename T, std::size_t N>
 class CSymmetricMatrixNxN;
@@ -54,10 +64,18 @@ template<typename T>
 class CSymmetricMatrix;
 template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector;
-template<typename MATRIX>
-class CDenseMatrixInitializer;
+template<typename SCALAR>
+class CDenseVector;
+template<typename SCALAR>
+class CDenseMatrix;
 template<typename VECTOR>
 class CDenseVectorInitializer;
+template<typename MATRIX>
+class CDenseMatrixInitializer;
+template<typename SCALAR>
+class CMemoryMappedDenseVector;
+template<typename SCALAR>
+class CMemoryMappedDenseMatrix;
 }
 }
 

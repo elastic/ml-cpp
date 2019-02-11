@@ -38,7 +38,7 @@ class CResourceMonitor;
 class MODEL_EXPORT CDynamicStringIdRegistry {
 public:
     using TDictionary = core::CCompressedDictionary<2>;
-    using TWordSizeUMap = TDictionary::CWordUMap<std::size_t>::Type;
+    using TWordSizeUMap = TDictionary::TWordTUMap<std::size_t>;
     using TWordSizeUMapItr = TWordSizeUMap::iterator;
     using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
     using TSizeVec = std::vector<std::size_t>;

@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CStrCaseCmp.h>
+#include <core/CStreamUtils.h>
 #include <core/Constants.h>
 
 #include <maths/CMultivariatePrior.h>
@@ -329,7 +330,7 @@ bool CAnomalyDetectorModelConfig::init(const std::string& configFile,
             LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
-        CLimits::skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
@@ -384,7 +385,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlo
             LOG_ERROR(<< "Error opening model plot config file " << modelPlotConfigFile);
             return false;
         }
-        CLimits::skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {

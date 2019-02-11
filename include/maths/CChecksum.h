@@ -77,7 +77,7 @@ struct container_selector<T, typename enable_if_type<typename T::const_iterator>
 //! various checksum implementations.
 //!
 //! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for nested typedef.
+//! \note Uses SFINAE to check for checksum or hash functions.
 //! \note Uses the enable_if trick to get around the restriction that
 //! "A partially specialized non-type argument expression shall not
 //! involve a template parameter of the partial specialization except
@@ -142,7 +142,7 @@ public:
 
     //! Checksum a stored string pointer.
     static uint64_t dispatch(uint64_t seed, const core::CStoredStringPtr& target) {
-        return !target ? seed : CChecksumImpl<BasicChecksum>::dispatch(seed, *target);
+        return target == nullptr ? seed : dispatch(seed, *target);
     }
 
     //! Checksum of a reference_wrapper.
@@ -258,11 +258,10 @@ public:
     //! Call on elements.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const T& target) {
-        using CItr = typename T::const_iterator;
         uint64_t result = seed;
-        for (CItr itr = target.begin(); itr != target.end(); ++itr) {
+        for (const auto& element : target) {
             result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(
-                result, *itr);
+                result, element);
         }
         return result;
     }
@@ -275,9 +274,8 @@ public:
 
         TCRefVec ordered;
         ordered.reserve(target.size());
-        for (typename boost::unordered_set<T>::const_iterator itr = target.begin();
-             itr != target.end(); ++itr) {
-            ordered.push_back(TCRef(*itr));
+        for (const auto& element : target) {
+            ordered.push_back(TCRef(element));
         }
 
         std::sort(ordered.begin(), ordered.end(), maths::COrderings::SReferenceLess());
@@ -295,9 +293,8 @@ public:
 
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());
-        for (typename boost::unordered_map<U, V>::const_iterator itr = target.begin();
-             itr != target.end(); ++itr) {
-            ordered.push_back(TUCRefVCRefPr(TUCRef(itr->first), TVCRef(itr->second)));
+        for (const auto& element : target) {
+            ordered.emplace_back(TUCRef(element.first), TVCRef(element.second));
         }
 
         std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());

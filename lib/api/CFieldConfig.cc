@@ -9,6 +9,7 @@
 #include <core/CLogger.h>
 #include <core/CRegex.h>
 #include <core/CStrCaseCmp.h>
+#include <core/CStreamUtils.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
@@ -215,7 +216,7 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
             LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
-        model::CLimits::skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {

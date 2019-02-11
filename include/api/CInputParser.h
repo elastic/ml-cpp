@@ -28,8 +28,8 @@ namespace api {
 //! Abstract base class for input parser classes.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Abstract interface declares the readStream method that must be
-//! implemented in sub-classes.
+//! Abstract interface declares the readStreamIntoMaps and readStreamIntoVecs
+//! methods that must be implemented in sub-classes.
 //!
 class API_EXPORT CInputParser : private core::CNonCopyable {
 public:
@@ -48,12 +48,15 @@ public:
     using TStrRefVecItr = TStrRefVec::iterator;
     using TStrRefVecCItr = TStrRefVec::const_iterator;
 
-    //! Callback function prototype that gets called for each record
-    //! read from the input stream.  Return false to exit reader loop.
-    //! Arguments are:
-    //! 1) Header row fields
-    //! 2) Data row fields
-    using TReaderFunc = std::function<bool(const TStrStrUMap&)>;
+    //! Callback function prototype that gets called for each record read
+    //! from the input stream when reading into a map.  Return false to exit
+    //! reader loop.  The argument is a map of field name to field value.
+    using TMapReaderFunc = std::function<bool(const TStrStrUMap&)>;
+
+    //! Callback function prototype that gets called for each record read
+    //! from the input stream when reading into vectors.  Return false to exit
+    //! reader loop.  The arguments are vectors of field names and field values.
+    using TVecReaderFunc = std::function<bool(const TStrVec&, const TStrVec&)>;
 
 public:
     CInputParser();
@@ -68,13 +71,19 @@ public:
     //! Get field names
     const TStrVec& fieldNames() const;
 
-    //! Read records from the stream.  The supplied settings function is
-    //! called only once.  The supplied reader function is called once per
-    //! record.  If the supplied reader function returns false, reading will
-    //! stop.  This method keeps reading until it reaches the end of the
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
-    //! the stream it returns true, otherwise it returns false.  If
-    virtual bool readStream(const TReaderFunc& readerFunc) = 0;
+    //! the stream it returns true, otherwise it returns false.
+    virtual bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) = 0;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    virtual bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) = 0;
 
 protected:
     //! Set the "got field names" flag

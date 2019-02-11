@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 //! \brief
-//! Analyse event rates and metrics
+//! Analyse event rates and metric time series for anomalies
 //!
 //! DESCRIPTION:\n
 //! Expects to be streamed CSV or length encoded data on STDIN or a named pipe,

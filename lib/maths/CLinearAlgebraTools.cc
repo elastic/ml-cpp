@@ -44,8 +44,8 @@ public:
         default: {
             // Note we use Jacobi SVD here so that we handle the case
             // that m is singular to working precision.
-            Eigen::JacobiSVD<EIGENMATRIX> covariance(
-                toDenseMatrix(covariance_), Eigen::ComputeFullU | Eigen::ComputeFullV);
+            auto covariance =
+                toDenseMatrix(covariance_).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
             EIGENVECTOR y(toDenseVector(residual));
 
             // Check the residual is zero on the singular subspace.
@@ -91,8 +91,8 @@ public:
         default: {
             // Note we use Jacobi SVD here so that we handle the case
             // that m is singular to working precision.
-            Eigen::JacobiSVD<EIGENMATRIX> covariance(
-                toDenseMatrix(covariance_), Eigen::ComputeFullU | Eigen::ComputeFullV);
+            auto covariance =
+                toDenseMatrix(covariance_).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
             EIGENVECTOR y(toDenseVector(residual));
 
             // Check the residual is zero on the singular subspace.
@@ -146,8 +146,8 @@ public:
         // for more discussion on this sampling strategy.
 
         VECTOR_PRECISE mean(mean_);
-        Eigen::JacobiSVD<EIGENMATRIX> covariance(
-            toDenseMatrix(covariance_), Eigen::ComputeFullU | Eigen::ComputeFullV);
+        auto covariance =
+            toDenseMatrix(covariance_).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
         std::size_t rank = static_cast<std::size_t>(covariance.rank());
 
         std::size_t numberIntervals = n / rank;
@@ -163,7 +163,7 @@ public:
                 VECTOR_PRECISE u(fromDenseVector(covariance.matrixU().col(i)));
                 try {
                     double variance = covariance.singularValues()(i);
-                    boost::math::normal_distribution<> normal(0.0, std::sqrt(variance));
+                    boost::math::normal normal(0.0, std::sqrt(variance));
                     LOG_TRACE(<< "[U]_{.i} = " << covariance.matrixU().col(i).transpose())
                     LOG_TRACE(<< "variance = " << variance);
                     LOG_TRACE(<< "u = " << u);
@@ -210,7 +210,7 @@ public:
         default: {
             // Note we use Jacobi SVD here so that we handle the case
             // that m is singular to working precision.
-            Eigen::JacobiSVD<EIGENMATRIX> svd(toDenseMatrix(m_));
+            auto svd = toDenseMatrix(m_).jacobiSvd();
 
             // Check the residual is zero on the singular subspace.
             std::size_t rank = static_cast<std::size_t>(svd.rank());

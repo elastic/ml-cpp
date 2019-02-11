@@ -10,7 +10,6 @@ TARGET=ml_test$(EXE_EXT)
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
 USE_NET=1
-USE_XML=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -28,6 +27,10 @@ SRCS=\
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
+	CDataFrameAnalysisRunnerTest.cc \
+	CDataFrameAnalysisSpecificationTest.cc \
+	CDataFrameAnalyzerTest.cc \
+	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \
 	CFieldConfigTest.cc \
 	CFieldDataTyperTest.cc \
@@ -35,15 +38,14 @@ SRCS=\
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
 	CLengthEncodedInputParserTest.cc \
-	CLineifiedJsonInputParserTest.cc \
-	CLineifiedJsonOutputWriterTest.cc \
-	CLineifiedXmlInputParserTest.cc \
 	CMockDataAdder.cc \
 	CMockDataProcessor.cc \
 	CMockSearcher.cc \
 	CModelPlotDataJsonWriterTest.cc \
 	CModelSnapshotJsonWriterTest.cc \
 	CMultiFileDataAdderTest.cc \
+	CNdJsonInputParserTest.cc \
+	CNdJsonOutputWriterTest.cc \
 	COutputChainerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
