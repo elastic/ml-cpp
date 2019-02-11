@@ -77,6 +77,12 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
                      << jsonSpecification << "'. Please report this problem.");
     } else {
+
+        if (document.IsObject() == false) {
+            HANDLE_FATAL(<< "Input error: expected object but input was '" << jsonSpecification << "'");
+            return;
+        }
+
         auto isPositiveInteger = [](const rapidjson::Value& value) {
             return value.IsUint() && value.GetUint() > 0;
         };
