@@ -82,7 +82,7 @@ public:
         using TOnSampleCallback = std::function<void(std::size_t, const T&)>;
 
     public:
-        static const std::size_t MINIMUM_TARGET_SAMPLE_SIZE{100};
+        static const std::size_t MINIMUM_TARGET_SAMPLE_SIZE;
 
     public:
         CRandomStreamSampler(std::size_t targetSampleSize,
@@ -518,6 +518,9 @@ private:
     //! The uniform random number generator.
     static CRandomNumberGenerator ms_Rng;
 };
+
+template<typename T>
+const std::size_t CSampling::CRandomStreamSampler<T>::MINIMUM_TARGET_SAMPLE_SIZE{100};
 }
 }
 
