@@ -147,7 +147,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-6 * *expectedScore);
+            1e-4 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -179,7 +179,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-6 * *expectedScore);
+            1e-4 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());

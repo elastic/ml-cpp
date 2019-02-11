@@ -24,7 +24,7 @@ namespace maths {
 namespace outliers_detail {
 
 double shift(double score) {
-    return 1e-4 + score;
+    return std::exp(-2.0) + score;
 }
 
 template<typename POINT>
@@ -339,11 +339,14 @@ double CEnsemble<POINT>::CScorer::compute(double pOutlier) const {
     logLikelihoodOutlier -= renorm;
     logLikelihoodInlier -= renorm;
 
-    // We want improved sensitivity for high scores. In the following, we use
-    // the fact that max(P(outlier), P(inlier)) is zero after renormalisation.
+    // For large ensemble sizes, the classification becomes unrealistically
+    // confident. For a high degree of confidence we instead require that the
+    // point has a significant chance of being an outlier for a significant
+    // fraction of the ensemble models, i.e. 4 out of 5. In the following, we
+    // use the fact that max(P(outlier), P(inlier)) is zero after renormalisation.
 
     (logLikelihoodInlier < logLikelihoodOutlier ? logLikelihoodInlier
-                                                : logLikelihoodOutlier) /= m_EnsembleSize;
+                                                : logLikelihoodOutlier) /= 0.8 * m_EnsembleSize;
 
     // The conditional probability follows from Bayes rule.
     double likelihoodOutlier{std::exp(logLikelihoodOutlier + CTools::fastLog(pOutlier))};
