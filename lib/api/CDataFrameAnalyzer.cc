@@ -264,9 +264,9 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             outputWriter.StartObject();
             outputWriter.String(ROW_RESULTS);
             outputWriter.StartObject();
-            outputWriter.Key(CHECKSUM);
+            outputWriter.String(CHECKSUM);
             outputWriter.Int(row->docHash());
-            outputWriter.Key(RESULTS);
+            outputWriter.String(RESULTS);
             analysis.writeOneRow(*row, outputWriter);
             outputWriter.EndObject();
             outputWriter.EndObject();
