@@ -79,7 +79,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
     } else {
 
         if (document.IsObject() == false) {
-            HANDLE_FATAL(<< "Input error: expected object but input was '" << jsonSpecification << "'");
+            HANDLE_FATAL(<< "Input error: expected object but input was '"
+                         << jsonSpecification << "'");
             return;
         }
 
