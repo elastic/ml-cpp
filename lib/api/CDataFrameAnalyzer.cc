@@ -262,7 +262,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             outputWriter.StartObject();
-            outputWriter.String(ROW_RESULTS);
+            outputWriter.Key(ROW_RESULTS);
             outputWriter.StartObject();
             outputWriter.Key(CHECKSUM);
             outputWriter.Int(row->docHash());
