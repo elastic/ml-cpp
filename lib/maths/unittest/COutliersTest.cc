@@ -340,7 +340,7 @@ void COutliersTest::testEnsemble() {
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.24, 0.85, 0.98};
+    double precisionLowerBounds[]{0.23, 0.85, 0.98};
     double recallLowerBounds[]{0.98, 0.92, 0.62};
 
     // Test sequential then parallel.
