@@ -373,7 +373,7 @@ private:
         }
     }
 
-    std::string name() const override { return ""; }
+    std::string name() const override { return "multiple"; }
 
 private:
     TMethodUPtrVec m_Methods;
@@ -463,7 +463,7 @@ public:
                  CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
 
     //! Compute the outlier scores for \p points.
-    void computeOutlierScores(const std::vector<POINT>& points, TDoubleVec& scores);
+    void computeOutlierScores(const std::vector<POINT>& points, TDoubleVec& scores) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
     static std::size_t
@@ -551,6 +551,13 @@ private:
     static std::size_t computeEnsembleSize(std::size_t numberMethods,
                                            std::size_t numberPoints,
                                            std::size_t dimension) {
+        // We want enough members such that we get:
+        //   1. Reasonable coverage of original space,
+        //   2. Reasonable coverage of the original point set.
+        //
+        // Using too few members turned up some pathologies in testing and
+        // using many gives diminishing returns for the extra runtime and
+        // memory usage so restrict to at least 6 and no more than 20.
         std::size_t projectionDimension{
             computeProjectionDimension(computeSampleSize(numberPoints), dimension)};
         std::size_t requiredNumberModels{(dimension + projectionDimension - 1) / projectionDimension};
@@ -558,16 +565,32 @@ private:
                                std::sqrt(static_cast<double>(numberPoints)) / SAMPLE_SIZE_SCALE)};
         return static_cast<std::size_t>(std::min(std::max(target, 6.0), 20.0) + 0.5);
     }
+
     static std::size_t computeSampleSize(std::size_t numberPoints) {
+        // We want an aggressive downsample of the original set. Except
+        // for the case that there are many small clusters, this typically
+        // improves QoR since it avoids outliers swamping one another. It
+        // also greatly improves scalability.
         double target{2.0 * SAMPLE_SIZE_SCALE * std::sqrt(static_cast<double>(numberPoints))};
         return static_cast<std::size_t>(target + 0.5);
     }
+
     static std::size_t computeNumberNeighbours(std::size_t sampleSize) {
+        // Use a fraction of the sample size but don't allow to get
+        //   1. too small because the outlier metrics tend to be unstable in
+        //      this regime or
+        //   2. too big because they tend to be insentive to changes in this
+        //      parameter when it's large, but the nearest neighbour search
+        //      becomes much more expensive.
         double target{NEIGHBOURHOOD_FRACTION * static_cast<double>(sampleSize)};
         return static_cast<std::size_t>(std::min(std::max(target, 5.0), 100.0) + 0.5);
     }
+
     static std::size_t computeProjectionDimension(std::size_t numberPoints,
                                                   std::size_t dimension) {
+        // We need a minimum number of points per dimension to get any sort
+        // of stable density estimate. The dependency is exponential (curse
+        // of dimensionality).
         double logNumberPoints{std::log(static_cast<double>(numberPoints)) / std::log(3.0)};
         double target{std::min(static_cast<double>(dimension), logNumberPoints)};
         return static_cast<std::size_t>(std::min(std::max(target, 2.0), 10.0) + 0.5);

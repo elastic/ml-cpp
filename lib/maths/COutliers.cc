@@ -96,7 +96,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 
 template<typename POINT>
 void CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
-                                            TDoubleVec& scores) {
+                                            TDoubleVec& scores) const {
     if (points.empty()) {
         return;
     }
@@ -153,7 +153,8 @@ CEnsemble<POINT>::createProjections(CPRNG::CXorOShiro128Plus& rng,
         LOG_TRACE(<< "# random samples = " << coordinates.size());
 
         for (auto coordinate = coordinates.begin();
-             result.size() < numberProjections && coordinate != coordinates.end();
+             bag > 0 && dimension > 0 && result.size() < numberProjections &&
+             coordinate != coordinates.end();
              /**/) {
 
             TPointVec projection{bag, SConstant<TPoint>::get(dimension, 0)};
@@ -308,6 +309,12 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulatorVec& logScoreMoment
                 boost::math::lognormal lognormal{location, scale};
                 cdfComplement = CTools::safeCdfComplement(lognormal, shift(scores[i]));
             } catch (const std::exception& e) {
+                // In this case, we use the initial value of 0.5 for the cdfComplement
+                // which means P(outlier | score) = P(inlier | score) = 0.5. The outcome
+                // is the score conveys no information about whether or not a point is
+                // an outlier, it is effectively ignored. The rationale for keeping going
+                // therefore is that this handling is good enough that the results may
+                // still be useful.
                 LOG_ERROR(<< "Failed to normalise scores: " << e.what());
             }
         }
@@ -474,7 +481,7 @@ typename CEnsemble<POINT>::TMethodFactoryVec methodFactories(TProgressCallback r
 }
 
 template<typename POINT>
-CEnsemble<POINT> buildEnsemble(TProgressCallback recordProgress, core::CDataFrame& frame) {
+CEnsemble<POINT> buildEnsemble(core::CDataFrame& frame, TProgressCallback recordProgress) {
 
     using TSizeVec = typename CEnsemble<POINT>::TSizeVec;
     using TSizeVecVec = typename CEnsemble<POINT>::TSizeVecVec;
@@ -498,14 +505,13 @@ CEnsemble<POINT> buildEnsemble(TProgressCallback recordProgress, core::CDataFram
 }
 
 bool computeOutliersNoPartitions(std::size_t numberThreads,
-                                 TProgressCallback recordProgress,
-                                 core::CDataFrame& frame) {
+                                 core::CDataFrame& frame,
+                                 TProgressCallback recordProgress) {
 
-    using TDoubleVec = std::vector<double>;
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(recordProgress, frame)};
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(frame, recordProgress)};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     // The points will be entirely overwritten by readRows so the initial value
@@ -566,7 +572,7 @@ void COutliers::compute(std::size_t numberThreads,
     CDataFrameUtils::standardizeColumns(numberThreads, frame);
 
     if (frame.inMainMemory()) {
-        if (computeOutliersNoPartitions(numberThreads, recordProgress, frame) == false) {
+        if (computeOutliersNoPartitions(numberThreads, frame, recordProgress) == false) {
             HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
                          << "may be more details in the logs. Please report this problem.");
         }
