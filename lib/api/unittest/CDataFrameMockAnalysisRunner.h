@@ -14,33 +14,32 @@
 
 #include <functional>
 
-class CDataFrameMockAnalysisRunner : public ml::api::CDataFrameAnalysisRunner {
+class CDataFrameMockAnalysisRunner final : public ml::api::CDataFrameAnalysisRunner {
 public:
     CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
-    virtual std::size_t numberOfPartitions() const;
-    virtual std::size_t numberExtraColumns() const;
-    virtual void writeOneRow(TRowRef, ml::core::CRapidJsonConcurrentLineWriter&) const;
-
-protected:
-    void runImpl(ml::core::CDataFrame&);
+    std::size_t numberExtraColumns() const override;
+    void writeOneRow(TRowRef, ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
 private:
-    virtual std::size_t
-        estimateBookkeepingMemoryUsage(std::size_t, std::size_t, std::size_t) const;
+    void runImpl(ml::core::CDataFrame&) override;
+    std::size_t estimateBookkeepingMemoryUsage(std::size_t,
+                                               std::size_t,
+                                               std::size_t,
+                                               std::size_t) const override;
 
 private:
     static ml::test::CRandomNumbers ms_Rng;
 };
 
-class CDataFrameMockAnalysisRunnerFactory : public ml::api::CDataFrameAnalysisRunnerFactory {
+class CDataFrameMockAnalysisRunnerFactory final : public ml::api::CDataFrameAnalysisRunnerFactory {
 public:
-    virtual const char* name() const;
+    const char* name() const override;
 
 private:
-    virtual TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const;
-    virtual TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value&) const;
+    TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const override;
+    TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value&) const override;
 };
 
 #endif // INCLUDED_CDataFrameMockAnalysisRunner_h

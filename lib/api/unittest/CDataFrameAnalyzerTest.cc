@@ -16,6 +16,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
 
+#include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 
 #include <rapidjson/document.h>
@@ -105,8 +106,17 @@ void addTestData(TStrVec fieldNames,
         }
     }
 
-    maths::COutliers lofs;
-    lofs.ensemble(points, expectedScores);
+    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+    maths::COutliers::compute(1, *frame);
+
+    expectedScores.resize(points.size());
+    frame->readRows(1, [&expectedScores](core::CDataFrame::TRowItr beginRows,
+                                         core::CDataFrame::TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            expectedScores[row->index()] = (*row)[row->numberColumns() - 1];
+        }
+    });
 }
 }
 
@@ -137,7 +147,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-5 * *expectedScore);
+            1e-4 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -169,7 +179,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
         CPPUNIT_ASSERT(expectedScore != expectedScores.end());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-5 * *expectedScore);
+            1e-4 * *expectedScore);
         ++expectedScore;
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
