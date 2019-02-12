@@ -315,7 +315,8 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulatorVec& logScoreMoment
                 // an outlier, it is effectively ignored. The rationale for keeping going
                 // therefore is that this handling is good enough that the results may
                 // still be useful.
-                LOG_ERROR(<< "Failed to normalise scores: " << e.what());
+                LOG_WARN(<< "Failed to normalise scores: '" << e.what()
+                         << "'. Results maybe compromised.");
             }
         }
 
