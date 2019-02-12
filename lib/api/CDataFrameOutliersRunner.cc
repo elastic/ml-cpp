@@ -114,34 +114,39 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::computeOutliers(this->spec().numberThreads(), this->progressRecorder(), frame);
+    maths::COutliers::compute(this->spec().numberThreads(), frame, this->progressRecorder());
 }
 
 std::size_t
 CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
-                                                         std::size_t numberRows,
+                                                         std::size_t totalNumberRows,
+                                                         std::size_t partitionNumberRows,
                                                          std::size_t numberColumns) const {
     std::size_t result{0};
     switch (numberPartitions) {
     case 1:
-        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<float>>(
-            numberRows, numberColumns);
+        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<maths::CFloatStorage>>(
+            totalNumberRows, partitionNumberRows, numberColumns);
         break;
     default:
-        result = estimateMemoryUsage<maths::CDenseVector<float>>(numberRows, numberColumns);
+        result = estimateMemoryUsage<maths::CDenseVector<maths::CFloatStorage>>(
+            totalNumberRows, partitionNumberRows, numberColumns);
         break;
     }
     return result;
 }
 
 template<typename POINT>
-std::size_t CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t numberRows,
-                                                          std::size_t numberColumns) const {
-    maths::COutliers::EAlgorithm method{static_cast<maths::COutliers::EAlgorithm>(m_Method)};
+std::size_t
+CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
+                                              std::size_t partitionNumberRows,
+                                              std::size_t numberColumns) const {
+    maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
     return m_NumberNeighbours != boost::none
-               ? maths::COutliers::estimateMemoryUsage<POINT>(
-                     method, *m_NumberNeighbours, numberRows, numberColumns)
-               : maths::COutliers::estimateMemoryUsage<POINT>(method, numberRows, numberColumns);
+               ? maths::COutliers::estimateComputeMemoryUsage<POINT>(
+                     method, *m_NumberNeighbours, totalNumberRows, partitionNumberRows, numberColumns)
+               : maths::COutliers::estimateComputeMemoryUsage<POINT>(
+                     totalNumberRows, partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

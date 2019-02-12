@@ -13,7 +13,7 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>

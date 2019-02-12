@@ -49,7 +49,8 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     for (m_NumberPartitions = 1; m_NumberPartitions < numberRows; ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
-        std::size_t memoryUsage{this->estimateMemoryUsage(partitionNumberRows, numberColumns)};
+        std::size_t memoryUsage{this->estimateMemoryUsage(
+            numberRows, partitionNumberRows, numberColumns)};
         LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
         LOG_TRACE(<< "memory usage = " << memoryUsage);
         if (memoryUsage <= memoryLimit) {
@@ -69,7 +70,8 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
             boost::make_counting_iterator(numberRows / m_NumberPartitions),
             boost::make_counting_iterator(numberRows / (m_NumberPartitions - 1)),
             memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
-                return this->estimateMemoryUsage(partitionNumberRows, numberColumns) < limit;
+                return this->estimateMemoryUsage(numberRows, partitionNumberRows,
+                                                 numberColumns) < limit;
             });
 
         LOG_TRACE(<< "maximum rows per partition = " << m_MaximumNumberRowsPerPartition);
@@ -131,11 +133,13 @@ CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRe
     };
 }
 
-std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t numberRows,
+std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumberRows,
+                                                          std::size_t partitionNumberRows,
                                                           std::size_t numberColumns) const {
     return core::CDataFrame::estimateMemoryUsage(this->storeDataFrameInMainMemory(),
-                                                 numberRows, numberColumns) +
-           this->estimateBookkeepingMemoryUsage(m_NumberPartitions, numberRows, numberColumns);
+                                                 totalNumberRows, numberColumns) +
+           this->estimateBookkeepingMemoryUsage(m_NumberPartitions, totalNumberRows,
+                                                partitionNumberRows, numberColumns);
 }
 
 void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
