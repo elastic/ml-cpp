@@ -229,16 +229,12 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         CPPUNIT_ASSERT(runner != nullptr);
 
         double lastProgress{runner->progress()};
-        for (;;) {
+        while (runner->finished()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
-
             LOG_TRACE(<< "progress = " << lastProgress);
             CPPUNIT_ASSERT(runner->progress() >= lastProgress);
             lastProgress = runner->progress();
-            if (runner->finished()) {
-                break;
-            }
-            CPPUNIT_ASSERT(runner->progress() < 1.0);
+            CPPUNIT_ASSERT(runner->progress() <= 1.0);
         }
 
         LOG_DEBUG(<< "progress = " << lastProgress);
