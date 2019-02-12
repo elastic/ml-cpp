@@ -43,7 +43,6 @@ template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CNearestNeighbourMethod {
 public:
     using TPointVec = std::vector<POINT>;
-    using TScoreReader = std::function<void(TDoubleVecVec)>;
 
 public:
     CNearestNeighbourMethod(std::size_t k, NEAREST_NEIGHBOURS lookup, TProgressCallback recordProgress)
@@ -57,13 +56,13 @@ public:
     std::size_t k() const { return m_K; }
 
     //! Compute the outlier scores for \p points.
-    void run(const TPointVec& points, std::size_t numberScores, TScoreReader scoreReader) {
+    void run(const TPointVec& points, std::size_t numberScores, TDoubleVecVec& scores) {
 
         this->setup(points);
 
         // We call add exactly once for each point. Scores is presized
         // so any writes to it are safe.
-        TDoubleVecVec scores{this->numberMethods(), TDoubleVec(numberScores, 0.0)};
+        scores = TDoubleVecVec(this->numberMethods(), TDoubleVec(numberScores, 0.0));
         core::parallel_for_each(points.begin(), points.end(),
                                 [&, neighbours = TPointVec{} ](const POINT& point) mutable {
                                     m_Lookup.nearestNeighbours(m_K + 1, point, neighbours);
@@ -72,9 +71,8 @@ public:
                                 [this](double fractionalProgress) {
                                     this->recordProgress(fractionalProgress);
                                 });
-        this->compute(points, scores);
 
-        scoreReader(std::move(scores));
+        this->compute(points, scores);
     }
 
     //! \name Progress Monitoring
@@ -641,6 +639,7 @@ public:
 public:
     //! Compute outliers for \p frame and write to a new column.
     static void compute(std::size_t numberThreads,
+                        std::size_t numberPartitions,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress = noop);
 
@@ -745,9 +744,10 @@ private:
             METHOD<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>> scorer{
                 k, noop, std::move(lookup)};
 
-            scorer.run(annotatedPoints, annotatedPoints.size(), [&scores](TDoubleVecVec scores_) {
-                scores = std::move(scores_[0]);
-            });
+            TDoubleVecVec scores_;
+            scorer.run(annotatedPoints, annotatedPoints.size(), scores_);
+
+            scores = std::move(scores_[0]);
         }
     }
 

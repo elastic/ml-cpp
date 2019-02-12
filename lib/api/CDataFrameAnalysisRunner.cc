@@ -45,12 +45,19 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "memory limit = " << memoryLimit);
 
     // Find the smallest number of partitions such that the size per partition
-    // is less than the memory limit.
+    // is less than the memory limit. We limit this to rows^(1/2) because very
+    // large numbers of partitions are going to be slow and it is better to tell
+    // user to allocate more resources for the job in this case.
 
-    for (m_NumberPartitions = 1; m_NumberPartitions < numberRows; ++m_NumberPartitions) {
+    std::size_t maximumNumberPartitions{
+        static_cast<std::size_t>(std::sqrt(static_cast<double>(numberRows)) + 0.5)};
+
+    std::size_t memoryUsage{0};
+
+    for (m_NumberPartitions = 1; m_NumberPartitions < maximumNumberPartitions;
+         ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
-        std::size_t memoryUsage{this->estimateMemoryUsage(
-            numberRows, partitionNumberRows, numberColumns)};
+        memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);
         LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
         LOG_TRACE(<< "memory usage = " << memoryUsage);
         if (memoryUsage <= memoryLimit) {
@@ -60,8 +67,13 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
-    if (m_NumberPartitions == numberRows) {
-        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis.");
+    if (memoryUsage > memoryLimit) {
+        // Round up to the nearest MB.
+        memoryUsage = (memoryUsage + 999999) / 1000000;
+        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis."
+                     << " You need to give the process at least " << memoryUsage
+                     << "MB, but preferably more.");
+
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
         // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).

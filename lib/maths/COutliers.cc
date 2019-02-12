@@ -13,6 +13,8 @@
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTools.h>
 
+#include <maths/CMathsFuncs.h>
+
 #include <boost/math/distributions/lognormal.hpp>
 
 #include <numeric>
@@ -390,16 +392,19 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
     TProgressCallback noop{[](double) {}};
     for (auto& method : methods) {
         method->progressRecorder().swap(noop);
-        method->run(sample, sample.size(), [&scores](TDoubleVecVec scores_) {
-            scores = std::move(scores_[0]);
-        });
+
+        TDoubleVecVec scores_;
+        method->run(sample, sample.size(), scores_);
+        scores = std::move(scores_[0]);
+
         method->progressRecorder().swap(noop);
+
         for (auto& score : scores) {
             score = CTools::fastLog(shift(score));
         }
-        TMeanVarAccumulator moments;
-        moments.add(scores);
-        m_LogScoreMoments.push_back(moments);
+
+        m_LogScoreMoments.emplace_back();
+        m_LogScoreMoments.back().add(scores);
     }
     m_Method = std::make_unique<CMultipleMethods<TPoint, const TKdTree&>>(
         maxk, std::move(methods), *m_Lookup);
@@ -428,9 +433,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
     }
 
     TDoubleVecVec methodScores;
-    m_Method->run(points_, index, [&methodScores](TDoubleVecVec scores_) {
-        methodScores = std::move(scores_);
-    });
+    m_Method->run(points_, index, methodScores);
 
     TDoubleVec pointScores(methodScores.size());
     for (std::size_t i = 0; i < points_.size(); ++i) {
@@ -562,9 +565,80 @@ bool computeOutliersNoPartitions(std::size_t numberThreads,
     }
     return true;
 }
+
+bool computeOutliersPartitioned(std::size_t numberThreads,
+                                std::size_t numberPartitions,
+                                core::CDataFrame& frame,
+                                TProgressCallback recordProgress) {
+
+    using TPoint = CDenseVector<CFloatStorage>;
+    using TPointVec = std::vector<TPoint>;
+
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(frame, [=](double progress) {
+        recordProgress(progress / static_cast<double>(numberPartitions));
+    })};
+    LOG_TRACE(<< "Ensemble = " << ensemble.print());
+
+    std::size_t dimension{frame.numberColumns()};
+
+    frame.resizeColumns(numberThreads, dimension + 1);
+
+    std::size_t rowsPerPartition{(frame.numberRows() + numberPartitions - 1) / numberPartitions};
+    LOG_TRACE(<< "# rows = " << frame.numberRows() << ", # partitions = " << numberPartitions
+              << ", # rows per partition = " << rowsPerPartition);
+
+    // This is presized so that rowsToPoints only needs to access and write to
+    // each element. Since it does this once per element it is thread safe.
+    TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0.0));
+
+    for (std::size_t i = 0, beginPartitionRows = 0; i < numberPartitions;
+         ++i, beginPartitionRows += rowsPerPartition) {
+
+        std::size_t endPartitionRows{beginPartitionRows + rowsPerPartition};
+        LOG_TRACE(<< "rows [" << beginPartitionRows << "," << endPartitionRows << ")");
+        points.resize(std::min(rowsPerPartition, frame.numberRows() - beginPartitionRows));
+
+        auto rowsToPoints = [beginPartitionRows, dimension,
+                             &points](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (std::size_t j = 0; j < dimension; ++j) {
+                    points[row->index() - beginPartitionRows](j) = (*row)[j];
+                }
+            }
+        };
+
+        bool successful;
+        std::tie(std::ignore, successful) = frame.readRows(
+            numberThreads, beginPartitionRows, endPartitionRows, rowsToPoints);
+
+        if (successful == false) {
+            LOG_ERROR(<< "Failed to read the data frame");
+            return false;
+        }
+
+        TDoubleVec scores;
+        ensemble.computeOutlierScores(points, scores);
+
+        auto writeScores = [beginPartitionRows, dimension,
+                            &scores](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                row->writeColumn(dimension, scores[row->index() - beginPartitionRows]);
+            }
+        };
+
+        if (frame.writeColumns(numberThreads, beginPartitionRows,
+                               endPartitionRows, writeScores) == false) {
+            LOG_ERROR(<< "Failed to write scores to the data frame");
+            return false;
+        }
+    }
+
+    return true;
+}
 }
 
 void COutliers::compute(std::size_t numberThreads,
+                        std::size_t numberPartitions,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress) {
     // TODO memory monitoring.
@@ -572,16 +646,15 @@ void COutliers::compute(std::size_t numberThreads,
 
     CDataFrameUtils::standardizeColumns(numberThreads, frame);
 
-    if (frame.inMainMemory()) {
-        if (computeOutliersNoPartitions(numberThreads, frame, recordProgress) == false) {
-            HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
-                         << "may be more details in the logs. Please report this problem.");
-        }
-        return;
-    }
+    bool successful{frame.inMainMemory() && numberPartitions == 1
+                        ? computeOutliersNoPartitions(numberThreads, frame, recordProgress)
+                        : computeOutliersPartitioned(numberThreads, numberPartitions,
+                                                     frame, recordProgress)};
 
-    // TODO this needs to work out the partitioning and run outlier detection
-    // one partition at a time.
+    if (successful == false) {
+        HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
+                     << "may be more details in the logs. Please report this problem.");
+    }
 }
 
 void COutliers::noop(double) {

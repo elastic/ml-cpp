@@ -31,6 +31,7 @@ public:
 public:
     virtual ~CDataFrameRowSliceHandleImpl() = default;
     virtual TImplPtr clone() const = 0;
+    virtual std::size_t indexOfFirstRow() const = 0;
     virtual TFloatVec& rows() const = 0;
     virtual const TInt32Vec& docHashes() const = 0;
     virtual bool bad() const = 0;
@@ -57,6 +58,7 @@ public:
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
     std::size_t size() const;
+    std::size_t indexOfFirstRow() const;
     TFloatVecItr beginRows() const;
     TFloatVecItr endRows() const;
     TInt32VecCItr beginDocHashes() const;
@@ -73,13 +75,13 @@ private:
 class CORE_EXPORT CDataFrameRowSlice {
 public:
     using TFloatVec = std::vector<CFloatStorage>;
-    using TSizeHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
     using TInt32Vec = std::vector<std::int32_t>;
 
 public:
     virtual ~CDataFrameRowSlice() = default;
     virtual void reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
-    virtual TSizeHandlePr read() = 0;
+    virtual std::size_t indexOfFirstRow() const = 0;
+    virtual CDataFrameRowSliceHandle read() = 0;
     virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes) = 0;
     virtual std::size_t staticSize() const = 0;
     virtual std::size_t memoryUsage() const = 0;
@@ -100,12 +102,13 @@ class CORE_EXPORT CMainMemoryDataFrameRowSlice final : public CDataFrameRowSlice
 public:
     CMainMemoryDataFrameRowSlice(std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes);
 
-    virtual void reserve(std::size_t numberColumns, std::size_t extraColumns);
-    virtual TSizeHandlePr read();
-    virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
-    virtual std::size_t staticSize() const;
-    virtual std::size_t memoryUsage() const;
-    virtual std::uint64_t checksum() const;
+    void reserve(std::size_t numberColumns, std::size_t extraColumns) override;
+    std::size_t indexOfFirstRow() const override;
+    CDataFrameRowSliceHandle read() override;
+    void write(const TFloatVec& rows, const TInt32Vec& docHashes) override;
+    std::size_t staticSize() const override;
+    std::size_t memoryUsage() const override;
+    std::uint64_t checksum() const override;
 
 private:
     std::size_t m_FirstRow;
@@ -163,12 +166,13 @@ public:
                              TFloatVec rows,
                              TInt32Vec docHashes);
 
-    virtual void reserve(std::size_t numberColumns, std::size_t extraColumns);
-    virtual TSizeHandlePr read();
-    virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes);
-    virtual std::size_t staticSize() const;
-    virtual std::size_t memoryUsage() const;
-    virtual std::uint64_t checksum() const;
+    void reserve(std::size_t numberColumns, std::size_t extraColumns) override;
+    std::size_t indexOfFirstRow() const override;
+    CDataFrameRowSliceHandle read() override;
+    void write(const TFloatVec& rows, const TInt32Vec& docHashes) override;
+    std::size_t staticSize() const override;
+    std::size_t memoryUsage() const override;
+    std::uint64_t checksum() const override;
 
 private:
     void writeToDisk(const TFloatVec& rows, const TInt32Vec& docHashes);

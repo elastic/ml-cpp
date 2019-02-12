@@ -218,6 +218,9 @@ void CDataFrameTest::testOnDiskBasicReadWrite() {
 
 void CDataFrameTest::testOnDiskParallelRead() {
 
+    // Check we get the rows we write to the data frame and that we get balanced
+    // reads per thread.
+
     std::size_t rows{5000};
     std::size_t cols{10};
     std::size_t capacity{1000};
@@ -252,6 +255,148 @@ void CDataFrameTest::testOnDiskParallelRead() {
 
     std::size_t rowsRead(std::count(rowRead.begin(), rowRead.end(), true));
     CPPUNIT_ASSERT_EQUAL(rows, rowsRead);
+}
+
+void CDataFrameTest::testReadRange() {
+
+    // Check we get the only the rows rows we request.
+
+    std::size_t rows{5000};
+    std::size_t cols{10};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(cols, capacity).first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        LOG_DEBUG(<< "Test read range " << type[t++]);
+
+        auto frame = factory();
+
+        for (std::size_t threads : {1, 3}) {
+            LOG_DEBUG(<< "# threads = " << threads);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            for (std::size_t beginRowsInRange : {0, 1000, 1500}) {
+                for (std::size_t endRowsInRange : {500, 2000, 5000}) {
+                    LOG_DEBUG(<< "Reading [" << beginRowsInRange << ","
+                              << endRowsInRange << ")");
+                    bool passed{true};
+                    frame->readRows(
+                        threads, beginRowsInRange, endRowsInRange,
+                        [&](TRowItr beginRows, TRowItr endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                if (passed && (row->index() < beginRowsInRange ||
+                                               row->index() >= endRowsInRange)) {
+                                    LOG_ERROR(<< "row " << row->index()
+                                              << " out of range [" << beginRowsInRange
+                                              << "," << endRowsInRange << ")");
+                                    passed = false;
+                                }
+                                if (passed) {
+                                    auto column = components.begin() + row->index() * cols;
+                                    for (std::size_t i = 0; i < cols; ++i, ++column) {
+                                        if ((*row)[i] != *column) {
+                                            LOG_ERROR(<< "Unexpected column value for "
+                                                      << row->index());
+                                            passed = false;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    CPPUNIT_ASSERT(passed);
+                }
+            }
+        }
+    }
+}
+
+void CDataFrameTest::testWriteRange() {
+
+    // Check we get the only write the rows we specify.
+
+    std::size_t rows{5000};
+    std::size_t cols{10};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(cols, capacity).first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        LOG_DEBUG(<< "Test write range " << type[t++]);
+
+        for (std::size_t threads : {1, 3}) {
+            LOG_DEBUG(<< "# threads = " << threads);
+
+            for (std::size_t beginRowsInRange : {0, 1000, 1500}) {
+                for (std::size_t endRowsInRange : {500, 2000, 5000}) {
+
+                    auto inRange = [beginRowsInRange, endRowsInRange](std::size_t index) {
+                        return index >= beginRowsInRange && index < endRowsInRange;
+                    };
+
+                    auto frame = factory();
+                    for (std::size_t i = 0; i < components.size(); i += cols) {
+                        frame->writeRow(makeWriter(components, cols, i));
+                    }
+                    frame->finishWritingRows();
+
+                    LOG_DEBUG(<< "Writing [" << beginRowsInRange << ","
+                              << endRowsInRange << ")");
+
+                    frame->writeColumns(threads, beginRowsInRange, endRowsInRange,
+                                        [&](TRowItr beginRows, TRowItr endRows) {
+                                            for (auto row = beginRows;
+                                                 row != endRows; ++row) {
+                                                (*row)[0] += 2.0;
+                                            }
+                                        });
+
+                    bool passed{true};
+                    frame->readRows(threads, [&](TRowItr beginRows, TRowItr endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            if (passed) {
+                                auto column = components.begin() + row->index() * cols;
+                                passed = ((*row)[0] ==
+                                          *column + (inRange(row->index()) ? 2.0 : 0.0));
+                                for (std::size_t i = 1; i < cols; ++i, ++column) {
+                                    passed = ((*row)[i] != *column);
+                                }
+                                if (passed == false) {
+                                    LOG_ERROR(<< "Unexpected column value for "
+                                              << row->index());
+                                }
+                            }
+                        }
+                    });
+                    CPPUNIT_ASSERT(passed);
+                }
+            }
+        }
+    }
 }
 
 void CDataFrameTest::testMemoryUsage() {
@@ -536,9 +681,9 @@ void CDataFrameTest::testDocHashes() {
             &passed, cols, extraCols, expectedDocHash = std::int32_t{0}
         ](TRowItr beginRows, TRowItr endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
-                if (row->docHash() != expectedDocHash) {
-                    LOG_ERROR(<< "Got doc hash " << row->docHash()
-                              << " expected " << expectedDocHash);
+                if (passed && row->docHash() != expectedDocHash) {
+                    LOG_ERROR(<< "Got doc hash " << row->docHash() << " expected "
+                              << expectedDocHash << " for row " << row->index());
                     passed = false;
                 }
                 expectedDocHash += static_cast<std::int32_t>(cols + extraCols);
@@ -562,6 +707,10 @@ CppUnit::Test* CDataFrameTest::suite() {
         "CDataFrameTest::testOnDiskBasicReadWrite", &CDataFrameTest::testOnDiskBasicReadWrite));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
         "CDataFrameTest::testOnDiskParallelRead", &CDataFrameTest::testOnDiskParallelRead));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
+        "CDataFrameTest::testReadRange", &CDataFrameTest::testReadRange));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
+        "CDataFrameTest::testWriteRange", &CDataFrameTest::testWriteRange));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
         "CDataFrameTest::testMemoryUsage", &CDataFrameTest::testMemoryUsage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(

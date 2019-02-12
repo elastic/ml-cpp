@@ -18,6 +18,8 @@
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/filesystem.hpp>
+
 #include <atomic>
 #include <numeric>
 
@@ -31,12 +33,12 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TDoubleSizePr = std::pair<double, std::size_t>;
 using TMaxAccumulator =
     maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
-using TVector = maths::CDenseVector<double>;
-using TVectorVec = std::vector<TVector>;
-using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TVectorVec&)>;
+using TPoint = maths::CDenseVector<double>;
+using TPointVec = std::vector<TPoint>;
+using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
-void nearestNeightbours(std::size_t k, const TVectorVec& points, const TVector& point, TVectorVec& result) {
-    using TDoubleVectorPr = std::pair<double, TVector>;
+void nearestNeightbours(std::size_t k, const TPointVec& points, const TPoint& point, TPointVec& result) {
+    using TDoubleVectorPr = std::pair<double, TPoint>;
     using TMinDoubleVectorPrAccumulator =
         maths::CBasicStatistics::COrderStatisticsHeap<TDoubleVectorPr>;
 
@@ -57,8 +59,8 @@ void nearestNeightbours(std::size_t k, const TVectorVec& points, const TVector& 
 void gaussianWithUniformNoise(test::CRandomNumbers& rng,
                               std::size_t numberInliers,
                               std::size_t numberOutliers,
-                              TVectorVec& points) {
-    points.assign(numberInliers + numberOutliers, TVector(6));
+                              TPointVec& points) {
+    points.assign(numberInliers + numberOutliers, TPoint(6));
 
     TDoubleVec mean{1.0, 10.0, 4.0, 8.0, 3.0, 5.0};
     TDoubleVecVec covariance{
@@ -85,13 +87,18 @@ void gaussianWithUniformNoise(test::CRandomNumbers& rng,
 }
 
 template<typename FACTORY>
-void outlierErrorStatisticsForEnsemble(FACTORY pointsToDataFrame,
+void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
+                                       std::size_t numberPartitions,
+                                       FACTORY pointsToDataFrame,
                                        std::size_t numberInliers,
                                        std::size_t numberOutliers,
                                        TDoubleVec& TP,
                                        TDoubleVec& TN,
                                        TDoubleVec& FP,
                                        TDoubleVec& FN) {
+
+    LOG_DEBUG(<< "# partitions = " << numberPartitions << " # threads = " << numberThreads);
+
     test::CRandomNumbers rng;
 
     TP.assign(3, 0.0);
@@ -101,7 +108,7 @@ void outlierErrorStatisticsForEnsemble(FACTORY pointsToDataFrame,
     TSizeVec trueOutliers(numberOutliers, 0);
     std::iota(trueOutliers.begin(), trueOutliers.end(), numberInliers);
 
-    TVectorVec points;
+    TPointVec points;
     TDoubleVec scores(numberInliers + numberOutliers);
 
     for (std::size_t t = 0; t < 100; ++t) {
@@ -109,7 +116,7 @@ void outlierErrorStatisticsForEnsemble(FACTORY pointsToDataFrame,
 
         auto dataFrame = pointsToDataFrame(points);
 
-        maths::COutliers::compute(1, *dataFrame);
+        maths::COutliers::compute(numberThreads, numberPartitions, *dataFrame);
 
         dataFrame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                          core::CDataFrame::TRowItr endRows) {
@@ -131,7 +138,7 @@ void outlierErrorStatisticsForEnsemble(FACTORY pointsToDataFrame,
             }
         }
 
-        if (t % 10 == 0) {
+        if (t % 20 == 0) {
             LOG_DEBUG(<< "outliers at 0.1 = "
                       << core::CContainerPrinter::print(outliers[0]));
             LOG_DEBUG(<< "outliers at 0.5 = "
@@ -167,7 +174,7 @@ void COutliersTest::testLof() {
     test::CRandomNumbers rng;
     std::size_t numberInliers{100};
     std::size_t numberOutliers{20};
-    TVectorVec points;
+    TPointVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
     std::string expected[]{"[1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,"
@@ -221,7 +228,7 @@ void COutliersTest::testDlof() {
     test::CRandomNumbers rng;
     std::size_t numberInliers{100};
     std::size_t numberOutliers{20};
-    TVectorVec points;
+    TPointVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
     TDoubleVec scores;
@@ -235,7 +242,7 @@ void COutliersTest::testDlof() {
     }
 
     TDoubleVec ldof;
-    TVectorVec neighbours;
+    TPointVec neighbours;
     for (const auto& point : points) {
         nearestNeightbours(k, points, point, neighbours);
         TMeanAccumulator d, D;
@@ -260,7 +267,7 @@ void COutliersTest::testDistancekNN() {
     test::CRandomNumbers rng;
     std::size_t numberInliers{100};
     std::size_t numberOutliers{20};
-    TVectorVec points;
+    TPointVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
     TDoubleVec scores;
@@ -275,7 +282,7 @@ void COutliersTest::testDistancekNN() {
 
     TDoubleVec distances;
     for (const auto& point : points) {
-        TVectorVec neighbours;
+        TPointVec neighbours;
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(maths::las::distance(point, neighbours.back()));
     }
@@ -292,7 +299,7 @@ void COutliersTest::testTotalDistancekNN() {
     test::CRandomNumbers rng;
     std::size_t numberInliers{100};
     std::size_t numberOutliers{20};
-    TVectorVec points;
+    TPointVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
     TDoubleVec scores;
@@ -307,11 +314,11 @@ void COutliersTest::testTotalDistancekNN() {
 
     TDoubleVec distances;
     for (const auto& point : points) {
-        TVectorVec neighbours;
+        TPointVec neighbours;
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(
             std::accumulate(neighbours.begin(), neighbours.end(), 0.0,
-                            [&point](double total, const TVector& neighbour) {
+                            [&point](double total, const TPoint& neighbour) {
                                 return total + maths::las::distance(point, neighbour);
                             }) /
             static_cast<double>(k));
@@ -331,7 +338,16 @@ void COutliersTest::testEnsemble() {
     // that those generated from the different process are the outliers, they simply have
     // a much higher probability of this being the case.
 
-    // TODO test outlier detection with and without partitioning are equivalent.
+    TFactoryFunc toMainMemoryDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    }};
+    TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toOnDiskDataFrame(
+            boost::filesystem::current_path().string(), points);
+    }};
+    TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
+    std::size_t numberPartitions[]{1, 3};
+    std::size_t numberThreads[]{1, 4};
 
     std::size_t numberInliers{400};
     std::size_t numberOutliers{20};
@@ -343,81 +359,99 @@ void COutliersTest::testEnsemble() {
     double precisionLowerBounds[]{0.23, 0.85, 0.98};
     double recallLowerBounds[]{0.98, 0.92, 0.62};
 
-    // Test sequential then parallel.
+    core::stopDefaultAsyncExecutor();
 
     std::string tags[]{"sequential", "parallel"};
 
-    core::stopDefaultAsyncExecutor();
+    for (std::size_t i = 0; i < 2; ++i) {
 
-    for (std::size_t t = 0; t < 2; ++t) {
-        LOG_DEBUG(<< "Testing " << tags[t]);
+        // Test sequential then parallel.
+        for (std::size_t j = 0; j < 2; ++j) {
+            LOG_DEBUG(<< "Testing " << tags[j]);
 
-        outlierErrorStatisticsForEnsemble(
-            test::CDataFrameTestUtils::SToMainMemoryDataFrame(), numberInliers,
-            numberOutliers, TP, TN, FP, FN);
+            outlierErrorStatisticsForEnsemble(numberThreads[j], numberPartitions[i],
+                                              factories[i], numberInliers,
+                                              numberOutliers, TP, TN, FP, FN);
 
-        for (std::size_t i = 0; i < 3; ++i) {
-            double precision{TP[i] / (TP[i] + FP[i])};
-            double recall{TP[i] / (TP[i] + FN[i])};
-            LOG_DEBUG(<< "precision = " << precision);
-            LOG_DEBUG(<< "recall = " << recall);
-            CPPUNIT_ASSERT(precision >= precisionLowerBounds[i]);
-            CPPUNIT_ASSERT(recall >= recallLowerBounds[i]);
+            for (std::size_t k = 0; k < 3; ++k) {
+                double precision{TP[k] / (TP[k] + FP[k])};
+                double recall{TP[k] / (TP[k] + FN[k])};
+                LOG_DEBUG(<< "precision = " << precision);
+                LOG_DEBUG(<< "recall = " << recall);
+                CPPUNIT_ASSERT(precision >= precisionLowerBounds[k]);
+                CPPUNIT_ASSERT(recall >= recallLowerBounds[k]);
+            }
+
+            core::startDefaultAsyncExecutor();
         }
 
-        core::startDefaultAsyncExecutor();
+        core::stopDefaultAsyncExecutor();
     }
-
-    core::stopDefaultAsyncExecutor();
 }
 
 void COutliersTest::testProgressMonitoring() {
 
-    // Test progress monitoring invariants.
+    // Test progress monitoring invariants with and without partitioning.
 
-    // TODO test outlier detection with and without partitioning are equivalent.
+    TFactoryFunc toMainMemoryDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    }};
+    TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toOnDiskDataFrame(
+            boost::filesystem::current_path().string(), points);
+    }};
+    TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
+    std::size_t numberPartitions[]{1, 3};
 
     std::size_t numberInliers{10000};
     std::size_t numberOutliers{500};
 
     test::CRandomNumbers rng;
 
-    TVectorVec points(numberInliers + numberOutliers, TVector(6));
+    TPointVec points(numberInliers + numberOutliers, TPoint(6));
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-    auto dataFrame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    for (std::size_t i = 0; i < 2; ++i) {
 
-    std::atomic_int totalFractionalProgress{0};
+        LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
 
-    auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
-        totalFractionalProgress.fetch_add(static_cast<int>(65536.0 * fractionalProgress + 0.5));
-    };
+        auto dataFrame = factories[i](points);
 
-    std::atomic_bool finished{false};
+        std::atomic_int totalFractionalProgress{0};
 
-    std::thread worker{[&]() {
-        maths::COutliers::compute(1, *dataFrame, reportProgress);
-        finished.store(true);
-    }};
+        auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
+            totalFractionalProgress.fetch_add(
+                static_cast<int>(65536.0 * fractionalProgress + 0.5));
+        };
 
-    int lastTotalFractionalProgress{0};
-    int lastProgressReport{0};
+        std::atomic_bool finished{false};
 
-    bool monotonic{true};
-    std::size_t percentage{0};
-    while (finished.load() == false) {
-        if (totalFractionalProgress.load() > lastProgressReport) {
-            LOG_DEBUG(<< percentage << "% complete");
-            percentage += 10;
-            lastProgressReport += 6554;
+        std::thread worker{[&]() {
+            maths::COutliers::compute(2, numberPartitions[i], *dataFrame, reportProgress);
+            finished.store(true);
+        }};
+
+        int lastTotalFractionalProgress{0};
+        int lastProgressReport{0};
+
+        bool monotonic{true};
+        std::size_t percentage{0};
+        while (finished.load() == false) {
+            if (totalFractionalProgress.load() > lastProgressReport) {
+                LOG_DEBUG(<< percentage << "% complete");
+                percentage += 10;
+                lastProgressReport += 6554;
+            }
+            monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
+            lastTotalFractionalProgress = totalFractionalProgress.load();
         }
-        monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
-        lastTotalFractionalProgress = totalFractionalProgress.load();
-    }
-    worker.join();
+        worker.join();
 
-    CPPUNIT_ASSERT(monotonic);
-    CPPUNIT_ASSERT(std::fabs(65536 - totalFractionalProgress.load()) < 100);
+        CPPUNIT_ASSERT(monotonic);
+
+        LOG_DEBUG(<< "total fractional progress = " << totalFractionalProgress.load());
+        CPPUNIT_ASSERT(std::fabs(65536 - totalFractionalProgress.load()) < 250);
+    }
 }
 
 CppUnit::Test* COutliersTest::suite() {
