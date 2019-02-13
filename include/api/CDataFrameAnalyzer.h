@@ -71,9 +71,9 @@ private:
     bool isControlMessage(const TStrVec& fieldValues) const;
     bool handleControlMessage(const TStrVec& fieldValues);
     void addRowToDataFrame(const TStrVec& fieldValues);
-    void reportProgress(const CDataFrameAnalysisRunner& analysis,
-                        core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeProgress(double progress, core::CRapidJsonConcurrentLineWriter& writer) const;
+    void monitorProgress(const CDataFrameAnalysisRunner& analysis,
+                         core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
 

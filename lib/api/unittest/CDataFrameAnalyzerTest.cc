@@ -154,10 +154,10 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
             CPPUNIT_ASSERT(result.HasMember("progress") == false);
             ++expectedScore;
         } else if (result.HasMember("progress")) {
-            CPPUNIT_ASSERT(result["progress"].GetDouble() >= 0.0);
-            CPPUNIT_ASSERT(result["progress"].GetDouble() <= 1.0);
+            CPPUNIT_ASSERT(result["progress"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress"].GetInt() <= 100);
             CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            progressCompleted = result["progress"].GetDouble() == 1.0;
+            progressCompleted = result["progress"].GetInt() == 100;
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -196,10 +196,10 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
             ++expectedScore;
             CPPUNIT_ASSERT(result.HasMember("progress") == false);
         } else if (result.HasMember("progress")) {
-            CPPUNIT_ASSERT(result["progress"].GetDouble() >= 0.0);
-            CPPUNIT_ASSERT(result["progress"].GetDouble() <= 1.0);
+            CPPUNIT_ASSERT(result["progress"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress"].GetInt() <= 100);
             CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            progressCompleted = result["progress"].GetDouble() == 1.0;
+            progressCompleted = result["progress"].GetInt() == 100;
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());

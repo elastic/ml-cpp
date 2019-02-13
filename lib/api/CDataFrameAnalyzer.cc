@@ -16,6 +16,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <chrono>
+#include <cmath>
 #include <limits>
 #include <thread>
 
@@ -125,7 +126,7 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    this->reportProgress(*analysis, outputWriter);
+    this->monitorProgress(*analysis, outputWriter);
     analysis->waitToFinish();
     this->writeResultsOf(*analysis, outputWriter);
 }
@@ -254,28 +255,30 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     });
 }
 
-void CDataFrameAnalyzer::reportProgress(const CDataFrameAnalysisRunner& analysis,
-                                        core::CRapidJsonConcurrentLineWriter& writer) const {
-    double progress{0.0};
+void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
+                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Progress as percentage
+    int progress{0};
     while (analysis.finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        double latestProgress{analysis.progress()};
+        int latestProgress{static_cast<int>(floor(100.0 * analysis.progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
             this->writeProgress(progress, writer);
         }
     }
-    if (progress < 1.0) {
-        this->writeProgress(1.0, writer);
+    if (progress < 100) {
+        this->writeProgress(100, writer);
     }
 }
 
-void CDataFrameAnalyzer::writeProgress(double progress,
+void CDataFrameAnalyzer::writeProgress(int progress,
                                        core::CRapidJsonConcurrentLineWriter& writer) const {
     writer.StartObject();
     writer.Key(PROGRESS);
-    writer.Double(progress);
+    writer.Int(progress);
     writer.EndObject();
+    writer.flush();
 }
 
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
