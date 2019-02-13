@@ -29,21 +29,24 @@ public:
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
 
     //! \return The number of columns this adds to the data frame.
-    virtual std::size_t numberExtraColumns() const;
+    std::size_t numberExtraColumns() const override;
 
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
-    virtual void writeOneRow(TRowRef row, core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeOneRow(TRowRef row, core::CRapidJsonConcurrentLineWriter& writer) const override;
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;
 
 private:
-    virtual void runImpl(core::CDataFrame& frame);
-    virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
-                                                       std::size_t numberRows,
-                                                       std::size_t numberColumns) const;
+    void runImpl(core::CDataFrame& frame) override;
+    std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                               std::size_t totalNumberRows,
+                                               std::size_t partitionNumberRows,
+                                               std::size_t numberColumns) const override;
     template<typename POINT>
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
+                                    std::size_t partitionNumberRows,
+                                    std::size_t numberColumns) const;
 
 private:
     //! \name Custom config
@@ -61,14 +64,14 @@ private:
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.
-class API_EXPORT CDataFrameOutliersRunnerFactory : public CDataFrameAnalysisRunnerFactory {
+class API_EXPORT CDataFrameOutliersRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
 public:
-    virtual const char* name() const;
+    const char* name() const override;
 
 private:
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const;
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params) const;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value& params) const override;
 };
 }
 }
