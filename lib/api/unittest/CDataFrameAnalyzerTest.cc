@@ -151,13 +151,13 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
                 *expectedScore,
                 result["row_results"]["results"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
-            CPPUNIT_ASSERT(result.HasMember("progress") == false);
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
             ++expectedScore;
-        } else if (result.HasMember("progress")) {
-            CPPUNIT_ASSERT(result["progress"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress"].GetInt() <= 100);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
             CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            progressCompleted = result["progress"].GetInt() == 100;
+            progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
@@ -194,12 +194,12 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
                 result["row_results"]["results"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
-            CPPUNIT_ASSERT(result.HasMember("progress") == false);
-        } else if (result.HasMember("progress")) {
-            CPPUNIT_ASSERT(result["progress"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress"].GetInt() <= 100);
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
             CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            progressCompleted = result["progress"].GetInt() == 100;
+            progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
