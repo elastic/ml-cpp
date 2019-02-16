@@ -17,6 +17,8 @@ public:
     void testInMainMemoryParallelRead();
     void testOnDiskBasicReadWrite();
     void testOnDiskParallelRead();
+    void testReadRange();
+    void testWriteRange();
     void testMemoryUsage();
     void testReserve();
     void testResizeColumns();

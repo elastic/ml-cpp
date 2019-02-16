@@ -21,22 +21,35 @@ namespace test {
 //! \brief Utility functionality for writing tests for data frame analytics.
 class TEST_EXPORT CDataFrameTestUtils {
 public:
-    //! \brief Callable wrapper around toMainMemoryDataFrame.
-    struct TEST_EXPORT SToMainMemoryDataFrame {
-        template<typename POINT>
-        auto operator()(const std::vector<POINT>& points) {
-            return toMainMemoryDataFrame(points);
-        }
-    };
-
-public:
-    //! Create a data frame whose rows are initialized with \p points.
+    //! Create a data frame in main memory whose rows are initialized with \p points.
     template<typename POINT>
     static auto toMainMemoryDataFrame(const std::vector<POINT>& points) {
+        return toDataFrame(
+            [](std::size_t dimension) {
+                return core::makeMainStorageDataFrame(dimension);
+            },
+            points);
+    }
+
+    //! Create a data frame on disk whose rows are initialized with \p points.
+    template<typename POINT>
+    static auto toOnDiskDataFrame(const std::string& directory,
+                                  const std::vector<POINT>& points) {
+        return toDataFrame(
+            [&](std::size_t dimension) {
+                return core::makeDiskStorageDataFrame(directory, dimension,
+                                                      points.size());
+            },
+            points);
+    }
+
+private:
+    template<typename FACTORY, typename POINT>
+    static auto toDataFrame(FACTORY factory, const std::vector<POINT>& points) {
 
         std::size_t dimension{maths::las::dimension(points[0])};
 
-        auto result = core::makeMainStorageDataFrame(dimension).first;
+        auto result = factory(dimension).first;
 
         for (std::size_t i = 0; i < points.size(); ++i) {
             result->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {

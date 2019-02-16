@@ -192,6 +192,7 @@ public:
     using TWriteFunc = std::function<void(TFloatVecItr, std::int32_t&)>;
     using TRowSlicePtr = std::shared_ptr<CDataFrameRowSlice>;
     using TRowSlicePtrVec = std::vector<TRowSlicePtr>;
+    using TRowSlicePtrVecCItr = TRowSlicePtrVec::const_iterator;
     using TSizeRowSliceHandlePr = std::pair<std::size_t, CDataFrameRowSliceHandle>;
     using TWriteSliceToStoreFunc =
         std::function<TRowSlicePtr(std::size_t, TFloatVec, TInt32Vec)>;
@@ -265,12 +266,22 @@ public:
     //! state then the caller must ensure that access to this is thread safe.
     //!
     //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] beginRows The row at which to start reading.
+    //! \param[in] endRows The row (exclusive) at which to stop reading.
     //! \param[in] reader The callback to read rows.
     //! \return The readers used. This is intended to allow the reader to
     //! accumulate state in the reader which is passed back. RVO means any
     //! copy will be elided. Otherwise, the reader must hold the state by
     //! reference and must synchronize access to it.
-    TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const;
+    TRowFuncVecBoolPr readRows(std::size_t numberThreads,
+                               std::size_t beginRows,
+                               std::size_t endRows,
+                               TRowFunc reader) const;
+
+    //! Convenience overload which reads all rows.
+    TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const {
+        return this->readRows(numberThreads, 0, this->numberRows(), std::move(reader));
+    }
 
     //! Convenience overload for typed readers.
     //!
@@ -281,10 +292,13 @@ public:
     //!
     //! \note READER must implement the TRowFunc contract.
     template<typename READER>
-    std::pair<std::vector<READER>, bool>
-    readRows(std::size_t numberThreads, READER reader) const {
+    std::pair<std::vector<READER>, bool> readRows(std::size_t numberThreads,
+                                                  std::size_t beginRows,
+                                                  std::size_t endRows,
+                                                  READER reader) const {
 
-        TRowFuncVecBoolPr result_{readRows(numberThreads, TRowFunc(std::move(reader)))};
+        TRowFuncVecBoolPr result_{this->readRows(numberThreads, beginRows, endRows,
+                                                 TRowFunc(std::move(reader)))};
 
         std::vector<READER> result;
         result.reserve(result_.first.size());
@@ -295,6 +309,13 @@ public:
         return {std::move(result), result_.second};
     }
 
+    //! Convenience overload for typed reading of all rows.
+    template<typename READER>
+    std::pair<std::vector<READER>, bool>
+    readRows(std::size_t numberThreads, READER reader) const {
+        return this->readRows(numberThreads, 0, this->numberRows(), std::move(reader));
+    }
+
     //! Overwrite a number of columns with \p writer.
     //!
     //! The caller must ensure that the columns overwritten are in range.
@@ -303,8 +324,15 @@ public:
     //! state then the caller must ensure that access to this is thread safe.
     //!
     //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] beginRows The row at which to start writing.
+    //! \param[in] endRows The row (exclusive) at which to stop writing.
     //! \param[in] writer The callback to write the columns.
-    bool writeColumns(std::size_t numberThreads, TRowFunc writer);
+    bool writeColumns(std::size_t numberThreads, std::size_t beginRows, std::size_t endRows, TRowFunc writer);
+
+    //! Convenience overload which writes all rows.
+    bool writeColumns(std::size_t numberThreads, TRowFunc reader) {
+        return this->writeColumns(numberThreads, 0, this->numberRows(), std::move(reader));
+    }
 
     //! This writes a single row of the data frame via a callback.
     //!
@@ -382,14 +410,22 @@ private:
 
 private:
     TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
+                                             std::size_t beginRows,
+                                             std::size_t endRows,
                                              TRowFunc func,
                                              bool commitResult) const;
-
-    TRowFuncVecBoolPr sequentialApplyToAllRows(TRowFunc func, bool commitResult) const;
+    TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
+                                               std::size_t endRows,
+                                               TRowFunc func,
+                                               bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
-                               std::size_t firstRow,
+                               std::size_t beginRows,
+                               std::size_t endRows,
                                const CDataFrameRowSliceHandle& slice) const;
+
+    TRowSlicePtrVecCItr beginSlices(std::size_t beginRows) const;
+    TRowSlicePtrVecCItr endSlices(std::size_t endRows) const;
 
 private:
     //! True if the data frame resides in main memory.
