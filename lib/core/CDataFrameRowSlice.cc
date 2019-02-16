@@ -36,23 +36,25 @@ using namespace data_frame_row_slice_detail;
 //! Together with our memory mapped vector type this means algorithms
 //! on top of a raw data frame can work entirely in terms of the raw
 //! values stored in the data frame.
-class CMainMemoryDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class CMainMemoryDataFrameRowSliceHandle final : public CDataFrameRowSliceHandleImpl {
 public:
-    CMainMemoryDataFrameRowSliceHandle(TFloatVec& rows, const TInt32Vec& docHashes)
-        : m_Rows{rows}, m_DocHashes{docHashes} {}
-    virtual TImplPtr clone() const {
-        return std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocHashes);
+    CMainMemoryDataFrameRowSliceHandle(std::size_t firstRow, TFloatVec& rows, const TInt32Vec& docHashes)
+        : m_FirstRow{firstRow}, m_Rows{rows}, m_DocHashes{docHashes} {}
+    TImplPtr clone() const override {
+        return std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_FirstRow, m_Rows,
+                                                                    m_DocHashes);
     }
-    virtual bool inMainMemory() const { return true; }
-    virtual TFloatVec& rows() const { return m_Rows; }
-    virtual const TInt32Vec& docHashes() const { return m_DocHashes; }
-    virtual bool bad() const { return false; }
+    std::size_t indexOfFirstRow() const override { return m_FirstRow; }
+    TFloatVec& rows() const override { return m_Rows; }
+    const TInt32Vec& docHashes() const override { return m_DocHashes; }
+    bool bad() const override { return false; }
 
 private:
     using TFloatVecRef = std::reference_wrapper<TFloatVec>;
     using TInt32VecCRef = std::reference_wrapper<const TInt32Vec>;
 
 private:
+    std::size_t m_FirstRow;
     TFloatVecRef m_Rows;
     TInt32VecCRef m_DocHashes;
 };
@@ -62,18 +64,20 @@ private:
 //! DESCRIPTION:\n
 //! This stores a copy of values since these are created on-the-fly when
 //! the slice is inflated.
-class COnDiskDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class COnDiskDataFrameRowSliceHandle final : public CDataFrameRowSliceHandleImpl {
 public:
-    COnDiskDataFrameRowSliceHandle(TFloatVec rows, TInt32Vec docHashes)
-        : m_Rows{std::move(rows)}, m_DocHashes{std::move(docHashes)} {}
-    virtual TImplPtr clone() const {
-        return std::make_unique<COnDiskDataFrameRowSliceHandle>(m_Rows, m_DocHashes);
+    COnDiskDataFrameRowSliceHandle(std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes)
+        : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes{std::move(docHashes)} {}
+    TImplPtr clone() const override {
+        return std::make_unique<COnDiskDataFrameRowSliceHandle>(m_FirstRow, m_Rows, m_DocHashes);
     }
-    virtual TFloatVec& rows() const { return m_Rows; }
-    virtual const TInt32Vec& docHashes() const { return m_DocHashes; }
-    virtual bool bad() const { return false; }
+    std::size_t indexOfFirstRow() const override { return m_FirstRow; }
+    TFloatVec& rows() const override { return m_Rows; }
+    const TInt32Vec& docHashes() const override { return m_DocHashes; }
+    bool bad() const override { return false; }
 
 private:
+    std::size_t m_FirstRow;
     mutable TFloatVec m_Rows;
     TInt32Vec m_DocHashes;
 };
@@ -82,14 +86,15 @@ private:
 //!
 //! DESCRIPTION:\n
 //! This is used to signal that there is a problem accessing the slice.
-class CBadDataFrameRowSliceHandle : public CDataFrameRowSliceHandleImpl {
+class CBadDataFrameRowSliceHandle final : public CDataFrameRowSliceHandleImpl {
 public:
-    virtual TImplPtr clone() const {
+    TImplPtr clone() const override {
         return std::make_unique<CBadDataFrameRowSliceHandle>();
     }
-    virtual TFloatVec& rows() const { return m_EmptyRows; }
-    virtual const TInt32Vec& docHashes() const { return m_EmptyDocHashes; }
-    virtual bool bad() const { return true; }
+    std::size_t indexOfFirstRow() const override { return 0; }
+    TFloatVec& rows() const override { return m_EmptyRows; }
+    const TInt32Vec& docHashes() const override { return m_EmptyDocHashes; }
+    bool bad() const override { return true; }
 
 private:
     //! Stub for the rows.
@@ -139,6 +144,10 @@ CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::operator=(CDataFrameRowSlice
 
 std::size_t CDataFrameRowSliceHandle::size() const {
     return m_Impl->rows().size();
+}
+
+std::size_t CDataFrameRowSliceHandle::indexOfFirstRow() const {
+    return m_Impl->indexOfFirstRow();
 }
 
 TFloatVecItr CDataFrameRowSliceHandle::beginRows() const {
@@ -200,9 +209,12 @@ void CMainMemoryDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_
     }
 }
 
-CMainMemoryDataFrameRowSlice::TSizeHandlePr CMainMemoryDataFrameRowSlice::read() {
-    return {m_FirstRow,
-            {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_Rows, m_DocHashes)}};
+std::size_t CMainMemoryDataFrameRowSlice::indexOfFirstRow() const {
+    return m_FirstRow;
+}
+
+CDataFrameRowSliceHandle CMainMemoryDataFrameRowSlice::read() {
+    return {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_FirstRow, m_Rows, m_DocHashes)};
 }
 
 void CMainMemoryDataFrameRowSlice::write(const TFloatVec&, const TInt32Vec&) {
@@ -321,7 +333,12 @@ void COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
     }
 }
 
-COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
+std::size_t COnDiskDataFrameRowSlice::indexOfFirstRow() const {
+    return m_FirstRow;
+}
+
+CDataFrameRowSliceHandle COnDiskDataFrameRowSlice::read() {
+    LOG_TRACE(<< "Reading slice starting at row " << m_FirstRow);
 
     TFloatVec rows;
     TInt32Vec docHashes;
@@ -340,9 +357,8 @@ COnDiskDataFrameRowSlice::TSizeHandlePr COnDiskDataFrameRowSlice::read() {
                      << "' while reading from row " << m_FirstRow << ".");
     }
 
-    return {m_FirstRow,
-            {std::make_unique<COnDiskDataFrameRowSliceHandle>(
-                std::move(rows), std::move(docHashes))}};
+    return {std::make_unique<COnDiskDataFrameRowSliceHandle>(
+        m_FirstRow, std::move(rows), std::move(docHashes))};
 }
 
 void COnDiskDataFrameRowSlice::write(const TFloatVec& rows, const TInt32Vec& docHashes) {
@@ -358,9 +374,11 @@ std::size_t COnDiskDataFrameRowSlice::memoryUsage() const {
 }
 
 void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Vec& docHashes) {
+    LOG_TRACE(<< "Writing slice starting at row " << m_FirstRow);
+
     m_RowsCapacity = rows.size();
     m_DocHashesCapacity = docHashes.size();
-    m_Checksum = CHashing::hashCombine(computeChecksum(rows), computeChecksum(docHashes));
+    m_Checksum = computeChecksum(rows, docHashes);
     LOG_TRACE(<< "Checksum = " << m_Checksum);
 
     std::size_t rowsBytes{sizeof(CFloatStorage) * rows.size()};

@@ -37,11 +37,16 @@ using TStrVec = std::vector<std::string>;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
+std::unique_ptr<api::CDataFrameAnalysisSpecification>
+outlierSpec(std::size_t rows = 110, std::size_t memoryLimit = 100000) {
     std::string spec{"{\n"
-                     "  \"rows\": 100,\n"
+                     "  \"rows\": " +
+                     std::to_string(rows) +
+                     ",\n"
                      "  \"cols\": 5,\n"
-                     "  \"memory_limit\": 100000,\n"
+                     "  \"memory_limit\": " +
+                     std::to_string(memoryLimit) +
+                     ",\n"
                      "  \"threads\": 1,\n"
                      "  \"analysis\": {\n"
                      "    \"name\": \"outlier_detection\""
@@ -53,13 +58,12 @@ std::unique_ptr<api::CDataFrameAnalysisSpecification> outlierSpec() {
 void addTestData(TStrVec fieldNames,
                  TStrVec fieldValues,
                  api::CDataFrameAnalyzer& analyzer,
-                 TDoubleVec& expectedScores) {
+                 TDoubleVec& expectedScores,
+                 std::size_t numberInliers = 100,
+                 std::size_t numberOutliers = 10) {
 
     using TMeanVarAccumulatorVec =
         std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
-
-    std::size_t numberInliers{100};
-    std::size_t numberOutliers{10};
 
     test::CRandomNumbers rng;
 
@@ -108,7 +112,7 @@ void addTestData(TStrVec fieldNames,
 
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
-    maths::COutliers::compute(1, *frame);
+    maths::COutliers::compute(1, 1, *frame);
 
     expectedScores.resize(points.size());
     frame->readRows(1, [&expectedScores](core::CDataFrame::TRowItr beginRows,
@@ -167,6 +171,41 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     addTestData(fieldNames, fieldValues, analyzer, expectedScores);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedScore = expectedScores.begin();
+    for (const auto& result : results.GetArray()) {
+        CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
+            1e-4 * *expectedScore);
+        ++expectedScore;
+    }
+    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+}
+
+void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
+
+    // Test the case we have to overflow to disk to compute outliers subject
+    // to the memory constraints.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(1000, 100000), outputWriterFactory};
+
+    TDoubleVec expectedScores;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addTestData(fieldNames, fieldValues, analyzer, expectedScores, 990, 10);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -310,6 +349,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunOutlierDetection",
         &CDataFrameAnalyzerTest::testRunOutlierDetection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned",
+        &CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(

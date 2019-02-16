@@ -149,24 +149,42 @@ void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
+                                                   std::size_t beginRows,
+                                                   std::size_t endRows,
                                                    TRowFunc reader) const {
-    if (m_NumberRows == 0) {
+
+    beginRows = std::min(beginRows, m_NumberRows);
+    endRows = std::min(endRows, m_NumberRows);
+
+    if (beginRows >= endRows) {
         return {{std::move(reader)}, true};
     }
+
     return numberThreads > 1
-               ? this->parallelApplyToAllRows(numberThreads, std::move(reader), false)
-               : this->sequentialApplyToAllRows(std::move(reader), false);
+               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
+                                              std::move(reader), false)
+               : this->sequentialApplyToAllRows(beginRows, endRows, std::move(reader), false);
 }
 
-bool CDataFrame::writeColumns(std::size_t numberThreads, TRowFunc writer) {
-    if (m_NumberRows == 0) {
+bool CDataFrame::writeColumns(std::size_t numberThreads,
+                              std::size_t beginRows,
+                              std::size_t endRows,
+                              TRowFunc writer) {
+
+    beginRows = std::min(beginRows, m_NumberRows);
+    endRows = std::min(endRows, m_NumberRows);
+
+    if (beginRows >= endRows) {
         return true;
     }
+
     bool successful;
     std::tie(std::ignore, successful) =
         numberThreads > 1
-            ? this->parallelApplyToAllRows(numberThreads, std::move(writer), true)
-            : this->sequentialApplyToAllRows(std::move(writer), true);
+            ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
+                                           std::move(writer), true)
+            : this->sequentialApplyToAllRows(beginRows, endRows, std::move(writer), true);
+
     return successful;
 }
 
@@ -219,35 +237,34 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
 }
 
 CDataFrame::TRowFuncVecBoolPr
-CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, bool commitResult) const {
+CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
+                                   std::size_t beginRows,
+                                   std::size_t endRows,
+                                   TRowFunc func,
+                                   bool commitResult) const {
 
     // If we're reading in parallel then we don't want to interleave
     // reads from storage and applying the function because we're
     // already fully balancing our work across the slices.
 
     std::atomic_bool successful{true};
+    CDataFrameRowSliceHandle readSlice;
 
-    CDataFrameRowSliceHandle readRow;
     auto results = parallel_for_each(
-        numberThreads, m_Slices.begin(), m_Slices.end(),
+        numberThreads, this->beginSlices(beginRows), this->endSlices(endRows),
         bindRetrievableState(
-            [&successful, readRow, commitResult,
-             this](TRowFunc& func_, const TRowSlicePtr& slice) mutable {
+            [=, &successful](TRowFunc& func_, const TRowSlicePtr& slice) mutable {
                 if (successful.load() == false) {
                     return;
                 }
-
-                std::size_t firstRow;
-                std::tie(firstRow, readRow) = slice->read();
-                if (readRow.bad()) {
+                readSlice = slice->read();
+                if (readSlice.bad()) {
                     successful.store(false);
                     return;
                 }
-
-                this->applyToRowsOfOneSlice(func_, firstRow, readRow);
-
+                this->applyToRowsOfOneSlice(func_, beginRows, endRows, readSlice);
                 if (commitResult) {
-                    slice->write(readRow.rows(), readRow.docHashes());
+                    slice->write(readSlice.rows(), readSlice.docHashes());
                 }
             },
             std::move(func)));
@@ -261,10 +278,11 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads, TRowFunc func, boo
     return {std::move(functions), successful.load()};
 }
 
-CDataFrame::TRowFuncVecBoolPr
-CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
+CDataFrame::TRowFuncVecBoolPr CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
+                                                                   std::size_t endRows,
+                                                                   TRowFunc func,
+                                                                   bool commitResult) const {
 
-    std::size_t firstRow;
     CDataFrameRowSliceHandle readSlice;
 
     switch (m_ReadAndWriteToStoreSyncStrategy) {
@@ -278,8 +296,10 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
         // We need to wait and this isn't guaranteed by the future destructor.
         CWaitIfValidWhenExitingScope<void> waitFor(backgroundApply);
 
-        for (auto& slice : m_Slices) {
-            std::tie(firstRow, readSlice) = slice->read();
+        for (auto slice = this->beginSlices(beginRows), endSlices = this->endSlices(endRows);
+             slice != endSlices; ++slice) {
+
+            readSlice = (*slice)->read();
             if (readSlice.bad()) {
                 return {{std::move(func)}, false};
             }
@@ -287,26 +307,28 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
             // We wait here so at most one slice is copied into memory.
             wait_for_valid(backgroundApply);
 
-            backgroundApply = async(defaultAsyncExecutor(), [
-                &func, firstRow, readSlice_ = std::move(readSlice), &slice, commitResult, this
-            ] {
-                this->applyToRowsOfOneSlice(func, firstRow, readSlice_);
-                if (commitResult) {
-                    slice->write(readSlice_.rows(), readSlice_.docHashes());
-                }
-            });
+            backgroundApply = async(
+                defaultAsyncExecutor(),
+                [ =, &func, readSlice_ = std::move(readSlice) ] {
+                    this->applyToRowsOfOneSlice(func, beginRows, endRows, readSlice_);
+                    if (commitResult) {
+                        (*slice)->write(readSlice_.rows(), readSlice_.docHashes());
+                    }
+                });
         }
         break;
     }
     case CDataFrame::EReadWriteToStorage::E_Sync:
-        for (auto& slice : m_Slices) {
-            std::tie(firstRow, readSlice) = slice->read();
+        for (auto slice = this->beginSlices(beginRows), endSlices = this->endSlices(endRows);
+             slice != endSlices; ++slice) {
+
+            readSlice = (*slice)->read();
             if (readSlice.bad()) {
                 return {{std::move(func)}, false};
             }
-            this->applyToRowsOfOneSlice(func, firstRow, readSlice);
+            this->applyToRowsOfOneSlice(func, beginRows, endRows, readSlice);
             if (commitResult) {
-                slice->write(readSlice.rows(), readSlice.docHashes());
+                (*slice)->write(readSlice.rows(), readSlice.docHashes());
             }
         }
         break;
@@ -316,15 +338,43 @@ CDataFrame::sequentialApplyToAllRows(TRowFunc func, bool commitResult) const {
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
-                                       std::size_t firstRow,
+                                       std::size_t beginRows,
+                                       std::size_t endRows,
                                        const CDataFrameRowSliceHandle& slice) const {
-    LOG_TRACE(<< "Applying function to slice starting at row " << firstRow);
-    std::size_t rows{slice.size() / m_RowCapacity};
-    std::size_t lastRow{firstRow + rows};
-    func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRow,
-                      slice.beginRows(), slice.beginDocHashes()},
-         CRowIterator{m_NumberColumns, m_RowCapacity, lastRow, slice.endRows(),
-                      slice.endDocHashes()});
+    std::size_t firstRowToRead{std::max(slice.indexOfFirstRow(), beginRows)};
+    std::size_t numberRowsInSlice{slice.size() / m_RowCapacity};
+    std::size_t endRowsToRead{std::min(slice.indexOfFirstRow() + numberRowsInSlice, endRows)};
+
+    LOG_TRACE(<< "Applying function to rows [" << firstRowToRead << ","
+              << endRowsToRead << ")");
+
+    std::size_t offsetOfFirstRowToRead{firstRowToRead - slice.indexOfFirstRow()};
+    std::size_t offsetOfEndRowsToRead{endRowsToRead - slice.indexOfFirstRow()};
+
+    std::size_t beginRowData{offsetOfFirstRowToRead * m_RowCapacity};
+    std::size_t endRowData{offsetOfEndRowsToRead * m_RowCapacity};
+
+    func(CRowIterator{m_NumberColumns, m_RowCapacity, firstRowToRead,
+                      slice.beginRows() + beginRowData,
+                      slice.beginDocHashes() + offsetOfFirstRowToRead},
+         CRowIterator{m_NumberColumns, m_RowCapacity, endRowsToRead,
+                      slice.beginRows() + endRowData,
+                      slice.beginDocHashes() + offsetOfEndRowsToRead});
+}
+
+CDataFrame::TRowSlicePtrVecCItr CDataFrame::beginSlices(std::size_t beginRows) const {
+    return std::upper_bound(m_Slices.begin(), m_Slices.end(), beginRows,
+                            [](std::size_t row, const TRowSlicePtr& slice) {
+                                return row < slice->indexOfFirstRow();
+                            }) -
+           1;
+}
+
+CDataFrame::TRowSlicePtrVecCItr CDataFrame::endSlices(std::size_t endRows) const {
+    return std::upper_bound(m_Slices.begin(), m_Slices.end(), endRows,
+                            [](std::size_t row, const TRowSlicePtr& slice) {
+                                return row < slice->indexOfFirstRow();
+                            });
 }
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
