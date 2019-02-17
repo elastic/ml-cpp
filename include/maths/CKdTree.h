@@ -18,6 +18,7 @@
 #include <maths/CTypeTraits.h>
 
 #include <boost/operators.hpp>
+#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -64,8 +65,11 @@ public:
     using TPointVec = std::vector<POINT>;
     using TCoordinate = typename SCoordinate<POINT>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
-    using TCoordinatePrecisePointPr = std::pair<TCoordinatePrecise, POINT>;
-    using TNearestAccumulator = CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr>;
+    using TPointCRef = boost::reference_wrapper<const POINT>;
+    using TPointCRefVec = std::vector<TPointCRef>;
+    using TCoordinatePrecisePointCRefPr = std::pair<TCoordinatePrecise, TPointCRef>;
+    using TNearestAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointCRefPr, COrderings::SLess>;
 
     //! Less on a specific coordinate of point position vector.
     class CCoordinateLess {
@@ -230,7 +234,6 @@ public:
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
         const POINT* nearest{nullptr};
-
         if (m_Nodes.size() > 0) {
             auto inf = std::numeric_limits<TCoordinatePrecise>::max();
 
@@ -243,6 +246,7 @@ public:
 
     //! Branch and bound search for nearest \p n neighbours of \p point.
     void nearestNeighbours(std::size_t n, const POINT& point, TPointVec& result) const {
+
         result.clear();
 
         if (n > 0 && n < m_Nodes.size()) {
@@ -252,7 +256,7 @@ public:
             // to nearestNeighbours, but we need the collection to be initialized
             // with infinite distances so we get the correct value for the furthest
             // nearest neighbour at the start of the branch and bound search.
-            TNearestAccumulator neighbours(n, {inf, m_Nodes[0].s_Point});
+            TNearestAccumulator neighbours(n, {inf, boost::cref(m_Nodes[0].s_Point)});
             this->nearestNeighbours(point, m_Nodes[0],
                                     0, // Split coordinate
                                     neighbours);
@@ -260,7 +264,7 @@ public:
             result.reserve(neighbours.count());
             neighbours.sort();
             for (const auto& neighbour : neighbours) {
-                result.push_back(std::move(neighbour.second));
+                result.push_back(neighbour.second);
             }
         } else if (n > m_Nodes.size()) {
             TDoubleVec distances;
@@ -308,7 +312,7 @@ public:
     //! Check the tree invariants.
     bool checkInvariants() const {
         for (const auto& node : m_Nodes) {
-            if (!node.checkInvariants(m_Dimension)) {
+            if (node.checkInvariants(m_Dimension) == false) {
                 return false;
             }
         }
@@ -343,12 +347,12 @@ private:
         this->append(move, parent, *median);
         SNode* node{&m_Nodes.back()};
         if (median - begin > 0) {
-            std::size_t next{(coordinate + 1) % m_Dimension};
+            std::size_t next{this->nextCoordinate(coordinate)};
             SNode* leftChild{this->buildRecursively(node, next, begin, median, move)};
             node->s_LeftChild = leftChild;
         }
         if (end - median > 1) {
-            std::size_t next{(coordinate + 1) % m_Dimension};
+            std::size_t next{this->nextCoordinate(coordinate)};
             SNode* rightChild{this->buildRecursively(node, next, median + 1, end, move)};
             node->s_RightChild = rightChild;
         }
@@ -361,6 +365,7 @@ private:
                                   std::size_t coordinate,
                                   const POINT* nearest,
                                   TCoordinatePrecise& distanceToNearest) const {
+
         TCoordinatePrecise distance{las::distance(point, node.s_Point)};
 
         if (distance < distanceToNearest) {
@@ -368,23 +373,34 @@ private:
             distanceToNearest = distance;
         }
 
-        if (node.s_LeftChild || node.s_RightChild) {
+        SNode* primary{node.s_LeftChild};
+        SNode* secondary{node.s_RightChild};
+
+        if (primary != nullptr && secondary != nullptr) {
             TCoordinatePrecise distanceToHyperplane{point(coordinate) -
                                                     node.s_Point(coordinate)};
 
-            SNode* primary{node.s_LeftChild};
-            SNode* secondary{node.s_RightChild};
-            if (!primary || (secondary && distanceToHyperplane > 0)) {
+            if (distanceToHyperplane > 0) {
                 std::swap(primary, secondary);
+            } else {
+                distanceToHyperplane = std::fabs(distanceToHyperplane);
             }
 
-            std::size_t nextCoordinate{(coordinate + 1) % m_Dimension};
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
             nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
                                              nearest, distanceToNearest);
-            if (secondary && std::fabs(distanceToHyperplane) < distanceToNearest) {
+            if (distanceToHyperplane < distanceToNearest) {
                 nearest = this->nearestNeighbour(point, *secondary, nextCoordinate,
                                                  nearest, distanceToNearest);
             }
+        } else if (primary != nullptr) {
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
+            nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
+                                             nearest, distanceToNearest);
+        } else if (secondary != nullptr) {
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
+            nearest = this->nearestNeighbour(point, *secondary, nextCoordinate,
+                                             nearest, distanceToNearest);
         }
 
         return nearest;
@@ -395,25 +411,35 @@ private:
                            const SNode& node,
                            std::size_t coordinate,
                            TNearestAccumulator& nearest) const {
+
         TCoordinatePrecise distance = las::distance(point, node.s_Point);
 
-        nearest.add({distance, node.s_Point});
+        nearest.add({distance, boost::cref(node.s_Point)});
 
-        if (node.s_LeftChild || node.s_RightChild) {
-            TCoordinatePrecise distanceToHyperplane = point(coordinate) -
-                                                      node.s_Point(coordinate);
+        SNode* primary{node.s_LeftChild};
+        SNode* secondary{node.s_RightChild};
 
-            SNode* primary = node.s_LeftChild;
-            SNode* secondary = node.s_RightChild;
-            if (!primary || (secondary && distanceToHyperplane > 0)) {
+        if (primary != nullptr && secondary != nullptr) {
+            TCoordinatePrecise distanceToHyperplane{point(coordinate) -
+                                                    node.s_Point(coordinate)};
+
+            if (distanceToHyperplane > 0) {
                 std::swap(primary, secondary);
+            } else {
+                distanceToHyperplane = std::fabs(distanceToHyperplane);
             }
 
-            std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
             this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
-            if (secondary && std::fabs(distanceToHyperplane) < nearest.biggest().first) {
+            if (distanceToHyperplane < nearest.biggest().first) {
                 this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
             }
+        } else if (primary != nullptr) {
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
+            this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
+        } else if (secondary != nullptr) {
+            std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
+            this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
         }
     }
 
@@ -440,6 +466,13 @@ private:
             postorderDepthFirst(*node.s_RightChild, f);
         }
         f(node);
+    }
+
+    //! Get the next coordinate.
+    inline std::size_t nextCoordinate(std::size_t coordinate) const {
+        ++coordinate;
+        // This branch works out significantly faster than modulo.
+        return coordinate == m_Dimension ? 0 : coordinate;
     }
 
 private:
