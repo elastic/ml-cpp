@@ -411,6 +411,8 @@ void COutliersTest::testProgressMonitoring() {
     TPointVec points(numberInliers + numberOutliers, TPoint(6));
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
+    core::startDefaultAsyncExecutor(2);
+
     for (std::size_t i = 0; i < 2; ++i) {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
@@ -450,8 +452,10 @@ void COutliersTest::testProgressMonitoring() {
         CPPUNIT_ASSERT(monotonic);
 
         LOG_DEBUG(<< "total fractional progress = " << totalFractionalProgress.load());
-        CPPUNIT_ASSERT(std::fabs(65536 - totalFractionalProgress.load()) < 250);
+        CPPUNIT_ASSERT(std::fabs(65536 - totalFractionalProgress.load()) < 300);
     }
+
+    core::startDefaultAsyncExecutor();
 }
 
 CppUnit::Test* COutliersTest::suite() {

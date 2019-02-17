@@ -66,10 +66,8 @@ public:
     using TCoordinate = typename SCoordinate<POINT>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
     using TPointCRef = boost::reference_wrapper<const POINT>;
-    using TPointCRefVec = std::vector<TPointCRef>;
     using TCoordinatePrecisePointCRefPr = std::pair<TCoordinatePrecise, TPointCRef>;
-    using TNearestAccumulator =
-        CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointCRefPr, COrderings::SLess>;
+    using TCoordinatePrecisePointCRefPrVec = std::vector<TCoordinatePrecisePointCRefPr>;
 
     //! Less on a specific coordinate of point position vector.
     class CCoordinateLess {
@@ -256,13 +254,13 @@ public:
             // to nearestNeighbours, but we need the collection to be initialized
             // with infinite distances so we get the correct value for the furthest
             // nearest neighbour at the start of the branch and bound search.
-            TNearestAccumulator neighbours(n, {inf, boost::cref(m_Nodes[0].s_Point)});
-            this->nearestNeighbours(point, m_Nodes[0],
-                                    0, // Split coordinate
-                                    neighbours);
+            COrderings::SLess less;
+            TCoordinatePrecisePointCRefPrVec neighbours(
+                n, {inf, boost::cref(m_Nodes[0].s_Point)});
+            this->nearestNeighbours(point, less, m_Nodes[0], 0 /*split coordinate*/, neighbours);
 
-            result.reserve(neighbours.count());
-            neighbours.sort();
+            result.reserve(n);
+            std::sort_heap(neighbours.begin(), neighbours.end(), less);
             for (const auto& neighbour : neighbours) {
                 result.push_back(neighbour.second);
             }
@@ -368,9 +366,10 @@ private:
 
         TCoordinatePrecise distance{las::distance(point, node.s_Point)};
 
-        if (distance < distanceToNearest) {
-            nearest = &node.s_Point;
+        if (distance < distanceToNearest ||
+            (distance == distanceToNearest && node.s_Point < point)) {
             distanceToNearest = distance;
+            nearest = &node.s_Point;
         }
 
         SNode* primary{node.s_LeftChild};
@@ -408,13 +407,20 @@ private:
 
     //! Recursively find the nearest point to \p point.
     void nearestNeighbours(const POINT& point,
+                           const COrderings::SLess& less,
                            const SNode& node,
                            std::size_t coordinate,
-                           TNearestAccumulator& nearest) const {
+                           TCoordinatePrecisePointCRefPrVec& nearest) const {
 
-        TCoordinatePrecise distance = las::distance(point, node.s_Point);
+        TCoordinatePrecise distance{las::distance(point, node.s_Point)};
 
-        nearest.add({distance, boost::cref(node.s_Point)});
+        if (distance < nearest.front().first ||
+            (distance == nearest.front().first && node.s_Point < point)) {
+            std::pop_heap(nearest.begin(), nearest.end(), less);
+            nearest.back().first = distance;
+            nearest.back().second = boost::cref(node.s_Point);
+            std::push_heap(nearest.begin(), nearest.end(), less);
+        }
 
         SNode* primary{node.s_LeftChild};
         SNode* secondary{node.s_RightChild};
@@ -430,16 +436,16 @@ private:
             }
 
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
-            if (distanceToHyperplane < nearest.biggest().first) {
-                this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *primary, nextCoordinate, nearest);
+            if (distanceToHyperplane < nearest.front().first) {
+                this->nearestNeighbours(point, less, *secondary, nextCoordinate, nearest);
             }
         } else if (primary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *primary, nextCoordinate, nearest);
         } else if (secondary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *secondary, nextCoordinate, nearest);
         }
     }
 
