@@ -372,8 +372,8 @@ private:
             nearest = &node.s_Point;
         }
 
-        SNode* primary{node.s_LeftChild};
-        SNode* secondary{node.s_RightChild};
+        const SNode* primary{node.s_LeftChild};
+        const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
             TCoordinatePrecise distanceToHyperplane{point(coordinate) -
@@ -422,8 +422,8 @@ private:
             std::push_heap(nearest.begin(), nearest.end(), less);
         }
 
-        SNode* primary{node.s_LeftChild};
-        SNode* secondary{node.s_RightChild};
+        const SNode* primary{node.s_LeftChild};
+        const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
             TCoordinatePrecise distanceToHyperplane{point(coordinate) -
