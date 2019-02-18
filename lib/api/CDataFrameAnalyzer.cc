@@ -10,13 +10,15 @@
 #include <core/CFloatStorage.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CTools.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <chrono>
+#include <cmath>
 #include <limits>
+#include <thread>
 
 namespace ml {
 namespace api {
@@ -35,6 +37,7 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
 // Result types
 const std::string ROW_RESULTS{"row_results"};
+const std::string PROGRESS_PERCENT{"progress_percent"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -116,11 +119,16 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    // TODO report progress.
+    // We create the writer in run so that when it is finished destructors
+    // get called and the wrapped stream does its job to close the array.
 
+    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
+    auto outStream = m_OutStreamSupplier();
+    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+
+    this->monitorProgress(*analysis, outputWriter);
     analysis->waitToFinish();
-
-    this->writeResultsOf(*analysis);
+    this->writeResultsOf(*analysis, outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -247,12 +255,31 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     });
 }
 
-void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis) const {
-    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
-    // TODO This should probably be a member variable so it is only created once.
-    auto outStream = m_OutStreamSupplier();
-    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
+                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Progress as percentage
+    int progress{0};
+    while (analysis.finished() == false) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
+        if (latestProgress > progress) {
+            progress = latestProgress;
+            this->writeProgress(progress, writer);
+        }
+    }
+}
 
+void CDataFrameAnalyzer::writeProgress(int progress,
+                                       core::CRapidJsonConcurrentLineWriter& writer) const {
+    writer.StartObject();
+    writer.Key(PROGRESS_PERCENT);
+    writer.Int(progress);
+    writer.EndObject();
+    writer.flush();
+}
+
+void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
+                                        core::CRapidJsonConcurrentLineWriter& writer) const {
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
@@ -261,19 +288,19 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            outputWriter.StartObject();
-            outputWriter.Key(ROW_RESULTS);
-            outputWriter.StartObject();
-            outputWriter.Key(CHECKSUM);
-            outputWriter.Int(row->docHash());
-            outputWriter.Key(RESULTS);
-            analysis.writeOneRow(*row, outputWriter);
-            outputWriter.EndObject();
-            outputWriter.EndObject();
+            writer.StartObject();
+            writer.Key(ROW_RESULTS);
+            writer.StartObject();
+            writer.Key(CHECKSUM);
+            writer.Int(row->docHash());
+            writer.Key(RESULTS);
+            analysis.writeOneRow(*row, writer);
+            writer.EndObject();
+            writer.EndObject();
         }
     });
 
-    outputWriter.flush();
+    writer.flush();
 }
 }
 }
