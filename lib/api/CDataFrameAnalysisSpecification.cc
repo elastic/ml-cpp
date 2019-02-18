@@ -16,11 +16,11 @@
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/make_unique.hpp>
+#include <boost/filesystem.hpp>
 
 #include <cstring>
 #include <iterator>
+#include <memory>
 #include <thread>
 
 namespace ml {
@@ -30,7 +30,7 @@ using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerF
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
-    factories.push_back(boost::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+    factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
     // Add new analysis types here.
     return factories;
 }
@@ -70,7 +70,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::stri
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                                                  const std::string& jsonSpecification)
-    : m_RunnerFactories{std::move(runnerFactories)} {
+    : m_RunnerFactories{std::move(runnerFactories)},
+      m_TemporaryDirectory{boost::filesystem::current_path().string()} {
 
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {
@@ -174,13 +175,6 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     if (m_Runner == nullptr) {
         return {};
     }
-
-    // TODO Remove hack when passing directory in config.
-    ////
-    if (m_Runner->storeDataFrameInMainMemory() == false) {
-        return {};
-    }
-    // END TODO
 
     auto result = m_Runner->storeDataFrameInMainMemory()
                       ? core::makeMainStorageDataFrame(m_NumberColumns)
