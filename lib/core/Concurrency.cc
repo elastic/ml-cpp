@@ -116,12 +116,28 @@ CExecutor& defaultAsyncExecutor() {
 }
 
 bool get_conjunction_of_all(std::vector<future<bool>>& futures) {
-    return std::accumulate(futures.begin(), futures.end(), true,
-                           [](bool conjunction, future<bool>& future) {
-                               // Don't shortcircuit
-                               bool value = future.get();
-                               return conjunction && value;
-                           });
+
+    // This waits until results are present. If we get an exception we still want
+    // to wait until all results are ready in case continuing destroys state access
+    // which a worker thread reads. We just rethrow the _last_ exception we received.
+    std::exception_ptr e;
+    bool result{std::accumulate(futures.begin(), futures.end(), true,
+                                [&e](bool conjunction, future<bool>& future) {
+                                    try {
+                                        // Don't shortcircuit
+                                        bool value = future.get();
+                                        conjunction &= value;
+                                    } catch (...) {
+                                        e = std::current_exception();
+                                    }
+                                    return conjunction;
+                                })};
+
+    if (e != nullptr) {
+        std::rethrow_exception(e);
+    }
+
+    return result;
 }
 
 namespace concurrency_detail {
