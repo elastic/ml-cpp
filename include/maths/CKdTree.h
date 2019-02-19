@@ -234,10 +234,9 @@ public:
         const POINT* nearest{nullptr};
         if (m_Nodes.size() > 0) {
             auto inf = std::numeric_limits<TCoordinatePrecise>::max();
-
-            return this->nearestNeighbour(point, m_Nodes[0],
-                                          0, // Split coordinate
-                                          nearest, inf);
+            POINT distancesToHyperplanes{las::zero(point)};
+            return this->nearestNeighbour(point, m_Nodes[0], distancesToHyperplanes,
+                                          0 /*split coordinate*/, nearest, inf);
         }
         return nearest;
     }
@@ -255,9 +254,11 @@ public:
             // with infinite distances so we get the correct value for the furthest
             // nearest neighbour at the start of the branch and bound search.
             COrderings::SLess less;
+            POINT distancesToHyperplanes{las::zero(point)};
             TCoordinatePrecisePointCRefPrVec neighbours(
                 n, {inf, boost::cref(m_Nodes[0].s_Point)});
-            this->nearestNeighbours(point, less, m_Nodes[0], 0 /*split coordinate*/, neighbours);
+            this->nearestNeighbours(point, less, m_Nodes[0], distancesToHyperplanes,
+                                    0 /*split coordinate*/, neighbours);
 
             result.reserve(n);
             std::sort_heap(neighbours.begin(), neighbours.end(), less);
@@ -360,6 +361,7 @@ private:
     //! Recursively find the nearest point to \p point.
     const POINT* nearestNeighbour(const POINT& point,
                                   const SNode& node,
+                                  POINT& distancesToHyperplanes,
                                   std::size_t coordinate,
                                   const POINT* nearest,
                                   TCoordinatePrecise& distanceToNearest) const {
@@ -376,8 +378,7 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinatePrecise distanceToHyperplane{point(coordinate) -
-                                                    node.s_Point(coordinate)};
+            TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
 
             if (distanceToHyperplane > 0) {
                 std::swap(primary, secondary);
@@ -386,20 +387,23 @@ private:
             }
 
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
-                                             nearest, distanceToNearest);
-            if (distanceToHyperplane < distanceToNearest) {
-                nearest = this->nearestNeighbour(point, *secondary, nextCoordinate,
+            nearest = this->nearestNeighbour(point, *primary, distancesToHyperplanes,
+                                             nextCoordinate, nearest, distanceToNearest);
+            std::swap(distancesToHyperplanes(coordinate), distanceToHyperplane);
+            if (las::norm(distancesToHyperplanes) < distanceToNearest) {
+                nearest = this->nearestNeighbour(point, *secondary,
+                                                 distancesToHyperplanes, nextCoordinate,
                                                  nearest, distanceToNearest);
             }
+            std::swap(distancesToHyperplanes(coordinate), distanceToHyperplane);
         } else if (primary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            nearest = this->nearestNeighbour(point, *primary, nextCoordinate,
-                                             nearest, distanceToNearest);
+            nearest = this->nearestNeighbour(point, *primary, distancesToHyperplanes,
+                                             nextCoordinate, nearest, distanceToNearest);
         } else if (secondary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            nearest = this->nearestNeighbour(point, *secondary, nextCoordinate,
-                                             nearest, distanceToNearest);
+            nearest = this->nearestNeighbour(point, *secondary, distancesToHyperplanes,
+                                             nextCoordinate, nearest, distanceToNearest);
         }
 
         return nearest;
@@ -409,6 +413,7 @@ private:
     void nearestNeighbours(const POINT& point,
                            const COrderings::SLess& less,
                            const SNode& node,
+                           POINT& distancesToHyperplanes,
                            std::size_t coordinate,
                            TCoordinatePrecisePointCRefPrVec& nearest) const {
 
@@ -426,8 +431,7 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinatePrecise distanceToHyperplane{point(coordinate) -
-                                                    node.s_Point(coordinate)};
+            TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
 
             if (distanceToHyperplane > 0) {
                 std::swap(primary, secondary);
@@ -436,16 +440,22 @@ private:
             }
 
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, less, *primary, nextCoordinate, nearest);
-            if (distanceToHyperplane < nearest.front().first) {
-                this->nearestNeighbours(point, less, *secondary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *primary, distancesToHyperplanes,
+                                    nextCoordinate, nearest);
+            std::swap(distancesToHyperplanes(coordinate), distanceToHyperplane);
+            if (las::norm(distancesToHyperplanes) < nearest.front().first) {
+                this->nearestNeighbours(point, less, *secondary, distancesToHyperplanes,
+                                        nextCoordinate, nearest);
             }
+            std::swap(distancesToHyperplanes(coordinate), distanceToHyperplane);
         } else if (primary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, less, *primary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *primary, distancesToHyperplanes,
+                                    nextCoordinate, nearest);
         } else if (secondary != nullptr) {
             std::size_t nextCoordinate{this->nextCoordinate(coordinate)};
-            this->nearestNeighbours(point, less, *secondary, nextCoordinate, nearest);
+            this->nearestNeighbours(point, less, *secondary, distancesToHyperplanes,
+                                    nextCoordinate, nearest);
         }
     }
 
