@@ -60,6 +60,12 @@ private:
     //!
     //! \see maths::COutliers for more details.
     std::size_t m_Method;
+
+    //! Compute the significance of features responsible for each point being outlying.
+    bool m_FeatureSignificances = false;
+
+    //! The prior probability that a point is an outlier.
+    double m_ProbabilityOutlier = 0.05;
     //@}
 };
 

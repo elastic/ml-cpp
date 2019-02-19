@@ -225,14 +225,13 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
         return;
     }
 
-    using TFloatVec = std::vector<core::CFloatStorage>;
-    using TFloatVecItr = TFloatVec::iterator;
+    using TFloatVecItr = core::CDataFrame::TFloatVecItr;
 
     m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
             double value;
-            if (core::CStringUtils::stringToType(fieldValues[i], value) == false) {
+            if (core::CStringUtils::stringToTypeSilent(fieldValues[i], value) == false) {
                 ++m_BadValueCount;
 
                 // TODO this is a can of worms we can deal with later.
@@ -249,7 +248,8 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
         }
         docHash = 0;
         if (m_DocHashFieldIndex != FIELD_MISSING &&
-            core::CStringUtils::stringToType(fieldValues[m_DocHashFieldIndex], docHash) == false) {
+            core::CStringUtils::stringToTypeSilent(fieldValues[m_DocHashFieldIndex],
+                                                   docHash) == false) {
             ++m_BadDocHashCount;
         }
     });

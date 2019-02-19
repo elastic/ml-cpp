@@ -114,8 +114,11 @@ void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::COutliers::compute(this->spec().numberThreads(), this->numberPartitions(),
-                              frame, this->progressRecorder());
+    maths::COutliers::SComputeParameters params{
+        this->spec().numberThreads(), this->numberPartitions(),
+        m_FeatureSignificances, m_ProbabilityOutlier};
+
+    maths::COutliers::compute(params, frame, this->progressRecorder());
 }
 
 std::size_t
@@ -144,10 +147,11 @@ CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
                                               std::size_t numberColumns) const {
     maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
     return m_NumberNeighbours != boost::none
-               ? maths::COutliers::estimateComputeMemoryUsage<POINT>(
-                     method, *m_NumberNeighbours, totalNumberRows, partitionNumberRows, numberColumns)
-               : maths::COutliers::estimateComputeMemoryUsage<POINT>(
-                     totalNumberRows, partitionNumberRows, numberColumns);
+               ? maths::COutliers::estimateMemoryUsedByCompute<POINT>(
+                     method, *m_NumberNeighbours, m_FeatureSignificances,
+                     totalNumberRows, partitionNumberRows, numberColumns)
+               : maths::COutliers::estimateMemoryUsedByCompute<POINT>(
+                     m_FeatureSignificances, totalNumberRows, partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

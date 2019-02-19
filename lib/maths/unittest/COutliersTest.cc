@@ -116,7 +116,9 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
 
         auto dataFrame = pointsToDataFrame(points);
 
-        maths::COutliers::compute(numberThreads, numberPartitions, *dataFrame);
+        maths::COutliers::SComputeParameters params{numberThreads,
+                                                    numberPartitions, false, 0.05};
+        maths::COutliers::compute(params, *dataFrame);
 
         dataFrame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                          core::CDataFrame::TRowItr endRows) {
@@ -427,7 +429,8 @@ void COutliersTest::testProgressMonitoring() {
         std::atomic_bool finished{false};
 
         std::thread worker{[&]() {
-            maths::COutliers::compute(2, numberPartitions[i], *dataFrame, reportProgress);
+            maths::COutliers::SComputeParameters params{2, numberPartitions[i], false, 0.05};
+            maths::COutliers::compute(params, *dataFrame, reportProgress);
             finished.store(true);
         }};
 
