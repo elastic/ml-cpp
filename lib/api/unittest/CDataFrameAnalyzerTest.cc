@@ -236,11 +236,13 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
-        CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-4 * *expectedScore);
-        ++expectedScore;
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
+                1e-4 * *expectedScore);
+            ++expectedScore;
+        }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
