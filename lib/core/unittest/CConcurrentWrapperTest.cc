@@ -162,13 +162,16 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
     std::ostringstream stringStream;
     static const size_t MESSAGES(2500);
 
-    TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
     {
-        core::CStaticThreadPool tp(8);
-        for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule([&wrappedStringStream, i] {
-                taskLowCapacityQueue(wrappedStringStream, i, std::chrono::microseconds(0));
-            });
+        TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
+        {
+            core::CStaticThreadPool tp(8);
+            for (size_t i = 0; i < MESSAGES; ++i) {
+                tp.schedule([&wrappedStringStream, i] {
+                    taskLowCapacityQueue(wrappedStringStream, i,
+                                         std::chrono::microseconds(0));
+                });
+            }
         }
     }
 
