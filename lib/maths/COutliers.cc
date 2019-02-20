@@ -438,7 +438,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         points_.emplace_back(m_Projection * points[i], index);
     }
 
-    TDouble1VecVec2Vec methodScores{m_Method->run(points_, index)};
+    TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
     m_Method->recoverMemory();
 
     TDouble1Vec2Vec pointScores(methodScores.size());
