@@ -70,6 +70,7 @@ private:
     bool prepareToReceiveControlMessages(const TStrVec& fieldNames);
     bool isControlMessage(const TStrVec& fieldValues) const;
     bool handleControlMessage(const TStrVec& fieldValues);
+    void captureFieldNames(const TStrVec& fieldNames);
     void addRowToDataFrame(const TStrVec& fieldValues);
     void monitorProgress(const CDataFrameAnalysisRunner& analysis,
                          core::CRapidJsonConcurrentLineWriter& writer) const;
@@ -87,6 +88,7 @@ private:
     std::uint64_t m_BadDocHashCount;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
+    TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
 };

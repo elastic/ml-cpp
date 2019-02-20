@@ -37,6 +37,7 @@ const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
 const char* OUTLIER_SCORE{"outlier_score"};
+const char* FEATURE_SIGNIFICANCE_PREFIX{"feature_significance."};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -100,17 +101,25 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
-    // Column for outlier score + explaining features TODO.
-    return 1;
+    return m_FeatureSignificances ? this->spec().numberColumns() + 1 : 1;
 }
 
-void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
-                                           core::CRapidJsonConcurrentLineWriter& outputWriter) const {
-    std::size_t lastColumn{row.numberColumns() - 1};
-    outputWriter.StartObject();
-    outputWriter.Key(OUTLIER_SCORE);
-    outputWriter.Double(row[lastColumn]);
-    outputWriter.EndObject();
+void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
+                                           TRowRef row,
+                                           core::CRapidJsonConcurrentLineWriter& writer) const {
+    std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
+    std::size_t beginFeatureScoreColumns{scoreColumn + 1};
+    std::size_t numberFeatureScoreColumns{this->numberExtraColumns() - 1};
+    writer.StartObject();
+    writer.Key(OUTLIER_SCORE);
+    writer.Double(row[scoreColumn]);
+    if (row[scoreColumn] > m_WriteFeatureSignificancesMinimumScore) {
+        for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
+            writer.Key(FEATURE_SIGNIFICANCE_PREFIX + featureNames[i]);
+            writer.Double(row[beginFeatureScoreColumns + i]);
+        }
+    }
+    writer.EndObject();
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {

@@ -94,7 +94,9 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
         return this->handleControlMessage(fieldValues);
     }
 
+    this->captureFieldNames(fieldNames);
     this->addRowToDataFrame(fieldValues);
+
     return true;
 }
 
@@ -220,6 +222,13 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     return true;
 }
 
+void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
+    if (m_FieldNames.empty()) {
+        m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
+                            fieldNames.begin() + m_EndDataFieldValues);
+    }
+}
+
 void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     if (m_DataFrame == nullptr) {
         return;
@@ -294,7 +303,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
-            analysis.writeOneRow(*row, writer);
+            analysis.writeOneRow(m_FieldNames, *row, writer);
             writer.EndObject();
             writer.EndObject();
         }

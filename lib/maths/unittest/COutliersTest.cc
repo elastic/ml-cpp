@@ -114,14 +114,14 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
-        auto dataFrame = pointsToDataFrame(points);
+        auto frame = pointsToDataFrame(points);
 
         maths::COutliers::SComputeParameters params{numberThreads,
                                                     numberPartitions, false, 0.05};
-        maths::COutliers::compute(params, *dataFrame);
+        maths::COutliers::compute(params, *frame);
 
-        dataFrame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
-                                         core::CDataFrame::TRowItr endRows) {
+        frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
+                                     core::CDataFrame::TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 scores[row->index()] = (*row)[6];
             }
@@ -365,6 +365,7 @@ void COutliersTest::testEnsemble() {
 
     std::string tags[]{"sequential", "parallel"};
 
+    // Test in/out of core.
     for (std::size_t i = 0; i < 2; ++i) {
 
         // Test sequential then parallel.
@@ -383,6 +384,100 @@ void COutliersTest::testEnsemble() {
                 CPPUNIT_ASSERT(precision >= precisionLowerBounds[k]);
                 CPPUNIT_ASSERT(recall >= recallLowerBounds[k]);
             }
+
+            core::startDefaultAsyncExecutor();
+        }
+
+        core::stopDefaultAsyncExecutor();
+    }
+}
+
+void COutliersTest::testSignificantFeatures() {
+
+    // Test calculation of outlier significant features.
+
+    // We have the following basic geometry:
+    //   1) Two clusters of points (x, y)
+    //   2) Three outliers
+    //         i) One displaced in the x-direction
+    //        ii) One displaced in the y-direction
+    //       iii) One displaced in both directions
+
+    TFactoryFunc toMainMemoryDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    }};
+    TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toOnDiskDataFrame(
+            boost::filesystem::current_path().string(), points);
+    }};
+    TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
+    std::size_t numberPartitions[]{1, 3};
+    std::size_t numberThreads[]{1, 4};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec means[]{{0.0, 0.0}, {100.0, 100.0}};
+    TDoubleVecVec covariances[]{{{7.0, 1.0}, {1.0, 8.0}}, {{5.0, 2.0}, {2.0, 12.0}}};
+
+    TPointVec points;
+    for (std::size_t i = 0; i < 2; ++i) {
+        TDoubleVecVec inliers;
+        rng.generateMultivariateNormalSamples(means[i], covariances[i], 100, inliers);
+
+        points.resize(points.size() + inliers.size(), TPoint{2});
+        for (std::size_t j = inliers.size(); j > 0; --j) {
+            for (std::size_t k = 0; k < inliers[j - 1].size(); ++k) {
+                points[points.size() - j](k) = inliers[j - 1][k];
+            }
+        }
+    }
+    points.emplace_back(2);
+    points.back() << 0.0, 50.0;
+    points.emplace_back(2);
+    points.back() << 150.0, 100.0;
+    points.emplace_back(2);
+    points.back() << -30.0, -30.0;
+
+    std::size_t outlierIndexes[]{points.size() - 3, points.size() - 2, points.size() - 1};
+
+    core::stopDefaultAsyncExecutor();
+
+    std::string tags[]{"sequential", "parallel"};
+
+    // Test in/out of core.
+    for (std::size_t i = 0; i < 2; ++i) {
+
+        // Test sequential then parallel.
+        for (std::size_t j = 0; j < 2; ++j) {
+            LOG_DEBUG(<< "Testing " << tags[j]);
+
+            auto frame = factories[i](points);
+            maths::COutliers::SComputeParameters params{
+                numberThreads[j], numberPartitions[i], true, 0.05};
+            maths::COutliers::compute(params, *frame);
+
+            bool passed{true};
+            frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                                   core::CDataFrame::TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (row->index() == outlierIndexes[0]) {
+                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
+                                  << ", y-significance = " << (*row)[4]);
+                        passed &= (1.0 - (*row)[4] < 0.001);
+                    }
+                    if (row->index() == outlierIndexes[1]) {
+                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
+                                  << ", y-significance = " << (*row)[4]);
+                        passed &= (1.0 - (*row)[3] < 0.001);
+                    }
+                    if (row->index() == outlierIndexes[2]) {
+                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
+                                  << ", y-significance = " << (*row)[4]);
+                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.5);
+                    }
+                }
+            });
+            CPPUNIT_ASSERT(passed);
 
             core::startDefaultAsyncExecutor();
         }
@@ -470,6 +565,8 @@ CppUnit::Test* COutliersTest::suite() {
         "COutliersTest::testTotalDistancekNN", &COutliersTest::testTotalDistancekNN));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testEnsemble", &COutliersTest::testEnsemble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testSignificantFeatures", &COutliersTest::testSignificantFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
 

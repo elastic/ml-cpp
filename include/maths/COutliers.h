@@ -280,29 +280,28 @@ private:
                 [&, neighbours = TPointVec{} ](const POINT& point) mutable {
 
                     std::size_t i{point.annotation()};
-
                     this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
                     std::size_t a(point == neighbours[0] ? 1 : 0);
                     std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
-                    POINT point_;
+                    POINT point_(point);
                     for (std::size_t j = 0; j < m_Dimension; ++j) {
-                        // p'(y) can be found by an iterative scheme which moves
-                        // it as close as possible to the current point on the
-                        // hypersphere with radius equal to the k-distance of the
-                        // neighbour. Initializing with the p after two iterations
-                        // we end up very close.
-                        point_ = point;
+                        // p'(y) can be found by an iterative scheme.
                         for (std::size_t round = 0; round < 2; ++round) {
                             TMeanAccumulator centroid;
                             for (std::size_t k = a; k <= b; ++k) {
-                                const POINT& neighbour{neighbours[k]};
-                                double kdistance{this->kdistance(neighbour.annotation())};
-                                double distance{las::distance(point_, neighbour)};
-                                double step{std::min(kdistance / distance, 1.0)};
-                                centroid.add((neighbour + (point_ - neighbour) * step)(j));
+                                centroid.add(neighbours[k](j));
                             }
                             point_(j) = CBasicStatistics::mean(centroid);
+
+                            centroid = TMeanAccumulator{};
+                            for (std::size_t k = a; k <= b; ++k) {
+                                if (this->kdistance(neighbours[k].annotation()) <
+                                    las::distance(point_, neighbours[k])) {
+                                    centroid.add(neighbours[k](j));
+                                }
+                            }
+                            point_(j) = (point_(j) + CBasicStatistics::mean(centroid)) / 2.0;
                         }
 
                         TMeanAccumulator reachability_;
@@ -314,6 +313,9 @@ private:
                         }
                         double reachability{
                             std::max(CBasicStatistics::mean(reachability_), min[0])};
+
+                        point_(j) = point(j);
+
                         m_CoordinateLrd[this->coordinateLrdIndex(i, j)] = 1.0 / reachability;
                     }
                 });
@@ -405,8 +407,6 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
-        using TPointMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
-
         auto ldof = [](const TMeanAccumulator& d, const TMeanAccumulator& D) {
             return CBasicStatistics::mean(D) > 0.0
                        ? CBasicStatistics::mean(d) / CBasicStatistics::mean(D)
@@ -415,34 +415,42 @@ private:
 
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
+        std::size_t dimension{las::dimension(point)};
 
         auto& score = scores[point.annotation()];
-        score.resize(this->featureSignificances() ? las::dimension(point) + 1 : 1);
+        score.resize(this->featureSignificances() ? dimension + 1 : 1);
 
-        TMeanAccumulator d, D;
-        for (std::size_t i = a; i <= b; ++i) {
-            d.add(las::distance(point, neighbours[i]));
-            for (std::size_t j = 1; j < i; ++j) {
-                D.add(las::distance(neighbours[i], neighbours[j]));
+        TMeanAccumulator D;
+        {
+            TMeanAccumulator d;
+            for (std::size_t i = a; i <= b; ++i) {
+                d.add(las::distance(point, neighbours[i]));
+                for (std::size_t j = 1; j < i; ++j) {
+                    D.add(las::distance(neighbours[i], neighbours[j]));
+                }
             }
+            score[0] = ldof(d, D);
         }
-        score[0] = ldof(d, D);
-
         if (score.size() > 1) {
             // The idea is to compute the score placing the point at the
             // locations which minimise the ldof on each axis aligned line
             // passing through the point. These are just the neighbours
             // coordinate centroids.
-            TPointMeanAccumulator centroid{las::zero(point)};
-            centroid.add(neighbours);
             POINT point_{point};
-            for (std::size_t i = 1; i < score.size(); ++i) {
-                d = TMeanAccumulator{};
-                point_(i - 1) = CBasicStatistics::mean(centroid)(i - 1);
+            for (std::size_t i = 0; i < dimension; ++i) {
+                TMeanAccumulator centroid;
+                for (std::size_t j = a; j <= b; ++j) {
+                    centroid.add(neighbours[j](i));
+                }
+
+                TMeanAccumulator d;
+                point_(i) = CBasicStatistics::mean(centroid);
                 for (std::size_t j = a; j <= b; ++j) {
                     d.add(las::distance(point_, neighbours[j]));
                 }
-                score[i] = ldof(d, D);
+                point_(i) = point(i);
+
+                score[i + 1] = ldof(d, D);
             }
         }
     }
