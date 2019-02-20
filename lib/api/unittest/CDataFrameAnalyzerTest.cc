@@ -248,41 +248,6 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
-
-    // Test the case we have to overflow to disk to compute outliers subject
-    // to the memory constraints.
-
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    api::CDataFrameAnalyzer analyzer{outlierSpec(1000, 100000), outputWriterFactory};
-
-    TDoubleVec expectedScores;
-
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores, 990, 10);
-
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
-
-    auto expectedScore = expectedScores.begin();
-    for (const auto& result : results.GetArray()) {
-        CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
-            1e-4 * *expectedScore);
-        ++expectedScore;
-    }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
-}
-
 void CDataFrameAnalyzerTest::testFlushMessage() {
 
     // Test that white space is just ignored.
