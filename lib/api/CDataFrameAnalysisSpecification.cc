@@ -36,16 +36,16 @@ TRunnerFactoryUPtrVec analysisFactories() {
 }
 
 // These must be consistent with Java names.
-const char* ROWS{"rows"};
-const char* COLS{"cols"};
-const char* MEMORY_LIMIT{"memory_limit"};
-const char* THREADS{"threads"};
-const char* TEMPORARY_DIRECTORY{"temp_dir"};
-const char* ANALYSIS{"analysis"};
-const char* NAME{"name"};
-const char* PARAMETERS{"parameters"};
+const char* const ROWS{"rows"};
+const char* const COLS{"cols"};
+const char* const MEMORY_LIMIT{"memory_limit"};
+const char* const THREADS{"threads"};
+const char* const TEMPORARY_DIRECTORY{"temp_dir"};
+const char* const ANALYSIS{"analysis"};
+const char* const NAME{"name"};
+const char* const PARAMETERS{"parameters"};
 
-const char* VALID_MEMBER_NAMES[]{ROWS, COLS, MEMORY_LIMIT, THREADS, ANALYSIS};
+const char* const VALID_MEMBER_NAMES[]{ROWS, COLS, MEMORY_LIMIT, THREADS, ANALYSIS};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
