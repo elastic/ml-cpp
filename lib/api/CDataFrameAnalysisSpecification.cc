@@ -70,8 +70,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::stri
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                                                  const std::string& jsonSpecification)
-    : m_RunnerFactories{std::move(runnerFactories)},
-      m_TemporaryDirectory{boost::filesystem::current_path().string()} {
+    : m_TemporaryDirectory{boost::filesystem::current_path().string()},
+      m_RunnerFactories{std::move(runnerFactories)} {
 
     rapidjson::Document document;
     if (document.Parse(jsonSpecification.c_str()) == false) {

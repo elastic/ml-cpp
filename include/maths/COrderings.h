@@ -341,7 +341,6 @@ public:
             return lexicographical_compare(lhs.first, lhs.second, rhs.first,
                                            rhs.second, *this);
         }
-        SReferenceLess s_Less;
     };
 
     //! \brief Wrapper around various less than comparisons.
@@ -387,8 +386,6 @@ public:
             return lexicographical_compare(lhs.first, lhs.second, rhs.first,
                                            rhs.second, *this);
         }
-
-        SReferenceGreater s_Greater;
     };
 
     //! Lexicographical comparison of various common types.
