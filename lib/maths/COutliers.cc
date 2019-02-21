@@ -317,20 +317,20 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
 
     std::size_t numberScores{scores[0].size()};
     if (numberScores > 1) {
-        TPoint significances{SConstant<TPoint>::get(numberScores - 1, 0)};
+        TPoint influences{SConstant<TPoint>::get(numberScores - 1, 0)};
         for (std::size_t i = 0; i < scores.size(); ++i) {
             double fi0{scoreCdfComplement(i, 0)};
             for (std::size_t j = 1; j < numberScores; ++j) {
                 double fij{scoreCdfComplement(i, j)};
-                significances(j - 1) += weights[i] * std::max(fij - fi0, 0.0);
+                influences(j - 1) += weights[i] * std::max(fij - fi0, 0.0);
             }
         }
-        significances = rowNormalizedProjection * significances;
-        std::size_t numberSignificances{las::dimension(significances)};
+        influences = rowNormalizedProjection * influences;
+        std::size_t numberInfluences{las::dimension(influences)};
 
-        m_State.resize(numberSignificances + 2);
-        for (std::size_t i = 0; i < numberSignificances; ++i) {
-            this->significance(i) += significances(i);
+        m_State.resize(numberInfluences + 2);
+        for (std::size_t i = 0; i < numberInfluences; ++i) {
+            this->influence(i) += influence(i);
         }
     }
 }
@@ -350,11 +350,11 @@ TDouble1Vec CEnsemble<POINT>::CScorer::compute(double pOutlier) const {
 
     TDouble1Vec result{likelihoodOutlier / (likelihoodOutlier + likelihoodInlier)};
 
-    // The normalised feature significances.
-    result.resize(this->numberSignificances() + 1);
+    // The normalised feature influence.
+    result.resize(this->numberInfluences() + 1);
     double Z{0.0};
     for (std::size_t i = 1; i < result.size(); ++i) {
-        Z += result[i] = this->significance(i - 1);
+        Z += result[i] = this->influence(i - 1);
     }
     for (std::size_t i = 1; Z > 0.0 && i < result.size(); ++i) {
         result[i] /= Z;
@@ -466,7 +466,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 
 template<typename POINT>
 typename CEnsemble<POINT>::TMethodFactoryVec
-methodFactories(bool featureSignificances, TProgressCallback recordProgress) {
+methodFactories(bool computeFeatureInfluence, TProgressCallback recordProgress) {
 
     using TPoint = typename CEnsemble<POINT>::TPoint;
     using TKdTree = typename CEnsemble<POINT>::TKdTree;
@@ -476,26 +476,26 @@ methodFactories(bool featureSignificances, TProgressCallback recordProgress) {
 
     result.emplace_back([=](std::size_t k, const TKdTree& lookup) {
         return std::make_unique<CLof<TPoint, const TKdTree&>>(
-            featureSignificances, k, recordProgress, lookup);
+            computeFeatureInfluence, k, recordProgress, lookup);
     });
     result.emplace_back([=](std::size_t k, const TKdTree& lookup) {
         return std::make_unique<CLdof<TPoint, const TKdTree&>>(
-            featureSignificances, k, recordProgress, lookup);
+            computeFeatureInfluence, k, recordProgress, lookup);
     });
     result.emplace_back([=](std::size_t k, const TKdTree& lookup) {
         return std::make_unique<CDistancekNN<TPoint, const TKdTree&>>(
-            featureSignificances, k, recordProgress, lookup);
+            computeFeatureInfluence, k, recordProgress, lookup);
     });
     result.emplace_back([=](std::size_t k, const TKdTree& lookup) {
         return std::make_unique<CTotalDistancekNN<TPoint, const TKdTree&>>(
-            featureSignificances, k, recordProgress, lookup);
+            computeFeatureInfluence, k, recordProgress, lookup);
     });
 
     return result;
 }
 
 template<typename POINT>
-CEnsemble<POINT> buildEnsemble(bool featureSignificances,
+CEnsemble<POINT> buildEnsemble(bool computeFeatureInfluence,
                                core::CDataFrame& frame,
                                TProgressCallback recordProgress) {
 
@@ -517,7 +517,7 @@ CEnsemble<POINT> buildEnsemble(bool featureSignificances,
         }
     });
 
-    return {methodFactories<POINT>(featureSignificances, std::move(recordProgress)),
+    return {methodFactories<POINT>(computeFeatureInfluence, std::move(recordProgress)),
             std::move(builders)};
 }
 
@@ -528,7 +528,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params.s_FeatureSignificances,
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params.s_ComputeFeatureInfluence,
                                                      frame, recordProgress)};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
@@ -576,7 +576,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     };
 
     frame.resizeColumns(params.s_NumberThreads,
-                        (params.s_FeatureSignificances ? 2 : 1) * dimension + 1);
+                        (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
 
     if (frame.writeColumns(params.s_NumberThreads, writeScores) == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
@@ -593,7 +593,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     using TPointVec = std::vector<TPoint>;
 
     CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
-        params.s_FeatureSignificances, frame, [=](double progress) {
+        params.s_ComputeFeatureInfluence, frame, [=](double progress) {
             recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
         })};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
@@ -601,7 +601,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     std::size_t dimension{frame.numberColumns()};
 
     frame.resizeColumns(params.s_NumberThreads,
-                        (params.s_FeatureSignificances ? 2 : 1) * dimension + 1);
+                        (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};

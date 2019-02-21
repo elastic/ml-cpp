@@ -63,11 +63,11 @@ private:
     //! \see maths::COutliers for more details.
     std::size_t m_Method;
 
-    //! Compute the significance of features responsible for each point being outlying.
-    bool m_FeatureSignificances = false;
+    //! Compute the relative influence of each feature on each point being outlying.
+    bool m_ComputeFeatureInfluence = false;
 
-    //! The minimum outlier score for which we'll write output feature significances.
-    double m_WriteFeatureSignificancesMinimumScore = 0.1;
+    //! The minimum outlier score for which we'll write out feature influence.
+    double m_WriteFeatureInfluenceMinimumScore = 0.1;
 
     //! The prior probability that a point is an outlier.
     double m_ProbabilityOutlier = 0.05;

@@ -58,16 +58,16 @@ public:
     using TPointVec = std::vector<POINT>;
 
 public:
-    CNearestNeighbourMethod(bool featureSignificances,
+    CNearestNeighbourMethod(bool computeFeatureInfluence,
                             std::size_t k,
                             NEAREST_NEIGHBOURS lookup,
                             TProgressCallback recordProgress)
-        : m_FeatureSignificances{featureSignificances}, m_K{k}, m_Lookup{std::move(lookup)},
-          m_RecordProgress{std::move(recordProgress)} {}
+        : m_ComputeFeatureInfluence{computeFeatureInfluence}, m_K{k},
+          m_Lookup{std::move(lookup)}, m_RecordProgress{std::move(recordProgress)} {}
     virtual ~CNearestNeighbourMethod() = default;
 
-    //! Check whether to compute coordinate scores.
-    bool featureSignificances() const { return m_FeatureSignificances; }
+    //! Check whether to compute influences of features on the outlier scores.
+    bool computeFeatureInfluence() const { return m_ComputeFeatureInfluence; }
 
     //! The number of points.
     std::size_t n() const { return m_Lookup.size(); }
@@ -134,7 +134,7 @@ private:
     virtual std::string name() const = 0;
 
 private:
-    bool m_FeatureSignificances;
+    bool m_ComputeFeatureInfluence;
     std::size_t m_K;
     NEAREST_NEIGHBOURS m_Lookup;
     TProgressCallback m_RecordProgress;
@@ -152,12 +152,12 @@ public:
     static const TCoordinate UNSET_DISTANCE;
 
 public:
-    CLof(bool featureSignificances,
+    CLof(bool computeFeatureInfluence,
          std::size_t k,
          TProgressCallback recordProgress,
          NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              featureSignificances, k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
     void recoverMemory() override {
         m_KDistances.resize(this->k() * m_StartAddresses);
@@ -168,13 +168,13 @@ public:
         m_CoordinateLrd.shrink_to_fit();
     }
 
-    static std::size_t estimateOwnMemoryOverhead(bool featureSignificances,
+    static std::size_t estimateOwnMemoryOverhead(bool computeFeatureInfluence,
                                                  std::size_t k,
                                                  std::size_t numberPoints,
                                                  std::size_t dimension) {
         return numberPoints *
                (k * sizeof(TUInt32CoordinatePr) +
-                (featureSignificances ? dimension + 1 : 1) * sizeof(TCoordinate));
+                (computeFeatureInfluence ? dimension + 1 : 1) * sizeof(TCoordinate));
     }
 
 private:
@@ -195,7 +195,7 @@ private:
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
 
-        if (this->featureSignificances()) {
+        if (this->computeFeatureInfluence()) {
             m_CoordinateLrd.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
             m_CoordinateLrd.resize(m_Dimension * m_EndAddresses, UNSET_DISTANCE);
         }
@@ -265,7 +265,7 @@ private:
             }
         }
 
-        if (this->featureSignificances()) {
+        if (this->computeFeatureInfluence()) {
             // The idea is to compute the score placing each point p at the
             // locations which minimise the lof on each axis aligned line
             // passing through p. If we let p'(x) denote the point obtained
@@ -336,7 +336,7 @@ private:
                 }
             }
 
-            scores[i].resize(this->featureSignificances() ? m_Dimension + 1 : 1);
+            scores[i].resize(this->computeFeatureInfluence() ? m_Dimension + 1 : 1);
             scores[i][0] = CBasicStatistics::mean(neighbourhoodLrd) / m_Lrd[i];
 
             // We choose to ignore the impact of moving the point on its
@@ -397,12 +397,12 @@ const typename CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CLdof final : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CLdof(bool featureSignificances,
+    CLdof(bool computeFeatureInfluence,
           std::size_t k,
           TProgressCallback recordProgress,
           NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              featureSignificances, k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
@@ -418,7 +418,7 @@ private:
         std::size_t dimension{las::dimension(point)};
 
         auto& score = scores[point.annotation()];
-        score.resize(this->featureSignificances() ? dimension + 1 : 1);
+        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1);
 
         TMeanAccumulator D;
         {
@@ -462,12 +462,12 @@ private:
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CDistancekNN final : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CDistancekNN(bool featureSignificances,
+    CDistancekNN(bool computeFeatureInfluence,
                  std::size_t k,
                  TProgressCallback recordProgress,
                  NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              featureSignificances, k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
@@ -477,7 +477,7 @@ private:
         const auto& kthNeighbour = neighbours[k];
 
         auto& score = scores[point.annotation()];
-        score.resize(this->featureSignificances() ? las::dimension(point) + 1 : 1);
+        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1);
 
         double d{las::distance(point, kthNeighbour)};
         score[0] = d;
@@ -496,12 +496,12 @@ template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CTotalDistancekNN final
     : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CTotalDistancekNN(bool featureSignificances,
+    CTotalDistancekNN(bool computeFeatureInfluence,
                       std::size_t k,
                       TProgressCallback recordProgress,
                       NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              featureSignificances, k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
@@ -510,7 +510,7 @@ private:
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
         auto& score = scores[point.annotation()];
-        score.assign(this->featureSignificances() ? las::dimension(point) + 1 : 1, 0.0);
+        score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
 
         for (std::size_t i = a; i <= b; ++i) {
             double d{las::distance(point, neighbours[i])};
@@ -546,7 +546,7 @@ public:
     CMultipleMethods(std::size_t k,
                      TMethodUPtrVec methods,
                      NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-        : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{methods[0]->featureSignificances(),
+        : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{methods[0]->computeFeatureInfluence(),
                                                              k, std::move(lookup),
                                                              methods[0]->progressRecorder()},
           m_Methods{std::move(methods)} {}
@@ -670,7 +670,7 @@ public:
                  const TDouble1Vec2Vec& scores);
 
         //! Compute the posterior probability that the point is an outlier
-        //! and optionally the feature significances.
+        //! and optionally the feature influence.
         TDouble1Vec compute(double pOutlier) const;
 
         static std::size_t estimateMemoryUsage(std::size_t dimension) {
@@ -687,14 +687,12 @@ public:
         double logLikelihoodOutlier() const { return m_State[1]; }
         CFloatStorage& logLikelihoodOutlier() { return m_State[1]; }
 
-        double significance(std::size_t index) const {
-            return m_State[index + 2];
-        }
-        CFloatStorage& significance(std::size_t index) {
+        double influence(std::size_t index) const { return m_State[index + 2]; }
+        CFloatStorage& influence(std::size_t index) {
             return m_State[index + 2];
         }
 
-        std::size_t numberSignificances() const { return m_State.size() - 2; }
+        std::size_t numberInfluences() const { return m_State.size() - 2; }
 
     private:
         TFloat2Vec m_State;
@@ -726,7 +724,7 @@ public:
     static std::size_t
     estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
                                              std::size_t numberMethodsPerModel,
-                                             bool featureSignificances,
+                                             bool computeFeatureInfluence,
                                              std::size_t totalNumberPoints,
                                              std::size_t partitionNumberPoints,
                                              std::size_t dimension) {
@@ -744,7 +742,7 @@ public:
         auto scorersSize = [&] {
             return partitionNumberPoints *
                    (sizeof(CScorer) + CScorer::estimateMemoryUsage(
-                                          featureSignificances ? dimension : 0));
+                                          computeFeatureInfluence ? dimension : 0));
         };
         auto modelSize = [&] {
             return CModel::estimateMemoryUsage(methodSize, sampleSize, averageNumberNeighbours,
@@ -755,7 +753,7 @@ public:
             // for a single partition.
             return numberMethodsPerModel * partitionNumberPoints *
                        (sizeof(TDouble1Vec) +
-                        (featureSignificances ? projectionDimension * sizeof(double) : 0)) +
+                        (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
                    methodSize(averageNumberNeighbours, partitionNumberPoints, projectionDimension);
         };
 
@@ -904,8 +902,8 @@ public:
         std::size_t s_NumberThreads;
         //! The number of partitions to use.
         std::size_t s_NumberPartitions;
-        //! If true also compute the feature significances.
-        bool s_FeatureSignificances;
+        //! If true also compute the feature influence.
+        bool s_ComputeFeatureInfluence;
         //! The prior probability that a point is an outlier.
         double s_ProbabilityOutlier;
     };
@@ -927,7 +925,7 @@ public:
     //!
     //! \param[in] method The method that will be used.
     //! \param[in] k The number of nearest neighbours which will be used.
-    //! \param[in] featureSignificances If true the feature significances
+    //! \param[in] computeFeatureInfluence If true the feature influence
     //! will also be computed.
     //! \param[in] totalNumberPoints The total number of points for which
     //! outlier scores will be computed.
@@ -938,7 +936,7 @@ public:
     template<typename POINT>
     static std::size_t estimateMemoryUsedByCompute(EMethod method,
                                                    std::size_t k,
-                                                   bool featureSignificances,
+                                                   bool computeFeatureInfluence,
                                                    std::size_t totalNumberPoints,
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension) {
@@ -946,17 +944,17 @@ public:
                               std::size_t projectionDimension) {
             return method == E_Lof
                        ? TLof<POINT>::estimateOwnMemoryOverhead(
-                             featureSignificances, k, numberPoints, projectionDimension)
+                             computeFeatureInfluence, k, numberPoints, projectionDimension)
                        : 0;
         };
         return TEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-            methodSize, 1 /*number methods*/, featureSignificances,
+            methodSize, 1 /*number methods*/, computeFeatureInfluence,
             totalNumberPoints, partitionNumberPoints, dimension);
     }
 
     //! Overload of estimateMemoryUsedByCompute for default behaviour.
     template<typename POINT>
-    static std::size_t estimateMemoryUsedByCompute(bool featureSignificances,
+    static std::size_t estimateMemoryUsedByCompute(bool computeFeatureInfluence,
                                                    std::size_t totalNumberPoints,
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension) {
@@ -964,11 +962,11 @@ public:
                               std::size_t projectionDimension) {
             // On average half of models use CLof.
             return TLof<POINT>::estimateOwnMemoryOverhead(
-                       featureSignificances, k, numberPoints, projectionDimension) /
+                       computeFeatureInfluence, k, numberPoints, projectionDimension) /
                    2;
         };
         return TEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-            methodSize, 2 /*number methods*/, featureSignificances,
+            methodSize, 2 /*number methods*/, computeFeatureInfluence,
             totalNumberPoints, partitionNumberPoints, dimension);
     }
 

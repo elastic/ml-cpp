@@ -101,7 +101,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
-    return m_FeatureSignificances ? this->spec().numberColumns() + 1 : 1;
+    return m_ComputeFeatureInfluence ? this->spec().numberColumns() + 1 : 1;
 }
 
 void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
@@ -113,7 +113,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE);
     writer.Double(row[scoreColumn]);
-    if (row[scoreColumn] > m_WriteFeatureSignificancesMinimumScore) {
+    if (row[scoreColumn] > m_WriteFeatureInfluenceMinimumScore) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
             writer.Key(FEATURE_SIGNIFICANCE_PREFIX + featureNames[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
@@ -125,7 +125,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
     maths::COutliers::SComputeParameters params{
         this->spec().numberThreads(), this->numberPartitions(),
-        m_FeatureSignificances, m_ProbabilityOutlier};
+        m_ComputeFeatureInfluence, m_ProbabilityOutlier};
 
     maths::COutliers::compute(params, frame, this->progressRecorder());
 }
@@ -157,10 +157,11 @@ CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
     maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
     return m_NumberNeighbours != boost::none
                ? maths::COutliers::estimateMemoryUsedByCompute<POINT>(
-                     method, *m_NumberNeighbours, m_FeatureSignificances,
+                     method, *m_NumberNeighbours, m_ComputeFeatureInfluence,
                      totalNumberRows, partitionNumberRows, numberColumns)
                : maths::COutliers::estimateMemoryUsedByCompute<POINT>(
-                     m_FeatureSignificances, totalNumberRows, partitionNumberRows, numberColumns);
+                     m_ComputeFeatureInfluence, totalNumberRows,
+                     partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {
