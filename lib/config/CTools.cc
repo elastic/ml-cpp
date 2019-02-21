@@ -85,7 +85,7 @@ std::string CTools::prettyPrint(double d) {
 }
 
 std::string CTools::prettyPrint(core_t::TTime time) {
-    static const char* SUFFIXES[] = {" week", " day", " hr", " min", " sec"};
+    static const char* const SUFFIXES[] = {" week", " day", " hr", " min", " sec"};
 
     std::string result;
     core_t::TTime intervals[] = {(time / 604800), (time / 86400) % 7,
