@@ -65,7 +65,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
     TModelBuilderVec result;
     result.reserve(numberModels);
 
-    TMatrixVec projections{createProjections(rng, numberModels, projectionDimension, dimension)};
+    TMatrixVec projections(createProjections(rng, numberModels, projectionDimension, dimension));
 
     for (std::size_t i = 0; i < projections.size(); ++i) {
         // Multiple algorithms are used for the same model which therefore share
@@ -404,7 +404,7 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
     for (auto& method : methods) {
 
         method->progressRecorder().swap(noop);
-        TDouble1VecVec2Vec scores{method->run(sample, sample.size())};
+        TDouble1VecVec2Vec scores(method->run(sample, sample.size()));
         method->progressRecorder().swap(noop);
 
         m_LogScoreMoments.emplace_back();
