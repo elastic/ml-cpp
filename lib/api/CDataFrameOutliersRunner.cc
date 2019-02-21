@@ -37,7 +37,7 @@ const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
 const char* OUTLIER_SCORE{"outlier_score"};
-const char* FEATURE_SIGNIFICANCE_PREFIX{"feature_significance."};
+const char* FEATURE_INFLUENCE_PREFIX{"feature_influence."};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -115,7 +115,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.Double(row[scoreColumn]);
     if (row[scoreColumn] > m_WriteFeatureInfluenceMinimumScore) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
-            writer.Key(FEATURE_SIGNIFICANCE_PREFIX + featureNames[i]);
+            writer.Key(FEATURE_INFLUENCE_PREFIX + featureNames[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
         }
     }
