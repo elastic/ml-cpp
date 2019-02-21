@@ -322,15 +322,17 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
             double fi0{scoreCdfComplement(i, 0)};
             for (std::size_t j = 1; j < numberScores; ++j) {
                 double fij{scoreCdfComplement(i, j)};
-                influences(j - 1) += weights[i] * std::max(fij - fi0, 0.0);
+                influences(j - 1) +=
+                    weights[i] *
+                    std::max(CTools::fastLog(fij) - CTools::fastLog(fi0), 0.0);
             }
         }
         influences = rowNormalizedProjection * influences;
         std::size_t numberInfluences{las::dimension(influences)};
 
-        m_State.resize(numberInfluences + 2);
+        m_State.resize(numberInfluences + 2, 0.0);
         for (std::size_t i = 0; i < numberInfluences; ++i) {
-            this->influence(i) += influence(i);
+            this->influence(i) += influences(i);
         }
     }
 }

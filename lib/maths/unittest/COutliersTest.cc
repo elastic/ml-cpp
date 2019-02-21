@@ -392,7 +392,7 @@ void COutliersTest::testEnsemble() {
     }
 }
 
-void COutliersTest::testSignificantFeatures() {
+void COutliersTest::testFeatureInfluences() {
 
     // Test calculation of outlier significant features.
 
@@ -463,17 +463,17 @@ void COutliersTest::testSignificantFeatures() {
                     if (row->index() == outlierIndexes[0]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[4] < 0.001);
+                        passed &= (1.0 - (*row)[4] < 0.005);
                     }
                     if (row->index() == outlierIndexes[1]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[3] < 0.001);
+                        passed &= (1.0 - (*row)[3] < 0.005);
                     }
                     if (row->index() == outlierIndexes[2]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.5);
+                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.2);
                     }
                 }
             });
@@ -566,7 +566,7 @@ CppUnit::Test* COutliersTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testEnsemble", &COutliersTest::testEnsemble));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testSignificantFeatures", &COutliersTest::testSignificantFeatures));
+        "COutliersTest::testFeatureInfluences", &COutliersTest::testFeatureInfluences));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
 
