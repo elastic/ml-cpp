@@ -114,6 +114,22 @@ double mean(const TDoubleDoublePr& x) {
 }
 }
 
+void CSeasonalComponentTest::testNanHandling() {
+    // Check that if a NaN ever did make it into our component model
+    // it is not propagated further via the confidence interval.
+    // We expect that if a NaN is somehow present in the component
+    // then it should result in a confidence interval of {0.0, 0.0}
+    const core_t::TTime startTime{1354492800};
+    CTestSeasonalComponent seasonal(startTime, core::constants::DAY, 24);
+    seasonal.initialize();
+    seasonal.addPoint(startTime, std::numeric_limits<double>::quiet_NaN());
+    seasonal.interpolate(startTime);
+    TDoubleDoublePr interval{seasonal.value(startTime, 50.0)};
+    LOG_DEBUG(<< "lb = " << interval.first << ", ub = " << interval.second);
+    CPPUNIT_ASSERT_EQUAL(0.0, interval.first);
+    CPPUNIT_ASSERT_EQUAL(0.0, interval.second);
+}
+
 void CSeasonalComponentTest::testNoPeriodicity() {
     const core_t::TTime startTime = 1354492800;
 
@@ -760,6 +776,8 @@ void CSeasonalComponentTest::testPersist() {
 CppUnit::Test* CSeasonalComponentTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSeasonalComponentTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentTest>(
+        "CSeasonalComponentTest::testNanHandling", &CSeasonalComponentTest::testNanHandling));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentTest>(
         "CSeasonalComponentTest::testNoPeriodicity", &CSeasonalComponentTest::testNoPeriodicity));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentTest>(

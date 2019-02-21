@@ -11,6 +11,7 @@
 
 class CSeasonalComponentTest : public CppUnit::TestFixture {
 public:
+    void testNanHandling();
     void testNoPeriodicity();
     void testConstantPeriodic();
     void testTimeVaryingPeriodic();

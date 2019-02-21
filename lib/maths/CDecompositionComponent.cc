@@ -15,6 +15,7 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
@@ -134,6 +135,21 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
         double sd{::sqrt(std::max(this->varianceSpline().value(offset), 0.0) / n)};
         if (sd == 0.0) {
             return {m, m};
+        }
+
+        // Sanity check that neither m nor sd are NaN values
+        // This is an extremely rare edge case as checks elsewhere prevent NaNs from
+        // being added to the models. As yet it is unknown how NaNs could be returned
+        // from the splines, only that they do occur.
+        // The returned interval will not contribute to the baseline.
+        if (maths::CMathsFuncs::isNan(m)) {
+            LOG_WARN(<< "Calculated mean value is not a number.");
+            return {0.0, 0.0};
+        }
+
+        if (maths::CMathsFuncs::isNan(sd)) {
+            LOG_WARN(<< "Calculated standard deviation value is not a number.");
+            return {0.0, 0.0};
         }
 
         try {
