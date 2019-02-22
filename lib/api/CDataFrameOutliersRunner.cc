@@ -27,17 +27,17 @@ namespace ml {
 namespace api {
 namespace {
 // Configuration
-const char* NUMBER_NEIGHBOURS{"number_neighbours"};
-const char* METHOD{"method"};
-const char* LOF{"lof"};
-const char* LDOF{"ldof"};
-const char* DISTANCE_KTH_NN{"distance_kth_nn"};
-const char* DISTANCE_KNN{"distance_knn"};
-const char* VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
+const char* const NUMBER_NEIGHBOURS{"number_neighbours"};
+const char* const METHOD{"method"};
+const char* const LOF{"lof"};
+const char* const LDOF{"ldof"};
+const char* const DISTANCE_KTH_NN{"distance_kth_nn"};
+const char* const DISTANCE_KNN{"distance_knn"};
+const char* const VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
-const char* OUTLIER_SCORE{"outlier_score"};
-const char* FEATURE_INFLUENCE_PREFIX{"feature_influence."};
+const char* const OUTLIER_SCORE{"outlier_score"};
+const char* const FEATURE_INFLUENCE_PREFIX{"feature_influence."};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
