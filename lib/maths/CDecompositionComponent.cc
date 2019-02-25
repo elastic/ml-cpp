@@ -70,8 +70,17 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
     } while (traverser.next());
 
     if (this->initialized()) {
-        m_MeanValue = this->valueSpline().mean();
-        m_MeanVariance = this->varianceSpline().mean();
+        if (CMathsFuncs::isNan(this->valueSpline().mean())) {
+            LOG_ERROR(<< "Calculated mean of value spline is not a number.");
+        } else {
+            m_MeanValue = this->valueSpline().mean();
+        }
+
+        if (CMathsFuncs::isNan(this->varianceSpline().mean())) {
+            LOG_ERROR(<< "Calculated mean of variance spline is not a number.");
+        } else {
+            m_MeanVariance = this->varianceSpline().mean();
+        }
     }
 
     return true;
@@ -108,8 +117,18 @@ void CDecompositionComponent::interpolate(const TDoubleVec& knots,
                                           const TDoubleVec& values,
                                           const TDoubleVec& variances) {
     m_Splines.interpolate(knots, values, variances, m_BoundaryCondition);
-    m_MeanValue = this->valueSpline().mean();
-    m_MeanVariance = this->varianceSpline().mean();
+
+    if (maths::CMathsFuncs::isNan(this->valueSpline().mean())) {
+        LOG_ERROR(<< "Calculated mean of value spline is not a number.");
+    } else {
+        m_MeanValue = this->valueSpline().mean();
+    }
+
+    if (maths::CMathsFuncs::isNan(this->varianceSpline().mean())) {
+        LOG_ERROR(<< "Calculated mean of variance spline is not a number.");
+    } else {
+        m_MeanVariance = this->varianceSpline().mean();
+    }
 }
 
 void CDecompositionComponent::shiftLevel(double shift) {
@@ -125,8 +144,24 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
     // and variance equal to the sample variance divided by root
     // of the number of samples.
 
+    // We sanity check that neither m nor sd are NaN values
+    // This is an extremely rare edge case as checks elsewhere prevent NaNs from
+    // being added to the models. As yet it is unknown how NaNs could be returned
+    // from the splines, only that they do occur.
+
+    // Also check that the provided offset is valid as this is a potential
+    // source of NaNs being generated.
+    if (maths::CMathsFuncs::isNan(offset) == false) {
+        LOG_WARN(<< "Input value offset is not a number.");
+        return {0.0, 0.0};
+    }
     if (this->initialized()) {
         double m{this->valueSpline().value(offset)};
+        if (maths::CMathsFuncs::isNan(m)) {
+            LOG_WARN(<< "Calculated mean value is not a number.");
+            return {m_MeanValue, m_MeanValue};
+        }
+
         if (confidence == 0.0) {
             return {m, m};
         }
@@ -137,19 +172,9 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
             return {m, m};
         }
 
-        // Sanity check that neither m nor sd are NaN values
-        // This is an extremely rare edge case as checks elsewhere prevent NaNs from
-        // being added to the models. As yet it is unknown how NaNs could be returned
-        // from the splines, only that they do occur.
-        // The returned interval will not contribute to the baseline.
-        if (maths::CMathsFuncs::isNan(m)) {
-            LOG_WARN(<< "Calculated mean value is not a number.");
-            return {0.0, 0.0};
-        }
-
         if (maths::CMathsFuncs::isNan(sd)) {
             LOG_WARN(<< "Calculated standard deviation value is not a number.");
-            return {0.0, 0.0};
+            return {m, m};
         }
 
         try {
@@ -259,6 +284,24 @@ bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(
 
     if (estimated == 1) {
         this->interpolate(knots, values, variances, boundary);
+    }
+
+    // Check the restored containers for the presence of NaN values.
+    // We simply log an error if any are detected.
+    auto checkForNan = [](const auto& value, const std::string& containerType) {
+        if (maths::CMathsFuncs::isNan(value) == true) {
+            LOG_ERROR(<< "Detected NaN in " << containerType)
+        }
+    };
+
+    LOG_DEBUG(<< "knots = " << core::CContainerPrinter::print(knots));
+    LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+    LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+
+    for (size_t i = 0; i < values.size(); ++i) {
+        checkForNan(knots[i], "knots");
+        checkForNan(values[i], "values");
+        checkForNan(variances[i], "variances");
     }
 
     return true;
