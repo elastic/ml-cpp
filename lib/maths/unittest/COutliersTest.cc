@@ -457,9 +457,12 @@ void COutliersTest::testFeatureInfluences() {
             maths::COutliers::compute(params, *frame);
 
             bool passed{true};
+            TMeanAccumulator averageSignificances[2];
+
             frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
                                    core::CDataFrame::TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
+                    passed &= (std::fabs((*row)[3] + (*row)[4] - 1.0) < 1e-6);
                     if (row->index() == outlierIndexes[0]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
@@ -475,10 +478,16 @@ void COutliersTest::testFeatureInfluences() {
                                   << ", y-significance = " << (*row)[4]);
                         passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.2);
                     }
+                    averageSignificances[0].add((*row)[3]);
+                    averageSignificances[1].add((*row)[4]);
                 }
             });
             CPPUNIT_ASSERT(passed);
 
+            LOG_DEBUG(<< averageSignificances[0] << " " << averageSignificances[1]);
+            CPPUNIT_ASSERT(
+                std::fabs(maths::CBasicStatistics::mean(averageSignificances[0]) -
+                          maths::CBasicStatistics::mean(averageSignificances[1])) < 0.05);
             core::startDefaultAsyncExecutor();
         }
 
