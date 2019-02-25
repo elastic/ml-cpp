@@ -117,7 +117,12 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
         auto frame = pointsToDataFrame(points);
 
         maths::COutliers::SComputeParameters params{numberThreads,
-                                                    numberPartitions, false, 0.05};
+                                                    numberPartitions,
+                                                    true, // Standardize columns
+                                                    maths::COutliers::E_Ensemble,
+                                                    0, // Compute number neighbours
+                                                    false, // Compute feature influences
+                                                    0.05}; // Outlier fraction
         maths::COutliers::compute(params, *frame);
 
         frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
@@ -452,8 +457,13 @@ void COutliersTest::testFeatureInfluences() {
             LOG_DEBUG(<< "Testing " << tags[j]);
 
             auto frame = factories[i](points);
-            maths::COutliers::SComputeParameters params{
-                numberThreads[j], numberPartitions[i], true, 0.05};
+            maths::COutliers::SComputeParameters params{numberThreads[j],
+                                                        numberPartitions[i],
+                                                        true, // Standardize columns
+                                                        maths::COutliers::E_Ensemble,
+                                                        0, // Compute number neighbours
+                                                        true, // Compute feature influences
+                                                        0.05}; // Outlier fraction
             maths::COutliers::compute(params, *frame);
 
             bool passed{true};
@@ -514,7 +524,7 @@ void COutliersTest::testProgressMonitoring() {
 
     test::CRandomNumbers rng;
 
-    TPointVec points(numberInliers + numberOutliers, TPoint(6));
+    TPointVec points;
     gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
     core::startDefaultAsyncExecutor(2);
@@ -523,7 +533,7 @@ void COutliersTest::testProgressMonitoring() {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
 
-        auto dataFrame = factories[i](points);
+        auto frame = factories[i](points);
 
         std::atomic_int totalFractionalProgress{0};
 
@@ -535,8 +545,14 @@ void COutliersTest::testProgressMonitoring() {
         std::atomic_bool finished{false};
 
         std::thread worker{[&]() {
-            maths::COutliers::SComputeParameters params{2, numberPartitions[i], false, 0.05};
-            maths::COutliers::compute(params, *dataFrame, reportProgress);
+            maths::COutliers::SComputeParameters params{2, // Number threads
+                                                        numberPartitions[i],
+                                                        true, // Standardize columns
+                                                        maths::COutliers::E_Ensemble,
+                                                        0, // Compute number neighbours
+                                                        false, // Compute feature influences
+                                                        0.05}; // Outlier fraction
+            maths::COutliers::compute(params, *frame, reportProgress);
             finished.store(true);
         }};
 

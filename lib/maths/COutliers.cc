@@ -47,6 +47,7 @@ typename CEnsemble<POINT>::TModelBuilderVec
 CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
                                std::size_t numberPoints,
                                std::size_t dimension,
+                               std::size_t numberNeighbours,
                                CPRNG::CXorOShiro128Plus rng) {
     // Compute some constants of the ensemble:
     //   - The number of ensemble models, which is proportional n^(1/2),
@@ -59,7 +60,9 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
     std::size_t ensembleSize{computeEnsembleSize(methods.size(), numberPoints, dimension)};
     std::size_t sampleSize{computeSampleSize(numberPoints)};
     std::size_t numberModels{(ensembleSize + methods.size() - 1) / methods.size()};
-    std::size_t maxNumberNeighbours{computeNumberNeighbours(sampleSize)};
+    std::size_t minNumberNeighbours{numberNeighbours > 0 ? numberNeighbours : 3};
+    std::size_t maxNumberNeighbours{
+        numberNeighbours > 0 ? numberNeighbours : computeNumberNeighbours(sampleSize)};
     std::size_t projectionDimension{computeProjectionDimension(sampleSize, dimension)};
 
     TModelBuilderVec result;
@@ -77,7 +80,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
         for (const auto& method : methods) {
             methodsAndNumberNeighbours.emplace_back(
                 method[CSampling::uniformSample(rng, 0, methods.size())],
-                CSampling::uniformSample(rng, 3, maxNumberNeighbours + 1));
+                CSampling::uniformSample(rng, minNumberNeighbours, maxNumberNeighbours + 1));
         }
 
         result.emplace_back(rng, std::move(methodsAndNumberNeighbours),
@@ -497,19 +500,24 @@ methodFactories(bool computeFeatureInfluence, TProgressCallback recordProgress) 
 }
 
 template<typename POINT>
-CEnsemble<POINT> buildEnsemble(bool computeFeatureInfluence,
+CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
                                core::CDataFrame& frame,
                                TProgressCallback recordProgress) {
 
     using TSizeVec = typename CEnsemble<POINT>::TSizeVec;
     using TSizeVecVec = typename CEnsemble<POINT>::TSizeVecVec;
 
-    TSizeVecVec methods(2);
-    methods[0] = TSizeVec{COutliers::E_Lof, COutliers::E_Ldof};
-    methods[1] = TSizeVec{COutliers::E_DistancekNN, COutliers::E_TotalDistancekNN};
+    TSizeVecVec methods;
+    methods.reserve(2);
+    if (params.s_Method == COutliers::E_Ensemble) {
+        methods.push_back(TSizeVec{COutliers::E_Lof, COutliers::E_Ldof});
+        methods.push_back(TSizeVec{COutliers::E_DistancekNN, COutliers::E_TotalDistancekNN});
+    } else {
+        methods.push_back(TSizeVec{params.s_Method});
+    }
 
-    auto builders = CEnsemble<POINT>::makeBuilders(methods, frame.numberRows(),
-                                                   frame.numberColumns());
+    auto builders = CEnsemble<POINT>::makeBuilders(
+        methods, frame.numberRows(), frame.numberColumns(), params.s_NumberNeighbours);
 
     frame.readRows(1, [&builders](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -519,7 +527,7 @@ CEnsemble<POINT> buildEnsemble(bool computeFeatureInfluence,
         }
     });
 
-    return {methodFactories<POINT>(computeFeatureInfluence, std::move(recordProgress)),
+    return {methodFactories<POINT>(params.s_ComputeFeatureInfluence, std::move(recordProgress)),
             std::move(builders)};
 }
 
@@ -530,8 +538,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params.s_ComputeFeatureInfluence,
-                                                     frame, recordProgress)};
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params, frame, recordProgress)};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
@@ -571,7 +578,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             std::size_t index{dimension};
-            for (auto value : scores[row->index()].compute(params.s_ProbabilityOutlier)) {
+            for (auto value : scores[row->index()].compute(params.s_OutlierFraction)) {
                 row->writeColumn(index++, value);
             }
         }
@@ -594,10 +601,9 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     using TPoint = CDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
-        params.s_ComputeFeatureInfluence, frame, [=](double progress) {
-            recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
-        })};
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params, frame, [=](double progress) {
+        recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
+    })};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
@@ -645,7 +651,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             for (auto row = beginRows; row != endRows; ++row) {
                 std::size_t offset{row->index() - beginPartitionRows};
                 std::size_t index{dimension};
-                for (auto value : scores[offset].compute(params.s_ProbabilityOutlier)) {
+                for (auto value : scores[offset].compute(params.s_OutlierFraction)) {
                     row->writeColumn(index++, value);
                 }
             }
@@ -666,9 +672,10 @@ void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress) {
     // TODO memory monitoring.
-    // TODO user overrides.
 
-    CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
+    if (params.s_StandardizeColumns) {
+        CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
+    }
 
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
                         ? computeOutliersNoPartitions(params, frame, recordProgress)

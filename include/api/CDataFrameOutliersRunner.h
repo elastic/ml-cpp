@@ -23,7 +23,7 @@ class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunne
 public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value& params);
+                             const rapidjson::Value& jsonParameters);
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
@@ -53,9 +53,9 @@ private:
 private:
     //! \name Custom config
     //@{
-    //! If non-null this overrides default number of neighbours to use when computing
+    //! If non-zero this overrides default number of neighbours to use when computing
     //! outlier factors.
-    TOptionalSize m_NumberNeighbours;
+    std::size_t m_NumberNeighbours = 0;
 
     //! Selects the method to use to compute outlier factors; the default is an ensemble
     //! of all supported types.
@@ -63,11 +63,14 @@ private:
     //! \see maths::COutliers for more details.
     std::size_t m_Method;
 
-    //! Compute the relative influence of each feature on each point being outlying.
-    bool m_ComputeFeatureInfluence = false;
+    //! If true then standardise the feature values.
+    bool m_StandardizeColumns = true;
+
+    //! Compute the significance of features responsible for each point being outlying.
+    bool m_ComputeFeatureInfluence = true;
 
     //! The minimum outlier score for which we'll write out feature influence.
-    double m_WriteFeatureInfluenceMinimumScore = 0.1;
+    double m_MinimumScoreToWriteFeatureInfluence = 0.1;
 
     //! The prior probability that a point is an outlier.
     double m_ProbabilityOutlier = 0.05;

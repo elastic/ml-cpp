@@ -14,6 +14,8 @@ public:
     void testWithoutControlMessages();
     void testRunOutlierDetection();
     void testRunOutlierDetectionPartitioned();
+    void testRunOutlierFeatureInfluences();
+    void testRunOutlierDetectionWithParams();
     void testFlushMessage();
     void testErrors();
     void testRoundTripDocHashes();

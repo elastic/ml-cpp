@@ -12,87 +12,63 @@
 
 #include <maths/COutliers.h>
 
+#include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+
 #include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-#include <boost/make_unique.hpp>
-
 #include <algorithm>
-#include <cstring>
 #include <iterator>
+#include <string>
 
 namespace ml {
 namespace api {
 namespace {
 // Configuration
+const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
 const char* const NUMBER_NEIGHBOURS{"number_neighbours"};
 const char* const METHOD{"method"};
-const char* const LOF{"lof"};
-const char* const LDOF{"ldof"};
-const char* const DISTANCE_KTH_NN{"distance_kth_nn"};
-const char* const DISTANCE_KNN{"distance_knn"};
-const char* const VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
+const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
+const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
+
+const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+    const std::string lof{"lof"};
+    const std::string ldof{"ldof"};
+    const std::string knn{"knn"};
+    const std::string tnn{"tnn"};
+    CDataFrameAnalysisConfigReader theReader;
+    theReader.addParameter(STANDARDIZE_COLUMNS,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(NUMBER_NEIGHBOURS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+                           {{lof, int{maths::COutliers::E_Lof}},
+                            {ldof, int{maths::COutliers::E_Ldof}},
+                            {knn, int{maths::COutliers::E_DistancekNN}},
+                            {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
+    theReader.addParameter(COMPUTE_FEATURE_INFLUENCE,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    return theReader;
+}()};
 
 // Output
 const char* const OUTLIER_SCORE{"outlier_score"};
 const char* const FEATURE_INFLUENCE_PREFIX{"feature_influence."};
-
-template<typename MEMBER>
-bool isValidMember(const MEMBER& member) {
-    return std::find_if(std::begin(VALID_MEMBER_NAMES),
-                        std::end(VALID_MEMBER_NAMES), [&member](const char* name) {
-                            return std::strcmp(name, member.name.GetString()) == 0;
-                        }) != std::end(VALID_MEMBER_NAMES);
-}
-
-std::string toString(const rapidjson::Value& value) {
-    rapidjson::StringBuffer valueAsString;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(valueAsString);
-    value.Accept(writer);
-    return valueAsString.GetString();
-}
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                                                   const rapidjson::Value& params)
+                                                   const rapidjson::Value& jsonParameters)
     : CDataFrameOutliersRunner{spec} {
 
-    auto registerFailure = [&params](const char* name) {
-        HANDLE_FATAL(<< "Input error: bad value '" << toString(params[name])
-                     << "' for '" << name << "'.");
-    };
-
-    if (params.HasMember(NUMBER_NEIGHBOURS)) {
-        if (params[NUMBER_NEIGHBOURS].IsUint() && params[NUMBER_NEIGHBOURS].GetUint() > 0) {
-            m_NumberNeighbours.reset(params[NUMBER_NEIGHBOURS].GetUint());
-        } else {
-            registerFailure(NUMBER_NEIGHBOURS);
-        }
-    }
-
-    if (params.HasMember(METHOD)) {
-        if (std::strcmp(LOF, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::COutliers::E_Lof);
-        } else if (std::strcmp(LDOF, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::COutliers::E_Ldof);
-        } else if (std::strcmp(DISTANCE_KTH_NN, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::COutliers::E_DistancekNN);
-        } else if (std::strcmp(DISTANCE_KNN, params[METHOD].GetString()) == 0) {
-            m_Method = static_cast<std::size_t>(maths::COutliers::E_TotalDistancekNN);
-        } else {
-            registerFailure(METHOD);
-        }
-    }
-
-    // Check for any unrecognised fields; these might be typos.
-    for (auto i = params.MemberBegin(); i != params.MemberEnd(); ++i) {
-        if (isValidMember(*i) == false) {
-            HANDLE_FATAL(<< "Input error: unexpected member '"
-                         << i->name.GetString() << "'. Please report this problem.")
-        }
-    }
+    auto parameters = PARAMETER_READER.read(jsonParameters);
+    m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
+    m_NumberNeighbours = parameters[NUMBER_NEIGHBOURS].fallback(std::size_t{0});
+    m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
+    m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
+    m_MinimumScoreToWriteFeatureInfluence =
+        parameters[MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE].fallback(0.1);
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
@@ -113,7 +89,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE);
     writer.Double(row[scoreColumn]);
-    if (row[scoreColumn] > m_WriteFeatureInfluenceMinimumScore) {
+    if (row[scoreColumn] > m_MinimumScoreToWriteFeatureInfluence) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
             writer.Key(FEATURE_INFLUENCE_PREFIX + featureNames[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
@@ -123,10 +99,13 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::COutliers::SComputeParameters params{
-        this->spec().numberThreads(), this->numberPartitions(),
-        m_ComputeFeatureInfluence, m_ProbabilityOutlier};
-
+    maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
+                                                this->numberPartitions(),
+                                                m_StandardizeColumns,
+                                                static_cast<maths::COutliers::EMethod>(m_Method),
+                                                m_NumberNeighbours,
+                                                m_ComputeFeatureInfluence,
+                                                m_ProbabilityOutlier};
     maths::COutliers::compute(params, frame, this->progressRecorder());
 }
 
@@ -155,9 +134,9 @@ CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
                                               std::size_t partitionNumberRows,
                                               std::size_t numberColumns) const {
     maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
-    return m_NumberNeighbours != boost::none
+    return m_NumberNeighbours > 0
                ? maths::COutliers::estimateMemoryUsedByCompute<POINT>(
-                     method, *m_NumberNeighbours, m_ComputeFeatureInfluence,
+                     method, m_NumberNeighbours, m_ComputeFeatureInfluence,
                      totalNumberRows, partitionNumberRows, numberColumns)
                : maths::COutliers::estimateMemoryUsedByCompute<POINT>(
                      m_ComputeFeatureInfluence, totalNumberRows,
