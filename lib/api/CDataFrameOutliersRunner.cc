@@ -37,6 +37,7 @@ const char* const VALID_MEMBER_NAMES[]{NUMBER_NEIGHBOURS, METHOD};
 
 // Output
 const char* const OUTLIER_SCORE{"outlier_score"};
+const char* const FEATURE_INFLUENCE_PREFIX{"feature_influence."};
 
 template<typename MEMBER>
 bool isValidMember(const MEMBER& member) {
@@ -100,22 +101,33 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
-    // Column for outlier score + explaining features TODO.
-    return 1;
+    return m_ComputeFeatureInfluence ? this->spec().numberColumns() + 1 : 1;
 }
 
-void CDataFrameOutliersRunner::writeOneRow(TRowRef row,
-                                           core::CRapidJsonConcurrentLineWriter& outputWriter) const {
-    std::size_t lastColumn{row.numberColumns() - 1};
-    outputWriter.StartObject();
-    outputWriter.Key(OUTLIER_SCORE);
-    outputWriter.Double(row[lastColumn]);
-    outputWriter.EndObject();
+void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
+                                           TRowRef row,
+                                           core::CRapidJsonConcurrentLineWriter& writer) const {
+    std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
+    std::size_t beginFeatureScoreColumns{scoreColumn + 1};
+    std::size_t numberFeatureScoreColumns{this->numberExtraColumns() - 1};
+    writer.StartObject();
+    writer.Key(OUTLIER_SCORE);
+    writer.Double(row[scoreColumn]);
+    if (row[scoreColumn] > m_WriteFeatureInfluenceMinimumScore) {
+        for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
+            writer.Key(FEATURE_INFLUENCE_PREFIX + featureNames[i]);
+            writer.Double(row[beginFeatureScoreColumns + i]);
+        }
+    }
+    writer.EndObject();
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
-    maths::COutliers::compute(this->spec().numberThreads(), this->numberPartitions(),
-                              frame, this->progressRecorder());
+    maths::COutliers::SComputeParameters params{
+        this->spec().numberThreads(), this->numberPartitions(),
+        m_ComputeFeatureInfluence, m_ProbabilityOutlier};
+
+    maths::COutliers::compute(params, frame, this->progressRecorder());
 }
 
 std::size_t
@@ -144,10 +156,12 @@ CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
                                               std::size_t numberColumns) const {
     maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
     return m_NumberNeighbours != boost::none
-               ? maths::COutliers::estimateComputeMemoryUsage<POINT>(
-                     method, *m_NumberNeighbours, totalNumberRows, partitionNumberRows, numberColumns)
-               : maths::COutliers::estimateComputeMemoryUsage<POINT>(
-                     totalNumberRows, partitionNumberRows, numberColumns);
+               ? maths::COutliers::estimateMemoryUsedByCompute<POINT>(
+                     method, *m_NumberNeighbours, m_ComputeFeatureInfluence,
+                     totalNumberRows, partitionNumberRows, numberColumns)
+               : maths::COutliers::estimateMemoryUsedByCompute<POINT>(
+                     m_ComputeFeatureInfluence, totalNumberRows,
+                     partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

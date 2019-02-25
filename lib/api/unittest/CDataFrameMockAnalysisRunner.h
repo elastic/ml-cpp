@@ -19,7 +19,9 @@ public:
     CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
     std::size_t numberExtraColumns() const override;
-    void writeOneRow(TRowRef, ml::core::CRapidJsonConcurrentLineWriter&) const override;
+    void writeOneRow(const TStrVec& featureNames,
+                     TRowRef,
+                     ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
 private:
     void runImpl(ml::core::CDataFrame&) override;

@@ -112,7 +112,7 @@ void addTestData(TStrVec fieldNames,
 
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
-    maths::COutliers::compute(1, 1, *frame);
+    maths::COutliers::compute({1, 1, false, 0.05}, *frame);
 
     expectedScores.resize(points.size());
     frame->readRows(1, [&expectedScores](core::CDataFrame::TRowItr beginRows,

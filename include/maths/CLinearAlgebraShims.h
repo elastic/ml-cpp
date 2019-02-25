@@ -65,7 +65,7 @@ CSymmetricMatrix<T> conformableZeroMatrix(const CVector<T>& x) {
 //! Get the conformable zero initialized matrix for the Eigen dense vector.
 template<typename SCALAR>
 CDenseMatrix<SCALAR> conformableZeroMatrix(const CDenseVector<SCALAR>& x) {
-    return SConstant<CDenseMatrix<SCALAR>>::get(x.size(), 0);
+    return SConstant<CDenseMatrix<SCALAR>>::get(dimension(x), 0);
 }
 
 //! Get the conformable zero initialized matrix for the Eigen memory mapped vector.

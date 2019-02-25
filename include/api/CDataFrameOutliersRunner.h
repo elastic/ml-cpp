@@ -32,7 +32,9 @@ public:
     std::size_t numberExtraColumns() const override;
 
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
-    void writeOneRow(TRowRef row, core::CRapidJsonConcurrentLineWriter& writer) const override;
+    void writeOneRow(const TStrVec& featureNames,
+                     TRowRef row,
+                     core::CRapidJsonConcurrentLineWriter& writer) const override;
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;
@@ -60,6 +62,15 @@ private:
     //!
     //! \see maths::COutliers for more details.
     std::size_t m_Method;
+
+    //! Compute the relative influence of each feature on each point being outlying.
+    bool m_ComputeFeatureInfluence = false;
+
+    //! The minimum outlier score for which we'll write out feature influence.
+    double m_WriteFeatureInfluenceMinimumScore = 0.1;
+
+    //! The prior probability that a point is an outlier.
+    double m_ProbabilityOutlier = 0.05;
     //@}
 };
 
