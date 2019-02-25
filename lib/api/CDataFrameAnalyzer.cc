@@ -94,7 +94,9 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
         return this->handleControlMessage(fieldValues);
     }
 
+    this->captureFieldNames(fieldNames);
     this->addRowToDataFrame(fieldValues);
+
     return true;
 }
 
@@ -220,19 +222,25 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     return true;
 }
 
+void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
+    if (m_FieldNames.empty()) {
+        m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
+                            fieldNames.begin() + m_EndDataFieldValues);
+    }
+}
+
 void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     if (m_DataFrame == nullptr) {
         return;
     }
 
-    using TFloatVec = std::vector<core::CFloatStorage>;
-    using TFloatVecItr = TFloatVec::iterator;
+    using TFloatVecItr = core::CDataFrame::TFloatVecItr;
 
     m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
             double value;
-            if (core::CStringUtils::stringToType(fieldValues[i], value) == false) {
+            if (core::CStringUtils::stringToTypeSilent(fieldValues[i], value) == false) {
                 ++m_BadValueCount;
 
                 // TODO this is a can of worms we can deal with later.
@@ -249,7 +257,8 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
         }
         docHash = 0;
         if (m_DocHashFieldIndex != FIELD_MISSING &&
-            core::CStringUtils::stringToType(fieldValues[m_DocHashFieldIndex], docHash) == false) {
+            core::CStringUtils::stringToTypeSilent(fieldValues[m_DocHashFieldIndex],
+                                                   docHash) == false) {
             ++m_BadDocHashCount;
         }
     });
@@ -294,7 +303,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
-            analysis.writeOneRow(*row, writer);
+            analysis.writeOneRow(m_FieldNames, *row, writer);
             writer.EndObject();
             writer.EndObject();
         }

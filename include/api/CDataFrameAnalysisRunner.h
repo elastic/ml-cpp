@@ -103,9 +103,11 @@ public:
     //! </pre>
     //! with one named member for each column added.
     //!
+    //! \param[in] featureNames The names of the analysis features.
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
-    virtual void writeOneRow(TRowRef row,
+    virtual void writeOneRow(const TStrVec& featureNames,
+                             TRowRef row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Checks whether the analysis is already running and if not launches it
