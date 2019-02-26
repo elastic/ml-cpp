@@ -41,6 +41,10 @@
 
 == {es} version 6.7.0
 
+== {es} version 6.6.2
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
+
 === Enhancements
 
 * Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
