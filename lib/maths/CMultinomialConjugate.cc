@@ -589,7 +589,7 @@ CMultinomialConjugate::marginalLikelihoodConfidenceInterval(double percentage,
                      static_cast<ptrdiff_t>(quantiles.size()) - 1);
         x2 = m_Categories[i2];
     }
-    LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2)
+    LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2);
     LOG_TRACE(<< "quantiles = " << core::CContainerPrinter::print(quantiles));
     LOG_TRACE(<< "            " << core::CContainerPrinter::print(m_Categories));
 
