@@ -42,7 +42,7 @@ struct SRowTo<CDenseVector<T>> {
 };
 }
 
-//! \brief A collection of basic utilities applied to a data frame.
+//! \brief A collection of basic utilities for analyses on a data frame.
 class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
     //! Convert a row of the data frame to a specified vector type.

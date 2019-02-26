@@ -26,6 +26,7 @@ CCmdSkeleton.cc \
 CConfigUpdater.cc \
 CCsvInputParser.cc \
 CCsvOutputWriter.cc \
+CDataFrameAnalysisConfigReader.cc \
 CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalyzer.cc \

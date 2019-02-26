@@ -715,6 +715,7 @@ public:
     makeBuilders(const TSizeVecVec& algorithms,
                  std::size_t numberPoints,
                  std::size_t dimension,
+                 std::size_t numberNeighbours,
                  CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
 
     //! Compute the outlier scores for \p points.
@@ -902,10 +903,16 @@ public:
         std::size_t s_NumberThreads;
         //! The number of partitions to use.
         std::size_t s_NumberPartitions;
+        //! Standardize the column values before computing outlier scores.
+        bool s_StandardizeColumns;
+        //! The methods to use.
+        EMethod s_Method;
+        //! The number of neighbours to use if non-zero.
+        std::size_t s_NumberNeighbours;
         //! If true also compute the feature influence.
         bool s_ComputeFeatureInfluence;
-        //! The prior probability that a point is an outlier.
-        double s_ProbabilityOutlier;
+        //! The fraction of true outliers amoung the points.
+        double s_OutlierFraction;
     };
 
 public:
