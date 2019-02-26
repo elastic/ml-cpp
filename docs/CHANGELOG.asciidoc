@@ -118,6 +118,10 @@ Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors
 
 //=== New Features
 
+== {es} version 6.6.2
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
+
 === Enhancements
 
 * Changes linker options on macOS to allow Homebrew installs ({ml-pull}225[#225])

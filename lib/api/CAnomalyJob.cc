@@ -536,9 +536,6 @@ void CAnomalyJob::doForecast(const std::string& controlMessage) {
 }
 
 void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
-    using TKeyAnomalyDetectorPtrUMapCItr = TKeyAnomalyDetectorPtrUMap::const_iterator;
-    using TKeyAnomalyDetectorPtrUMapCItrVec = std::vector<TKeyAnomalyDetectorPtrUMapCItr>;
-
     core::CStopWatch timer(true);
 
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
@@ -546,20 +543,14 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     model::CHierarchicalResults results;
     TModelPlotDataVec modelPlotData;
 
-    TKeyAnomalyDetectorPtrUMapCItrVec iterators;
-    iterators.reserve(m_Detectors.size());
-    for (TKeyAnomalyDetectorPtrUMapCItr itr = m_Detectors.begin();
-         itr != m_Detectors.end(); ++itr) {
-        iterators.push_back(itr);
-    }
-    std::sort(iterators.begin(), iterators.end(),
-              core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
+    TKeyCRefAnomalyDetectorPtrPrVec detectors;
+    this->sortedDetectors(detectors);
 
-    for (std::size_t i = 0u; i < iterators.size(); ++i) {
-        model::CAnomalyDetector* detector(iterators[i]->second.get());
+    for (const auto& detector_ : detectors) {
+        model::CAnomalyDetector* detector(detector_.second.get());
         if (detector == nullptr) {
             LOG_ERROR(<< "Unexpected NULL pointer for key '"
-                      << pairDebug(iterators[i]->first) << '\'');
+                      << pairDebug(detector_.first) << '\'');
             continue;
         }
         detector->buildResults(bucketStartTime, bucketStartTime + bucketLength, results);
@@ -604,7 +595,10 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
     model::CHierarchicalResults results;
     results.setInterim();
 
-    for (const auto& detector_ : m_Detectors) {
+    TKeyCRefAnomalyDetectorPtrPrVec detectors;
+    this->sortedDetectors(detectors);
+
+    for (const auto& detector_ : detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
         if (detector == nullptr) {
             LOG_ERROR(<< "Unexpected NULL pointer for key '"
