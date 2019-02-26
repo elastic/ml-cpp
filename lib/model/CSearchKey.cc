@@ -174,6 +174,11 @@ bool CSearchKey::operator==(const CSearchKey& rhs) const {
 }
 
 bool CSearchKey::operator<(const CSearchKey& rhs) const {
+    // We rely on simple count to come before other detectors when we sort
+    if (this->isSimpleCount() != rhs.isSimpleCount()) {
+        return this->isSimpleCount() ? true : false;
+    }
+
     if (this->hash() == rhs.hash()) {
         if (m_Identifier == rhs.m_Identifier) {
             if (m_Function == rhs.m_Function) {
