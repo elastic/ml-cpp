@@ -510,10 +510,12 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
     TSizeVecVec methods;
     methods.reserve(2);
     if (params.s_Method == COutliers::E_Ensemble) {
-        methods.push_back(TSizeVec{COutliers::E_Lof, COutliers::E_Ldof});
-        methods.push_back(TSizeVec{COutliers::E_DistancekNN, COutliers::E_TotalDistancekNN});
+        methods.push_back(TSizeVec{static_cast<std::size_t>(COutliers::E_Lof),
+                                   static_cast<std::size_t>(COutliers::E_Ldof)});
+        methods.push_back(TSizeVec{static_cast<std::size_t>(COutliers::E_DistancekNN),
+                                   static_cast<std::size_t>(COutliers::E_TotalDistancekNN)});
     } else {
-        methods.push_back(TSizeVec{params.s_Method});
+        methods.push_back(TSizeVec{static_cast<std::size_t>(params.s_Method)});
     }
 
     auto builders = CEnsemble<POINT>::makeBuilders(
