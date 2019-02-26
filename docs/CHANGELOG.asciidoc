@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+ == {es} version 6.6.2
+
+=== Bug Fixes
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
+
 == {es} version 6.6.0
 
 === Breaking Changes
@@ -117,10 +123,6 @@ Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors
 //=== Deprecations
 
 //=== New Features
-
-== {es} version 6.6.2
-
-* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
 
 === Enhancements
 
