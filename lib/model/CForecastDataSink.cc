@@ -60,15 +60,12 @@ const std::string CForecastDataSink::STATUS("forecast_status");
 using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
 CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(model_t::EFeature feature,
+                                                                const std::string& byFieldValue,
                                                                 TMathsModelPtr&& forecastModel,
-                                                                const std::string& byFieldValue)
-    : m_Feature(feature), m_ForecastModel(std::move(forecastModel)),
-      m_ByFieldValue(byFieldValue) {
-}
-
-CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(CForecastModelWrapper&& other)
-    : m_Feature(other.m_Feature), m_ForecastModel(std::move(other.m_ForecastModel)),
-      m_ByFieldValue(std::move(other.m_ByFieldValue)) {
+                                                                core_t::TTime firstDataTime,
+                                                                core_t::TTime lastDataTime)
+    : m_Feature(feature), m_ByFieldValue(byFieldValue),
+      m_ForecastModel(std::move(forecastModel)), m_FirstDataTime{firstDataTime}, m_LastDataTime{lastDataTime} {
 }
 
 bool CForecastDataSink::CForecastModelWrapper::forecast(const SForecastResultSeries& series,
@@ -82,7 +79,8 @@ bool CForecastDataSink::CForecastModelWrapper::forecast(const SForecastResultSer
     endTime = model_t::sampleTime(m_Feature, endTime, bucketLength);
     model_t::TDouble1VecDouble1VecPr support{model_t::support(m_Feature)};
     return m_ForecastModel->forecast(
-        startTime, endTime, boundsPercentile, support.first, support.second,
+        m_FirstDataTime, m_LastDataTime, startTime, endTime, boundsPercentile,
+        support.first, support.second,
         boost::bind(&model::CForecastDataSink::push, &sink, _1, model_t::print(m_Feature),
                     series.s_PartitionFieldName, series.s_PartitionFieldValue,
                     series.s_ByFieldName, m_ByFieldValue, series.s_DetectorIndex),
@@ -246,5 +244,5 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     m_Writer.write(wrapper);
 }
 
-} /* namespace model  */
+} /* namespace model */
 } /* namespace ml */

@@ -159,7 +159,7 @@ public:
     //! Get the first time each person was seen.
     const TTimeVec& firstBucketTimes() const;
 
-    //! Get the last time each persion was seen
+    //! Get the last time each persion was seen.
     const TTimeVec& lastBucketTimes() const;
 
 protected:

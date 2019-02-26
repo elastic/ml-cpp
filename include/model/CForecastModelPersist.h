@@ -57,7 +57,7 @@ public:
         std::string finalizePersistAndGetFile();
 
     private:
-        //! the filename to which persist
+        //! the filename to which to persist
         boost::filesystem::path m_FileName;
 
         //! the actual file where the models are persisted
