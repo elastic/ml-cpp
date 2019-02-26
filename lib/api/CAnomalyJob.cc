@@ -1331,7 +1331,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
 
         LOG_TRACE(<< "Creating new detector for key '" << key.debug() << '/'
                   << partition << '\'' << ", time " << time);
-        LOG_TRACE(<< "Detector count " << m_Detectors.size())
+        LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
         detector = this->makeDetector(key.identifier(), m_ModelConfig, m_Limits,
                                       partition, time, m_ModelConfig.factory(key));

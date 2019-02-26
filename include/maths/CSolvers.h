@@ -173,7 +173,7 @@ private:
 
             double u = x + s;
             double fu = f(u);
-            LOG_TRACE(<< "s = " << s << ", u = " << u)
+            LOG_TRACE(<< "s = " << s << ", u = " << u);
             LOG_TRACE(<< "f(u) = " << fu << ", f(x) = " << fx);
 
             if (fu <= fx) {

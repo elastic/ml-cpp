@@ -607,7 +607,8 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};
-    LOG_TRACE(<< "# rows = " << frame.numberRows() << ", # partitions = " << numberPartitions
+    LOG_TRACE(<< "# rows = " << frame.numberRows()
+              << ", # partitions = " << params.s_NumberPartitions
               << ", # rows per partition = " << rowsPerPartition);
 
     // This is presized so that rowsToPoints only needs to access and write to
