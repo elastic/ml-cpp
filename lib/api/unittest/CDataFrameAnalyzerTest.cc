@@ -145,8 +145,7 @@ void addTestData(TStrVec fieldNames,
     expectedScores.resize(points.size());
     expectedFeatureInfluences.resize(points.size(), TDoubleVec(5));
 
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                           core::CDataFrame::TRowItr endRows) {
+    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             expectedScores[row->index()] = (*row)[5];
             if (computeFeatureInfluence) {
@@ -367,7 +366,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
                 if (result.HasMember("row_results")) {
                     CPPUNIT_ASSERT(expectedScore != expectedScores.end());
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        *expectedScore, result["row_results"]["results"]["outlier_score"].GetDouble(),
+                        *expectedScore,
+                        result["row_results"]["results"]["outlier_score"].GetDouble(),
                         1e-6 * *expectedScore);
                     ++expectedScore;
                 }

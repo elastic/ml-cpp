@@ -31,6 +31,7 @@ const char* const NUMBER_NEIGHBOURS{"number_neighbours"};
 const char* const METHOD{"method"};
 const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
+const char* const OUTLIER_FRACTION{"outlier_fraction"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     const std::string lof{"lof"};
@@ -50,6 +51,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(OUTLIER_FRACTION, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
@@ -69,6 +71,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_MinimumScoreToWriteFeatureInfluence =
         parameters[MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE].fallback(0.1);
+    m_OutlierFraction = parameters[OUTLIER_FRACTION].fallback(0.05);
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
@@ -105,7 +108,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
-                                                m_ProbabilityOutlier};
+                                                m_OutlierFraction};
     maths::COutliers::compute(params, frame, this->progressRecorder());
 }
 

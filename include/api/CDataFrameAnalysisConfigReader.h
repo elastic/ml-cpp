@@ -88,7 +88,7 @@ public:
         //! Get an enum point parameter.
         template<typename ENUM>
         ENUM fallback(ENUM value) const {
-            static_assert(std::is_enum<ENUM>::value, "Type must be an enumeration");
+            static_assert(std::is_enum<ENUM>::value, "ENUM must be an enumeration");
             if (m_Value == nullptr) {
                 return value;
             }

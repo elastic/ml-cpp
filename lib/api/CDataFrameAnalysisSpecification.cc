@@ -92,7 +92,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_NumberColumns = parameters[COLS].as<std::size_t>();
         m_MemoryLimit = parameters[MEMORY_LIMIT].as<std::size_t>();
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
-        m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(boost::filesystem::current_path().string());
+        m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
+            boost::filesystem::current_path().string());
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
@@ -155,9 +156,8 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
     for (const auto& factory : m_RunnerFactories) {
         if (name == factory->name()) {
             auto parameters = analysis[PARAMETERS].jsonObject();
-            m_Runner = parameters != nullptr
-                           ? factory->make(*this, *parameters)
-                           : factory->make(*this);
+            m_Runner = parameters != nullptr ? factory->make(*this, *parameters)
+                                             : factory->make(*this);
             return;
         }
     }

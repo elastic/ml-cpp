@@ -71,7 +71,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
     return result;
 }
 
-CDataFrameAnalysisConfigReader::CParameter::CParameter(const char* name, 
+CDataFrameAnalysisConfigReader::CParameter::CParameter(const char* name,
                                                        const rapidjson::Value& value,
                                                        const TStrIntMap& permittedValues)
     : m_Name{name}, m_Value{&value}, m_PermittedValues{&permittedValues} {
@@ -91,15 +91,18 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t val
     if (m_Value == nullptr) {
         return value;
     }
-    if (m_Value->IsUint() == false) {
+    if (m_Value->IsUint64() == false) {
         this->handleFatal();
     }
-    return m_Value->GetUint();
+    return m_Value->GetUint64();
 }
 
 double CDataFrameAnalysisConfigReader::CParameter::fallback(double value) const {
     if (m_Value == nullptr) {
         return value;
+    }
+    if (m_Value->IsInt64()) {
+        return static_cast<double>(m_Value->GetInt64());
     }
     if (m_Value->IsDouble() == false) {
         this->handleFatal();
@@ -133,8 +136,8 @@ CDataFrameAnalysisConfigReader::CParameter
 }
 
 CDataFrameAnalysisConfigReader::CParameterReader::CParameterReader(const char* name,
-                                                       ERequirement requirement,
-                                                       TStrIntMap permittedValues)
+                                                                   ERequirement requirement,
+                                                                   TStrIntMap permittedValues)
     : m_Name{name}, m_Requirement{requirement}, m_PermittedValues{std::move(permittedValues)} {
 }
 }

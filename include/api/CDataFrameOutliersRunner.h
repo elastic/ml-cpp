@@ -72,8 +72,8 @@ private:
     //! The minimum outlier score for which we'll write out feature influence.
     double m_MinimumScoreToWriteFeatureInfluence = 0.1;
 
-    //! The prior probability that a point is an outlier.
-    double m_ProbabilityOutlier = 0.05;
+    //! The fraction of true outliers amoung the points.
+    double m_OutlierFraction = 0.05;
     //@}
 };
 
