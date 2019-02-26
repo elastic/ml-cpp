@@ -53,6 +53,7 @@ SRCS=\
 	CResourceMonitorTest.cc \
 	CRuleConditionTest.cc \
 	CSampleQueueTest.cc \
+	CSearchKeyTest.cc \
 	CStringStoreTest.cc \
 	CToolsTest.cc \
 	Mocks.cc
