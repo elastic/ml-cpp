@@ -20,7 +20,7 @@
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -120,7 +120,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false);
+            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
@@ -151,10 +151,10 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
             return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
         }
-        return std::make_unique<ml::api::CLineifiedJsonInputParser>(inputStrm);
+        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStream(
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
         boost::bind(&ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
 
     // Persist the detector state to a stringstream

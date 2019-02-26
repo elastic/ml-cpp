@@ -34,9 +34,9 @@ CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
 
 void CDynamicStringIdRegistryTest::testAddName() {
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person", stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry("person", counter_t::E_TSADNumberNewPeople,
+                                      counter_t::E_TSADNumberNewPeopleNotAllowed,
+                                      counter_t::E_TSADNumberNewPeopleRecycled);
 
     bool personAdded = false;
     std::string person1("foo");
@@ -87,9 +87,9 @@ void CDynamicStringIdRegistryTest::testAddName() {
 
 void CDynamicStringIdRegistryTest::testPersist() {
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person", stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry("person", counter_t::E_TSADNumberNewPeople,
+                                      counter_t::E_TSADNumberNewPeopleNotAllowed,
+                                      counter_t::E_TSADNumberNewPeopleRecycled);
 
     bool addedPerson = false;
     std::string person1("foo");
@@ -108,9 +108,9 @@ void CDynamicStringIdRegistryTest::testPersist() {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CDynamicStringIdRegistry restoredRegistry("person", stat_t::E_NumberNewPeople,
-                                              stat_t::E_NumberNewPeopleNotAllowed,
-                                              stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
+                                              counter_t::E_TSADNumberNewPeopleNotAllowed,
+                                              counter_t::E_TSADNumberNewPeopleRecycled);
     traverser.traverseSubLevel(boost::bind(
         &CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry, _1));
 

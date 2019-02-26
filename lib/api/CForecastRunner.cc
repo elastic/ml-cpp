@@ -176,18 +176,10 @@ void CForecastRunner::forecastWorker() {
                         }
                     }
 
-                    const TForecastModelWrapper& model = series.s_ToForecast.back();
-                    model_t::TDouble1VecDouble1VecPr support =
-                        model_t::support(model.s_Feature);
-                    bool success = model.s_ForecastModel->forecast(
-                        model.s_FirstDataTime, model.s_LastDataTime,
-                        forecastJob.s_StartTime, forecastJob.forecastEnd(),
-                        forecastJob.s_BoundsPercentile, support.first, support.second,
-                        boost::bind(&model::CForecastDataSink::push, &sink, _1,
-                                    model_t::print(model.s_Feature), series.s_PartitionFieldName,
-                                    series.s_PartitionFieldValue, series.s_ByFieldName,
-                                    model.s_ByFieldValue, series.s_DetectorIndex),
-                        message);
+                    const TForecastModelWrapper& model{series.s_ToForecast.back()};
+                    bool success{model.forecast(
+                        series, forecastJob.s_StartTime, forecastJob.forecastEnd(),
+                        forecastJob.s_BoundsPercentile, sink, message)};
                     series.s_ToForecast.pop_back();
 
                     if (success == false) {
@@ -233,11 +225,10 @@ void CForecastRunner::forecastWorker() {
                 boost::system::error_code errorCode;
                 boost::filesystem::remove_all(temporaryFolder, errorCode);
                 if (errorCode) {
-                    // not an error: there is also cleanup code on X-pack side
+                    // not an error: there is also cleanup code on the Java side
                     LOG_WARN(<< "Failed to cleanup temporary data from: "
                              << forecastJob.s_TemporaryFolder << " error "
                              << errorCode.message());
-                    return;
                 }
             }
         }
@@ -434,7 +425,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         // use -1 as default to allow 0 as 'never expires'
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
-        // note: this is not exposed on x-pack side
+        // note: this is not exposed on the Java side
         forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());

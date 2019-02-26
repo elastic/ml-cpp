@@ -76,10 +76,10 @@ public:
     //! max memory allowed to use for forecast models persisting to disk
     static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
-    //! Note: This value is lower than on X-pack side to prevent side-effects,
-    //! if you change this value also change the limit on X-pack side.
-    //! The purpose of this value is to guard the rest of the system regarding
-    //! an out of disk space
+    //! Note: This value is lower than in the ML Java code to prevent side-effects.
+    //! If you change this value also change the limit in the ML Java code.
+    //! The purpose of this value is to guard the rest of the system against
+    //! running out of disk space.
     //! minimum disk space required for disk persistence
     static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
 
@@ -111,7 +111,7 @@ public:
     using TAnomalyDetectorPtr = std::shared_ptr<model::CAnomalyDetector>;
     using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
 
-    using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
+    using TForecastModelWrapper = model::CForecastDataSink::CForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
     using TMathsModelPtr = std::unique_ptr<maths::CModel>;

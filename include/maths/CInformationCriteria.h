@@ -9,8 +9,9 @@
 
 #include <core/Constants.h>
 
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CSphericalCluster.h>
 #include <maths/ImportExport.h>
 
@@ -23,16 +24,6 @@ namespace ml {
 namespace maths {
 
 namespace information_criteria_detail {
-
-//! \brief Defines the sample covariance accumulator.
-template<typename T>
-struct SSampleCovariances {};
-
-//! \brief Defines the sample covariance accumulator for a CVectorNx1.
-template<typename T, std::size_t N>
-struct SSampleCovariances<CVectorNx1<T, N>> {
-    using Type = CBasicStatistics::SSampleCovariances<T, N>;
-};
 
 //! The confidence interval we use when computing the singular values
 //! of the covariance matrix. This is high to stop x-means creating
@@ -51,9 +42,11 @@ LOG_DETERMINANT(5);
 #undef LOG_DETERMINANT
 
 //! The log determinant of our internal heap symmetric matrix.
+MATHS_EXPORT
 double logDeterminant(const CSymmetricMatrix<double>& c, double upper);
 
 //! The log determinant of an Eigen matrix.
+MATHS_EXPORT
 double logDeterminant(const CDenseMatrix<double>& c, double upper);
 
 } // information_criteria_detail::
@@ -122,20 +115,18 @@ public:
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVecVec& x) {
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            this->add(x[i]);
+        for (const auto& xi : x) {
+            this->add(xi);
         }
     }
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVec& x) {
-        if (x.empty()) {
-            return;
+        if (x.size() > 0) {
+            TMeanVarAccumulator moments(las::zero(x[0]));
+            moments.add(x);
+            this->add(moments);
         }
-
-        TMeanVarAccumulator moments;
-        moments.add(x);
-        this->add(moments);
     }
 
     //! Update the sufficient statistics for computing info content.
@@ -143,14 +134,15 @@ public:
         double ni = CBasicStatistics::count(moments);
         const TBarePointPrecise& m = CBasicStatistics::mean(moments);
         const TBarePointPrecise& c = CBasicStatistics::maximumLikelihoodVariance(moments);
-        std::size_t d = c.dimension();
+        std::size_t d = las::dimension(c);
         double vi = 0.0;
         for (std::size_t i = 0u; i < d; ++i) {
             vi += c(i);
         }
-        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() * m.euclidean());
+        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() *
+                              las::norm(m));
 
-        m_D = static_cast<double>(c.dimension());
+        m_D = static_cast<double>(d);
         m_K += 1.0;
         m_N += ni;
         if (ni > 1.0) {
@@ -167,18 +159,16 @@ public:
 
     //! Calculate the information content of the clusters added so far.
     double calculate() const {
-        if (m_N == 0.0) {
-            return 0.0;
-        }
-
-        double logN = std::log(m_N);
-        double p = (m_D * m_K + 2.0 * m_K - 1.0);
-        switch (TYPE) {
-        case E_BIC:
-            return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-        case E_AICc:
-            return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
-                   p * (p + 1.0) / (m_N - p - 1.0);
+        if (m_N != 0.0) {
+            double logN = std::log(m_N);
+            double p = (m_D * m_K + 2.0 * m_K - 1.0);
+            switch (TYPE) {
+            case E_BIC:
+                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+            case E_AICc:
+                return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
+                       p * (p + 1.0) / (m_N - p - 1.0);
+            }
         }
         return 0.0;
     }
@@ -210,9 +200,7 @@ public:
     using TBarePoint = typename SStripped<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
-    using TCovariances =
-        typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type;
-    using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
+    using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
 
 public:
     CGaussianInfoCriterion()
@@ -228,26 +216,24 @@ public:
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVecVec& x) {
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            this->add(x[i]);
+        for (const auto& xi : x) {
+            this->add(xi);
         }
     }
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVec& x) {
-        if (x.empty()) {
-            return;
+        if (x.size() > 0) {
+            TCovariances covariances(las::dimension(x[0]));
+            covariances.add(x);
+            this->add(covariances);
         }
-
-        TCovariances covariances;
-        covariances.add(x);
-        this->add(covariances);
     }
 
     //! Update the sufficient statistics for computing info content.
     void add(const TCovariances& covariance) {
         double ni = CBasicStatistics::count(covariance);
-        m_D = static_cast<double>(CBasicStatistics::mean(covariance).dimension());
+        m_D = static_cast<double>(las::dimension(CBasicStatistics::mean(covariance)));
         m_K += 1.0;
         m_N += ni;
         m_Likelihood += ni * log(ni) -
@@ -259,18 +245,16 @@ public:
 
     //! Calculate the information content of the clusters added so far.
     double calculate() const {
-        if (m_N == 0.0) {
-            return 0.0;
-        }
-
-        double logN = std::log(m_N);
-        double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
-        switch (TYPE) {
-        case E_BIC:
-            return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-        case E_AICc:
-            return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
-                   p * (p + 1.0) / (m_N - p - 1.0);
+        if (m_N != 0.0) {
+            double logN = std::log(m_N);
+            double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
+            switch (TYPE) {
+            case E_BIC:
+                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+            case E_AICc:
+                return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
+                       p * (p + 1.0) / (m_N - p - 1.0);
+            }
         }
         return 0.0;
     }
@@ -279,7 +263,7 @@ private:
     //! Compute the log of the determinant of \p covariance.
     double logDeterminant(const TCovariances& covariance) const {
         double n = CBasicStatistics::count(covariance);
-        const TMatrix& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
+        const auto& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
         double upper = information_criteria_detail::confidence(n - m_D - 1.0);
         return information_criteria_detail::logDeterminant(c, upper);
     }

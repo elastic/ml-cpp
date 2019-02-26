@@ -9,9 +9,9 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 
 #include <maths/CIntegerTools.h>
 #include <maths/COrderings.h>
@@ -49,7 +49,7 @@ const std::string SIMPLE_COUNT_STATICS("f");
 
 // classes containing static members needing persistence
 //const std::string RANDOMIZED_PERIODIC_TAG("a"); // No longer used
-const std::string STATISTICS_TAG("b");
+const std::string PROGRAM_COUNTERS_TAG("b");
 const std::string SAMPLING_TAG("c");
 
 // tags for the parts that used to be in model ensemble.
@@ -252,10 +252,10 @@ bool CAnomalyDetector::legacyModelsAcceptRestoreTraverser(core::CStateRestoreTra
 bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == STATISTICS_TAG) {
+        if (name == PROGRAM_COUNTERS_TAG) {
             if (traverser.traverseSubLevel(
-                    &core::CStatistics::staticsAcceptRestoreTraverser) == false) {
-                LOG_ERROR(<< "Failed to restore statistics");
+                    &core::CProgramCounters::staticsAcceptRestoreTraverser) == false) {
+                LOG_ERROR(<< "Failed to restore program counters");
                 return false;
             }
         } else if (name == SAMPLING_TAG) {
@@ -326,7 +326,8 @@ void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 void CAnomalyDetector::staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(STATISTICS_TAG, &core::CStatistics::staticsAcceptPersistInserter);
+    inserter.insertLevel(PROGRAM_COUNTERS_TAG,
+                         &core::CProgramCounters::staticsAcceptPersistInserter);
     inserter.insertLevel(SAMPLING_TAG, &maths::CSampling::staticsAcceptPersistInserter);
 }
 
@@ -367,9 +368,6 @@ void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime,
                                     core_t::TTime bucketEndTime,
                                     CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-    if (m_ModelConfig.bucketResultsDelay()) {
-        bucketLength /= 2;
-    }
     bucketStartTime = maths::CIntegerTools::floor(bucketStartTime, bucketLength);
     bucketEndTime = maths::CIntegerTools::floor(bucketEndTime, bucketLength);
     if (bucketEndTime <= m_LastBucketEndTime) {

@@ -1472,7 +1472,7 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
     std::string expectedPersonCounts[] = {
         std::string("[(0, 6, [[(i, ([6], 1))]])]"),
         std::string("[(0, 3, [[(i, ([3], 1))]])]"),
-        std::string("[(0, 2, [[(i, ([2], 1))]])]"), std::string("[(0, 0)]"),
+        std::string("[(0, 2, [[(i, ([2], 1))]])]"), std::string("[(0, 0, [[]])]"),
         std::string("[(0, 3, [[(i, ([3], 1))]])]")};
     TStrVec expectedPersonCountsVec(&expectedPersonCounts[0], &expectedPersonCounts[5]);
 
@@ -1529,7 +1529,6 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
 
 void CEventRateDataGathererTest::testDistinctStrings() {
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    TSizeSizePr pair(0, 0);
 
     // Test the SUniqueStringFeatureData struct
     {

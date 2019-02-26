@@ -81,7 +81,7 @@ struct SSymmetricMatrix {
         return m_LowerTriangle[i * (i + 1) / 2 + j];
     }
 
-    //! Component-wise negative.
+    //! Componentwise negative.
     void negative() {
         for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] = -m_LowerTriangle[i];
@@ -102,7 +102,7 @@ struct SSymmetricMatrix {
         }
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     void multiplyEquals(const SSymmetricMatrix& rhs) {
         for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] *= rhs.m_LowerTriangle[i];
@@ -356,7 +356,7 @@ public:
     //! Get an iterator to the end of the elements.
     TConstIterator end() const { return TBase::m_LowerTriangle.end(); }
 
-    //! Component-wise negation.
+    //! Componentwise negation.
     CSymmetricMatrixNxN operator-() const {
         CSymmetricMatrixNxN result(*this);
         result.negative();
@@ -375,7 +375,7 @@ public:
         return *this;
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     //!
     //! \note This is handy in some cases and since symmetric matrices
     //! are not closed under regular matrix multiplication we use
@@ -456,11 +456,11 @@ public:
     uint64_t checksum() const { return this->TBase::checksum(); }
 };
 
-//! \brief Gets a zero symmetric matrix with specified dimension.
+//! \brief Gets a constant symmetric matrix with specified dimension.
 template<typename T, std::size_t N>
-struct SZero<CSymmetricMatrixNxN<T, N>> {
-    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) {
-        return CSymmetricMatrixNxN<T, N>(T(0));
+struct SConstant<CSymmetricMatrixNxN<T, N>> {
+    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/, T constant) {
+        return CSymmetricMatrixNxN<T, N>(constant);
     }
 };
 
@@ -558,6 +558,7 @@ public:
         }
     }
 
+    //! Construct from the outer product of a vector with itself.
     explicit CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T>& x);
 
     //! Construct from a dense matrix.
@@ -566,12 +567,18 @@ public:
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
+    //!
+    //! \note Because this is template it is *not* an copy constructor
+    //! so this class has implicit move semantics.
     template<typename U>
     CSymmetricMatrix(const CSymmetricMatrix<U>& other) : m_D(other.m_D) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
+    //!
+    //! \note Because this is template it is *not* an copy assignment
+    //! operator so this class has implicit move semantics.
     template<typename U>
     const CSymmetricMatrix& operator=(const CSymmetricMatrix<U>& other) {
         m_D = other.m_D;
@@ -623,7 +630,7 @@ public:
     //! Get an iterator to the end of the elements.
     TConstIterator end() const { return TBase::m_X.end(); }
 
-    //! Component-wise negation.
+    //! Componentwise negation.
     CSymmetricMatrix operator-() const {
         CSymmetricMatrix result(*this);
         result.negative();
@@ -642,7 +649,7 @@ public:
         return *this;
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     //!
     //! \note This is handy in some cases and since symmetric matrices
     //! are not closed under regular matrix multiplication we use
@@ -737,11 +744,11 @@ private:
     std::size_t m_D;
 };
 
-//! \brief Gets a zero symmetric matrix with specified dimension.
+//! \brief Gets a constant symmetric matrix with specified dimension.
 template<typename T>
-struct SZero<CSymmetricMatrix<T>> {
-    static CSymmetricMatrix<T> get(std::size_t dimension) {
-        return CSymmetricMatrix<T>(dimension, T(0));
+struct SConstant<CSymmetricMatrix<T>> {
+    static CSymmetricMatrix<T> get(std::size_t dimension, T constant) {
+        return CSymmetricMatrix<T>(dimension, constant);
     }
 };
 
@@ -770,7 +777,7 @@ struct SVector {
     //! Convert to a delimited string.
     std::string toDelimited() const;
 
-    //! Component-wise negative.
+    //! Componentwise negative.
     void negative() {
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
             m_X[i] = -m_X[i];
@@ -791,7 +798,7 @@ struct SVector {
         }
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     void multiplyEquals(const SVector& scale) {
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
             m_X[i] *= scale.m_X[i];
@@ -805,7 +812,7 @@ struct SVector {
         }
     }
 
-    //! Component-wise division.
+    //! Componentwise division.
     void divideEquals(const SVector& scale) {
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
             m_X[i] /= scale.m_X[i];
@@ -899,7 +906,7 @@ struct SVector {
 //! supplied.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Operators follow the Matlab component-wise convention. This provides
+//! Operators follow the Matlab componentwise convention. This provides
 //! a constructor to initialize to a multiple of the 1 vector. Bounds
 //! checking for vector vector and matrix vector operations is compile
 //! time since the size is a template parameter. The floating point type
@@ -1029,7 +1036,7 @@ public:
     //! Get an iterator to the end of the elements.
     TConstIterator end() const { return TBase::m_X.end(); }
 
-    //! Component-wise negation.
+    //! Componentwise negation.
     CVectorNx1 operator-() const {
         CVectorNx1 result(*this);
         result.negative();
@@ -1048,7 +1055,7 @@ public:
         return *this;
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     const CVectorNx1& operator*=(const CVectorNx1& scale) {
         this->multiplyEquals(scale.base());
         return *this;
@@ -1060,7 +1067,7 @@ public:
         return *this;
     }
 
-    //! Component-wise division.
+    //! Componentwise division.
     const CVectorNx1& operator/=(const CVectorNx1& scale) {
         this->divideEquals(scale.base());
         return *this;
@@ -1103,10 +1110,10 @@ public:
         return CSymmetricMatrixNxN<T, N>(E_OuterProduct, *this);
     }
 
-    //! A diagonal matrix.
+    //! Get as a diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrixNxN<T, N> diagonal() const {
+    CSymmetricMatrixNxN<T, N> asDiagonal() const {
         return CSymmetricMatrixNxN<T, N>(E_Diagonal, *this);
     }
 
@@ -1178,11 +1185,11 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
     }
 }
 
-//! \brief Gets a zero vector with specified dimension.
+//! \brief Gets a constant vector with specified dimension.
 template<typename T, std::size_t N>
-struct SZero<CVectorNx1<T, N>> {
-    static CVectorNx1<T, N> get(std::size_t /*dimension*/) {
-        return CVectorNx1<T, N>(T(0));
+struct SConstant<CVectorNx1<T, N>> {
+    static CVectorNx1<T, N> get(std::size_t /*dimension*/, T constant) {
+        return CVectorNx1<T, N>(constant);
     }
 };
 
@@ -1202,7 +1209,7 @@ struct SZero<CVectorNx1<T, N>> {
 //! supplied.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Operators follow the Matlab component-wise convention. This provides
+//! Operators follow the Matlab componentwise convention. This provides
 //! a constructor to initialize to a multiple of the 1 vector. There is
 //! no bounds checking for efficiency. The floating point type is templated
 //! so that one can use float when space is really at a premium.
@@ -1269,12 +1276,18 @@ public:
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
+    //!
+    //! \note Because this is template it is *not* an copy constructor
+    //! so this class has implicit move semantics.
     template<typename U>
     CVector(const CVector<U>& other) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
+    //!
+    //! \note Because this is template it is *not* an copy assignment
+    //! operator so this class has implicit move semantics.
     template<typename U>
     const CVector& operator=(const CVector<U>& other) {
         TBase::m_X.resize(other.dimension());
@@ -1332,7 +1345,7 @@ public:
     //! Get an iterator to the end of the elements.
     TConstIterator end() const { return TBase::m_X.end(); }
 
-    //! Component-wise negation.
+    //! Componentwise negation.
     CVector operator-() const {
         CVector result(*this);
         result.negative();
@@ -1351,7 +1364,7 @@ public:
         return *this;
     }
 
-    //! Component-wise multiplication.
+    //! Componentwise multiplication.
     const CVector& operator*=(const CVector& scale) {
         this->multiplyEquals(scale.base());
         return *this;
@@ -1363,7 +1376,7 @@ public:
         return *this;
     }
 
-    //! Component-wise division.
+    //! Componentwise division.
     const CVector& operator/=(const CVector& scale) {
         this->divideEquals(scale.base());
         return *this;
@@ -1404,10 +1417,10 @@ public:
         return CSymmetricMatrix<T>(E_OuterProduct, *this);
     }
 
-    //! A diagonal matrix.
+    //! Get as a diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrix<T> diagonal() const {
+    CSymmetricMatrix<T> asDiagonal() const {
         return CSymmetricMatrix<T>(E_Diagonal, *this);
     }
 
@@ -1454,7 +1467,6 @@ public:
     }
 };
 
-//! Construct from the outer product of a vector with itself.
 template<typename T>
 CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T>& x) {
     m_D = x.dimension();
@@ -1477,11 +1489,11 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
     }
 }
 
-//! \brief Gets a zero vector with specified dimension.
+//! \brief Gets a constant vector with specified dimension.
 template<typename T>
-struct SZero<CVector<T>> {
-    static CVector<T> get(std::size_t dimension) {
-        return CVector<T>(dimension, T(0));
+struct SConstant<CVector<T>> {
+    static CVector<T> get(std::size_t dimension, T constant) {
+        return CVector<T>(dimension, constant);
     }
 };
 

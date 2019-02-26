@@ -111,7 +111,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
                   << ", numberIterations = " << numberIterations);
 
         TDoubleVec beta2;
-        maths::lasso_logistic_regression_detail::CSparseMatrix xs(
+        maths::lasso_logistic_regression_detail::CLrSparseMatrix xs(
             boost::size(x_), boost::size(x_[0]), xs_);
         clg.run(xs, y, lambda, beta2, numberIterations);
         LOG_DEBUG(<< "sparse beta = " << core::CContainerPrinter::print(beta2)

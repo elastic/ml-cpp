@@ -7,9 +7,9 @@
 #include <model/CEventRateBucketGatherer.h>
 
 #include <core/CFunctional.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -727,8 +727,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const std::string& valueFieldName,
                                                    const TStrVec& influenceFieldNames,
                                                    core_t::TTime startTime)
-    : CBucketGatherer(dataGatherer, startTime), m_BeginInfluencingFields(0),
-      m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, startTime, influenceFieldNames.size()),
+      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
     this->initializeFeatureData();
@@ -741,8 +741,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
                                                    const std::string& valueFieldName,
                                                    const TStrVec& influenceFieldNames,
                                                    core::CStateRestoreTraverser& traverser)
-    : CBucketGatherer(dataGatherer, 0), m_BeginInfluencingFields(0),
-      m_BeginValueField(0), m_BeginSummaryFields(0) {
+    : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
+      m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
     traverser.traverseSubLevel(
@@ -907,10 +907,9 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
         resourceMonitor.addExtraMemory(m_DataGatherer.isPopulation()
                                            ? CDataGatherer::ESTIMATED_MEM_USAGE_PER_OVER_FIELD
                                            : CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-        (m_DataGatherer.isPopulation()
-             ? core::CStatistics::stat(stat_t::E_NumberOverFields)
-             : core::CStatistics::stat(stat_t::E_NumberByFields))
-            .increment();
+        ++(m_DataGatherer.isPopulation()
+               ? core::CProgramCounters::counter(counter_t::E_TSADNumberOverFields)
+               : core::CProgramCounters::counter(counter_t::E_TSADNumberByFields));
     }
     if (!result.person(personId)) {
         LOG_ERROR(<< "Bad by field value: " << *person);
@@ -945,7 +944,7 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
         if (addedAttribute) {
             resourceMonitor.addExtraMemory(CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
-            core::CStatistics::stat(stat_t::E_NumberByFields).increment();
+            ++core::CProgramCounters::counter(counter_t::E_TSADNumberByFields);
         }
     } else {
         result.addAttribute(std::size_t(0));

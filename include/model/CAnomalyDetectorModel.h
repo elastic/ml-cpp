@@ -8,8 +8,8 @@
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
 #include <core/CMemory.h>
+#include <core/CProgramCounters.h>
 #include <core/CSmallVector.h>
-#include <core/CStatistics.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CTimeSeriesModel.h>
@@ -352,17 +352,6 @@ public:
                         core_t::TTime endTime,
                         CResourceMonitor& resourceMonitor) = 0;
 
-    //! This samples the bucket statistics, and any state needed
-    //! by computeProbablity, in the time interval [\p startTime,
-    //! \p endTime], but does not update the model. This is needed
-    //! by the results preview.
-    //!
-    //! \param[in] startTime The start of the time interval to sample.
-    //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor) = 0;
-
     //! Rolls time to \p endTime while skipping sampling the models for
     //! buckets within the gap.
     //!
@@ -619,8 +608,7 @@ protected:
             std::size_t initialSize = data.size();
             data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
             if (updateStatistics && data.size() != initialSize) {
-                core::CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations)
-                    .increment(1);
+                ++core::CProgramCounters::counter(counter_t::E_TSADNumberExcludedFrequentInvocations);
             }
         }
     }

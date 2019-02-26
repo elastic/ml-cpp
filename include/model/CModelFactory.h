@@ -287,9 +287,6 @@ public:
     //! fine-grained sampling when there is latency.
     void sampleCountFactor(std::size_t sampleCountFactor);
 
-    //! Set the bucket results delay
-    virtual void bucketResultsDelay(std::size_t bucketResultsDelay) = 0;
-
     //! Set whether the model should exclude frequent hitters from the
     //! calculations.
     void excludeFrequent(model_t::EExcludeFrequent excludeFrequent);

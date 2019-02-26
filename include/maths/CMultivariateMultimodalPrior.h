@@ -414,12 +414,11 @@ public:
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
     univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
-
         std::size_t n = m_Modes.size();
 
         CMultimodalPrior::TPriorPtrVec modes;
         TDouble5Vec weights;
-        CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> maxWeight;
+        CBasicStatistics::SMax<double>::TAccumulator maxWeight;
         modes.reserve(n);
         weights.reserve(n);
 
@@ -464,7 +463,6 @@ public:
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
-
         if (N == 2) {
             return {TPriorPtr(this->clone()), 0.0};
         }
@@ -475,7 +473,7 @@ public:
         TDouble5Vec weights;
         modes.reserve(n);
         weights.reserve(n);
-        CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> maxWeight;
+        CBasicStatistics::SMax<double>::TAccumulator maxWeight;
 
         for (const auto& mode : m_Modes) {
             TPriorPtrDoublePr prior(mode.s_Prior->bivariate(marginalize, condition));
@@ -505,7 +503,6 @@ public:
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const {
-
         if (m_Modes.size() == 0) {
             return {TPoint::smallest().template toVector<TDouble10Vec>(),
                     TPoint::largest().template toVector<TDouble10Vec>()};
@@ -542,7 +539,6 @@ public:
     //! Get the nearest mean of the multimodal prior marginal likelihood,
     //! otherwise the marginal likelihood mean.
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value_) const {
-
         if (m_Modes.empty()) {
             return TDouble10Vec(N, 0.0);
         }
@@ -576,8 +572,7 @@ public:
             return m_Modes[0].s_Prior->marginalLikelihoodMode(weight);
         }
 
-        using TMaxAccumulator =
-            CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
         // We'll approximate this as the mode with the maximum likelihood.
         TPoint result(0.0);
@@ -622,7 +617,7 @@ public:
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const {
         if (m_Modes.size() == 0) {
-            return TPoint::largest().diagonal().template toVectors<TDouble10Vec10Vec>();
+            return TPoint::largest().asDiagonal().template toVectors<TDouble10Vec10Vec>();
         }
         if (m_Modes.size() == 1) {
             return m_Modes[0].s_Prior->marginalLikelihoodCovariance();
@@ -651,7 +646,6 @@ public:
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
-
         result = 0.0;
 
         if (samples.empty()) {

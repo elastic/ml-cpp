@@ -81,6 +81,9 @@ public:
     //! Get the maximum value added.
     bool maximum(double& result) const;
 
+    //! Get the estimated median absolute deviation.
+    bool mad(double& result) const;
+
     //! Get the quantile corresponding to \p percentage.
     bool quantile(double percentage, double& result) const;
 
@@ -106,6 +109,13 @@ public:
     std::string print() const;
 
 private:
+    //! Compute quantiles on the supplied knots.
+    static void quantile(EInterpolation interpolation,
+                         const TFloatFloatPrVec& knots,
+                         double count,
+                         double percentage,
+                         double& result);
+
     //! Reduce to the maximum permitted size.
     void reduce();
 

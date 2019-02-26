@@ -114,10 +114,6 @@ public:
 
     //! Bucket length corresponding to the default decay and learn rates.
     static const core_t::TTime STANDARD_BUCKET_LENGTH;
-
-    //! The default number of half buckets to store before choosing which
-    //! overlapping bucket has the biggest anomaly
-    static const std::size_t DEFAULT_BUCKET_RESULTS_DELAY;
     //@}
 
     //! \name Modelling
@@ -165,6 +161,9 @@ public:
     //! The default number of time buckets used to generate multibucket features
     //! for anomaly detection.
     static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;
+
+    //! The maximum value that the multi_bucket_impact can take
+    static const double MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE;
 
     //! The maximum number of times we'll update a model in a bucketing
     //! interval. This only applies to our metric statistics, which are
@@ -236,15 +235,12 @@ public:
     //! then this is the name of the field holding the summary count.
     //! \param[in] latency The amount of time records are buffered for, to
     //! allow out-of-order records to be seen by the models in order.
-    //! \param[in] bucketResultsDelay The number of half-bucket results
-    //! to sit on before giving a definitive result.
     //! \param[in] multivariateByFields Should multivariate analysis of
     //! correlated 'by' fields be performed?
     static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
                                                      model_t::ESummaryMode summaryMode,
                                                      const std::string& summaryCountFieldName,
                                                      core_t::TTime latency,
-                                                     std::size_t bucketResultsDelay,
                                                      bool multivariateByFields);
 
     //! Overload using defaults.
@@ -253,8 +249,7 @@ public:
                   model_t::ESummaryMode summaryMode = model_t::E_None,
                   const std::string& summaryCountFieldName = "") {
         return defaultConfig(bucketLength, summaryMode, summaryCountFieldName,
-                             DEFAULT_LATENCY_BUCKETS * bucketLength,
-                             DEFAULT_BUCKET_RESULTS_DELAY, false);
+                             DEFAULT_LATENCY_BUCKETS * bucketLength, false);
     }
 
     //! Get the factor to normalize all bucket lengths to the default
@@ -270,8 +265,6 @@ public:
 
     //! Set the data bucketing interval.
     void bucketLength(core_t::TTime length);
-    //! Set the number of buckets to delay finalizing out-of-phase buckets.
-    void bucketResultsDelay(std::size_t delay);
     //! Set the single interim bucket correction calculator.
     void interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector);
     //! Set whether to model multibucket features.
@@ -355,9 +348,6 @@ public:
     //! numbers of buckets.
     std::size_t latencyBuckets() const;
 
-    //! Get the bucket result delay window.
-    std::size_t bucketResultsDelay() const;
-
     //! Get the single interim bucket correction calculator.
     const CInterimBucketCorrector& interimBucketCorrector() const;
 
@@ -440,10 +430,6 @@ public:
 private:
     //! Bucket length.
     core_t::TTime m_BucketLength;
-
-    //! Get the bucket result delay window: The numer of half buckets to
-    //! store before choosing which overlapping bucket has the biggest anomaly
-    std::size_t m_BucketResultsDelay;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool m_MultivariateByFields;

@@ -97,6 +97,7 @@ public:
                  double rawAnomalyScore,
                  double normalizedAnomalyScore,
                  double probability,
+                 double multiBucketImpact,
                  const std::string& metricValueField,
                  const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
                  bool useNull,
@@ -131,6 +132,7 @@ public:
         double s_RawAnomalyScore;
         double s_NormalizedAnomalyScore;
         double s_Probability;
+        double s_MultiBucketImpact;
         const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;

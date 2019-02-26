@@ -35,8 +35,8 @@
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
+#include <api/CNdJsonInputParser.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
@@ -186,7 +186,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     std::string jobId("foo");
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, 0, false);
+            bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, false);
 
     ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
                                  boost::bind(&reportPersistComplete, _1),
@@ -197,10 +197,11 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
             return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
         }
-        return std::make_unique<ml::api::CLineifiedJsonInputParser>(inputStrm);
+        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStream(boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
+    if (!parser->readStreamIntoMaps(
+            boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }

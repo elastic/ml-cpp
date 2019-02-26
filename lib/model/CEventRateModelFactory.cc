@@ -258,10 +258,6 @@ void CEventRateModelFactory::features(const TFeatureVec& features) {
     m_SearchKeyCache.reset();
 }
 
-void CEventRateModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
-    m_BucketResultsDelay = bucketResultsDelay;
-}
-
 double CEventRateModelFactory::minimumSeasonalVarianceScale() const {
     return 0.4;
 }

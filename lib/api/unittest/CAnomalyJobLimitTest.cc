@@ -133,7 +133,7 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStream(
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
                 boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
             LOG_TRACE(<< "Checking results");
@@ -176,7 +176,7 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStream(
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
                 boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
             LOG_TRACE(<< "Checking results");
@@ -224,7 +224,7 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStream(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
             boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1176), job.numRecordsHandled());
@@ -270,7 +270,7 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStream(
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
             boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
@@ -282,7 +282,7 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        CPPUNIT_ASSERT(parser2.readStream(
+        CPPUNIT_ASSERT(parser2.readStreamIntoMaps(
             boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
@@ -344,147 +344,171 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
     // create for a small(ish) memory limit to catch large changes in
     // the memory used per partition of the data.
 
-    core_t::TTime bucketLength{600};
-    TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};
-    std::stringstream outputStrm;
-    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    api::CAnomalyJob::TStrStrUMap dataRows;
-    TSizeVec generator;
+    struct STestParams {
+        core_t::TTime s_BucketLength;
+        std::size_t s_ExpectedByFields;
+        std::size_t s_ExpectedOverFields;
+        std::size_t s_ExpectedPartitionFields;
+        std::size_t s_ExpectedByLowerMemoryLimit;
+        std::size_t s_ExpectedPartitionLowerMemoryLimit;
+        std::size_t s_ExpectedOverLowerMemoryLimit;
+    } testParams[] = {{600, 550, 6000, 300, 33, 40, 40},
+                      {3600, 550, 5500, 300, 30, 25, 20},
+                      {172800, 150, 850, 120, 6, 6, 3}};
 
-    LOG_DEBUG(<< "**** Test by ****");
-    {
-        std::size_t memoryLimit{10 /*MB*/};
-        model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(memoryLimit);
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
-        fieldConfig.initFromClause(clauses);
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+    for (const auto& testParam : testParams) {
+        TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        api::CAnomalyJob::TStrStrUMap dataRows;
+        TSizeVec generator;
 
-        core_t::TTime startTime{1495110323};
-        core_t::TTime endTime{1495260323};
-        core_t::TTime time{startTime};
-        double reportProgress{0.0};
-        for (/**/; time < endTime; time += bucketLength) {
-            double progress{static_cast<double>(time - startTime) /
-                            static_cast<double>(endTime - startTime)};
-            if (progress >= reportProgress) {
-                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
-                reportProgress += 0.1;
-            }
-            for (std::size_t i = 0; i < 900; ++i) {
-                rng.generateUniformSamples(0, generators.size(), 1, generator);
-                TOptionalDouble value{generators[generator[0]](time)};
-                if (value) {
-                    dataRows["time"] = core::CStringUtils::typeToString(time);
-                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
-                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+        LOG_DEBUG(<< "**** Test by with bucketLength = " << testParam.s_BucketLength << " ****");
+        {
+            std::size_t memoryLimit{10 /*MB*/};
+            model::CLimits limits;
+            limits.resourceMonitor().memoryLimit(memoryLimit);
+            api::CFieldConfig fieldConfig;
+            api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
+            fieldConfig.initFromClause(clauses);
+            model::CAnomalyDetectorModelConfig modelConfig =
+                model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
+            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+            core_t::TTime startTime{1495110323};
+            core_t::TTime endTime{1495260323};
+            core_t::TTime time{startTime};
+            double reportProgress{0.0};
+            for (/**/; time < endTime; time += testParam.s_BucketLength) {
+                double progress{static_cast<double>(time - startTime) /
+                                static_cast<double>(endTime - startTime)};
+                if (progress >= reportProgress) {
+                    LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                    reportProgress += 0.1;
+                }
+                for (std::size_t i = 0; i < 900; ++i) {
+                    rng.generateUniformSamples(0, generators.size(), 1, generator);
+                    TOptionalDouble value{generators[generator[0]](time)};
+                    if (value) {
+                        dataRows["time"] = core::CStringUtils::typeToString(time);
+                        dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                        dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                        CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                    }
                 }
             }
+            core_t::TTime startOfBucket{
+                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+            auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+            LOG_DEBUG(<< "# by = " << used.s_ByFields);
+            LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
+            LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+            LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
+            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
+            CPPUNIT_ASSERT(used.s_ByFields > testParam.s_ExpectedByFields &&
+                           used.s_ByFields < 800);
+            CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedByLowerMemoryLimit);
         }
-        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
-        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
-        LOG_DEBUG(<< "# by = " << used.s_ByFields);
-        LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
-        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
-        LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
-        LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
-        CPPUNIT_ASSERT(used.s_ByFields > 550 && used.s_ByFields < 650);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                                     memoryLimit * 1024 * 1024 / 33); // Within 6%.
-    }
 
-    LOG_DEBUG(<< "**** Test partition ****");
-    {
-        std::size_t memoryLimit{10 /*MB*/};
-        model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(memoryLimit);
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
-        fieldConfig.initFromClause(clauses);
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        LOG_DEBUG(<< "**** Test partition with bucketLength = " << testParam.s_BucketLength
+                  << " ****");
+        {
+            std::size_t memoryLimit{10 /*MB*/};
+            model::CLimits limits;
+            limits.resourceMonitor().memoryLimit(memoryLimit);
+            api::CFieldConfig fieldConfig;
+            api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
+            fieldConfig.initFromClause(clauses);
+            model::CAnomalyDetectorModelConfig modelConfig =
+                model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
+            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        core_t::TTime startTime{1495110323};
-        core_t::TTime endTime{1495260323};
-        core_t::TTime time{startTime};
-        double reportProgress{0.0};
-        for (/**/; time < endTime; time += bucketLength) {
-            double progress{static_cast<double>(time - startTime) /
-                            static_cast<double>(endTime - startTime)};
-            if (progress >= reportProgress) {
-                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
-                reportProgress += 0.1;
-            }
-            for (std::size_t i = 0; i < 500; ++i) {
-                rng.generateUniformSamples(0, generators.size(), 1, generator);
-                TOptionalDouble value{generators[generator[0]](time)};
-                if (value) {
-                    dataRows["time"] = core::CStringUtils::typeToString(time);
-                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
-                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+            core_t::TTime startTime{1495110323};
+            core_t::TTime endTime{1495260323};
+            core_t::TTime time{startTime};
+            double reportProgress{0.0};
+            for (/**/; time < endTime; time += testParam.s_BucketLength) {
+                double progress{static_cast<double>(time - startTime) /
+                                static_cast<double>(endTime - startTime)};
+                if (progress >= reportProgress) {
+                    LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                    reportProgress += 0.1;
+                }
+                for (std::size_t i = 0; i < 500; ++i) {
+                    rng.generateUniformSamples(0, generators.size(), 1, generator);
+                    TOptionalDouble value{generators[generator[0]](time)};
+                    if (value) {
+                        dataRows["time"] = core::CStringUtils::typeToString(time);
+                        dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                        dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                        CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                    }
                 }
             }
+            core_t::TTime startOfBucket{
+                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+            auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+            LOG_DEBUG(<< "# by = " << used.s_ByFields);
+            LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
+            LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+            LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            CPPUNIT_ASSERT(used.s_PartitionFields > testParam.s_ExpectedPartitionFields &&
+                           used.s_PartitionFields < 450);
+            CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
+                           0.96 * static_cast<double>(used.s_PartitionFields));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionLowerMemoryLimit);
         }
-        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
-        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
-        LOG_DEBUG(<< "# by = " << used.s_ByFields);
-        LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
-        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
-        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_PartitionFields > 300 && used.s_PartitionFields < 400);
-        CPPUNIT_ASSERT(static_cast<double>(used.s_ByFields) >
-                       0.97 * static_cast<double>(used.s_PartitionFields));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
-    }
 
-    LOG_DEBUG(<< "**** Test over ****");
-    {
-        std::size_t memoryLimit{5 /*MB*/};
-        model::CLimits limits;
-        limits.resourceMonitor().memoryLimit(memoryLimit);
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
-        fieldConfig.initFromClause(clauses);
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        LOG_DEBUG(<< "**** Test over with bucketLength = " << testParam.s_BucketLength
+                  << " ****");
+        {
+            std::size_t memoryLimit{5 /*MB*/};
+            model::CLimits limits;
+            limits.resourceMonitor().memoryLimit(memoryLimit);
+            api::CFieldConfig fieldConfig;
+            api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
+            fieldConfig.initFromClause(clauses);
+            model::CAnomalyDetectorModelConfig modelConfig =
+                model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
+            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        core_t::TTime startTime{1495110323};
-        core_t::TTime endTime{1495230323};
-        core_t::TTime time{startTime};
-        double reportProgress{0.0};
-        for (/**/; time < endTime; time += bucketLength) {
-            double progress{static_cast<double>(time - startTime) /
-                            static_cast<double>(endTime - startTime)};
-            if (progress >= reportProgress) {
-                LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
-                reportProgress += 0.1;
-            }
-            for (std::size_t i = 0; i < 9000; ++i) {
-                TOptionalDouble value{sparse(time)};
-                if (value) {
-                    dataRows["time"] = core::CStringUtils::typeToString(time);
-                    dataRows["foo"] = core::CStringUtils::typeToString(*value);
-                    dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                    CPPUNIT_ASSERT(job.handleRecord(dataRows));
+            core_t::TTime startTime{1495110323};
+            core_t::TTime endTime{1495230323};
+            core_t::TTime time{startTime};
+            double reportProgress{0.0};
+            for (/**/; time < endTime; time += testParam.s_BucketLength) {
+                double progress{static_cast<double>(time - startTime) /
+                                static_cast<double>(endTime - startTime)};
+                if (progress >= reportProgress) {
+                    LOG_DEBUG(<< "Processed " << std::floor(100.0 * progress) << "%");
+                    reportProgress += 0.1;
+                }
+                for (std::size_t i = 0; i < 9000; ++i) {
+                    TOptionalDouble value{sparse(time)};
+                    if (value) {
+                        dataRows["time"] = core::CStringUtils::typeToString(time);
+                        dataRows["foo"] = core::CStringUtils::typeToString(*value);
+                        dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
+                        CPPUNIT_ASSERT(job.handleRecord(dataRows));
+                    }
                 }
             }
+            core_t::TTime startOfBucket{
+                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+            auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
+            LOG_DEBUG(<< "# over = " << used.s_OverFields);
+            LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
+            LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            CPPUNIT_ASSERT(used.s_OverFields > testParam.s_ExpectedOverFields &&
+                           used.s_OverFields < 7000);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverLowerMemoryLimit);
         }
-        core_t::TTime startOfBucket{maths::CIntegerTools::floor(time, bucketLength)};
-        auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
-        LOG_DEBUG(<< "# over = " << used.s_OverFields);
-        LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
-        LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-        CPPUNIT_ASSERT(used.s_OverFields > 6000 && used.s_OverFields < 7000);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                                     memoryLimit * 1024 * 1024 / 40); // Within 5%.
     }
 }

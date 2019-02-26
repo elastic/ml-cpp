@@ -38,11 +38,8 @@ public:
     using TDictionary1 = core::CCompressedDictionary<1>;
     using TWord = TDictionary1::CWord;
     using TWordSet = TDictionary1::TWordSet;
-    using TWordSetCItr = TWordSet::const_iterator;
-    using TWordStringUMap = TDictionary1::CWordUMap<std::string>::Type;
-    using TWordStringUMapCItr = TWordStringUMap::const_iterator;
+    using TWordStringUMap = TDictionary1::TWordTUMap<std::string>;
     using TStoredStringPtrWordSetUMap = boost::unordered_map<core::CStoredStringPtr, TWordSet>;
-    using TStoredStringPtrWordSetUMapCItr = TStoredStringPtrWordSetUMap::const_iterator;
     using TStoredStringPtrWordSetUMapVec = std::vector<TStoredStringPtrWordSetUMap>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
@@ -92,7 +89,7 @@ private:
 //! to model the event rate in an arbitrary time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer {
+class MODEL_EXPORT CEventRateBucketGatherer final : public CBucketGatherer {
 public:
     using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
@@ -152,7 +149,7 @@ public:
     //! \name Persistence
     //@{
     //! Fill in the state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

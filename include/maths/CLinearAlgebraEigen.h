@@ -7,6 +7,9 @@
 #ifndef INCLUDED_ml_maths_CLinearAlgebraEigen_h
 #define INCLUDED_ml_maths_CLinearAlgebraEigen_h
 
+#include <core/CMemory.h>
+
+#include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraFwd.h>
 
@@ -56,16 +59,31 @@ bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
 bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
                const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
-    using TIndex = typename Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>::Index;
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (TIndex i = 0; i < lhs.rows(); ++i) {
-        for (TIndex j = 0; j < lhs.cols(); ++j) {
+    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
+        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
             LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
         }
     }
     return false;
 }
+
+//! Less than on an Eigen memory mapped matrix.
+template<typename PLAIN_OBJECT_TYPE, int OPTIONS, typename STRIDE_TYPE>
+bool operator<(const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& lhs,
+               const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& rhs) {
+    LESS_OR_GREATER(lhs.rows(), rhs.rows())
+    LESS_OR_GREATER(lhs.cols(), rhs.cols())
+    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
+        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
+            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
+        }
+    }
+    return false;
+}
+
+#undef LESS_OR_GREATER
 
 //! Free swap picked up by std:: algorithms etc.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
@@ -80,8 +98,6 @@ void swap(Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
           Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
     lhs.swap(rhs);
 }
-
-#undef LESS_OR_GREATER
 }
 
 namespace ml {
@@ -91,14 +107,6 @@ namespace maths {
 template<typename SCALAR, int FLAGS = 0>
 using CSparseMatrix = Eigen::SparseMatrix<SCALAR, FLAGS, std::ptrdiff_t>;
 
-//! \brief Gets a zero sparse matrix with specified dimensions.
-template<typename SCALAR, int FLAGS>
-struct SZero<CSparseMatrix<SCALAR, FLAGS>> {
-    static CSparseMatrix<SCALAR, FLAGS> get(std::ptrdiff_t rows, std::ptrdiff_t cols) {
-        return CSparseMatrix<SCALAR, FLAGS>(rows, cols);
-    }
-};
-
 //! The type of an element of a sparse matrix in coordinate form.
 template<typename SCALAR>
 using CSparseMatrixElement = Eigen::Triplet<SCALAR>;
@@ -106,14 +114,6 @@ using CSparseMatrixElement = Eigen::Triplet<SCALAR>;
 //! Rename to follow our conventions and add to ml::maths.
 template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
 using CSparseVector = Eigen::SparseVector<SCALAR, FLAGS, std::ptrdiff_t>;
-
-//! \brief Gets a zero sparse vector with specified dimension.
-template<typename SCALAR, int FLAGS>
-struct SZero<CSparseVector<SCALAR, FLAGS>> {
-    static CSparseVector<SCALAR, FLAGS> get(std::ptrdiff_t dimension) {
-        return CSparseVector<SCALAR, FLAGS>(dimension);
-    }
-};
 
 //! The type of an element of a sparse vector in coordinate form.
 template<typename SCALAR>
@@ -183,27 +183,269 @@ endIndices(const CSparseVector<SCALAR, FLAGS>& vector) {
     return CSparseVectorIndexIterator<SCALAR, FLAGS>(vector, vector.data().size());
 }
 
-//! Rename to follow our conventions and add to ml::maths.
+//! \brief Decorates an Eigen matrix with some useful methods.
 template<typename SCALAR>
-using CDenseMatrix = Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic>;
+class CDenseMatrix : public Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic> {
+public:
+    using TBase = Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic>;
 
-//! \brief Gets a zero dense vector with specified dimension.
-template<typename SCALAR>
-struct SZero<CDenseMatrix<SCALAR>> {
-    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols) {
-        return CDenseMatrix<SCALAR>::Zero(rows, cols);
+public:
+    //! Forwarding constructor.
+    template<typename... ARGS>
+    CDenseMatrix(ARGS&&... args) : TBase(std::forward<ARGS>(args)...) {}
+
+    //! \name Copy and Move Semantics
+    //@{
+    CDenseMatrix(CDenseMatrix& other)
+        : CDenseMatrix{static_cast<const CDenseMatrix&>(other)} {}
+    CDenseMatrix(const CDenseMatrix& other)
+        : TBase{static_cast<const TBase&>(other)} {}
+    CDenseMatrix(CDenseMatrix&& other) = default;
+    CDenseMatrix& operator=(const CDenseMatrix& other) = default;
+    CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    // @}
+
+    //! Debug the memory usage of this object.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        mem->setName("CDenseMatrix");
+        mem->addItem("components", this->memoryUsage());
+    }
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const { return sizeof(SCALAR) * this->size(); }
+
+    //! Get a checksum of this object.
+    uint64_t checksum(uint64_t seed) const {
+        for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
+            seed = CChecksum::calculate(seed, this->coeff(i));
+        }
+        return seed;
     }
 };
 
-//! Rename to follow our conventions and add to ml::maths.
+//! \brief Gets a constant dense square matrix with specified dimension or with
+//! specified numbers of rows and columns.
 template<typename SCALAR>
-using CDenseVector = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
+struct SConstant<CDenseMatrix<SCALAR>> {
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant) {
+        return get(dimension, dimension, constant);
+    }
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant) {
+        return CDenseMatrix<SCALAR>::Constant(rows, cols, constant);
+    }
+};
 
-//! \brief Gets a zero dense vector with specified dimension.
+//! \brief Decorates an Eigen column vector with some useful methods.
 template<typename SCALAR>
-struct SZero<CDenseVector<SCALAR>> {
-    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension) {
-        return CDenseVector<SCALAR>::Zero(dimension);
+class CDenseVector : public Eigen::Matrix<SCALAR, Eigen::Dynamic, 1> {
+public:
+    using TBase = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
+
+public:
+    //! Forwarding constructor.
+    template<typename... ARGS>
+    CDenseVector(ARGS&&... args) : TBase(std::forward<ARGS>(args)...) {}
+
+    //! \name Copy and Move Semantics
+    //@{
+    CDenseVector(CDenseVector& other)
+        : CDenseVector{static_cast<const CDenseVector&>(other)} {}
+    CDenseVector(const CDenseVector& other)
+        : TBase{static_cast<const TBase&>(other)} {}
+    CDenseVector(CDenseVector&& other) = default;
+    CDenseVector& operator=(const CDenseVector& other) = default;
+    CDenseVector& operator=(CDenseVector&& other) = default;
+    // @}
+
+    //! Debug the memory usage of this object.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        mem->setName("CDenseVector");
+        mem->addItem("components", this->memoryUsage());
+    }
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const { return sizeof(SCALAR) * this->size(); }
+
+    //! Get a checksum of this object.
+    uint64_t checksum(uint64_t seed) const {
+        for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
+            seed = CChecksum::calculate(seed, this->coeff(i));
+        }
+        return seed;
+    }
+};
+
+//! \brief Gets a constant dense vector with specified dimension.
+template<typename SCALAR>
+struct SConstant<CDenseVector<SCALAR>> {
+    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant) {
+        return CDenseVector<SCALAR>::Constant(dimension, constant);
+    }
+};
+
+//! \brief Decorates an Eigen::Map of a dense matrix with some useful methods
+//! and changes default copy semantics to shallow copy.
+//!
+//! IMPLEMENTATION:\n
+//! This effectively acts like a std::reference_wrapper of an Eigen::Map for
+//! an Eigen matrix. In particular, all copying is shallow unlike Eigen::Map
+//! that acts directly on the referenced memory. This is to match the behaviour
+//! of CMemoryMappedDenseVector.
+//!
+//! \sa CMemoryMappedDenseVector for more information.
+template<typename SCALAR>
+class CMemoryMappedDenseMatrix
+    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
+public:
+    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase>;
+
+    //! See core::CMemory.
+    static bool dynamicSizeAlwaysZero() { return true; }
+
+public:
+    //! Forwarding constructor.
+    template<typename... ARGS>
+    CMemoryMappedDenseMatrix(ARGS&&... args)
+        : TBase{std::forward<ARGS>(args)...} {}
+
+    //! \name Copy and Move Semantics
+    //@{
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other)
+        : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
+    CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
+        : TBase{nullptr, 1, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
+        : TBase{nullptr, 1, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseMatrix& operator=(const CMemoryMappedDenseMatrix& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    //@}
+
+private:
+    void reseat(const CMemoryMappedDenseMatrix& other) {
+        TBase* base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
+    }
+};
+
+//! \brief Gets a constant square dense matrix with specified dimension or with
+//! specified numbers of rows and columns.
+template<typename SCALAR>
+struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
+    static auto get(std::ptrdiff_t dimension, SCALAR constant)
+        -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(dimension, 1)) {
+        return SConstant<CDenseMatrix<SCALAR>>::get(dimension, constant);
+    }
+    static auto get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant)
+        -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant)) {
+        return SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant);
+    }
+};
+
+//! \brief Decorates an Eigen::Map of a dense vector with some useful methods
+//! and changes default copy semantics to shallow.
+//!
+//! IMPLEMENTATION:\n
+//! This effectively acts like a std::reference_wrapper of an Eigen::Map for
+//! an Eigen vector. In particular, all copying is shallow unlike Eigen::Map
+//! that acts directly on the referenced memory, i.e.
+//! \code{.cpp}
+//! double values1[]{1.0, 1.0};
+//! double values2[]{2.0, 2.0};
+//!
+//! CMemoryMappedDenseVector<double> mm1{values1, 2};
+//! CMemoryMappedDenseVector<double> mm2{values2, 2};
+//!
+//! mm1 = mm2;
+//! std::cout << mm1(0) << "," << mm1(1) << "," << values1[0] << "," << values1[1] << std::endl;
+//!
+//! Eigen::Map<Eigen::VectorXd> map1{values1, 2};
+//! Eigen::Map<Eigen::VectorXd> map2{values2, 2};
+//!
+//! map1 = map2;
+//! std::cout << map1(0) << "," << map1(1) << "," << values1[0] << "," << values1[1] << std::endl;
+//! \endcode
+//!
+//! Outputs:\n
+//! 2,2,1,1\n
+//! 2,2,2,2
+//!
+//! This better fits our needs with data frames where we want to reference the
+//! memory stored in the data frame rows, but never modify it directly through
+//! this vector type.
+template<typename SCALAR>
+class CMemoryMappedDenseVector
+    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
+public:
+    using TBase = Eigen::Map<typename CDenseVector<SCALAR>::TBase>;
+
+    //! See core::CMemory.
+    static bool dynamicSizeAlwaysZero() { return true; }
+
+public:
+    //! Forwarding constructor.
+    template<typename... ARGS>
+    CMemoryMappedDenseVector(ARGS&&... args)
+        : TBase{std::forward<ARGS>(args)...} {}
+
+    //! \name Copy and Move Semantics
+    //@{
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other)
+        : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
+    CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
+        : TBase{nullptr, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
+        : TBase{nullptr, 1} {
+        this->reseat(other);
+    }
+    CMemoryMappedDenseVector& operator=(const CMemoryMappedDenseVector& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
+        if (this != &other) {
+            this->reseat(other);
+        }
+        return *this;
+    }
+    //@}
+
+    //! Get a checksum of this object.
+    uint64_t checksum(uint64_t seed) const {
+        for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
+            seed = CChecksum::calculate(seed, this->coeff(i));
+        }
+        return seed;
+    }
+
+private:
+    void reseat(const CMemoryMappedDenseVector& other) {
+        TBase* base{static_cast<TBase*>(this)};
+        new (base) TBase{const_cast<SCALAR*>(other.data()), other.size()};
+    }
+};
+
+//! \brief Gets a constant dense vector with specified dimension.
+template<typename SCALAR>
+struct SConstant<CMemoryMappedDenseVector<SCALAR>> {
+    static auto get(std::ptrdiff_t dimension, SCALAR constant)
+        -> decltype(SConstant<CDenseVector<SCALAR>>::get(dimension, constant)) {
+        return SConstant<CDenseVector<SCALAR>>::get(dimension, constant);
     }
 };
 

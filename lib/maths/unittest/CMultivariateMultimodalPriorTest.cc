@@ -33,7 +33,7 @@ using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
-using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<double, 2>;
+using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<TVector2>;
 
 namespace {
 template<std::size_t N>
@@ -410,8 +410,9 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
     LOG_DEBUG(<< "Clusters Split and Merge") {
         std::size_t n[][4] = {{200, 0, 0, 0}, {100, 100, 0, 0}, {0, 0, 300, 300}};
 
-        TCovariances2 totalCovariances;
-        TCovariances2 modeCovariances[4];
+        TCovariances2 totalCovariances(2);
+        TCovariances2 modeCovariances[4]{TCovariances2(2), TCovariances2(2),
+                                         TCovariances2(2), TCovariances2(2)};
 
         CMultivariateMultimodalPriorForTest<2> filter(makePrior<2>(maths_t::E_ContinuousData));
 
@@ -789,7 +790,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
     TDouble10Vec expectedMean_ = filter.marginalLikelihoodMean();
     TDouble10Vec10Vec expectedCovariance_ = filter.marginalLikelihoodCovariance();
 
-    TCovariances2 sampledCovariances;
+    TCovariances2 sampledCovariances(2);
     for (std::size_t i = 0u; i < sampled.size(); ++i) {
         sampledCovariances.add(TVector2(sampled[i]));
     }
@@ -807,7 +808,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
     CPPUNIT_ASSERT((sampledCovariance - expectedCovariance).frobenius() <
                    5e-3 * expectedCovariance.frobenius());
 
-    TCovariances2 modeSampledCovariances[2];
+    TCovariances2 modeSampledCovariances[2]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0u; i < sampled.size(); ++i) {
         double l1, l2;
         maths::gaussianLogLikelihood(covariances[0], TVector2(sampled[i]) - means[0], l1);

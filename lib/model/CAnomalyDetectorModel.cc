@@ -11,7 +11,6 @@
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>

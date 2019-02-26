@@ -56,7 +56,8 @@ class CResourceMonitor;
 //! IMPLEMENTATION:\n
 //! This functionality has been separated from the CDataGatherer in order
 //! to allow the CDataGatherer to support multiple overlapping buckets and
-//! buckets with different time spans.
+//! buckets with different time spans. However, the overlapping feature
+//! has been removed but this class is kept to avoid BWC issues.
 class MODEL_EXPORT CBucketGatherer {
 public:
     using TDoubleVec = std::vector<double>;
@@ -73,7 +74,7 @@ public:
     using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TDictionary = core::CCompressedDictionary<2>;
-    using TWordSizeUMap = TDictionary::CWordUMap<std::size_t>::Type;
+    using TWordSizeUMap = TDictionary::TWordTUMap<std::size_t>;
     using TWordSizeUMapItr = TWordSizeUMap::iterator;
     using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
     using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
@@ -142,9 +143,11 @@ public:
     //! Create a new data series gatherer.
     //!
     //! \param[in] dataGatherer The owning data gatherer.
-    //! \param[in] startTime The start of the time interval
+    //! \param[in] startTime The start of the time interval for which
+    //! to gather data.
+    //! \param[in] numberInfluencers The number of result influencers
     //! for which to gather data.
-    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime);
+    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime, std::size_t numberInfluencers);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
@@ -159,10 +162,10 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void baseAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void baseAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the state
-    virtual bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not
@@ -391,6 +394,9 @@ public:
 
     //! Create samples if possible for the bucket pointed out by \p time.
     virtual void sample(core_t::TTime time) = 0;
+
+    //! Persist state by passing information \p inserter.
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
 private:
     //! Resize the necessary data structures so they can hold values

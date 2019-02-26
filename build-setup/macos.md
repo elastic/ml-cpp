@@ -33,6 +33,7 @@ export CFLAGS='-O3 -msse4.2'
 export CXX='clang++ -std=c++14 -stdlib=libc++'
 export CXXFLAGS='-O3 -msse4.2'
 export CXXCPP='clang++ -std=c++14 -E'
+export LDFLAGS=-Wl,-headerpad_max_install_names
 unset CPATH
 unset C_INCLUDE_PATH
 unset CPLUS_INCLUDE_PATH
@@ -47,7 +48,8 @@ The first major piece of development software to install is Apple's development 
 
 - If you are using Yosemite, you must install Xcode 7.2.x
 - If you are using El Capitan, you must install Xcode 8.2.x
-- If you are using Sierra/High Sierra, you must install Xcode 9.2.x
+- If you are using Sierra, you must install Xcode 9.2.x
+- If you are using High Sierra/Mojave, you must install Xcode 10.0.x
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 
@@ -58,6 +60,12 @@ xcode-select --install
 ```
 
 at the command prompt.
+
+If you are using Mojave you must take the further step of installing the developer header files into `/usr/include`. Previous versions did this automatically when the command line tools were installed. Create `/usr/include` by installing `/Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg` this can be done with the command:
+
+```
+installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
 
 ### log4cxx
 
@@ -174,8 +182,8 @@ to:
 To complete the build, type:
 
 ```
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 cd /usr/local/lib
 for FILE in libboost*1_65_1.dylib ; do sudo install_name_tool -id "@rpath/$FILE" $FILE ; done
 sudo install_name_tool -change libboost_system-clang-darwin42-mt-1_65_1.dylib "@rpath/libboost_system-clang-darwin42-mt-1_65_1.dylib" -add_rpath "@loader_path/../lib" libboost_filesystem-clang-darwin42-mt-1_65_1.dylib

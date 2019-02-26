@@ -68,6 +68,9 @@ void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(const maths::
 void CAnnotatedProbabilityBuilder::probability(double p) {
     m_Result.s_Probability = p;
 }
+void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
+    m_Result.s_MultiBucketImpact = multiBucketImpact;
+}
 
 void CAnnotatedProbabilityBuilder::addAttributeProbability(
     std::size_t cid,

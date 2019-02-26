@@ -11,7 +11,6 @@
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CChecksum.h>
@@ -23,6 +22,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
@@ -350,9 +350,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     }
 
     if (pid >= this->firstBucketTimes().size()) {
-        // This is not necessarily an error: the person might have been added
-        // only in an out of phase bucket so far
-        LOG_TRACE(<< "No first time for person = " << gatherer.personName(pid));
+        LOG_ERROR(<< "No first time for person = " << gatherer.personName(pid));
         return false;
     }
 
@@ -431,6 +429,12 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
+
+    double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
+    if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
+        resultBuilder.multiBucketImpact(multiBucketImpact);
+    }
+
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
     resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
     resultBuilder.build();
@@ -583,6 +587,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -600,7 +606,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature)) // new line
         .addBucketEmpty({!count || *count == 0})
-        .addWeights(weight);
+        .addWeights(weight)
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 }
 
 void CEventRateModel::fill(model_t::EFeature feature,
@@ -616,6 +623,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, gatherer.bucketLength())};
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
+        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -626,7 +635,9 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature));
+    params.s_ComputeProbabilityParams
+        .addCalculation(model_t::probabilityCalculation(feature))
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]

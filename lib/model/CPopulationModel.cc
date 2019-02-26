@@ -8,6 +8,7 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CContainerPrinter.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
@@ -158,22 +159,6 @@ void CPopulationModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& resu
     result.reserve(personCounts.size());
     for (const auto& count : personCounts) {
         result.push_back(count.first);
-    }
-}
-
-void CPopulationModel::sampleOutOfPhase(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) {
-    CDataGatherer& gatherer = this->dataGatherer();
-
-    if (!gatherer.dataAvailable(startTime)) {
-        return;
-    }
-
-    for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-         time < endTime; time += bucketLength) {
-        gatherer.sampleNow(time);
-        this->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
     }
 }
 
@@ -406,18 +391,16 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time,
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
         LOG_DEBUG(<< "Not enough memory to create person models");
-        core::CStatistics::instance()
-            .stat(stat_t::E_NumberMemoryLimitModelCreationFailures)
-            .increment(numberNewPeople);
+        core::CProgramCounters::counter(
+            counter_t::E_TSADNumberMemoryLimitModelCreationFailures) += numberNewPeople;
         std::size_t toRemove = gatherer.numberPeople() - numberNewPeople;
         gatherer.removePeople(toRemove);
     }
     if (numberNewAttributes > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
         LOG_DEBUG(<< "Not enough memory to create attribute models");
-        core::CStatistics::instance()
-            .stat(stat_t::E_NumberMemoryLimitModelCreationFailures)
-            .increment(numberNewAttributes);
+        core::CProgramCounters::counter(
+            counter_t::E_TSADNumberMemoryLimitModelCreationFailures) += numberNewAttributes;
         std::size_t toRemove = gatherer.numberAttributes() - numberNewAttributes;
         gatherer.removeAttributes(toRemove);
     }

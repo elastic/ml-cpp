@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CStrCaseCmp.h>
+#include <core/CStreamUtils.h>
 #include <core/Constants.h>
 
 #include <maths/CMultivariatePrior.h>
@@ -59,7 +60,6 @@ const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LA
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY(10);
 const double CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR(0.1);
 const core_t::TTime CAnomalyDetectorModelConfig::STANDARD_BUCKET_LENGTH(1800);
-const std::size_t CAnomalyDetectorModelConfig::DEFAULT_BUCKET_RESULTS_DELAY(0);
 const double CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE(0.0005);
 const double CAnomalyDetectorModelConfig::DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER(4.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_LEARN_RATE(1.0);
@@ -70,10 +70,11 @@ const double CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION(0.8);
 const double CAnomalyDetectorModelConfig::DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS(0.2);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36u);
 const core_t::TTime
-    CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(16 * core::constants::HOUR);
+    CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(core::constants::DAY);
 const core_t::TTime
-    CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(core::constants::DAY);
+    CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE(2 * core::constants::DAY);
 const std::size_t CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURES_WINDOW_LENGTH(12);
+const double CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE(5.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.4);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
@@ -104,7 +105,6 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
                                            model_t::ESummaryMode summaryMode,
                                            const std::string& summaryCountFieldName,
                                            core_t::TTime latency,
-                                           std::size_t bucketResultsDelay,
                                            bool multivariateByFields) {
     bucketLength = detail::validateBucketLength(bucketLength);
 
@@ -116,7 +116,6 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
     params.s_DecayRate = decayRate;
     params.s_ExcludeFrequent = model_t::E_XF_None;
     params.configureLatency(latency, bucketLength);
-    params.s_BucketResultsDelay = bucketResultsDelay;
 
     TInterimBucketCorrectorPtr interimBucketCorrector =
         std::make_shared<CInterimBucketCorrector>(bucketLength);
@@ -138,7 +137,6 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
 
     CAnomalyDetectorModelConfig result;
     result.bucketLength(bucketLength);
-    result.bucketResultsDelay(bucketResultsDelay);
     result.interimBucketCorrector(interimBucketCorrector);
     result.multivariateByFields(multivariateByFields);
     result.factories(factories);
@@ -163,9 +161,8 @@ double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate,
 }
 
 CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
-    : m_BucketLength(STANDARD_BUCKET_LENGTH),
-      m_BucketResultsDelay(DEFAULT_BUCKET_RESULTS_DELAY),
-      m_MultivariateByFields(false), m_ModelPlotBoundsPercentile(-1.0),
+    : m_BucketLength(STANDARD_BUCKET_LENGTH), m_MultivariateByFields(false),
+      m_ModelPlotBoundsPercentile(-1.0),
       m_MaximumAnomalousProbability(DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY),
       m_NoisePercentile(DEFAULT_NOISE_PERCENTILE),
       m_NoiseMultiplier(DEFAULT_NOISE_MULTIPLIER),
@@ -184,10 +181,6 @@ void CAnomalyDetectorModelConfig::bucketLength(core_t::TTime length) {
     for (auto& factory : m_Factories) {
         factory.second->updateBucketLength(length);
     }
-}
-
-void CAnomalyDetectorModelConfig::bucketResultsDelay(std::size_t delay) {
-    m_BucketResultsDelay = delay;
 }
 
 void CAnomalyDetectorModelConfig::interimBucketCorrector(const TInterimBucketCorrectorPtr& interimBucketCorrector) {
@@ -337,7 +330,7 @@ bool CAnomalyDetectorModelConfig::init(const std::string& configFile,
             LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
-        CLimits::skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
@@ -392,7 +385,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlo
             LOG_ERROR(<< "Error opening model plot config file " << modelPlotConfigFile);
             return false;
         }
-        CLimits::skipUtf8Bom(strm);
+        core::CStreamUtils::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
@@ -625,7 +618,6 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     result->useNull(useNull);
     result->excludeFrequent(excludeFrequent);
     result->features(features);
-    result->bucketResultsDelay(m_BucketResultsDelay);
     result->multivariateByFields(m_MultivariateByFields);
     TIntDetectionRuleVecUMapCItr rulesItr = m_DetectionRules.get().find(identifier);
     if (rulesItr != m_DetectionRules.get().end()) {
@@ -656,10 +648,6 @@ core_t::TTime CAnomalyDetectorModelConfig::latency() const {
 
 std::size_t CAnomalyDetectorModelConfig::latencyBuckets() const {
     return m_Factories.begin()->second->modelParams().s_LatencyBuckets;
-}
-
-std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay() const {
-    return m_BucketResultsDelay;
 }
 
 const CInterimBucketCorrector& CAnomalyDetectorModelConfig::interimBucketCorrector() const {

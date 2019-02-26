@@ -144,8 +144,8 @@ void CTimeSeriesChangeDetectorTest::testLevelShift() {
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
     this->testChange(
         trends, maths::SChangeDescription::E_LevelShift,
-        [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.5; },
-        5.0, 0.0, 16.0);
+        [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.7; },
+        7.0, 0.0, 16.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testLinearScale() {
@@ -162,12 +162,12 @@ void CTimeSeriesChangeDetectorTest::testTimeShift() {
                      [](TGenerator trend, core_t::TTime time) {
                          return trend(time - core::constants::HOUR);
                      },
-                     -static_cast<double>(core::constants::HOUR), 0.03, 23.0);
+                     -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
     this->testChange(trends, maths::SChangeDescription::E_TimeShift,
                      [](TGenerator trend, core_t::TTime time) {
                          return trend(time + core::constants::HOUR);
                      },
-                     +static_cast<double>(core::constants::HOUR), 0.03, 23.0);
+                     +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testPersist() {

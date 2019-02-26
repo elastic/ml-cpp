@@ -205,6 +205,11 @@ public:
     //! Get whether or not to use the anomaly model.
     bool useAnomalyModel() const;
 
+    //! Set whether or not to skip updating the anomaly model.
+    CModelProbabilityParams& skipAnomalyModelUpdate(bool skipAnomalyModelUpdate);
+    //! Get whether or not to skip updating the anomaly model.
+    bool skipAnomalyModelUpdate() const;
+
 private:
     //! The coordinates' probability calculations.
     TProbabilityCalculation2Vec m_Calculations;
@@ -222,6 +227,9 @@ private:
     bool m_UseMultibucketFeatures = true;
     //! Whether or not to use the anomaly model.
     bool m_UseAnomalyModel = true;
+    //! Whether or not to skip updating the anomaly model
+    //! because a rule triggered.
+    bool m_SkipAnomalyModelUpdate = false;
 };
 
 //! \brief Describes the result of the model probability calculation.
@@ -230,12 +238,19 @@ struct MATHS_EXPORT SModelProbabilityResult {
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 
+    //! Labels for different contributions to the overall probability.
+    enum EFeatureProbabilityLabel {
+        E_SingleBucketProbability,
+        E_MultiBucketProbability,
+        E_AnomalyModelProbability,
+        E_UndefinedProbability
+    };
+
     //! \brief Wraps up a feature label and probability.
     struct MATHS_EXPORT SFeatureProbability {
-        using TStrCRef = boost::reference_wrapper<const std::string>;
         SFeatureProbability();
-        SFeatureProbability(const std::string& label, double probability);
-        TStrCRef s_Label;
+        SFeatureProbability(EFeatureProbabilityLabel label, double probability);
+        EFeatureProbabilityLabel s_Label;
         double s_Probability = 1.0;
     };
     using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;

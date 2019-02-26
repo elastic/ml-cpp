@@ -64,7 +64,6 @@ CPartitioningFields.cc \
 CPopulationModel.cc \
 CProbabilityAndInfluenceCalculator.cc \
 CResourceMonitor.cc \
-CResultsQueue.cc \
 CRuleCondition.cc \
 CRuleScope.cc \
 CSample.cc \

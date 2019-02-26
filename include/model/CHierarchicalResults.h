@@ -29,10 +29,6 @@
 class CHierarchicalResultsTest;
 
 namespace ml {
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
 namespace model {
 class CAnomalyDetectorModel;
 class CLimits;
@@ -71,12 +67,6 @@ using TStr1Vec = core::CSmallVector<std::string, 1>;
 //!   -# and so on.
 struct MODEL_EXPORT SResultSpec {
     SResultSpec();
-
-    //! Persist the result specification by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Restore the result specification reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Print of the specification for debugging.
     std::string print() const;
@@ -153,20 +143,6 @@ struct MODEL_EXPORT SNode {
 
     //! Efficient swap
     void swap(SNode& other);
-
-    //! Persist the node state by passing information to \p inserter.
-    void acceptPersistInserter1(core::CStatePersistInserter& inserter,
-                                TNodePtrSizeUMap& nodePointers) const;
-    //! Persist the node connectivity by passing information to \p inserter.
-    void acceptPersistInserter2(core::CStatePersistInserter& inserter,
-                                const TNodePtrSizeUMap& nodePointers) const;
-
-    //! Restore the node state reading state from \p traverser.
-    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
-                                 TSizeNodePtrUMap& nodePointers);
-    //! Restore the node connectivity reading state from \p traverser.
-    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
-                                 const TSizeNodePtrUMap& nodePointers);
 
     //! \name Connectivity
     //@{
@@ -380,12 +356,6 @@ public:
 
     //! Get type of result
     model_t::CResultType resultType() const;
-
-    //! Persist the results by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Restore the results reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Print the results for debug.
     std::string print() const;

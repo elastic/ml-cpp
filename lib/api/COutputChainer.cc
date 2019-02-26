@@ -54,10 +54,6 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
     return true;
 }
 
-const COutputHandler::TStrVec& COutputChainer::fieldNames() const {
-    return m_FieldNames;
-}
-
 bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
                               const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {

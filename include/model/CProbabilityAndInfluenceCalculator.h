@@ -71,6 +71,10 @@ public:
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVecVec =
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
+    using TFeatureProbabilityLabelDoubleUMap =
+        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, double>;
+    using TFeatureProbabilityLabelProbabilityAggregatorUMap =
+        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, CModelTools::CProbabilityAggregator>;
     using TStoredStringPtrStoredStringPtrPr =
         std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
@@ -308,9 +312,22 @@ public:
     bool calculate(double& probability,
                    TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
 
+    //! Calculate a measure of the impact of both the single bucket and multi
+    //! bucket probabilities on the make up of the overall probability.
+    //!
+    //! The calculation is designed  such that the impact saturates when
+    //! one of the probabilities is less than a small fraction of the other or
+    //! when one probability is close to one, i.e. when one factor is not at all anomalous.
+    //!
+    //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
+    bool calculateMultiBucketImpact(double& multiBucketImpact) const;
+
 private:
     //! Actually commit any influences we've found.
     void commitInfluences(model_t::EFeature feature, double logp, double weight);
+
+    //! calculate the explaining probabilities
+    bool calculateExplainingProbabilities(TFeatureProbabilityLabelDoubleUMap& explainingProbabilities) const;
 
 private:
     //! The minimum value for the influence for which an influencing
@@ -326,6 +343,9 @@ private:
 
     //! The probability calculator.
     CModelTools::CProbabilityAggregator m_Probability;
+
+    //! holds the probabilities of explanatory features
+    TFeatureProbabilityLabelProbabilityAggregatorUMap m_ExplainingProbabilities;
 
     //! The probability calculation cache if there is one.
     CModelTools::CProbabilityCache* m_ProbabilityCache;

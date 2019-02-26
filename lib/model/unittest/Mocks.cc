@@ -91,11 +91,6 @@ void CMockModel::sample(core_t::TTime /*startTime*/,
                         CResourceMonitor& /*resourceMonitor*/) {
 }
 
-void CMockModel::sampleOutOfPhase(core_t::TTime /*startTime*/,
-                                  core_t::TTime /*endTime*/,
-                                  CResourceMonitor& /*resourceMonitor*/) {
-}
-
 void CMockModel::prune(std::size_t /*maximumAge*/) {
 }
 

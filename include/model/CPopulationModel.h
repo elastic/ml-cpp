@@ -9,7 +9,6 @@
 
 #include <core/CMemory.h>
 #include <core/CNonCopyable.h>
-#include <core/CStatistics.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
@@ -140,16 +139,6 @@ public:
 
     //! \name Update
     //@{
-    //! Sample any state needed by computeProbablity for the out-
-    //! of-phase bucket in the time interval [\p startTime, \p endTime]
-    //! but do not update the model.
-    //!
-    //! \param[in] startTime The start of the time interval to sample.
-    //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
-
     //! Update the rates for \p feature and \p people.
     virtual void sample(core_t::TTime startTime,
                         core_t::TTime endTime,

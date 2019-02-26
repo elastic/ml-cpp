@@ -273,15 +273,24 @@ bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
 }
 
+CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
+    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+    return *this;
+}
+
+bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
+    return m_SkipAnomalyModelUpdate;
+}
+
 //////// SModelProbabilityResult::SFeatureProbability ////////
 
 SModelProbabilityResult::SFeatureProbability::SFeatureProbability()
-    : s_Label{boost::cref(EMPTY_STRING)} {
+    : s_Label{E_UndefinedProbability} {
 }
 
-SModelProbabilityResult::SFeatureProbability::SFeatureProbability(const std::string& label,
+SModelProbabilityResult::SFeatureProbability::SFeatureProbability(EFeatureProbabilityLabel label,
                                                                   double probability)
-    : s_Label{boost::cref(label)}, s_Probability{probability} {
+    : s_Label{label}, s_Probability{probability} {
 }
 
 //////// CModel ////////

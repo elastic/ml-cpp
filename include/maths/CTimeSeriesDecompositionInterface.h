@@ -11,6 +11,7 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -33,8 +34,9 @@ struct SChangeDescription;
 //! calendar periodic and trend components.
 class MATHS_EXPORT CTimeSeriesDecompositionInterface {
 public:
-    using TTimeDoublePr = std::pair<core_t::TTime, double>;
-    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -71,6 +73,9 @@ public:
     //! Check if this is initialized.
     virtual bool initialized() const = 0;
 
+    //! Set whether or not we're testing for a change.
+    virtual void testingForChange(bool value) = 0;
+
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the function point.
@@ -103,8 +108,8 @@ public:
     //! Get the predicted value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the prediction
-    //! the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the
+    //! prediction the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
@@ -154,7 +159,7 @@ public:
     virtual bool mightAddComponents(core_t::TTime time) const = 0;
 
     //! Get the values in a recent time window.
-    virtual TTimeDoublePrVec windowValues() const = 0;
+    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;
@@ -172,7 +177,7 @@ public:
     virtual std::size_t staticSize() const = 0;
 
     //! Get the time shift which is being applied.
-    virtual core_t::TTime timeShift(void) const = 0;
+    virtual core_t::TTime timeShift() const = 0;
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const = 0;

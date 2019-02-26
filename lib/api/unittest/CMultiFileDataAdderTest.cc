@@ -19,7 +19,7 @@
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
-#include <api/CLineifiedJsonInputParser.h>
+#include <api/CNdJsonInputParser.h>
 
 #include <test/CMultiFileDataAdder.h>
 #include <test/CMultiFileSearcher.h>
@@ -180,7 +180,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false);
+            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
@@ -195,10 +195,10 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
             return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
         }
-        return std::make_unique<ml::api::CLineifiedJsonInputParser>(inputStrm);
+        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStream(
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
         boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));
 
     // Persist the detector state to file(s)

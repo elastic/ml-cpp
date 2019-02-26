@@ -8,6 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
+USE_BOOST_FILESYSTEM_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -30,18 +31,18 @@ SRCS=\
 	CChecksumTest.cc \
 	CClustererTest.cc \
 	CCountMinSketchTest.cc \
+	CDataFrameUtilsTest.cc \
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
 	CEqualWithToleranceTest.cc \
 	CExpandingWindowTest.cc \
 	CForecastTest.cc \
 	CGammaRateConjugateTest.cc \
-	CGramSchmidtTest.cc \
 	CInformationCriteriaTest.cc \
 	CIntegerToolsTest.cc \
 	CIntegrationTest.cc \
 	CKdTreeTest.cc \
-	CKMeansFastTest.cc \
+	CKMeansTest.cc \
 	CKMeansOnlineTest.cc \
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
@@ -64,6 +65,8 @@ SRCS=\
 	COneOfNPriorTest.cc \
 	COrderingsTest.cc \
 	COrdinalTest.cc \
+	COrthogonaliserTest.cc \
+	COutliersTest.cc \
 	CPackedBitVectorTest.cc \
 	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
@@ -89,6 +92,7 @@ SRCS=\
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CTimeSeriesMultibucketFeaturesTest.cc \
+	CTimeSeriesSegmentationTest.cc \
 	CToolsTest.cc \
 	CTrendComponentTest.cc \
 	CXMeansOnlineTest.cc \

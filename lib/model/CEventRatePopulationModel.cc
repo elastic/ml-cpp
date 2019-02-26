@@ -10,7 +10,6 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
-#include <core/CStatistics.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>
@@ -1010,6 +1009,7 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
     double value{model_t::offsetCountToZero(
         feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
+    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -1027,7 +1027,8 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addBucketEmpty({false})
-        .addWeights(weight);
+        .addWeights(weight)
+        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 }
 
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////

@@ -167,7 +167,7 @@ void CForecastTest::testDailyConstantLongTermTrend() {
                y[i] + noise;
     };
 
-    this->test(trend, bucketLength, 63, 64.0, 14.0, 0.02);
+    this->test(trend, bucketLength, 63, 64.0, 13.0, 0.02);
 }
 
 void CForecastTest::testDailyVaryingLongTermTrend() {
@@ -225,7 +225,7 @@ void CForecastTest::testComplexConstantLongTermTrend() {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    this->test(trend, bucketLength, 63, 24.0, 5.0, 0.01);
+    this->test(trend, bucketLength, 63, 24.0, 28.0, 0.015);
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {

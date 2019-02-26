@@ -8,7 +8,6 @@
 #define INCLUDED_ml_model_CIndividualModel_h
 
 #include <core/CMemory.h>
-#include <core/CStatistics.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
@@ -112,16 +111,6 @@ public:
     virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
                                         CResourceMonitor& resourceMonitor) = 0;
-
-    //! Sample any state needed by computeProbablity for the out-
-    //! of-phase bucket in the time interval [\p startTime, \p endTime]
-    //! but do not update the model.
-    //!
-    //! \param[in] startTime The start of the time interval to sample.
-    //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].

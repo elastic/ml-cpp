@@ -37,7 +37,7 @@ class CResourceMonitor;
 //! to characterize metric time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer {
+class MODEL_EXPORT CMetricBucketGatherer final : public CBucketGatherer {
 public:
     using TCategorySizePr = std::pair<model_t::EMetricCategory, std::size_t>;
     using TCategorySizePrAnyMap = std::map<TCategorySizePr, boost::any>;
@@ -93,7 +93,7 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Fill in the state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not

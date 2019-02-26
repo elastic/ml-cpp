@@ -15,7 +15,7 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CChecksum.h>
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CLinearAlgebra.h>
@@ -86,7 +86,7 @@ public:
     using TPoint4Vec = core::CSmallVector<TPoint, 4>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TMatrixVec = std::vector<TMatrix>;
-    using TCovariance = typename CBasicStatistics::SSampleCovariances<double, N>;
+    using TCovariance = CBasicStatistics::SSampleCovariances<TPoint>;
 
     // Lift all overloads of into scope.
     //{
@@ -228,7 +228,7 @@ public:
         //   E[(Z - E[Z])^2] = 1/12 I
 
         TPoint numberSamples(0.0);
-        TCovariance covariancePost;
+        TCovariance covariancePost(N);
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             TPoint x(samples[i]);
             TPoint n(maths_t::countForUpdate(weights[i]));
@@ -241,14 +241,14 @@ public:
 
         if (this->isInteger()) {
             covariancePost.s_Mean += TPoint(0.5);
-            covariancePost.s_Covariances += TPoint(1.0 / 12.0).diagonal();
+            covariancePost.s_Covariances += TPoint(1.0 / 12.0).asDiagonal();
         }
 
         if (m_WishartDegreesFreedom > 0.0) {
             TPoint scale = TPoint(1.0) / m_GaussianPrecision;
             TMatrix covariances = m_WishartScaleMatrix;
             scaleCovariances(scale, covariances);
-            TCovariance covariancePrior = CBasicStatistics::accumulator(
+            TCovariance covariancePrior = CBasicStatistics::covariancesAccumulator(
                 m_GaussianPrecision, m_GaussianMean, covariances);
             covariancePost += covariancePrior;
         }
@@ -347,7 +347,6 @@ public:
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
     univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
-
         if (!this->check(marginalize, condition)) {
             return {};
         }
@@ -395,8 +394,8 @@ public:
             condition_.push_back(i1[0]);
             CDenseMatrix<double> cp = projectedMatrix(condition_, c);
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
-            Eigen::JacobiSVD<CDenseMatrix<double>> c22(
-                cp.topLeftCorner(n, n), Eigen::ComputeThinU | Eigen::ComputeThinV);
+            auto c22 = cp.topLeftCorner(n, n).jacobiSvd(Eigen::ComputeThinU |
+                                                        Eigen::ComputeThinV);
             LOG_TRACE(<< "c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12
                       << ", a = " << xc << ", m2 = " << m2);
 
@@ -490,8 +489,8 @@ public:
             condition_.push_back(i1[1]);
             CDenseMatrix<double> cp = projectedMatrix(condition_, c);
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
-            Eigen::JacobiSVD<CDenseMatrix<double>> c22(
-                cp.topLeftCorner(n, n), Eigen::ComputeThinU | Eigen::ComputeThinV);
+            auto c22 = cp.topLeftCorner(n, n).jacobiSvd(Eigen::ComputeThinU |
+                                                        Eigen::ComputeThinV);
             LOG_TRACE(<< "c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12
                       << ", a = " << xc << ", m2 = " << m2);
 
@@ -808,8 +807,8 @@ public:
         double f = m_WishartDegreesFreedom - d - 1.0;
         LOG_TRACE(<< "f = " << f);
 
-        Eigen::JacobiSVD<TDenseMatrix> precision(toDenseMatrix(m_WishartScaleMatrix),
-                                                 Eigen::ComputeFullU | Eigen::ComputeFullV);
+        auto precision =
+            toDenseMatrix(m_WishartScaleMatrix).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
 
         // Note we can extract the (non-zero vectors of the Cholesky
         // factorization by noting that U = V^t and multiplying each
@@ -928,7 +927,6 @@ public:
 
     //! Get the covariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix() const {
-
         // This can be found by change of variables from the prior on the
         // precision matrix. In particular, if X ~ W_d(V, n) and Y = X^(-1),
         // then Y ~ W_d^(-1)(V^(-1), n), i.e. the inverse Wishart with the
@@ -1023,37 +1021,31 @@ private:
                                const TPoint& offset,
                                const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
-
         // As usual, one can find the marginal likelihood by noting that
         // it is proportional to the ratio of the normalization factors
         // of the conjugate distribution before and after update with the
         // samples.
 
         double numberSamples = 0.0;
-        TCovariance covariancePost;
+        TCovariance covariancePost(N);
         double logCountVarianceScales = 0.0;
-        try {
-            TPoint m(this->marginalLikelihoodMean());
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                TPoint x(samples[i]);
-                TPoint n(maths_t::countForUpdate(weights[i]));
-                TPoint seasonalScale =
-                    sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
-                TPoint countVarianceScale(maths_t::countVarianceScale(weights[i]));
-                x = m + (x + offset - m) / seasonalScale;
-                numberSamples += this->smallest(n.template toVector<TDouble10Vec>());
-                covariancePost.add(x, n / countVarianceScale);
-                for (std::size_t j = 0u; j < N; ++j) {
-                    logCountVarianceScales -= 0.5 * std::log(countVarianceScale(j));
-                }
+        TPoint m(this->marginalLikelihoodMean());
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            TPoint x(samples[i]);
+            TPoint n(maths_t::countForUpdate(weights[i]));
+            TPoint seasonalScale =
+                sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
+            TPoint countVarianceScale(maths_t::countVarianceScale(weights[i]));
+            x = m + (x + offset - m) / seasonalScale;
+            numberSamples += this->smallest(n.template toVector<TDouble10Vec>());
+            covariancePost.add(x, n / countVarianceScale);
+            for (std::size_t j = 0u; j < N; ++j) {
+                logCountVarianceScales -= 0.5 * std::log(countVarianceScale(j));
             }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to update likelihood: " << e.what());
-            return maths_t::E_FpFailed;
         }
         TPoint scaledNumberSamples = covariancePost.s_Count;
-        TCovariance covariancePrior = CBasicStatistics::accumulator(
-            m_WishartDegreesFreedom, m_GaussianMean,
+        TCovariance covariancePrior = CBasicStatistics::covariancesAccumulator(
+            TPoint(m_WishartDegreesFreedom), m_GaussianMean,
             m_WishartScaleMatrix / m_WishartDegreesFreedom);
         covariancePost += covariancePrior;
 

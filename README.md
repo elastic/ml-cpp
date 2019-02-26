@@ -1,16 +1,16 @@
 # Machine Learning for the Elastic Stack
 
-<https://www.elastic.co/products/x-pack>
+<https://www.elastic.co/products/stack/machine-learning>
 
-The ml-cpp repo is a part of Machine Learning for X-Pack and is available with
-either a trial or platinum license for the
+The ml-cpp repo is a part of Machine Learning for the Elastic Stack, which is
+available with either a trial or platinum license for the
 [Elastic Stack](https://www.elastic.co/products).
 
 This repo only contains the the C++ code that implements the core analytics for
 machine learning.
 
-Code for integrating into the Elastic Stack and source for its documentation can
-be found in the main
+Code for integrating into Elasticsearch and source for its documentation can be
+found in the main
 [elasticsearch repo](https://github.com/elastic/elasticsearch).
 
 ## Elastic License Functionality
@@ -23,16 +23,16 @@ subject to the Elastic License are in the [3rd_party](3rd_party) and
 
 ## Getting Started
 
-Before starting with Machine Learning for X-Pack, it's a good idea to get some
-experience with the
+Before starting with Machine Learning, it's a good idea to get some experience
+with the rest of the
 [Elastic Stack](https://www.elastic.co/guide/en/elastic-stack/current/index.html)
 first.
 
 To get started with Machine Learning please have a look at
-<https://www.elastic.co/guide/en/x-pack/current/ml-getting-started.html>.
+<https://www.elastic.co/guide/en/elastic-stack-overview/current/ml-getting-started.html>.
 
 Full documentation of Machine Learning can be found at
-<https://www.elastic.co/guide/en/x-pack/current/xpack-ml.html>.
+<https://www.elastic.co/guide/en/elastic-stack-overview/current/xpack-ml.html>.
 
 ## Questions/Bug Reports/Help
 
@@ -40,7 +40,8 @@ We are happy to help and to make sure your questions can be answered by the
 right people, please follow the guidelines below:
 
 * If you have a general question about functionality please use our
-  [discuss](https://discuss.elastic.co/c/x-pack) forums.
+  [discuss](https://discuss.elastic.co/tags/c/elasticsearch/machine-learning)
+  forums.
 * If you have a support contract please use your dedicated support channel.
 * For questions regarding subscriptions please
   [contact](https://www.elastic.co/subscriptions#request-info) us.

@@ -18,6 +18,8 @@
 #include <boost/array.hpp>
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/policies/policy.hpp>
+#include <boost/optional.hpp>
+#include <boost/static_assert.hpp>
 
 #include <cmath>
 #include <cstring>

@@ -62,7 +62,6 @@ public:
                       bool& isPersistFileNamedPipe,
                       size_t& maxAnomalyRecords,
                       bool& memoryUsage,
-                      std::size_t& bucketResultsDelay,
                       bool& multivariateByFields,
                       TStrVec& clauseTokens);
 

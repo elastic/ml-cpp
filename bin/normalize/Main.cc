@@ -25,7 +25,7 @@
 #include <api/CCsvOutputWriter.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
-#include <api/CLineifiedJsonOutputWriter.h>
+#include <api/CNdJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
 
 #include <seccomp/CSystemCallFilter.h>
@@ -107,10 +107,9 @@ int main(int argc, char** argv) {
         if (writeCsv) {
             return std::make_unique<ml::api::CCsvOutputWriter>(ioMgr.outputStream());
         }
-        return std::make_unique<ml::api::CLineifiedJsonOutputWriter>(
-            ml::api::CLineifiedJsonOutputWriter::TStrSet{
-                ml::api::CResultNormalizer::PROBABILITY_NAME,
-                ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
+        return std::make_unique<ml::api::CNdJsonOutputWriter>(
+            ml::api::CNdJsonOutputWriter::TStrSet{ml::api::CResultNormalizer::PROBABILITY_NAME,
+                                                  ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
             ioMgr.outputStream());
     }()};
 
@@ -129,8 +128,8 @@ int main(int argc, char** argv) {
     }
 
     // Now handle the numbers to be normalised from stdin
-    if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord,
-                                            &normalizer, _1)) == false) {
+    if (inputParser->readStreamIntoMaps(boost::bind(
+            &ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
         LOG_FATAL(<< "Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }

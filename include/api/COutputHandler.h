@@ -49,16 +49,13 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrVecItr = TStrVec::iterator;
     using TStrVecCItr = TStrVec::const_iterator;
-
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
     using TStrStrUMapItr = TStrStrUMap::iterator;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
 public:
-    COutputHandler();
-
     //! Virtual destructor for abstract base class
-    virtual ~COutputHandler();
+    virtual ~COutputHandler() = default;
 
     //! We're going to be writing to a new output stream
     virtual void newOutputStream();
@@ -70,12 +67,9 @@ public:
     //! present - this is only allowed once
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
-    //! Get field names
-    virtual const TStrVec& fieldNames() const = 0;
-
     //! Write a row to the stream.  The supplied map must contain every
     //! field value.
-    bool writeRow(const TStrStrUMap& dataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields);
 
     //! Write a row to the stream, optionally overriding some of the
     //! original field values.  Where the same field is present in both

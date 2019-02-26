@@ -68,10 +68,6 @@ public:
 
     virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
-
     virtual void prune(std::size_t maximumAge);
 
     virtual bool computeProbability(std::size_t pid,

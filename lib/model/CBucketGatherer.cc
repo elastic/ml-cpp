@@ -7,9 +7,9 @@
 #include <model/CBucketGatherer.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStatistics.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -50,6 +50,7 @@ const std::string COUNT_TAG("c");
 const std::string INFLUENCER_TAG("d");
 const std::string INFLUENCE_ITEM_TAG("a");
 const std::string INFLUENCE_COUNT_TAG("b");
+const std::string EMPTY_MAP_TAG("e");
 
 //! Persist a person, attribute and count tuple.
 void insertPersonAttributeCounts(const TSizeSizePrUInt64Pr& tuple,
@@ -88,14 +89,15 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
                       rhs->first.first, *rhs->first.second, rhs->second);
               });
 
-    for (std::size_t i = 0u; i < ordered.size(); ++i) {
-        inserter.insertValue(PERSON_UID_TAG,
-                             CDataGatherer::extractPersonId(ordered[i]->first));
+    if (ordered.empty()) {
+        inserter.insertValue(EMPTY_MAP_TAG, "");
+    }
+    for (auto& pair : ordered) {
+        inserter.insertValue(PERSON_UID_TAG, CDataGatherer::extractPersonId(pair->first));
         inserter.insertValue(ATTRIBUTE_UID_TAG,
-                             CDataGatherer::extractAttributeId(ordered[i]->first));
-        inserter.insertValue(INFLUENCER_TAG,
-                             *CDataGatherer::extractData(ordered[i]->first));
-        inserter.insertValue(COUNT_TAG, ordered[i]->second);
+                             CDataGatherer::extractAttributeId(pair->first));
+        inserter.insertValue(INFLUENCER_TAG, *CDataGatherer::extractData(pair->first));
+        inserter.insertValue(COUNT_TAG, pair->second);
     }
 }
 
@@ -196,7 +198,9 @@ struct SInfluencerCountsPersister {
 const std::string CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG("a");
 const std::string CBucketGatherer::METRIC_BUCKET_GATHERER_TAG("b");
 
-CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime)
+CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer,
+                                 core_t::TTime startTime,
+                                 std::size_t numberInfluencers)
     : m_DataGatherer(dataGatherer), m_EarliestTime(startTime), m_BucketStart(startTime),
       m_PersonAttributeCounts(dataGatherer.params().s_LatencyBuckets,
                               dataGatherer.params().s_BucketLength,
@@ -208,7 +212,8 @@ CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime star
                                      TSizeSizePrUSet(1)),
       m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                          dataGatherer.params().s_BucketLength,
-                         startTime) {
+                         startTime,
+                         TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluencers)) {
 }
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
@@ -270,17 +275,21 @@ bool CBucketGatherer::addEventData(CEventData& data) {
             bucketCounts[pidCid] += count;
         }
 
-        const CEventData::TOptionalStrVec influences = data.influences();
-        TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts =
-            m_InfluencerCounts.get(time);
-        influencerCounts.resize(influences.size());
-        TStoredStringPtrVec canonicalInfluences(influences.size());
+        const CEventData::TOptionalStrVec& influences = data.influences();
+        auto& influencerCounts = m_InfluencerCounts.get(time);
+        if (influences.size() != influencerCounts.size()) {
+            LOG_ERROR(<< "Unexpected influences: "
+                      << core::CContainerPrinter::print(influences) << " expected "
+                      << core::CContainerPrinter::print(this->beginInfluencers(),
+                                                        this->endInfluencers()));
+            return false;
+        }
 
+        TStoredStringPtrVec canonicalInfluences(influencerCounts.size());
         for (std::size_t i = 0u; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
-                const core::CStoredStringPtr& inf =
-                    CStringStore::influencers().get(*influence);
+                const auto& inf = CStringStore::influencers().get(*influence);
                 canonicalInfluences[i] = inf;
                 if (count > 0) {
                     influencerCounts[i]
@@ -317,10 +326,12 @@ void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
         // the gatherers may finalise the earliest bucket within
         // the latency window, thus we push a new count bucket only
         // after startNewBucket has been called.
+        std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
         this->startNewBucket(newBucketStart, skipUpdates);
         m_PersonAttributeCounts.push(TSizeSizePrUInt64UMap(1), newBucketStart);
         m_PersonAttributeExplicitNulls.push(TSizeSizePrUSet(1), newBucketStart);
-        m_InfluencerCounts.push(TSizeSizePrStoredStringPtrPrUInt64UMapVec(), newBucketStart);
+        m_InfluencerCounts.push(TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluences),
+                                newBucketStart);
         m_BucketStart = newBucketStart;
     }
 }
@@ -558,7 +569,8 @@ std::size_t CBucketGatherer::memoryUsage() const {
 void CBucketGatherer::clear() {
     m_PersonAttributeCounts.clear(TSizeSizePrUInt64UMap(1));
     m_PersonAttributeExplicitNulls.clear(TSizeSizePrUSet(1));
-    m_InfluencerCounts.clear();
+    m_InfluencerCounts.clear(TSizeSizePrStoredStringPtrPrUInt64UMapVec(
+        this->endInfluencers() - this->beginInfluencers()));
 }
 
 bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
@@ -575,9 +587,11 @@ bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     }
 
     LOG_TRACE(<< "Resetting bucket starting at " << bucketStart);
+    std::ptrdiff_t numberInfluences{this->endInfluencers() - this->beginInfluencers()};
     m_PersonAttributeCounts.get(bucketStart).clear();
     m_PersonAttributeExplicitNulls.get(bucketStart).clear();
-    m_InfluencerCounts.get(bucketStart).clear();
+    m_InfluencerCounts.get(bucketStart) =
+        TSizeSizePrStoredStringPtrPrUInt64UMapVec(numberInfluences);
     return true;
 }
 
@@ -587,6 +601,8 @@ void CBucketGatherer::baseAcceptPersistInserter(core::CStatePersistInserter& ins
         BUCKET_COUNT_TAG,
         boost::bind<void>(TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(),
                           boost::cref(m_PersonAttributeCounts), _1));
+    // Clear any empty collections before persist these are resized on restore.
+    TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue influencerCounts{m_InfluencerCounts};
     inserter.insertLevel(
         INFLUENCERS_COUNT_TAG,
         boost::bind<void>(

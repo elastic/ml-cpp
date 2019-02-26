@@ -9,6 +9,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CLinearAlgebraTools.h>
 
 namespace ml {
@@ -35,9 +36,9 @@ bool CGradientDescent::run(std::size_t n,
     fi.clear();
     fi.reserve(n);
 
-    m_PreviousStep = TVector(x0.dimension(), 0.0);
+    m_PreviousStep = las::zero(x0);
     TVector x(x0);
-    TVector gfx(x.dimension(), 0.0);
+    TVector gfx(las::zero(x));
 
     CBasicStatistics::COrderStatisticsStack<double, 1> min;
     CBasicStatistics::SSampleMean<double>::TAccumulator scale;
@@ -58,7 +59,7 @@ bool CGradientDescent::run(std::size_t n,
             LOG_ERROR(<< "Bailing on iteration " << i);
             return false;
         }
-        double norm = gfx.euclidean();
+        double norm = las::norm(gfx);
         scale.add(norm);
         gfx *= (-m_LearnRate / CBasicStatistics::mean(scale));
 
@@ -73,12 +74,6 @@ bool CGradientDescent::run(std::size_t n,
     return true;
 }
 
-CGradientDescent::CFunction::~CFunction() {
-}
-
-CGradientDescent::CGradient::~CGradient() {
-}
-
 CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f,
                                                                        double eps)
     : m_Eps(eps), m_F(f) {
@@ -86,13 +81,13 @@ CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFu
 
 bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
                                                              TVector& result) const {
-    if (x.dimension() != result.dimension()) {
+    if (las::dimension(x) != las::dimension(result)) {
         LOG_ERROR(<< "Dimension mismatch");
         return false;
     }
 
     xShiftEps = x;
-    for (std::size_t i = 0u; i < x.dimension(); ++i) {
+    for (std::size_t i = 0u; i < las::dimension(x); ++i) {
         xShiftEps(i) -= m_Eps;
         double fMinusEps;
         if (!m_F(xShiftEps, fMinusEps)) {

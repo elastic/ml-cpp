@@ -6,6 +6,7 @@
 #include <api/CBackgroundPersister.h>
 
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CScopedFastLock.h>
 #include <core/CTimeUtils.h>
 
@@ -109,6 +110,9 @@ bool CBackgroundPersister::startPersist() {
         }
     }
 
+    // create a cache of the counters, to ensure persistence operates
+    // on a consistent collection of counters
+    core::CProgramCounters::cacheCounters();
     m_IsShutdown = false;
     m_IsBusy = m_BackgroundThread.start();
 

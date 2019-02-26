@@ -77,8 +77,8 @@ void CKMeansOnlineTest::testVariance() {
         rng.generateUniformSamples(0.0, 10.0, 50, coordinates);
         TVector5Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 5) {
-            double c[] = {coordinates[i + 0], coordinates[i + 1], coordinates[i + 2],
-                          coordinates[i + 3], coordinates[i + 4]};
+            double c[]{coordinates[i + 0], coordinates[i + 1], coordinates[i + 2],
+                       coordinates[i + 3], coordinates[i + 4]};
             points.push_back(TVector5(c));
         }
 
@@ -118,7 +118,7 @@ void CKMeansOnlineTest::testAdd() {
         rng.generateUniformSamples(1.0, 2.0, 20, counts);
         TVector2Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
-            double c[] = {coordinates[i + 0], coordinates[i + 1]};
+            double c[]{coordinates[i + 0], coordinates[i + 1]};
             points.push_back(TVector2(c));
         }
 
@@ -169,7 +169,7 @@ void CKMeansOnlineTest::testReduce() {
         rng.generateUniformSamples(1.0, 2.0, 21, counts);
         TVector2Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
-            double c[] = {coordinates[i + 0], coordinates[i + 1]};
+            double c[]{coordinates[i + 0], coordinates[i + 1]};
             points.push_back(TVector2(c));
         }
 
@@ -219,14 +219,14 @@ void CKMeansOnlineTest::testClustering() {
         TMeanVarAccumulator cost;
         TMeanVarAccumulator costOnline;
 
-        double a[] = {0.0, 20.0};
-        double b[] = {5.0, 30.0};
+        double a[]{0.0, 20.0};
+        double b[]{5.0, 30.0};
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
             TDoubleVec coordinates;
             rng.generateUniformSamples(a[i], b[i], 200, coordinates);
             for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
-                double c[] = {coordinates[j + 0], coordinates[j + 1]};
+                double c[]{coordinates[j + 0], coordinates[j + 1]};
                 points.push_back(TVector2(c));
             }
         }
@@ -234,7 +234,7 @@ void CKMeansOnlineTest::testClustering() {
         for (std::size_t t = 1u; t <= 10; ++t) {
             LOG_DEBUG(<< "*** test = " << t << " ***");
 
-            maths::CKMeansFast<TVector2> kmeans;
+            maths::CKMeans<TVector2> kmeans;
             double cost_ = std::numeric_limits<double>::max();
             kmeans.setPoints(points);
             TVector2Vec centres;
@@ -290,14 +290,14 @@ void CKMeansOnlineTest::testClustering() {
         rng.generateUniformSamples(0.0, 10.0, 1000, coordinates);
         TVector2Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
-            double v[] = {coordinates[i + 0], coordinates[i + 1]};
+            double v[]{coordinates[i + 0], coordinates[i + 1]};
             points.push_back(TVector2(v));
         }
 
         for (std::size_t t = 1u; t <= 20; ++t) {
             LOG_DEBUG(<< "*** test = " << t << " ***");
 
-            maths::CKMeansFast<TVector2> kmeans;
+            maths::CKMeans<TVector2> kmeans;
             maths::CKMeansOnline<TVector2> kmeansOnline(24);
 
             double cost_ = std::numeric_limits<double>::max();
@@ -354,14 +354,14 @@ void CKMeansOnlineTest::testSplit() {
 
     test::CRandomNumbers rng;
 
-    double m[] = {5.0, 15.0};
-    double v[] = {5.0, 10.0};
+    double m[]{5.0, 15.0};
+    double v[]{5.0, 10.0};
     TVector2Vec points;
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
         rng.generateNormalSamples(m[i], v[i], 350, coordinates);
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
-            double c[] = {coordinates[j + 0], coordinates[j + 1]};
+            double c[]{coordinates[j + 0], coordinates[j + 1]};
             points.push_back(TVector2(c));
         }
     }
@@ -372,11 +372,11 @@ void CKMeansOnlineTest::testSplit() {
     }
     CPPUNIT_ASSERT(!kmeansOnline.buffering());
 
-    std::size_t one[] = {0, 2, 7, 18, 19, 22};
-    std::size_t two[] = {3, 4, 5, 6, 10, 11, 23, 24};
-    std::size_t three[] = {1, 8, 9, 12, 13, 14, 15, 16, 17};
-    std::size_t four[] = {20, 21, 25, 26, 27, 28};
-    std::size_t five[] = {29};
+    std::size_t one[]{0, 2, 7, 18, 19, 22};
+    std::size_t two[]{3, 4, 5, 6, 10, 11, 23, 24};
+    std::size_t three[]{1, 8, 9, 12, 13, 14, 15, 16, 17};
+    std::size_t four[]{20, 21, 25, 26, 27, 28};
+    std::size_t five[]{29};
     TSizeVecVec split;
     split.push_back(TSizeVec(boost::begin(one), boost::end(one)));
     split.push_back(TSizeVec(boost::begin(two), boost::end(two)));
@@ -418,20 +418,20 @@ void CKMeansOnlineTest::testMerge() {
 
     test::CRandomNumbers rng;
 
-    double m[] = {5.0, 15.0};
-    double v[] = {5.0, 10.0};
+    double m[]{5.0, 15.0};
+    double v[]{5.0, 10.0};
     TVector2Vec points[2];
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
         rng.generateNormalSamples(m[i], v[i], 350, coordinates);
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
-            double c[] = {coordinates[j + 0], coordinates[j + 1]};
+            double c[]{coordinates[j + 0], coordinates[j + 1]};
             points[i].push_back(TVector2(c));
         }
     }
 
-    maths::CKMeansOnline<TVector2> kmeans[] = {maths::CKMeansOnline<TVector2>(20),
-                                               maths::CKMeansOnline<TVector2>(25)};
+    maths::CKMeansOnline<TVector2> kmeans[]{maths::CKMeansOnline<TVector2>(20),
+                                            maths::CKMeansOnline<TVector2>(25)};
     for (std::size_t i = 0u; i < 2; ++i) {
         for (std::size_t j = 0u; j < points[i].size(); ++j) {
             kmeans[i].add(points[i][j]);
@@ -480,10 +480,10 @@ void CKMeansOnlineTest::testPropagateForwardsByTime() {
     TVector2Vec points;
     TDoubleVec coordinates;
     rng.generateNormalSamples(m, v, 700, coordinates);
-    double outlier_[] = {50.0, 20.0};
+    double outlier_[]{50.0, 20.0};
     TVector2 outlier(outlier_);
     for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
-        double c[] = {coordinates[i + 0], coordinates[i + 1]};
+        double c[]{coordinates[i + 0], coordinates[i + 1]};
         points.push_back(TVector2(c));
         if (i == 200) {
             points.push_back(outlier);
@@ -516,14 +516,16 @@ void CKMeansOnlineTest::testSample() {
     // of samples we sample the modes of the mixture correctly.
 
     using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+    using TCovariances2 =
+        maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 2>>;
 
     maths::CSampling::seed();
 
-    std::size_t n[] = {500, 500};
-    double means[][2] = {{0.0, 10.0}, {20.0, 30.0}};
-    double covariances[][3] = {{10.0, 2.0, 8.0}, {15.0, 5.0, 12.0}};
+    std::size_t n[]{500, 500};
+    double means[][2]{{0.0, 10.0}, {20.0, 30.0}};
+    double covariances[][3]{{10.0, 2.0, 8.0}, {15.0, 5.0, 12.0}};
 
-    maths::CBasicStatistics::SSampleCovariances<double, 2> expectedSampleCovariances[2];
+    TCovariances2 expectedSampleCovariances[]{TCovariances2(2), TCovariances2(2)};
     TVector2Vec samples;
 
     for (std::size_t i = 0u; i < 2; ++i) {
@@ -564,7 +566,7 @@ void CKMeansOnlineTest::testSample() {
     std::sort(sampled.begin(), sampled.end());
     LOG_DEBUG(<< "sampled = " << core::CContainerPrinter::print(sampled));
 
-    maths::CBasicStatistics::SSampleCovariances<double, 2> sampleCovariances[2];
+    TCovariances2 sampleCovariances[]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0u; i < sampled.size(); ++i) {
         if ((sampled[i] - TVector2(means[0])).euclidean() <
             (sampled[i] - TVector2(means[1])).euclidean()) {

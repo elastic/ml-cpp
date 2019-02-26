@@ -9,6 +9,10 @@
 #include <core/CLogger.h>
 #include <core/CScopedRapidJsonPoolAllocator.h>
 
+#include <maths/CIntegerTools.h>
+
+#include <boost/bind.hpp>
+
 #include <vector>
 
 namespace ml {
@@ -55,13 +59,34 @@ const std::string CForecastDataSink::STATUS("forecast_status");
 
 using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
-CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
-                                                                const std::string& byFieldValue,
+CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(model_t::EFeature feature,
                                                                 TMathsModelPtr&& forecastModel,
-                                                                core_t::TTime firstDataTime,
-                                                                core_t::TTime lastDataTime)
-    : s_Feature(feature), s_FirstDataTime(firstDataTime), s_LastDataTime(lastDataTime),
-      s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {
+                                                                const std::string& byFieldValue)
+    : m_Feature(feature), m_ForecastModel(std::move(forecastModel)),
+      m_ByFieldValue(byFieldValue) {
+}
+
+CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(CForecastModelWrapper&& other)
+    : m_Feature(other.m_Feature), m_ForecastModel(std::move(other.m_ForecastModel)),
+      m_ByFieldValue(std::move(other.m_ByFieldValue)) {
+}
+
+bool CForecastDataSink::CForecastModelWrapper::forecast(const SForecastResultSeries& series,
+                                                        core_t::TTime startTime,
+                                                        core_t::TTime endTime,
+                                                        double boundsPercentile,
+                                                        CForecastDataSink& sink,
+                                                        std::string& message) const {
+    core_t::TTime bucketLength{m_ForecastModel->params().bucketLength()};
+    startTime = model_t::sampleTime(m_Feature, startTime, bucketLength);
+    endTime = model_t::sampleTime(m_Feature, endTime, bucketLength);
+    model_t::TDouble1VecDouble1VecPr support{model_t::support(m_Feature)};
+    return m_ForecastModel->forecast(
+        startTime, endTime, boundsPercentile, support.first, support.second,
+        boost::bind(&model::CForecastDataSink::push, &sink, _1, model_t::print(m_Feature),
+                    series.s_PartitionFieldName, series.s_PartitionFieldValue,
+                    series.s_ByFieldName, m_ByFieldValue, series.s_DetectorIndex),
+        message);
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(const SModelParams& modelParams)
@@ -196,8 +221,11 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
         m_Writer.addStringFieldReferenceToObj(FORECAST_ALIAS, m_ForecastAlias, doc);
     }
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);
-    // time is in Java format - milliseconds since the epoch
-    m_Writer.addTimeFieldToObj(TIMESTAMP, errorBar.s_Time, doc);
+    // Time is in Java format - milliseconds since the epoch. Note this
+    // matches the Java notion of "bucket time" which is defined as the
+    // start of the bucket containing the forecast time.
+    core_t::TTime time{maths::CIntegerTools::floor(errorBar.s_Time, errorBar.s_BucketLength)};
+    m_Writer.addTimeFieldToObj(TIMESTAMP, time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);
     if (!partitionFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, partitionFieldName, doc);

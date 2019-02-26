@@ -7,7 +7,7 @@
 #include "CInformationCriteriaTest.h"
 
 #include <maths/CInformationCriteria.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CSampling.h>
@@ -177,7 +177,7 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         TVector2Vec centres;
         maths::CSampling::multivariateNormalSample(mean, covariance, 200, centres);
 
-        maths::CKMeansFast<TVector2> kmeans;
+        maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2) {
             TVector2Vec tcentres(&centres[t], &centres[t + 2]);
@@ -384,7 +384,7 @@ void CInformationCriteriaTest::testGaussian() {
         TVector2Vec centres;
         maths::CSampling::multivariateNormalSample(mean, covariance, 200, centres);
 
-        maths::CKMeansFast<TVector2> kmeans;
+        maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2) {
             TVector2Vec tcentres(&centres[t], &centres[t + 2]);

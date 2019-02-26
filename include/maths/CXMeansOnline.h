@@ -23,14 +23,13 @@
 #include <maths/CPRNG.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSphericalCluster.h>
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <cmath>
 #include <cstddef>
+#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -87,7 +86,7 @@ public:
     using TSizeVecVec = std::vector<TSizeVec>;
     using TPrecise = typename SPromoted<T>::Type;
     using TMatrixPrecise = CSymmetricMatrixNxN<TPrecise, N>;
-    using TCovariances = CBasicStatistics::SSampleCovariances<TPrecise, N>;
+    using TCovariances = CBasicStatistics::SSampleCovariances<TPointPrecise>;
     using TSphericalCluster = typename CSphericalCluster<TPoint>::Type;
     using TSphericalClusterVec = std::vector<TSphericalCluster>;
     using TSphericalClusterVecVec = std::vector<TSphericalClusterVec>;
@@ -103,7 +102,7 @@ public:
         explicit CCluster(const CXMeansOnline& clusterer)
             : m_Index(clusterer.m_ClusterIndexGenerator.next()),
               m_DataType(clusterer.m_DataType), m_DecayRate(clusterer.m_DecayRate),
-              m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
+              m_Covariances(N), m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
 
         //! Initialize by traversing a state document.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -259,21 +258,21 @@ public:
             LOG_TRACE(<< "split");
 
             if (m_Structure.buffering()) {
-                return TOptionalClusterClusterPr();
+                return {};
             }
 
             std::size_t n = m_Structure.size();
             if (n < 2) {
-                return TOptionalClusterClusterPr();
+                return {};
             }
 
             TSizeVecVec split;
             if (!this->splitSearch(rng, minimumCount, split)) {
-                return TOptionalClusterClusterPr();
+                return {};
             }
             LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
 
-            TCovariances covariances[2];
+            TCovariances covariances[]{TCovariances(N), TCovariances(N)};
             TSphericalClusterVec clusters;
             this->sphericalClusters(clusters);
             for (std::size_t i = 0; i < 2; ++i) {
@@ -406,7 +405,7 @@ public:
                 // which case the variance of the covariance estimates can
                 // be large.
 
-                TCovariances covariances[2];
+                TCovariances covariances[]{TCovariances(N), TCovariances(N)};
                 CBasicStatistics::covariancesLedoitWolf(candidate[0], covariances[0]);
                 CBasicStatistics::covariancesLedoitWolf(candidate[1], covariances[1]);
                 double n[] = {CBasicStatistics::count(covariances[0]),
@@ -446,7 +445,7 @@ public:
                     }
                     for (std::size_t i = 0; i < assignment.size(); ++i) {
                         std::size_t j = assignment[i];
-                        TCovariances ci;
+                        TCovariances ci(N);
                         ci.add(remainder[i]);
                         candidate[j].push_back(remainder[i]);
                         covariances[j] += ci;
@@ -460,28 +459,26 @@ public:
                     if (distance > MINIMUM_SPLIT_DISTANCE) {
                         LOG_TRACE(<< "splitting");
 
+                        typename CSphericalCluster<TPoint>::SLess less;
+
                         result.resize(candidate.size());
                         TSphericalClusterVec clusters;
                         this->sphericalClusters(clusters);
-                        TSizeVec indexes(
-                            boost::counting_iterator<std::size_t>(0),
-                            boost::counting_iterator<std::size_t>(clusters.size()));
+                        TSizeVec indexes(clusters.size());
+                        std::iota(indexes.begin(), indexes.end(), 0);
                         COrderings::simultaneousSort(
                             clusters, indexes, typename CSphericalCluster<TPoint>::SLess());
                         for (std::size_t i = 0; i < candidate.size(); ++i) {
-                            for (std::size_t j = 0; j < candidate[i].size(); ++j) {
-                                std::size_t k =
-                                    std::lower_bound(
-                                        clusters.begin(), clusters.end(),
-                                        candidate[i][j],
-                                        typename CSphericalCluster<TPoint>::SLess()) -
-                                    clusters.begin();
-                                if (k >= clusters.size()) {
-                                    LOG_ERROR(<< "Missing " << candidate[i][j] << ", clusters = "
+                            for (const auto& x : candidate[i]) {
+                                std::size_t j = std::lower_bound(clusters.begin(),
+                                                                 clusters.end(), x, less) -
+                                                clusters.begin();
+                                if (j >= clusters.size()) {
+                                    LOG_ERROR(<< "Missing " << x << " from clusters = "
                                               << core::CContainerPrinter::print(clusters));
                                     return false;
                                 }
-                                result[i].push_back(indexes[k]);
+                                result[i].push_back(indexes[j]);
                             }
                         }
                     }
@@ -489,7 +486,7 @@ public:
                 break;
             }
 
-            return !result.empty();
+            return result.size() > 0;
         }
 
         //! Get the spherical clusters being maintained in the fine-
@@ -497,12 +494,11 @@ public:
         void sphericalClusters(TSphericalClusterVec& result) const {
             m_Structure.clusters(result);
             switch (m_DataType) {
-            case maths_t::E_IntegerData: {
-                for (auto& cluster : result) {
-                    cluster.annotation().s_Variance += 1.0 / 12.0;
+            case maths_t::E_IntegerData:
+                for (auto& x : result) {
+                    x.annotation().s_Variance += 1.0 / 12.0;
                 }
                 break;
-            }
             case maths_t::E_DiscreteData:
             case maths_t::E_ContinuousData:
             case maths_t::E_MixedData:
@@ -513,7 +509,7 @@ public:
         //! Get the closest (in Mahalanobis distance) cluster to \p x.
         static std::size_t nearest(const TSphericalCluster& x,
                                    const TCovariances (&c)[2]) {
-            TPrecise d[] = {0, 0};
+            TPrecise d[]{0, 0};
             TPointPrecise x_(x);
             inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[0]),
                                  x_ - CBasicStatistics::mean(c[0]), d[0]);
@@ -559,7 +555,6 @@ public:
 
     using TClusterVec = std::vector<CCluster>;
     using TClusterVecItr = typename TClusterVec::iterator;
-    using TClusterVecCItr = typename TClusterVec::const_iterator;
 
 public:
     //! \name Life-cycle
@@ -725,7 +720,7 @@ public:
     //! Get the centre of the cluster identified by \p index.
     virtual bool clusterCentre(std::size_t index, TPointPrecise& result) const {
         const CCluster* cluster = this->cluster(index);
-        if (!cluster) {
+        if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
@@ -736,7 +731,7 @@ public:
     //! Get the spread of the cluster identified by \p index.
     virtual bool clusterSpread(std::size_t index, double& result) const {
         const CCluster* cluster = this->cluster(index);
-        if (!cluster) {
+        if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
@@ -772,31 +767,31 @@ public:
         //   Z = Sum_i{ P(i | x) }
 
         result.reserve(m_Clusters.size());
-        double renormalizer = boost::numeric::bounds<double>::lowest();
+        double lmax = boost::numeric::bounds<double>::lowest();
         for (const auto& cluster : m_Clusters) {
             double likelihood = cluster.logLikelihoodFromCluster(m_WeightCalc, point);
             result.emplace_back(cluster.index(), likelihood);
-            renormalizer = std::max(renormalizer, likelihood);
+            lmax = std::max(lmax, likelihood);
         }
         double Z = 0.0;
-        for (auto& p : result) {
-            p.second = std::exp(p.second - renormalizer);
-            Z += p.second;
+        for (auto& x : result) {
+            x.second = std::exp(x.second - lmax);
+            Z += x.second;
         }
         double pmax = 0.0;
-        for (auto& p : result) {
-            p.second /= Z;
-            pmax = std::max(pmax, p.second);
+        for (auto& x : result) {
+            x.second /= Z;
+            pmax = std::max(pmax, x.second);
         }
         result.erase(std::remove_if(result.begin(), result.end(),
                                     CProbabilityLessThan(HARD_ASSIGNMENT_THRESHOLD * pmax)),
                      result.end());
         Z = 0.0;
-        for (const auto& p : result) {
-            Z += p.second;
+        for (const auto& x : result) {
+            Z += x.second;
         }
-        for (auto& p : result) {
-            p.second *= count / Z;
+        for (auto& x : result) {
+            x.second *= count / Z;
         }
     }
 
@@ -833,8 +828,8 @@ public:
             p1 /= normalizer;
             LOG_TRACE(<< "probabilities = [" << p0 << "," << p1 << "]");
 
-            TClusterVecItr cluster0 = m_Clusters.begin() + closest[0].second;
-            TClusterVecItr cluster1 = m_Clusters.begin() + closest[1].second;
+            auto cluster0 = m_Clusters.begin() + closest[0].second;
+            auto cluster1 = m_Clusters.begin() + closest[1].second;
 
             if (p1 < HARD_ASSIGNMENT_THRESHOLD * p0) {
                 LOG_TRACE(<< "Adding " << x << " to " << cluster0->centre());
@@ -870,7 +865,7 @@ public:
     //! Update the clustering with \p points.
     virtual void add(const TPointPreciseDoublePrVec& x) {
         if (m_Clusters.empty()) {
-            m_Clusters.push_back(CCluster(*this));
+            m_Clusters.emplace_back(*this);
         }
         TSizeDoublePr2Vec dummy;
         for (const auto& x_ : x) {
@@ -905,7 +900,7 @@ public:
     //! \return True if the cluster could be sampled and false otherwise.
     virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
         const CCluster* cluster = this->cluster(index);
-        if (!cluster) {
+        if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
             return false;
         }
@@ -1147,7 +1142,7 @@ protected:
                 result = &candidate;
             }
         }
-        if (!result) {
+        if (result == nullptr) {
             LOG_ERROR(<< "Couldn't find nearest cluster");
         }
         return result;

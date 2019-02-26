@@ -54,8 +54,9 @@ double weight(const CMultivariatePrior& prior,
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
-    using TTimeDoublePr = std::pair<core_t::TTime, double>;
-    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
@@ -201,6 +202,7 @@ public:
     //@}
 
 private:
+    using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
@@ -245,7 +247,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(const TTimeDoublePrVec& initialValues);
+    void reinitializeStateGivenNewComponent(const TTimeFloatMeanAccumulatorPrVec& initialValues);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const CModelProbabilityParams& params,
@@ -524,8 +526,11 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
-    using TTimeDouble10VecPr = std::pair<core_t::TTime, TDouble10Vec>;
-    using TTimeDouble10VecPrVec = std::vector<TTimeDouble10VecPr>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
+    using TTimeFloatMeanAccumulatorPrVec10Vec =
+        core::CSmallVector<TTimeFloatMeanAccumulatorPrVec, 10>;
     using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
@@ -701,7 +706,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(const TTimeDouble10VecPrVec& initialValues);
+    void reinitializeStateGivenNewComponent(const TTimeFloatMeanAccumulatorPrVec10Vec& initialValues);
 
     //! Get the model dimension.
     std::size_t dimension() const;
