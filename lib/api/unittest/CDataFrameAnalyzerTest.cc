@@ -38,7 +38,12 @@ using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
-outlierSpec(std::size_t rows = 110, std::size_t memoryLimit = 100000) {
+outlierSpec(std::size_t rows = 110,
+            std::size_t memoryLimit = 100000,
+            std::string method = "",
+            std::size_t numberNeighbours = 0,
+            bool computeFeatureInfluence = false) {
+
     std::string spec{"{\n"
                      "  \"rows\": " +
                      std::to_string(rows) +
@@ -49,9 +54,35 @@ outlierSpec(std::size_t rows = 110, std::size_t memoryLimit = 100000) {
                      ",\n"
                      "  \"threads\": 1,\n"
                      "  \"analysis\": {\n"
-                     "    \"name\": \"outlier_detection\""
-                     "  }"
-                     "}"};
+                     "    \"name\": \"outlier_detection\""};
+    spec += ",\n    \"parameters\": {\n";
+    bool hasTrailingParameter{false};
+    if (method != "") {
+        spec += "      \"method\": \"" + method + "\"";
+        hasTrailingParameter = true;
+    }
+    if (numberNeighbours > 0) {
+        spec += (hasTrailingParameter ? ",\n" : "");
+        spec += "      \"number_neighbours\": " +
+                core::CStringUtils::typeToString(numberNeighbours);
+        hasTrailingParameter = true;
+    }
+    if (computeFeatureInfluence == false) {
+        spec += (hasTrailingParameter ? ",\n" : "");
+        spec += "      \"compute_feature_influence\": false";
+        hasTrailingParameter = true;
+    } else {
+        spec += (hasTrailingParameter ? ",\n" : "");
+        spec += "      \"minimum_score_to_write_feature_influence\": 0.0";
+        hasTrailingParameter = true;
+    }
+    spec += (hasTrailingParameter ? "\n" : "");
+    spec += "    }\n";
+    spec += "  }\n"
+            "}";
+
+    LOG_TRACE(<< "spec =\n" << spec);
+
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
@@ -59,8 +90,12 @@ void addTestData(TStrVec fieldNames,
                  TStrVec fieldValues,
                  api::CDataFrameAnalyzer& analyzer,
                  TDoubleVec& expectedScores,
+                 TDoubleVecVec& expectedFeatureInfluences,
                  std::size_t numberInliers = 100,
-                 std::size_t numberOutliers = 10) {
+                 std::size_t numberOutliers = 10,
+                 maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
+                 std::size_t numberNeighbours = 0,
+                 bool computeFeatureInfluence = false) {
 
     using TMeanVarAccumulatorVec =
         std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
@@ -102,23 +137,22 @@ void addTestData(TStrVec fieldNames,
         analyzer.handleRecord(fieldNames, fieldValues);
     }
 
-    for (std::size_t j = 0; j < 5; ++j) {
-        double shift{maths::CBasicStatistics::mean(columnMoments[j])};
-        double scale{1.0 / std::sqrt(maths::CBasicStatistics::variance(columnMoments[j]))};
-        for (auto& point : points) {
-            point(j) = scale * (point(j) - shift);
-        }
-    }
-
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
-    maths::COutliers::compute({1, 1, false, 0.05}, *frame);
+    maths::COutliers::compute(
+        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05}, *frame);
 
     expectedScores.resize(points.size());
-    frame->readRows(1, [&expectedScores](core::CDataFrame::TRowItr beginRows,
-                                         core::CDataFrame::TRowItr endRows) {
+    expectedFeatureInfluences.resize(points.size(), TDoubleVec(5));
+
+    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            expectedScores[row->index()] = (*row)[row->numberColumns() - 1];
+            expectedScores[row->index()] = (*row)[5];
+            if (computeFeatureInfluence) {
+                for (std::size_t i = 6; i < 11; ++i) {
+                    expectedFeatureInfluences[row->index()][i - 6] = (*row)[i];
+                }
+            }
         }
     });
 }
@@ -134,10 +168,11 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
+    TDoubleVecVec expectedFeatureInfluences;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5"};
     TStrVec fieldValues{"", "", "", "", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores);
+    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences);
 
     analyzer.receivedAllRows();
     analyzer.run();
@@ -177,11 +212,11 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
+    TDoubleVecVec expectedFeatureInfluences;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores);
-
+    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -220,14 +255,15 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(1000, 100000), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{outlierSpec(1000), outputWriterFactory};
 
     TDoubleVec expectedScores;
+    TDoubleVecVec expectedFeatureInfluences;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores, 990, 10);
-
+    addTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                expectedFeatureInfluences, 990, 10);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -246,6 +282,99 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+}
+
+void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
+
+    // Test we compute and write out the feature influences when requested.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(110, 100000, "", 0, true), outputWriterFactory};
+
+    TDoubleVec expectedScores;
+    TDoubleVecVec expectedFeatureInfluences;
+    TStrVec expectedNames{"feature_influence.c1", "feature_influence.c2", "feature_influence.c3",
+                          "feature_influence.c4", "feature_influence.c5"};
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences,
+                100, 10, maths::COutliers::E_Ensemble, 0, true);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedFeatureInfluence != expectedFeatureInfluences.end());
+            for (std::size_t i = 0; i < 5; ++i) {
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    (*expectedFeatureInfluence)[i],
+                    result["row_results"]["results"][expectedNames[i]].GetDouble(),
+                    1e-4 * (*expectedFeatureInfluence)[i]);
+            }
+            ++expectedFeatureInfluence;
+        }
+    }
+    CPPUNIT_ASSERT(expectedFeatureInfluence == expectedFeatureInfluences.end());
+}
+
+void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
+
+    // Test the method and number of neighbours parameters are correctly
+    // propagated to the analysis runner.
+
+    TStrVec methods{"lof", "ldof", "knn", "tnn"};
+
+    for (const auto& method :
+         {maths::COutliers::E_Lof, maths::COutliers::E_Ldof,
+          maths::COutliers::E_DistancekNN, maths::COutliers::E_TotalDistancekNN}) {
+        for (const auto k : {5, 10}) {
+
+            LOG_DEBUG(<< "Testing '" << methods[method] << "' and '" << k << "'");
+
+            std::stringstream output;
+            auto outputWriterFactory = [&output]() {
+                return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+            };
+
+            api::CDataFrameAnalyzer analyzer{
+                outlierSpec(110, 1000000, methods[method], k), outputWriterFactory};
+
+            TDoubleVec expectedScores;
+            TDoubleVecVec expectedFeatureInfluences;
+
+            TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+            TStrVec fieldValues{"", "", "", "", "", "0", ""};
+            addTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                        expectedFeatureInfluences, 100, 10, method, k);
+            analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+            rapidjson::Document results;
+            rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+            CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+            auto expectedScore = expectedScores.begin();
+            for (const auto& result : results.GetArray()) {
+                if (result.HasMember("row_results")) {
+                    CPPUNIT_ASSERT(expectedScore != expectedScores.end());
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                        *expectedScore,
+                        result["row_results"]["results"]["outlier_score"].GetDouble(),
+                        1e-6 * *expectedScore);
+                    ++expectedScore;
+                }
+            }
+            CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+        }
+    }
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -379,6 +508,12 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned",
         &CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences",
+        &CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
+        &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
