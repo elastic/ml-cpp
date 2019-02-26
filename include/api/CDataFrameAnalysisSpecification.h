@@ -126,7 +126,7 @@ public:
     CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
 
 private:
-    void initializeRunner(const char* name, const rapidjson::Value& analysis);
+    void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
 private:
     std::size_t m_NumberRows = 0;
