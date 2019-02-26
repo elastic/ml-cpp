@@ -40,6 +40,7 @@
 #include "CResourceMonitorTest.h"
 #include "CRuleConditionTest.h"
 #include "CSampleQueueTest.h"
+#include "CSearchKeyTest.h"
 #include "CStringStoreTest.h"
 #include "CToolsTest.h"
 
@@ -80,6 +81,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CResourceMonitorTest::suite());
     runner.addTest(CRuleConditionTest::suite());
     runner.addTest(CSampleQueueTest::suite());
+    runner.addTest(CSearchKeyTest::suite());
     runner.addTest(CStringStoreTest::suite());
     runner.addTest(CToolsTest::suite());
 
