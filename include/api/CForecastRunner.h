@@ -99,7 +99,6 @@ private:
     static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
     static const std::string ERROR_NO_SUPPORTED_FUNCTIONS;
-    static const std::string WARNING_DURATION_LIMIT;
     static const std::string WARNING_INVALID_EXPIRY;
     static const std::string INFO_DEFAULT_DURATION;
     static const std::string INFO_DEFAULT_EXPIRY;

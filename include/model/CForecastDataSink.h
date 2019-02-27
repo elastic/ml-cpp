@@ -43,16 +43,19 @@ public:
     using TStrUMap = boost::unordered_set<std::string>;
     struct SForecastResultSeries;
 
-    //! Wrapper for 1 timeseries model, its feature and by Field
+    //! \brief Wrapper which supports creating a forecast for a single
+    //! time series model.
     class MODEL_EXPORT CForecastModelWrapper {
     public:
         CForecastModelWrapper(model_t::EFeature feature,
+                              const std::string& byFieldValue,
                               TMathsModelPtr&& forecastModel,
-                              const std::string& byFieldValue);
+                              core_t::TTime firstDataTime,
+                              core_t::TTime lastDataTime);
 
-        CForecastModelWrapper(CForecastModelWrapper&& other);
+        CForecastModelWrapper(CForecastModelWrapper&& other) = default;
 
-        CForecastModelWrapper(const CForecastModelWrapper& that) = delete;
+        CForecastModelWrapper(const CForecastModelWrapper&) = delete;
         CForecastModelWrapper& operator=(const CForecastModelWrapper&) = delete;
 
         bool forecast(const SForecastResultSeries& series,
@@ -64,17 +67,19 @@ public:
 
     private:
         model_t::EFeature m_Feature;
-        TMathsModelPtr m_ForecastModel;
         std::string m_ByFieldValue;
+        TMathsModelPtr m_ForecastModel;
+        core_t::TTime m_FirstDataTime;
+        core_t::TTime m_LastDataTime;
     };
 
     //! Everything that defines 1 series of forecasts
     struct MODEL_EXPORT SForecastResultSeries {
         SForecastResultSeries(const SModelParams& modelParams);
 
-        SForecastResultSeries(SForecastResultSeries&& other);
+        SForecastResultSeries(SForecastResultSeries&&) = default;
 
-        SForecastResultSeries(const SForecastResultSeries& that) = delete;
+        SForecastResultSeries(const SForecastResultSeries&) = delete;
         SForecastResultSeries& operator=(const SForecastResultSeries&) = delete;
 
         SModelParams s_ModelParams;
