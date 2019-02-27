@@ -408,7 +408,7 @@ template<std::size_t N_, typename T>
 const std::string CLeastSquaresOnlineRegression<N_, T>::STATISTIC_TAG("a");
 template<std::size_t N_, typename T>
 const T CLeastSquaresOnlineRegression<N_, T>::MAX_CONDITION{
-        least_squares_online_regression_detail::CMaxCondition<T>::VALUE};
+    least_squares_online_regression_detail::CMaxCondition<T>::VALUE};
 }
 }
 
