@@ -60,6 +60,9 @@ public:
                                            int components = E_All,
                                            bool smooth = true) const;
 
+    //! Returns 0.
+    virtual core_t::TTime maximumForecastInterval() const;
+
     //! No-op.
     virtual void forecast(core_t::TTime startTime,
                           core_t::TTime endTime,

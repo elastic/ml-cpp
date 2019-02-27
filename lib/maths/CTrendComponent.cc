@@ -347,6 +347,14 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
     return {prediction, prediction};
 }
 
+core_t::TTime CTrendComponent::maximumForecastInterval() const {
+    double timescale{static_cast<double>(core::constants::DAY)};
+    double interval{std::min(
+        1.0 / (1.0 - std::exp(-TIME_SCALES[NUMBER_MODELS - 1] * m_DefaultDecayRate)),
+        std::floor(static_cast<double>(std::numeric_limits<core_t::TTime>::max()) / timescale))};
+    return static_cast<core_t::TTime>(interval * timescale);
+}
+
 CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) const {
     if (!this->initialized()) {
         return {0.0, 0.0};

@@ -162,8 +162,10 @@ const std::string CORRELATION_TAG{"d"};
 
 namespace forecast {
 namespace {
-const std::string INFO_INSUFFICIENT_HISTORY("Insufficient history to forecast");
-const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
+const std::string INFO_INSUFFICIENT_HISTORY{"Insufficient history to forecast"};
+const std::string INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION{
+    "Unable to accurately forecast for the full requested time interval"};
+const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate features"};
 }
 }
 
@@ -930,16 +932,27 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
             {m_IsNonNegative ? std::max(result[2], 0.0) : result[2]}};
 }
 
-bool CUnivariateTimeSeriesModel::forecast(core_t::TTime startTime,
+bool CUnivariateTimeSeriesModel::forecast(core_t::TTime firstDataTime,
+                                          core_t::TTime lastDataTime,
+                                          core_t::TTime startTime,
                                           core_t::TTime endTime,
                                           double confidenceInterval,
                                           const TDouble2Vec& minimum_,
                                           const TDouble2Vec& maximum_,
                                           const TForecastPushDatapointFunc& forecastPushDataPointFunc,
                                           std::string& messageOut) {
-    if (m_ResidualModel->isNonInformative()) {
+
+    core_t::TTime horizon{std::min(lastDataTime + (lastDataTime - firstDataTime),
+                                   lastDataTime + m_TrendModel->maximumForecastInterval())};
+
+    if (m_ResidualModel->isNonInformative() || startTime >= horizon) {
         messageOut = forecast::INFO_INSUFFICIENT_HISTORY;
         return true;
+    }
+    if (endTime > horizon) {
+        // Truncate to the forecast horizon
+        endTime = horizon;
+        messageOut = forecast::INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION;
     }
 
     using TDouble3Vec = core::CSmallVector<double, 3>;
@@ -2459,7 +2472,9 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     return result;
 }
 
-bool CMultivariateTimeSeriesModel::forecast(core_t::TTime /*startTime*/,
+bool CMultivariateTimeSeriesModel::forecast(core_t::TTime /*firstDataTime*/,
+                                            core_t::TTime /*lastDataTime*/,
+                                            core_t::TTime /*startTime*/,
                                             core_t::TTime /*endTime*/,
                                             double /*confidenceInterval*/,
                                             const TDouble2Vec& /*minimum*/,

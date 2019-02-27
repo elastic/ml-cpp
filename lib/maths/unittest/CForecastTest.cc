@@ -301,7 +301,7 @@ void CForecastTest::testNonNegative() {
     core_t::TTime end{time + 20 * core::constants::DAY};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+    forecastModel->forecast(0, start, start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
@@ -380,7 +380,7 @@ void CForecastTest::testFinancialIndex() {
     core_t::TTime end{timeseries[timeseries.size() - 1].first};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+    forecastModel->forecast(startTime, start, start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
@@ -407,6 +407,55 @@ void CForecastTest::testFinancialIndex() {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
+void CForecastTest::testTruncation() {
+
+    core_t::TTime bucketLength{1800};
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+
+    for (auto dataEndTime : {core::constants::DAY, 20 * core::constants::DAY}) {
+
+        maths::CTimeSeriesDecomposition trend(0.012, bucketLength);
+        maths::CNormalMeanPrecConjugate prior = maths::CNormalMeanPrecConjugate::nonInformativePrior(
+            maths_t::E_ContinuousData, DECAY_RATE);
+        maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{
+            decayRateControllers()};
+        maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG,
+                                                trend, prior, &controllers);
+
+        for (core_t::TTime time = 0; time < dataEndTime; time += bucketLength) {
+            maths::CModelAddSamplesParams params;
+            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+            double yi{static_cast<double>(time)};
+            model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
+        }
+
+        // Check truncation
+
+        TErrorBarVec prediction;
+        std::string m1;
+        model.forecast(0, dataEndTime, dataEndTime, dataEndTime + 2 * core::constants::DAY,
+                       90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+                       boost::bind(&mockSink, _1, boost::ref(prediction)), m1);
+        LOG_DEBUG(<< "response = '" << m1 << "'");
+        CPPUNIT_ASSERT((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
+        CPPUNIT_ASSERT(prediction.size() > 0);
+        CPPUNIT_ASSERT(prediction.back().s_Time < 2 * dataEndTime);
+
+        // Check forecast range out-of-bounds
+
+        prediction.clear();
+        std::string m2;
+        model.forecast(0, dataEndTime, dataEndTime + 30 * core::constants::DAY,
+                       dataEndTime + 40 * core::constants::DAY, 90.0,
+                       MINIMUM_VALUE, MAXIMUM_VALUE,
+                       boost::bind(&mockSink, _1, boost::ref(prediction)), m2);
+        LOG_DEBUG(<< "response = '" << m2 << "'");
+        CPPUNIT_ASSERT(m2.empty() == false);
+        CPPUNIT_ASSERT(m1 != m2);
+        CPPUNIT_ASSERT(prediction.empty());
+    }
+}
+
 CppUnit::Test* CForecastTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastTest");
 
@@ -430,6 +479,8 @@ CppUnit::Test* CForecastTest::suite() {
         "CForecastTest::testNonNegative", &CForecastTest::testNonNegative));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
         "CForecastTest::testFinancialIndex", &CForecastTest::testFinancialIndex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
+        "CForecastTest::testTruncation", &CForecastTest::testTruncation));
 
     return suiteOfTests;
 }
@@ -476,7 +527,7 @@ void CForecastTest::test(TTrend trend,
     core_t::TTime end{time + 2 * core::constants::WEEK};
     TModelPtr forecastModel(model.cloneForForecast());
     std::string m;
-    forecastModel->forecast(start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+    forecastModel->forecast(0, start, start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
