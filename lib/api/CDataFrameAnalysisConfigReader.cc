@@ -83,6 +83,7 @@ bool CDataFrameAnalysisConfigReader::CParameter::fallback(bool value) const {
     }
     if (m_Value->IsBool() == false) {
         this->handleFatal();
+        return value;
     }
     return m_Value->GetBool();
 }
@@ -93,6 +94,7 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t val
     }
     if (m_Value->IsUint64() == false) {
         this->handleFatal();
+        return value;
     }
     return m_Value->GetUint64();
 }
@@ -106,6 +108,7 @@ double CDataFrameAnalysisConfigReader::CParameter::fallback(double value) const 
     }
     if (m_Value->IsDouble() == false) {
         this->handleFatal();
+        return value;
     }
     return m_Value->GetDouble();
 }
@@ -116,6 +119,7 @@ std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::stri
     }
     if (m_Value->IsString() == false) {
         this->handleFatal();
+        return value;
     }
     return m_Value->GetString();
 }
