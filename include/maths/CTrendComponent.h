@@ -127,6 +127,9 @@ public:
     //! variance as a percentage.
     TDoubleDoublePr variance(double confidence) const;
 
+    //! Get the maximum interval for which the trend model can be forecast.
+    core_t::TTime maximumForecastInterval() const;
+
     //! Forecast the trend model from \p startTime to \p endTime.
     //!
     //! \param[in] startTime The start time of the forecast interval.

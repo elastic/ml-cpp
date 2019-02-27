@@ -2165,8 +2165,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         };
 
         std::string m;
-        model.forecast(time, time + 800 * bucketLength, 90.0, {-1000.0},
-                       {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + 800 * bucketLength, 90.0,
+                       {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
         for (std::size_t i = 0u; i < forecast.size(); ++i) {
@@ -2238,8 +2238,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         };
 
         std::string m;
-        model.forecast(time, time + 2000 * bucketLength, 90.0, {-1000.0},
-                       {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + 2000 * bucketLength, 90.0,
+                       {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
         for (std::size_t i = 0u; i < forecast.size(); ++i) {

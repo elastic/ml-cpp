@@ -23,6 +23,7 @@ public:
     void testComplexVaryingLongTermTrend();
     void testNonNegative();
     void testFinancialIndex();
+    void testTruncation();
 
     static CppUnit::Test* suite();
 
