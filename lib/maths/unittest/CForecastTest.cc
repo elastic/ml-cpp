@@ -436,8 +436,8 @@ void CForecastTest::testTruncation() {
         model.forecast(0, dataEndTime, dataEndTime, dataEndTime + 2 * core::constants::DAY,
                        90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
                        boost::bind(&mockSink, _1, boost::ref(prediction)), m1);
-        LOG_DEBUG(<< m1);
-        CPPUNIT_ASSERT(m1.empty() == (dataEndTime < 2 * core::constants::DAY));
+        LOG_DEBUG(<< "response = '" << m1 << "'");
+        CPPUNIT_ASSERT((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
         CPPUNIT_ASSERT(prediction.size() > 0);
         CPPUNIT_ASSERT(prediction.back().s_Time < 2 * dataEndTime);
 
@@ -449,7 +449,7 @@ void CForecastTest::testTruncation() {
                        dataEndTime + 40 * core::constants::DAY, 90.0,
                        MINIMUM_VALUE, MAXIMUM_VALUE,
                        boost::bind(&mockSink, _1, boost::ref(prediction)), m2);
-        LOG_DEBUG(<< m2);
+        LOG_DEBUG(<< "response = '" << m2 << "'");
         CPPUNIT_ASSERT(m2.empty() == false);
         CPPUNIT_ASSERT(m1 != m2);
         CPPUNIT_ASSERT(prediction.empty());
