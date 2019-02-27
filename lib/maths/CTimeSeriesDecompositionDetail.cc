@@ -22,10 +22,10 @@
 #include <maths/CChecksum.h>
 #include <maths/CExpandingWindow.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CPeriodicityHypothesisTests.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/CSeasonalTime.h>
@@ -328,7 +328,7 @@ bool upgradeTrendModelToVersion_6_3(const core_t::TTime bucketLength,
                                     const core_t::TTime lastValueTime,
                                     CTrendComponent& trend,
                                     core::CStateRestoreTraverser& traverser) {
-    using TRegression = CRegression::CLeastSquaresOnline<3, double>;
+    using TRegression = CLeastSquaresOnlineRegression<3, double>;
 
     TRegression regression;
     double variance{0.0};

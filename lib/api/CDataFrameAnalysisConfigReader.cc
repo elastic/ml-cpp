@@ -91,10 +91,10 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t val
     if (m_Value == nullptr) {
         return value;
     }
-    if (m_Value->IsUint64() == false) {
+    if (m_Value->IsUint() == false) {
         this->handleFatal();
     }
-    return m_Value->GetUint64();
+    return m_Value->GetUint();
 }
 
 double CDataFrameAnalysisConfigReader::CParameter::fallback(double value) const {

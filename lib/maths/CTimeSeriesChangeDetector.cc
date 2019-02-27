@@ -16,10 +16,10 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CPrior.h>
 #include <maths/CPriorDetail.h>
 #include <maths/CPriorStateSerialiser.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>

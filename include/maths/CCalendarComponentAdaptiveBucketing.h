@@ -12,7 +12,6 @@
 #include <maths/CAdaptiveBucketing.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CCalendarFeature.h>
-#include <maths/CRegression.h>
 #include <maths/ImportExport.h>
 
 #include <cstddef>

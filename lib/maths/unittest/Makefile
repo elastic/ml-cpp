@@ -46,6 +46,7 @@ SRCS=\
 	CKMeansOnlineTest.cc \
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
+	CLeastSquaresOnlineRegressionTest.cc \
 	CLinearAlgebraTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
@@ -76,7 +77,6 @@ SRCS=\
 	CProbabilityCalibratorTest.cc \
 	CQDigestTest.cc \
 	CQuantileSketchTest.cc \
-	CRegressionTest.cc \
 	CRadialBasisFunctionTest.cc \
 	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \
