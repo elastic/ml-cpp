@@ -758,13 +758,13 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
     recordMemoryUsage(pointsMemory);
     std::int64_t methodMemoryBeforeRun(core::CMemory::dynamicSize(m_Method));
 
-    // Run this method.
+    // Run the method.
     TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
 
     std::int64_t methodMemoryAfterRun(core::CMemory::dynamicSize(m_Method));
     recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
 
-    // Record temporary memory.
+    // Recover temporary memory.
     m_Method->recoverMemory();
 
     recordMemoryUsage(core::CMemory::dynamicSize(m_Method) - methodMemoryAfterRun);
