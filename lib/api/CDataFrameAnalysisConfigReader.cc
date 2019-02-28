@@ -14,6 +14,19 @@
 
 #include <cstring>
 
+#ifdef Windows
+// rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core
+// library, and on Windows it gets exported too, because
+// CRapidJsonConcurrentLineWriter inherits from it and is also exported.
+// To avoid breaching the one-definition rule we must reuse this exported
+// instantiation, as deduplication of template instantiations doesn't work
+// across DLLs.  To make this even more confusing, this is only strictly
+// necessary when building without optimisation, because with optimisation
+// enabled the instantiation in this library gets inlined to the extent that
+// there are no clashing symbols.
+template class CORE_EXPORT rapidjson::Writer<rapidjson::StringBuffer>;
+#endif
+
 namespace ml {
 namespace api {
 namespace {
