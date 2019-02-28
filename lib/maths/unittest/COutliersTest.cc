@@ -505,6 +505,80 @@ void COutliersTest::testFeatureInfluences() {
     }
 }
 
+void COutliersTest::testEstimateMemoryUsedByCompute() {
+
+    // Test that the memory estimated for compute is close to what it uses.
+
+    TFactoryFunc toMainMemoryDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    }};
+    TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
+        return test::CDataFrameTestUtils::toOnDiskDataFrame(
+            boost::filesystem::current_path().string(), points);
+    }};
+    TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
+
+    std::size_t numberPartitions[]{1, 3};
+    maths::COutliers::EMethod methods[]{maths::COutliers::E_Ensemble, maths::COutliers::E_Lof};
+    std::size_t numberNeighbours[]{0, 5};
+    bool computeFeatureInfluences[]{true, false};
+
+    std::size_t numberInliers{40000};
+    std::size_t numberOutliers{500};
+    std::size_t numberPoints{numberInliers + numberOutliers};
+
+    test::CRandomNumbers rng;
+
+    TPointVec points;
+    gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
+
+    core::startDefaultAsyncExecutor(3);
+
+    for (std::size_t i = 0; i < 2; ++i) {
+
+        LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
+
+        auto frame = factories[i](points);
+
+        maths::COutliers::SComputeParameters params{2, // Number threads
+                                                    numberPartitions[i],
+                                                    true, // Standardize columns
+                                                    methods[i],
+                                                    numberNeighbours[i],
+                                                    computeFeatureInfluences[i],
+                                                    0.05}; // Outlier fraction
+
+        std::int64_t estimatedMemoryUsage(
+            core::CDataFrame::estimateMemoryUsage(i == 0, 40500, 6) +
+            maths::COutliers::estimateMemoryUsedByCompute(
+                params, numberPoints,
+                (numberPoints + numberPartitions[i] - 1) / numberPartitions[i],
+                6 /*dimension*/));
+
+        std::atomic<std::int64_t> memoryUsage{0};
+        std::atomic<std::int64_t> maxMemoryUsage{0};
+
+        maths::COutliers::compute(
+            params, *frame, [](double) {},
+            [&](std::int64_t delta) {
+                std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+
+                std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
+                while (prevMaxMemoryUsage < memoryUsage_ &&
+                       maxMemoryUsage.compare_exchange_weak(prevMaxMemoryUsage,
+                                                            memoryUsage_) == false) {
+                }
+                LOG_TRACE(<< "current memory = " << memoryUsage_
+                          << ", high water mark " << maxMemoryUsage.load());
+            });
+
+        LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
+        LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
+        CPPUNIT_ASSERT(std::fabs(maxMemoryUsage - estimatedMemoryUsage) <
+                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 3);
+    }
+}
+
 void COutliersTest::testProgressMonitoring() {
 
     // Test progress monitoring invariants with and without partitioning.
@@ -596,6 +670,9 @@ CppUnit::Test* COutliersTest::suite() {
         "COutliersTest::testEnsemble", &COutliersTest::testEnsemble));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testFeatureInfluences", &COutliersTest::testFeatureInfluences));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testEstimateMemoryUsedByCompute",
+        &COutliersTest::testEstimateMemoryUsedByCompute));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
 
