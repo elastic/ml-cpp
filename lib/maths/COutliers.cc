@@ -23,14 +23,276 @@
 
 namespace ml {
 namespace maths {
-namespace outliers_detail {
+using namespace outliers_detail;
+
+namespace {
+using TRowItr = core::CDataFrame::TRowItr;
 
 double shift(double score) {
     return std::exp(-2.0) + score;
 }
 
+//! \brief This encapsulates creating a collection of models used for outlier
+//! detection.
+//!
+//! DESCRIPTION:\n
+//! A model is defined as one or more algorithm for computing outlier scores,
+//! the number of nearest neighbours used to compute the score and a sample of
+//! the original data points (possibly) projected onto a random subspace which
+//! is searched for neighbours.
+//!
+//! The models can be built from a data stream by repeatedly calling addPoint.
+//! The evaluation of the outlier score for a point is delagated.
 template<typename POINT>
-CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories, TModelBuilderVec builders) {
+class CEnsemble {
+private:
+    class CModel;
+
+public:
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TSizeSizePrVec = std::vector<TSizeSizePr>;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulator2Vec = core::CSmallVector<TMeanVarAccumulator, 2>;
+    using TPoint = CAnnotatedVector<decltype(SConstant<POINT>::get(0, 0)), std::size_t>;
+    using TPointVec = std::vector<TPoint>;
+    using TPointVecVec = std::vector<TPointVec>;
+    using TKdTree = CKdTree<TPoint>;
+    using TMatrix = typename SConformableMatrix<TPoint>::Type;
+    using TMatrixVec = std::vector<TMatrix>;
+    using TMethodUPtr = std::unique_ptr<CNearestNeighbourMethod<TPoint, const TKdTree&>>;
+    using TMethodUPtrVec = std::vector<TMethodUPtr>;
+    using TMethodFactory = std::function<TMethodUPtr(std::size_t, const TKdTree&)>;
+    using TMethodFactoryVec = std::vector<TMethodFactory>;
+    using TMethodSize = std::function<std::size_t(std::size_t, std::size_t, std::size_t)>;
+
+    //! \brief Builds (online) one model of the points for the ensemble.
+    class CModelBuilder {
+    public:
+        using TRowRef = core::CDataFrame::TRowRef;
+
+    public:
+        CModelBuilder(CPRNG::CXorOShiro128Plus& rng,
+                      TSizeSizePrVec&& methodAndNumberNeighbours,
+                      std::size_t sampleSize,
+                      TMatrix&& projection);
+
+        //! Maybe sample the point.
+        void addPoint(const TRowRef& point) { m_Sampler.sample(point); }
+
+        //! \note Only call once: this moves state into place.
+        CModel make(const TMethodFactoryVec& methodFactories);
+
+    private:
+        using TSampler = CSampling::CRandomStreamSampler<TRowRef>;
+
+    private:
+        TSampler makeSampler(CPRNG::CXorOShiro128Plus& rng, std::size_t sampleSize);
+
+    private:
+        TSizeSizePrVec m_MethodsAndNumberNeighbours;
+        std::size_t m_SampleSize;
+        TSampler m_Sampler;
+        TMatrix m_Projection;
+        TPointVec m_SampledProjectedPoints;
+        TMemoryUsageCallback m_RecordMemoryUsage;
+    };
+    using TModelBuilderVec = std::vector<CModelBuilder>;
+
+    //! \brief Manages computing the probability that a point is an outlier
+    //! given its scores from a collection of ensemble models.
+    class CScorer {
+    public:
+        void add(const TMeanVarAccumulator2Vec& logScoreMoments,
+                 const TMatrix& columnNormalizedProjection,
+                 const TDouble1Vec2Vec& scores);
+
+        //! Compute the posterior probability that the point is an outlier
+        //! and optionally the feature influence.
+        TDouble1Vec compute(double pOutlier) const;
+
+        std::size_t memoryUsage() const {
+            return core::CMemory::dynamicSize(m_State);
+        }
+
+        static std::size_t estimateMemoryUsage(std::size_t dimension) {
+            return sizeof(TFloat2Vec) + (dimension + 2) * sizeof(CFloatStorage);
+        }
+
+    private:
+        using TFloat2Vec = core::CSmallVector<CFloatStorage, 2>;
+
+    private:
+        double ensembleSize() const { return m_State[0]; }
+        CFloatStorage& ensembleSize() { return m_State[0]; }
+
+        double logLikelihoodOutlier() const { return m_State[1]; }
+        CFloatStorage& logLikelihoodOutlier() { return m_State[1]; }
+
+        double influence(std::size_t index) const { return m_State[index + 2]; }
+        CFloatStorage& influence(std::size_t index) {
+            return m_State[index + 2];
+        }
+
+        std::size_t numberInfluences() const { return m_State.size() - 2; }
+
+    private:
+        TFloat2Vec m_State;
+    };
+    using TScorerVec = std::vector<CScorer>;
+
+public:
+    static const double SAMPLE_SIZE_SCALE;
+    static const double NEIGHBOURHOOD_FRACTION;
+
+public:
+    CEnsemble(const TMethodFactoryVec& methodFactories,
+              TModelBuilderVec modelBuilders,
+              TMemoryUsageCallback recordMemoryUsage);
+    ~CEnsemble() {
+        m_RecordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(m_Models)));
+    }
+
+    CEnsemble(const CEnsemble&) = delete;
+    CEnsemble& operator=(const CEnsemble&) = delete;
+    CEnsemble(CEnsemble&&) = default;
+    CEnsemble& operator=(CEnsemble&&) = default;
+
+    //! Make the builders for the ensemble models.
+    static TModelBuilderVec
+    makeBuilders(const TSizeVecVec& algorithms,
+                 std::size_t numberPoints,
+                 std::size_t dimension,
+                 std::size_t numberNeighbours,
+                 CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
+
+    //! Compute the outlier scores for \p points.
+    TScorerVec computeOutlierScores(const std::vector<POINT>& points) const;
+
+    //! Estimate the amount of memory that will be used by the ensemble.
+    static std::size_t
+    estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
+                                             std::size_t numberMethodsPerModel,
+                                             bool computeFeatureInfluence,
+                                             std::size_t totalNumberPoints,
+                                             std::size_t partitionNumberPoints,
+                                             std::size_t dimension);
+
+    //! Get a human readable description of the ensemble.
+    std::string print() const;
+
+private:
+    using TKdTreeUPtr = std::unique_ptr<TKdTree>;
+
+    //! \brief A model of the points used as part of the ensemble.
+    class CModel {
+    public:
+        CModel(const TMethodFactoryVec& methodFactories,
+               TSizeSizePrVec methodAndNumberNeighbours,
+               TPointVec samples,
+               TMatrix projection);
+
+        std::size_t numberPoints() const { return m_Lookup->size(); }
+
+        void proportionOfRuntimePerMethod(double proportion);
+
+        void addOutlierScores(const std::vector<POINT>& points,
+                              TScorerVec& scores,
+                              const TMemoryUsageCallback& recordMemoryUsage) const;
+
+        std::size_t memoryUsage() const {
+            return core::CMemory::dynamicSize(m_Lookup) +
+                   core::CMemory::dynamicSize(m_Method) +
+                   core::CMemory::dynamicSize(m_LogScoreMoments);
+        }
+
+        static std::size_t estimateMemoryUsage(TMethodSize methodSize,
+                                               std::size_t sampleSize,
+                                               std::size_t numberNeighbours,
+                                               std::size_t projectionDimension,
+                                               std::size_t dimension);
+
+        std::string print() const;
+
+    private:
+        TKdTreeUPtr m_Lookup;
+        TMatrix m_Projection;
+        TMatrix m_RowNormalizedProjection;
+        TMethodUPtr m_Method;
+        TMeanVarAccumulator2Vec m_LogScoreMoments;
+    };
+    using TModelVec = std::vector<CModel>;
+
+private:
+    static std::size_t computeEnsembleSize(std::size_t numberMethods,
+                                           std::size_t numberPoints,
+                                           std::size_t dimension) {
+        // We want enough members such that we get:
+        //   1. Reasonable coverage of original space,
+        //   2. Reasonable coverage of the original point set.
+        //
+        // Using too few members turned up some pathologies in testing and
+        // using many gives diminishing returns for the extra runtime and
+        // memory usage so restrict to at least 6 and no more than 20.
+        std::size_t projectionDimension{
+            computeProjectionDimension(computeSampleSize(numberPoints), dimension)};
+        std::size_t requiredNumberModels{(dimension + projectionDimension - 1) / projectionDimension};
+        double target{std::max(static_cast<double>(numberMethods * requiredNumberModels),
+                               std::sqrt(static_cast<double>(numberPoints)) / SAMPLE_SIZE_SCALE)};
+        return static_cast<std::size_t>(std::min(std::max(target, 6.0), 20.0) + 0.5);
+    }
+
+    static std::size_t computeSampleSize(std::size_t numberPoints) {
+        // We want an aggressive downsample of the original set. Except
+        // for the case that there are many small clusters, this typically
+        // improves QoR since it avoids outliers swamping one another. It
+        // also greatly improves scalability.
+        double target{2.0 * SAMPLE_SIZE_SCALE * std::sqrt(static_cast<double>(numberPoints))};
+        return static_cast<std::size_t>(target + 0.5);
+    }
+
+    static std::size_t computeNumberNeighbours(std::size_t sampleSize) {
+        // Use a fraction of the sample size but don't allow to get
+        //   1. too small because the outlier metrics tend to be unstable in
+        //      this regime or
+        //   2. too big because they tend to be insentive to changes in this
+        //      parameter when it's large, but the nearest neighbour search
+        //      becomes much more expensive.
+        double target{NEIGHBOURHOOD_FRACTION * static_cast<double>(sampleSize)};
+        return static_cast<std::size_t>(std::min(std::max(target, 5.0), 100.0) + 0.5);
+    }
+
+    static std::size_t computeProjectionDimension(std::size_t numberPoints,
+                                                  std::size_t dimension) {
+        // We need a minimum number of points per dimension to get any sort
+        // of stable density estimate. The dependency is exponential (curse
+        // of dimensionality).
+        double logNumberPoints{std::log(static_cast<double>(numberPoints)) / std::log(3.0)};
+        double target{std::min(static_cast<double>(dimension), logNumberPoints)};
+        return static_cast<std::size_t>(std::min(std::max(target, 2.0), 10.0) + 0.5);
+    }
+
+    static TMatrixVec createProjections(CPRNG::CXorOShiro128Plus& rng,
+                                        std::size_t numberProjections,
+                                        std::size_t projectionDimension,
+                                        std::size_t dimension);
+
+private:
+    TModelVec m_Models;
+    TMemoryUsageCallback m_RecordMemoryUsage;
+};
+
+template<typename POINT>
+const double CEnsemble<POINT>::SAMPLE_SIZE_SCALE{5.0};
+template<typename POINT>
+const double CEnsemble<POINT>::NEIGHBOURHOOD_FRACTION{0.01};
+
+template<typename POINT>
+CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories,
+                            TModelBuilderVec builders,
+                            TMemoryUsageCallback recordMemoryUsage)
+    : m_RecordMemoryUsage{std::move(recordMemoryUsage)} {
 
     m_Models.reserve(builders.size());
     for (auto& builder : builders) {
@@ -40,6 +302,8 @@ CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories, TModelBuil
     for (auto& model : m_Models) {
         model.proportionOfRuntimePerMethod(1.0 / static_cast<double>(m_Models.size()));
     }
+
+    m_RecordMemoryUsage(core::CMemory::dynamicSize(m_Models));
 }
 
 template<typename POINT>
@@ -99,13 +363,59 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
         return {};
     }
 
-    LOG_TRACE(<< "Computing outlier scores");
+    LOG_TRACE(<< "Computing outlier scores for\n" << this->print());
 
     TScorerVec scores(points.size());
+    m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
+
     for (const auto& model : m_Models) {
-        model.addOutlierScores(points, scores);
+        model.addOutlierScores(points, scores, m_RecordMemoryUsage);
     }
     return scores;
+}
+
+template<typename POINT>
+std::size_t
+CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
+                                                           std::size_t numberMethodsPerModel,
+                                                           bool computeFeatureInfluence,
+                                                           std::size_t totalNumberPoints,
+                                                           std::size_t partitionNumberPoints,
+                                                           std::size_t dimension) {
+    std::size_t ensembleSize{computeEnsembleSize(numberMethodsPerModel,
+                                                 totalNumberPoints, dimension)};
+    std::size_t sampleSize{computeSampleSize(totalNumberPoints)};
+    std::size_t numberModels{(ensembleSize + numberMethodsPerModel - 1) / numberMethodsPerModel};
+    std::size_t maxNumberNeighbours{computeNumberNeighbours(sampleSize)};
+    std::size_t projectionDimension{computeProjectionDimension(sampleSize, dimension)};
+    std::size_t numberNeighbours{(3 + maxNumberNeighbours) / 2};
+
+    auto pointsMemory = [&] {
+        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(dimension);
+    };
+    auto projectedPointsMemory = [&] {
+        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(projectionDimension);
+    };
+    auto scorersMemory = [&] {
+        return partitionNumberPoints *
+               (sizeof(CScorer) +
+                CScorer::estimateMemoryUsage(computeFeatureInfluence ? dimension : 0));
+    };
+    auto modelMemory = [&] {
+        return CModel::estimateMemoryUsage(methodSize, sampleSize, numberNeighbours,
+                                           projectionDimension, dimension);
+    };
+    auto partitionScoringMemory = [&] {
+        // The scores for a single method plus bookkeeping overhead
+        // for a single partition.
+        return numberMethodsPerModel * partitionNumberPoints *
+                   (sizeof(TDouble1Vec) +
+                    (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
+               methodSize(numberNeighbours, partitionNumberPoints, projectionDimension);
+    };
+
+    return pointsMemory() + projectedPointsMemory() + scorersMemory() +
+           numberModels * modelMemory() + partitionScoringMemory();
 }
 
 template<typename POINT>
@@ -431,7 +741,8 @@ void CEnsemble<POINT>::CModel::proportionOfRuntimePerMethod(double proportion) {
 
 template<typename POINT>
 void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points,
-                                                TScorerVec& scores) const {
+                                                TScorerVec& scores,
+                                                const TMemoryUsageCallback& recordMemoryUsage) const {
     // This index is used for addressing an array in the cache of nearest neighbour
     // distances for the local outlier factor method. We simply need to ensure that
     // it doesn't overlap the indices of any of the sampled model points.
@@ -443,9 +754,23 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         points_.emplace_back(m_Projection * points[i], index);
     }
 
+    std::int64_t pointsMemory(core::CMemory::dynamicSize(points_));
+    recordMemoryUsage(pointsMemory);
+    std::int64_t methodMemoryBeforeRun(core::CMemory::dynamicSize(m_Method));
+
+    // Run the method.
     TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
+
+    std::int64_t methodMemoryAfterRun(core::CMemory::dynamicSize(m_Method));
+    recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
+
+    // Recover temporary memory.
     m_Method->recoverMemory();
 
+    recordMemoryUsage(core::CMemory::dynamicSize(m_Method) - methodMemoryAfterRun);
+    std::int64_t scoresMemoryBeforeAdd(core::CMemory::dynamicSize(scores));
+
+    // Update the scores.
     TDouble1Vec2Vec pointScores(methodScores.size());
     for (std::size_t i = 0; i < points_.size(); ++i) {
         index = points_[i].annotation();
@@ -454,6 +779,25 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         }
         scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
     }
+
+    recordMemoryUsage(core::CMemory::dynamicSize(scores) - scoresMemoryBeforeAdd);
+    recordMemoryUsage(-pointsMemory);
+}
+
+template<typename POINT>
+std::size_t CEnsemble<POINT>::CModel::estimateMemoryUsage(TMethodSize methodSize,
+                                                          std::size_t sampleSize,
+                                                          std::size_t numberNeighbours,
+                                                          std::size_t projectionDimension,
+                                                          std::size_t dimension) {
+    auto lookupMemory = [&] {
+        return TKdTree::estimateMemoryUsage(sampleSize, projectionDimension);
+    };
+    auto projectionMemory = [&] {
+        return projectionDimension * dimension * sizeof(typename SCoordinate<TPoint>::Type);
+    };
+    return lookupMemory() + 2 * projectionMemory() +
+           methodSize(numberNeighbours, sampleSize, projectionDimension);
 }
 
 template<typename POINT>
@@ -462,12 +806,6 @@ std::string CEnsemble<POINT>::CModel::print() const {
            std::to_string(m_Projection.cols()) + " method = " + m_Method->print() +
            " score moments = " + core::CContainerPrinter::print(m_LogScoreMoments);
 }
-}
-
-using namespace outliers_detail;
-
-namespace {
-using TRowItr = core::CDataFrame::TRowItr;
 
 template<typename POINT>
 typename CEnsemble<POINT>::TMethodFactoryVec
@@ -502,7 +840,8 @@ methodFactories(bool computeFeatureInfluence, TProgressCallback recordProgress) 
 template<typename POINT>
 CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
                                core::CDataFrame& frame,
-                               TProgressCallback recordProgress) {
+                               TProgressCallback recordProgress,
+                               TMemoryUsageCallback recordMemoryUsage) {
 
     using TSizeVec = typename CEnsemble<POINT>::TSizeVec;
     using TSizeVecVec = typename CEnsemble<POINT>::TSizeVecVec;
@@ -530,52 +869,65 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
     });
 
     return {methodFactories<POINT>(params.s_ComputeFeatureInfluence, std::move(recordProgress)),
-            std::move(builders)};
+            std::move(builders), std::move(recordMemoryUsage)};
 }
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
-                                 TProgressCallback recordProgress) {
+                                 TProgressCallback recordProgress,
+                                 TMemoryUsageCallback recordMemoryUsage) {
 
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params, frame, recordProgress)};
-    LOG_TRACE(<< "Ensemble = " << ensemble.print());
+    std::uint64_t frameMemory(frame.memoryUsage());
+    recordMemoryUsage(frameMemory);
+
+    CEnsemble<TPoint>::TScorerVec scores;
+
+    // Use scoping to recover memory before resizing the data frame.
+    {
+        CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
+            params, frame, std::move(recordProgress), recordMemoryUsage)};
+        LOG_TRACE(<< "Ensemble = " << ensemble.print());
+
+        // The points will be entirely overwritten by readRows so the initial value
+        // is not important. This is presized so that rowsToPoints only needs to
+        // access and write to each element. Since it does this once per element it
+        // is thread safe.
+        TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
+        std::uint64_t pointsMemory(core::CMemory::dynamicSize(points));
+        recordMemoryUsage(pointsMemory);
+
+        auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                points[row->index()] = CDataFrameUtils::rowTo<TPoint>(*row);
+            }
+        };
+
+        std::uint64_t checksum{frame.checksum()};
+
+        bool successful;
+        std::tie(std::ignore, successful) = frame.readRows(params.s_NumberThreads, rowsToPoints);
+
+        if (successful == false) {
+            LOG_ERROR(<< "Failed to read the data frame");
+            return false;
+        }
+
+        scores = ensemble.computeOutlierScores(points);
+        recordMemoryUsage(-pointsMemory);
+
+        // This is a sanity check against CEnsemble accidentally writing to the data
+        // frame via one of the memory mapped vectors. All bets are off as to whether
+        // we generate anything meaningful if this happens.
+        if (checksum != frame.checksum()) {
+            LOG_ERROR(<< "Accidentally modified the data frame");
+            return false;
+        }
+    }
 
     std::size_t dimension{frame.numberColumns()};
-
-    // The points will be entirely overwritten by readRows so the initial value
-    // is not important. This is presized so that rowsToPoints only needs to
-    // access and write to each element. Since it does this once per element it
-    // is thread safe.
-    TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
-
-    auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            points[row->index()] = CDataFrameUtils::rowTo<TPoint>(*row);
-        }
-    };
-
-    std::uint64_t checksum{frame.checksum()};
-
-    bool successful;
-    std::tie(std::ignore, successful) = frame.readRows(params.s_NumberThreads, rowsToPoints);
-
-    if (successful == false) {
-        LOG_ERROR(<< "Failed to read the data frame");
-        return false;
-    }
-
-    auto scores = ensemble.computeOutlierScores(points);
-
-    // This is a sanity check against CEnsemble accidentally writing to the data
-    // frame via one of the memory mapped vectors. All bets are off as to whether
-    // we generate anything meaningful if this happens.
-    if (checksum != frame.checksum()) {
-        LOG_ERROR(<< "Accidentally modified the data frame");
-        return false;
-    }
 
     auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -588,6 +940,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
+    recordMemoryUsage(frame.memoryUsage() - frameMemory);
 
     if (frame.writeColumns(params.s_NumberThreads, writeScores) == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
@@ -598,20 +951,25 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
-                                TProgressCallback recordProgress) {
+                                TProgressCallback recordProgress,
+                                TMemoryUsageCallback recordMemoryUsage) {
 
     using TPoint = CDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(params, frame, [=](double progress) {
-        recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
-    })};
+    CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
+        params, frame,
+        [=](double progress) {
+            recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
+        },
+        recordMemoryUsage)};
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
+    recordMemoryUsage(frame.memoryUsage());
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};
@@ -622,6 +980,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     // This is presized so that rowsToPoints only needs to access and write to
     // each element. Since it does this once per element it is thread safe.
     TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0.0));
+    recordMemoryUsage(core::CMemory::dynamicSize(points));
 
     for (std::size_t i = 0, beginPartitionRows = 0; i < params.s_NumberPartitions;
          ++i, beginPartitionRows += rowsPerPartition) {
@@ -673,16 +1032,19 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress) {
-    // TODO memory monitoring.
+                        TProgressCallback recordProgress,
+                        TMemoryUsageCallback recordMemoryUsage) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
-                        ? computeOutliersNoPartitions(params, frame, recordProgress)
-                        : computeOutliersPartitioned(params, frame, recordProgress)};
+    bool successful{
+        frame.inMainMemory() && params.s_NumberPartitions == 1
+            ? computeOutliersNoPartitions(params, frame, std::move(recordProgress),
+                                          std::move(recordMemoryUsage))
+            : computeOutliersPartitioned(params, frame, std::move(recordProgress),
+                                         std::move(recordMemoryUsage))};
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
@@ -690,7 +1052,40 @@ void COutliers::compute(const SComputeParameters& params,
     }
 }
 
-void COutliers::noop(double) {
+std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& params,
+                                                   std::size_t totalNumberPoints,
+                                                   std::size_t partitionNumberPoints,
+                                                   std::size_t dimension) {
+    return params.s_NumberPartitions == 1
+               ? COutliers::estimateMemoryUsedByCompute<CMemoryMappedDenseVector<CFloatStorage>>(
+                     params, totalNumberPoints, partitionNumberPoints, dimension)
+               : COutliers::estimateMemoryUsedByCompute<CDenseVector<CFloatStorage>>(
+                     params, totalNumberPoints, partitionNumberPoints, dimension);
+}
+
+template<typename POINT>
+std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& params,
+                                                   std::size_t totalNumberPoints,
+                                                   std::size_t partitionNumberPoints,
+                                                   std::size_t dimension) {
+    using TLof = CLof<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>>;
+
+    auto methodSize = [=](std::size_t k, std::size_t numberPoints,
+                          std::size_t projectionDimension) {
+        // On average half of models use CLof.
+        return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence, k,
+                                               numberPoints, projectionDimension) /
+               2;
+    };
+    return CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
+        methodSize, 2 /*number methods*/, params.s_ComputeFeatureInfluence,
+        totalNumberPoints, partitionNumberPoints, dimension);
+}
+
+void COutliers::noopRecordProgress(double) {
+}
+
+void COutliers::noopRecordMemoryUsage(std::int64_t) {
 }
 }
 }

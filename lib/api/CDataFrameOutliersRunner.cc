@@ -117,33 +117,15 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
                                                          std::size_t totalNumberRows,
                                                          std::size_t partitionNumberRows,
                                                          std::size_t numberColumns) const {
-    std::size_t result{0};
-    switch (numberPartitions) {
-    case 1:
-        result = estimateMemoryUsage<maths::CMemoryMappedDenseVector<maths::CFloatStorage>>(
-            totalNumberRows, partitionNumberRows, numberColumns);
-        break;
-    default:
-        result = estimateMemoryUsage<maths::CDenseVector<maths::CFloatStorage>>(
-            totalNumberRows, partitionNumberRows, numberColumns);
-        break;
-    }
-    return result;
-}
-
-template<typename POINT>
-std::size_t
-CDataFrameOutliersRunner::estimateMemoryUsage(std::size_t totalNumberRows,
-                                              std::size_t partitionNumberRows,
-                                              std::size_t numberColumns) const {
-    maths::COutliers::EMethod method{static_cast<maths::COutliers::EMethod>(m_Method)};
-    return m_NumberNeighbours > 0
-               ? maths::COutliers::estimateMemoryUsedByCompute<POINT>(
-                     method, m_NumberNeighbours, m_ComputeFeatureInfluence,
-                     totalNumberRows, partitionNumberRows, numberColumns)
-               : maths::COutliers::estimateMemoryUsedByCompute<POINT>(
-                     m_ComputeFeatureInfluence, totalNumberRows,
-                     partitionNumberRows, numberColumns);
+    maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
+                                                numberPartitions,
+                                                m_StandardizeColumns,
+                                                static_cast<maths::COutliers::EMethod>(m_Method),
+                                                m_NumberNeighbours,
+                                                m_ComputeFeatureInfluence,
+                                                m_OutlierFraction};
+    return maths::COutliers::estimateMemoryUsedByCompute(
+        params, totalNumberRows, partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameOutliersRunnerFactory::name() const {

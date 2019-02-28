@@ -13,8 +13,6 @@
 
 #include <rapidjson/fwd.h>
 
-#include <boost/optional.hpp>
-
 namespace ml {
 namespace api {
 
@@ -37,18 +35,11 @@ public:
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
-
-private:
     void runImpl(core::CDataFrame& frame) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
-    template<typename POINT>
-    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
-                                    std::size_t partitionNumberRows,
-                                    std::size_t numberColumns) const;
 
 private:
     //! \name Custom config

@@ -50,6 +50,18 @@ public:
     //! Get the annotation data by reference.
     ANNOTATION& annotation() { return m_Annotation; }
 
+    //! Debug the memory usage of this object.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        mem->setName("CAnnotatedVector");
+        mem->addItem("vector", core::CMemory::dynamicSize(static_cast<VECTOR>(*this)));
+        mem->addItem("annotation", core::CMemory::dynamicSize(m_Annotation));
+    }
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const {
+        return core::CMemory::dynamicSize(static_cast<VECTOR>(*this)) +
+               core::CMemory::dynamicSize(m_Annotation);
+    }
+
 private:
     //! The data which has been annotated onto the vector.
     ANNOTATION m_Annotation;
