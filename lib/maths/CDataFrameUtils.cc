@@ -12,15 +12,16 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CMathsFuncs.h>
+#include <maths/CQuantileSketch.h>
 
 #include <vector>
 
 namespace ml {
 namespace maths {
+using TRowItr = core::CDataFrame::TRowItr;
 
 bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame) {
     using TDoubleVec = std::vector<double>;
-    using TRowItr = core::CDataFrame::TRowItr;
     using TMeanVarAccumulatorVec =
         std::vector<CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
 
@@ -32,7 +33,7 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
         [](TMeanVarAccumulatorVec& moments, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i = 0; i < row->numberColumns(); ++i) {
-                    if (CMathsFuncs::isFinite((*row)[i])) {
+                    if (isMissing((*row)[i]) == false) {
                         moments[i].add((*row)[i]);
                     }
                 }
@@ -73,6 +74,47 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     };
 
     return frame.writeColumns(numberThreads, standardiseColumns);
+}
+
+bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
+                                      const core::CDataFrame& frame,
+                                      const TSizeVec& columnMask,
+                                      TQuantileSketchVec& result,
+                                      TWeightFunction weight) {
+    if (result.size() != columnMask.size()) {
+        return false;
+    }
+
+    auto results = frame.readRows(
+        numberThreads,
+        core::bindRetrievableState(
+            [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (auto i : columnMask) {
+                        if (isMissing((*row)[i]) == false) {
+                            quantiles[i].add((*row)[i], weight(*row));
+                        }
+                    }
+                }
+            },
+            std::move(result)));
+
+    if (results.second == false) {
+        return false;
+    }
+
+    result = std::move(results.first[0].s_FunctionState);
+    for (std::size_t i = 1; i < results.first.size(); ++i) {
+        for (std::size_t j = 0; j < result.size(); ++j) {
+            result[j] += results.first[i].s_FunctionState[j];
+        }
+    }
+
+    return true;
+}
+
+bool CDataFrameUtils::isMissing(double x) {
+    return CMathsFuncs::isFinite(x) == false;
 }
 }
 }

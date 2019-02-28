@@ -14,8 +14,12 @@
 
 #include <maths/ImportExport.h>
 
+#include <functional>
+
 namespace ml {
 namespace maths {
+class CQuantileSketch;
+
 namespace data_frame_utils_detail {
 template<typename T>
 struct SRowTo {
@@ -45,6 +49,12 @@ struct SRowTo<CDenseVector<T>> {
 //! \brief A collection of basic utilities for analyses on a data frame.
 class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
+    using TSizeVec = std::vector<std::size_t>;
+    using TRowRef = core::CDataFrame::TRowRef;
+    using TWeightFunction = std::function<double(TRowRef)>;
+    using TQuantileSketchVec = std::vector<CQuantileSketch>;
+
+public:
     //! Convert a row of the data frame to a specified vector type.
     template<typename VECTOR>
     static VECTOR rowTo(const core::CDataFrame::TRowRef& row) {
@@ -52,7 +62,29 @@ public:
     }
 
     //! Subtract the mean and divide each column value by its standard deviation.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame whose columns are to be standardized.
     static bool standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame);
+
+    //! Get a quantile sketch of each column's values.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the column quantiles.
+    //! \param[in] columnMask A mask of the columns for which to compute quantiles.
+    //! \param[in,out] result This must be initialised with the sketches which will
+    //! be used for estimating the column quantiles. It is filled in with the result.
+    //! \param[in] weight The weight to assign each row. The default is unity for
+    //! all rows.
+    static bool columnQuantiles(std::size_t numberThreads,
+                                const core::CDataFrame& frame,
+                                const TSizeVec& columnMask,
+                                TQuantileSketchVec& result,
+                                TWeightFunction weight = unitWeight);
+
+private:
+    static double unitWeight(const TRowRef&);
+    static double isMissing(double value);
 };
 }
 }
