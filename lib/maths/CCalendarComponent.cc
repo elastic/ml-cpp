@@ -181,5 +181,9 @@ std::size_t CCalendarComponent::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Bucketing) +
            core::CMemory::dynamicSize(this->splines());
 }
+
+bool CCalendarComponent::isBad() const {
+    return m_Bucketing.isBad();
+}
 }
 }

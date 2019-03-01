@@ -22,6 +22,8 @@
 #include <cstddef>
 #include <cstdint>
 
+class CNanInjector;
+
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -400,6 +402,9 @@ public:
         //! regression. There are 3N - 1 in total, for the distinct
         //! values in the design matrix and vector.
         TVectorMeanAccumulator m_S;
+
+        //! Befriend a helper class used by the unit tests
+        friend class ::CNanInjector;
     };
 
     //! Get the predicted value of \p r at \p x.

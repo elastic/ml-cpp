@@ -15,6 +15,7 @@ public:
     void testDistortedPeriodic();
     void testMinimizeLongComponents();
     void testWeekend();
+    void testNanHandling();
     void testSinglePeriodicity();
     void testSeasonalOnset();
     void testVarianceScale();
