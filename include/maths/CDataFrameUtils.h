@@ -84,7 +84,7 @@ public:
 
 private:
     static double unitWeight(const TRowRef&);
-    static double isMissing(double value);
+    static bool isMissing(double value);
 };
 }
 }
