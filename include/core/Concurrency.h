@@ -11,8 +11,6 @@
 #include <core/CLoopProgress.h>
 #include <core/ImportExport.h>
 
-#include <boost/any.hpp>
-
 #include <algorithm>
 #include <functional>
 #include <future>
@@ -72,7 +70,7 @@ auto bindRetrievableState(FUNCTION&& function, STATE&& state) {
 class CExecutor {
 public:
     virtual ~CExecutor() = default;
-    virtual void schedule(std::packaged_task<boost::any()>&& f) = 0;
+    virtual void schedule(std::function<void()>&& f) = 0;
     virtual bool busy() const = 0;
     virtual void busy(bool value) = 0;
 };
@@ -105,34 +103,20 @@ CORE_EXPORT
 std::size_t defaultAsyncThreadPoolSize();
 
 namespace concurrency_detail {
-template<typename F>
-boost::any resultToAny(F& f, const std::false_type&) {
-    return boost::any{f()};
+template<typename F, typename P>
+void invokeAndWriteResultToPromise(F& f, P& promise, const std::false_type&) {
+    try {
+        promise->set_value(f());
+    } catch (...) { promise->set_exception(std::current_exception()); }
 }
-template<typename F>
-boost::any resultToAny(F& f, const std::true_type&) {
-    f();
-    return boost::any{};
+template<typename F, typename P>
+void invokeAndWriteResultToPromise(F& f, P& promise, const std::true_type&) {
+    try {
+        f();
+        promise->set_value();
+    } catch (...) { promise->set_exception(std::current_exception()); }
 }
-
-template<typename R>
-class CTypedFutureAnyWrapper {
-public:
-    CTypedFutureAnyWrapper() = default;
-    CTypedFutureAnyWrapper(std::future<boost::any>&& future)
-        : m_Future{std::forward<std::future<boost::any>>(future)} {}
-
-    bool valid() const { return m_Future.valid(); }
-    void wait() const { m_Future.wait(); }
-    R get() { return boost::any_cast<R>(m_Future.get()); }
-
-private:
-    std::future<boost::any> m_Future;
-};
 }
-
-template<typename R>
-using future = concurrency_detail::CTypedFutureAnyWrapper<R>;
 
 //! An version of std::async which uses a specified executor.
 //!
@@ -146,7 +130,7 @@ using future = concurrency_detail::CTypedFutureAnyWrapper<R>;
 //! them. Prefer using high level primitives, such as parallel_for_each, which are
 //! safer.
 template<typename FUNCTION, typename... ARGS>
-future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
+std::future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
 async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     using R = std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>;
 
@@ -154,27 +138,31 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     // if possible, so this is safe to invoke later in the context of a packaged task.
     auto g = std::bind<R>(std::forward<FUNCTION>(f), std::forward<ARGS>(args)...);
 
-    std::packaged_task<boost::any()> task([g_ = std::move(g)]() mutable {
-        return concurrency_detail::resultToAny(g_, std::is_same<R, void>{});
-    });
-    auto result = task.get_future();
+    auto promise = std::make_shared<std::promise<R>>();
+    auto result = promise->get_future();
 
-    // Schedule the task to compute the result.
-    executor.schedule(std::move(task));
+    std::function<void()> task{[g_ = std::move(g), promise_ = std::move(promise)]() mutable {
+        concurrency_detail::invokeAndWriteResultToPromise(g_, promise_,
+                                                          std::is_same<R, void>{});
+}
+};
 
-    return std::move(result);
+// Schedule the task to compute the result.
+executor.schedule(std::move(task));
+
+return std::move(result);
 }
 
 //! Wait for all \p futures to be available.
 template<typename T>
-void wait_for_all(const std::vector<future<T>>& futures) {
+void wait_for_all(const std::vector<std::future<T>>& futures) {
     std::for_each(futures.begin(), futures.end(),
-                  [](const future<T>& future) { future.wait(); });
+                  [](const std::future<T>& future) { future.wait(); });
 }
 
 //! Wait for a valid future to be available otherwise return immediately.
 template<typename T>
-void wait_for_valid(const future<T>& future) {
+void wait_for_valid(const std::future<T>& future) {
     if (future.valid()) {
         future.wait();
     }
@@ -182,7 +170,7 @@ void wait_for_valid(const future<T>& future) {
 
 //! Wait for all valid \p futures to be available.
 template<typename T>
-void wait_for_all_valid(const std::vector<future<T>>& futures) {
+void wait_for_all_valid(const std::vector<std::future<T>>& futures) {
     std::for_each(futures.begin(), futures.end(), wait_for_valid);
 }
 
@@ -190,18 +178,18 @@ void wait_for_all_valid(const std::vector<future<T>>& futures) {
 template<typename T>
 class CWaitIfValidWhenExitingScope {
 public:
-    CWaitIfValidWhenExitingScope(future<T>& future) : m_Future{future} {}
+    CWaitIfValidWhenExitingScope(std::future<T>& future) : m_Future{future} {}
     ~CWaitIfValidWhenExitingScope() { wait_for_valid(m_Future); }
     CWaitIfValidWhenExitingScope(const CWaitIfValidWhenExitingScope&) = delete;
     CWaitIfValidWhenExitingScope& operator=(const CWaitIfValidWhenExitingScope&) = delete;
 
 private:
-    future<T>& m_Future;
+    std::future<T>& m_Future;
 };
 
 //! Get the conjunction of all \p futures.
 CORE_EXPORT
-bool get_conjunction_of_all(std::vector<future<bool>>& futures);
+bool get_conjunction_of_all(std::vector<std::future<bool>>& futures);
 
 namespace concurrency_detail {
 class CORE_EXPORT CDefaultAsyncExecutorBusyForScope {
@@ -287,7 +275,7 @@ parallel_for_each(std::size_t partitions,
     // ensure the best possible locality of reference for reads which occur
     // at a similar time in the different threads.
 
-    std::vector<future<bool>> tasks;
+    std::vector<std::future<bool>> tasks;
 
     for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference
@@ -371,7 +359,7 @@ parallel_for_each(std::size_t partitions,
 
     // See above for the rationale for this access pattern.
 
-    std::vector<future<bool>> tasks;
+    std::vector<std::future<bool>> tasks;
 
     for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
         // Note there is one copy of g for each thread so capture by reference

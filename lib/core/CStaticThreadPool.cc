@@ -49,14 +49,18 @@ void CStaticThreadPool::schedule(TTask&& task_) {
     if (i == end) {
         m_TaskQueues[i % size].push(std::move(task));
     }
-    m_Cursor.store(i + 1);
-}
 
-void CStaticThreadPool::schedule(std::function<void()>&& f) {
-    this->schedule(TTask([g = std::move(f)] {
-        g();
-        return boost::any{};
-    }));
+    // For many small tasks the best strategy for minimising contention between the
+    // producers and consumers is to 1) not yield, 2) set the cursor to add tasks on
+    // the queue for the thread on which a task is popped. This gives about twice the
+    // throughput of this strategy. However, if there are a small number of large
+    // tasks they must be added to different queues to ensure the work is parallelised.
+    // For a general purpose thread pool we must avoid that pathology. If we need a
+    // better pool for very fine grained threading we'd be better investing in a
+    // somewhat lock free bounded queue: for a fixed memory buffer it is possible to
+    // safely add and remove elements at different ends of a queue of length greater
+    // than one.
+    m_Cursor.store(i + 1);
 }
 
 bool CStaticThreadPool::busy() const {
@@ -75,10 +79,7 @@ void CStaticThreadPool::shutdown() {
     // Signal to each thread that it is finished. We bind each task to a thread so
     // so each thread executes exactly one shutdown task.
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
-        TTask done{[&] {
-            m_Done = true;
-            return boost::any{};
-        }};
+        TTask done{[&] { m_Done = true; }};
         m_TaskQueues[id].push(CWrappedTask{std::move(done), id});
     }
 
@@ -99,6 +100,7 @@ void CStaticThreadPool::worker(std::size_t id) {
     };
 
     TOptionalTask task;
+    std::size_t size{m_TaskQueues.size()};
 
     while (m_Done == false) {
         // We maintain "worker count" queues and each worker has an affinity to a
@@ -108,7 +110,6 @@ void CStaticThreadPool::worker(std::size_t id) {
         // if everything is working well we have essentially no contention between
         // workers on queue reads.
 
-        std::size_t size{m_TaskQueues.size()};
         for (std::size_t i = 0; i < size; ++i) {
             task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
             if (task != boost::none) {
@@ -126,7 +127,7 @@ void CStaticThreadPool::worker(std::size_t id) {
         // and the producer(s) will be waiting to add a task as each one is consumed.
         // By switching to work on a new queue here we minimise contention between the
         // producers and consumers. Testing on bare metal (OSX) the overhead per task
-        // dropped from around 2.2 microseconds to 1.5 microseconds by yielding here.
+        // dropped by around 120% by yielding here.
         std::this_thread::yield();
     }
 }
@@ -156,11 +157,12 @@ bool CStaticThreadPool::CWrappedTask::executableOnThread(std::size_t id) const {
 }
 
 void CStaticThreadPool::CWrappedTask::operator()() {
-    try {
-        m_Task();
-    } catch (const std::future_error& e) {
-        LOG_ERROR(<< "Failed executing packaged task: '" << e.code() << "' "
-                  << "with error '" << e.what() << "'");
+    if (m_Task != nullptr) {
+        try {
+            m_Task();
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed executing task with error '" << e.what() << "'");
+        }
     }
 }
 }
