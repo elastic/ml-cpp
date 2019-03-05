@@ -332,6 +332,10 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     return pair(baseline);
 }
 
+core_t::TTime CTimeSeriesDecomposition::maximumForecastInterval() const {
+    return m_Components.trend().maximumForecastInterval();
+}
+
 void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
                                         core_t::TTime endTime,
                                         core_t::TTime step,

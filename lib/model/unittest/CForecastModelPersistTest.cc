@@ -44,7 +44,8 @@ void CForecastModelPersistTest::testPersistAndRestore() {
     maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 1, trend, prior};
 
     CForecastModelPersist::CPersist persister(ml::test::CTestTmpDir::tmpDir());
-    persister.addModel(&timeSeriesModel, model_t::EFeature::E_IndividualCountByBucketAndPerson,
+    persister.addModel(&timeSeriesModel, 10, 50,
+                       model_t::EFeature::E_IndividualCountByBucketAndPerson,
                        "some_by_field");
     trend.dataType(maths_t::E_MixedData);
     maths::CNormalMeanPrecConjugate otherPrior{maths::CNormalMeanPrecConjugate::nonInformativePrior(
@@ -53,8 +54,8 @@ void CForecastModelPersistTest::testPersistAndRestore() {
     maths::CUnivariateTimeSeriesModel otherTimeSeriesModel{timeSeriesModelParams,
                                                            2, trend, otherPrior};
 
-    persister.addModel(&otherTimeSeriesModel, model_t::EFeature::E_IndividualLowMeanByPerson,
-                       "some_other_by_field");
+    persister.addModel(&otherTimeSeriesModel, 5, 45,
+                       model_t::EFeature::E_IndividualLowMeanByPerson, "some_other_by_field");
 
     trend.dataType(maths_t::E_DiscreteData);
     maths::CNormalMeanPrecConjugate otherPriorEmptyByField{
@@ -63,7 +64,7 @@ void CForecastModelPersistTest::testPersistAndRestore() {
     maths::CUnivariateTimeSeriesModel otherTimeSeriesModelEmptyByField{
         timeSeriesModelParams, 3, trend, otherPriorEmptyByField};
 
-    persister.addModel(&otherTimeSeriesModelEmptyByField,
+    persister.addModel(&otherTimeSeriesModelEmptyByField, 25, 65,
                        model_t::EFeature::E_IndividualHighMedianByPerson, "");
     std::string persistedModels = persister.finalizePersistAndGetFile();
 
@@ -71,15 +72,20 @@ void CForecastModelPersistTest::testPersistAndRestore() {
         CForecastModelPersist::CRestore restorer(params, minimumSeasonalVarianceScale,
                                                  persistedModels);
         CForecastModelPersist::TMathsModelPtr restoredModel;
+        core_t::TTime firstDataTime;
+        core_t::TTime lastDataTime;
         std::string restoredByFieldValue;
         model_t::EFeature restoredFeature;
 
         // test timeSeriesModel
-        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+                                          restoredFeature, restoredByFieldValue));
 
         CPPUNIT_ASSERT(restoredModel);
         CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson,
                              restoredFeature);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(10), firstDataTime);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(50), lastDataTime);
         CPPUNIT_ASSERT_EQUAL(std::string("some_by_field"), restoredByFieldValue);
         CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
         CPPUNIT_ASSERT_EQUAL(size_t(1), restoredModel->identifier());
@@ -101,8 +107,11 @@ void CForecastModelPersistTest::testPersistAndRestore() {
 
         // test otherTimeSeriesModel
         restoredModel.reset();
-        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+                                          restoredFeature, restoredByFieldValue));
         CPPUNIT_ASSERT(restoredModel);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(5), firstDataTime);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(45), lastDataTime);
         CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
         CPPUNIT_ASSERT_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
         CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
@@ -124,8 +133,11 @@ void CForecastModelPersistTest::testPersistAndRestore() {
 
         // test otherTimeSeriesModelEmptyByField
         restoredModel.reset();
-        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+                                          restoredFeature, restoredByFieldValue));
         CPPUNIT_ASSERT(restoredModel);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(25), firstDataTime);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(65), lastDataTime);
         CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
         CPPUNIT_ASSERT_EQUAL(std::string(), restoredByFieldValue);
         CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
@@ -136,7 +148,8 @@ void CForecastModelPersistTest::testPersistAndRestore() {
         CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
                              restoredModel->checksum(42));
 
-        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+                                           restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());
 }
@@ -152,10 +165,13 @@ void CForecastModelPersistTest::testPersistAndRestoreEmpty() {
         CForecastModelPersist::CRestore restorer(params, minimumSeasonalVarianceScale,
                                                  persistedModels);
         CForecastModelPersist::TMathsModelPtr restoredModel;
+        core_t::TTime firstDataTime;
+        core_t::TTime lastDataTime;
         std::string restoredByFieldValue;
         model_t::EFeature restoredFeature;
 
-        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+                                           restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());
 }

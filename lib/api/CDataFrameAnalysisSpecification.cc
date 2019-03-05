@@ -11,6 +11,7 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonLineWriter.h>
 
+#include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <rapidjson/document.h>
@@ -36,32 +37,34 @@ TRunnerFactoryUPtrVec analysisFactories() {
 }
 
 // These must be consistent with Java names.
-const char* ROWS{"rows"};
-const char* COLS{"cols"};
-const char* MEMORY_LIMIT{"memory_limit"};
-const char* THREADS{"threads"};
-const char* TEMPORARY_DIRECTORY{"temp_dir"};
-const char* ANALYSIS{"analysis"};
-const char* NAME{"name"};
-const char* PARAMETERS{"parameters"};
+const char* const ROWS{"rows"};
+const char* const COLS{"cols"};
+const char* const MEMORY_LIMIT{"memory_limit"};
+const char* const THREADS{"threads"};
+const char* const TEMPORARY_DIRECTORY{"temp_dir"};
+const char* const ANALYSIS{"analysis"};
+const char* const NAME{"name"};
+const char* const PARAMETERS{"parameters"};
 
-const char* VALID_MEMBER_NAMES[]{ROWS, COLS, MEMORY_LIMIT, THREADS, ANALYSIS};
+const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
+    CDataFrameAnalysisConfigReader theReader;
+    theReader.addParameter(ROWS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(COLS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(MEMORY_LIMIT, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(THREADS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    // TODO required
+    theReader.addParameter(TEMPORARY_DIRECTORY,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    return theReader;
+}()};
 
-template<typename MEMBER>
-bool isValidMember(const MEMBER& member) {
-    return std::find_if(std::begin(VALID_MEMBER_NAMES),
-                        std::end(VALID_MEMBER_NAMES), [&member](const char* name) {
-                            return std::strcmp(name, member.name.GetString()) == 0;
-                        }) != std::end(VALID_MEMBER_NAMES);
-}
-
-std::string toString(const rapidjson::Value& value) {
-    std::ostringstream valueAsString;
-    rapidjson::OStreamWrapper shim{valueAsString};
-    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> writer{shim};
-    writer.write(value);
-    return valueAsString.str();
-}
+const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
+    CDataFrameAnalysisConfigReader theReader;
+    theReader.addParameter(NAME, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(PARAMETERS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    return theReader;
+}()};
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
@@ -70,82 +73,31 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::stri
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                                                  const std::string& jsonSpecification)
-    : m_TemporaryDirectory{boost::filesystem::current_path().string()},
-      m_RunnerFactories{std::move(runnerFactories)} {
+    : m_RunnerFactories{std::move(runnerFactories)} {
 
-    rapidjson::Document document;
-    if (document.Parse(jsonSpecification.c_str()) == false) {
+    rapidjson::Document specification;
+    if (specification.Parse(jsonSpecification.c_str()) == false) {
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
                      << jsonSpecification << "'. Please report this problem.");
     } else {
 
-        if (document.IsObject() == false) {
-            HANDLE_FATAL(<< "Input error: expected object but input was '"
-                         << jsonSpecification << "'");
-            return;
-        }
+        auto parameters = CONFIG_READER.read(specification);
 
-        auto isPositiveInteger = [](const rapidjson::Value& value) {
-            return value.IsUint() && value.GetUint() > 0;
-        };
-        auto registerFailure = [&document](const char* name) {
-            if (document.HasMember(name)) {
-                HANDLE_FATAL(<< "Input error: bad value '" << toString(document[name])
-                             << "' for '" << name << "' in analysis specification.");
-            } else {
-                HANDLE_FATAL(<< "Input error: missing '" << name << "' in analysis "
-                             << "specification. Please report this problem.");
-            }
-        };
-
-        if (document.HasMember(ROWS) && isPositiveInteger(document[ROWS])) {
-            m_NumberRows = document[ROWS].GetUint();
-        } else {
-            registerFailure(ROWS);
-        }
-        if (document.HasMember(COLS) && isPositiveInteger(document[COLS])) {
-            m_NumberColumns = document[COLS].GetUint();
-        } else {
-            registerFailure(COLS);
-        }
-        if (document.HasMember(MEMORY_LIMIT) && isPositiveInteger(document[MEMORY_LIMIT])) {
-            m_MemoryLimit = document[MEMORY_LIMIT].GetUint();
-        } else {
-            registerFailure(MEMORY_LIMIT);
-        }
-        if (document.HasMember(THREADS) && isPositiveInteger(document[THREADS])) {
-            m_NumberThreads = document[THREADS].GetUint();
-        } else {
-            registerFailure(THREADS);
-        }
-        // TODO Remove if (false) hack when being passed.
-        if (false) {
-            if (document.HasMember(TEMPORARY_DIRECTORY) &&
-                document[TEMPORARY_DIRECTORY].IsString() &&
-                boost::filesystem::portable_name(document[TEMPORARY_DIRECTORY].GetString())) {
-                m_TemporaryDirectory = document[TEMPORARY_DIRECTORY].GetString();
-            } else {
-                registerFailure(TEMPORARY_DIRECTORY);
+        for (auto name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
+            if (parameters[name].as<std::size_t>() == 0) {
+                HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero");
             }
         }
+        m_NumberRows = parameters[ROWS].as<std::size_t>();
+        m_NumberColumns = parameters[COLS].as<std::size_t>();
+        m_MemoryLimit = parameters[MEMORY_LIMIT].as<std::size_t>();
+        m_NumberThreads = parameters[THREADS].as<std::size_t>();
+        m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
+            boost::filesystem::current_path().string());
 
-        if (document.HasMember(ANALYSIS) && document[ANALYSIS].IsObject()) {
-            const auto& analysis = document[ANALYSIS];
-            if (analysis.HasMember(NAME) && analysis[NAME].IsString()) {
-                this->initializeRunner(analysis[NAME].GetString(), analysis);
-            } else {
-                registerFailure(NAME);
-            }
-        } else {
-            registerFailure(ANALYSIS);
-        }
-
-        // Check for any unrecognised fields; these might be typos.
-        for (auto i = document.MemberBegin(); i != document.MemberEnd(); ++i) {
-            if (isValidMember(*i) == false) {
-                HANDLE_FATAL(<< "Input error: unexpected member '" << i->name.GetString()
-                             << "' of analysis specification. Please report this problem.");
-            }
+        auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
+        if (jsonAnalysis != nullptr) {
+            this->initializeRunner(*jsonAnalysis);
         }
     }
 }
@@ -193,15 +145,19 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
     return nullptr;
 }
 
-void CDataFrameAnalysisSpecification::initializeRunner(const char* name,
-                                                       const rapidjson::Value& analysis) {
+void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
+
+    auto analysis = ANALYSIS_READER.read(jsonAnalysis);
+
+    std::string name{analysis[NAME].as<std::string>()};
+
     for (const auto& factory : m_RunnerFactories) {
-        if (std::strcmp(factory->name(), name) == 0) {
-            m_Runner = analysis.HasMember(PARAMETERS)
-                           ? factory->make(*this, analysis[PARAMETERS])
-                           : factory->make(*this);
+        if (name == factory->name()) {
+            auto parameters = analysis[PARAMETERS].jsonObject();
+            m_Runner = parameters != nullptr ? factory->make(*this, *parameters)
+                                             : factory->make(*this);
             return;
         }
     }

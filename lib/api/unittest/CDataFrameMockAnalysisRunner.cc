@@ -17,7 +17,9 @@ std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
     return 2;
 }
 
-void CDataFrameMockAnalysisRunner::writeOneRow(TRowRef, ml::core::CRapidJsonConcurrentLineWriter&) const {
+void CDataFrameMockAnalysisRunner::writeOneRow(const TStrVec&,
+                                               TRowRef,
+                                               ml::core::CRapidJsonConcurrentLineWriter&) const {
 }
 
 void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {

@@ -16,6 +16,8 @@ public:
     void testDistancekNN();
     void testTotalDistancekNN();
     void testEnsemble();
+    void testFeatureInfluences();
+    void testEstimateMemoryUsedByCompute();
     void testProgressMonitoring();
 
     static CppUnit::Test* suite();

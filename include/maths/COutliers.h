@@ -9,6 +9,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CHashing.h>
+#include <core/CMemory.h>
 #include <core/CNonInstantiatable.h>
 #include <core/Concurrency.h>
 
@@ -34,9 +35,23 @@ namespace ml {
 namespace maths {
 namespace outliers_detail {
 using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble1VecVec = std::vector<TDouble1Vec>;
+using TDouble1VecVec2Vec = core::CSmallVector<TDouble1VecVec, 2>;
+using TDouble1Vec2Vec = core::CSmallVector<TDouble1Vec, 2>;
 using TProgressCallback = std::function<void(double)>;
+using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+//! Get the distance in the complement space of the projection.
+//!
+//! We use Euclidean distances so this is just \f$\sqrt{d^2 - x^2}\f$ for
+//! \f$d\f$ the total distance and \f$x\f$ is the distance in the projection
+//! space.
+inline double complementDistance(double distance, double projectionDistance) {
+    return std::sqrt(std::max(CTools::pow2(distance) - CTools::pow2(projectionDistance), 0.0));
+}
 
 //! \brief The interface for a nearest neighbour outlier calculation method.
 template<typename POINT, typename NEAREST_NEIGHBOURS>
@@ -45,9 +60,16 @@ public:
     using TPointVec = std::vector<POINT>;
 
 public:
-    CNearestNeighbourMethod(std::size_t k, NEAREST_NEIGHBOURS lookup, TProgressCallback recordProgress)
-        : m_K{k}, m_Lookup{std::move(lookup)}, m_RecordProgress{std::move(recordProgress)} {}
+    CNearestNeighbourMethod(bool computeFeatureInfluence,
+                            std::size_t k,
+                            NEAREST_NEIGHBOURS lookup,
+                            TProgressCallback recordProgress)
+        : m_ComputeFeatureInfluence{computeFeatureInfluence}, m_K{k},
+          m_Lookup{std::move(lookup)}, m_RecordProgress{std::move(recordProgress)} {}
     virtual ~CNearestNeighbourMethod() = default;
+
+    //! Check whether to compute influences of features on the outlier scores.
+    bool computeFeatureInfluence() const { return m_ComputeFeatureInfluence; }
 
     //! The number of points.
     std::size_t n() const { return m_Lookup.size(); }
@@ -55,14 +77,17 @@ public:
     //! The number of nearest neighbours.
     std::size_t k() const { return m_K; }
 
+    //! Get the nearest neighbours lookup.
+    const NEAREST_NEIGHBOURS& lookup() const { return m_Lookup; }
+
     //! Compute the outlier scores for \p points.
-    void run(const TPointVec& points, std::size_t numberScores, TDoubleVecVec& scores) {
+    TDouble1VecVec2Vec run(const TPointVec& points, std::size_t numberScores) {
 
         this->setup(points);
 
         // We call add exactly once for each point. Scores is presized
         // so any writes to it are safe.
-        scores = TDoubleVecVec(this->numberMethods(), TDoubleVec(numberScores, 0.0));
+        TDouble1VecVec2Vec scores(this->numberMethods(), TDouble1VecVec(numberScores));
         core::parallel_for_each(points.begin(), points.end(),
                                 [&, neighbours = TPointVec{} ](const POINT& point) mutable {
                                     m_Lookup.nearestNeighbours(m_K + 1, point, neighbours);
@@ -73,7 +98,18 @@ public:
                                 });
 
         this->compute(points, scores);
+
+        return scores;
     }
+
+    //! Recover any temporary memory used by run.
+    virtual void recoverMemory() {}
+
+    //! Get the size of this object.
+    virtual std::size_t staticSize() const { return sizeof(*this); }
+
+    //! Get the memory that the method uses.
+    virtual std::size_t memoryUsage() const { return 0; }
 
     //! \name Progress Monitoring
     //@{
@@ -85,26 +121,28 @@ public:
     }
     //@}
 
+    //! Get a human readable description of the outlier detection method.
     virtual std::string print() const {
         return this->name() + "(n = " + std::to_string(this->n()) +
                ", k = " + std::to_string(m_K) + ")";
     }
 
     virtual void setup(const TPointVec&) {}
-    virtual void add(const POINT&, const TPointVec&, TDoubleVec&) {}
-    virtual void compute(const TPointVec&, TDoubleVec&) {}
+    virtual void add(const POINT&, const TPointVec&, TDouble1VecVec&) {}
+    virtual void compute(const TPointVec&, TDouble1VecVec&) {}
 
 private:
-    virtual void add(const POINT& point, const TPointVec& neighbours, TDoubleVecVec& scores) {
+    virtual void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec2Vec& scores) {
         this->add(point, neighbours, scores[0]);
     }
-    virtual void compute(const TPointVec& points, TDoubleVecVec& scores) {
+    virtual void compute(const TPointVec& points, TDouble1VecVec2Vec& scores) {
         this->compute(points, scores[0]);
     }
     virtual std::size_t numberMethods() const { return 1; }
     virtual std::string name() const = 0;
 
 private:
+    bool m_ComputeFeatureInfluence;
     std::size_t m_K;
     NEAREST_NEIGHBOURS m_Lookup;
     TProgressCallback m_RecordProgress;
@@ -122,63 +160,103 @@ public:
     static const TCoordinate UNSET_DISTANCE;
 
 public:
-    CLof(std::size_t k,
+    CLof(bool computeFeatureInfluence,
+         std::size_t k,
          TProgressCallback recordProgress,
          NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
-    //! Estimate the additional bookkeeping memory used explicitly by the
-    //! local outlier factors calculation.
-    static std::size_t estimateOwnMemoryOverhead(std::size_t k, std::size_t numberPoints) {
-        return numberPoints * (k * sizeof(TUInt32CoordinatePr) + sizeof(TCoordinate));
+    void recoverMemory() override {
+        m_KDistances.resize(this->k() * m_StartAddresses);
+        m_Lrd.resize(m_StartAddresses);
+        m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
+        m_KDistances.shrink_to_fit();
+        m_Lrd.shrink_to_fit();
+        m_CoordinateLrd.shrink_to_fit();
+    }
+
+    std::size_t staticSize() const override { return sizeof(*this); }
+
+    std::size_t memoryUsage() const override {
+        return core::CMemory::dynamicSize(m_KDistances) +
+               core::CMemory::dynamicSize(m_Lrd) +
+               core::CMemory::dynamicSize(m_CoordinateLrd);
+    }
+
+    static std::size_t estimateOwnMemoryOverhead(bool computeFeatureInfluence,
+                                                 std::size_t k,
+                                                 std::size_t numberPoints,
+                                                 std::size_t dimension) {
+        return numberPoints *
+               (k * sizeof(TUInt32CoordinatePr) +
+                (computeFeatureInfluence ? dimension + 1 : 1) * sizeof(TCoordinate));
     }
 
 private:
     void setup(const TPointVec& points) override {
-        std::size_t addressSpace{
-            std::max_element(points.begin(), points.end(),
-                             [](const POINT& lhs, const POINT& rhs) {
-                                 return lhs.annotation() < rhs.annotation();
-                             })
-                ->annotation() +
-            1};
-        m_KDistances.resize(this->k() * addressSpace, {0, UNSET_DISTANCE});
-        m_Lrd.resize(addressSpace, UNSET_DISTANCE);
-    }
 
-    void add(const POINT& point, const TPointVec& neighbours, TDoubleVec&) override {
-        // This is called exactly once for each point therefore an element
-        // of m_KDistances is only ever written by one thread.
-        std::size_t i{point.annotation() * this->k()};
-        std::size_t a(point == neighbours[0] ? 1 : 0);
-        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-        for (std::size_t j = a; j <= b; ++j) {
-            m_KDistances[i + j - a].first =
-                static_cast<uint32_t>(neighbours[j].annotation());
-            m_KDistances[i + j - a].second = las::distance(point, neighbours[j]);
+        m_Dimension = las::dimension(points[0]);
+
+        auto minmax = std::minmax_element(
+            points.begin(), points.end(), [](const POINT& lhs, const POINT& rhs) {
+                return lhs.annotation() < rhs.annotation();
+            });
+        m_StartAddresses = minmax.first->annotation();
+        m_EndAddresses = minmax.second->annotation() + 1;
+
+        std::size_t k{this->k()};
+        m_KDistances.resize(k * m_StartAddresses, {0, UNSET_DISTANCE});
+        m_KDistances.resize(k * m_EndAddresses, {0, UNSET_DISTANCE});
+        m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
+        m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
+
+        if (this->computeFeatureInfluence()) {
+            m_CoordinateLrd.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
+            m_CoordinateLrd.resize(m_Dimension * m_EndAddresses, UNSET_DISTANCE);
         }
     }
 
-    void compute(const TPointVec& points, TDoubleVec& scores) override {
-        using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+    void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec&) override {
+        // This is called exactly once for each point therefore an element
+        // of m_KDistances is only ever written by one thread.
+        std::size_t i{point.annotation()};
+        std::size_t a(point == neighbours[0] ? 1 : 0);
+        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
+        for (std::size_t j = a; j <= b; ++j) {
+            std::size_t index{this->kDistanceIndex(i, j - a)};
+            m_KDistances[index].first =
+                static_cast<std::uint32_t>(neighbours[j].annotation());
+            m_KDistances[index].second = las::distance(point, neighbours[j]);
+        }
+    }
 
-        std::size_t k{this->k()};
+    void compute(const TPointVec& points, TDouble1VecVec& scores) override {
+        this->computeLocalReachabilityDistances(points);
+        this->computeLocalOutlierFactors(points, scores);
+    }
 
-        // We bind a minimum accumulator (by value) to each lambda (since
+    std::string name() const override { return "lof"; }
+
+    void computeLocalReachabilityDistances(const TPointVec& points) {
+
+        // We bind minimum accumulators (by value) to each lambda (since
         // one copy is then accessed by each thread) and take the minimum
         // of these at the end.
+
+        using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+
         auto results = core::parallel_for_each(
             points.begin(), points.end(),
             core::bindRetrievableState(
-                [&](TMinAccumulator& min, const POINT& point) {
+                [this](TMinAccumulator& min, const POINT& point) mutable {
+
                     std::size_t i{point.annotation()};
                     TMeanAccumulator reachability_;
-                    for (std::size_t j = i * k; j < (i + 1) * k; ++j) {
-                        const auto& neighbour = m_KDistances[j];
+                    for (std::size_t j = 0; j < this->k(); ++j) {
+                        const auto& neighbour = m_KDistances[this->kDistanceIndex(i, j)];
                         if (distance(neighbour) != UNSET_DISTANCE) {
-                            reachability_.add(std::max(kdistance(index(neighbour)),
-                                                       distance(neighbour)));
+                            reachability_.add(this->reachabilityDistance(neighbour));
                         }
                     }
                     double reachability{CBasicStatistics::mean(reachability_)};
@@ -193,30 +271,106 @@ private:
         for (const auto& result : results) {
             min += result.s_FunctionState;
         }
-
         if (min.count() > 0) {
             // Use twice the maximum "density" at any other point if there
             // are k-fold duplicates.
-            for (auto& lrd : m_Lrd) {
-                if (lrd < 0.0) {
-                    lrd = 2.0 / min[0];
+            for (std::size_t i = m_StartAddresses; i < m_EndAddresses; ++i) {
+                if (m_Lrd[i] == UNSET_DISTANCE) {
+                    m_Lrd[i] = 2.0 / min[0];
                 }
             }
-            core::parallel_for_each(points.begin(), points.end(), [&](const POINT& point) {
-                std::size_t i{point.annotation()};
-                TMeanAccumulator score;
-                for (std::size_t j = i * k; j < (i + 1) * k; ++j) {
-                    const auto& neighbour = m_KDistances[j];
-                    if (distance(neighbour) != UNSET_DISTANCE) {
-                        score.add(m_Lrd[index(neighbour)]);
+        }
+
+        if (this->computeFeatureInfluence()) {
+            // The idea is to compute the score placing each point p at the
+            // locations which minimise the lof on each axis aligned line
+            // passing through p. If we let p'(x) denote the point obtained
+            // by replacing the i'th coordinate of p with x then this is p'(y)
+            // where
+            //   y = argmin_{x}{sum_{i in neighbours of p}{rd(p'(x))}}
+            // and rd(.) denotes the reachability distance. Unfortunately,
+            // we need to look up nearest neighbours again.
+
+            core::parallel_for_each(
+                points.begin(), points.end(),
+                [&, neighbours = TPointVec{} ](const POINT& point) mutable {
+
+                    std::size_t i{point.annotation()};
+                    this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
+                    std::size_t a(point == neighbours[0] ? 1 : 0);
+                    std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
+
+                    POINT point_(point);
+                    for (std::size_t j = 0; j < m_Dimension; ++j) {
+                        // p'(y) can be found by an iterative scheme.
+                        for (std::size_t round = 0; round < 2; ++round) {
+                            TMeanAccumulator centroid;
+                            for (std::size_t k = a; k <= b; ++k) {
+                                centroid.add(neighbours[k](j));
+                            }
+                            point_(j) = CBasicStatistics::mean(centroid);
+
+                            centroid = TMeanAccumulator{};
+                            for (std::size_t k = a; k <= b; ++k) {
+                                if (this->kdistance(neighbours[k].annotation()) <
+                                    las::distance(point_, neighbours[k])) {
+                                    centroid.add(neighbours[k](j));
+                                }
+                            }
+                            point_(j) = (point_(j) + CBasicStatistics::mean(centroid)) / 2.0;
+                        }
+
+                        TMeanAccumulator reachability_;
+                        for (std::size_t k = a; k <= b; ++k) {
+                            POINT& neighbour{neighbours[k]};
+                            double kdistance{this->kdistance(neighbour.annotation())};
+                            double distance{las::distance(point_, neighbour)};
+                            reachability_.add(std::max(kdistance, distance));
+                        }
+                        double reachability{
+                            std::max(CBasicStatistics::mean(reachability_), min[0])};
+
+                        point_(j) = point(j);
+
+                        m_CoordinateLrd[this->coordinateLrdIndex(i, j)] = 1.0 / reachability;
                     }
-                }
-                scores[i] = CBasicStatistics::mean(score) / m_Lrd[i];
-            });
+                });
         }
     }
 
-    std::string name() const override { return "lof"; }
+    void computeLocalOutlierFactors(const TPointVec& points, TDouble1VecVec& scores) {
+
+        core::parallel_for_each(points.begin(), points.end(), [&](const POINT& point) mutable {
+
+            std::size_t i{point.annotation()};
+
+            TMeanAccumulator neighbourhoodLrd;
+            for (std::size_t j = 0; j < this->k(); ++j) {
+                const auto& neighbour = m_KDistances[this->kDistanceIndex(i, j)];
+                if (distance(neighbour) != UNSET_DISTANCE) {
+                    neighbourhoodLrd.add(m_Lrd[index(neighbour)]);
+                }
+            }
+
+            scores[i].resize(this->computeFeatureInfluence() ? m_Dimension + 1 : 1);
+            scores[i][0] = CBasicStatistics::mean(neighbourhoodLrd) / m_Lrd[i];
+
+            // We choose to ignore the impact of moving the point on its
+            // neighbours' local reachability distances when computing
+            // scores for each coordinate.
+            for (std::size_t j = 1; j < scores[i].size(); ++j) {
+                scores[i][j] = CBasicStatistics::mean(neighbourhoodLrd) /
+                               m_CoordinateLrd[this->coordinateLrdIndex(i, j - 1)];
+            }
+        });
+    }
+
+    std::size_t kDistanceIndex(std::size_t index, std::size_t neighbourIndex) const {
+        return index * this->k() + neighbourIndex;
+    }
+    std::size_t coordinateLrdIndex(std::size_t index, std::size_t coordinate) const {
+        return index * m_Dimension + coordinate;
+    }
 
     static std::size_t index(const TUInt32CoordinatePr& neighbour) {
         return neighbour.first;
@@ -224,20 +378,31 @@ private:
     static double distance(const TUInt32CoordinatePr& neighbour) {
         return neighbour.second;
     }
-    double kdistance(std::size_t index) const {
-        for (std::size_t k{this->k()}, j = (index + 1) * k; j > index * k; --j) {
-            if (distance(m_KDistances[j - 1]) != UNSET_DISTANCE) {
-                return distance(m_KDistances[j - 1]);
+
+    double reachabilityDistance(const TUInt32CoordinatePr& neighbour) const {
+        return std::max(this->kdistance(index(neighbour)), distance(neighbour));
+    }
+    double kdistance(std::size_t i) const {
+        for (std::size_t j = this->k(); j > 0; --j) {
+            double dist{distance(m_KDistances[this->kDistanceIndex(i, j - 1)])};
+            if (dist != UNSET_DISTANCE) {
+                return dist;
             }
         }
         return UNSET_DISTANCE;
     }
 
 private:
-    // The k distances to the neighbouring points of each point are
-    // stored flattened: [neighbours of 0, neighbours of 1,...].
+    std::size_t m_Dimension;
+    std::size_t m_StartAddresses;
+    std::size_t m_EndAddresses;
+    // The k distances to the neighbouring points of each point are stored
+    // flattened: [neighbours of 0, neighbours of 1,...].
     TUInt32CoordinatePrVec m_KDistances;
     TCoordinateVec m_Lrd;
+    // The coordinate local reachability distances are stored flattened:
+    // [coordinates of 0, coordinates of 2, ...].
+    TCoordinateVec m_CoordinateLrd;
 };
 
 template<typename POINT, typename NEAREST_NEIGHBOURS>
@@ -248,27 +413,62 @@ const typename CLof<POINT, NEAREST_NEIGHBOURS>::TCoordinate
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CLdof final : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CLdof(std::size_t k,
+    CLdof(bool computeFeatureInfluence,
+          std::size_t k,
           TProgressCallback recordProgress,
           NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDoubleVec& scores) override {
-        TMeanAccumulator d, D;
+    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+
+        auto ldof = [](const TMeanAccumulator& d, const TMeanAccumulator& D) {
+            return CBasicStatistics::mean(D) > 0.0
+                       ? CBasicStatistics::mean(d) / CBasicStatistics::mean(D)
+                       : 0.0;
+        };
+
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-        for (std::size_t i = a; i <= b; ++i) {
-            d.add(las::distance(point, neighbours[i]));
-            for (std::size_t j = 1; j < i; ++j) {
-                D.add(las::distance(neighbours[i], neighbours[j]));
+        std::size_t dimension{las::dimension(point)};
+
+        auto& score = scores[point.annotation()];
+        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1);
+
+        TMeanAccumulator D;
+        {
+            TMeanAccumulator d;
+            for (std::size_t i = a; i <= b; ++i) {
+                d.add(las::distance(point, neighbours[i]));
+                for (std::size_t j = 1; j < i; ++j) {
+                    D.add(las::distance(neighbours[i], neighbours[j]));
+                }
+            }
+            score[0] = ldof(d, D);
+        }
+        if (score.size() > 1) {
+            // The idea is to compute the score placing the point at the
+            // locations which minimise the ldof on each axis aligned line
+            // passing through the point. These are just the neighbours
+            // coordinate centroids.
+            POINT point_{point};
+            for (std::size_t i = 0; i < dimension; ++i) {
+                TMeanAccumulator centroid;
+                for (std::size_t j = a; j <= b; ++j) {
+                    centroid.add(neighbours[j](i));
+                }
+
+                TMeanAccumulator d;
+                point_(i) = CBasicStatistics::mean(centroid);
+                for (std::size_t j = a; j <= b; ++j) {
+                    d.add(las::distance(point_, neighbours[j]));
+                }
+                point_(i) = point(i);
+
+                score[i + 1] = ldof(d, D);
             }
         }
-        scores[point.annotation()] = CBasicStatistics::mean(D) > 0.0
-                                         ? CBasicStatistics::mean(d) /
-                                               CBasicStatistics::mean(D)
-                                         : 0.0;
     }
 
     std::string name() const override { return "ldof"; }
@@ -278,17 +478,30 @@ private:
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CDistancekNN final : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CDistancekNN(std::size_t k,
+    CDistancekNN(bool computeFeatureInfluence,
+                 std::size_t k,
                  TProgressCallback recordProgress,
                  NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDoubleVec& scores) override {
+    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+
         std::size_t k{std::min(this->k() + 1, neighbours.size() - 1) -
                       (point == neighbours[0] ? 0 : 1)};
-        scores[point.annotation()] = las::distance(point, neighbours[k]);
+        const auto& kthNeighbour = neighbours[k];
+
+        auto& score = scores[point.annotation()];
+        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1);
+
+        double d{las::distance(point, kthNeighbour)};
+        score[0] = d;
+        for (std::size_t i = 1; i < score.size(); ++i) {
+            // The idea here is to compute the score for the complement
+            // space of each coordinate projection.
+            score[i] = complementDistance(d, kthNeighbour(i - 1) - point(i - 1));
+        }
     }
 
     std::string name() const override { return "knn"; }
@@ -299,21 +512,34 @@ template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CTotalDistancekNN final
     : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
-    CTotalDistancekNN(std::size_t k,
+    CTotalDistancekNN(bool computeFeatureInfluence,
+                      std::size_t k,
                       TProgressCallback recordProgress,
                       NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
         : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{
-              k, std::move(lookup), std::move(recordProgress)} {}
+              computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDoubleVec& scores) override {
-        std::size_t i{point.annotation()};
+    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-        for (std::size_t j = a; j <= b; ++j) {
-            scores[i] += las::distance(point, neighbours[j]);
+
+        auto& score = scores[point.annotation()];
+        score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+
+        for (std::size_t i = a; i <= b; ++i) {
+            double d{las::distance(point, neighbours[i])};
+            score[0] += d;
+            // The idea here is to compute the score for the complement
+            // space of each coordinate projection.
+            for (std::size_t j = 1; j < score.size(); ++j) {
+                score[j] += complementDistance(d, neighbours[i](j - 1) - point(j - 1));
+            }
         }
-        scores[i] /= static_cast<double>(this->k());
+        for (std::size_t i = 0; i < score.size(); ++i) {
+            score[i] /= static_cast<double>(this->k());
+        }
     }
 
     std::string name() const override { return "tnn"; }
@@ -336,9 +562,22 @@ public:
     CMultipleMethods(std::size_t k,
                      TMethodUPtrVec methods,
                      NEAREST_NEIGHBOURS lookup = NEAREST_NEIGHBOURS())
-        : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{k, std::move(lookup),
+        : CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>{methods[0]->computeFeatureInfluence(),
+                                                             k, std::move(lookup),
                                                              methods[0]->progressRecorder()},
           m_Methods{std::move(methods)} {}
+
+    void recoverMemory() override {
+        for (auto& model : m_Methods) {
+            model->recoverMemory();
+        }
+    }
+
+    std::size_t staticSize() const override { return sizeof(*this); }
+
+    std::size_t memoryUsage() const override {
+        return core::CMemory::dynamicSize(m_Methods);
+    }
 
     std::string print() const override {
         std::string result;
@@ -359,13 +598,13 @@ private:
         }
     }
 
-    void add(const POINT& point, const TPointVec& neighbours, TDoubleVecVec& scores) override {
+    void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec2Vec& scores) override {
         for (std::size_t i = 0; i < m_Methods.size(); ++i) {
             m_Methods[i]->add(point, neighbours, scores[i]);
         }
     }
 
-    void compute(const TPointVec& points, TDoubleVecVec& scores) override {
+    void compute(const TPointVec& points, TDouble1VecVec2Vec& scores) override {
         for (std::size_t i = 0; i < m_Methods.size(); ++i) {
             m_Methods[i]->compute(points, scores[i]);
         }
@@ -376,256 +615,17 @@ private:
 private:
     TMethodUPtrVec m_Methods;
 };
-
-//! \brief This encapsulates creating a collection of models used for outlier
-//! detection.
-//!
-//! DESCRIPTION:\n
-//! A model is defined as one or more algorithm for computing outlier scores,
-//! the number of nearest neighbours used to compute the score and a sample of
-//! the original data points (possibly) projected onto a random subspace which
-//! is searched for neighbours.
-//!
-//! The models can be built from a data stream by repeatedly calling addPoint.
-//! The evaluation of the outlier score for a point is delagated.
-template<typename POINT>
-class CEnsemble {
-private:
-    class CModel;
-
-public:
-    using TSizeVec = std::vector<std::size_t>;
-    using TSizeVecVec = std::vector<TSizeVec>;
-    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TSizeSizePrVec = std::vector<TSizeSizePr>;
-    using TPoint = CAnnotatedVector<decltype(SConstant<POINT>::get(0, 0)), std::size_t>;
-    using TPointVec = std::vector<TPoint>;
-    using TPointVecVec = std::vector<TPointVec>;
-    using TKdTree = CKdTree<TPoint>;
-    using TMethodUPtr = std::unique_ptr<CNearestNeighbourMethod<TPoint, const TKdTree&>>;
-    using TMethodUPtrVec = std::vector<TMethodUPtr>;
-    using TMethodFactory = std::function<TMethodUPtr(std::size_t, const TKdTree&)>;
-    using TMethodFactoryVec = std::vector<TMethodFactory>;
-    using TMethodSize = std::function<std::size_t(std::size_t)>;
-
-    //! \brief Builds (online) one model of the points for the ensemble.
-    class CModelBuilder {
-    public:
-        using TRowRef = core::CDataFrame::TRowRef;
-
-    public:
-        CModelBuilder(CPRNG::CXorOShiro128Plus& rng,
-                      TSizeSizePrVec&& methodAndNumberNeighbours,
-                      std::size_t sampleSize,
-                      TPointVec&& projection);
-
-        //! Maybe sample the point.
-        void addPoint(const TRowRef& point) { m_Sampler.sample(point); }
-
-        //! \note Only call once: this moves state into place.
-        CModel make(const TMethodFactoryVec& methodFactories);
-
-    private:
-        using TSampler = CSampling::CRandomStreamSampler<TRowRef>;
-
-    private:
-        TSampler makeSampler(CPRNG::CXorOShiro128Plus& rng, std::size_t sampleSize);
-
-    private:
-        TSizeSizePrVec m_MethodsAndNumberNeighbours;
-        std::size_t m_SampleSize;
-        TSampler m_Sampler;
-        TPointVec m_Projection;
-        TPointVec m_SampledProjectedPoints;
-    };
-    using TModelBuilderVec = std::vector<CModelBuilder>;
-
-public:
-    static const double SAMPLE_SIZE_SCALE;
-    static const double NEIGHBOURHOOD_FRACTION;
-
-public:
-    CEnsemble(const TMethodFactoryVec& methodFactories,
-              TModelBuilderVec modelBuilders,
-              double priorProbabilityOutlier = 0.05);
-    CEnsemble(const CEnsemble&) = delete;
-    CEnsemble& operator=(const CEnsemble&) = delete;
-    CEnsemble(CEnsemble&&) = default;
-    CEnsemble& operator=(CEnsemble&&) = default;
-
-    //! Make the builders for the ensemble models.
-    static TModelBuilderVec
-    makeBuilders(const TSizeVecVec& algorithms,
-                 std::size_t numberPoints,
-                 std::size_t dimension,
-                 CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
-
-    //! Compute the outlier scores for \p points.
-    void computeOutlierScores(const std::vector<POINT>& points, TDoubleVec& scores) const;
-
-    //! Estimate the amount of memory that will be used by the ensemble.
-    static std::size_t
-    estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
-                                             std::size_t numberMethods,
-                                             std::size_t totalNumberPoints,
-                                             std::size_t partitionNumberPoints,
-                                             std::size_t dimension) {
-        std::size_t ensembleSize{
-            computeEnsembleSize(numberMethods, totalNumberPoints, dimension)};
-        std::size_t sampleSize{computeSampleSize(totalNumberPoints)};
-        std::size_t numberModels{(ensembleSize + numberMethods - 1) / numberMethods};
-        std::size_t maxNumberNeighbours{computeNumberNeighbours(sampleSize)};
-        std::size_t projectionDimension{computeProjectionDimension(sampleSize, dimension)};
-        std::size_t averageNumberNeighbours{(3 + maxNumberNeighbours) / 2};
-        // This is "own size" + "method scores size" + "scorers size" +
-        // "projected points size" + "models size".
-        return sizeof(CEnsemble) +
-               partitionNumberPoints *
-                   (sizeof(double) + sizeof(CScorer) +
-                    las::estimateMemoryUsage<TPoint>(projectionDimension)) +
-               numberModels * CModel::estimateMemoryUsage(methodSize, sampleSize,
-                                                          averageNumberNeighbours,
-                                                          projectionDimension, dimension);
-    }
-
-    //! Get a human readable description of the ensemble.
-    std::string print() const;
-
-private:
-    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
-    using TKdTreeUPtr = std::unique_ptr<TKdTree>;
-
-    //! \brief Manages computing the probability that a point is an outlier
-    //! given its scores from a collection of ensemble models.
-    class CScorer {
-    public:
-        void add(const TMeanVarAccumulatorVec& logScoreMoments, const TDoubleVec& scores);
-        double compute(double pOutlier) const;
-
-    private:
-        double m_EnsembleSize = 0.0;
-        double m_LogLikelihoodOutlierGivenScores = 0.0;
-        double m_LogLikelihoodInlierGivenScores = 0.0;
-    };
-    using TScorerVec = std::vector<CScorer>;
-
-    //! \brief A model of the points used as part of the ensemble.
-    class CModel {
-    public:
-        CModel(const TMethodFactoryVec& methodFactories,
-               TSizeSizePrVec methodAndNumberNeighbours,
-               TPointVec samples,
-               TPointVec projection);
-
-        std::size_t numberPoints() const { return m_Lookup->size(); }
-
-        void proportionOfRuntimePerMethod(double proportion);
-
-        void addOutlierScores(const std::vector<POINT>& points, TScorerVec& scores) const;
-
-        static std::size_t estimateMemoryUsage(TMethodSize methodSize,
-                                               std::size_t sampleSize,
-                                               std::size_t averageNumberNeighbours,
-                                               std::size_t projectionDimension,
-                                               std::size_t dimension) {
-            return sizeof(CModel) +
-                   TKdTree::estimateMemoryUsage(sampleSize, projectionDimension) +
-                   projectionDimension * las::estimateMemoryUsage<TPoint>(dimension) +
-                   methodSize(averageNumberNeighbours);
-        }
-
-        std::string print() const;
-
-    private:
-        TKdTreeUPtr m_Lookup;
-        TPointVec m_Projection;
-        TMethodUPtr m_Method;
-        TMeanVarAccumulatorVec m_LogScoreMoments;
-    };
-    using TModelVec = std::vector<CModel>;
-
-private:
-    static std::size_t computeEnsembleSize(std::size_t numberMethods,
-                                           std::size_t numberPoints,
-                                           std::size_t dimension) {
-        // We want enough members such that we get:
-        //   1. Reasonable coverage of original space,
-        //   2. Reasonable coverage of the original point set.
-        //
-        // Using too few members turned up some pathologies in testing and
-        // using many gives diminishing returns for the extra runtime and
-        // memory usage so restrict to at least 6 and no more than 20.
-        std::size_t projectionDimension{
-            computeProjectionDimension(computeSampleSize(numberPoints), dimension)};
-        std::size_t requiredNumberModels{(dimension + projectionDimension - 1) / projectionDimension};
-        double target{std::max(static_cast<double>(numberMethods * requiredNumberModels),
-                               std::sqrt(static_cast<double>(numberPoints)) / SAMPLE_SIZE_SCALE)};
-        return static_cast<std::size_t>(std::min(std::max(target, 6.0), 20.0) + 0.5);
-    }
-
-    static std::size_t computeSampleSize(std::size_t numberPoints) {
-        // We want an aggressive downsample of the original set. Except
-        // for the case that there are many small clusters, this typically
-        // improves QoR since it avoids outliers swamping one another. It
-        // also greatly improves scalability.
-        double target{2.0 * SAMPLE_SIZE_SCALE * std::sqrt(static_cast<double>(numberPoints))};
-        return static_cast<std::size_t>(target + 0.5);
-    }
-
-    static std::size_t computeNumberNeighbours(std::size_t sampleSize) {
-        // Use a fraction of the sample size but don't allow to get
-        //   1. too small because the outlier metrics tend to be unstable in
-        //      this regime or
-        //   2. too big because they tend to be insentive to changes in this
-        //      parameter when it's large, but the nearest neighbour search
-        //      becomes much more expensive.
-        double target{NEIGHBOURHOOD_FRACTION * static_cast<double>(sampleSize)};
-        return static_cast<std::size_t>(std::min(std::max(target, 5.0), 100.0) + 0.5);
-    }
-
-    static std::size_t computeProjectionDimension(std::size_t numberPoints,
-                                                  std::size_t dimension) {
-        // We need a minimum number of points per dimension to get any sort
-        // of stable density estimate. The dependency is exponential (curse
-        // of dimensionality).
-        double logNumberPoints{std::log(static_cast<double>(numberPoints)) / std::log(3.0)};
-        double target{std::min(static_cast<double>(dimension), logNumberPoints)};
-        return static_cast<std::size_t>(std::min(std::max(target, 2.0), 10.0) + 0.5);
-    }
-
-    static TPointVecVec createProjections(CPRNG::CXorOShiro128Plus& rng,
-                                          std::size_t numberProjections,
-                                          std::size_t projectionDimension,
-                                          std::size_t dimension);
-
-    static TPoint project(const TPointVec& projection, const POINT& point);
-
-private:
-    double m_PriorProbabilityOutlier;
-    TModelVec m_Models;
-};
-
-template<typename POINT>
-const double CEnsemble<POINT>::SAMPLE_SIZE_SCALE{5.0};
-template<typename POINT>
-const double CEnsemble<POINT>::NEIGHBOURHOOD_FRACTION{0.01};
 }
 
 //! \brief Utilities for computing outlier scores for collections of points.
 class MATHS_EXPORT COutliers : private core::CNonInstantiatable {
 public:
     using TDoubleVec = outliers_detail::TDoubleVec;
-    using TDoubleVecVec = outliers_detail::TDoubleVecVec;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TProgressCallback = outliers_detail::TProgressCallback;
+    using TMemoryUsageCallback = outliers_detail::TMemoryUsageCallback;
     template<typename POINT>
     using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
-    template<typename POINT>
-    using TEnsemble = outliers_detail::CEnsemble<POINT>;
-    template<typename POINT>
-    using TLof =
-        outliers_detail::CLof<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>>;
 
     //! The outlier detection methods which are available.
     enum EMethod {
@@ -636,51 +636,53 @@ public:
         E_Ensemble
     };
 
+    //! \brief The parameters for compute.
+    struct SComputeParameters {
+        //! The number of threads available.
+        std::size_t s_NumberThreads;
+        //! The number of partitions to use.
+        std::size_t s_NumberPartitions;
+        //! Standardize the column values before computing outlier scores.
+        bool s_StandardizeColumns;
+        //! The methods to use.
+        EMethod s_Method;
+        //! The number of neighbours to use if non-zero.
+        std::size_t s_NumberNeighbours;
+        //! If true also compute the feature influence.
+        bool s_ComputeFeatureInfluence;
+        //! The fraction of true outliers amoung the points.
+        double s_OutlierFraction;
+    };
+
 public:
     //! Compute outliers for \p frame and write to a new column.
-    static void compute(std::size_t numberThreads,
-                        std::size_t numberPartitions,
+    //!
+    //! \param[in] params The calculation parameters.
+    //! \param[in] frame The data frame whose rows hold the coordinated of
+    //! the points for which to compute outliers.
+    //! \param[in] recordProgress A function to which fractional progress
+    //! is written.
+    //! \param[in] recordMemoryUsage A function to which changes in the
+    //! memory being used is written.
+    static void compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress = noop);
+                        TProgressCallback recordProgress = noopRecordProgress,
+                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
 
     //! Estimate the amount of memory that will be used computing outliers
     //! for a data frame.
     //!
-    //! \param[in] method The method that will be used.
-    //! \param[in] k The number of nearest neighbours which will be used.
+    //! \param[in] params The calculation parameters.
     //! \param[in] totalNumberPoints The total number of points for which
     //! outlier scores will be computed.
     //! \param[in] partitionNumberPoints The number of points per partition
     //! for which outlier scores will be computed.
     //! \param[in] dimension The dimension of the points for which outliers
     //! will be computed.
-    template<typename POINT>
-    static std::size_t estimateComputeMemoryUsage(EMethod method,
-                                                  std::size_t k,
-                                                  std::size_t totalNumberPoints,
-                                                  std::size_t partitionNumberPoints,
-                                                  std::size_t dimension) {
-        auto methodSize = [method, k, partitionNumberPoints](std::size_t) {
-            return method == E_Lof
-                       ? TLof<POINT>::estimateOwnMemoryOverhead(k, partitionNumberPoints)
-                       : 0;
-        };
-        return TEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-            methodSize, 1, totalNumberPoints, partitionNumberPoints, dimension);
-    }
-
-    //! Overload of estimateComputeMemoryUsage for default behaviour.
-    template<typename POINT>
-    static std::size_t estimateComputeMemoryUsage(std::size_t totalNumberPoints,
-                                                  std::size_t partitionNumberPoints,
-                                                  std::size_t dimension) {
-        auto methodSize = [partitionNumberPoints](std::size_t k_) {
-            // On average half of models use CLof.
-            return TLof<POINT>::estimateOwnMemoryOverhead(k_, partitionNumberPoints) / 2;
-        };
-        return TEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-            methodSize, 2, totalNumberPoints, partitionNumberPoints, dimension);
-    }
+    static std::size_t estimateMemoryUsedByCompute(const SComputeParameters& params,
+                                                   std::size_t totalNumberPoints,
+                                                   std::size_t partitionNumberPoints,
+                                                   std::size_t dimension);
 
     //! \name Test Interface
     //@{
@@ -732,6 +734,14 @@ public:
     //@}
 
 private:
+    //! Estimate the amount of memory that will be used computing outliers
+    //! for a data frame using POINT point type.
+    template<typename POINT>
+    static std::size_t estimateMemoryUsedByCompute(const SComputeParameters& params,
+                                                   std::size_t totalNumberPoints,
+                                                   std::size_t partitionNumberPoints,
+                                                   std::size_t dimension);
+
     //! Compute normalised outlier scores for a specified method.
     template<template<typename, typename> class METHOD, typename POINT>
     static void compute(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
@@ -742,12 +752,13 @@ private:
             lookup.build(annotatedPoints);
 
             METHOD<TAnnotatedPoint<POINT>, CKdTree<TAnnotatedPoint<POINT>>> scorer{
-                k, noop, std::move(lookup)};
+                false, k, noopRecordProgress, std::move(lookup)};
+            auto scores_ = scorer.run(annotatedPoints, annotatedPoints.size());
 
-            TDoubleVecVec scores_;
-            scorer.run(annotatedPoints, annotatedPoints.size(), scores_);
-
-            scores = std::move(scores_[0]);
+            scores.resize(scores_[0].size());
+            for (std::size_t i = 0; i < scores.size(); ++i) {
+                scores[i] = scores_[0][i][0];
+            }
         }
     }
 
@@ -763,7 +774,8 @@ private:
     }
 
 private:
-    static void noop(double);
+    static void noopRecordProgress(double);
+    static void noopRecordMemoryUsage(std::int64_t);
 };
 }
 }

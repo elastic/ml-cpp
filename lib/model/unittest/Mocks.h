@@ -148,6 +148,7 @@ public:
 
 private:
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
     virtual const CAnomalyDetectorModel& base() const;
     virtual double countVarianceScale(model_t::EFeature feature,
                                       std::size_t byFieldId,

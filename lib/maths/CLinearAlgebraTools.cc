@@ -157,14 +157,14 @@ public:
             LOG_TRACE(<< "# intervals = " << numberIntervals);
             result.reserve(rank * numberIntervals);
             double scale = std::sqrt(static_cast<double>(rank));
-            LOG_TRACE(<< "scale = " << scale)
+            LOG_TRACE(<< "scale = " << scale);
 
             for (std::size_t i = 0u; i < rank; ++i) {
                 VECTOR_PRECISE u(fromDenseVector(covariance.matrixU().col(i)));
                 try {
                     double variance = covariance.singularValues()(i);
                     boost::math::normal normal(0.0, std::sqrt(variance));
-                    LOG_TRACE(<< "[U]_{.i} = " << covariance.matrixU().col(i).transpose())
+                    LOG_TRACE(<< "[U]_{.i} = " << covariance.matrixU().col(i).transpose());
                     LOG_TRACE(<< "variance = " << variance);
                     LOG_TRACE(<< "u = " << u);
 

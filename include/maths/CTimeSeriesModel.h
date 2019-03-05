@@ -147,7 +147,9 @@ public:
     //! Forecast the time series and get its \p confidenceInterval
     //! percentage confidence interval between \p startTime and
     //! \p endTime.
-    virtual bool forecast(core_t::TTime startTime,
+    virtual bool forecast(core_t::TTime firstDataTime,
+                          core_t::TTime lastDataTime,
+                          core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
                           const TDouble2Vec& minimum,
@@ -617,7 +619,9 @@ public:
                                                const TDouble2VecWeightsAry& weights) const;
 
     //! Not currently supported.
-    virtual bool forecast(core_t::TTime startTime,
+    virtual bool forecast(core_t::TTime firstDataTime,
+                          core_t::TTime lastDataTime,
+                          core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
                           const TDouble2Vec& minimum,

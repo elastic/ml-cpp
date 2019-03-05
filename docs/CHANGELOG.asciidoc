@@ -37,9 +37,18 @@
 
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
+== {es} version 7.1.0
+
+Remove hard limit for maximum forecast interval and limit based on the time interval of data added
+to the model. (See {pull}214[#214].)
+
 == {es} version 7.0.0-alpha1
 
 == {es} version 6.7.0
+
+== {es} version 6.6.2
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
 
 === Enhancements
 

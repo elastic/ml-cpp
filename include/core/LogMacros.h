@@ -21,9 +21,12 @@
 #define LOG_TRACE(message)                                                     \
     LOG4CXX_INFO(ml::core::CLogger::instance().logger(), "" message)
 #elif defined(EXCLUDE_TRACE_LOGGING)
-// When this option is set TRACE logging is expanded to nothing - this avoids
-// the overhead of checking the logging level at all for this low level logging
-#define LOG_TRACE(message)
+// When this option is set TRACE logging is expanded to dummy code that can be
+// eliminated from the compiled program (certainly when optimisation is
+// enabled) - this avoids the overhead of checking the logging level at all for
+// this low level logging
+#define LOG_TRACE(message)                                                     \
+    static_cast<void>([&]() { std::ostringstream() << "" message; })
 #else
 #define LOG_TRACE(message)                                                     \
     LOG4CXX_TRACE(ml::core::CLogger::instance().logger(), "" message)

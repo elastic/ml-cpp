@@ -15,6 +15,7 @@
 #include <model/ModelTypes.h>
 
 #include <boost/bind.hpp>
+#include <boost/make_unique.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -43,7 +44,6 @@ const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISKSPACE(
     "Forecast cannot be executed as models exceed internal memory limit and available disk space is insufficient");
 const std::string CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS("Forecast is not supported for population analysis");
 const std::string CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS("Forecast is not supported for the used functions");
-const std::string CForecastRunner::WARNING_DURATION_LIMIT("Forecast duration exceeds internal limit, setting to 8 weeks");
 const std::string CForecastRunner::WARNING_INVALID_EXPIRY("Forecast expires_in invalid, setting to 14 days");
 const std::string CForecastRunner::INFO_DEFAULT_DURATION("Forecast duration not specified, setting to 1 day");
 const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not specified, setting to 14 days");
@@ -150,21 +150,25 @@ void CForecastRunner::forecastWorker() {
 
                 // initialize persistence restore exactly once
                 if (!series.s_ToForecastPersisted.empty()) {
-                    modelRestore.reset(new model::CForecastModelPersist::CRestore(
+                    modelRestore = boost::make_unique<model::CForecastModelPersist::CRestore>(
                         series.s_ModelParams, series.s_MinimumSeasonalVarianceScale,
-                        series.s_ToForecastPersisted));
+                        series.s_ToForecastPersisted);
                 }
 
                 while (series.s_ToForecast.empty() == false || modelRestore != nullptr) {
                     // check if we should backfill from persistence
                     if (series.s_ToForecast.empty()) {
                         TMathsModelPtr model;
+                        core_t::TTime firstDataTime;
+                        core_t::TTime lastDataTime;
                         model_t::EFeature feature;
                         std::string byFieldValue;
 
-                        if (modelRestore->nextModel(model, feature, byFieldValue)) {
+                        if (modelRestore->nextModel(model, firstDataTime, lastDataTime,
+                                                    feature, byFieldValue)) {
                             series.s_ToForecast.emplace_back(
-                                feature, std::move(model), byFieldValue);
+                                feature, byFieldValue, std::move(model),
+                                firstDataTime, lastDataTime);
                         } else {
                             // restorer exhausted, no need for further restoring
                             modelRestore.reset();
@@ -442,17 +446,6 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     if (forecastJob.s_CreateTime == 0) {
         errorFunction(forecastJob, ERROR_NO_CREATE_TIME);
         return false;
-    }
-
-    // Limit the forecast end time to 8 weeks after the last result
-    // to be replaced by https://github.com/elastic/machine-learning-cpp/issues/443
-    // TODO this is a temporary fix to prevent the analysis blowing up
-    // if you change this value, also change the log string
-    core_t::TTime maxDuration = 8 * core::constants::WEEK;
-    if (forecastJob.s_Duration > maxDuration) {
-        LOG_INFO(<< WARNING_DURATION_LIMIT);
-        forecastJob.s_Messages.insert(WARNING_DURATION_LIMIT);
-        forecastJob.s_Duration = maxDuration;
     }
 
     if (forecastJob.s_Duration == 0) {

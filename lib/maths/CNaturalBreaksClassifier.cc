@@ -121,7 +121,7 @@ double CNaturalBreaksClassifier::percentile(double p) const {
                            ? boost::math::quantile(normal, q)
                            : (2.0 * q - 1.0) * boost::numeric::bounds<double>::highest();
             LOG_TRACE(<< "N(" << mean << "," << deviation << ")"
-                      << ", q = " << q << ", x = " << x)
+                      << ", q = " << q << ", x = " << x);
 
             if (i > 0) {
                 // Left truncate by the assignment boundary between

@@ -19,7 +19,6 @@ public:
     void testPopulation();
     void testRare();
     void testInsufficientData();
-    void testValidateDuration();
     void testValidateDefaultExpiry();
     void testValidateNoExpiry();
     void testValidateInvalidExpiry();

@@ -202,6 +202,11 @@ const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
     return m_Model->model(byFieldId);
 }
 
+CMockModelDetailsView::TTimeTimePr
+CMockModelDetailsView::dataTimeInterval(std::size_t /*byFieldId*/) const {
+    return {0, 0};
+}
+
 const CAnomalyDetectorModel& CMockModelDetailsView::base() const {
     return *m_Model;
 }
