@@ -122,7 +122,7 @@ bool get_conjunction_of_all(std::vector<std::future<bool>>& futures) {
     // which a worker thread reads. We just rethrow the _last_ exception we received.
     std::exception_ptr e;
     bool result{std::accumulate(futures.begin(), futures.end(), true,
-                                [&e](bool conjunction, future<bool>& future) {
+                                [&e](bool conjunction, std::future<bool>& future) {
                                     try {
                                         // Don't shortcircuit
                                         bool value = future.get();
