@@ -14,6 +14,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <numeric>
 #include <vector>
 
 using namespace ml;
@@ -125,6 +126,7 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
 
 void CDataFrameUtilsTest::testColumnQuantiles() {
 
+    using TSizeVec = std::vector<std::size_t>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
@@ -159,6 +161,9 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
     TFactoryFunc makeMainMemory{
         [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
 
+    TSizeVec columnMask(cols);
+    std::iota(columnMask.begin(), columnMask.end(), 0);
+
     core::stopDefaultAsyncExecutor();
 
     for (auto threads : {1, 4}) {
@@ -178,7 +183,8 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
             frame->finishWritingRows();
 
             TQuantileSketchVec actualQuantiles(4, {maths::CQuantileSketch::E_Linear, 100});
-            CPPUNIT_ASSERT(maths::CDataFrameUtils::columnQuantiles(threads, *frame, actualQuantiles));
+            CPPUNIT_ASSERT(maths::CDataFrameUtils::columnQuantiles(
+                threads, *frame, columnMask, actualQuantiles));
 
             // Check the quantile sketches match.
 
