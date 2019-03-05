@@ -190,14 +190,16 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
                     double qa, qe;
                     CPPUNIT_ASSERT(expectedQuantiles[j].quantile(x, qe));
                     CPPUNIT_ASSERT(actualQuantiles[j].quantile(x, qa));
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(qe, qa, 0.01 * std::max(std::fabs(qa), 1.5));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                        qe, qa, 0.01 * std::max(std::fabs(qa), 1.5));
                     columnsMae[j].add(std::fabs(qa - qe));
                 }
             }
 
             TMeanAccumulator mae;
             for (std::size_t i = 0; i < columnsMae.size(); ++i) {
-                LOG_DEBUG(<< "Column MAE = " << maths::CBasicStatistics::mean(columnsMae[i]));
+                LOG_DEBUG(<< "Column MAE = "
+                          << maths::CBasicStatistics::mean(columnsMae[i]));
                 CPPUNIT_ASSERT(maths::CBasicStatistics::mean(columnsMae[i]) < 0.01);
                 mae += columnsMae[i];
             }
@@ -218,8 +220,7 @@ CppUnit::Test* CDataFrameUtilsTest::suite() {
         "CDataFrameUtilsTest::testStandardizeColumns",
         &CDataFrameUtilsTest::testStandardizeColumns));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
-        "CDataFrameUtilsTest::testColumnQuantiles",
-        &CDataFrameUtilsTest::testColumnQuantiles));
+        "CDataFrameUtilsTest::testColumnQuantiles", &CDataFrameUtilsTest::testColumnQuantiles));
 
     return suiteOfTests;
 }
