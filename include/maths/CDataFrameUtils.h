@@ -15,6 +15,7 @@
 #include <maths/ImportExport.h>
 
 #include <functional>
+#include <vector>
 
 namespace ml {
 namespace maths {
