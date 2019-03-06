@@ -2107,11 +2107,10 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::decayRate(double de
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWithBadValues(core_t::TTime time) {
-    std::size_t n{m_Components.size()};
 
-    TBoolVec remove(n, false);
+    TBoolVec remove(m_Components.size(), false);
     bool anyBadComponentsFound{false};
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
         const CSeasonalTime& time_{m_Components[i].time()};
         if (m_Components[i].isBad()) {
             LOG_DEBUG(<< "Removing seasonal component"
@@ -2554,26 +2553,23 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::prune(core_t::TTime
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::removeComponentsWithBadValues(core_t::TTime time) {
-    std::size_t n{m_Components.size()};
 
-    if (n > 1) {
-        TBoolVec remove(m_Components.size(), false);
-        bool anyBadComponentsFound{false};
-        for (std::size_t i = 0u; i < m_Components.size(); ++i) {
-            if (m_Components[i].isBad()) {
-                LOG_DEBUG(<< "Removing calendar component"
-                          << " '" << m_Components[i].feature().print()
-                          << "' at " << time << ". Invalid value detected.");
-                remove[i] = true;
-                anyBadComponentsFound |= true;
-            }
+    TBoolVec remove(m_Components.size(), false);
+    bool anyBadComponentsFound{false};
+    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+        if (m_Components[i].isBad()) {
+            LOG_DEBUG(<< "Removing calendar component"
+                      << " '" << m_Components[i].feature().print()
+                      << "' at " << time << ". Invalid value detected.");
+            remove[i] = true;
+            anyBadComponentsFound |= true;
         }
+    }
 
-        if (anyBadComponentsFound) {
-            CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
-                                            [](bool remove_) { return remove_; });
-            return true;
-        }
+    if (anyBadComponentsFound) {
+        CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
+                                        [](bool remove_) { return remove_; });
+        return true;
     }
 
     return false;

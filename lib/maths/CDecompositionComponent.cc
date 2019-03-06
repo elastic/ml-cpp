@@ -254,10 +254,6 @@ bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(
         this->interpolate(knots, values, variances, boundary);
     }
 
-    LOG_DEBUG(<< "knots = " << core::CContainerPrinter::print(knots));
-    LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
-    LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
-
     return true;
 }
 
