@@ -107,6 +107,7 @@ void CDecompositionComponent::interpolate(const TDoubleVec& knots,
                                           const TDoubleVec& values,
                                           const TDoubleVec& variances) {
     m_Splines.interpolate(knots, values, variances, m_BoundaryCondition);
+
     m_MeanValue = this->valueSpline().mean();
     m_MeanVariance = this->varianceSpline().mean();
 }
@@ -123,9 +124,9 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
     // asymptotically normal with mean equal to the sample mean
     // and variance equal to the sample variance divided by root
     // of the number of samples.
-
     if (this->initialized()) {
         double m{this->valueSpline().value(offset)};
+
         if (confidence == 0.0) {
             return {m, m};
         }

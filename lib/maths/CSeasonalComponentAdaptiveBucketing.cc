@@ -19,6 +19,8 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraTools.h>
+#include <maths/CMathsFuncs.h>
+#include <maths/CMathsFuncsDetail.h>
 #include <maths/CRegression.h>
 #include <maths/CRegressionDetail.h>
 #include <maths/CSeasonalTime.h>
@@ -52,6 +54,13 @@ double gradient(const TRegression& r) {
     TRegression::TArray params;
     r.parameters(params);
     return params[1];
+}
+
+//! Safely promote the type of the vector statistics value returned by
+//! CBasicStatistics::mean to a type accepted by CMathsFuncs::isFinite
+template<typename T>
+typename SPromoted<T>::Type promote(const T& vectorStat) {
+    return (vectorStat);
 }
 
 // Version 6.3
@@ -578,6 +587,11 @@ std::string CSeasonalComponentAdaptiveBucketing::name() const {
            std::to_string(this->minimumBucketLength()) + "]";
 }
 
+bool CSeasonalComponentAdaptiveBucketing::isBad() const {
+    return std::any_of(m_Buckets.begin(), m_Buckets.end(),
+                       [](const auto& bucket) { return bucket.isBad(); });
+}
+
 double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time) const {
     return m_Time->regressionInterval(
         std::min_element(m_Buckets.begin(), m_Buckets.end(),
@@ -626,6 +640,12 @@ uint64_t CSeasonalComponentAdaptiveBucketing::SBucket::checksum(uint64_t seed) c
     seed = CChecksum::calculate(seed, s_Variance);
     seed = CChecksum::calculate(seed, s_FirstUpdate);
     return CChecksum::calculate(seed, s_LastUpdate);
+}
+
+bool CSeasonalComponentAdaptiveBucketing::SBucket::isBad() const {
+    return ((CMathsFuncs::isFinite(
+                 promote(CBasicStatistics::mean(s_Regression.statistic()))) == false) ||
+            (CMathsFuncs::isFinite(s_Variance) == false));
 }
 }
 }
