@@ -113,6 +113,10 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     return true;
 }
 
+double CDataFrameUtils::unitWeight(const TRowRef&) {
+    return 1.0;
+}
+
 bool CDataFrameUtils::isMissing(double x) {
     return CMathsFuncs::isFinite(x) == false;
 }
