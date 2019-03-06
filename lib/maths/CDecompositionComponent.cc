@@ -124,14 +124,6 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
     // asymptotically normal with mean equal to the sample mean
     // and variance equal to the sample variance divided by root
     // of the number of samples.
-
-    // We sanity check that neither m nor sd are NaN values
-    // This is an extremely rare edge case as checks elsewhere prevent NaNs from
-    // being added to the models. As yet it is unknown how NaNs could be returned
-    // from the splines, only that they do occur.
-
-    // Also check that the provided offset is valid as this is a potential
-    // source of NaNs being generated.
     if (this->initialized()) {
         double m{this->valueSpline().value(offset)};
 
