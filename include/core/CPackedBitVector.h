@@ -4,14 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_maths_CPackedBitVector_h
-#define INCLUDED_ml_maths_CPackedBitVector_h
+#ifndef INCLUDED_ml_core_CPackedBitVector_h
+#define INCLUDED_ml_core_CPackedBitVector_h
 
 #include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-
-#include <maths/ImportExport.h>
+#include <core/ImportExport.h>
 
 #include <boost/operators.hpp>
 
@@ -20,10 +19,10 @@
 #include <string>
 #include <vector>
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ml {
-namespace maths {
+namespace core {
 
 //! \brief A compact representation of binary vector.
 //!
@@ -43,7 +42,7 @@ namespace maths {
 //! the first bit in the vector and can deduce all other values by the
 //! number of runs in between. In practice we store one extra bit, the
 //! vector parity to allow us to extend the vector efficiently.
-class MATHS_EXPORT CPackedBitVector
+class CORE_EXPORT CPackedBitVector
     : private boost::equality_comparable<CPackedBitVector, boost::partially_ordered<CPackedBitVector>> {
 public:
     using TBoolVec = std::vector<bool>;
@@ -100,28 +99,28 @@ public:
     TBoolVec toBitVector() const;
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
 private:
-    using TUInt8Vec = std::vector<uint8_t>;
+    using TUInt8Vec = std::vector<std::uint8_t>;
 
 private:
     //! The maximum permitted run length. Longer runs are encoded
     //! by stringing together a number of maximum length runs.
-    static const uint8_t MAX_RUN_LENGTH;
+    static const std::uint8_t MAX_RUN_LENGTH;
 
 private:
     // Note that the bools are 1 byte aligned so the following
     // three variables will be packed into the 64 bits.
 
     //! The dimension of the vector.
-    uint32_t m_Dimension;
+    std::uint32_t m_Dimension;
 
     //! The value of the first component in the vector.
     bool m_First;
@@ -137,9 +136,9 @@ private:
 };
 
 //! Output for debug.
-MATHS_EXPORT
+CORE_EXPORT
 std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v);
 }
 }
 
-#endif // INCLUDED_ml_maths_CPackedBitVector_h
+#endif // INCLUDED_ml_core_CPackedBitVector_h

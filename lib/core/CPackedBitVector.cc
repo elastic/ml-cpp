@@ -4,17 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CPackedBitVector.h>
+#include <core/CPackedBitVector.h>
 
+#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CChecksum.h>
-
 namespace ml {
-namespace maths {
+namespace core {
 
 CPackedBitVector::CPackedBitVector()
     : m_Dimension(0), m_First(false), m_Parity(true) {
@@ -105,34 +104,34 @@ void CPackedBitVector::extend(bool bit) {
 
 bool CPackedBitVector::fromDelimited(const std::string& str) {
     std::size_t last = 0u;
-    std::size_t pos = str.find_first_of(core::CPersistUtils::DELIMITER, last);
+    std::size_t pos = str.find_first_of(CPersistUtils::DELIMITER, last);
     if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
+        CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
 
     last = pos;
-    pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
+    pos = str.find_first_of(CPersistUtils::DELIMITER, last + 1);
     int first = 0;
     if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
+        CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
     m_First = (first != 0);
 
     last = pos;
-    pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
+    pos = str.find_first_of(CPersistUtils::DELIMITER, last + 1);
     int parity = 0;
     if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
+        CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
     m_Parity = (parity != 0);
 
-    if (core::CPersistUtils::fromString(str.substr(pos + 1), m_RunLengths) == false) {
+    if (CPersistUtils::fromString(str.substr(pos + 1), m_RunLengths) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
         return false;
     }
@@ -142,12 +141,10 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
 
 std::string CPackedBitVector::toDelimited() const {
     std::string result;
-    result += core::CStringUtils::typeToString(m_Dimension) + core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_First)) +
-              core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_Parity)) +
-              core::CPersistUtils::DELIMITER;
-    result += core::CPersistUtils::toString(m_RunLengths);
+    result += CStringUtils::typeToString(m_Dimension) + CPersistUtils::DELIMITER;
+    result += CStringUtils::typeToString(static_cast<int>(m_First)) + CPersistUtils::DELIMITER;
+    result += CStringUtils::typeToString(static_cast<int>(m_Parity)) + CPersistUtils::DELIMITER;
+    result += CPersistUtils::toString(m_RunLengths);
     return result;
 }
 
@@ -172,9 +169,12 @@ bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
 }
 
 bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
-    return COrderings::lexicographical_compare(m_Dimension, m_First, m_Parity,
-                                               m_RunLengths, rhs.m_Dimension, rhs.m_First,
-                                               rhs.m_Parity, rhs.m_RunLengths);
+#define LESS_OR_GREATER(a, b) if (a < b) { return true; } else if (b < a) { return false; }
+    LESS_OR_GREATER(m_Dimension, rhs.m_Dimension)
+    LESS_OR_GREATER(m_First, rhs.m_First)
+    LESS_OR_GREATER(m_Parity, rhs.m_Parity)
+    LESS_OR_GREATER(m_RunLengths, rhs.m_RunLengths)
+    return false;
 }
 
 CPackedBitVector CPackedBitVector::complement() const {
@@ -277,19 +277,21 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
 }
 
 uint64_t CPackedBitVector::checksum() const {
-    uint64_t seed = m_Dimension;
-    seed = CChecksum::calculate(seed, m_First);
-    seed = CChecksum::calculate(seed, m_Parity);
-    return CChecksum::calculate(seed, m_RunLengths);
+    std::uint64_t seed = m_Dimension;
+    seed = CHashing::hashCombine(seed, static_cast<std::uint64_t>(m_First));
+    seed = CHashing::hashCombine(seed, static_cast<std::uint64_t>(m_Parity));
+    return CHashing::murmurHash64(
+        m_RunLengths.data(),
+        static_cast<int>(sizeof(std::uint8_t) * m_RunLengths.size()), seed);
 }
 
-void CPackedBitVector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CPackedBitVector::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CPackedBitVector");
-    core::CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengths, mem);
+    CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengths, mem);
 }
 
 std::size_t CPackedBitVector::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_RunLengths);
+    return CMemory::dynamicSize(m_RunLengths);
 }
 
 const uint8_t CPackedBitVector::MAX_RUN_LENGTH = std::numeric_limits<uint8_t>::max();
@@ -299,9 +301,9 @@ std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v) {
         return o << "[]";
     }
 
-    o << '[' << core::CStringUtils::typeToString(static_cast<int>(v(0)));
+    o << '[' << CStringUtils::typeToString(static_cast<int>(v(0)));
     for (std::size_t i = 1u; i < v.dimension(); ++i) {
-        o << ' ' << core::CStringUtils::typeToString(static_cast<int>(v(i)));
+        o << ' ' << CStringUtils::typeToString(static_cast<int>(v(i)));
     }
     o << ']';
 
