@@ -133,6 +133,9 @@ public:
     //! Name of component
     virtual std::string name() const = 0;
 
+    //! Check that the state is valid.
+    virtual bool isBad() const = 0;
+
 protected:
     using TRestoreFunc = std::function<bool(core::CStateRestoreTraverser&)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
