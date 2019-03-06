@@ -140,6 +140,9 @@ public:
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;
 
+    //! Check that the state is valid.
+    bool isBad() const;
+
 private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(double decayRate,

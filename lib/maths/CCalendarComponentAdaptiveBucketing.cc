@@ -15,6 +15,7 @@
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
@@ -355,6 +356,14 @@ void CCalendarComponentAdaptiveBucketing::split(std::size_t bucket) {
 std::string CCalendarComponentAdaptiveBucketing::name() const {
     return "Calendar[" + std::to_string(this->decayRate()) + "," +
            std::to_string(this->minimumBucketLength()) + "]";
+}
+
+bool CCalendarComponentAdaptiveBucketing::isBad() const {
+    // check for bad values in both the means and the variances
+    return std::any_of(m_Values.begin(), m_Values.end(), [](const auto& value) {
+        return ((CMathsFuncs::isFinite(CBasicStatistics::mean(value)) == false) ||
+                (CMathsFuncs::isFinite(CBasicStatistics::variance(value))) == false);
+    });
 }
 }
 }
