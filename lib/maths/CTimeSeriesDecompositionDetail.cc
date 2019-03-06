@@ -2559,8 +2559,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::removeComponentsWit
     for (std::size_t i = 0u; i < m_Components.size(); ++i) {
         if (m_Components[i].isBad()) {
             LOG_DEBUG(<< "Removing calendar component"
-                      << " '" << m_Components[i].feature().print()
-                      << "' at " << time << ". Invalid value detected.");
+                      << " '" << m_Components[i].feature().print() << "' at "
+                      << time << ". Invalid value detected.");
             remove[i] = true;
             anyBadComponentsFound |= true;
         }
