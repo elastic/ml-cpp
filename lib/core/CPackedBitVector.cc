@@ -26,7 +26,7 @@ CPackedBitVector::CPackedBitVector(bool bit)
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
     : m_Dimension(static_cast<uint32_t>(dimension)), m_First(bit), m_Parity(true) {
     if (dimension > 0) {
-        std::size_t remainder = static_cast<std::size_t>(MAX_RUN_LENGTH);
+        std::size_t remainder{static_cast<std::size_t>(MAX_RUN_LENGTH)};
         for (/**/; remainder <= dimension;
              remainder += static_cast<std::size_t>(MAX_RUN_LENGTH)) {
             m_RunLengths.push_back(MAX_RUN_LENGTH);
@@ -39,8 +39,8 @@ CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
 CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
     : m_Dimension(static_cast<uint32_t>(bits.size())),
       m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
-    std::size_t length = 1u;
-    for (std::size_t i = 1u; i < bits.size(); ++i) {
+    std::size_t length{1};
+    for (std::size_t i = 1; i < bits.size(); ++i) {
         if (bits[i] == bits[i - 1]) {
             if (++length == static_cast<std::size_t>(MAX_RUN_LENGTH)) {
                 m_RunLengths.push_back(MAX_RUN_LENGTH);
@@ -68,7 +68,7 @@ void CPackedBitVector::contract() {
     }
 
     if (m_RunLengths.front() == MAX_RUN_LENGTH) {
-        std::size_t i = 1u;
+        std::size_t i{1};
         for (/**/; m_RunLengths[i] == MAX_RUN_LENGTH && i < m_RunLengths.size(); ++i) {
         }
         if (m_RunLengths[i] == 0) {
@@ -84,26 +84,27 @@ void CPackedBitVector::contract() {
     }
 }
 
-void CPackedBitVector::extend(bool bit) {
-    ++m_Dimension;
+void CPackedBitVector::extend(bool bit, std::size_t n) {
+    m_Dimension += n;
 
-    if (m_Dimension == 1) {
+    if (m_Dimension == n) {
         m_First = bit;
         m_Parity = true;
-        m_RunLengths.push_back(1);
+        appendRun(n, m_RunLengths);
     } else if (m_Parity ? (bit != m_First) : (bit == m_First)) {
         m_Parity = !m_Parity;
-        m_RunLengths.push_back(1);
-    } else if (m_RunLengths.back() + 1 == MAX_RUN_LENGTH) {
-        ++m_RunLengths.back();
-        m_RunLengths.push_back(0);
+        appendNewRun(n, m_RunLengths);
+    } else if (m_RunLengths.back() + n < MAX_RUN_LENGTH) {
+        m_RunLengths.back() += n;
     } else {
-        ++m_RunLengths.back();
+        n -= (MAX_RUN_LENGTH - m_RunLengths.back());
+        m_RunLengths.back() = MAX_RUN_LENGTH;
+        appendRun(n, m_RunLengths);
     }
 }
 
 bool CPackedBitVector::fromDelimited(const std::string& str) {
-    std::size_t last = 0u;
+    std::size_t last{0};
     std::size_t pos = str.find_first_of(CPersistUtils::DELIMITER, last);
     if (pos == std::string::npos ||
         CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
@@ -113,7 +114,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
 
     last = pos;
     pos = str.find_first_of(CPersistUtils::DELIMITER, last + 1);
-    int first = 0;
+    int first{0};
     if (pos == std::string::npos ||
         CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
         LOG_ERROR(<< "Invalid packed vector in " << str);
@@ -148,13 +149,61 @@ std::string CPackedBitVector::toDelimited() const {
     return result;
 }
 
+bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
+    return m_Dimension == other.m_Dimension && m_First == other.m_First &&
+           m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
+}
+
+bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
+#define LESS_OR_GREATER(a, b)                                                  \
+    if (a < b) {                                                               \
+        return true;                                                           \
+    } else if (b < a) {                                                        \
+        return false;                                                          \
+    }
+    LESS_OR_GREATER(m_Dimension, rhs.m_Dimension)
+    LESS_OR_GREATER(m_First, rhs.m_First)
+    LESS_OR_GREATER(m_Parity, rhs.m_Parity)
+    LESS_OR_GREATER(m_RunLengths, rhs.m_RunLengths)
+    return false;
+}
+
+CPackedBitVector CPackedBitVector::operator~() const {
+    CPackedBitVector result(*this);
+    result.m_First = !result.m_First;
+    return result;
+}
+
+const CPackedBitVector& CPackedBitVector::operator&=(const CPackedBitVector& other) {
+    this->bitwise(E_AND, other);
+    return *this;
+}
+
+const CPackedBitVector& CPackedBitVector::operator|=(const CPackedBitVector& other) {
+    this->bitwise(E_OR, other);
+    return *this;
+}
+
+const CPackedBitVector& CPackedBitVector::operator^=(const CPackedBitVector& other) {
+    this->bitwise(E_XOR, other);
+    return *this;
+}
+
+CPackedBitVector::COneBitIndexConstIterator CPackedBitVector::beginOneBits() const {
+    return {m_First, m_RunLengths.begin(), m_RunLengths.end()};
+}
+
+CPackedBitVector::COneBitIndexConstIterator CPackedBitVector::endOneBits() const {
+    return {m_Dimension, m_RunLengths.end()};
+}
+
 std::size_t CPackedBitVector::dimension() const {
     return m_Dimension;
 }
 
 bool CPackedBitVector::operator()(std::size_t i) const {
-    bool parity = true;
-    for (std::size_t j = 0u, k = static_cast<std::size_t>(m_RunLengths[j]);
+    bool parity{true};
+    for (std::size_t j = 0, k = static_cast<std::size_t>(m_RunLengths[j]);
          k <= i; k += static_cast<std::size_t>(m_RunLengths[++j])) {
         if (m_RunLengths[j] != MAX_RUN_LENGTH) {
             parity = !parity;
@@ -163,95 +212,13 @@ bool CPackedBitVector::operator()(std::size_t i) const {
     return parity ? m_First : !m_First;
 }
 
-bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
-    return m_Dimension == other.m_Dimension && m_First == other.m_First &&
-           m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
-}
-
-bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
-#define LESS_OR_GREATER(a, b) if (a < b) { return true; } else if (b < a) { return false; }
-    LESS_OR_GREATER(m_Dimension, rhs.m_Dimension)
-    LESS_OR_GREATER(m_First, rhs.m_First)
-    LESS_OR_GREATER(m_Parity, rhs.m_Parity)
-    LESS_OR_GREATER(m_RunLengths, rhs.m_RunLengths)
-    return false;
-}
-
-CPackedBitVector CPackedBitVector::complement() const {
-    CPackedBitVector result(*this);
-    result.m_First = !result.m_First;
-    return result;
-}
-
 double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) const {
-    // This is just a line scan over the run lengths keeping
-    // track of the parities of both vectors.
 
-    double result = 0.0;
+    double result{0.0};
 
-    if (m_Dimension != covector.dimension()) {
-        LOG_ERROR(<< "Dimension mismatch " << m_Dimension << " vs " << covector.dimension());
-        return result;
-    }
-
-    int value = static_cast<int>(m_First);
-    int covalue = static_cast<int>(covector.m_First);
-    std::size_t length = static_cast<std::size_t>(m_RunLengths[0]);
-    std::size_t colength = static_cast<std::size_t>(covector.m_RunLengths[0]);
-    std::size_t pos = length;
-    std::size_t copos = colength;
-
-    for (std::size_t i = 0u, j = 0u; pos < m_Dimension || copos < m_Dimension;
-         /**/) {
-        std::size_t run = std::min(pos, copos) - std::max(pos - length, copos - colength);
-        switch (op) {
-        case E_AND:
-            result += static_cast<double>((value & covalue) * run);
-            break;
-        case E_OR:
-            result += static_cast<double>((value | covalue) * run);
-            break;
-        case E_XOR:
-            result += static_cast<double>((value ^ covalue) * run);
-            break;
-        }
-
-        if (pos < copos) {
-            if (length != MAX_RUN_LENGTH) {
-                value = 1 - value;
-            }
-            length = static_cast<std::size_t>(m_RunLengths[++i]);
-            pos += length;
-        } else if (copos < pos) {
-            if (colength != MAX_RUN_LENGTH) {
-                covalue = 1 - covalue;
-            }
-            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
-            copos += colength;
-        } else {
-            if (length != MAX_RUN_LENGTH) {
-                value = 1 - value;
-                covalue = 1 - covalue;
-            }
-            length = static_cast<std::size_t>(m_RunLengths[++i]);
-            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
-            pos += length;
-            copos += colength;
-        }
-    }
-
-    std::size_t run = std::min(length, colength);
-    switch (op) {
-    case E_AND:
-        result += static_cast<double>((value & covalue) * run);
-        break;
-    case E_OR:
-        result += static_cast<double>((value | covalue) * run);
-        break;
-    case E_XOR:
-        result += static_cast<double>((value ^ covalue) * run);
-        break;
-    }
+    this->lineScan(covector, [op, &result](int value, int covalue, std::size_t run) {
+        result += static_cast<double>(bit(op, value, covalue)) * run;
+    });
 
     return result;
 }
@@ -294,7 +261,169 @@ std::size_t CPackedBitVector::memoryUsage() const {
     return CMemory::dynamicSize(m_RunLengths);
 }
 
-const uint8_t CPackedBitVector::MAX_RUN_LENGTH = std::numeric_limits<uint8_t>::max();
+void CPackedBitVector::bitwise(EOperation op, const CPackedBitVector& other) {
+
+    bool first{bit(op, m_First, other.m_First)};
+    bool parity{true};
+    TUInt8Vec runLengths;
+
+    int last{static_cast<int>(first)};
+    std::size_t cumulativeRun{0};
+
+    auto bitwiseOp = [&](int value, int covalue, std::size_t run) mutable {
+        value = bit(op, value, covalue);
+        if (last != value) {
+            parity = !parity;
+            appendNewRun(cumulativeRun, runLengths);
+            last = 1 - last;
+            cumulativeRun = run;
+        } else {
+            cumulativeRun += run;
+        }
+    };
+
+    if (this->lineScan(other, bitwiseOp)) {
+
+        m_First = first;
+        m_Parity = parity;
+
+        // Flush the last value.
+        switch (op) {
+        case E_AND:
+            last == 0 ? bitwiseOp(1, 1, 0) : bitwiseOp(0, 0, 0);
+            break;
+        case E_OR:
+            last == 0 ? bitwiseOp(1, 1, 0) : bitwiseOp(0, 0, 0);
+            break;
+        case E_XOR:
+            last == 0 ? bitwiseOp(1, 0, 0) : bitwiseOp(0, 0, 0);
+            break;
+        }
+
+        runLengths.shrink_to_fit();
+        m_RunLengths = std::move(runLengths);
+    }
+}
+template<typename RUN_ACTION>
+bool CPackedBitVector::lineScan(const CPackedBitVector& covector, RUN_ACTION action) const {
+    // This is just a line scan over the run lengths keeping track of the
+    // parities of both vectors.
+
+    if (m_Dimension != covector.dimension()) {
+        LOG_ERROR(<< "Dimension mismatch " << m_Dimension << " vs " << covector.dimension());
+        return false;
+    }
+
+    int value{static_cast<int>(m_First)};
+    int covalue{static_cast<int>(covector.m_First)};
+    std::size_t length{static_cast<std::size_t>(m_RunLengths[0])};
+    std::size_t colength{static_cast<std::size_t>(covector.m_RunLengths[0])};
+    std::size_t pos{length};
+    std::size_t copos{colength};
+
+    for (std::size_t i = 0, j = 0; pos < m_Dimension || copos < m_Dimension; /**/) {
+
+        std::size_t run{std::min(pos, copos) - std::max(pos - length, copos - colength)};
+        action(value, covalue, run);
+
+        if (pos < copos) {
+            if (length != MAX_RUN_LENGTH) {
+                value = 1 - value;
+            }
+            length = static_cast<std::size_t>(m_RunLengths[++i]);
+            pos += length;
+        } else if (copos < pos) {
+            if (colength != MAX_RUN_LENGTH) {
+                covalue = 1 - covalue;
+            }
+            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
+            copos += colength;
+        } else {
+            if (length != MAX_RUN_LENGTH) {
+                value = 1 - value;
+                covalue = 1 - covalue;
+            }
+            length = static_cast<std::size_t>(m_RunLengths[++i]);
+            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
+            pos += length;
+            copos += colength;
+        }
+    }
+
+    std::size_t run{std::min(length, colength)};
+    action(value, covalue, run);
+
+    return true;
+}
+
+void CPackedBitVector::appendNewRun(std::size_t run, TUInt8Vec& runLengths) {
+    if (runLengths.size() > 0 && runLengths.back() == MAX_RUN_LENGTH) {
+        runLengths.push_back(0);
+    }
+    appendRun(run, runLengths);
+}
+
+void CPackedBitVector::appendRun(std::size_t run, TUInt8Vec& runLengths) {
+    for (/**/; run > MAX_RUN_LENGTH; run -= MAX_RUN_LENGTH) {
+        runLengths.push_back(MAX_RUN_LENGTH);
+    }
+    runLengths.push_back(static_cast<std::uint8_t>(run));
+}
+
+const std::uint8_t CPackedBitVector::MAX_RUN_LENGTH =
+    std::numeric_limits<std::uint8_t>::max();
+
+CPackedBitVector::COneBitIndexConstIterator::COneBitIndexConstIterator(bool first,
+                                                                       TUInt8VecCItr runLengthsItr,
+                                                                       TUInt8VecCItr endRunLengthsItr)
+    : m_RunLengthsItr{runLengthsItr}, m_EndRunLengthsItr{endRunLengthsItr} {
+    if (first) {
+        m_Current = 0;
+        m_EndOfCurrentRun = this->advanceToEndOfRun();
+    } else {
+        this->skipRun();
+    }
+}
+
+CPackedBitVector::COneBitIndexConstIterator::COneBitIndexConstIterator(std::size_t size, TUInt8VecCItr endRunLengthsItr)
+    : m_Current{size}, m_EndOfCurrentRun{size},
+      m_RunLengthsItr{endRunLengthsItr}, m_EndRunLengthsItr{endRunLengthsItr} {
+}
+
+void CPackedBitVector::COneBitIndexConstIterator::skipRun() {
+    std::size_t skip{this->advanceToEndOfRun()};
+    m_Current += skip;
+    m_EndOfCurrentRun += skip + this->advanceToEndOfRun();
+}
+
+std::size_t CPackedBitVector::COneBitIndexConstIterator::advanceToEndOfRun() {
+    std::size_t run{0};
+    do {
+        if (m_RunLengthsItr != m_EndRunLengthsItr) {
+            run += *m_RunLengthsItr;
+        } else {
+            break;
+        }
+    } while (*m_RunLengthsItr++ == MAX_RUN_LENGTH);
+    return run;
+}
+
+template<typename T>
+T CPackedBitVector::bit(EOperation op, T lhs, T rhs) {
+    T result{lhs};
+    switch (op) {
+    case E_AND:
+        result &= rhs;
+        break;
+    case E_OR:
+        result |= rhs;
+        break;
+    case E_XOR:
+        result ^= rhs;
+        break;
+    }
+    return result;
+}
 
 std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v) {
     if (v.dimension() == 0) {

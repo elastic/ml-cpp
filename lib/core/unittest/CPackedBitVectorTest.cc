@@ -12,7 +12,9 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <bitset>
+#include <algorithm>
+#include <functional>
+#include <numeric>
 #include <vector>
 
 using namespace ml;
@@ -27,6 +29,15 @@ namespace {
 std::string print(const core::CPackedBitVector& v) {
     std::ostringstream result;
     result << v;
+    return result.str();
+}
+
+template<typename T>
+std::string toBitString(const T& v) {
+    std::ostringstream result;
+    for (std::size_t i = 0; i < v.size(); ++i) {
+        result << static_cast<int>(v[i]);
+    }
     return result.str();
 }
 }
@@ -202,7 +213,7 @@ void CPackedBitVectorTest::testContract() {
     }
 }
 
-void CPackedBitVectorTest::testOperators() {
+void CPackedBitVectorTest::testComparisonAndLess() {
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
@@ -221,7 +232,183 @@ void CPackedBitVectorTest::testOperators() {
     }
 }
 
-void CPackedBitVectorTest::testInner() {
+void CPackedBitVectorTest::testBitwiseComplement() {
+    test::CRandomNumbers rng;
+
+    TSizeVec components;
+    for (std::size_t t = 0; t < 200; ++t) {
+        rng.generateUniformSamples(0, 2, 350, components);
+        TBoolVec bits(components.begin(), components.end());
+        auto actualComplement = ~core::CPackedBitVector(bits);
+        TBoolVec expectedComplement(bits.size());
+        std::transform(bits.begin(), bits.end(), expectedComplement.begin(),
+                       std::logical_not<bool>());
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedComplement), toBitString(actualComplement));
+    }
+}
+
+void CPackedBitVectorTest::testBitwise() {
+    std::size_t run(core::CPackedBitVector::MAX_RUN_LENGTH);
+
+    // Test some run length edge cases.
+    {
+        core::CPackedBitVector a;
+        a.extend(false, run);
+        a.extend(true, 2 * run);
+        core::CPackedBitVector b;
+        b.extend(true, run);
+        b.extend(false, 2 * run);
+
+        TBoolVec expectedBitwiseAnd(3 * run, false);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+
+        TBoolVec expectedBitwiseOr(3 * run, true);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+
+        TBoolVec expectedBitwiseXor(3 * run, true);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+    }
+    {
+        core::CPackedBitVector a;
+        a.extend(false, run);
+        a.extend(true, 2 * run);
+        core::CPackedBitVector b;
+        b.extend(false, run);
+        b.extend(true, 2 * run);
+
+        TBoolVec expectedBitwiseAnd(run, false);
+        expectedBitwiseAnd.resize(3 * run, true);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+
+        TBoolVec expectedBitwiseOr(run, false);
+        expectedBitwiseOr.resize(3 * run, true);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+
+        TBoolVec expectedBitwiseXor(3 * run, false);
+        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+    }
+
+    test::CRandomNumbers rng;
+
+    TPackedBitVectorVec test;
+    TBoolVecVec reference;
+
+    TSizeVec components;
+    for (std::size_t t = 0; t < 50; ++t) {
+        rng.generateUniformSamples(0, 2, 500, components);
+        TBoolVec bits(components.begin(), components.end());
+        test.push_back(core::CPackedBitVector(bits));
+        reference.push_back(std::move(bits));
+    }
+
+    for (std::size_t i = 0; i < test.size(); ++i) {
+        for (std::size_t j = 0; j < test.size(); ++j) {
+            core::CPackedBitVector actualBitwiseAnd{test[i] & test[j]};
+            TBoolVec expectedBitwiseAnd(500);
+            std::transform(reference[i].begin(), reference[i].end(),
+                           reference[j].begin(), expectedBitwiseAnd.begin(),
+                           std::logical_and<bool>());
+            if (j % 500 == 0) {
+                LOG_DEBUG(<< "and = " << toBitString(expectedBitwiseAnd));
+            }
+            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd),
+                                 toBitString(actualBitwiseAnd));
+            // Also check hidden state...
+            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseAnd}.checksum(),
+                                 actualBitwiseAnd.checksum());
+
+            core::CPackedBitVector actualBitwiseOr{test[i] | test[j]};
+            TBoolVec expectedBitwiseOr(500);
+            std::transform(reference[i].begin(), reference[i].end(),
+                           reference[j].begin(), expectedBitwiseOr.begin(),
+                           std::logical_or<bool>());
+            if (j % 100 == 0) {
+                LOG_DEBUG(<< "or = " << toBitString(expectedBitwiseOr));
+            }
+            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(actualBitwiseOr));
+            // Also check hidden state...
+            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseOr}.checksum(),
+                                 actualBitwiseOr.checksum());
+
+            core::CPackedBitVector actualBitwiseXor{test[i] ^ test[j]};
+            TBoolVec expectedBitwiseXor(500);
+            std::transform(reference[i].begin(), reference[i].end(),
+                           reference[j].begin(), expectedBitwiseXor.begin(),
+                           [](bool lhs, bool rhs) { return lhs ^ rhs; });
+            if (j % 100 == 0) {
+                LOG_DEBUG(<< "xor = " << toBitString(expectedBitwiseXor));
+            }
+            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor),
+                                 toBitString(actualBitwiseXor));
+            // Also check hidden state...
+            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseXor}.checksum(),
+                                 actualBitwiseXor.checksum());
+        }
+    }
+}
+
+void CPackedBitVectorTest::testOneBitIterators() {
+    {
+        // All ones.
+        core::CPackedBitVector test(2000, true);
+        TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
+        TSizeVec expectedIndices(2000);
+        std::iota(expectedIndices.begin(), expectedIndices.end(), 0);
+        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+    }
+    {
+        // All zeros.
+        core::CPackedBitVector test(1000, false);
+        TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
+        CPPUNIT_ASSERT(actualIndices.empty());
+    }
+    {
+        // Test end edge cases.
+
+        std::size_t run(core::CPackedBitVector::MAX_RUN_LENGTH);
+
+        core::CPackedBitVector test;
+        test.extend(false, run);
+        test.extend(true, 2 * run);
+
+        TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
+        TSizeVec expectedIndices;
+        for (std::size_t i = run; i < 3 * run; ++i) {
+            expectedIndices.push_back(i);
+        }
+        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+    }
+
+    test::CRandomNumbers rng;
+
+    TSizeVec components;
+    TSizeVec expectedIndices;
+    TSizeVec actualIndices;
+    for (std::size_t t = 0; t < 1000; ++t) {
+        rng.generateUniformSamples(0, 2, 512, components);
+        TBoolVec bits(components.begin(), components.end());
+        core::CPackedBitVector test{bits};
+
+        actualIndices.assign(test.beginOneBits(), test.endOneBits());
+
+        expectedIndices.clear();
+        for (std::size_t i = 0; i < bits.size(); ++i) {
+            if (bits[i]) {
+                expectedIndices.push_back(i);
+            }
+        }
+
+        if (actualIndices != expectedIndices) {
+            LOG_ERROR("expected = " << core::CContainerPrinter::print(expectedIndices));
+            LOG_ERROR("actual   = " << core::CContainerPrinter::print(actualIndices));
+        } else if (t % 100 == 0) {
+            LOG_DEBUG("indices = " << core::CContainerPrinter::print(expectedIndices));
+        }
+        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+    }
+}
+
+void CPackedBitVectorTest::testInnerProductBitwiseAnd() {
     core::CPackedBitVector test1(10, true);
     core::CPackedBitVector test2(10, false);
     TBoolVec bits1{true,  true,  false, false, true,
@@ -272,7 +459,9 @@ void CPackedBitVectorTest::testInner() {
     }
 
     for (std::size_t i = 0; i < test7.size(); ++i) {
-        LOG_DEBUG(<< "Testing " << test7[i]);
+        if (i % 10 == 0) {
+            LOG_DEBUG(<< "Testing " << test7[i]);
+        }
         for (std::size_t j = 0; j < test7.size(); ++j) {
             double expected{0.0};
             for (std::size_t k = 0; k < 50; ++k) {
@@ -283,7 +472,7 @@ void CPackedBitVectorTest::testInner() {
     }
 }
 
-void CPackedBitVectorTest::testBitwiseOr() {
+void CPackedBitVectorTest::testInnerProductBitwiseOr() {
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
@@ -305,7 +494,7 @@ void CPackedBitVectorTest::testBitwiseOr() {
                 for (std::size_t k = 0; k < 50; ++k) {
                     expected += (reference[i][k] || reference[j][k] ? 1.0 : 0.0);
                 }
-                if (j % 10 == 0) {
+                if (j % 100 == 0) {
                     LOG_DEBUG(<< "or  = " << expected);
                 }
                 CPPUNIT_ASSERT_EQUAL(
@@ -316,7 +505,7 @@ void CPackedBitVectorTest::testBitwiseOr() {
                 for (std::size_t k = 0; k < 50; ++k) {
                     expected += (reference[i][k] != reference[j][k] ? 1.0 : 0.0);
                 }
-                if (j % 10 == 0) {
+                if (j % 100 == 0) {
                     LOG_DEBUG(<< "xor = " << expected);
                 }
                 CPPUNIT_ASSERT_EQUAL(
@@ -353,11 +542,21 @@ CppUnit::Test* CPackedBitVectorTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
         "CPackedBitVectorTest::testContract", &CPackedBitVectorTest::testContract));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testOperators", &CPackedBitVectorTest::testOperators));
+        "CPackedBitVectorTest::testComparisonAndLess",
+        &CPackedBitVectorTest::testComparisonAndLess));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testInner", &CPackedBitVectorTest::testInner));
+        "CPackedBitVectorTest::testBitwiseComplement",
+        &CPackedBitVectorTest::testBitwiseComplement));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testBitwiseOr", &CPackedBitVectorTest::testBitwiseOr));
+        "CPackedBitVectorTest::testBitwise", &CPackedBitVectorTest::testBitwise));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
+        "CPackedBitVectorTest::testOneBitIterators", &CPackedBitVectorTest::testOneBitIterators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
+        "CPackedBitVectorTest::testInnerProductBitwiseAnd",
+        &CPackedBitVectorTest::testInnerProductBitwiseAnd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
+        "CPackedBitVectorTest::testInnerProductBitwiseOr",
+        &CPackedBitVectorTest::testInnerProductBitwiseOr));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
         "CPackedBitVectorTest::testPersist", &CPackedBitVectorTest::testPersist));
 
