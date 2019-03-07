@@ -141,16 +141,16 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     auto promise = std::make_shared<std::promise<R>>();
     auto result = promise->get_future();
 
-    std::function<void()> task{[g_ = std::move(g), promise_ = std::move(promise)]() mutable {
-        concurrency_detail::invokeAndWriteResultToPromise(g_, promise_,
-                                                          std::is_same<R, void>{});
-}
-};
+    std::function<void()> task(
+        [ g_ = std::move(g), promise_ = std::move(promise) ]() mutable {
+            concurrency_detail::invokeAndWriteResultToPromise(
+                g_, promise_, std::is_same<R, void>{});
+        });
 
-// Schedule the task to compute the result.
-executor.schedule(std::move(task));
+    // Schedule the task to compute the result.
+    executor.schedule(std::move(task));
 
-return std::move(result);
+    return std::move(result);
 }
 
 //! Wait for all \p futures to be available.
