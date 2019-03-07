@@ -132,14 +132,11 @@ public:
 
 private:
     void waitWhileEmpty(std::unique_lock<std::mutex>& lock) {
-        while (m_Queue.empty()) {
-            m_ConsumerCondition.wait(lock);
-        }
+        m_ConsumerCondition.wait(lock, [this] { return m_Queue.size() > 0; });
     }
     void waitWhileFull(std::unique_lock<std::mutex>& lock) {
-        while (m_Queue.size() >= QUEUE_CAPACITY) {
-            m_ProducerCondition.wait(lock);
-        }
+        m_ProducerCondition.wait(
+            lock, [this] { return m_Queue.size() < QUEUE_CAPACITY; });
     }
 
     void notifyIfNoLongerFull(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {

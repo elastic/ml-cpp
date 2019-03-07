@@ -291,7 +291,7 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::sequentialApplyToAllRows(std::size_t b
         // function each slice is then concurrently read by the callback
         // on a worker thread.
 
-        future<void> backgroundApply;
+        std::future<void> backgroundApply;
 
         // We need to wait and this isn't guaranteed by the future destructor.
         CWaitIfValidWhenExitingScope<void> waitFor(backgroundApply);
