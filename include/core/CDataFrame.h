@@ -403,7 +403,7 @@ private:
         TWriteSliceToStoreFunc m_WriteSliceToStore;
         TFloatVec m_RowsOfSliceBeingWritten;
         TInt32Vec m_DocHashesOfSliceBeingWritten;
-        future<TRowSlicePtr> m_SliceWrittenAsyncToStore;
+        std::future<TRowSlicePtr> m_SliceWrittenAsyncToStore;
         TRowSlicePtrVec m_SlicesWrittenToStore;
     };
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
