@@ -335,6 +335,15 @@ bool CFieldDataTyper::persistState(core::CDataAdder& persister) {
     return this->doPersistState(m_DataTyper->makePersistFunc(), m_ExamplesCollector, persister);
 }
 
+bool CFieldDataTyper::isPersistenceNeeded(const std::string& description) const {
+    if (m_NumRecordsHandled == 0) {
+        LOG_DEBUG(<< "Zero records were handled - will not attempt to persist "
+                  << description << ".");
+        return false;
+    }
+    return true;
+}
+
 bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
                                      const CCategoryExamplesCollector& examplesCollector,
                                      core::CDataAdder& persister) {

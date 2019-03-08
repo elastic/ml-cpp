@@ -220,8 +220,10 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
 }
 
 void CAnomalyJob::finalise() {
-    // Persist final state of normalizer
-    m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
+    // Persist final state of normalizer iff an input record has been handled or time has been advanced.
+    if (this->isPersistenceNeeded("quantiles state")) {
+        m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
+    }
 
     // Prune the models so that the final persisted state is as neat as possible
     this->pruneAllModels();
@@ -396,9 +398,21 @@ void CAnomalyJob::advanceTime(const std::string& time_) {
         LOG_TRACE(<< "Received request to advance time to " << time);
     }
 
+    m_TimeAdvanced = true;
+
     this->outputBucketResultsUntil(time);
 
     this->timeNow(time);
+}
+
+bool CAnomalyJob::isPersistenceNeeded(const std::string& description) const {
+    if ((m_NumRecordsHandled == 0) && (m_TimeAdvanced == false)) {
+        LOG_DEBUG(<< "Will not attempt to persist " << description
+                  << ". Zero records were handled and time has not been advanced.");
+        return false;
+    }
+
+    return true;
 }
 
 void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
