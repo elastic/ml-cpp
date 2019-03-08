@@ -85,6 +85,10 @@ void CPackedBitVector::contract() {
 }
 
 void CPackedBitVector::extend(bool bit, std::size_t n) {
+    if (n == 0) {
+        return;
+    }
+
     m_Dimension += n;
 
     if (m_Dimension == n) {
@@ -232,7 +236,7 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
     result.reserve(m_Dimension);
 
     bool parity = true;
-    for (std::size_t i = 0u; i < m_RunLengths.size(); ++i) {
+    for (std::size_t i = 0; i < m_RunLengths.size(); ++i) {
         std::fill_n(std::back_inserter(result),
                     static_cast<std::size_t>(m_RunLengths[i]), parity ? m_First : !m_First);
         if (m_RunLengths[i] != MAX_RUN_LENGTH) {

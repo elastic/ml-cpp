@@ -28,13 +28,14 @@ namespace core {
 //!
 //! DESCRIPTION:\n
 //! This implements a run length encoding of a binary vector (string of 0's and
-//! 1's). This has a container like interface which somewhat emulates std::bitset.
-//! It supports computing the bitwise or of two vectors and iterating over the
-//! indices of the 1 bits. It also supports a vector like interface for computing
-//! the inner product (using the conventional definition as the count of the 1 bits
-//! in the bitwise and of the two vectors). The count of one bits for the or and
-//! exclusive or of two vectors can be computed with the same line scan so this
-//! is also supported by supplying the predicate to the inner product.
+//! 1's). It has a container like interface which somewhat emulates std::bitset.
+//! It supports computing bitwise boolean operations of two vectors and iterating
+//! over the indices of the 1 bits. It also has a vector like interface for
+//! computing the inner product and related norms (using the conventional definition
+//! as the count of the 1 bits in the bitwise and of the two vectors). The count
+//! of one bits for the or and exclusive or of two vectors can be computed with
+//! the same line scan so this is also supported by supplying the predicate to the
+//! inner product.
 //!
 //! IMPLEMENTATION:\n
 //! The space optimal vector depends on the average run length. In particular, it
@@ -58,20 +59,9 @@ public:
     //! Operations which can be performed in the inner product.
     enum EOperation { E_AND, E_OR, E_XOR };
 
-    //! \brief Decorates a type T with pointer semantics.
-    template<typename T>
-    class CAsPtr {
-    public:
-        explicit CAsPtr(T value) : m_Value{value} {}
-        const T& operator->() const { return m_Value; }
-
-    private:
-        T m_Value;
-    };
-
     //! \brief A forward iterator over the indices of the one bits in bit vector.
     class COneBitIndexConstIterator
-        : public std::iterator<std::input_iterator_tag, std::size_t, std::ptrdiff_t, CAsPtr<std::size_t>, size_t> {
+        : public std::iterator<std::input_iterator_tag, std::size_t, std::ptrdiff_t> {
     public:
         using TUInt8VecCItr = TUInt8Vec::const_iterator;
 
@@ -81,9 +71,6 @@ public:
         COneBitIndexConstIterator(std::size_t size, TUInt8VecCItr endRunLengthsItr);
 
         std::size_t operator*() const { return m_Current; }
-        CAsPtr<std::size_t> operator->() const {
-            return CAsPtr<std::size_t>{m_Current};
-        }
 
         bool operator==(const COneBitIndexConstIterator& rhs) const {
             return m_Current == rhs.m_Current && m_RunLengthsItr == rhs.m_RunLengthsItr;
