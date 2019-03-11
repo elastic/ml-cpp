@@ -258,7 +258,8 @@ void CKMostCorrelated::capture() {
         TSizeVectorPackedBitVectorPrUMapItr j = m_Projected.find(X);
         if (j == m_Projected.end()) {
             TVector zero(0.0);
-            core::CPackedBitVector indicator(PROJECTION_DIMENSION - m_Projections.size(), false);
+            core::CPackedBitVector indicator(
+                PROJECTION_DIMENSION - m_Projections.size(), false);
             j = m_Projected
                     .emplace(boost::unordered::piecewise_construct,
                              boost::make_tuple(X), boost::make_tuple(zero, indicator))
