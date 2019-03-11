@@ -82,6 +82,8 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                       TQuantileSketchVec& result,
                                       TWeightFunction weight) {
     if (result.size() != columnMask.size()) {
+        LOG_ERROR(<< "Expected " << columnMask.size() << " quantile sketches"
+                  << " and got " << result.size());
         return false;
     }
 
@@ -100,6 +102,7 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
             std::move(result)));
 
     if (results.second == false) {
+        LOG_ERROR(<< "Failed to compute column quantiles");
         return false;
     }
 
