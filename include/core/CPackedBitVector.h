@@ -60,7 +60,7 @@ public:
     enum EOperation { E_AND, E_OR, E_XOR };
 
     //! \brief A forward iterator over the indices of the one bits in bit vector.
-    class COneBitIndexConstIterator
+    class CORE_EXPORT COneBitIndexConstIterator
         : public std::iterator<std::input_iterator_tag, std::size_t, std::ptrdiff_t> {
     public:
         using TUInt8VecCItr = TUInt8Vec::const_iterator;
