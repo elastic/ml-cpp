@@ -19,9 +19,9 @@ namespace {
 //! \brief Executes a function immediately (on the calling thread).
 class CImmediateExecutor final : public CExecutor {
 public:
-    virtual void schedule(std::packaged_task<boost::any()>&& f) { f(); }
-    virtual bool busy() const { return false; }
-    virtual void busy(bool) {}
+    void schedule(std::function<void()>&& f) override { f(); }
+    bool busy() const override { return false; }
+    void busy(bool) override {}
 };
 
 //! \brief Executes a function in a thread pool.
@@ -29,11 +29,11 @@ class CThreadPoolExecutor final : public CExecutor {
 public:
     explicit CThreadPoolExecutor(std::size_t size) : m_ThreadPool{size} {}
 
-    virtual void schedule(std::packaged_task<boost::any()>&& f) {
-        m_ThreadPool.schedule(std::forward<std::packaged_task<boost::any()>>(f));
+    void schedule(std::function<void()>&& f) override {
+        m_ThreadPool.schedule(std::forward<std::function<void()>>(f));
     }
-    virtual bool busy() const { return m_ThreadPool.busy(); }
-    virtual void busy(bool value) { return m_ThreadPool.busy(value); }
+    bool busy() const override { return m_ThreadPool.busy(); }
+    void busy(bool value) override { return m_ThreadPool.busy(value); }
 
 private:
     CStaticThreadPool m_ThreadPool;
@@ -115,14 +115,14 @@ CExecutor& defaultAsyncExecutor() {
     return singletonExecutor.get();
 }
 
-bool get_conjunction_of_all(std::vector<future<bool>>& futures) {
+bool get_conjunction_of_all(std::vector<std::future<bool>>& futures) {
 
     // This waits until results are present. If we get an exception we still want
     // to wait until all results are ready in case continuing destroys state access
     // which a worker thread reads. We just rethrow the _last_ exception we received.
     std::exception_ptr e;
     bool result{std::accumulate(futures.begin(), futures.end(), true,
-                                [&e](bool conjunction, future<bool>& future) {
+                                [&e](bool conjunction, std::future<bool>& future) {
                                     try {
                                         // Don't shortcircuit
                                         bool value = future.get();

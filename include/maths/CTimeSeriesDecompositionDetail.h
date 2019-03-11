@@ -28,6 +28,8 @@
 #include <memory>
 #include <vector>
 
+class CNanInjector;
+
 namespace ml {
 namespace maths {
 class CExpandingWindow;
@@ -373,12 +375,12 @@ public:
         //! Set whether or not we're testing for a change.
         void testingForChange(bool value);
 
-        //! Start observing for new components.
-        void observeComponentsAdded();
+        //! Start observing for modifications to the components.
+        void observeComponentsModified();
 
-        //! Check if any components were added since observeComponentsAdded
+        //! Check if any components were added or removed since observeComponentsModified
         //! was last called.
-        bool componentsAdded();
+        bool componentsModified();
 
         //! Apply \p shift to the level at \p time and \p value.
         void shiftLevel(core_t::TTime time, double value, double shift);
@@ -653,12 +655,18 @@ public:
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
 
+            //! Remove any components with invalid values
+            bool removeComponentsWithBadValues(core_t::TTime);
+
         private:
             //! The components.
             maths_t::TSeasonalComponentVec m_Components;
 
             //! The components' prediction errors.
             TComponentErrorsVec m_PredictionErrors;
+
+            //! Befriend a helper class used by the unit tests
+            friend class ::CNanInjector;
         };
 
         using TSeasonalPtr = std::unique_ptr<CSeasonal>;
@@ -727,6 +735,9 @@ public:
 
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
+
+            //! Remove any components with invalid values
+            bool removeComponentsWithBadValues(core_t::TTime time);
 
         private:
             //! The calendar components.
@@ -846,8 +857,11 @@ public:
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction = false;
 
-        //! Set to true when new components are added.
-        bool m_ComponentsAdded = false;
+        //! Set to true when new components are added or removed
+        bool m_ComponentsModified = false;
+
+        //! Befriend a helper class used by the unit tests
+        friend class ::CNanInjector;
     };
 };
 

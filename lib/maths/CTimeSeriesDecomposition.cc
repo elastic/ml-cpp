@@ -17,6 +17,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
@@ -218,6 +219,11 @@ void CTimeSeriesDecomposition::testingForChange(bool value) {
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights) {
+    if (CMathsFuncs::isFinite(value) == false) {
+        LOG_ERROR("Discarding invalid value.");
+        return false;
+    }
+
     time += m_TimeShift;
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
@@ -238,13 +244,13 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       },
                       m_Components.periodicityTestConfig()};
 
-    m_Components.observeComponentsAdded();
+    m_Components.observeComponentsModified();
 
     m_Components.handle(message);
     m_PeriodicityTest.handle(message);
     m_CalendarCyclicTest.handle(message);
 
-    return m_Components.componentsAdded();
+    return m_Components.componentsModified();
 }
 
 bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
@@ -324,6 +330,10 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     }
 
     return pair(baseline);
+}
+
+core_t::TTime CTimeSeriesDecomposition::maximumForecastInterval() const {
+    return m_Components.trend().maximumForecastInterval();
 }
 
 void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,

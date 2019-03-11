@@ -94,10 +94,12 @@ public:
             }
             if (m_Value->IsString() == false) {
                 this->handleFatal();
+                return value;
             }
             auto pos = m_PermittedValues->find(std::string{m_Value->GetString()});
             if (pos == m_PermittedValues->end()) {
                 this->handleFatal();
+                return value;
             }
             return static_cast<ENUM>(pos->second);
         }

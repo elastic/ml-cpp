@@ -1981,6 +1981,13 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return false;
     }
 
+    // It's possible that none of the candidates are <= 1.05 times the minimum,
+    // this would be the case if a NaN were present in the values say.
+    // NaNs are detected and purged elsewhere so we simply return false here.
+    if (best.count() == 0) {
+        return false;
+    }
+
     startOfPartition = (m_StartTime + best[0].second) % repeat;
     double v1{varianceAtPercentile(correction * minimum[0].first, df1,
                                    50.0 + CONFIDENCE_INTERVAL / 2.0)};

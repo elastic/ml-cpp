@@ -99,6 +99,9 @@ public:
     //! Name of component
     std::string name() const override;
 
+    //! Check that the state is valid.
+    bool isBad() const override;
+
 private:
     using TFloatMeanVarVec = std::vector<TFloatMeanVarAccumulator>;
 

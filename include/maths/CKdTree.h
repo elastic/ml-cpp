@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CKdTree_h
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <maths/CAnnotatedVector.h>
 #include <maths/CBasicStatistics.h>
@@ -131,6 +132,11 @@ public:
                 ++depth;
             }
             return depth;
+        }
+
+        //! Get the memory used by this object.
+        std::size_t memoryUsage() const {
+            return core::CMemory::dynamicSize(s_Point);
         }
 
         //! Estimate the amount of memory this node will use.
@@ -316,6 +322,11 @@ public:
             }
         }
         return true;
+    }
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const {
+        return core::CMemory::dynamicSize(m_Nodes);
     }
 
     //! Estimate the amount of memory the k-d tree will use.

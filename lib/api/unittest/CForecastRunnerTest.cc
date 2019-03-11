@@ -275,21 +275,6 @@ void CForecastRunnerTest::testInsufficientData() {
                          forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
 
-void CForecastRunnerTest::testValidateDuration() {
-    ml::api::CForecastRunner::SForecast forecastJob;
-
-    std::string message("p{\"duration\":" + std::to_string(10 * ml::core::constants::WEEK) +
-                        ",\"forecast_id\": \"42\"" + ",\"create_time\": \"1511370819\" }");
-
-    CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(
-        message, forecastJob, 1400000000));
-    CPPUNIT_ASSERT_EQUAL(8 * ml::core::constants::WEEK, forecastJob.s_Duration);
-    CPPUNIT_ASSERT_EQUAL(8 * ml::core::constants::WEEK + 1400000000,
-                         forecastJob.forecastEnd());
-    CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::WARNING_DURATION_LIMIT,
-                         *forecastJob.s_Messages.begin());
-}
-
 void CForecastRunnerTest::testValidateDefaultExpiry() {
     ml::api::CForecastRunner::SForecast forecastJob;
 
@@ -367,8 +352,6 @@ CppUnit::Test* CForecastRunnerTest::suite() {
         "CForecastRunnerTest::testRare", &CForecastRunnerTest::testRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
         "CForecastRunnerTest::testInsufficientData", &CForecastRunnerTest::testInsufficientData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
-        "CForecastRunnerTest::testValidateDuration", &CForecastRunnerTest::testValidateDuration));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
         "CForecastRunnerTest::testValidateExpiry",
         &CForecastRunnerTest::testValidateDefaultExpiry));
