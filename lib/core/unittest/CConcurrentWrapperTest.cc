@@ -26,9 +26,8 @@ using namespace core;
 
 using TOStringStreamConcurrentWrapper = CConcurrentWrapper<std::ostringstream>;
 
-// a low capacity wrapper with only 5 buckets for the queue, the 3 controls the wakeup of threads
-using TOStringStreamLowCapacityConcurrentWrapper =
-    CConcurrentWrapper<std::ostringstream, 5, 3>;
+// A low capacity wrapper with only 5 buckets for the queue
+using TOStringStreamLowCapacityConcurrentWrapper = CConcurrentWrapper<std::ostringstream, 5>;
 
 void CConcurrentWrapperTest::testBasic() {
 

@@ -57,27 +57,22 @@ public:
     void busy(bool busy);
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
     class CWrappedTask {
     public:
-        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = boost::none);
-
-        bool executableOnThread(std::size_t id) const;
+        CWrappedTask() = default;
+        explicit CWrappedTask(TTask&& task);
         void operator()();
 
     private:
         TTask m_Task;
-        TOptionalSize m_ThreadId;
     };
     using TOptionalTask = boost::optional<CWrappedTask>;
-    using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 50>;
-    using TWrappedTaskQueueVec = std::vector<TWrappedTaskQueue>;
+    using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 64>;
     using TThreadVec = std::vector<std::thread>;
 
 private:
     void shutdown();
     void worker(std::size_t id);
-    void drainQueuesWithoutBlocking();
 
 private:
     // This doesn't have to be atomic because it is always only set to true,
@@ -85,8 +80,7 @@ private:
     // and tearing can't happen for single byte writes.
     bool m_Done = false;
     std::atomic_bool m_Busy;
-    std::atomic<std::uint64_t> m_Cursor;
-    TWrappedTaskQueueVec m_TaskQueues;
+    TWrappedTaskQueue m_TaskQueue;
     TThreadVec m_Pool;
 };
 }

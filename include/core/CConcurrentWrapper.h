@@ -27,8 +27,7 @@ namespace core {
 //!
 //! @tparam T the wrapped object
 //! @tparam QUEUE_CAPACITY internal queue capacity
-//! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template<typename T, size_t QUEUE_CAPACITY = 100, size_t NOTIFY_CAPACITY = 50>
+template<typename T, size_t QUEUE_CAPACITY = 100>
 class CConcurrentWrapper final : private CNonCopyable {
 public:
     //! Wrap and return the wrapped object
@@ -67,7 +66,7 @@ public:
 
 private:
     //! Queue for the tasks
-    mutable CConcurrentQueue<std::function<void()>, QUEUE_CAPACITY, NOTIFY_CAPACITY> m_Queue;
+    mutable CConcurrentQueue<std::function<void()>, QUEUE_CAPACITY> m_Queue;
 
     //! The wrapped resource
     T& m_Resource;

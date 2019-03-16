@@ -101,8 +101,8 @@ void CStaticThreadPoolTest::testThroughputStability() {
 
         uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
-        //CPPUNIT_ASSERT(timeToSchedule >= 330);
-        //CPPUNIT_ASSERT(timeToSchedule <= 350);
+        //CPPUNIT_ASSERT(timeToSchedule >= 320);
+        //CPPUNIT_ASSERT(timeToSchedule <= 340);
     }
 
     CPPUNIT_ASSERT_EQUAL(2000u, counter.load());
@@ -151,24 +151,33 @@ void CStaticThreadPoolTest::testManyTasksThroughput() {
 
 void CStaticThreadPoolTest::testSchedulingOverhead() {
 
-    // Test the overhead per task is less than 0.7 microseconds.
+    // For a bare metal test on 2.9GHz i9 processor the time per task in the following
+    // is consistently less than 0.15 microseconds for a range of task sizes. When the
+    // tasks are effectively instantaneous we consistent get an overhead of around 0.1
+    // microseconds.
 
     core::CStaticThreadPool pool{4};
 
-    core::CStopWatch watch{true};
-    for (std::size_t i = 0; i < 2000000; ++i) {
-        if (i % 100000 == 0) {
-            LOG_DEBUG(<< i);
-        }
-        pool.schedule([ j = std::size_t{0}, count = i % 1000 ]() mutable {
-            for (j = 0; j < count; ++j) {
-            }
-        });
-    }
+    for (auto work : {1, 10, 20, 50, 80}) {
 
-    double overhead{static_cast<double>(watch.stop()) / 1000.0};
-    LOG_DEBUG(<< "Total time = " << overhead);
-    //CPPUNIT_ASSERT(overhead < 1.4);
+        core::CStopWatch watch{true};
+        for (std::size_t i = 0; i < 2000000; ++i) {
+            if (i % 100000 == 0) {
+                LOG_DEBUG(<< i);
+            }
+            pool.schedule([ j = std::size_t{0}, count = i % work ]() mutable {
+                double sum{0.0};
+                for (j = 0; j < count; ++j) {
+                    sum += std::sin(static_cast<double>(j));
+                }
+                count = static_cast<std::size_t>(sum);
+            });
+        }
+
+        double overhead{static_cast<double>(watch.stop()) / 1000.0};
+        LOG_DEBUG(<< "Total time parallel = " << overhead);
+        //CPPUNIT_ASSERT(overhead < 0.3);
+    }
 }
 
 void CStaticThreadPoolTest::testWithExceptions() {

@@ -9,165 +9,207 @@
 #include <core/CMemory.h>
 #include <core/CNonCopyable.h>
 
-#include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
-
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 
 namespace ml {
 namespace core {
 
-//! \brief
-//! A thread safe concurrent queue.
+//! \brief A (mostly) non-blocking thread safe multi-producer multi-consumer
+//! bounded queue.
 //!
 //! DESCRIPTION:\n
-//! A thread safe concurrent queue.
+//! This blocks when pushing to a full queue and popping from an empty queue.
+//! However, locks are only taken under an atomic check that the slot being
+//! written (or read) is full (or empty) so provided consumers keep up with
+//! producers or vice versa this doesn't block.
 //!
-//! This is a simple wrapper around boost::circular_buffer
-//! in order to make it thread-safe. As boost circular buffer is bounded and start overwriting
-//! when the buffer gets full, the queue blocks if it reaches the capacity, so no message is lost
-//! for the price of blocking.
+//! It's the caller's responsibility to ensure that number of items pushed is
+//! equal to number of items popped or this will deadlock.
 //!
-//! @tparam T the objects of the queue
-//! @tparam QUEUE_CAPACITY fixed queue capacity
-//! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
-class CConcurrentQueue final : private CNonCopyable {
+//! The supplied queue size is rounded up to the next power of 2 so modulo can
+//! be implemented with a bit mask.
+//!
+//! The pushEmplace method forwards the constructor arguments and constructs
+//! the object in-place. Example usage,
+//! \code
+//! CConcurrentQueue<std::pair<double, double>> queue;
+//! queue.pushEmplace(0.0, 1.0);
+//! \endcode
+//!
+//! \tparam T the type of the objects of the queue.
+//! \tparam CAPACITY the target queue capacity.
+template<typename T, std::size_t CAPACITY>
+class CConcurrentQueue final {
 public:
-    using TOptional = boost::optional<T>;
+    CConcurrentQueue(std::size_t capacityMultiplier = 1)
+        : m_Capacity{nextPow2(CAPACITY * capacityMultiplier)}, m_Front{0}, m_Back{0},
+          m_Elements(m_Capacity) {}
 
-public:
-    CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
-        static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
-        static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY,
-                      "QUEUE_CAPACITY cannot be less than NOTIFY_CAPACITY");
+    CConcurrentQueue(const CConcurrentQueue& other) = delete;
+    CConcurrentQueue(CConcurrentQueue&& other) = delete;
+    CConcurrentQueue& operator=(const CConcurrentQueue& other) = delete;
+    CConcurrentQueue& operator=(CConcurrentQueue&& other) = delete;
+
+    double load() const {
+        // This is only a ballpark estimate, since we can't simultaneously
+        // atomically read both the front and back, so we only ensure the
+        // reads are atomic (and not that they'll see all writes).
+        std::size_t front{m_Front.load(std::memory_order_relaxed)};
+        std::size_t back{m_Back.load(std::memory_order_relaxed)};
+        return static_cast<double>(back < front ? back + m_Capacity - front : back - front) /
+               static_cast<double>(m_Capacity);
     }
 
-    //! Pop an item out of the queue, this blocks until an item is available
+    void push(T value) {
+        std::size_t next{m_Back.fetch_add(1, std::memory_order_release)};
+        m_Elements[next & (m_Capacity - 1)].push(std::move(value));
+    }
+
+    template<typename... ARGS>
+    void pushEmplace(ARGS&&... args) {
+        std::size_t next{m_Back.fetch_add(1, std::memory_order_release)};
+        m_Elements[next & (m_Capacity - 1)].push(std::forward<T>(args)...);
+    }
+
     T pop() {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        this->waitWhileEmpty(lock);
-
-        size_t oldSize{m_Queue.size()};
-        T result{std::move(m_Queue.front())};
-        m_Queue.pop_front();
-
-        this->notifyIfNoLongerFull(lock, oldSize);
-        return result;
-    }
-
-    //! Pop an item out of the queue, this returns none if an item isn't available
-    //! or the pop isn't allowed
-    template<typename PREDICATE>
-    TOptional tryPop(PREDICATE allowed) {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        if (m_Queue.empty() || allowed(m_Queue.front()) == false) {
-            return boost::none;
-        }
-
-        size_t oldSize{m_Queue.size()};
-        TOptional result{std::move(m_Queue.front())};
-        m_Queue.pop_front();
-
-        this->notifyIfNoLongerFull(lock, oldSize);
-        return result;
-    }
-
-    //! Pop an item out of the queue, this returns none if an item isn't available
-    TOptional tryPop() { return this->tryPop(always); }
-
-    //! Push a copy of \p item onto the queue, this blocks if the queue is full which
-    //! means it can deadlock if no one consumes items (implementor's responsibility)
-    void push(const T& item) {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        this->waitWhileFull(lock);
-
-        std::size_t oldSize{m_Queue.size()};
-        m_Queue.push_back(item);
-
-        this->notifyIfNoLongerEmpty(lock, oldSize);
-    }
-
-    //! Forward \p item to the queue, this blocks if the queue is full which means
-    //! it can deadlock if no one consumes items (implementor's responsibility)
-    void push(T&& item) {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        this->waitWhileFull(lock);
-
-        size_t oldSize{m_Queue.size()};
-        m_Queue.push_back(std::forward<T>(item));
-
-        this->notifyIfNoLongerEmpty(lock, oldSize);
-    }
-
-    //! Forward \p item to the queue, if the queue is full this fails and returns false
-    bool tryPush(T&& item) {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        if (m_Queue.size() >= QUEUE_CAPACITY) {
-            return false;
-        }
-
-        size_t oldSize{m_Queue.size()};
-        m_Queue.push_back(std::forward<T>(item));
-
-        this->notifyIfNoLongerEmpty(lock, oldSize);
-        return true;
+        std::size_t next{m_Front.fetch_add(1, std::memory_order_release)};
+        return m_Elements[next & (m_Capacity - 1)].pop();
     }
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
         mem->setName("CConcurrentQueue");
-        CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        CMemoryDebug::dynamicSize("m_Elements", m_Elements, mem);
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Elements); }
 
-    //! Return the number of items currently in the queue
-    size_t size() {
-        std::unique_lock<std::mutex> lock(m_Mutex);
-        return m_Queue.size();
+private:
+    // We insert pads at various points to avoid independent atomic operations
+    // thrashing the cache.
+    using TCacheLine = char[64];
+
+    class CElement {
+    public:
+        static const std::uint8_t READ;
+        static const std::uint8_t WRITTEN;
+        static const std::uint8_t READING;
+        static const std::uint8_t WRITING;
+
+        CElement() : value{}, m_State{READ} {}
+        CElement(const CElement&) = delete;
+        CElement(CElement&&) = delete;
+        CElement& operator=(const CElement&) = delete;
+        CElement& operator=(CElement&& other) = delete;
+
+        template<typename... ARGS>
+        void push(ARGS&&... args) {
+            m_ProducersWaiting.fetch_add(1, std::memory_order_release);
+
+            while (true) {
+                std::uint8_t state{READ};
+                if (this->swapIfStateIs(state, WRITING)) {
+                    break;
+                } else if (state != READING) {
+                    std::unique_lock<std::mutex> lock{m_Mutex};
+                    state = READ;
+                    if (this->swapIfStateIs(state, WRITING)) {
+                        break;
+                    }
+                    m_ProducerCondition.wait(lock);
+                }
+            }
+
+            m_ProducersWaiting.fetch_sub(1, std::memory_order_release);
+            value = toQueueType(std::forward<ARGS>(args)...);
+            m_State.store(WRITTEN, std::memory_order_release);
+
+            if (m_ConsumersWaiting.load(std::memory_order_acquire) > 0) {
+                std::unique_lock<std::mutex> lock{m_Mutex};
+                m_ConsumerCondition.notify_one();
+            }
+        }
+
+        T pop() {
+            m_ConsumersWaiting.fetch_add(1, std::memory_order_release);
+
+            while (true) {
+                std::uint8_t state{WRITTEN};
+                if (this->swapIfStateIs(state, READING)) {
+                    break;
+                } else if (state != WRITING) {
+                    std::unique_lock<std::mutex> lock{m_Mutex};
+                    state = WRITTEN;
+                    if (this->swapIfStateIs(state, READING)) {
+                        break;
+                    }
+                    m_ConsumerCondition.wait(lock);
+                }
+            }
+
+            m_ConsumersWaiting.fetch_sub(1, std::memory_order_release);
+            T result = std::move(value);
+            m_State.store(READ, std::memory_order_release);
+
+            if (m_ProducersWaiting.load(std::memory_order_acquire) > 0) {
+                std::unique_lock<std::mutex> lock{m_Mutex};
+                m_ProducerCondition.notify_one();
+            }
+
+            return result;
+        }
+
+    private:
+        bool swapIfStateIs(std::uint8_t& oldState, std::uint8_t newState) {
+            return m_State.compare_exchange_weak(oldState, newState, // if in old state
+                                                 std::memory_order_release,
+                                                 std::memory_order_relaxed);
+        }
+
+        static T&& toQueueType(T&& t) { return std::forward<T>(t); }
+
+        template<typename... ARGS>
+        static T toQueueType(ARGS&&... args) {
+            return T{std::forward<ARGS>(args)...};
+        }
+
+    private:
+        T value;
+        std::atomic_uint8_t m_State;
+        std::atomic_size_t m_ConsumersWaiting;
+        std::atomic_size_t m_ProducersWaiting;
+        std::mutex m_Mutex;
+        std::condition_variable m_ConsumerCondition;
+        std::condition_variable m_ProducerCondition;
+        TCacheLine m_Pad;
+    };
+
+private:
+    static std::size_t nextPow2(std::size_t n) {
+        return 1 << static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(n))));
     }
 
 private:
-    void waitWhileEmpty(std::unique_lock<std::mutex>& lock) {
-        m_ConsumerCondition.wait(lock, [this] { return m_Queue.size() > 0; });
-    }
-    void waitWhileFull(std::unique_lock<std::mutex>& lock) {
-        m_ProducerCondition.wait(
-            lock, [this] { return m_Queue.size() < QUEUE_CAPACITY; });
-    }
-
-    void notifyIfNoLongerFull(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
-        lock.unlock();
-        if (oldSize >= NOTIFY_CAPACITY) {
-            m_ProducerCondition.notify_all();
-        }
-    }
-    void notifyIfNoLongerEmpty(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
-        lock.unlock();
-        if (oldSize == 0) {
-            m_ConsumerCondition.notify_all();
-        }
-    }
-
-    static bool always(const T&) { return true; }
-
-private:
-    //! The internal queue
-    boost::circular_buffer<T> m_Queue;
-
-    //! Mutex
-    std::mutex m_Mutex;
-
-    //! Condition variable for consumer
-    std::condition_variable m_ConsumerCondition;
-
-    //! Condition variable for producers
-    std::condition_variable m_ProducerCondition;
+    std::size_t m_Capacity;
+    std::atomic_size_t m_Front;
+    TCacheLine m_Pad0;
+    std::atomic_size_t m_Back;
+    TCacheLine m_Pad1;
+    std::vector<CElement> m_Elements;
 };
+
+template<typename T, std::size_t CAPACITY>
+const std::uint8_t CConcurrentQueue<T, CAPACITY>::CElement::READ{0};
+template<typename T, std::size_t CAPACITY>
+const std::uint8_t CConcurrentQueue<T, CAPACITY>::CElement::WRITTEN{1};
+template<typename T, std::size_t CAPACITY>
+const std::uint8_t CConcurrentQueue<T, CAPACITY>::CElement::READING{2};
+template<typename T, std::size_t CAPACITY>
+const std::uint8_t CConcurrentQueue<T, CAPACITY>::CElement::WRITING{3};
 }
 }
 
-#endif /* INCLUDED_ml_core_CConcurrentQueue_h */
+#endif // INCLUDED_ml_core_CConcurrentQueue_h
