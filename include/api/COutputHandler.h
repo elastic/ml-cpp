@@ -91,6 +91,9 @@ public:
     //! Persist current state due to the periodic persistence being triggered.
     virtual bool periodicPersistState(CBackgroundPersister& persister);
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! Does this handler deal with control messages?
     virtual bool consumesControlMessages();
 
