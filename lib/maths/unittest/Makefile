@@ -67,7 +67,6 @@ SRCS=\
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
-	CPackedBitVectorTest.cc \
 	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \

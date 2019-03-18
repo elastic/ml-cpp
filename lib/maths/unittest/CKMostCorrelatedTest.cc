@@ -154,8 +154,8 @@ void estimateCorrelation(const std::size_t trials,
                       std::sqrt(maths::CBasicStatistics::variance(sampleMoments)(1));
             }
         }
-        maths::CPackedBitVector ix(50, true);
-        maths::CPackedBitVector iy(50, true);
+        core::CPackedBitVector ix(50, true);
+        core::CPackedBitVector iy(50, true);
         double correlation =
             CKMostCorrelatedForTest::TCorrelation::correlation(px, ix, py, iy);
         if (t % 10 == 0) {

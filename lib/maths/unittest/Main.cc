@@ -56,7 +56,6 @@
 #include "COrthogonaliserTest.h"
 #include "COutliersTest.h"
 #include "CPRNGTest.h"
-#include "CPackedBitVectorTest.h"
 #include "CPeriodicityHypothesisTestsTest.h"
 #include "CPoissonMeanConjugateTest.h"
 #include "CPriorTest.h"
@@ -139,7 +138,6 @@ int main(int argc, const char** argv) {
     runner.addTest(COrderingsTest::suite());
     runner.addTest(COrdinalTest::suite());
     runner.addTest(COrthogonaliserTest::suite());
-    runner.addTest(CPackedBitVectorTest::suite());
     runner.addTest(CPeriodicityHypothesisTestsTest::suite());
     runner.addTest(CPoissonMeanConjugateTest::suite());
     runner.addTest(CPriorTest::suite());

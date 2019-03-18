@@ -213,6 +213,10 @@ std::size_t CMainMemoryDataFrameRowSlice::indexOfFirstRow() const {
     return m_FirstRow;
 }
 
+std::size_t CMainMemoryDataFrameRowSlice::indexOfLastRow(std::size_t rowCapacity) const {
+    return m_FirstRow + m_Rows.size() / rowCapacity - 1;
+}
+
 CDataFrameRowSliceHandle CMainMemoryDataFrameRowSlice::read() {
     return {std::make_unique<CMainMemoryDataFrameRowSliceHandle>(m_FirstRow, m_Rows, m_DocHashes)};
 }
@@ -335,6 +339,10 @@ void COnDiskDataFrameRowSlice::reserve(std::size_t numberColumns, std::size_t ex
 
 std::size_t COnDiskDataFrameRowSlice::indexOfFirstRow() const {
     return m_FirstRow;
+}
+
+std::size_t COnDiskDataFrameRowSlice::indexOfLastRow(std::size_t rowCapacity) const {
+    return m_FirstRow + m_RowsCapacity / rowCapacity - 1;
 }
 
 CDataFrameRowSliceHandle COnDiskDataFrameRowSlice::read() {

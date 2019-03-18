@@ -70,7 +70,6 @@ Constants.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
-CPackedBitVector.cc \
 CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \

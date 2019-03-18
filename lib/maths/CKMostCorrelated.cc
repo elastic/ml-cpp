@@ -258,7 +258,8 @@ void CKMostCorrelated::capture() {
         TSizeVectorPackedBitVectorPrUMapItr j = m_Projected.find(X);
         if (j == m_Projected.end()) {
             TVector zero(0.0);
-            CPackedBitVector indicator(PROJECTION_DIMENSION - m_Projections.size(), false);
+            core::CPackedBitVector indicator(
+                PROJECTION_DIMENSION - m_Projections.size(), false);
             j = m_Projected
                     .emplace(boost::unordered::piecewise_construct,
                              boost::make_tuple(X), boost::make_tuple(zero, indicator))
@@ -288,7 +289,7 @@ void CKMostCorrelated::capture() {
         for (TSizeVectorPackedBitVectorPrUMapItr i = m_Projected.begin();
              i != m_Projected.end();
              /**/) {
-            const CPackedBitVector& indicator = i->second.second;
+            const core::CPackedBitVector& indicator = i->second.second;
             if (indicator.manhattan() <=
                 MINIMUM_FREQUENCY * static_cast<double>(indicator.dimension())) {
                 i = m_Projected.erase(i);
@@ -441,7 +442,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
         double dimension = 0.0;
         for (TSizeVectorPackedBitVectorPrUMapCItr i = m_Projected.begin();
              i != m_Projected.end(); ++i) {
-            const CPackedBitVector& ix = i->second.second;
+            const core::CPackedBitVector& ix = i->second.second;
             dimension = static_cast<double>(ix.dimension());
             fmax.add(ix.manhattan() / dimension);
         }
@@ -629,10 +630,10 @@ CKMostCorrelated::SCorrelation::SCorrelation()
 
 CKMostCorrelated::SCorrelation::SCorrelation(std::size_t X,
                                              const TVector& px,
-                                             const CPackedBitVector& ix,
+                                             const core::CPackedBitVector& ix,
                                              std::size_t Y,
                                              const TVector& py,
-                                             const CPackedBitVector& iy)
+                                             const core::CPackedBitVector& iy)
     : s_X(std::min(X, Y)), s_Y(std::max(X, Y)) {
     s_Correlation.add(correlation(px, ix, py, iy));
 }
@@ -677,8 +678,8 @@ void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUM
     if (x != projected.end() && y != projected.end()) {
         const TVector& px = x->second.first;
         const TVector& py = y->second.first;
-        const CPackedBitVector& ix = x->second.second;
-        const CPackedBitVector& iy = y->second.second;
+        const core::CPackedBitVector& ix = x->second.second;
+        const core::CPackedBitVector& iy = y->second.second;
         s_Correlation.add(correlation(px, ix, py, iy));
     }
 }
@@ -695,9 +696,9 @@ double CKMostCorrelated::SCorrelation::absCorrelation() const {
 }
 
 double CKMostCorrelated::SCorrelation::correlation(const TVector& px,
-                                                   const CPackedBitVector& ix,
+                                                   const core::CPackedBitVector& ix,
                                                    const TVector& py,
-                                                   const CPackedBitVector& iy) {
+                                                   const core::CPackedBitVector& iy) {
     double result = 0.0;
 
     double nx = ix.manhattan() / static_cast<double>(ix.dimension());
@@ -706,8 +707,8 @@ double CKMostCorrelated::SCorrelation::correlation(const TVector& px,
         return result;
     }
 
-    double axy = ix.inner(iy, CPackedBitVector::E_AND);
-    double oxy = ix.inner(iy, CPackedBitVector::E_OR);
+    double axy = ix.inner(iy, core::CPackedBitVector::E_AND);
+    double oxy = ix.inner(iy, core::CPackedBitVector::E_OR);
     double cxy = axy / oxy;
 
     if (cxy > MINIMUM_FREQUENCY) {

@@ -7,10 +7,11 @@
 #ifndef INCLUDED_ml_maths_CKMostCorrelated_h
 #define INCLUDED_ml_maths_CKMostCorrelated_h
 
+#include <core/CPackedBitVector.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CPRNG.h>
-#include <maths/CPackedBitVector.h>
 #include <maths/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -63,7 +64,7 @@ public:
     using TVector = CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS>;
     using TVectorVec = std::vector<TVector>;
     using TSizeVectorUMap = boost::unordered_map<std::size_t, TVector>;
-    using TVectorPackedBitVectorPr = std::pair<TVector, CPackedBitVector>;
+    using TVectorPackedBitVectorPr = std::pair<TVector, core::CPackedBitVector>;
     using TSizeVectorPackedBitVectorPrUMap =
         boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>;
 
@@ -141,10 +142,10 @@ protected:
         SCorrelation();
         SCorrelation(std::size_t X,
                      const TVector& px,
-                     const CPackedBitVector& ix,
+                     const core::CPackedBitVector& ix,
                      std::size_t Y,
                      const TVector& py,
-                     const CPackedBitVector& iy);
+                     const core::CPackedBitVector& iy);
 
         //! Create from part of a state document.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -169,9 +170,9 @@ protected:
         //! Estimate the correlation based on the projections
         //! \p px and \p py.
         static double correlation(const TVector& px,
-                                  const CPackedBitVector& ix,
+                                  const core::CPackedBitVector& ix,
                                   const TVector& py,
-                                  const CPackedBitVector& iy);
+                                  const core::CPackedBitVector& iy);
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed) const;

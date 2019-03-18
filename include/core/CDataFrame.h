@@ -23,6 +23,7 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
+class CPackedBitVector;
 class CTemporaryDirectory;
 
 namespace data_frame_detail {
@@ -31,6 +32,7 @@ using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
+using TPopMaskedRowFunc = std::function<std::size_t()>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -112,11 +114,13 @@ public:
     //! at \p index.
     //! \param[in] docHashItr The iterator for the document hashes of rows
     //! starting at \p index.
+    //! \param[in] popMaskedRow Gets the next row in the mask.
     CRowIterator(std::size_t numberColumns,
                  std::size_t rowCapacity,
                  std::size_t index,
                  TFloatVecItr rowItr,
-                 TInt32VecCItr docHashItr);
+                 TInt32VecCItr docHashItr,
+                 TPopMaskedRowFunc popMaskedRow = nullptr);
 
     //! \name Forward Iterator Contract
     //@{
@@ -134,6 +138,7 @@ private:
     std::size_t m_Index = 0;
     TFloatVecItr m_RowItr;
     TInt32VecCItr m_DocHashItr;
+    TPopMaskedRowFunc m_PopMaskedRow;
 };
 }
 
@@ -269,6 +274,8 @@ public:
     //! \param[in] beginRows The row at which to start reading.
     //! \param[in] endRows The row (exclusive) at which to stop reading.
     //! \param[in] reader The callback to read rows.
+    //! \param[in] rowMask If supplied only the rows corresponding to the one
+    //! bits of this vector are read.
     //! \return The readers used. This is intended to allow the reader to
     //! accumulate state in the reader which is passed back. RVO means any
     //! copy will be elided. Otherwise, the reader must hold the state by
@@ -276,7 +283,8 @@ public:
     TRowFuncVecBoolPr readRows(std::size_t numberThreads,
                                std::size_t beginRows,
                                std::size_t endRows,
-                               TRowFunc reader) const;
+                               TRowFunc reader,
+                               const CPackedBitVector* rowMask = nullptr) const;
 
     //! Convenience overload which reads all rows.
     TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const {
@@ -292,13 +300,15 @@ public:
     //!
     //! \note READER must implement the TRowFunc contract.
     template<typename READER>
-    std::pair<std::vector<READER>, bool> readRows(std::size_t numberThreads,
-                                                  std::size_t beginRows,
-                                                  std::size_t endRows,
-                                                  READER reader) const {
+    std::pair<std::vector<READER>, bool>
+    readRows(std::size_t numberThreads,
+             std::size_t beginRows,
+             std::size_t endRows,
+             READER reader,
+             const CPackedBitVector* rowMask = nullptr) const {
 
         TRowFuncVecBoolPr result_{this->readRows(numberThreads, beginRows, endRows,
-                                                 TRowFunc(std::move(reader)))};
+                                                 TRowFunc(std::move(reader)), rowMask)};
 
         std::vector<READER> result;
         result.reserve(result_.first.size());
@@ -327,7 +337,13 @@ public:
     //! \param[in] beginRows The row at which to start writing.
     //! \param[in] endRows The row (exclusive) at which to stop writing.
     //! \param[in] writer The callback to write the columns.
-    bool writeColumns(std::size_t numberThreads, std::size_t beginRows, std::size_t endRows, TRowFunc writer);
+    //! \param[in] rowMask If supplied only the rows corresponding to the one
+    //! bits of this vector are written.
+    bool writeColumns(std::size_t numberThreads,
+                      std::size_t beginRows,
+                      std::size_t endRows,
+                      TRowFunc writer,
+                      const CPackedBitVector* rowMask = nullptr);
 
     //! Convenience overload which writes all rows.
     bool writeColumns(std::size_t numberThreads, TRowFunc reader) {
@@ -378,6 +394,7 @@ public:
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeDataFrameRowSlicePtrVecPr = std::pair<std::size_t, TRowSlicePtrVec>;
+    using TPopMaskedRowFunc = data_frame_detail::TPopMaskedRowFunc;
 
     //! \brief Writes rows to the data frame.
     class CDataFrameRowSliceWriter final {
@@ -413,19 +430,28 @@ private:
                                              std::size_t beginRows,
                                              std::size_t endRows,
                                              TRowFunc func,
+                                             const CPackedBitVector* rowMask,
                                              bool commitResult) const;
     TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
                                                std::size_t endRows,
                                                TRowFunc func,
+                                               const CPackedBitVector* rowMask,
                                                bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
-                               std::size_t beginRows,
-                               std::size_t endRows,
+                               std::size_t firstRowToRead,
+                               std::size_t endRowsToRead,
+                               TPopMaskedRowFunc popMaskedRow,
                                const CDataFrameRowSliceHandle& slice) const;
 
     TRowSlicePtrVecCItr beginSlices(std::size_t beginRows) const;
     TRowSlicePtrVecCItr endSlices(std::size_t endRows) const;
+
+    template<typename ITR>
+    bool maskedRowsInSlice(ITR& maskedRow,
+                           ITR endMaskedRows,
+                           std::size_t beginSliceRows,
+                           std::size_t endSliceRows) const;
 
 private:
     //! True if the data frame resides in main memory.
