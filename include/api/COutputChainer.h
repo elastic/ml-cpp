@@ -81,6 +81,9 @@ public:
     //! Persist current state due to the periodic persistence being triggered.
     virtual bool periodicPersistState(CBackgroundPersister& persister);
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! The chainer does consume control messages, because it passes them on
     //! to whatever processor it's chained to.
     virtual bool consumesControlMessages();

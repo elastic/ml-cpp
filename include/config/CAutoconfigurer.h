@@ -46,6 +46,9 @@ public:
     //! Generate the report.
     virtual void finalise();
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! No-op.
     virtual bool restoreState(core::CDataSearcher& restoreSearcher,
                               core_t::TTime& completeToTime);
