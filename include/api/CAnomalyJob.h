@@ -182,6 +182,9 @@ public:
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled() const;
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! Log a list of the detectors and keys
     void description() const;
 
@@ -453,6 +456,9 @@ private:
 
     //! The hierarchical results normalizer.
     model::CHierarchicalResultsNormalizer m_Normalizer;
+
+    //! Flag indicating whether or not time has been advanced.
+    bool m_TimeAdvanced{false};
 
     friend class ::CBackgroundPersisterTest;
     friend class ::CAnomalyJobTest;
