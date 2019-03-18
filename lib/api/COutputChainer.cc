@@ -113,6 +113,10 @@ bool COutputChainer::periodicPersistState(CBackgroundPersister& persister) {
     return m_DataProcessor.periodicPersistState(persister);
 }
 
+bool COutputChainer::isPersistenceNeeded(const std::string& description) const {
+    return m_DataProcessor.isPersistenceNeeded(description);
+}
+
 bool COutputChainer::consumesControlMessages() {
     return true;
 }

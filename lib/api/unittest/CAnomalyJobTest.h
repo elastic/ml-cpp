@@ -17,6 +17,7 @@ public:
     void testOutOfSequence();
     void testControlMessages();
     void testSkipTimeControlMessage();
+    void testIsPersistenceNeeded();
     void testModelPlot();
     void testInterimResultEdgeCases();
     void testRestoreFailsWithEmptyStream();

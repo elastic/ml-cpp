@@ -483,6 +483,109 @@ void CAnomalyJobTest::testSkipTimeControlMessage() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
 }
 
+void CAnomalyJobTest::testIsPersistenceNeeded() {
+
+    model::CLimits limits;
+    api::CFieldConfig fieldConfig;
+    api::CFieldConfig::TStrVec clauses;
+    clauses.push_back("count");
+    fieldConfig.initFromClause(clauses);
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+
+    {
+        // check that persistence is not needed if no input records have been handled
+        // and the time has not been advanced
+
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        CPPUNIT_ASSERT_EQUAL(false, job.isPersistenceNeeded("test state"));
+
+        job.finalise();
+        wrappedOutputStream.syncFlush();
+
+        std::string output = outputStrm.str();
+        LOG_DEBUG(<< "Output has yielded: " << output);
+
+        // check that no quantile state was persisted
+        core::CRegex regex;
+        regex.init("\n");
+        core::CRegex::TStrVec lines;
+        regex.split(output, lines);
+        CPPUNIT_ASSERT_EQUAL(false, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+                                             lines));
+    }
+
+    core_t::TTime time = 3600;
+    {
+        // check that persistence is needed if an input record has been handled
+
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        api::CAnomalyJob::TStrStrUMap dataRows;
+
+        std::ostringstream ss;
+        ss << time;
+        dataRows["time"] = ss.str();
+        CPPUNIT_ASSERT(job.handleRecord(dataRows));
+
+        CPPUNIT_ASSERT_EQUAL(true, job.isPersistenceNeeded("test state"));
+
+        job.finalise();
+        wrappedOutputStream.syncFlush();
+
+        std::string output = outputStrm.str();
+        LOG_DEBUG(<< "Output has yielded: " << output);
+
+        // check that the quantile state has actually been persisted
+        core::CRegex regex;
+        regex.init("\n");
+        core::CRegex::TStrVec lines;
+        regex.split(output, lines);
+        CPPUNIT_ASSERT_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+                                            lines));
+    }
+
+    {
+        // check that persistence is needed if time has been advanced (via a control message)
+        // even if no input data has been handled
+
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+
+        api::CAnomalyJob::TStrStrUMap dataRows;
+
+        time = 39600;
+        dataRows["."] = "t39600";
+        CPPUNIT_ASSERT(job.handleRecord(dataRows));
+        CPPUNIT_ASSERT(job.isPersistenceNeeded("test state"));
+
+        CPPUNIT_ASSERT_EQUAL(true, job.isPersistenceNeeded("test state"));
+
+        job.finalise();
+        wrappedOutputStream.syncFlush();
+
+        std::string output = outputStrm.str();
+        LOG_DEBUG(<< "Output has yielded: " << output);
+
+        // check that the quantile state has actually been persisted
+        core::CRegex regex;
+        regex.init("\n");
+        core::CRegex::TStrVec lines;
+        regex.split(output, lines);
+        CPPUNIT_ASSERT_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+                                            lines));
+    }
+}
+
 void CAnomalyJobTest::testModelPlot() {
     core_t::TTime bucketSize = 10000;
     model::CLimits limits;
@@ -651,6 +754,8 @@ CppUnit::Test* CAnomalyJobTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>(
         "CAnomalyJobTest::testSkipTimeControlMessage",
         &CAnomalyJobTest::testSkipTimeControlMessage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>(
+        "CAnomalyJobTest::testIsPersistenceNeeded", &CAnomalyJobTest::testIsPersistenceNeeded));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>(
         "CAnomalyJobTest::testModelPlot", &CAnomalyJobTest::testModelPlot));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>(
