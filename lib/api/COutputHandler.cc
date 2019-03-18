@@ -52,6 +52,11 @@ bool COutputHandler::periodicPersistState(CBackgroundPersister& /* persister */)
     return true;
 }
 
+bool COutputHandler::isPersistenceNeeded(const std::string& /*description*/) const {
+    // NOOP unless overridden
+    return false;
+}
+
 COutputHandler::CPreComputedHash::CPreComputedHash(size_t hash) : m_Hash(hash) {
 }
 
