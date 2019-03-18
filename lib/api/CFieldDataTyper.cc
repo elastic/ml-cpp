@@ -337,7 +337,7 @@ bool CFieldDataTyper::persistState(core::CDataAdder& persister) {
 
 bool CFieldDataTyper::isPersistenceNeeded(const std::string& description) const {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.isPersistenceNeeded(description) == true) {
+    if (m_OutputHandler.isPersistenceNeeded(description)) {
         return true;
     }
 
