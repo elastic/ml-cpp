@@ -98,6 +98,9 @@ public:
     virtual bool restoreState(core::CDataSearcher& restoreSearcher,
                               core_t::TTime& completeToTime);
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);
 

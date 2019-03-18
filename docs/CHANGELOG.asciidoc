@@ -44,6 +44,8 @@ to the model. (See {pull}214[#214].)
 
 * Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
 
+* Improve autodetect logic for persistence. {ml-pull}437[#437]
+
 == {es} version 7.0.0-alpha1
 
 == {es} version 6.7.0
