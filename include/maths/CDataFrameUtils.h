@@ -18,6 +18,9 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CPackedBitVector;
+}
 namespace maths {
 class CQuantileSketch;
 
@@ -54,6 +57,7 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
     using TWeightFunction = std::function<double(TRowRef)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
+    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
 public:
     //! Convert a row of the data frame to a specified vector type.
@@ -72,20 +76,25 @@ public:
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the column quantiles.
+    //! \param[in] rowMask A mask of the rows from which to compute quantiles.
     //! \param[in] columnMask A mask of the columns for which to compute quantiles.
-    //! \param[in,out] result This must be initialised with the sketches which will
-    //! be used for estimating the column quantiles. It is filled in with the result.
+    //! \param[in] sketch The sketch to be used to estimate column quantiles.
+    //! \param[out] result Filled in with the column quantile estimates.
     //! \param[in] weight The weight to assign each row. The default is unity for
     //! all rows.
     static bool columnQuantiles(std::size_t numberThreads,
                                 const core::CDataFrame& frame,
+                                const core::CPackedBitVector& rowMask,
                                 const TSizeVec& columnMask,
+                                const CQuantileSketch& sketch,
                                 TQuantileSketchVec& result,
                                 TWeightFunction weight = unitWeight);
 
+    //! Check if a data frame value is missing.
+    static bool isMissing(double value);
+
 private:
     static double unitWeight(const TRowRef&);
-    static bool isMissing(double value);
 };
 }
 }

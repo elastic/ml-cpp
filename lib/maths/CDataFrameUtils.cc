@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
@@ -78,28 +79,27 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
 
 bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                       const core::CDataFrame& frame,
+                                      const core::CPackedBitVector& rowMask,
                                       const TSizeVec& columnMask,
+                                      const CQuantileSketch& sketch,
                                       TQuantileSketchVec& result,
                                       TWeightFunction weight) {
-    if (result.size() != columnMask.size()) {
-        LOG_ERROR(<< "Expected " << columnMask.size() << " quantile sketches"
-                  << " and got " << result.size());
-        return false;
-    }
+    result.assign(columnMask.size(), sketch);
 
     auto results = frame.readRows(
-        numberThreads,
+        numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
             [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    for (auto i : columnMask) {
-                        if (isMissing((*row)[i]) == false) {
-                            quantiles[i].add((*row)[i], weight(*row));
+                    for (std::size_t i = 0; i < columnMask.size(); ++i) {
+                        if (isMissing((*row)[columnMask[i]]) == false) {
+                            quantiles[i].add((*row)[columnMask[i]], weight(*row));
                         }
                     }
                 }
             },
-            std::move(result)));
+            std::move(result)),
+        &rowMask);
 
     if (results.second == false) {
         LOG_ERROR(<< "Failed to compute column quantiles");
@@ -107,8 +107,9 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     }
 
     result = std::move(results.first[0].s_FunctionState);
+
     for (std::size_t i = 1; i < results.first.size(); ++i) {
-        for (std::size_t j = 0; j < result.size(); ++j) {
+        for (std::size_t j = 0; j < columnMask.size(); ++j) {
             result[j] += results.first[i].s_FunctionState[j];
         }
     }
@@ -116,12 +117,12 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     return true;
 }
 
-double CDataFrameUtils::unitWeight(const TRowRef&) {
-    return 1.0;
-}
-
 bool CDataFrameUtils::isMissing(double x) {
     return CMathsFuncs::isFinite(x) == false;
+}
+
+double CDataFrameUtils::unitWeight(const TRowRef&) {
+    return 1.0;
 }
 }
 }
