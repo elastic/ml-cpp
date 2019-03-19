@@ -136,7 +136,8 @@ public:
             &rowMask);
 
         for (auto& mask : result.first) {
-            mask.s_FunctionState.extend(false, rowMask.size() - mask.s_FunctionState.size());
+            mask.s_FunctionState.extend(false, rowMask.size() -
+                                                   mask.s_FunctionState.size());
         }
 
         core::CPackedBitVector leftRowMask{std::move(result.first[0].s_FunctionState)};
@@ -161,9 +162,8 @@ public:
     }
 
 private:
-    std::ostringstream& doPrint(std::string pad,
-                 const TNodeVec& tree,
-                 std::ostringstream& result) const {
+    std::ostringstream&
+    doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const {
         result << "\n" << pad;
         if (this->isLeaf()) {
             result << m_NodeValue;
@@ -956,16 +956,17 @@ private:
             leafValues.push_back(m_Loss->minimizer());
         }
 
-        frame.readRows(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               std::size_t numberColumns{row->numberColumns()};
-                               double prediction{(*row)[predictionColumn(numberColumns)]};
-                               double actual{(*row)[m_DependentVariable]};
-                               leafValues[root(tree).leafIndex(*row, tree)]->add(prediction, actual);
-                           }
-                       },
-                       &trainingRowMask);
+        frame.readRows(
+            m_NumberThreads, 0, frame.numberRows(),
+            [&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    std::size_t numberColumns{row->numberColumns()};
+                    double prediction{(*row)[predictionColumn(numberColumns)]};
+                    double actual{(*row)[m_DependentVariable]};
+                    leafValues[root(tree).leafIndex(*row, tree)]->add(prediction, actual);
+                }
+            },
+            &trainingRowMask);
 
         for (std::size_t i = 0; i < tree.size(); ++i) {
             tree[i].value(shrinkage * leafValues[i]->value());
@@ -1036,9 +1037,7 @@ private:
     }
 
     //! Get the root node of \p tree.
-    static const CNode& root(const TNodeVec& tree) {
-        return tree[0];
-    }
+    static const CNode& root(const TNodeVec& tree) { return tree[0]; }
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
