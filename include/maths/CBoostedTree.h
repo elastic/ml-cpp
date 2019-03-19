@@ -60,7 +60,7 @@ public:
 };
 
 //! \brief Finds the leaf node value which minimises the MSE.
-class MATHS_EXPORT CArgMinMse : public CArgMinLoss {
+class MATHS_EXPORT CArgMinMse final : public CArgMinLoss {
 public:
     double value() const override;
 

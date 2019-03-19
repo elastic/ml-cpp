@@ -16,6 +16,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <functional>
 #include <numeric>
 #include <vector>
 
