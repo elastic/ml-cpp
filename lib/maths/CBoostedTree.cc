@@ -516,17 +516,17 @@ public:
 
         LOG_TRACE(<< "Starting training");
 
-        TMeanAccumulator error;
+        TMeanAccumulator meanLoss;
         for (std::size_t i = 0; i < m_NumberFolds; ++i) {
             LOG_TRACE(<< "fold = " << i);
             TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
             double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
-            error.add(loss);
+            meanLoss.add(loss);
             LOG_TRACE(<< "test set loss = " << loss);
         }
-        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(error));
+        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(meanLoss));
 
-        if (CBasicStatistics::mean(error) < m_BestForestTestError) {
+        if (CBasicStatistics::mean(meanLoss) < m_BestForestTestLoss) {
             // TODO remember hyperparameters, rng seed, etc and train on full data set at end.
         }
     }
@@ -1066,7 +1066,7 @@ private:
     double m_ShrinkageFactor = 0.98;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
-    double m_BestForestTestError = INF;
+    double m_BestForestTestLoss = INF;
     TNodeVecVec m_BestForest;
 };
 
