@@ -514,13 +514,17 @@ public:
         // TODO Hyperparameter optimisation...
         // Get next parameters to test, compute generalisation error, record if best, repeat.
 
+        LOG_TRACE(<< "Starting training");
+
         TMeanAccumulator error;
         for (std::size_t i = 0; i < m_NumberFolds; ++i) {
             LOG_TRACE(<< "fold = " << i);
             TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
-            error.add(this->meanLoss(frame, testingRowMasks[i], forest));
+            double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
+            error.add(loss);
+            LOG_TRACE(<< "test set loss = " << loss);
         }
-        LOG_TRACE(<< "mean error = " << error);
+        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(error));
 
         if (CBasicStatistics::mean(error) < m_BestForestTestError) {
             // TODO remember hyperparameters, rng seed, etc and train on full data set at end.
@@ -626,7 +630,7 @@ private:
             regressors.end());
         LOG_TRACE(<< "regressors = " << core::CContainerPrinter::print(regressors));
 
-        // TODO consider "correlation" with target variable(s).
+        // TODO consider "correlation" with target variable.
 
         m_FeatureSampleProbabilities.assign(n, 0.0);
         if (regressors.empty()) {
@@ -733,9 +737,7 @@ private:
 
         LOG_TRACE(<< "Training one forest...");
 
-        this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask);
-
-        TNodeVecVec forest;
+        TNodeVecVec forest{this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask)};
         forest.reserve(m_MaximumNumberTrees);
 
         // For each iteration:
@@ -757,10 +759,10 @@ private:
             if (retries == m_MaximumAttemptsToAddTree) {
                 break;
             } else if (retries == 0) {
-                shrinkage *= m_ShrinkageFactor;
                 this->refreshPredictionsGradientsAndCurvatures(frame, trainingRowMask,
                                                                shrinkage, tree);
                 forest.push_back(std::move(tree));
+                shrinkage *= m_ShrinkageFactor;
             }
         }
 
@@ -892,6 +894,8 @@ private:
                 candidateSplits, featureBag, std::move(rightChildRowMask)));
         }
 
+        LOG_TRACE(<< "Trained one tree");
+
         return tree;
     }
 
@@ -1004,11 +1008,9 @@ private:
             core::bindRetrievableState(
                 [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
-                        for (const auto& tree : forest) {
-                            double prediction{root(tree).value(*row, tree)};
-                            double actual{(*row)[m_DependentVariable]};
-                            loss.add(m_Loss->value(prediction, actual));
-                        }
+                        double prediction{predict(*row, forest)};
+                        double actual{(*row)[m_DependentVariable]};
+                        loss.add(m_Loss->value(prediction, actual));
                     }
                 },
                 TMeanAccumulator{}),
@@ -1038,6 +1040,15 @@ private:
 
     //! Get the root node of \p tree.
     static const CNode& root(const TNodeVec& tree) { return tree[0]; }
+
+    //! Get the forest's prediction for \p row.
+    static double predict(const TRowRef& row, const TNodeVecVec& forest) {
+        double result{0.0};
+        for (const auto& tree : forest) {
+            result += root(tree).value(row, tree);
+        }
+        return result;
+    }
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
