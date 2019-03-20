@@ -16,8 +16,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CSignal.h>
 #include <maths/CStatisticalTests.h>
@@ -171,7 +171,7 @@ const std::string DIURNAL_COMPONENT_NAMES[] = {
 
 //! Fit and remove a linear trend from \p values.
 void removeLinearTrend(TFloatMeanAccumulatorVec& values) {
-    using TRegression = CRegression::CLeastSquaresOnline<1, double>;
+    using TRegression = CLeastSquaresOnlineRegression<1, double>;
     TRegression trend;
     double dt{10.0 / static_cast<double>(values.size())};
     double time{dt / 2.0};

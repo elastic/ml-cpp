@@ -497,7 +497,7 @@ public:
             uint64_t checksum(uint64_t seed) const;
 
         private:
-            using TRegression = CRegression::CLeastSquaresOnline<1>;
+            using TRegression = CLeastSquaresOnlineRegression<1>;
 
         private:
             //! The origin for the mean prediction error regression model.

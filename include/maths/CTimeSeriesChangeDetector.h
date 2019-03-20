@@ -14,7 +14,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CRegression.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -134,7 +134,7 @@ private:
     using TChangeModelPtr = std::unique_ptr<TChangeModel>;
     using TChangeModelPtr5Vec = core::CSmallVector<TChangeModelPtr, 5>;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
-    using TRegression = CRegression::CLeastSquaresOnline<1, double>;
+    using TRegression = CLeastSquaresOnlineRegression<1, double>;
 
 private:
     //! The minimum amount of time we need to observe before

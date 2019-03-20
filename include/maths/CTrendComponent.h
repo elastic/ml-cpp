@@ -10,11 +10,11 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CNaiveBayes.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CPRNG.h>
-#include <maths/CRegression.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -158,7 +158,7 @@ public:
     std::string print() const;
 
 private:
-    using TRegression = CRegression::CLeastSquaresOnline<2, double>;
+    using TRegression = CLeastSquaresOnlineRegression<2, double>;
     using TRegressionArray = TRegression::TArray;
     using TRegressionArrayVec = std::vector<TRegressionArray>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;

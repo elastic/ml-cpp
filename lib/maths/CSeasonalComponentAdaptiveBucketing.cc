@@ -16,13 +16,13 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CMathsFuncs.h>
 #include <maths/CMathsFuncsDetail.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTools.h>
 

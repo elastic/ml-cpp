@@ -13,8 +13,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDecayRateController.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CTrendComponent.h>
 
@@ -37,7 +37,7 @@ using TDouble3VecVec = std::vector<TDouble3Vec>;
 using TGenerator = TDoubleVec (*)(test::CRandomNumbers&, core_t::TTime, core_t::TTime, core_t::TTime);
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TRegression = maths::CRegression::CLeastSquaresOnline<2, double>;
+using TRegression = maths::CLeastSquaresOnlineRegression<2, double>;
 
 TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng,
                                 core_t::TTime bucketLength,
