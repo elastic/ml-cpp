@@ -170,10 +170,12 @@ public:
     void recoverMemory() override {
         m_KDistances.resize(this->k() * m_StartAddresses);
         m_Lrd.resize(m_StartAddresses);
-        m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
         m_KDistances.shrink_to_fit();
         m_Lrd.shrink_to_fit();
-        m_CoordinateLrd.shrink_to_fit();
+        if (this->computeFeatureInfluence()) {
+            m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
+            m_CoordinateLrd.shrink_to_fit();
+        }
     }
 
     std::size_t staticSize() const override { return sizeof(*this); }

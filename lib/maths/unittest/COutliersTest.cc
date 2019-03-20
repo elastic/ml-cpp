@@ -574,9 +574,8 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
-        // TODO we need to improve estimation accuracy for partitioned analyses.
         CPPUNIT_ASSERT(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 2);
+                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
 
