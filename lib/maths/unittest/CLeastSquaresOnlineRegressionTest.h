@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CRegressionTest_h
-#define INCLUDED_CRegressionTest_h
+#ifndef INCLUDED_CLeastSquaresOnlineRegressionTest_h
+#define INCLUDED_CLeastSquaresOnlineRegressionTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegressionTest : public CppUnit::TestFixture {
+class CLeastSquaresOnlineRegressionTest : public CppUnit::TestFixture {
 public:
     void testInvariants();
     void testFit();
@@ -26,9 +26,8 @@ public:
     void testCovariances();
     void testParameters();
     void testPersist();
-    void testParameterProcess();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CRegressionTest_h
+#endif // INCLUDED_CLeastSquaresOnlineRegressionTest_h
