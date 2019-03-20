@@ -11,7 +11,7 @@
 
 #include <maths/CAdaptiveBucketing.h>
 #include <maths/CBasicStatistics.h>
-#include <maths/CRegression.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/ImportExport.h>
 
@@ -37,8 +37,8 @@ namespace maths {
 class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
-    using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
-    using TRegression = CRegression::CLeastSquaresOnline<1, CFloatStorage>;
+    using TDoubleRegression = CLeastSquaresOnlineRegression<1, double>;
+    using TRegression = CLeastSquaresOnlineRegression<1, CFloatStorage>;
     using CAdaptiveBucketing::count;
 
 public:

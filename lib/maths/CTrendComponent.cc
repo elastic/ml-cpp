@@ -13,8 +13,9 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 
@@ -553,7 +554,7 @@ double CTrendComponent::value(const TDoubleVec& weights,
                               double time) const {
     TMeanAccumulator prediction;
     for (std::size_t i = 0u; i < models.size(); ++i) {
-        prediction.add(CRegression::predict(models[i], time), weights[i]);
+        prediction.add(TRegression::predict(models[i], time), weights[i]);
     }
     return CBasicStatistics::mean(prediction);
 }
