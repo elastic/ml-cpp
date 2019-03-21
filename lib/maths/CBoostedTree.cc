@@ -253,6 +253,13 @@ private:
                                                        rhs.s_Gain, rhs.s_Feature);
         }
 
+        std::string print() const {
+            std::ostringstream result;
+            result << "split feature '" << s_Feature << "' @ = " << s_SplitAt
+                   << ", gain = " << s_Gain;
+            return result.str();
+        }
+
         double s_Gain;
         std::size_t s_Feature;
         double s_SplitAt;
@@ -396,16 +403,18 @@ private:
             }
 
             double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Lambda)) - m_Gamma};
-            LOG_TRACE(<< "feature '" << m_FeatureBag[i] << "' gain = " << gain
-                      << " split at = " << m_CandidateSplits[m_FeatureBag[i]][splitAt]);
 
             SSplitStatistics candidate{gain, m_FeatureBag[i],
                                        m_CandidateSplits[m_FeatureBag[i]][splitAt],
                                        assignMissingTo == ASSIGN_MISSING_TO_LEFT};
+            LOG_TRACE(<< "candidate split: " << candidate.print());
+
             if (candidate > result) {
                 result = candidate;
             }
         }
+
+        LOG_TRACE(<< "best split: " << result.print());
 
         return result;
     }
@@ -462,6 +471,9 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 public:
+    static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
+
+public:
     CImpl(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
         : m_NumberThreads{numberThreads},
           m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {}
@@ -513,6 +525,7 @@ public:
 
         // TODO Hyperparameter optimisation...
         // Get next parameters to test, compute generalisation error, record if best, repeat.
+        // We need sensible limits on mimimum progress and maximum iterations.
 
         LOG_TRACE(<< "Starting training");
 
@@ -592,7 +605,7 @@ private:
             LOG_TRACE(<< "# testing = " << testingRowMasks[i].manhattan());
         }
 
-        return std::make_pair(trainingRowMasks, testingRowMasks);
+        return {trainingRowMasks, testingRowMasks};
     }
 
     //! Initialize the regressors sample distribution.
@@ -832,11 +845,6 @@ private:
                        const core::CPackedBitVector& trainingRowMask,
                        const TDoubleVecVec& candidateSplits) const {
 
-        // For each iteration we:
-        //   1. Find the leaf with the greatest decrease in loss
-        //   2. If no split reduced the loss we terminate
-        //   3. Otherwise we split that leaf
-
         // TODO improve categorical regressor treatment
 
         LOG_TRACE(<< "Training one tree...");
@@ -855,6 +863,11 @@ private:
             0 /*root*/, m_NumberThreads, frame, *m_Lambda, *m_Gamma,
             candidateSplits, this->featureBag(frame), trainingRowMask));
 
+        // For each iteration we:
+        //   1. Find the leaf with the greatest decrease in loss
+        //   2. If no split (significantly) reduced the loss we terminate
+        //   3. Otherwise we split that leaf
+
         double totalGain{0.0};
 
         for (std::size_t i = 0; i < maximumTreeSize; ++i) {
@@ -862,7 +875,7 @@ private:
             auto split = leaves.top();
             leaves.pop();
 
-            if (split->gain() < 1e-7 * totalGain) {
+            if (split->gain() < MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
                 break;
             }
 
@@ -1069,6 +1082,8 @@ private:
     double m_BestForestTestLoss = INF;
     TNodeVecVec m_BestForest;
 };
+
+const double CBoostedTree::CImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 
 CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
     : m_Impl{std::make_unique<CImpl>(numberThreads, dependentVariable, std::move(loss))} {
