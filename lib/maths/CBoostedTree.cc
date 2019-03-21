@@ -215,12 +215,12 @@ public:
     CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
     CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
-    //! Order two leaves by decreasing loss.
+    //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CLeafNodeStatistics& rhs) const {
         return this->bestSplitStatistics() < rhs.bestSplitStatistics();
     }
 
-    //! Get the gain in loss of the best split.
+    //! Get the gain in loss of the best split of this leaf.
     double gain() const { return this->bestSplitStatistics().s_Gain; }
 
     //! Get the best (feature, feature value) split.
@@ -266,7 +266,7 @@ private:
         bool s_AssignMissingToLeft;
     };
 
-    //! \brief A collection aggregate derivatives.
+    //! \brief A collection of aggregate derivatives.
     struct SDerivatives {
         SDerivatives(const TSizeVec& featureBag, const TDoubleVecVec& candidateSplits)
             : s_Gradients(featureBag.size()), s_Curvatures(featureBag.size()),
@@ -832,8 +832,8 @@ private:
 
     //! Get the maximum number of nodes to use in a tree.
     //!
-    //! \note This number will only be used if the regularisation says its a
-    //! good idea.
+    //! \note This number will only be used if the regularised loss says its
+    //! a good idea.
     std::size_t maximumTreeSize(const core::CDataFrame& frame) const {
         return static_cast<std::size_t>(
             std::ceil(m_MaximumTreeSizeFraction *
