@@ -6,6 +6,8 @@
 
 #include "CDataFrameUtilsTest.h"
 
+#include <core/CPackedBitVector.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CQuantileSketch.h>
@@ -14,6 +16,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <functional>
 #include <numeric>
 #include <vector>
 
@@ -161,6 +164,7 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
     TFactoryFunc makeMainMemory{
         [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
 
+    core::CPackedBitVector rowMask{rows, true};
     TSizeVec columnMask(cols);
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
@@ -182,9 +186,10 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
             }
             frame->finishWritingRows();
 
-            TQuantileSketchVec actualQuantiles(4, {maths::CQuantileSketch::E_Linear, 100});
+            maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
+            TQuantileSketchVec actualQuantiles;
             CPPUNIT_ASSERT(maths::CDataFrameUtils::columnQuantiles(
-                threads, *frame, columnMask, actualQuantiles));
+                threads, *frame, rowMask, columnMask, sketch, actualQuantiles));
 
             // Check the quantile sketches match.
 

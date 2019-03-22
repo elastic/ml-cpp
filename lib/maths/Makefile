@@ -20,6 +20,7 @@ CAdaptiveBucketing.cc \
 CAgglomerativeClusterer.cc \
 CAssignment.cc \
 CBasicStatistics.cc \
+CBoostedTree.cc \
 CBjkstUniqueValues.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
@@ -31,6 +32,7 @@ CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameRegressionModel.cc \
 CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \

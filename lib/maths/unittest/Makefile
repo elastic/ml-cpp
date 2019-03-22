@@ -22,6 +22,7 @@ SRCS=\
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \
 	CBjkstUniqueValuesTest.cc \
+	CBoostedTreeTest.cc \
 	CBootstrapClustererTest.cc \
 	CBoundingBoxTest.cc \
 	CCalendarComponentAdaptiveBucketingTest.cc \
