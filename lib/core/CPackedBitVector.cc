@@ -345,6 +345,8 @@ bool CPackedBitVector::lineScan(const CPackedBitVector& covector, RUN_ACTION act
         } else {
             if (length != MAX_RUN_LENGTH) {
                 value = 1 - value;
+            }
+            if (colength != MAX_RUN_LENGTH) {
                 covalue = 1 - covalue;
             }
             length = static_cast<std::size_t>(m_RunLengths[++i]);
