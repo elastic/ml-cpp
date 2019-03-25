@@ -20,6 +20,7 @@ public:
     void testOneBitIterators();
     void testInnerProductBitwiseAnd();
     void testInnerProductBitwiseOr();
+    void testProblemCases();
     void testPersist();
 
     static CppUnit::Test* suite();
