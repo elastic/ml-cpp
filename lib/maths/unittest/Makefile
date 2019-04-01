@@ -21,6 +21,7 @@ SRCS=\
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \
+	CBayesianOptimisationTest.cc \
 	CBjkstUniqueValuesTest.cc \
 	CBoostedTreeTest.cc \
 	CBootstrapClustererTest.cc \

@@ -9,6 +9,7 @@
 #include "CAgglomerativeClustererTest.h"
 #include "CAssignmentTest.h"
 #include "CBasicStatisticsTest.h"
+#include "CBayesianOptimisationTest.h"
 #include "CBjkstUniqueValuesTest.h"
 #include "CBoostedTreeTest.h"
 #include "CBootstrapClustererTest.h"
@@ -94,6 +95,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CAgglomerativeClustererTest::suite());
     runner.addTest(CAssignmentTest::suite());
     runner.addTest(CBasicStatisticsTest::suite());
+    runner.addTest(CBayesianOptimisationTest::suite());
     runner.addTest(CBjkstUniqueValuesTest::suite());
     runner.addTest(CBoostedTreeTest::suite());
     runner.addTest(CBootstrapClustererTest::suite());
