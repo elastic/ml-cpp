@@ -35,6 +35,7 @@
 #include "CKMostCorrelatedTest.h"
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
+#include "CLbfgsTest.h"
 #include "CLinearAlgebraTest.h"
 #include "CLogNormalMeanPrecConjugateTest.h"
 #include "CLogTDistributionTest.h"
@@ -119,6 +120,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CKMeansOnlineTest::suite());
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
+    runner.addTest(CLbfgsTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
     runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());

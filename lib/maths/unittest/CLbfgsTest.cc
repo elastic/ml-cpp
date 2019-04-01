@@ -1,0 +1,169 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+
+#include "CLbfgsTest.h"
+
+#include <core/CLogger.h>
+
+#include <maths/CLbfgs.h>
+#include <maths/CLinearAlgebraEigen.h>
+
+#include <test/CRandomNumbers.h>
+
+#include <vector>
+
+using namespace ml;
+
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TVector = maths::CDenseVector<double>;
+using TVectorVec = std::vector<TVector>;
+
+void CLbfgsTest::testQuadtratic() {
+
+    test::CRandomNumbers rng;
+
+    TVector diagonal(10);
+    for (std::size_t i = 0; i < 10; ++i) {
+        diagonal(i) = static_cast<double>(i);
+    }
+
+    auto f = [&](const TVector& x) {
+        return x.transpose() * diagonal.asDiagonal() * x;
+    };
+    auto g = [&](const TVector& x) { return 2.0 * diagonal.asDiagonal() * x; };
+
+    maths::CLbfgs<TVector> lbfgs{10};
+
+    // Check convergence rate is super-linear (comapre to gradient descent).
+
+    TVector x0{100.0 * diagonal};
+
+    for (std::size_t i = 10; i < 15; ++i) {
+        double fx;
+        std::tie(std::ignore, fx) = lbfgs.minimize(f, g, x0, 1e-12, i);
+
+        // Gradient descent with back tracking.
+        TVector x{x0};
+        for (std::size_t j = 0; j < i; ++j) {
+            double fl(f(x));
+            double s{1.0};
+            for (std::size_t k = 0;
+                 k < 10 && fl - f(x - s * g(x)) < 1e-4 * g(x).norm(); ++k, s *= 0.5) {
+            }
+            x -= s * g(x);
+        }
+
+        CPPUNIT_ASSERT(fx < 0.02 * static_cast<double>(f(x)));
+    }
+
+    // Check convergence to the minimum of a quadtratic form for a variety of
+    // matrix conditions and start positions.
+
+    TDoubleVec samples;
+
+    double fmean{0.0};
+
+    for (std::size_t test = 0; test < 1000; ++test) {
+
+        rng.generateLogNormalSamples(0.0, 3.0, 10, samples);
+
+        for (std::size_t i = 0; i < 10; ++i) {
+            diagonal(i) = samples[i];
+        }
+        LOG_TRACE(<< "diagonal = " << diagonal.transpose());
+
+        rng.generateUniformSamples(-10.0, 10.0, 10, samples);
+        for (std::size_t i = 0; i < 10; ++i) {
+            x0(i) = samples[i];
+        }
+        LOG_TRACE(<< "x0 = " << x0.transpose());
+
+        TVector x;
+        double fx;
+        for (double scale : {0.01, 1.0, 100.0}) {
+            std::tie(x, fx) = lbfgs.minimize(f, g, scale * x0);
+            CPPUNIT_ASSERT_EQUAL(fx, static_cast<double>(f(x)));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, fx, 0.5 * scale * scale);
+        }
+        std::tie(std::ignore, fx) = lbfgs.minimize(f, g, x0);
+        fmean += fx / 1000.0;
+    }
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, fmean, 5e-3);
+}
+
+void CLbfgsTest::testSingularHessian() {
+
+    // Test we converge to the global minimum of a convex function when the Hessian
+    // is mostly singular.
+
+    // We use f(x) = max_{p(i)}{||x - p(i)||}. The Hessian is zero except across
+    // at the boundary between regions with different furthest points.
+
+    test::CRandomNumbers rng;
+
+    TVectorVec points(10, TVector{10});
+
+    auto f = [&](TVector x) {
+        double result{0.0};
+        for (const auto& p : points) {
+            result = std::max(result, (p - x).norm());
+        }
+        return result;
+    };
+    auto g = [&](TVector x) {
+        TVector furthest{x};
+        for (const auto& p : points) {
+            if ((p - x).norm() > (furthest - x).norm()) {
+                furthest = p;
+            }
+        }
+        return (x - furthest) / (x - furthest).norm();
+    };
+
+    maths::CLbfgs<TVector> lbfgs{5};
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        TDoubleVec samples;
+        rng.generateUniformSamples(-100.0, 100.0, 100, samples);
+
+        for (std::size_t i = 0; i < samples.size(); /**/) {
+            for (std::size_t j = 0; j < 10; ++i, ++j) {
+                points[i / 10](j) = samples[i];
+            }
+        }
+
+        TSizeVec x0;
+        rng.generateUniformSamples(0, 10, 1, x0);
+
+        TVector x;
+        double fx;
+        std::tie(x, fx) = lbfgs.minimize(f, g, points[x0[0]]);
+        LOG_DEBUG(<< fx);
+
+        // Test we're near the minimum.
+        TVector eps{10};
+        eps.setZero();
+        for (std::size_t j = 0; j < 10; ++j) {
+            eps(j) = 0.2;
+            CPPUNIT_ASSERT(f(x - eps) > fx);
+            CPPUNIT_ASSERT(f(x + eps) > fx);
+            eps(j) = 0.0;
+        }
+    }
+}
+
+CppUnit::Test* CLbfgsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
+
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
+        "CLbfgsTest::testQuadtratic", &CLbfgsTest::testQuadtratic));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
+        "CLbfgsTest::testSingularHessian", &CLbfgsTest::testSingularHessian));
+
+    return suiteOfTests;
+}
