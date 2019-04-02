@@ -13,6 +13,7 @@ class CLbfgsTest : public CppUnit::TestFixture {
 public:
     void testQuadtratic();
     void testSingularHessian();
+    void testConstrainedMinimize();
 
     static CppUnit::Test* suite();
 };

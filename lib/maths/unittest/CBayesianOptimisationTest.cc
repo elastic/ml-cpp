@@ -31,7 +31,8 @@ void CBayesianOptimisationTest::testLikelihood() {
 
     // Test that the likelihood gradient matches the numerical likelihood gradient.
 
-    maths::CBayesianOptimisation bopt{4};
+    maths::CBayesianOptimisation bopt{
+        {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
 
     bopt.add(vector({1.0, 1.0, 1.0, 1.0}), 4.0, 1.0);
     bopt.add(vector({2.0, 1.0, -2.0, 1.0}), 10.0, 1.0);

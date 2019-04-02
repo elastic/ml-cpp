@@ -13,14 +13,15 @@
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 
-#include <Eigen/Eigenvalues>
+#include <boost/math/distributions/normal.hpp>
 
 namespace ml {
 namespace maths {
 
-CBayesianOptimisation::CBayesianOptimisation(std::size_t parameters)
-    : m_DomainScales{SConstant<TVector>::get(parameters, 1.0)},
-      m_KernelParameters{SConstant<TVector>::get(parameters + 1, 1.0)} {
+CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
+    : m_ParameterBounds{std::move(parameterBounds)},
+      m_DomainScales{SConstant<TVector>::get(m_ParameterBounds.size(), 1.0)},
+      m_KernelParameters{SConstant<TVector>::get(m_ParameterBounds.size() + 1, 1.0)} {
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
@@ -32,6 +33,21 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
 CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement() {
     this->precondition();
     this->maximumLikelihoodKernel();
+
+    // We use an ADMM scheme.
+    //
+    // The upper and lower parameter box constraints are converted into one
+    // inequality, i.e. x' = (x^t - a^t, b^t - x^t) >= 0. We use a standard
+    // trick to augment the objective to capture the constraint. In particular,
+    // we have 2 * dimension(x) slack variables y and solve
+    //
+    //  argmin_x -E[I(x)] + I(y)
+    //      s.t. A * x - y = 0
+    //
+    // with I(y) = infinity y < 0 and 0 otherwise.
+
+    auto EI = this->minusExpectedImprovement();
+
     return {};
 }
 
@@ -87,7 +103,8 @@ CBayesianOptimisation::minusLikelihoodGradient() const {
     };
 }
 
-CBayesianOptimisation::TMarginalFunc CBayesianOptimisation::gpMarginal() const {
+CBayesianOptimisation::TExpectedImprovementFunc
+CBayesianOptimisation::minusExpectedImprovement() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
     Eigen::LDLT<Eigen::MatrixXd> Kldl_{K};
@@ -96,16 +113,32 @@ CBayesianOptimisation::TMarginalFunc CBayesianOptimisation::gpMarginal() const {
 
     double vx{this->meanErrorVariance()};
 
-    return [ Kldl = std::move(Kldl_), Kinvf = std::move(Kinvf_), vx,
-             this ](const TVector& x) {
+    double fmin{std::min_element(m_Function.begin(), m_Function.end(),
+                                 [](const TVectorDoublePr& lhs, const TVectorDoublePr& rhs) {
+                                     return lhs.second < rhs.second;
+                                 })
+                    ->second};
+
+    return
+        [ Kldl = std::move(Kldl_), Kinvf = std::move(Kinvf_), vx, fmin,
+          this ](const TVector& x) {
+
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
-        double mu{Kxn.transpose() * Kinvf};
-        double v{Kxx - Kxn.transpose() * Kldl.solve(Kxn)};
+        double sigma{std::max(Kxx - Kxn.transpose() * Kldl.solve(Kxn), 0.0)};
 
-        return std::make_pair(mu, v);
+        if (sigma == 0.0) {
+            return 0.0;
+        }
+
+        double mu{Kxn.transpose() * Kinvf};
+        sigma = std::sqrt(sigma);
+
+        boost::math::normal normal{mu, sigma};
+        double z{(fmin - mu) / sigma};
+        return -sigma * (z * CTools::safeCdf(normal, z) + CTools::safePdf(normal, z));
     };
 }
 

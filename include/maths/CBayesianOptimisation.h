@@ -41,13 +41,15 @@ namespace maths {
 //! Process value at the point x.
 class MATHS_EXPORT CBayesianOptimisation {
 public:
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
-    using TMarginalFunc = std::function<std::pair<double, double>(const TVector&)>;
+    using TExpectedImprovementFunc = std::function<double(const TVector&)>;
 
 public:
-    CBayesianOptimisation(std::size_t parameters);
+    CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
 
     //! Add the result of evaluating the function to be \p fx at p x where the
     //! variance in the value of \p fx w.r.t. the true value is \p vx.
@@ -60,13 +62,13 @@ public:
     //! Get minus the data likelihood as a function of the kernel hyperparameters.
     TLikelihoodFunc minusLikelihood() const;
 
-    //! Get gradient of minus the data likelihood as a function of the kernel
-    //! hyperparameters w.r.t. the hyperparameters.
+    //! Get the gradient of minus the data likelihood as a function of the kernel
+    //! hyperparameters.
     TLikelihoodGradientFunc minusLikelihoodGradient() const;
 
-    //! Get the parameters (mean and variance) of the Gaussian Process Normal
-    //! marginal as a function over the domain of function to optimise.
-    TMarginalFunc gpMarginal() const;
+    //! Get minus the expected improvement in the target function as a function
+    //! of the evaluation position.
+    TExpectedImprovementFunc minusExpectedImprovement() const;
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -89,6 +91,7 @@ private:
     std::size_t m_Restarts = 10;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
+    TDoubleDoublePrVec m_ParameterBounds;
     TVector m_DomainScales;
     TVectorDoublePrVec m_Function;
     TDoubleVec m_ErrorVariances;

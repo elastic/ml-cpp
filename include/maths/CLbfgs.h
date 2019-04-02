@@ -25,6 +25,10 @@ namespace maths {
 //! and line search with back tracking.
 //!
 //! For more information \see https://en.wikipedia.org/wiki/Limited-memory_BFGS
+//!
+//! This also implements an ADMM scheme for minimizing a function f in box which uses
+//! L-BFGS in the inner loop to minimize the augmented Lagrangian w.r.t. the domain
+//! of f.
 template<typename VECTOR>
 class CLbfgs {
 public:
@@ -75,6 +79,111 @@ public:
         return {std::move(x), m_Fx};
     }
 
+    //! Minimize \p f in the bounding box with corners \p a and \p b.
+    //!
+    //! This an ADMM scheme where we convert the constraints to an (infinite) penalty.
+    //!
+    //! \param f The function to minimise.
+    //! \param g The gradient of the function to minimise.
+    //! \param a The bottom left corner of the constraint bounding box.
+    //! \param b The top right corner of the constraint bounding box.
+    //! \param x0 The point in the domain of f from which to start the search.
+    //! \param eps The convergence tolerance applied to the ratio between the function
+    //! decrease in the last step and the function decrease since the start. The main
+    //! loop will exit when \f$|f(x_k) - f(x_{k-1})| < \epsilon |f(x_k) - f(x_0)|\f$.
+    //! \param iterations The maximum number of iterations of the main loop to perform.
+    //!
+    //! \tparam F must be a Callable with single argument type VECTOR and returning
+    //! a scalar.
+    //! \tparam G must be a Callable with single argument type VECTOR and returning
+    //! a VECTOR.
+    template<typename F, typename G>
+    std::pair<VECTOR, double> constrainedMinimize(const F& f,
+                                                  const G& g,
+                                                  const VECTOR& a,
+                                                  const VECTOR& b,
+                                                  VECTOR x0,
+                                                  double rho,
+                                                  double eps = 1e-8,
+                                                  std::size_t iterations = 50) {
+
+        // We use an ADMM update scheme to compute the minimum with respect to the
+        // bounding box constraints. This is less efficient but significantly simpler
+        // than L-BFGS-B.
+        //
+        // In particular, we want to solve
+        //   argmin_x f(x)
+        //  s.t. a <= x <= b                                                   (1)
+        //
+        // We convert the inequality to an affine constraint (suitable for ADMM) by
+        // introducing slack variables, i.e. we transform (1) as follows
+        //   argmin_x,z f(x) + g(z_1) g(z_2)
+        //     s.t. x - z_1 = a
+        //          x + z_2 = b
+        //
+        // where the function g(z) is infinite for z < 0 and 0 otherwise. Note that
+        // the minimization over z_1 and z_2 can be done in closed form and are just
+        // the closest non-negative points to x - a + w_1 and b - x - w_2, respectively.
+
+        // Get the closest feasible point to x0.
+        VECTOR x{std::move(x0)};
+        las::max(a, x);
+        las::min(b, x);
+
+        VECTOR zero{las::zero(x)};
+
+        VECTOR z1{zero};
+        VECTOR z2{zero};
+        VECTOR w1{zero};
+        VECTOR w2{zero};
+
+        // Functions to compute the augmented Lagrangian and its gradient w.r.t. x.
+        auto al = [&](const VECTOR& x_) {
+            VECTOR r1{x_ - z1 + w1 - a};
+            VECTOR r2{x_ + z2 + w2 - b};
+            double n1{las::norm(r1)};
+            double n2{las::norm(r2)};
+            return f(x_) + 0.5 * rho * (n1 * n1 + n2 * n2);
+        };
+        auto gal = [&](const VECTOR& x_) {
+            return g(x_) + rho * (2 * x_ - z1 + z2 - a - b + w1 + w2);
+        };
+
+        VECTOR xmin;
+        double fmin;
+
+        double f0{f(x)};
+        double fl{f0};
+        for (std::size_t i = 0; i < iterations; ++i) {
+            // x-minimization
+            std::tie(x, std::ignore) = this->minimize(al, gal, x, eps, iterations);
+
+            // z-minimization
+            z1 = x - a + w1;
+            z2 = b - x - w2;
+            las::max(zero, z1);
+            las::max(zero, z2);
+
+            // Dual update
+            w1 += x - z1 - a;
+            w2 += x + z2 - b;
+
+            // Snap to nearest feasible point to test for convergence.
+            xmin = x;
+            las::max(a, xmin);
+            las::min(b, xmin);
+            fmin = f(xmin);
+
+            if (converged(fmin, fl, f0, eps)) {
+                break;
+            }
+
+            fl = fmin;
+        }
+
+        return {xmin, fmin};
+    }
+
 private:
     using TDoubleVec = std::vector<double>;
     using TVectorBuf = boost::circular_buffer<VECTOR>;
@@ -92,7 +201,11 @@ private:
     }
 
     bool converged(double eps) const {
-        return std::fabs(m_Fx - m_Fl) < eps * std::fabs(m_Fx - m_F0);
+        return converged(m_Fx, m_Fl, m_F0, eps);
+    }
+
+    static bool converged(double fx, double fl, double f0, double eps) {
+        return std::fabs(fx - fl) < eps * std::fabs(fx - f0);
     }
 
     template<typename F>

@@ -89,6 +89,7 @@ void CLbfgsTest::testQuadtratic() {
             CPPUNIT_ASSERT_EQUAL(fx, static_cast<double>(f(x)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, fx, 0.5 * scale * scale);
         }
+
         std::tie(std::ignore, fx) = lbfgs.minimize(f, g, x0);
         fmean += fx / 1000.0;
     }
@@ -143,7 +144,6 @@ void CLbfgsTest::testSingularHessian() {
         TVector x;
         double fx;
         std::tie(x, fx) = lbfgs.minimize(f, g, points[x0[0]]);
-        LOG_DEBUG(<< fx);
 
         // Test we're near the minimum.
         TVector eps{10};
@@ -157,6 +157,73 @@ void CLbfgsTest::testSingularHessian() {
     }
 }
 
+void CLbfgsTest::testConstrainedMinimize() {
+
+    // Check convergence to the minimum of a quadtratic form for a variety of
+    // matrix conditions and start positions.
+
+    test::CRandomNumbers rng;
+
+    TVector diagonal(10);
+    for (std::size_t i = 0; i < 10; ++i) {
+        diagonal(i) = static_cast<double>(i);
+    }
+
+    auto f = [&](const TVector& x) {
+        return x.transpose() * diagonal.asDiagonal() * x;
+    };
+    auto g = [&](const TVector& x) { return 2.0 * diagonal.asDiagonal() * x; };
+
+    maths::CLbfgs<TVector> lbfgs{10};
+
+    TDoubleVec samples;
+    TDoubleVec bb;
+
+    double ferror{0.0};
+
+    TVector x0{10};
+    TVector a{10};
+    TVector b{10};
+    TVector xmin{10};
+
+    for (std::size_t test = 0; test < 100; ++test) {
+
+        rng.generateLogNormalSamples(0.0, 3.0, 10, samples);
+
+        for (std::size_t i = 0; i < 10; ++i) {
+            diagonal(i) = samples[i];
+        }
+        LOG_TRACE(<< "diagonal = " << diagonal.transpose());
+
+        rng.generateUniformSamples(-10.0, 10.0, 10, samples);
+        for (std::size_t i = 0; i < 10; ++i) {
+            x0(i) = samples[i];
+        }
+        LOG_TRACE(<< "x0 = " << x0.transpose());
+
+        rng.generateUniformSamples(-10.0, 10.0, 20, samples);
+        for (std::size_t i = 0; i < 10; ++i) {
+            a(i) = std::min(samples[i], samples[10 + i]);
+            b(i) = std::max(samples[i], samples[10 + i]);
+            xmin(i) = a(i) * b(i) < 0.0 ? 0.0 : (b(i) < 0.0 ? b(i) : a(i));
+        }
+        LOG_TRACE(<< "a  = " << a.transpose());
+        LOG_TRACE(<< "b  = " << b.transpose());
+        LOG_TRACE(<< "x* = " << xmin.transpose());
+
+        TVector x;
+        double fx;
+        std::tie(x, fx) = lbfgs.constrainedMinimize(f, g, a, b, x0, 0.2);
+
+        CPPUNIT_ASSERT_EQUAL(fx, static_cast<double>(f(x)));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(f(xmin), fx, 1e-3);
+
+        ferror += std::fabs(fx - f(xmin)) / 100.0;
+    }
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, ferror, 1e-5);
+}
+
 CppUnit::Test* CLbfgsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 
@@ -164,6 +231,8 @@ CppUnit::Test* CLbfgsTest::suite() {
         "CLbfgsTest::testQuadtratic", &CLbfgsTest::testQuadtratic));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
         "CLbfgsTest::testSingularHessian", &CLbfgsTest::testSingularHessian));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
+        "CLbfgsTest::testConstrainedMinimize", &CLbfgsTest::testConstrainedMinimize));
 
     return suiteOfTests;
 }
