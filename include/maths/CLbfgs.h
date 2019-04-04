@@ -251,7 +251,7 @@ private:
         m_X = x;
         m_Gx = m_P;
 
-        if (m_Initial == false) {
+        if (m_Initial == false && las::norm(m_Gx) > 0.0) {
             double eps{std::numeric_limits<double>::epsilon() * las::norm(m_Gx)};
 
             std::size_t k{m_Dx.size()};
@@ -270,8 +270,8 @@ private:
 
             double hmax{las::norm(m_Gx) / this->minimumStepSize()};
 
-            double lambda{las::inner(m_Dg[k - 1], m_Dx[k - 1]) /
-                          las::inner(m_Dg[k - 1], m_Dg[k - 1])};
+            double lambda{(las::inner(m_Dg[k - 1], m_Dx[k - 1]) + eps) /
+                          (las::inner(m_Dg[k - 1], m_Dg[k - 1]) + eps * eps)};
             double h0{std::copysign(std::min(std::fabs(lambda), hmax), lambda)};
 
             m_P *= h0;
@@ -284,8 +284,8 @@ private:
                                  m_Dx[i];
             }
 
-            if (las::inner(m_Gx, m_P) < 0.0) {
-                m_P = (las::norm(m_P) / las::norm(m_Gx)) * m_Gx;
+            if (las::inner(m_Gx, m_P) <= 0.0) {
+                m_P = (las::norm(m_P) / (las::norm(m_Gx) + eps)) * m_Gx;
             }
         } else {
             m_Initial = false;

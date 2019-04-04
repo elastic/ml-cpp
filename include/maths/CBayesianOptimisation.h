@@ -81,6 +81,17 @@ private:
     using TMatrix = CDenseMatrix<double>;
 
 private:
+    //! This lower bounds the coefficient associated with coordinate separation
+    //! in the power exponential kernel:
+    //! <pre class="fragment">
+    //!   \f$\displaystyle K(x,y|\theta_0, \theta_1) = \theta_0^2 exp(-(x-y)^t D(\theta_1) (x-y)))\f$
+    //! </pre>
+    //! where \f$[D(\theta_1)]_{ij} = (\theta_{1,i}^2 + \epsilon)\delta_{ij}\f$
+    //! with \f$\epsilon\f$ being this constant. This stops the expected gradient
+    //! improvement collasping to zero in any direction.
+    static const double MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE;
+
+private:
     void precondition();
     TVector function() const;
     double functionVariance() const;
@@ -88,19 +99,19 @@ private:
     TMatrix dKerneld(const TVector& a, int k) const;
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
-    static double kernel(const TVector& a, const TVector& x, const TVector& y);
+    double kernel(const TVector& a, const TVector& x, const TVector& y) const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts = 10;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
-    TVector m_DomainScales;
     TVector m_A;
     TVector m_B;
     TVectorDoublePrVec m_Function;
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;
+    TVector m_MinimumKernelCoordinateDistanceScale;
 };
 }
 }

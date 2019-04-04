@@ -6,6 +6,7 @@
 
 #include "CBayesianOptimisationTest.h"
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
 
@@ -18,15 +19,6 @@ using namespace ml;
 namespace {
 using TDoubleVec = std::vector<double>;
 using TVector = maths::CDenseVector<double>;
-
-TVector vector(std::initializer_list<double> components) {
-    TVector result(components.size());
-    int i = 0;
-    for (auto component : components) {
-        result(i++) = component;
-    }
-    return result;
-}
 
 TVector vector(std::vector<double> components) {
     TVector result(components.size());
@@ -42,53 +34,56 @@ void CBayesianOptimisationTest::testLikelihoodGradient() {
 
     // Test that the likelihood gradient matches the numerical gradient.
 
-    maths::CBayesianOptimisation bopt{
-        {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
-
-    bopt.add(vector({1.0, 1.0, 1.0, 1.0}), 4.0, 1.0);
-    bopt.add(vector({2.0, 1.0, -2.0, 1.0}), 10.0, 1.0);
-    bopt.add(vector({0.5, -1.0, 3.0, -1.0}), 11.25, 1.0);
-    bopt.add(vector({-1.0, -1.0, -2.0, -2.0}), 10.0, 1.0);
-
-    maths::CBayesianOptimisation::TLikelihoodFunc l;
-    maths::CBayesianOptimisation::TLikelihoodGradientFunc g;
-    std::tie(l, g) = bopt.minusLikelihoodAndGradient();
-
     test::CRandomNumbers rng;
-    TDoubleVec parameters;
+    TDoubleVec coordinates;
 
-    for (std::size_t test = 0; test < 100; ++test) {
+    for (std::size_t test = 0; test < 10; ++test) {
 
-        rng.generateUniformSamples(0.1, 1.0, 5, parameters);
+        maths::CBayesianOptimisation bopt{
+            {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
 
-        TVector a{5};
-        for (std::size_t i = 0; i < 5; ++i) {
-            a(i) = parameters[i];
+        for (std::size_t i = 0; i < 4; ++i) {
+            rng.generateUniformSamples(-10.0, 10.0, 4, coordinates);
+            TVector x{vector(coordinates)};
+            bopt.add(x, x.squaredNorm(), 1.0);
         }
+        bopt.maximumLikelihoodKernel();
 
-        TVector expectedGradient{5};
-        TVector eps{5};
-        eps.setZero();
-        for (std::size_t i = 0; i < 5; ++i) {
-            eps(i) = 1e-3;
-            expectedGradient(i) = (l(a + eps) - l(a - eps)) / 2e-3;
-            eps(i) = 0.0;
+        maths::CBayesianOptimisation::TLikelihoodFunc l;
+        maths::CBayesianOptimisation::TLikelihoodGradientFunc g;
+        std::tie(l, g) = bopt.minusLikelihoodAndGradient();
+
+        TDoubleVec parameters;
+        for (std::size_t probe = 0; probe < 10; ++probe) {
+
+            rng.generateUniformSamples(0.1, 1.0, 5, parameters);
+
+            TVector a{5};
+            for (std::size_t i = 0; i < 5; ++i) {
+                a(i) = parameters[i];
+            }
+
+            TVector expectedGradient{5};
+            TVector eps{5};
+            eps.setZero();
+            for (std::size_t i = 0; i < 5; ++i) {
+                eps(i) = 1e-3;
+                expectedGradient(i) = (l(a + eps) - l(a - eps)) / 2e-3;
+                eps(i) = 0.0;
+            }
+
+            TVector gradient{g(a)};
+
+            CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
+                           1e-3 * expectedGradient.norm());
         }
-
-        TVector gradient{g(a)};
-
-        LOG_DEBUG(<< expectedGradient.transpose());
-        LOG_DEBUG(<< gradient.transpose());
-
-        CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
-                       2e-5 * expectedGradient.norm());
     }
 }
 
 void CBayesianOptimisationTest::testMaximumLikelihoodKernel() {
 
-    // Check that the parameters we choose are at a minimum of the likelihood as
-    // a function of the kernel parameters.
+    // Check that the kernel parameters we choose are at a minimum of the likelihood
+    // as a function of those parameters.
 
     test::CRandomNumbers rng;
     TDoubleVec coordinates;
@@ -138,44 +133,130 @@ void CBayesianOptimisationTest::testExpectedImprovementGradient() {
 
     // Test that the expected improvement gradient matches the numerical gradient.
 
-    maths::CBayesianOptimisation bopt{
-        {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
-
-    bopt.add(vector({1.0, 1.0, 1.0, 1.0}), 4.0, 1.0);
-    bopt.add(vector({2.0, 1.0, -2.0, 1.0}), 10.0, 1.0);
-    bopt.add(vector({0.5, -1.0, 3.0, -1.0}), 11.25, 1.0);
-    bopt.add(vector({-1.0, -1.0, -2.0, -2.0}), 10.0, 1.0);
-
-    maths::CBayesianOptimisation::TEIFunc ei;
-    maths::CBayesianOptimisation::TEIGradientFunc eig;
-    std::tie(ei, eig) = bopt.minusExpectedImprovementAndGradient();
-
     test::CRandomNumbers rng;
     TDoubleVec coordinates;
 
-    for (std::size_t test = 0; test < 100; ++test) {
+    for (std::size_t test = 0; test < 1; ++test) {
 
-        rng.generateUniformSamples(0.1, 1.0, 4, coordinates);
+        maths::CBayesianOptimisation bopt{
+            {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
 
-        TVector x{4};
-        for (std::size_t i = 0; i < 4; ++i) {
-            x(i) = coordinates[i];
+        for (std::size_t i = 0; i < 8; ++i) {
+            rng.generateUniformSamples(-10.0, 10.0, 4, coordinates);
+            TVector x{vector(coordinates)};
+            bopt.add(x, x.squaredNorm(), 1.0);
         }
+        bopt.maximumLikelihoodKernel();
 
-        TVector expectedGradient{4};
-        TVector eps{4};
-        eps.setZero();
-        for (std::size_t i = 0; i < 4; ++i) {
-            eps(i) = 1e-3;
-            expectedGradient(i) = (ei(x + eps) - ei(x - eps)) / 2e-3;
-            eps(i) = 0.0;
+        maths::CBayesianOptimisation::TEIFunc ei;
+        maths::CBayesianOptimisation::TEIGradientFunc eig;
+        std::tie(ei, eig) = bopt.minusExpectedImprovementAndGradient();
+
+        TDoubleVec parameters;
+        for (std::size_t probe = 0; probe < 10; ++probe) {
+            rng.generateUniformSamples(-0.5, 0.5, 4, coordinates);
+
+            TVector x{4};
+            for (std::size_t i = 0; i < 4; ++i) {
+                x(i) = coordinates[i];
+            }
+
+            TVector expectedGradient{4};
+            TVector eps{4};
+            eps.setZero();
+            for (std::size_t i = 0; i < 4; ++i) {
+                eps(i) = 1e-3;
+                expectedGradient(i) = (ei(x + eps) - ei(x - eps)) / 2e-3;
+                eps(i) = 0.0;
+            }
+
+            TVector gradient{eig(x)};
+
+            CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
+                           1e-3 * expectedGradient.norm());
         }
-
-        TVector gradient{eig(x)};
-
-        CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
-                       2e-5 * expectedGradient.norm());
     }
+}
+
+void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
+
+    // This tests the efficiency of the search on a variety of non-convex functions.
+    // We check the value of the function we find after fixed number of iterations
+    // vs a random search baseline.
+
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    test::CRandomNumbers rng;
+    TDoubleVec centreCoordinates;
+    TDoubleVec coordinateScales;
+    TDoubleVec evaluationCoordinates;
+    TDoubleVec randomSearch;
+
+    TVector a(vector({-10.0, -10.0, -10.0, -10.0}));
+    TVector b(vector({10.0, 10.0, 10.0, 10.0}));
+
+    TMeanAccumulator gain;
+
+    for (std::size_t test = 0; test < 20; ++test) {
+
+        rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
+        rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
+
+        // Use sum of some different quadratric forms.
+        TVector centres[]{TVector{4}, TVector{4}, TVector{4}};
+        TVector scales[]{TVector{4}, TVector{4}, TVector{4}};
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                centres[i](j) = centreCoordinates[4 * i + j];
+                scales[i](j) = coordinateScales[4 * i + j];
+            }
+        }
+        auto f = [&](const TVector& x) {
+            double f1{(x - centres[0]).transpose() * scales[0].asDiagonal() *
+                      (x - centres[0])};
+            double f2{(x - centres[1]).transpose() * scales[1].asDiagonal() *
+                      (x - centres[1])};
+            double f3{(x - centres[2]).transpose() * scales[2].asDiagonal() *
+                      (x - centres[2])};
+            return f1 + f2 + f3;
+        };
+
+        maths::CBayesianOptimisation bopt{
+            {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
+
+        double fminBopt{std::numeric_limits<double>::max()};
+        double fminRs{std::numeric_limits<double>::max()};
+
+        for (std::size_t i = 0; i < 5; ++i) {
+            rng.generateUniformSamples(-10.0, 10.0, 4, evaluationCoordinates);
+            TVector x{vector(evaluationCoordinates)};
+            bopt.add(x, f(x), 0.1);
+            fminBopt = std::min(fminBopt, f(x));
+            fminRs = std::min(fminRs, f(x));
+        }
+
+        LOG_TRACE(<< "Bayesian optimisation...");
+        for (std::size_t i = 0; i < 5; ++i) {
+            TVector x{bopt.maximumExpectedImprovement()};
+            LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
+            bopt.add(x, f(x), 0.1);
+            fminBopt = std::min(fminBopt, f(x));
+        }
+
+        LOG_TRACE(<< "random search...");
+        for (std::size_t i = 0; i < 5; ++i) {
+            rng.generateUniformSamples(0.0, 1.0, 4, randomSearch);
+            TVector x{a + vector(randomSearch).asDiagonal() * (b - a)};
+            LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
+            fminRs = std::min(fminRs, f(x));
+        }
+
+        LOG_TRACE(<< "gain = " << fminRs / fminBopt);
+        gain.add(fminRs / fminBopt);
+    }
+
+    LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.2);
 }
 
 CppUnit::Test* CBayesianOptimisationTest::suite() {
@@ -190,6 +271,9 @@ CppUnit::Test* CBayesianOptimisationTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
         "CBayesianOptimisationTest::testExpectedImprovementGradient",
         &CBayesianOptimisationTest::testExpectedImprovementGradient));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
+        "CBayesianOptimisationTest::testMaximumExpectedImprovement",
+        &CBayesianOptimisationTest::testMaximumExpectedImprovement));
 
     return suiteOfTests;
 }

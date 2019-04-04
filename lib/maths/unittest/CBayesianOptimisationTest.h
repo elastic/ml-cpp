@@ -14,6 +14,7 @@ public:
     void testLikelihoodGradient();
     void testMaximumLikelihoodKernel();
     void testExpectedImprovementGradient();
+    void testMaximumExpectedImprovement();
 
     static CppUnit::Test* suite();
 };
