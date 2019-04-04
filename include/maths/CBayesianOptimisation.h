@@ -46,7 +46,8 @@ public:
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
-    using TExpectedImprovementFunc = std::function<double(const TVector&)>;
+    using TEIFunc = std::function<double(const TVector&)>;
+    using TEIGradientFunc = std::function<TVector(const TVector&)>;
 
 public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
@@ -59,16 +60,19 @@ public:
     //! function evaluations added so far.
     TVector maximumExpectedImprovement();
 
-    //! Get minus the data likelihood as a function of the kernel hyperparameters.
-    TLikelihoodFunc minusLikelihood() const;
+    //! \name Test Interface
+    //@{
+    //! Get minus the data likelihood as a function and its gradient as a function
+    //! of the kernel hyperparameters.
+    std::pair<TLikelihoodFunc, TLikelihoodGradientFunc> minusLikelihoodAndGradient() const;
 
-    //! Get the gradient of minus the data likelihood as a function of the kernel
-    //! hyperparameters.
-    TLikelihoodGradientFunc minusLikelihoodGradient() const;
+    //! Get minus the expected improvement in the target function and its gradient
+    //! as a function of the evaluation position.
+    std::pair<TEIFunc, TEIGradientFunc> minusExpectedImprovementAndGradient() const;
 
-    //! Get minus the expected improvement in the target function as a function
-    //! of the evaluation position.
-    TExpectedImprovementFunc minusExpectedImprovement() const;
+    //! Compute the maximum likelihood kernel parameters.
+    const TVector& maximumLikelihoodKernel();
+    //@}
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -77,11 +81,11 @@ private:
     using TMatrix = CDenseMatrix<double>;
 
 private:
-    void maximumLikelihoodKernel();
     void precondition();
     TVector function() const;
+    double functionVariance() const;
     double meanErrorVariance() const;
-    TMatrix distanceMatrix(int coord) const;
+    TMatrix dKerneld(const TVector& a, int k) const;
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     static double kernel(const TVector& a, const TVector& x, const TVector& y);
@@ -91,8 +95,9 @@ private:
     std::size_t m_Restarts = 10;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
-    TDoubleDoublePrVec m_ParameterBounds;
     TVector m_DomainScales;
+    TVector m_A;
+    TVector m_B;
     TVectorDoublePrVec m_Function;
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;

@@ -19,57 +19,80 @@ namespace ml {
 namespace maths {
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
-    : m_ParameterBounds{std::move(parameterBounds)},
-      m_DomainScales{SConstant<TVector>::get(m_ParameterBounds.size(), 1.0)},
-      m_KernelParameters{SConstant<TVector>::get(m_ParameterBounds.size() + 1, 1.0)} {
+    : m_DomainScales{SConstant<TVector>::get(parameterBounds.size(), 1.0)},
+      m_A(parameterBounds.size()), m_B(parameterBounds.size()),
+      m_KernelParameters{SConstant<TVector>::get(parameterBounds.size() + 1, 1.0)} {
+
+    for (std::size_t i = 0; i < parameterBounds.size(); ++i) {
+        m_A(i) = parameterBounds[i].first;
+        m_B(i) = parameterBounds[i].second;
+    }
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_Function.emplace_back(m_DomainScales.asDiagonal() * x,
                             m_RangeScale * (fx - m_RangeShift));
-    m_ErrorVariances.push_back(m_RangeScale * vx);
+    m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement() {
-    this->precondition();
+
+    // Reapply conditioning and recompute the maximum likelihood kernel parameters.
     this->maximumLikelihoodKernel();
 
-    // We use an ADMM scheme.
-    //
-    // The upper and lower parameter box constraints are converted into one
-    // inequality, i.e. x' = (x^t - a^t, b^t - x^t) >= 0. We use a standard
-    // trick to augment the objective to capture the constraint. In particular,
-    // we have 2 * dimension(x) slack variables y and solve
-    //
-    //  argmin_x -E[I(x)] + I(y)
-    //      s.t. A * x - y = 0
-    //
-    // with I(y) = infinity y < 0 and 0 otherwise.
+    TVector xmax;
+    double fmax{0.0};
 
-    auto EI = this->minusExpectedImprovement();
+    TEIFunc minusEI;
+    TEIGradientFunc minusEIGradient;
+    std::tie(minusEI, minusEIGradient) = this->minusExpectedImprovementAndGradient();
 
-    return {};
+    // Use random restarts inside the constraint bounding box.
+    TVector interpolate(m_A.size());
+    TDoubleVec interpolates;
+    CSampling::uniformSample(m_Rng, 0.0, 1.0,
+                             (m_Restarts - 1) * interpolate.size(), interpolates);
+
+    CLbfgs<TVector> lbfgs{10};
+
+    // We set rho to give the constraint and objective approximately equal priority
+    // in the following constrained optimisation problem.
+    double rho{std::sqrt(this->functionVariance())};
+
+    for (std::size_t i = 0; i < m_Restarts; ++i) {
+
+        for (int j = 0; j < interpolate.size(); ++i) {
+            interpolate(j) = interpolates[i * m_Restarts + j];
+        }
+        TVector x0(m_A + interpolate.asDiagonal() * (m_B - m_A));
+
+        TVector xcand;
+        double fcand;
+        std::tie(xcand, fcand) =
+            lbfgs.constrainedMinimize(minusEI, minusEIGradient, m_A, m_B, x0, rho);
+
+        if (-fcand > fmax) {
+            xmax = std::move(xcand);
+            fmax = -fcand;
+        }
+    }
+
+    return xmax;
 }
 
-CBayesianOptimisation::TLikelihoodFunc CBayesianOptimisation::minusLikelihood() const {
+std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
+CBayesianOptimisation::minusLikelihoodAndGradient() const {
 
-    TVector f_{this->function()};
+    TVector f{this->function()};
     double v{this->meanErrorVariance()};
 
-    return [ f = std::move(f_), v, this ](const TVector& a) {
+    auto likelihood = [f, v, this](const TVector& a) {
         Eigen::LDLT<Eigen::MatrixXd> Kldl{this->kernel(a, v)};
         TVector Kinvf{Kldl.solve(f)};
-        return 0.5 * f.transpose() * Kinvf + 0.5 * Kldl.vectorD().array().log().sum();
+        return 0.5 * (f.transpose() * Kinvf + Kldl.vectorD().array().log().sum());
     };
-}
 
-CBayesianOptimisation::TLikelihoodGradientFunc
-CBayesianOptimisation::minusLikelihoodGradient() const {
-
-    TVector f_{this->function()};
-    double v{this->meanErrorVariance()};
-
-    return [ f = std::move(f_), v, this ](const TVector& a) {
+    auto likelihoodGradient = [f, v, this](const TVector& a) {
 
         TMatrix K{this->kernel(a, v)};
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
@@ -87,29 +110,30 @@ CBayesianOptimisation::minusLikelihoodGradient() const {
 
         for (int i = 0; i < Kinvf.size(); ++i) {
             gradient(0) -=
-                0.5 / a(0) *
+                1.0 / a(0) *
                 double{(Kinvf(i) * Kinvf.transpose() - KInv.row(i)) * K.col(i)};
         }
-        for (int i = 0; i < a.size(); ++i) {
-            TMatrix dist{this->distanceMatrix(i)};
+        for (int i = 1; i < a.size(); ++i) {
+            TMatrix dKdai{this->dKerneld(a, i)};
             for (int j = 0; j < Kinvf.size(); ++j) {
-                gradient(i + 1) +=
-                    0.5 * double{(Kinvf(j) * Kinvf.transpose() - KInv.row(j)) *
-                                 dist.col(j).cwiseProduct(K.col(j))};
+                gradient(i) += 0.5 * double{(Kinvf(j) * Kinvf.transpose() - KInv.row(j)) *
+                                            dKdai.col(j)};
             }
         }
 
         return gradient;
     };
+
+    return {std::move(likelihood), std::move(likelihoodGradient)};
 }
 
-CBayesianOptimisation::TExpectedImprovementFunc
-CBayesianOptimisation::minusExpectedImprovement() const {
+std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc>
+CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Eigen::LDLT<Eigen::MatrixXd> Kldl_{K};
+    Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
-    TVector Kinvf_{Kldl_.solve(this->function())};
+    TVector Kinvf{Kldl.solve(this->function())};
 
     double vx{this->meanErrorVariance()};
 
@@ -119,60 +143,103 @@ CBayesianOptimisation::minusExpectedImprovement() const {
                                  })
                     ->second};
 
-    return
-        [ Kldl = std::move(Kldl_), Kinvf = std::move(Kinvf_), vx, fmin,
-          this ](const TVector& x) {
+    auto EI = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
 
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
-        double sigma{std::max(Kxx - Kxn.transpose() * Kldl.solve(Kxn), 0.0)};
+        double sigma{Kxx - Kxn.transpose() * Kldl.solve(Kxn)};
 
-        if (sigma == 0.0) {
+        if (sigma <= 0.0) {
             return 0.0;
         }
 
         double mu{Kxn.transpose() * Kinvf};
         sigma = std::sqrt(sigma);
 
-        boost::math::normal normal{mu, sigma};
+        boost::math::normal normal{0.0, 1.0};
         double z{(fmin - mu) / sigma};
         return -sigma * (z * CTools::safeCdf(normal, z) + CTools::safePdf(normal, z));
     };
+
+    auto EIGradient = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
+
+        double Kxx;
+        TVector Kxn;
+        std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
+
+        TVector KinvKxn{Kldl.solve(Kxn)};
+        double sigma{Kxx - Kxn.transpose() * KinvKxn};
+
+        if (sigma <= 0.0) {
+            return las::zero(x);
+        }
+
+        double mu{Kxn.transpose() * Kinvf};
+        sigma = std::sqrt(sigma);
+
+        boost::math::normal normal{0.0, 1.0};
+        double z{(fmin - mu) / sigma};
+        double cdfz{CTools::safeCdf(normal, z)};
+        double pdfz{CTools::safePdf(normal, z)};
+
+        TVector muGradient{x.size()};
+        TVector sigmaGradient{x.size()};
+        for (int i = 0; i < x.size(); ++i) {
+            TVector dKxndx{Kxn.size()};
+            for (int j = 0; j < Kxn.size(); ++j) {
+                const TVector& xj{m_Function[j].first};
+                dKxndx(j) = 2.0 * m_KernelParameters(j + 1) * (xj(i) - x(i)) * Kxn(j);
+            }
+            muGradient(i) = Kinvf.transpose() * dKxndx;
+            sigmaGradient(i) = -2.0 * KinvKxn.transpose() * dKxndx;
+        }
+        sigmaGradient /= 2.0 * sigma;
+
+        TVector zGradient{((mu - fmin) / CTools::pow2(sigma)) * sigmaGradient -
+                          muGradient / sigma};
+
+        return TVector{-(z * cdfz + pdfz) * sigmaGradient - sigma * cdfz * zGradient};
+    };
+
+    return {std::move(EI), std::move(EIGradient)};
 }
 
-void CBayesianOptimisation::maximumLikelihoodKernel() {
+const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKernel() {
 
     // Use random restarts of L-BFGS to find maximum likelihood parameters.
+
+    this->precondition();
 
     std::size_t n(m_KernelParameters.size());
 
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, std::log(0.2), std::log(5.0),
+    CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
                              (m_Restarts - 1) * n, scales);
 
-    auto l = this->minusLikelihood();
-    auto g = this->minusLikelihoodGradient();
+    TLikelihoodFunc l;
+    TLikelihoodGradientFunc g;
+    std::tie(l, g) = this->minusLikelihoodAndGradient();
 
     CLbfgs<TVector> lbfgs{10};
 
     double lmax;
     TVector amax;
-    std::tie(amax, lmax) = lbfgs.minimize(l, g, m_KernelParameters);
+    std::tie(amax, lmax) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
 
     TVector scale{n};
-    for (std::size_t i = 0; i < m_Restarts; ++i) {
+    for (std::size_t i = 1; i < m_Restarts; ++i) {
 
         TVector a{m_KernelParameters};
         for (std::size_t j = 0; j < n; ++j) {
-            scale(j) = m_KernelParameters[i * n + j];
+            scale(j) = scales[(i - 1) * n + j];
         }
-        a = scale.cwiseProduct(a);
+        a = scale.array().exp() * a.array();
 
         double la;
-        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a));
+        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a), 1e-8, 75);
 
         if (la < lmax) {
             lmax = la;
@@ -181,29 +248,39 @@ void CBayesianOptimisation::maximumLikelihoodKernel() {
     }
 
     m_KernelParameters = std::move(amax);
+
+    return m_KernelParameters;
 }
 
 void CBayesianOptimisation::precondition() {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TVectorMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
+    using TVectorMeanVarAccumulator =
+        CBasicStatistics::SSampleMeanVar<CVector<double>>::TAccumulator;
 
-    TVectorMeanVarAccumulator domainMoments(las::zero(m_DomainScales));
+    TVectorMeanVarAccumulator domainMoments(CVector<double>(m_DomainScales.size(), 0.0));
     TMeanVarAccumulator rangeMoments;
 
     for (const auto& value : m_Function) {
-        domainMoments.add(value.first);
+        domainMoments.add(fromDenseVector(value.first));
         rangeMoments.add(value.second);
     }
 
-    m_DomainScales = las::ones(m_DomainScales).array() /
-                     CBasicStatistics::variance(domainMoments).array().sqrt();
-    m_RangeShift = CBasicStatistics::variance(rangeMoments);
-    m_RangeScale = 1.0 / std::sqrt(CBasicStatistics::variance(rangeMoments));
+    TVector eps{las::ones(m_DomainScales) * std::numeric_limits<double>::epsilon()};
+
+    m_DomainScales =
+        las::ones(m_DomainScales)
+            .cwiseQuotient((toDynamicDenseVector(CBasicStatistics::variance(domainMoments)) + eps)
+                               .cwiseSqrt());
+    m_RangeShift = CBasicStatistics::mean(rangeMoments);
+    m_RangeScale = 1.0 / std::sqrt(CBasicStatistics::variance(rangeMoments) + eps(0));
 
     for (auto& value : m_Function) {
         value.first = m_DomainScales.asDiagonal() * value.first;
         value.second = m_RangeScale * (value.second - m_RangeShift);
+    }
+    for (auto& variance : m_ErrorVariances) {
+        variance *= CTools::pow2(m_RangeScale);
     }
 }
 
@@ -215,6 +292,24 @@ CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
     return result;
 }
 
+double CBayesianOptimisation::functionVariance() const {
+
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+    TDoubleVec function(m_Function.size());
+    for (std::size_t i = 0; i < m_Function.size(); ++i) {
+        function[i] = m_Function[i].second;
+    }
+    std::sort(function.begin(), function.end());
+
+    TMeanVarAccumulator moments;
+    for (std::size_t i = 0, n = std::min(function.size(), std::size_t{10}); i < n; ++i) {
+        moments.add(function[i]);
+    }
+
+    return CBasicStatistics::variance(moments);
+}
+
 double CBayesianOptimisation::meanErrorVariance() const {
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator variance;
@@ -222,13 +317,16 @@ double CBayesianOptimisation::meanErrorVariance() const {
     return CBasicStatistics::mean(variance);
 }
 
-CBayesianOptimisation::TMatrix CBayesianOptimisation::distanceMatrix(int coord) const {
+CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a, int k) const {
     TMatrix result{m_Function.size(), m_Function.size()};
     for (std::size_t i = 0; i < m_Function.size(); ++i) {
         result(i, i) = 0.0;
+        const TVector& xi{m_Function[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            result(i, j) = result(j, i) = CTools::pow2(
-                (m_Function[i].first(coord) - m_Function[j].first(coord)));
+            const TVector& xj{m_Function[j].first};
+            result(i, j) = result(j, i) = 2.0 * a(k) *
+                                          CTools::pow2(xi(k - 1) - xj(k - 1)) *
+                                          this->kernel(a, xi, xj);
         }
     }
     return result;
@@ -237,10 +335,11 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::distanceMatrix(int coord) 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, double v) const {
     TMatrix result{m_Function.size(), m_Function.size()};
     for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        result(i, i) = a(0) + v;
+        result(i, i) = CTools::pow2(a(0)) + v;
+        const TVector& xi{m_Function[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            result(i, j) = result(j, i) =
-                this->kernel(a, m_Function[i].first, m_Function[j].first);
+            const TVector& xj{m_Function[j].first};
+            result(i, j) = result(j, i) = this->kernel(a, xi, xj);
         }
     }
     return result;
@@ -248,7 +347,7 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, d
 
 CBayesianOptimisation::TVectorDoublePr
 CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, double vx) const {
-    double Kxx{a(0) + vx};
+    double Kxx{CTools::pow2(a(0)) + vx};
     TVector Kxn(m_Function.size());
     for (std::size_t i = 0; i < m_Function.size(); ++i) {
         Kxn(i) = this->kernel(a, x, m_Function[i].first);
@@ -257,8 +356,9 @@ CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, doub
 }
 
 double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const TVector& y) {
-    return a(0) * std::exp(-(x - y).transpose() *
-                           a.tail(a.size() - 1).asDiagonal() * (x - y));
+    return CTools::pow2(a(0)) *
+           std::exp(-(x - y).transpose() *
+                    a.tail(a.size() - 1).cwiseAbs2().matrix().asDiagonal() * (x - y));
 }
 }
 }

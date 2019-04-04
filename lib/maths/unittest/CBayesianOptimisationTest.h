@@ -11,7 +11,9 @@
 
 class CBayesianOptimisationTest : public CppUnit::TestFixture {
 public:
-    void testLikelihood();
+    void testLikelihoodGradient();
+    void testMaximumLikelihoodKernel();
+    void testExpectedImprovementGradient();
 
     static CppUnit::Test* suite();
 };

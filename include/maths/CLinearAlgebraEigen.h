@@ -515,7 +515,7 @@ struct SDenseVector<CVectorNx1<T, 4>> {
 
 //! Get the Eigen vector for \p vector.
 template<typename VECTOR>
-typename SDenseMatrix<VECTOR>::Type toDenseVector(const VECTOR& vector) {
+typename SDenseVector<VECTOR>::Type toDenseVector(const VECTOR& vector) {
     return vector.template toType<typename SDenseVector<VECTOR>::Type>();
 }
 

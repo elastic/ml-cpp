@@ -21,22 +21,25 @@ namespace maths {
 //! \brief The limited memory BFGS algorithm.
 //!
 //! DESCRIPTION:\n
-//! This uses a low rank approximation to the Hessian to compute the search direction
-//! and line search with back tracking.
+//! The basic implementation uses a low rank approximation to the Hessian to compute
+//! the search direction and line search with back tracking.
 //!
 //! For more information \see https://en.wikipedia.org/wiki/Limited-memory_BFGS
 //!
-//! This also implements an ADMM scheme for minimizing a function f in box which uses
-//! L-BFGS in the inner loop to minimize the augmented Lagrangian w.r.t. the domain
-//! of f.
+//! This also provides a constrained version which uses an ADMM scheme for minimizing
+//! a function f in box. Normal L-BFGS in the inner loop to minimize the augmented
+//! Lagrangian w.r.t. the domain of f, the minimization w.r.t. the slack variables
+//! is possible in closed form.
 template<typename VECTOR>
 class CLbfgs {
 public:
     //! The scale to apply to the expected decrease from the gradient to decrease
     //! in the test to continue backtracking.
     static const double BACKTRACKING_MIN_DECREASE;
+
     //! The scale which is applied to the step size in backtracking.
     static const double STEP_SCALE;
+
     //! The maximum number of iterations to use backtracking.
     static const std::size_t MAXIMUM_BACK_TRACKING_ITERATIONS;
 
@@ -80,8 +83,6 @@ public:
     }
 
     //! Minimize \p f in the bounding box with corners \p a and \p b.
-    //!
-    //! This an ADMM scheme where we convert the constraints to an (infinite) penalty.
     //!
     //! \param f The function to minimise.
     //! \param g The gradient of the function to minimise.
@@ -155,16 +156,16 @@ public:
         double f0{f(x)};
         double fl{f0};
         for (std::size_t i = 0; i < iterations; ++i) {
-            // x-minimization
+            // x-minimization.
             std::tie(x, std::ignore) = this->minimize(al, gal, x, eps, iterations);
 
-            // z-minimization
+            // z-minimization.
             z1 = x - a + w1;
             z2 = b - x - w2;
             las::max(zero, z1);
             las::max(zero, z2);
 
-            // Dual update
+            // Dual update.
             w1 += x - z1 - a;
             w2 += x + z2 - b;
 
@@ -210,6 +211,7 @@ private:
 
     template<typename F>
     VECTOR lineSearch(const F& f) {
+
         // This uses the Armijo condition that the decrease is bounded below by
         // some multiple of the decrease promised by the gradient for the step
         // size.
@@ -236,6 +238,7 @@ private:
 
     template<typename G>
     void updateDescentDirection(const G& g, const VECTOR& x) {
+
         // This uses the L-BFGS Hessian approximation scheme.
 
         m_P = g(x);
@@ -262,7 +265,7 @@ private:
 
             // The initialisation choice is free, this is an estimate for the
             // size of the true Hessian along the most recent search direction
-            // and tends to mean that the initial step size is choosen in the
+            // and tends to mean that the initial step size is chosen in the
             // line search.
 
             double hmax{las::norm(m_Gx) / this->minimumStepSize()};
@@ -280,13 +283,17 @@ private:
                 m_P.noalias() += std::copysign(std::min(std::fabs(gk), gmax), gk) *
                                  m_Dx[i];
             }
+
+            if (las::inner(m_Gx, m_P) < 0.0) {
+                m_P = (las::norm(m_P) / las::norm(m_Gx)) * m_Gx;
+            }
         } else {
             m_Initial = false;
         }
     }
 
     double minimumDecrease(double s) const {
-        return -m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P);
+        return m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P) / las::norm(m_P);
     }
 
     constexpr double minimumStepSize() const {

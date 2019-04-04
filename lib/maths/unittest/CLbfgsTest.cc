@@ -102,8 +102,8 @@ void CLbfgsTest::testSingularHessian() {
     // Test we converge to the global minimum of a convex function when the Hessian
     // is mostly singular.
 
-    // We use f(x) = max_{p(i)}{||x - p(i)||}. The Hessian is zero except across
-    // at the boundary between regions with different furthest points.
+    // We use f(x) = max_{p(i)}{||x - p(i)||}. The Hessian is zero except at the
+    // boundary between regions with different furthest points.
 
     test::CRandomNumbers rng;
 
@@ -225,7 +225,7 @@ void CLbfgsTest::testConstrainedMinimize() {
 }
 
 CppUnit::Test* CLbfgsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLbfgsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
         "CLbfgsTest::testQuadtratic", &CLbfgsTest::testQuadtratic));
