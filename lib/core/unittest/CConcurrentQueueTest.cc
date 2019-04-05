@@ -44,8 +44,16 @@ void CConcurrentQueueTest::testStressful() {
     for (std::size_t i = 0; i < 4; ++i) {
         threads.emplace_back(
             [&](std::size_t producer) {
-                std::random_device rd;
-                std::mt19937 rng{rd()};
+                unsigned int seed{static_cast<unsigned int>(producer)};
+                try {
+                    // Use "non-deterministic" seed if it is available.
+                    std::random_device rd;
+                    seed = rd();
+                } catch (...) {
+                    // Carry on regardless.
+                }
+
+                std::mt19937 rng{seed};
                 std::uniform_int_distribution<int> uniform{10, 500};
                 for (std::size_t j = 0; j < 1000; ++j) {
                     double result{work(uniform(rng), 0.1 * static_cast<double>(j))};
@@ -55,20 +63,28 @@ void CConcurrentQueueTest::testStressful() {
             i);
     }
 
-    TSizeDoublePrVecVec results{4};
+    TSizeDoublePrVecVec results(4);
 
     for (std::size_t i = 0; i < 4; ++i) {
         threads.emplace_back(
             [&](std::size_t consumer) {
-                std::random_device rd;
-                std::mt19937 rng{rd()};
+                unsigned int seed{static_cast<unsigned int>(consumer)};
+                try {
+                    // Use "non-deterministic" seed if it is available.
+                    std::random_device rd;
+                    seed = rd();
+                } catch (...) {
+                    // Carry on regardless.
+                }
+
+                std::mt19937 rng{seed};
                 std::uniform_int_distribution<int> uniform{10, 500};
                 for (std::size_t j = 0; j < 1000; ++j) {
                     std::size_t id;
                     double result;
                     std::tie(id, result) = queue.pop();
                     result += work(uniform(rng), 0.1 * static_cast<double>(j));
-                    results[consumer].push_back({id, result});
+                    results[consumer].emplace_back(id, result);
                 }
             },
             i);
