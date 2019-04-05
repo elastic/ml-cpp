@@ -42,32 +42,36 @@ void CConcurrentQueueTest::testStressful() {
     threads.reserve(8);
 
     for (std::size_t i = 0; i < 4; ++i) {
-        threads.emplace_back([&](std::size_t producer) {
-            std::random_device rd;
-            std::mt19937 rng{rd()};
-            std::uniform_int_distribution<int> uniform{10, 500};
-            for (std::size_t j = 0; j < 1000; ++j) {
-                double result{work(uniform(rng), 0.1 * static_cast<double>(j))};
-                queue.pushEmplace(1000 * producer + j, result);
-            }
-        }, i);
+        threads.emplace_back(
+            [&](std::size_t producer) {
+                std::random_device rd;
+                std::mt19937 rng{rd()};
+                std::uniform_int_distribution<int> uniform{10, 500};
+                for (std::size_t j = 0; j < 1000; ++j) {
+                    double result{work(uniform(rng), 0.1 * static_cast<double>(j))};
+                    queue.pushEmplace(1000 * producer + j, result);
+                }
+            },
+            i);
     }
 
     TSizeDoublePrVecVec results{4};
 
     for (std::size_t i = 0; i < 4; ++i) {
-        threads.emplace_back([&](std::size_t consumer) {
-            std::random_device rd;
-            std::mt19937 rng{rd()};
-            std::uniform_int_distribution<int> uniform{10, 500};
-            for (std::size_t j = 0; j < 1000; ++j) {
-                std::size_t id;
-                double result;
-                std::tie(id, result) = queue.pop();
-                result += work(uniform(rng), 0.1 * static_cast<double>(j));
-                results[consumer].push_back({id, result});
-            }
-        }, i);
+        threads.emplace_back(
+            [&](std::size_t consumer) {
+                std::random_device rd;
+                std::mt19937 rng{rd()};
+                std::uniform_int_distribution<int> uniform{10, 500};
+                for (std::size_t j = 0; j < 1000; ++j) {
+                    std::size_t id;
+                    double result;
+                    std::tie(id, result) = queue.pop();
+                    result += work(uniform(rng), 0.1 * static_cast<double>(j));
+                    results[consumer].push_back({id, result});
+                }
+            },
+            i);
     }
 
     for (auto& thread : threads) {
