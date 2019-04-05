@@ -28,6 +28,19 @@
 
 //=== Regressions
 
+== {es} version 7.1.0
+
+=== Enhancements
+
+* Remove hard limit for maximum forecast interval and limit based on the time interval of data added
+to the model. (See {ml-pull}214[#214].)
+
+* Use hardened compiler options to build 3rd party libraries. (See {ml-pull}453[#453].)
+
+=== Bug Fixes
+
+* Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
+
 == {es} version 7.0.0-alpha2
 
 === Bug Fixes
@@ -37,24 +50,21 @@
 
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
-== {es} version 7.1.0
-
-* Remove hard limit for maximum forecast interval and limit based on the time interval of data added
-to the model. (See {pull}214[#214].)
-
-* Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
-
-* Improve autodetect logic for persistence. {ml-pull}437[#437]
-
 == {es} version 7.0.0-alpha1
 
 == {es} version 6.7.0
 
-== {es} version 6.6.2
+=== Bug Fixes
 
-* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
+* Improve autodetect logic for persistence. {ml-pull}437[#437]
+
+== {es} version 6.6.2
 
 === Enhancements
 
 * Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
+
+=== Bug Fixes
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
 
