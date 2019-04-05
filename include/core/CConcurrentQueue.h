@@ -100,7 +100,8 @@ private:
         static const std::uint8_t READING;
         static const std::uint8_t WRITING;
 
-        CElement() : value{}, m_State{READ} {}
+        CElement()
+            : value{}, m_State{READ}, m_ConsumersWaiting{0}, m_ProducersWaiting{0} {}
         CElement(const CElement&) = delete;
         CElement(CElement&&) = delete;
         CElement& operator=(const CElement&) = delete;
