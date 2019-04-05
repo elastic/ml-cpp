@@ -27,17 +27,16 @@ namespace maths {
 //! For more information \see https://en.wikipedia.org/wiki/Limited-memory_BFGS
 //!
 //! This also provides a constrained version which uses an ADMM scheme for minimizing
-//! a function f in box. Normal L-BFGS in the inner loop to minimize the augmented
-//! Lagrangian w.r.t. the domain of f, the minimization w.r.t. the slack variables
-//! is possible in closed form.
+//! a function f in box. Normal L-BFGS is used in the inner loop to minimize the
+//! augmented Lagrangian w.r.t. the domain of f, the minimization w.r.t. the slack
+//! variables is possible in closed form.
 template<typename VECTOR>
 class CLbfgs {
 public:
-    //! The scale to apply to the expected decrease from the gradient to decrease
-    //! in the test to continue backtracking.
+    //! The scale to apply to apply in the Armijo condition in back tracking.
     static const double BACKTRACKING_MIN_DECREASE;
 
-    //! The scale which is applied to the step size in backtracking.
+    //! The scale which is applied to the step size in back tracking.
     static const double STEP_SCALE;
 
     //! The maximum number of iterations to use backtracking.
