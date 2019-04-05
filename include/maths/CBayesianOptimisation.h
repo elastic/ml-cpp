@@ -88,8 +88,8 @@ private:
     //!   \f$\displaystyle K(x,y|\theta_0, \theta_1) = \theta_0^2 exp(-(x-y)^t D(\theta_1) (x-y)))\f$
     //! </pre>
     //! where \f$[D(\theta_1)]_{ij} = (\theta_{1,i}^2 + \epsilon)\delta_{ij}\f$
-    //! with \f$\epsilon\f$ being this constant. This stops the expected gradient
-    //! improvement collasping to zero in any direction.
+    //! with \f$\epsilon\f$ being this constant. This stops the expected improvement
+    //! gradient collasping to zero in any direction.
     static const double MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE;
 
 private:
