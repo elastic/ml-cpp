@@ -26,8 +26,9 @@ double work(std::size_t iterations, double x) {
 
 void CConcurrentQueueTest::testStressful() {
 
-    // Test with fuzzing of push and pop schedules. (Note this uses random_device
-    // so produces different work characteristics in every run.)
+    // Test with fuzzing of work performed by the producer and consumer threads
+    // between push and pop. (Note this uses random_device so produces different
+    // work characteristics in every run.)
 
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
