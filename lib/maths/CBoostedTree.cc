@@ -538,7 +538,7 @@ public:
                 LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
             }
             LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(meanLoss));
- 
+
             if (CBasicStatistics::mean(meanLoss) < m_BestForestTestLoss) {
                 m_BestForestTestLoss = CBasicStatistics::mean(meanLoss);
                 m_BestHyperparameters = this->captureHyperparameters();
@@ -709,7 +709,8 @@ private:
         LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
                   << ", sum square weights = " << W[1]);
 
-        double scale{static_cast<double>(m_NumberFolds - 1) / static_cast<double>(m_NumberFolds)};
+        double scale{static_cast<double>(m_NumberFolds - 1) /
+                     static_cast<double>(m_NumberFolds)};
         double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0)};
         double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0)};
 
@@ -1084,7 +1085,8 @@ private:
 
     //! Capture the current hyperparameter values.
     SHyperparameters captureHyperparameters() {
-        return {*m_Lambda, *m_Gamma, m_FeatureBagFraction, m_ShrinkageFactor, m_FeatureSampleProbabilities};
+        return {*m_Lambda, *m_Gamma, m_FeatureBagFraction, m_ShrinkageFactor,
+                m_FeatureSampleProbabilities};
     }
 
     //! Set the hyperparamaters from the best recorded.
