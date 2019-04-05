@@ -710,8 +710,8 @@ private:
                   << ", sum square weights = " << W[1]);
 
         double scale{static_cast<double>(m_NumberFolds - 1) / static_cast<double>(m_NumberFolds)};
-        double lambda{scale * std::max(0.5 * (L[0] - L[1]) / (W[1] - W[0]), 0.0)};
-        double gamma{scale * std::max(0.5 * (L[0] - L[1]) / (T[1] - T[0]), 0.0)};
+        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0)};
+        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0)};
 
         if (computeLambda) {
             m_Lambda = computeGamma ? 0.5 * lambda : lambda;
