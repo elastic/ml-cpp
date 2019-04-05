@@ -71,7 +71,7 @@ public:
     template<typename... ARGS>
     void pushEmplace(ARGS&&... args) {
         std::size_t next{m_Back.fetch_add(1, std::memory_order_release)};
-        m_Elements[next & (m_Capacity - 1)].push(std::forward<T>(args)...);
+        m_Elements[next & (m_Capacity - 1)].push(std::forward<ARGS>(args)...);
     }
 
     T pop() {
@@ -179,7 +179,7 @@ private:
 
     private:
         T value;
-        std::atomic_uint8_t m_State;
+        std::atomic<std::uint8_t> m_State;
         std::atomic_size_t m_ConsumersWaiting;
         std::atomic_size_t m_ProducersWaiting;
         std::mutex m_Mutex;

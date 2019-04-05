@@ -12,6 +12,7 @@
 #include "CCompressUtilsTest.h"
 #include "CCompressedDictionaryTest.h"
 #include "CConcurrencyTest.h"
+#include "CConcurrentQueueTest.h"
 #include "CConcurrentWrapperTest.h"
 #include "CContainerPrinterTest.h"
 #include "CContainerThroughputTest.h"
@@ -90,6 +91,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CCompressUtilsTest::suite());
     runner.addTest(CConcurrencyTest::suite());
     runner.addTest(CConcurrentWrapperTest::suite());
+    runner.addTest(CConcurrentQueueTest::suite());
     runner.addTest(CContainerPrinterTest::suite());
     runner.addTest(CContainerThroughputTest::suite());
     runner.addTest(CDataFrameTest::suite());
