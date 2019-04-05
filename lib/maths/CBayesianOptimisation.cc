@@ -267,13 +267,16 @@ void CBayesianOptimisation::precondition() {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
+    for (auto& value : m_Function) {
+        value.second = m_RangeShift + value.second / m_RangeScale;
+    }
+
     TMeanVarAccumulator rangeMoments;
     for (const auto& value : m_Function) {
         rangeMoments.add(value.second);
     }
 
     double eps{std::numeric_limits<double>::epsilon()};
-
     m_RangeShift = CBasicStatistics::mean(rangeMoments);
     m_RangeScale = 1.0 / std::sqrt(CBasicStatistics::variance(rangeMoments) + eps);
 
