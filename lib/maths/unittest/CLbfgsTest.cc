@@ -38,7 +38,7 @@ void CLbfgsTest::testQuadtratic() {
 
     maths::CLbfgs<TVector> lbfgs{10};
 
-    // Check convergence rate is super-linear (comapre to gradient descent).
+    // Check convergence rate is super-linear (compare to gradient descent).
 
     TVector x0{100.0 * diagonal};
 

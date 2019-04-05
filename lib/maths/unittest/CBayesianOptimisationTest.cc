@@ -202,7 +202,7 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
         rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
         rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
 
-        // Use sum of some different quadratric forms.
+        // Use sum of some different quadratric functions.
         TVector centres[]{TVector{4}, TVector{4}, TVector{4}};
         TVector scales[]{TVector{4}, TVector{4}, TVector{4}};
         for (std::size_t i = 0; i < 3; ++i) {
