@@ -109,21 +109,21 @@ void CLbfgsTest::testSingularHessian() {
 
     TVectorVec points(10, TVector{10});
 
-    auto f = [&](TVector x) {
+    auto f = [&](const TVector& x) {
         double result{0.0};
         for (const auto& p : points) {
             result = std::max(result, (p - x).norm());
         }
         return result;
     };
-    auto g = [&](TVector x) {
+    auto g = [&](const TVector& x) {
         TVector furthest{x};
         for (const auto& p : points) {
             if ((p - x).norm() > (furthest - x).norm()) {
                 furthest = p;
             }
         }
-        return (x - furthest) / (x - furthest).norm();
+        return TVector{(x - furthest) / (x - furthest).norm()};
     };
 
     maths::CLbfgs<TVector> lbfgs{5};
@@ -143,7 +143,7 @@ void CLbfgsTest::testSingularHessian() {
 
         TVector x;
         double fx;
-        std::tie(x, fx) = lbfgs.minimize(f, g, points[x0[0]]);
+        std::tie(x, fx) = lbfgs.minimize(f, g, points[x0[0]], 1e-8, 75);
 
         // Test we're near the minimum.
         TVector eps{10};
@@ -164,7 +164,7 @@ void CLbfgsTest::testConstrainedMinimize() {
 
     test::CRandomNumbers rng;
 
-    TVector diagonal(10);
+    TVector diagonal{10};
     for (std::size_t i = 0; i < 10; ++i) {
         diagonal(i) = static_cast<double>(i);
     }

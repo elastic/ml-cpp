@@ -217,20 +217,16 @@ private:
 
         double s{1.0};
         double fs{f(m_X - s * m_P)};
-        double fb{fs};
-        double sb{s};
 
         for (std::size_t i = 0; i < MAXIMUM_BACK_TRACKING_ITERATIONS &&
                                 fs - m_Fx > this->minimumDecrease(s);
              ++i) {
             s *= m_StepScale;
             fs = f(m_X - s * m_P);
-            fb = fs;
-            sb = s;
         }
 
         m_Fl = m_Fx;
-        m_Fx = fb;
+        m_Fx = fs;
 
         return m_X - s * m_P;
     }
