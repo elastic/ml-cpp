@@ -50,8 +50,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     };
     auto jsonSpec = [](const std::string& rows, const std::string& cols,
                        const std::string& memory, const std::string& threads,
-                       const std::string& name, const std::string& parameters = "",
-                       const std::string& junk = "") {
+                       const std::string& resultsField, const std::string& name,
+                       const std::string& parameters = "", const std::string& junk = "") {
         std::ostringstream result;
         result << "{\n";
         if (rows.size() > 0) {
@@ -65,6 +65,9 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         }
         if (threads.size() > 0) {
             result << "   \"threads\": " << threads << ",\n";
+        }
+        if (resultsField.size() > 0) {
+            result << "   \"results_field\": \"" << resultsField << "\",\n";
         }
         if (junk.size() > 0) {
             result << "   \"" << junk << "\": 4,\n";
@@ -84,103 +87,104 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Valid input");
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "2", "custom_ml", "outlier_detection"));
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "100000", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "20", "100000", "2", "custom_ml", "outlier_detection")};
         CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
         CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
         CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
         CPPUNIT_ASSERT_EQUAL(std::size_t{2}, spec.numberThreads());
+        CPPUNIT_ASSERT_EQUAL(std::string("custom_ml"), spec.resultsField());
     }
     LOG_DEBUG(<< "Bad input");
     {
-        LOG_TRACE(<< jsonSpec("", "20", "100000", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("", "20", "100000", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("", "20", "100000", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("", "20", "100000", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "", "100000", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "", "100000", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "", "100000", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "", "100000", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "20", "", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "20", "", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "100000", "", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "20", "100000", "", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "2", ""));
+        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "2", "ml", ""));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "100000", "2", "")};
+            outliersFactory(), jsonSpec("1000", "20", "100000", "2", "ml", "")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("-3", "20", "100000", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("-3", "20", "100000", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("-3", "20", "100000", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("-3", "20", "100000", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "0", "100000", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "0", "100000", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "0", "100000", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "0", "100000", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "ZZ", "2", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "20", "ZZ", "2", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "\"ZZ\"", "2", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "20", "\"ZZ\"", "2", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "-1", "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("1000", "20", "100000", "-1", "ml", "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("1000", "20", "100000", "-1", "outlier_detection")};
+            outliersFactory(), jsonSpec("1000", "20", "100000", "-1", "ml", "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
     {
-        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "outl1ers"));
+        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml", "outl1ers"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "outl1ers")};
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outl1ers")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Invalid number neighbours");
     {
-        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "outlier_detection",
+        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                               "{\"number_neighbours\": -1}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "outlier_detection",
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                                         "{\"number_neighbours\": -1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -188,11 +192,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Invalid method");
     {
-        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "outlier_detection",
+        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                               "{\"method\": \"lofe\"}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "outlier_detection",
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                                         "{\"method\": \"lofe\"}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -200,11 +204,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Invalid feature influence");
     {
-        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "outlier_detection",
+        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                               "{\"compute_feature_influence\": 1}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "outlier_detection",
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                                         "{\"compute_feature_influence\": 1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -212,11 +216,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Invalid feature influence");
     {
-        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "outlier_detection",
+        LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                               "{\"compute_feature_influences\": true}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "outlier_detection",
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
                                         "{\"compute_feature_influences\": true}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -224,11 +228,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Extra junk");
     {
-        LOG_TRACE(<< jsonSpec("1000", "2", "100000", "2", "outlier_detection", "", "threeds"));
+        LOG_TRACE(<< jsonSpec("1000", "2", "100000", "2", "ml", "outlier_detection", "", "threeds"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(),
-            jsonSpec("1000", "2", "100000", "2", "outlier_detection", "", "threeds")};
+            jsonSpec("1000", "2", "100000", "2", "ml", "outlier_detection", "", "threeds")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
