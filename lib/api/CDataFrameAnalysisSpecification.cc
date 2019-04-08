@@ -42,9 +42,12 @@ const char* const COLS{"cols"};
 const char* const MEMORY_LIMIT{"memory_limit"};
 const char* const THREADS{"threads"};
 const char* const TEMPORARY_DIRECTORY{"temp_dir"};
+const char* const RESULTS_FIELD{"results_field"};
 const char* const ANALYSIS{"analysis"};
 const char* const NAME{"name"};
 const char* const PARAMETERS{"parameters"};
+
+const std::string DEFAULT_RESULT_FIELD("ml");
 
 const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
@@ -55,6 +58,7 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     // TODO required
     theReader.addParameter(TEMPORARY_DIRECTORY,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
     return theReader;
 }()};
@@ -94,6 +98,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
             boost::filesystem::current_path().string());
+        m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
@@ -120,6 +125,10 @@ std::size_t CDataFrameAnalysisSpecification::memoryLimit() const {
 
 std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
+}
+
+const std::string& CDataFrameAnalysisSpecification::resultsField() const {
+    return m_ResultsField;
 }
 
 CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
