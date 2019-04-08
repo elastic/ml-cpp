@@ -173,7 +173,7 @@ void CBayesianOptimisationTest::testExpectedImprovementGradient() {
             TVector gradient{eig(x)};
 
             CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
-                           1e-3 * expectedGradient.norm());
+                           1e-2 * expectedGradient.norm());
         }
     }
 }
