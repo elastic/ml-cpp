@@ -36,14 +36,17 @@ On other Linux distributions the package names are generally the same and you ju
 
 ### General settings for building the tools
 
-Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variable:
+Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variables:
 
 ```
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export CXX='g++ -std=gnu++14'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
 ```
 
-The `CXX` environment variable only needs to be set when building tools on Linux. It should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
 
 ### gcc
 
@@ -290,7 +293,7 @@ bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
 In the resulting `boost_1_65_1` directory, run:
 
 ```
-./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
+./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.
@@ -322,8 +325,8 @@ to:
 Finally, run:
 
 ```
-./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
+sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)

@@ -33,8 +33,11 @@ RUN \
 ENV LD_LIBRARY_PATH /usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
 ENV PATH /usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
-# For compiling in C++14 mode
+# For compiling in C++14 mode with hardening and optimisation
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
 ENV CXX "g++ -std=gnu++14"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
 
 # Build libxml2
 RUN \
@@ -90,11 +93,11 @@ RUN \
 RUN \
   wget --quiet -O - http://sourceforge.mirrorservice.org/b/bo/boost/boost/1.65.1/boost_1_65_1.tar.bz2 | tar jxf - && \
   cd boost_1_65_1 && \
-  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu && \
+  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp && \
-  ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
-  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
+  ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now && \
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now && \
   cd .. && \
   rm -rf boost_1_65_1
 
