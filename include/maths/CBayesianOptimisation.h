@@ -95,7 +95,6 @@ private:
 private:
     void precondition();
     TVector function() const;
-    double functionVariance() const;
     double meanErrorVariance() const;
     TMatrix dKerneld(const TVector& a, int k) const;
     TMatrix kernel(const TVector& a, double v) const;

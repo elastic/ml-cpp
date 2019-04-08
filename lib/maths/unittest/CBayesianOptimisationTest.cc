@@ -230,21 +230,22 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
         for (std::size_t i = 0; i < 5; ++i) {
             rng.generateUniformSamples(-10.0, 10.0, 4, evaluationCoordinates);
             TVector x{vector(evaluationCoordinates)};
-            bopt.add(x, f(x), 0.1);
+            LOG_TRACE(<< "initial " << x.transpose() << ", f(initial) = " << f(x));
+            bopt.add(x, f(x), 10.0);
             fminBopt = std::min(fminBopt, f(x));
             fminRs = std::min(fminRs, f(x));
         }
 
         LOG_TRACE(<< "Bayesian optimisation...");
-        for (std::size_t i = 0; i < 5; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             TVector x{bopt.maximumExpectedImprovement()};
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
-            bopt.add(x, f(x), 0.1);
+            bopt.add(x, f(x), 10.0);
             fminBopt = std::min(fminBopt, f(x));
         }
 
         LOG_TRACE(<< "random search...");
-        for (std::size_t i = 0; i < 5; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             rng.generateUniformSamples(0.0, 1.0, 4, randomSearch);
             TVector x{a + vector(randomSearch).asDiagonal() * (b - a)};
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
@@ -256,7 +257,7 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
     }
 
     LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.25);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.3);
 }
 
 CppUnit::Test* CBayesianOptimisationTest::suite() {

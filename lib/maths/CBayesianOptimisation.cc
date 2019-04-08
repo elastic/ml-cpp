@@ -40,6 +40,10 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
 
 CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement() {
 
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMinAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
+
     // Reapply conditioning and recompute the maximum likelihood kernel parameters.
     this->maximumLikelihoodKernel();
 
@@ -53,28 +57,43 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
     // Use random restarts inside the constraint bounding box.
     TVector interpolate(m_A.size());
     TDoubleVec interpolates;
-    CSampling::uniformSample(m_Rng, 0.0, 1.0, m_Restarts * interpolate.size(), interpolates);
+    CSampling::uniformSample(m_Rng, 0.0, 1.0, 3 * m_Restarts * interpolate.size(), interpolates);
+
+    TVector a{m_A.cwiseQuotient(m_B - m_A)};
+    TVector b{m_B.cwiseQuotient(m_B - m_A)};
+    TMeanAccumulator rho_;
+    TMinAccumulator seeds{m_Restarts};
+
+    for (std::size_t i = 0; i < interpolates.size(); /**/) {
+
+        for (int j = 0; j < interpolate.size(); ++i, ++j) {
+            interpolate(j) = interpolates[i];
+        }
+        TVector x{a + interpolate.asDiagonal() * (b - a)};
+        double fx{minusEI(x)};
+        LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
+
+        if (-fx > fmax) {
+            xmax = std::move(x);
+            fmax = -fx;
+        }
+        rho_.add(std::fabs(fx));
+        seeds.add({fx, std::move(x)});
+    }
 
     // We set rho to give the constraint and objective approximately equal priority
     // in the following constrained optimisation problem.
-    double rho{std::sqrt(this->functionVariance())};
+    double rho{CBasicStatistics::mean(rho_)};
+    LOG_TRACE(<< "rho = " << rho);
 
     CLbfgs<TVector> lbfgs{10};
-    TVector a{m_A.cwiseQuotient(m_B - m_A)};
-    TVector b{m_B.cwiseQuotient(m_B - m_A)};
 
-    for (std::size_t i = 0; i < m_Restarts; ++i) {
-
-        for (int j = 0; j < interpolate.size(); ++j) {
-            interpolate(j) = interpolates[i * interpolate.size() + j];
-        }
-        TVector x0{a + interpolate.asDiagonal() * (b - a)};
-        LOG_TRACE(<< "x0 = " << x0.transpose());
+    for (auto& x0 : seeds) {
 
         TVector xcand;
         double fcand;
         std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
-            minusEI, minusEIGradient, a, b, std::move(x0), rho);
+            minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
         LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
 
         if (-fcand > fmax) {
@@ -83,7 +102,8 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
         }
     }
 
-    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_B - m_A) << " EI(best) = " << fmax);
+    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_B - m_A).transpose()
+              << " EI(best) = " << fmax);
 
     return xmax.cwiseProduct(m_B - m_A);
 }
@@ -270,6 +290,9 @@ void CBayesianOptimisation::precondition() {
     for (auto& value : m_Function) {
         value.second = m_RangeShift + value.second / m_RangeScale;
     }
+    for (auto& variance : m_ErrorVariances) {
+        variance /= CTools::pow2(m_RangeScale);
+    }
 
     TMeanVarAccumulator rangeMoments;
     for (const auto& value : m_Function) {
@@ -294,24 +317,6 @@ CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
         result(i) = m_Function[i].second;
     }
     return result;
-}
-
-double CBayesianOptimisation::functionVariance() const {
-
-    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-
-    TDoubleVec function(m_Function.size());
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        function[i] = m_Function[i].second;
-    }
-    std::sort(function.begin(), function.end());
-
-    TMeanVarAccumulator moments;
-    for (std::size_t i = 0, n = std::min(function.size(), std::size_t{10}); i < n; ++i) {
-        moments.add(function[i]);
-    }
-
-    return CBasicStatistics::variance(moments);
 }
 
 double CBayesianOptimisation::meanErrorVariance() const {
@@ -367,6 +372,6 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
                                          (x - y));
 }
 
-const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-4};
+const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
 }
 }
