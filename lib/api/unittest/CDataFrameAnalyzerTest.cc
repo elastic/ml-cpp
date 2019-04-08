@@ -86,16 +86,16 @@ outlierSpec(std::size_t rows = 110,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-void addTestData(TStrVec fieldNames,
-                 TStrVec fieldValues,
-                 api::CDataFrameAnalyzer& analyzer,
-                 TDoubleVec& expectedScores,
-                 TDoubleVecVec& expectedFeatureInfluences,
-                 std::size_t numberInliers = 100,
-                 std::size_t numberOutliers = 10,
-                 maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
-                 std::size_t numberNeighbours = 0,
-                 bool computeFeatureInfluence = false) {
+void addOutlierTestData(TStrVec fieldNames,
+                        TStrVec fieldValues,
+                        api::CDataFrameAnalyzer& analyzer,
+                        TDoubleVec& expectedScores,
+                        TDoubleVecVec& expectedFeatureInfluences,
+                        std::size_t numberInliers = 100,
+                        std::size_t numberOutliers = 10,
+                        maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
+                        std::size_t numberNeighbours = 0,
+                        bool computeFeatureInfluence = false) {
 
     using TMeanVarAccumulatorVec =
         std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
@@ -156,6 +156,12 @@ void addTestData(TStrVec fieldNames,
         }
     });
 }
+
+void addRegressionTestData(TStrVec fieldNames,
+                           TStrVec fieldValues,
+                           api::CDataFrameAnalyzer& analyzer,
+                           TDoubleVec& expectedPredictions) {
+}
 }
 
 void CDataFrameAnalyzerTest::testWithoutControlMessages() {
@@ -172,7 +178,8 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5"};
     TStrVec fieldValues{"", "", "", "", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences);
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                       expectedFeatureInfluences);
 
     analyzer.receivedAllRows();
     analyzer.run();
@@ -216,7 +223,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences);
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                       expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -262,8 +270,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores,
-                expectedFeatureInfluences, 990, 10);
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                       expectedFeatureInfluences, 990, 10);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -302,8 +310,8 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences,
-                100, 10, maths::COutliers::E_Ensemble, 0, true);
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences,
+                       100, 10, maths::COutliers::E_Ensemble, 0, true);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -353,8 +361,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
 
             TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
             TStrVec fieldValues{"", "", "", "", "", "0", ""};
-            addTestData(fieldNames, fieldValues, analyzer, expectedScores,
-                        expectedFeatureInfluences, 100, 10, method, k);
+            addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                               expectedFeatureInfluences, 100, 10, method, k);
             analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
             rapidjson::Document results;
@@ -375,6 +383,12 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
             CPPUNIT_ASSERT(expectedScore == expectedScores.end());
         }
     }
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -514,6 +528,12 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
         &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
+    suiteOfTests->addTest((new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunBoostedTreeTraining",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeTraining));
+    suiteOfTests->addTest((new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
