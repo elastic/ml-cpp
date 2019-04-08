@@ -303,7 +303,12 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
+
+            writer.StartObject();
+            writer.Key(m_AnalysisSpecification->resultsField());
             analysis.writeOneRow(m_FieldNames, *row, writer);
+            writer.EndObject();
+
             writer.EndObject();
             writer.EndObject();
         }

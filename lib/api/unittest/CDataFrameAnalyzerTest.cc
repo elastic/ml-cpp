@@ -188,7 +188,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
             CPPUNIT_ASSERT(expectedScore != expectedScores.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedScore,
-                result["row_results"]["results"]["outlier_score"].GetDouble(),
+                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
             ++expectedScore;
@@ -230,7 +230,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
             CPPUNIT_ASSERT(expectedScore != expectedScores.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedScore,
-                result["row_results"]["results"]["outlier_score"].GetDouble(),
+                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
@@ -276,7 +276,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
             CPPUNIT_ASSERT(expectedScore != expectedScores.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedScore,
-                result["row_results"]["results"]["outlier_score"].GetDouble(),
+                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
@@ -317,7 +317,7 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
             for (std::size_t i = 0; i < 5; ++i) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
                     (*expectedFeatureInfluence)[i],
-                    result["row_results"]["results"][expectedNames[i]].GetDouble(),
+                    result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
@@ -367,7 +367,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
                     CPPUNIT_ASSERT(expectedScore != expectedScores.end());
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
                         *expectedScore,
-                        result["row_results"]["results"]["outlier_score"].GetDouble(),
+                        result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                         1e-6 * *expectedScore);
                     ++expectedScore;
                 }
