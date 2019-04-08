@@ -141,6 +141,12 @@ public:
     //! Write this model to \p writer.
     void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
 
+    //! Get the number of columns training the model will add to the data frame.
+    std::size_t numberExtraColumnsForTrain() const override;
+
+    //! Get the column containing the model prediction for the row.
+    std::size_t predictionColumn(std::size_t numberColumns) const override;
+
 private:
     class CImpl;
     using TImplUPtr = std::unique_ptr<CImpl>;

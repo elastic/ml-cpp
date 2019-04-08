@@ -39,7 +39,7 @@ using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
 const double INF{std::numeric_limits<double>::max()};
 
-std::size_t predictionColumn(std::size_t numberColumns) {
+std::size_t predictionColumn_(std::size_t numberColumns) {
     return numberColumns - 3;
 }
 
@@ -507,6 +507,10 @@ public:
                          << " Please report this problem.");
             return;
         }
+        if (m_DependentVariable >= frame.numberColumns()) {
+            HANDLE_FATAL(<< "Input error: invalid dependent variable for regression");
+            return;
+        }
 
         this->initializeMissingFeatureMasks(frame);
 
@@ -717,7 +721,7 @@ private:
                 [&](double& loss, TRowItr beginRows, TRowItr endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         std::size_t numberColumns{row->numberColumns()};
-                        loss += m_Loss->value((*row)[predictionColumn(numberColumns)],
+                        loss += m_Loss->value((*row)[predictionColumn_(numberColumns)],
                                               (*row)[m_DependentVariable]);
                     }
                 },
@@ -945,7 +949,7 @@ private:
             [](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
-                    row->writeColumn(predictionColumn(numberColumns), 0.0);
+                    row->writeColumn(predictionColumn_(numberColumns), 0.0);
                     row->writeColumn(lossGradientColumn(numberColumns), 0.0);
                     row->writeColumn(lossCurvatureColumn(numberColumns), 0.0);
                 }
@@ -978,7 +982,7 @@ private:
             [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
-                    double prediction{(*row)[predictionColumn(numberColumns)]};
+                    double prediction{(*row)[predictionColumn_(numberColumns)]};
                     double actual{(*row)[m_DependentVariable]};
                     leafValues[root(tree).leafIndex(*row, tree)]->add(prediction, actual);
                 }
@@ -997,11 +1001,11 @@ private:
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
                     double actual{(*row)[m_DependentVariable]};
-                    double prediction{(*row)[predictionColumn(numberColumns)]};
+                    double prediction{(*row)[predictionColumn_(numberColumns)]};
 
                     prediction += root(tree).value(*row, tree);
 
-                    row->writeColumn(predictionColumn(numberColumns), prediction);
+                    row->writeColumn(predictionColumn_(numberColumns), prediction);
                     row->writeColumn(lossGradientColumn(numberColumns),
                                      m_Loss->gradient(prediction, actual));
                     row->writeColumn(lossCurvatureColumn(numberColumns),
@@ -1117,6 +1121,14 @@ void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProg
 
 void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
     m_Impl->write(writer);
+}
+
+std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
+    return 3;
+}
+
+std::size_t CBoostedTree::predictionColumn(std::size_t numberColumns) const {
+    return predictionColumn_(numberColumns);
 }
 }
 }

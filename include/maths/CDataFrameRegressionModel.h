@@ -40,6 +40,12 @@ public:
     //! Write this model to \p writer.
     virtual void write(core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
+    //! Get the number of columns training the model will add to the data frame.
+    virtual std::size_t numberExtraColumnsForTrain() const = 0;
+
+    //! Get the column containing the model prediction for the row.
+    virtual std::size_t predictionColumn(std::size_t numberColumns) const = 0;
+
 protected:
     static void noop(double);
 };
