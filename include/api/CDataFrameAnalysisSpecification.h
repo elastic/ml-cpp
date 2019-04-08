@@ -107,7 +107,7 @@ public:
     std::size_t numberThreads() const;
 
     //! \return The name of the results field.
-    const std::string &resultsField() const;
+    const std::string& resultsField() const;
 
     //! Make a data frame suitable for this analysis specification.
     //!

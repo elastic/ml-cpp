@@ -127,7 +127,7 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
     return m_NumberThreads;
 }
 
-const std::string &CDataFrameAnalysisSpecification::resultsField() const {
+const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
 }
 
