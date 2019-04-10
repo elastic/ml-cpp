@@ -144,8 +144,8 @@ public:
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const override;
 
-    //! Get the column containing the model prediction for the row.
-    std::size_t predictionColumn(std::size_t numberColumns) const override;
+    //! Get the column containing the model's prediction for the dependent variable.
+    std::size_t columnHoldingPrediction(std::size_t columns) const override;
 
 private:
     class CImpl;

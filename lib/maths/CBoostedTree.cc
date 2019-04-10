@@ -39,7 +39,7 @@ using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
 const double INF{std::numeric_limits<double>::max()};
 
-std::size_t predictionColumn_(std::size_t numberColumns) {
+std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
 
@@ -741,7 +741,7 @@ private:
                 [&](double& loss, TRowItr beginRows, TRowItr endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         std::size_t numberColumns{row->numberColumns()};
-                        loss += m_Loss->value((*row)[predictionColumn_(numberColumns)],
+                        loss += m_Loss->value((*row)[predictionColumn(numberColumns)],
                                               (*row)[m_DependentVariable]);
                     }
                 },
@@ -969,7 +969,7 @@ private:
             [](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
-                    row->writeColumn(predictionColumn_(numberColumns), 0.0);
+                    row->writeColumn(predictionColumn(numberColumns), 0.0);
                     row->writeColumn(lossGradientColumn(numberColumns), 0.0);
                     row->writeColumn(lossCurvatureColumn(numberColumns), 0.0);
                 }
@@ -1002,7 +1002,7 @@ private:
             [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
-                    double prediction{(*row)[predictionColumn_(numberColumns)]};
+                    double prediction{(*row)[predictionColumn(numberColumns)]};
                     double actual{(*row)[m_DependentVariable]};
                     leafValues[root(tree).leafIndex(*row, tree)]->add(prediction, actual);
                 }
@@ -1021,11 +1021,11 @@ private:
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
                     double actual{(*row)[m_DependentVariable]};
-                    double prediction{(*row)[predictionColumn_(numberColumns)]};
+                    double prediction{(*row)[predictionColumn(numberColumns)]};
 
                     prediction += root(tree).value(*row, tree);
 
-                    row->writeColumn(predictionColumn_(numberColumns), prediction);
+                    row->writeColumn(predictionColumn(numberColumns), prediction);
                     row->writeColumn(lossGradientColumn(numberColumns),
                                      m_Loss->gradient(prediction, actual));
                     row->writeColumn(lossCurvatureColumn(numberColumns),
@@ -1163,8 +1163,8 @@ std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
     return 3;
 }
 
-std::size_t CBoostedTree::predictionColumn(std::size_t numberColumns) const {
-    return predictionColumn_(numberColumns);
+std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
+    return predictionColumn(numberColumns);
 }
 }
 }
