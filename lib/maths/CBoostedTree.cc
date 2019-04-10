@@ -529,19 +529,25 @@ public:
 
         LOG_TRACE(<< "Starting training");
 
-        TMeanAccumulator meanLoss;
-        for (std::size_t i = 0; i < m_NumberFolds; ++i) {
-            LOG_TRACE(<< "fold = " << i);
-            TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
-            double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
-            meanLoss.add(loss);
-            LOG_TRACE(<< "test set loss = " << loss);
-        }
-        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(meanLoss));
+        for (std::size_t round = 0; round < 1; ++round) {
+            TMeanAccumulator meanLoss;
+            for (std::size_t i = 0; i < m_NumberFolds; ++i) {
+                TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
+                double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
+                meanLoss.add(loss);
+                LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
+            }
+            LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(meanLoss));
 
-        if (CBasicStatistics::mean(meanLoss) < m_BestForestTestLoss) {
-            // TODO remember hyperparameters, rng seed, etc and train on full data set at end.
+            if (CBasicStatistics::mean(meanLoss) < m_BestForestTestLoss) {
+                m_BestForestTestLoss = CBasicStatistics::mean(meanLoss);
+                m_BestHyperparameters = this->captureHyperparameters();
+            }
         }
+
+        this->restoreBestHyperparameters();
+        m_BestForest = this->trainForest(
+            frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
     }
 
     //! Write the predictions of this model to \p frame.
@@ -553,6 +559,16 @@ public:
     void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const {
         // TODO
     }
+
+private:
+    //! \brief The algorithm parameters we'll directly optimise to improve test error.
+    struct SHyperparameters {
+        double s_Lambda = 0.0;
+        double s_Gamma = 0.0;
+        double s_FeatureBagFraction = 0.5;
+        double s_ShrinkageFactor = 0.98;
+        TDoubleVec s_FeatureSampleProbabilities;
+    };
 
 private:
     //! Setup the missing feature row masks.
@@ -693,14 +709,18 @@ private:
         LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
                   << ", sum square weights = " << W[1]);
 
-        if (computeLambda && computeGamma) {
-            m_Lambda = std::max(0.5 * (L[0] - L[1]) / (W[1] - W[0]), 0.0);
-            m_Gamma = std::max(0.5 * (L[0] - L[1]) / (T[1] - T[0]), 0.0);
-        } else if (computeLambda) {
-            m_Lambda = std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0);
-        } else if (computeGamma) {
-            m_Gamma = std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0);
+        double scale{static_cast<double>(m_NumberFolds - 1) /
+                     static_cast<double>(m_NumberFolds)};
+        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0)};
+        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0)};
+
+        if (computeLambda) {
+            m_Lambda = computeGamma ? 0.5 * lambda : lambda;
         }
+        if (computeGamma) {
+            m_Gamma = computeLambda ? 0.5 * gamma : gamma;
+        }
+        m_MaximumTreeSizeFraction = 10.0;
 
         LOG_TRACE(<< "gamma = " << *m_Gamma << ", lambda = " << *m_Lambda);
     }
@@ -1063,6 +1083,21 @@ private:
         return result;
     }
 
+    //! Capture the current hyperparameter values.
+    SHyperparameters captureHyperparameters() {
+        return {*m_Lambda, *m_Gamma, m_FeatureBagFraction, m_ShrinkageFactor,
+                m_FeatureSampleProbabilities};
+    }
+
+    //! Set the hyperparamaters from the best recorded.
+    void restoreBestHyperparameters() {
+        m_Lambda = m_BestHyperparameters.s_Lambda;
+        m_Gamma = m_BestHyperparameters.s_Gamma;
+        m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
+        m_ShrinkageFactor = m_BestHyperparameters.s_ShrinkageFactor;
+        m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
+    }
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
@@ -1080,6 +1115,7 @@ private:
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     double m_BestForestTestLoss = INF;
+    SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
 };
 

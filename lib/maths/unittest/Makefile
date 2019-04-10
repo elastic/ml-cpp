@@ -21,6 +21,7 @@ SRCS=\
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \
+	CBayesianOptimisationTest.cc \
 	CBjkstUniqueValuesTest.cc \
 	CBoostedTreeTest.cc \
 	CBootstrapClustererTest.cc \
@@ -47,6 +48,7 @@ SRCS=\
 	CKMeansOnlineTest.cc \
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
+	CLbfgsTest.cc \
 	CLinearAlgebraTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \

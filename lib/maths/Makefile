@@ -20,8 +20,9 @@ CAdaptiveBucketing.cc \
 CAgglomerativeClusterer.cc \
 CAssignment.cc \
 CBasicStatistics.cc \
-CBoostedTree.cc \
+CBayesianOptimisation.cc \
 CBjkstUniqueValues.cc \
+CBoostedTree.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \

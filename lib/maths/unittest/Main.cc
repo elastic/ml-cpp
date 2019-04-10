@@ -9,6 +9,7 @@
 #include "CAgglomerativeClustererTest.h"
 #include "CAssignmentTest.h"
 #include "CBasicStatisticsTest.h"
+#include "CBayesianOptimisationTest.h"
 #include "CBjkstUniqueValuesTest.h"
 #include "CBoostedTreeTest.h"
 #include "CBootstrapClustererTest.h"
@@ -35,6 +36,7 @@
 #include "CKMostCorrelatedTest.h"
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
+#include "CLbfgsTest.h"
 #include "CLinearAlgebraTest.h"
 #include "CLogNormalMeanPrecConjugateTest.h"
 #include "CLogTDistributionTest.h"
@@ -93,6 +95,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CAgglomerativeClustererTest::suite());
     runner.addTest(CAssignmentTest::suite());
     runner.addTest(CBasicStatisticsTest::suite());
+    runner.addTest(CBayesianOptimisationTest::suite());
     runner.addTest(CBjkstUniqueValuesTest::suite());
     runner.addTest(CBoostedTreeTest::suite());
     runner.addTest(CBootstrapClustererTest::suite());
@@ -119,6 +122,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CKMeansOnlineTest::suite());
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
+    runner.addTest(CLbfgsTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
     runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());
