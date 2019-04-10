@@ -307,16 +307,16 @@ public:
              READER reader,
              const CPackedBitVector* rowMask = nullptr) const {
 
-        TRowFuncVecBoolPr result_{this->readRows(numberThreads, beginRows, endRows,
-                                                 TRowFunc(std::move(reader)), rowMask)};
+        TRowFuncVecBoolPr result{this->readRows(numberThreads, beginRows, endRows,
+                                                TRowFunc(std::move(reader)), rowMask)};
 
-        std::vector<READER> result;
-        result.reserve(result_.first.size());
-        for (auto& reader_ : result_.first) {
-            result.push_back(std::move(*reader_.target<READER>()));
+        std::vector<READER> readers;
+        readers.reserve(result.first.size());
+        for (auto& reader_ : result.first) {
+            readers.push_back(std::move(*reader_.target<READER>()));
         }
 
-        return {std::move(result), result_.second};
+        return {std::move(readers), result.second};
     }
 
     //! Convenience overload for typed reading of all rows.
@@ -339,15 +339,48 @@ public:
     //! \param[in] writer The callback to write the columns.
     //! \param[in] rowMask If supplied only the rows corresponding to the one
     //! bits of this vector are written.
-    bool writeColumns(std::size_t numberThreads,
-                      std::size_t beginRows,
-                      std::size_t endRows,
-                      TRowFunc writer,
-                      const CPackedBitVector* rowMask = nullptr);
+    TRowFuncVecBoolPr writeColumns(std::size_t numberThreads,
+                                   std::size_t beginRows,
+                                   std::size_t endRows,
+                                   TRowFunc writer,
+                                   const CPackedBitVector* rowMask = nullptr);
 
     //! Convenience overload which writes all rows.
-    bool writeColumns(std::size_t numberThreads, TRowFunc reader) {
+    TRowFuncVecBoolPr writeColumns(std::size_t numberThreads, TRowFunc reader) {
         return this->writeColumns(numberThreads, 0, this->numberRows(), std::move(reader));
+    }
+
+    //! Convenience overload for typed writers.
+    //!
+    //! The reason for this is to wrap up the code to extract the typed writers
+    //! from the return type.
+    //!
+    //! \note WRITER must implement the TRowFunc contract.
+    template<typename WRITER>
+    std::pair<std::vector<WRITER>, bool>
+    writeColumns(std::size_t numberThreads,
+                 std::size_t beginRows,
+                 std::size_t endRows,
+                 WRITER writer,
+                 const CPackedBitVector* rowMask = nullptr) {
+
+        TRowFuncVecBoolPr result{this->writeColumns(
+            numberThreads, beginRows, endRows, TRowFunc(std::move(writer)), rowMask)};
+
+        std::vector<WRITER> writers;
+        writers.reserve(result.first.size());
+        for (auto& writer_ : result.first) {
+            writers.push_back(std::move(*writer_.target<WRITER>()));
+        }
+
+        return {std::move(writers), result.second};
+    }
+
+    //! Convenience overload for typed reading of all rows.
+    template<typename WRITER>
+    std::pair<std::vector<WRITER>, bool>
+    writeColumns(std::size_t numberThreads, WRITER writer) {
+        return this->writeColumns(numberThreads, 0, this->numberRows(), std::move(writer));
     }
 
     //! This writes a single row of the data frame via a callback.

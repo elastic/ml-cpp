@@ -115,6 +115,7 @@ public:
                   bool assignMissingToLeft) const {
 
         LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
+        LOG_TRACE(<< "# rows in node = " << rowMask.manhattan());
         LOG_TRACE(<< "row mask = " << rowMask);
 
         auto result = frame.readRows(
@@ -168,7 +169,7 @@ private:
         if (this->isLeaf()) {
             result << m_NodeValue;
         } else {
-            result << "split '" << m_SplitFeature << "' @ " << m_SplitValue;
+            result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
             tree[m_LeftChild].doPrint(pad + "  ", tree, result);
             tree[m_RightChild].doPrint(pad + "  ", tree, result);
         }
@@ -207,7 +208,7 @@ public:
         LOG_TRACE(<< "row mask = " << m_RowMask);
         LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
-        this->computeAggregateGradientsAndCurvatures(numberThreads, frame);
+        this->computeAggregateLossDerivatives(numberThreads, frame);
     }
 
     CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
@@ -255,7 +256,7 @@ private:
 
         std::string print() const {
             std::ostringstream result;
-            result << "split feature '" << s_Feature << "' @ = " << s_SplitAt
+            result << "split feature '" << s_Feature << "' @ " << s_SplitAt
                    << ", gain = " << s_Gain;
             return result.str();
         }
@@ -274,8 +275,8 @@ private:
               s_MissingCurvatures(featureBag.size(), 0.0) {
 
             for (std::size_t i = 0; i < featureBag.size(); ++i) {
-                s_Gradients[i].resize(candidateSplits[featureBag[i]].size() + 1);
-                s_Curvatures[i].resize(candidateSplits[featureBag[i]].size() + 1);
+                s_Gradients[i].resize(candidateSplits[featureBag[i]].size() + 1, 0.0);
+                s_Curvatures[i].resize(candidateSplits[featureBag[i]].size() + 1, 0.0);
             }
         }
 
@@ -286,8 +287,8 @@ private:
     };
 
 private:
-    void computeAggregateGradientsAndCurvatures(std::size_t numberThreads,
-                                                const core::CDataFrame& frame) {
+    void computeAggregateLossDerivatives(std::size_t numberThreads,
+                                         const core::CDataFrame& frame) {
 
         auto result = frame.readRows(
             numberThreads, 0, frame.numberRows(),
@@ -310,8 +311,8 @@ private:
         for (std::size_t k = 1; k < results.size(); ++k) {
             const auto& derivatives = results[k].s_FunctionState;
             for (std::size_t i = 0; i < m_FeatureBag.size(); ++i) {
-                std::size_t numberSplits{m_CandidateSplits[m_FeatureBag[i]].size()};
-                for (std::size_t j = 0; j <= numberSplits; ++j) {
+                std::size_t numberSplits{m_CandidateSplits[m_FeatureBag[i]].size() + 1};
+                for (std::size_t j = 0; j < numberSplits; ++j) {
                     m_Gradients[i][j] += derivatives.s_Gradients[i][j];
                     m_Curvatures[i][j] += derivatives.s_Curvatures[i][j];
                 }
@@ -331,19 +332,19 @@ private:
     void addRowDerivatives(const TRowRef& row, SDerivatives& derivatives) const {
 
         std::size_t numberColumns{row.numberColumns()};
-        std::size_t derivativeColumn{lossGradientColumn(numberColumns)};
+        std::size_t gradientColumn{lossGradientColumn(numberColumns)};
         std::size_t curvatureColumn{lossCurvatureColumn(numberColumns)};
 
         for (std::size_t i = 0; i < m_FeatureBag.size(); ++i) {
             std::size_t column{m_FeatureBag[i]};
             if (CDataFrameUtils::isMissing(row[column])) {
-                derivatives.s_MissingGradients[i] += row[derivativeColumn];
+                derivatives.s_MissingGradients[i] += row[gradientColumn];
                 derivatives.s_MissingCurvatures[i] += row[curvatureColumn];
             } else {
-                auto j = std::lower_bound(m_CandidateSplits[column].begin(),
+                auto j = std::upper_bound(m_CandidateSplits[column].begin(),
                                           m_CandidateSplits[column].end(), row[column]) -
                          m_CandidateSplits[column].begin();
-                derivatives.s_Gradients[i][j] += row[derivativeColumn];
+                derivatives.s_Gradients[i][j] += row[gradientColumn];
                 derivatives.s_Curvatures[i][j] += row[curvatureColumn];
             }
         }
@@ -692,7 +693,7 @@ private:
         m_Lambda = m_Lambda.value_or(0.0);
         m_Gamma = m_Gamma.value_or(0.0);
 
-        auto tree = this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask);
+        auto tree = this->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
 
         double L[2];
         double T[2];
@@ -770,7 +771,7 @@ private:
 
         LOG_TRACE(<< "Training one forest...");
 
-        TNodeVecVec forest{this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask)};
+        TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(frame, trainingRowMask)};
         forest.reserve(m_MaximumNumberTrees);
 
         // For each iteration:
@@ -792,8 +793,8 @@ private:
             if (retries == m_MaximumAttemptsToAddTree) {
                 break;
             } else if (retries == 0) {
-                this->refreshPredictionsGradientsAndCurvatures(frame, trainingRowMask,
-                                                               shrinkage, tree);
+                this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
+                                                           shrinkage, tree);
                 forest.push_back(std::move(tree));
                 shrinkage *= m_ShrinkageFactor;
             }
@@ -957,8 +958,8 @@ private:
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
-    TNodeVec initializePredictionsGradientsAndCurvatures(core::CDataFrame& frame,
-                                                         const core::CPackedBitVector& trainingRowMask) const {
+    TNodeVec initializePredictionsAndLossDerivatives(core::CDataFrame& frame,
+                                                     const core::CPackedBitVector& trainingRowMask) const {
 
         frame.writeColumns(
             m_NumberThreads, 0, frame.numberRows(),
@@ -973,17 +974,17 @@ private:
             &trainingRowMask);
 
         TNodeVec tree(1);
-        this->refreshPredictionsGradientsAndCurvatures(frame, trainingRowMask, 1.0, tree);
+        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
 
         return tree;
     }
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
-    void refreshPredictionsGradientsAndCurvatures(core::CDataFrame& frame,
-                                                  const core::CPackedBitVector& trainingRowMask,
-                                                  double shrinkage,
-                                                  TNodeVec& tree) const {
+    void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
+                                              const core::CPackedBitVector& trainingRowMask,
+                                              double shrinkage,
+                                              TNodeVec& tree) const {
 
         using TArgMinLossUPtrVec = std::vector<CLoss::TArgMinLossUPtr>;
 
@@ -1011,24 +1012,34 @@ private:
 
         LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
 
-        frame.writeColumns(
+        auto results = frame.writeColumns(
             m_NumberThreads, 0, frame.numberRows(),
-            [&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    std::size_t numberColumns{row->numberColumns()};
-                    double actual{(*row)[m_DependentVariable]};
-                    double prediction{(*row)[predictionColumn(numberColumns)]};
+            core::bindRetrievableState(
+                [&](double& loss, TRowItr beginRows, TRowItr endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        std::size_t numberColumns{row->numberColumns()};
+                        double actual{(*row)[m_DependentVariable]};
+                        double prediction{(*row)[predictionColumn(numberColumns)]};
 
-                    prediction += root(tree).value(*row, tree);
+                        prediction += root(tree).value(*row, tree);
 
-                    row->writeColumn(predictionColumn(numberColumns), prediction);
-                    row->writeColumn(lossGradientColumn(numberColumns),
-                                     m_Loss->gradient(prediction, actual));
-                    row->writeColumn(lossCurvatureColumn(numberColumns),
-                                     m_Loss->curvature(prediction, actual));
-                }
-            },
+                        row->writeColumn(predictionColumn(numberColumns), prediction);
+                        row->writeColumn(lossGradientColumn(numberColumns),
+                                         m_Loss->gradient(prediction, actual));
+                        row->writeColumn(lossCurvatureColumn(numberColumns),
+                                         m_Loss->curvature(prediction, actual));
+
+                        loss += m_Loss->value(prediction, actual);
+                    }
+                },
+                0.0),
             &trainingRowMask);
+
+        double loss{0.0};
+        for (const auto& result : results.first) {
+            loss += result.s_FunctionState;
+        }
+        LOG_TRACE(<< "training set loss = " << loss);
     }
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
