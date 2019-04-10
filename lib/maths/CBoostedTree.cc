@@ -11,6 +11,7 @@
 #include <core/CPackedBitVector.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBayesianOptimisation.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
@@ -469,6 +470,7 @@ double CArgMinMse::value() const {
 class CBoostedTree::CImpl final {
 public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -499,6 +501,11 @@ public:
         m_ShrinkageFactor = shrinkageFactor;
     }
 
+    //! Set the maximum number of rounds we'll use for hyperparameter optimisation.
+    void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
+        m_MaximumHyperparameterOptimisationRounds = rounds;
+    }
+
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, TProgressCallback recordProgress) {
 
@@ -523,26 +530,32 @@ public:
 
         this->initializeRegularisation(frame, recordProgress);
 
-        // TODO Hyperparameter optimisation...
-        // Get next parameters to test, compute generalisation error, record if best, repeat.
-        // We need sensible limits on mimimum progress and maximum iterations.
+        LOG_TRACE(<< "Main training loop...");
 
-        LOG_TRACE(<< "Starting training");
+        double lambda{*m_Lambda};
+        double gamma{*m_Gamma};
+        LOG_TRACE(<< "lambda(initial) = " << lambda << " gamma(initial) = " << gamma);
+        CBayesianOptimisation bopt{this->hyperparameterBoundingBox(lambda, gamma)};
 
-        for (std::size_t round = 0; round < 1; ++round) {
-            TMeanAccumulator meanLoss;
+        for (std::size_t round = 0;
+             round < m_MaximumHyperparameterOptimisationRounds; ++round) {
+
+            TMeanVarAccumulator lossMoments;
             for (std::size_t i = 0; i < m_NumberFolds; ++i) {
                 TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
                 double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
-                meanLoss.add(loss);
+                lossMoments.add(loss);
                 LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
             }
-            LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(meanLoss));
+            LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(lossMoments)
+                      << ", standard deviation = "
+                      << std::sqrt(CBasicStatistics::mean(lossMoments)));
 
-            if (CBasicStatistics::mean(meanLoss) < m_BestForestTestLoss) {
-                m_BestForestTestLoss = CBasicStatistics::mean(meanLoss);
-                m_BestHyperparameters = this->captureHyperparameters();
-            }
+            bopt.add(this->hyperparameters(), CBasicStatistics::mean(lossMoments),
+                     CBasicStatistics::variance(lossMoments));
+            this->hyperparameters(bopt.maximumExpectedImprovement());
+
+            this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
         }
 
         this->restoreBestHyperparameters();
@@ -550,9 +563,25 @@ public:
             frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
     }
 
-    //! Write the predictions of this model to \p frame.
-    void predict(core::CDataFrame& /*frame*/, TProgressCallback /*recordProgress*/) const {
-        // TODO
+    //! Write the predictions of the best trained model to \p frame.
+    //!
+    //! \note Must be called only if a trained model is available.
+    void predict(core::CDataFrame& frame, TProgressCallback /*recordProgress*/) const {
+        if (m_BestForestTestLoss == INF) {
+            HANDLE_FATAL(<< "Internal error: no model available for prediction. "
+                         << "Please report this problem.");
+            return;
+        }
+
+        if (frame.writeColumns(m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    row->writeColumn(predictionColumn(row->numberColumns()),
+                                     predict(*row, m_BestForest));
+                }
+            }) == false) {
+            HANDLE_FATAL(<< "Internal error: failed model inference. "
+                         << "Please report this problem.");
+        }
     }
 
     //! Write this model to \p writer.
@@ -561,6 +590,9 @@ public:
     }
 
 private:
+    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
+    using TVector = CDenseVector<double>;
+
     //! \brief The algorithm parameters we'll directly optimise to improve test error.
     struct SHyperparameters {
         double s_Lambda = 0.0;
@@ -711,8 +743,8 @@ private:
 
         double scale{static_cast<double>(m_NumberFolds - 1) /
                      static_cast<double>(m_NumberFolds)};
-        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0)};
-        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0)};
+        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0) / 5.0};
+        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0) / 5.0};
 
         if (computeLambda) {
             m_Lambda = computeGamma ? 0.5 * lambda : lambda;
@@ -1083,10 +1115,43 @@ private:
         return result;
     }
 
+    //! Get the bounding box to use for hyperparameter optimisation.
+    static TDoubleDoublePrVec hyperparameterBoundingBox(double lambda, double gamma) {
+        return {{std::log(lambda / 10.0), std::log(10.0 * lambda)},
+                {std::log(gamma / 10.0), std::log(10.0 * gamma)},
+                {0.2, 0.8},  // bag fraction of features
+                {0.8, 1.0}}; // leaf weight shrinkage factor
+    }
+
+    //! Get the current hyperparameters vector.
+    TVector hyperparameters() const {
+        TVector result{4};
+        result(0) = std::log(*m_Lambda);
+        result(1) = std::log(*m_Gamma);
+        result(2) = m_FeatureBagFraction;
+        result(3) = m_ShrinkageFactor;
+        return result;
+    }
+
+    //! Set the current hyperparameters vector.
+    void hyperparameters(TVector parameters) {
+        m_Lambda = std::exp(parameters(0));
+        m_Gamma = std::exp(parameters(1));
+        m_FeatureBagFraction = parameters(2);
+        m_ShrinkageFactor = parameters(3);
+        LOG_TRACE(<< "lambda = " << *m_Lambda << ", gamma = " << *m_Gamma
+                  << ", feature bag fraction = " << m_FeatureBagFraction
+                  << ", shrinkage = " << m_ShrinkageFactor);
+    }
+
     //! Capture the current hyperparameter values.
-    SHyperparameters captureHyperparameters() {
-        return {*m_Lambda, *m_Gamma, m_FeatureBagFraction, m_ShrinkageFactor,
-                m_FeatureSampleProbabilities};
+    void captureBestHyperparameters(double loss) {
+        if (loss < m_BestForestTestLoss) {
+            m_BestForestTestLoss = loss;
+            m_BestHyperparameters =
+                SHyperparameters{*m_Lambda, *m_Gamma, m_FeatureBagFraction,
+                                 m_ShrinkageFactor, m_FeatureSampleProbabilities};
+        }
     }
 
     //! Set the hyperparamaters from the best recorded.
@@ -1109,6 +1174,7 @@ private:
     std::size_t m_MaximumNumberTrees = 5;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 40;
+    std::size_t m_MaximumHyperparameterOptimisationRounds = 20;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
     double m_ShrinkageFactor = 0.98;
@@ -1143,6 +1209,11 @@ CBoostedTree& CBoostedTree::shrinkageFactor(double shrinkageFactor) {
     return *this;
 }
 
+CBoostedTree& CBoostedTree::maximumHyperparameterOptimisationRounds(std::size_t rounds) {
+    m_Impl->maximumHyperparameterOptimisationRounds(rounds);
+    return *this;
+}
+
 void CBoostedTree::train(core::CDataFrame& frame, TProgressCallback recordProgress) {
     m_Impl->train(frame, recordProgress);
 }
@@ -1153,6 +1224,10 @@ void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProg
 
 void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
     m_Impl->write(writer);
+}
+
+std::size_t CBoostedTree::columnHoldingPrediction(std::size_t columns) const {
+    return predictionColumn(columns);
 }
 }
 }

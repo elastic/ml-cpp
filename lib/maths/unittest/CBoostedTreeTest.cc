@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 
 #include <boost/filesystem.hpp>
@@ -25,6 +26,8 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 void CBoostedTreeTest::testPiecewiseConstant() {
 
@@ -42,7 +45,9 @@ void CBoostedTreeTest::testPiecewiseConstant() {
     TFactoryFunc makeMainMemory{
         [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
 
-    for (std::size_t test = 0; test < 1; ++test) {
+    TMeanAccumulator meanMseImprovement;
+
+    for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec p;
         TDoubleVec v;
         rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
@@ -89,10 +94,41 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
             maths::CBoostedTree regression{
                 1, cols - 1, std::make_unique<maths::boosted_tree::CMse>()};
+            regression.maximumHyperparameterOptimisationRounds(15);
 
             regression.train(*frame);
+            regression.predict(*frame);
+
+            TMeanVarAccumulator functionMoments;
+            TMeanVarAccumulator modelPredictionErrorMoments;
+
+            frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    std::size_t index{
+                        regression.columnHoldingPrediction(row->numberColumns())};
+                    functionMoments.add(f(*row));
+                    modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
+                }
+            });
+
+            LOG_DEBUG(<< "function moments = " << functionMoments);
+            LOG_DEBUG(<< "model prediction error moments = " << modelPredictionErrorMoments);
+
+            // Unbiased...
+            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(modelPredictionErrorMoments) < 0.01);
+            // Good reduction in MSE...
+            CPPUNIT_ASSERT(maths::CBasicStatistics::variance(modelPredictionErrorMoments) <
+                           0.2 * maths::CBasicStatistics::variance(functionMoments));
+
+            meanMseImprovement.add(
+                maths::CBasicStatistics::variance(functionMoments) /
+                maths::CBasicStatistics::variance(modelPredictionErrorMoments));
         }
     }
+
+    LOG_DEBUG(<< "mean MSE improvement = "
+              << maths::CBasicStatistics::mean(meanMseImprovement));
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 10.0);
 }
 
 void CBoostedTreeTest::testLinear() {
