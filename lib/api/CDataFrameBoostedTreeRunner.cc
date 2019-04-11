@@ -93,7 +93,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
                                               core::CRapidJsonConcurrentLineWriter& writer) const {
     writer.StartObject();
     writer.Key(PREDICTION);
-    writer.Double(row[m_BoostedTree->predictionColumn(row.numberColumns())]);
+    writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
     writer.EndObject();
 }
 

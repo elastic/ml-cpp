@@ -11,6 +11,7 @@
 #include <core/CStringUtils.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBoostedTree.h>
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -34,6 +35,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TStrVec = std::vector<std::string>;
+using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
@@ -77,6 +79,50 @@ outlierSpec(std::size_t rows = 110,
         hasTrailingParameter = true;
     }
     spec += (hasTrailingParameter ? "\n" : "");
+    spec += "    }\n";
+    spec += "  }\n"
+            "}";
+
+    LOG_TRACE(<< "spec =\n" << spec);
+
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+}
+
+std::unique_ptr<api::CDataFrameAnalysisSpecification>
+regressionSpec(std::size_t rows = 100,
+               std::size_t memoryLimit = 100000,
+               std::size_t maximumNumberTrees = 0,
+               double featureBagFraction = 0.0,
+               double leafWeightShrinkageFactor = 0.0) {
+
+    std::string spec{"{\n"
+                     "  \"rows\": " +
+                     std::to_string(rows) +
+                     ",\n"
+                     "  \"cols\": 5,\n"
+                     "  \"memory_limit\": " +
+                     std::to_string(memoryLimit) +
+                     ",\n"
+                     "  \"threads\": 1,\n"
+                     "  \"analysis\": {\n"
+                     "    \"name\": \"boosted_tree_regression\","};
+    spec += "\n    \"parameters\": {";
+    spec += "\n      \"dependent_variable\": 4";
+    if (maximumNumberTrees > 0) {
+        spec += "      \"maximum_number_trees\": " +
+                core::CStringUtils::typeToString(maximumNumberTrees);
+    }
+    if (featureBagFraction > 0.0) {
+        spec += ",\n";
+        spec += "      \"feature_bag_fraction\": " +
+                core::CStringUtils::typeToString(featureBagFraction);
+    }
+    if (leafWeightShrinkageFactor > 0.0) {
+        spec += ",\n";
+        spec += "      \"leaf_weight_shrinkage_factor\": " +
+                core::CStringUtils::typeToString(leafWeightShrinkageFactor);
+    }
+    spec += "\n";
     spec += "    }\n";
     spec += "  }\n"
             "}";
@@ -145,7 +191,7 @@ void addOutlierTestData(TStrVec fieldNames,
     expectedScores.resize(points.size());
     expectedFeatureInfluences.resize(points.size(), TDoubleVec(5));
 
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             expectedScores[row->index()] = (*row)[5];
             if (computeFeatureInfluence) {
@@ -160,7 +206,57 @@ void addOutlierTestData(TStrVec fieldNames,
 void addRegressionTestData(TStrVec fieldNames,
                            TStrVec fieldValues,
                            api::CDataFrameAnalyzer& analyzer,
-                           TDoubleVec& expectedPredictions) {
+                           TDoubleVec& expectedPredictions,
+                           std::size_t numberExamples = 100,
+                           std::size_t maximumNumberTrees = 0,
+                           double featureBagFraction = 0.0,
+                           double leafWeightShrinkageFactor = 0.0) {
+
+    auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
+        double result{0.0};
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            result += weights[i] * regressors(i);
+        }
+        return result;
+    };
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+
+    TDoubleVec values;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+
+    TPointVec rows;
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TPoint row{weights.size() + 1};
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row(j) = values[i + j];
+        }
+        row(weights.size()) = f(weights, row);
+
+        for (int j = 0; j < row.size(); ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                row(j), core::CIEEE754::E_DoublePrecision);
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+
+        rows.push_back(std::move(row));
+    }
+
+    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+
+    maths::CBoostedTree tree{1, weights.size(),
+                             std::make_unique<maths::boosted_tree::CMse>()};
+
+    tree.train(*frame);
+
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            expectedPredictions.push_back(
+                (*row)[tree.columnHoldingPrediction(row->numberColumns())]);
+        }
+    });
 }
 }
 
@@ -210,6 +306,9 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
 }
 
 void CDataFrameAnalyzerTest::testRunOutlierDetection() {
+
+    // Test the results the analyzer produces match running outlier detection
+    // directly.
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -386,9 +485,55 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
+
+    // Test the results the analyzer produces match running the regression directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{regressionSpec(), outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    bool progressCompleted{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedPrediction,
+                result["row_results"]["results"]["prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress_percent"].GetInt() == 100;
+        }
+    }
+    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
+    CPPUNIT_ASSERT(progressCompleted);
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
+
+    // Test the regression hyperparameter settings are correctly propagated to the
+    // analysis runner.
+
+    double maximumNumberTrees{1};
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -528,10 +673,10 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
         &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
-    suiteOfTests->addTest((new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunBoostedTreeTraining",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTraining));
-    suiteOfTests->addTest((new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
