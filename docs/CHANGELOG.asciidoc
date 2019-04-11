@@ -47,8 +47,19 @@
 
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
-* Improve autodetect logic for persistence. {ml-pull}437[#437]
-
 == {es} version 7.0.0-alpha1
 
-//None
+// None
+
+== {es} version 6.7.2
+
+=== Enhancements
+
+* Adjust seccomp filter to allow the "time" system call {ml-pull}459[#459]
+
+== {es} version 6.7.0
+
+=== Bug Fixes
+
+* Improve autodetect logic for persistence. {ml-pull}437[#437]
+
