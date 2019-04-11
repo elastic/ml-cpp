@@ -526,29 +526,13 @@ public:
 
         LOG_TRACE(<< "Main training loop...");
 
-        double lambda{m_Lambda};
-        double gamma{m_Gamma};
-        LOG_TRACE(<< "lambda(initial) = " << lambda << " gamma(initial) = " << gamma);
-        CBayesianOptimisation bopt{this->hyperparameterBoundingBox(lambda, gamma)};
+        CBayesianOptimisation bopt{this->hyperparameterBoundingBox()};
 
         for (std::size_t round = 0;
              round < m_MaximumHyperparameterOptimisationRounds; ++round) {
-
-            TMeanVarAccumulator lossMoments;
-            for (std::size_t i = 0; i < m_NumberFolds; ++i) {
-                TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
-                double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
-                lossMoments.add(loss);
-                LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
-            }
-            LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(lossMoments)
-                      << ", standard deviation = "
-                      << std::sqrt(CBasicStatistics::mean(lossMoments)));
-
-            bopt.add(this->currentHyperparameters(), CBasicStatistics::mean(lossMoments),
-                     CBasicStatistics::variance(lossMoments));
-            this->nextHyperparameters(bopt.maximumExpectedImprovement());
-
+            TMeanVarAccumulator lossMoments{this->crossValidateForest(
+                frame, trainingRowMasks, testingRowMasks, recordProgress)};
+            this->selectNextHyperparameters(lossMoments, bopt);
             this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
         }
 
@@ -721,7 +705,7 @@ private:
         m_Gamma = m_GammaOverride.value_or(0.0);
 
         if (m_LambdaOverride && m_GammaOverride) {
-            // Fall through
+            // Fall through.
         } else {
             core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
 
@@ -753,6 +737,7 @@ private:
             if (m_GammaOverride == boost::none) {
                 m_Gamma = m_LambdaOverride ? gamma : 0.5 * gamma;
             }
+            LOG_TRACE(<< "lambda(initial) = " << m_Lambda << " gamma(initial) = " << m_Gamma);
         }
 
         m_MaximumTreeSizeFraction = 10.0;
@@ -799,6 +784,23 @@ private:
         }
 
         return {loss, leafCount, sumSquareLeafWeights};
+    }
+
+    //! Train the forest and compute loss moments on each fold.
+    TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
+                                            const TPackedBitVectorVec& trainingRowMasks,
+                                            const TPackedBitVectorVec& testingRowMasks,
+                                            TProgressCallback recordProgress) const {
+        TMeanVarAccumulator lossMoments;
+        for (std::size_t i = 0; i < m_NumberFolds; ++i) {
+            TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
+            double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
+            lossMoments.add(loss);
+            LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
+        }
+        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(lossMoments) << ", standard deviation = "
+                  << std::sqrt(CBasicStatistics::mean(lossMoments)));
+        return lossMoments;
     }
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
@@ -1121,13 +1123,13 @@ private:
         return result;
     }
     //! Get the bounding box to use for hyperparameter optimisation.
-    TDoubleDoublePrVec hyperparameterBoundingBox(double lambda, double gamma) const {
+    TDoubleDoublePrVec hyperparameterBoundingBox() const {
         TDoubleDoublePrVec result;
         if (m_LambdaOverride == boost::none) {
-            result.emplace_back(std::log(lambda / 10.0), std::log(10.0 * lambda));
+            result.emplace_back(std::log(m_Lambda / 10.0), std::log(10.0 * m_Lambda));
         }
         if (m_GammaOverride == boost::none) {
-            result.emplace_back(std::log(gamma / 10.0), std::log(10.0 * gamma));
+            result.emplace_back(std::log(m_Gamma / 10.0), std::log(10.0 * m_Gamma));
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             result.emplace_back(0.2, 0.8);
@@ -1138,32 +1140,35 @@ private:
         return result;
     }
 
-    //! Get the hyperparameters which were last used.
-    TVector currentHyperparameters() const {
+    //! Select the next hyperparameters for which to train a model.
+    void selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
+                                   CBayesianOptimisation& bopt) {
 
-        TVector result{this->numberHyperparametersToTune()};
+        TVector parameters{this->numberHyperparametersToTune()};
 
+        // Read parameters for last round.
         std::size_t i{0};
         if (m_LambdaOverride == boost::none) {
-            result(i++) = std::log(m_Lambda);
+            parameters(i++) = std::log(m_Lambda);
         }
         if (m_GammaOverride == boost::none) {
-            result(i++) = std::log(m_Gamma);
+            parameters(i++) = std::log(m_Gamma);
         }
         if (m_FeatureBagFractionOverride == boost::none) {
-            result(i++) = m_FeatureBagFraction;
+            parameters(i++) = m_FeatureBagFraction;
         }
         if (m_ShrinkageFactorOverride == boost::none) {
-            result(i++) = m_ShrinkageFactor;
+            parameters(i++) = m_ShrinkageFactor;
         }
 
-        return result;
-    }
+        double meanLoss{CBasicStatistics::mean(lossMoments)};
+        double lossVariance{CBasicStatistics::variance(lossMoments)};
 
-    //! Set the next hyperparameters to use.
-    void nextHyperparameters(TVector parameters) {
+        bopt.add(parameters, meanLoss, lossVariance);
+        parameters = bopt.maximumExpectedImprovement();
 
-        std::size_t i{0};
+        // Write parameters for next round.
+        i = 0;
         if (m_LambdaOverride == boost::none) {
             m_Lambda = std::exp(parameters(i++));
         }
