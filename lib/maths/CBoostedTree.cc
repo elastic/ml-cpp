@@ -759,7 +759,7 @@ private:
 
         // We use a large number of trees by default in the main parameter
         // optimisation loop. In practice, we should use many fewer if they
-        // don't significantly improve cross validation error.
+        // don't significantly improve test error.
         m_MaximumNumberTrees = 500;
     }
 
