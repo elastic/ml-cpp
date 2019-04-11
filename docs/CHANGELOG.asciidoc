@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+ == {es} version 6.7.2
+
+=== Enhancements
+
+* Adjust seccomp filter to allow the "time" system call {ml-pull}459[#459]
+
  == {es} version 6.7.0
 
 === Breaking Changes
