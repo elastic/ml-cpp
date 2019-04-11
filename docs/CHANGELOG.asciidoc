@@ -52,6 +52,12 @@ to the model. (See {ml-pull}214[#214].)
 
 == {es} version 7.0.0-alpha1
 
+== {es} version 6.7.2
+
+=== Enhancements
+
+* Adjust seccomp filter to allow the "time" system call {ml-pull}459[#459]
+
 == {es} version 6.7.0
 
 === Bug Fixes
