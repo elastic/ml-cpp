@@ -118,7 +118,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(modelPredictionErrorMoments) < 0.01);
             // Good reduction in MSE...
             CPPUNIT_ASSERT(maths::CBasicStatistics::variance(modelPredictionErrorMoments) <
-                           0.2 * maths::CBasicStatistics::variance(functionMoments));
+                           0.15 * maths::CBasicStatistics::variance(functionMoments));
 
             meanMseImprovement.add(
                 maths::CBasicStatistics::variance(functionMoments) /
@@ -128,7 +128,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 10.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 15.0);
 }
 
 void CBoostedTreeTest::testLinear() {

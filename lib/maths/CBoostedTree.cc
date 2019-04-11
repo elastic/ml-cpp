@@ -480,28 +480,24 @@ public:
         : m_NumberThreads{numberThreads},
           m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {}
 
-    //! Set the loss function.
-    //!
-    //! Set the number of folds to use for estimating the generalisation error.
-    void numberFolds(std::size_t k) { m_NumberFolds = k; }
+    void numberFolds(std::size_t numberFolds) { m_NumberFolds = numberFolds; }
 
-    //! Set the maximum number of trees to use in the forest.
+    void lambda(double lambda) { m_LambdaOverride = lambda; }
+
+    void gamma(double gamma) { m_GammaOverride = gamma; }
+
     void maximumNumberTrees(std::size_t maximumNumberTrees) {
-        m_MaximumNumberTrees = maximumNumberTrees;
+        m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
-    //! Set the fraction of features which are used in each bag.
     void featureBagFraction(double featureBagFraction) {
-        m_FeatureBagFraction = featureBagFraction;
+        m_FeatureBagFractionOverride = featureBagFraction;
     }
 
-    //! Set the amount by which to shrink the node values for each successive tree
-    //! in the forest.
     void shrinkageFactor(double shrinkageFactor) {
-        m_ShrinkageFactor = shrinkageFactor;
+        m_ShrinkageFactorOverride = shrinkageFactor;
     }
 
-    //! Set the maximum number of rounds we'll use for hyperparameter optimisation.
     void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
         m_MaximumHyperparameterOptimisationRounds = rounds;
     }
@@ -523,17 +519,15 @@ public:
 
         // We store the gradient and curvature of the loss function and the predicted
         // value for the dependent variable of the regression.
-
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + 3);
 
         this->initializeFeatureSampleDistribution(frame);
-
-        this->initializeRegularisation(frame, recordProgress);
+        this->initializeHyperparameters(frame, recordProgress);
 
         LOG_TRACE(<< "Main training loop...");
 
-        double lambda{*m_Lambda};
-        double gamma{*m_Gamma};
+        double lambda{m_Lambda};
+        double gamma{m_Gamma};
         LOG_TRACE(<< "lambda(initial) = " << lambda << " gamma(initial) = " << gamma);
         CBayesianOptimisation bopt{this->hyperparameterBoundingBox(lambda, gamma)};
 
@@ -551,9 +545,9 @@ public:
                       << ", standard deviation = "
                       << std::sqrt(CBasicStatistics::mean(lossMoments)));
 
-            bopt.add(this->hyperparameters(), CBasicStatistics::mean(lossMoments),
+            bopt.add(this->currentHyperparameters(), CBasicStatistics::mean(lossMoments),
                      CBasicStatistics::variance(lossMoments));
-            this->hyperparameters(bopt.maximumExpectedImprovement());
+            this->nextHyperparameters(bopt.maximumExpectedImprovement());
 
             this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
         }
@@ -591,14 +585,16 @@ public:
 
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
+    using TOptionalDouble = boost::optional<double>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TVector = CDenseVector<double>;
 
     //! \brief The algorithm parameters we'll directly optimise to improve test error.
     struct SHyperparameters {
-        double s_Lambda = 0.0;
-        double s_Gamma = 0.0;
-        double s_FeatureBagFraction = 0.5;
-        double s_ShrinkageFactor = 0.98;
+        double s_Lambda;
+        double s_Gamma;
+        double s_FeatureBagFraction;
+        double s_ShrinkageFactor;
         TDoubleVec s_FeatureSampleProbabilities;
     };
 
@@ -706,55 +702,65 @@ private:
                   << core::CContainerPrinter::print(m_FeatureSampleProbabilities));
     }
 
-    //! Estimate the values of \f$\lambda\f$ and \f$\gamma\f$ which match the
-    //! gain from a small tree. We'll use this to seed hyperparameter tuning.
-    void initializeRegularisation(core::CDataFrame& frame, TProgressCallback recordProgress) {
+    //! Read overrides for hyperparameters and if necessary estimate the initial
+    //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
+    //! overfit tree.
+    void initializeHyperparameters(core::CDataFrame& frame, TProgressCallback recordProgress) {
 
-        bool computeLambda{m_Lambda == boost::none};
-        bool computeGamma{m_Gamma == boost::none};
-
-        if (computeLambda == false && computeGamma == false) {
-            return;
+        if (m_MaximumNumberTreesOverride) {
+            m_MaximumNumberTrees = *m_MaximumNumberTreesOverride;
+        }
+        if (m_FeatureBagFractionOverride) {
+            m_FeatureBagFraction = *m_FeatureBagFractionOverride;
+        }
+        if (m_ShrinkageFactorOverride) {
+            m_ShrinkageFactor = *m_ShrinkageFactorOverride;
         }
 
-        LOG_TRACE(<< "compute lambda = " << computeLambda << " compute gamma = " << computeGamma);
+        m_Lambda = m_LambdaOverride.value_or(0.0);
+        m_Gamma = m_GammaOverride.value_or(0.0);
 
-        core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
+        if (m_LambdaOverride && m_GammaOverride) {
+            // Fall through
+        } else {
+            core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
 
-        m_Lambda = m_Lambda.value_or(0.0);
-        m_Gamma = m_Gamma.value_or(0.0);
+            auto tree = this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask);
 
-        auto tree = this->initializePredictionsGradientsAndCurvatures(frame, trainingRowMask);
+            double L[2];
+            double T[2];
+            double W[2];
 
-        double L[2];
-        double T[2];
-        double W[2];
+            std::tie(L[0], T[0], W[0]) =
+                this->regularisedLoss(frame, trainingRowMask, {std::move(tree)});
+            LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
+                      << ", sum square weights = " << W[0]);
 
-        std::tie(L[0], T[0], W[0]) =
-            this->regularisedLoss(frame, trainingRowMask, {std::move(tree)});
-        LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
-                  << ", sum square weights = " << W[0]);
+            auto forest = this->trainForest(frame, trainingRowMask, recordProgress);
 
-        auto forest = this->trainForest(frame, trainingRowMask, recordProgress);
+            std::tie(L[1], T[1], W[1]) = this->regularisedLoss(frame, trainingRowMask, forest);
+            LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
+                      << ", sum square weights = " << W[1]);
 
-        std::tie(L[1], T[1], W[1]) = this->regularisedLoss(frame, trainingRowMask, forest);
-        LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
-                  << ", sum square weights = " << W[1]);
+            double scale{static_cast<double>(m_NumberFolds - 1) /
+                         static_cast<double>(m_NumberFolds)};
+            double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0) / 5.0};
+            double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0) / 5.0};
 
-        double scale{static_cast<double>(m_NumberFolds - 1) /
-                     static_cast<double>(m_NumberFolds)};
-        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0) / 5.0};
-        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0) / 5.0};
-
-        if (computeLambda) {
-            m_Lambda = computeGamma ? 0.5 * lambda : lambda;
+            if (m_LambdaOverride == boost::none) {
+                m_Lambda = m_GammaOverride ? lambda : 0.5 * lambda;
+            }
+            if (m_GammaOverride == boost::none) {
+                m_Gamma = m_LambdaOverride ? gamma : 0.5 * gamma;
+            }
         }
-        if (computeGamma) {
-            m_Gamma = computeLambda ? 0.5 * gamma : gamma;
-        }
+
         m_MaximumTreeSizeFraction = 10.0;
 
-        LOG_TRACE(<< "gamma = " << *m_Gamma << ", lambda = " << *m_Lambda);
+        // We use a large number of trees by default in the main parameter
+        // optimisation loop. In practice, we should use many fewer if they
+        // don't significantly improve cross validation error.
+        m_MaximumNumberTrees = 500;
     }
 
     //! Compute the sum loss for the predictions from \p frame and the leaf
@@ -912,7 +918,7 @@ private:
 
         TLeafNodeStatisticsPtrQueue leaves;
         leaves.push(std::make_shared<CLeafNodeStatistics>(
-            0 /*root*/, m_NumberThreads, frame, *m_Lambda, *m_Gamma,
+            0 /*root*/, m_NumberThreads, frame, m_Lambda, m_Gamma,
             candidateSplits, this->featureBag(frame), trainingRowMask));
 
         // For each iteration we:
@@ -952,10 +958,10 @@ private:
                 m_NumberThreads, frame, std::move(split->rowMask()), assignMissingToLeft);
 
             leaves.push(std::make_shared<CLeafNodeStatistics>(
-                leftChildId, m_NumberThreads, frame, *m_Lambda, *m_Gamma,
+                leftChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
                 candidateSplits, featureBag, std::move(leftChildRowMask)));
             leaves.push(std::make_shared<CLeafNodeStatistics>(
-                rightChildId, m_NumberThreads, frame, *m_Lambda, *m_Gamma,
+                rightChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
                 candidateSplits, featureBag, std::move(rightChildRowMask)));
         }
 
@@ -1114,32 +1120,64 @@ private:
         }
         return result;
     }
-
     //! Get the bounding box to use for hyperparameter optimisation.
-    static TDoubleDoublePrVec hyperparameterBoundingBox(double lambda, double gamma) {
-        return {{std::log(lambda / 10.0), std::log(10.0 * lambda)},
-                {std::log(gamma / 10.0), std::log(10.0 * gamma)},
-                {0.2, 0.8},  // bag fraction of features
-                {0.8, 1.0}}; // leaf weight shrinkage factor
-    }
-
-    //! Get the current hyperparameters vector.
-    TVector hyperparameters() const {
-        TVector result{4};
-        result(0) = std::log(*m_Lambda);
-        result(1) = std::log(*m_Gamma);
-        result(2) = m_FeatureBagFraction;
-        result(3) = m_ShrinkageFactor;
+    TDoubleDoublePrVec hyperparameterBoundingBox(double lambda, double gamma) const {
+        TDoubleDoublePrVec result;
+        if (m_LambdaOverride == boost::none) {
+            result.emplace_back(std::log(lambda / 10.0), std::log(10.0 * lambda));
+        }
+        if (m_GammaOverride == boost::none) {
+            result.emplace_back(std::log(gamma / 10.0), std::log(10.0 * gamma));
+        }
+        if (m_FeatureBagFractionOverride == boost::none) {
+            result.emplace_back(0.2, 0.8);
+        }
+        if (m_ShrinkageFactorOverride == boost::none) {
+            result.emplace_back(0.8, 1.0);
+        }
         return result;
     }
 
-    //! Set the current hyperparameters vector.
-    void hyperparameters(TVector parameters) {
-        m_Lambda = std::exp(parameters(0));
-        m_Gamma = std::exp(parameters(1));
-        m_FeatureBagFraction = parameters(2);
-        m_ShrinkageFactor = parameters(3);
-        LOG_TRACE(<< "lambda = " << *m_Lambda << ", gamma = " << *m_Gamma
+    //! Get the hyperparameters which were last used.
+    TVector currentHyperparameters() const {
+
+        TVector result{this->numberHyperparametersToTune()};
+
+        std::size_t i{0};
+        if (m_LambdaOverride == boost::none) {
+            result(i++) = std::log(m_Lambda);
+        }
+        if (m_GammaOverride == boost::none) {
+            result(i++) = std::log(m_Gamma);
+        }
+        if (m_FeatureBagFractionOverride == boost::none) {
+            result(i++) = m_FeatureBagFraction;
+        }
+        if (m_ShrinkageFactorOverride == boost::none) {
+            result(i++) = m_ShrinkageFactor;
+        }
+
+        return result;
+    }
+
+    //! Set the next hyperparameters to use.
+    void nextHyperparameters(TVector parameters) {
+
+        std::size_t i{0};
+        if (m_LambdaOverride == boost::none) {
+            m_Lambda = std::exp(parameters(i++));
+        }
+        if (m_GammaOverride == boost::none) {
+            m_Gamma = std::exp(parameters(i++));
+        }
+        if (m_FeatureBagFractionOverride == boost::none) {
+            m_FeatureBagFraction = parameters(i++);
+        }
+        if (m_ShrinkageFactorOverride == boost::none) {
+            m_ShrinkageFactor = parameters(i++);
+        }
+
+        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma
                   << ", feature bag fraction = " << m_FeatureBagFraction
                   << ", shrinkage = " << m_ShrinkageFactor);
     }
@@ -1149,7 +1187,7 @@ private:
         if (loss < m_BestForestTestLoss) {
             m_BestForestTestLoss = loss;
             m_BestHyperparameters =
-                SHyperparameters{*m_Lambda, *m_Gamma, m_FeatureBagFraction,
+                SHyperparameters{m_Lambda, m_Gamma, m_FeatureBagFraction,
                                  m_ShrinkageFactor, m_FeatureSampleProbabilities};
         }
     }
@@ -1163,13 +1201,25 @@ private:
         m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
     }
 
+    //! Get the number of hyperparameters to tune.
+    std::size_t numberHyperparametersToTune() const {
+        return (m_LambdaOverride ? 0 : 1) + (m_GammaOverride ? 0 : 1) +
+               (m_FeatureBagFractionOverride ? 0 : 1) +
+               (m_ShrinkageFactorOverride ? 0 : 1);
+    }
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable;
     TLossFunctionUPtr m_Loss;
-    boost::optional<double> m_Lambda;
-    boost::optional<double> m_Gamma;
+    TOptionalDouble m_LambdaOverride;
+    TOptionalDouble m_GammaOverride;
+    TOptionalSize m_MaximumNumberTreesOverride;
+    TOptionalDouble m_FeatureBagFractionOverride;
+    TOptionalDouble m_ShrinkageFactorOverride;
+    double m_Lambda = 0.0;
+    double m_Gamma = 0.0;
     std::size_t m_NumberFolds = 5;
     std::size_t m_MaximumNumberTrees = 5;
     std::size_t m_MaximumAttemptsToAddTree = 3;
@@ -1192,6 +1242,21 @@ CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVaria
 }
 
 CBoostedTree::~CBoostedTree() {
+}
+
+CBoostedTree& CBoostedTree::numberFolds(std::size_t folds) {
+    m_Impl->numberFolds(folds);
+    return *this;
+}
+
+CBoostedTree& CBoostedTree::lambda(double lambda) {
+    m_Impl->lambda(lambda);
+    return *this;
+}
+
+CBoostedTree& CBoostedTree::gamma(double gamma) {
+    m_Impl->gamma(gamma);
+    return *this;
 }
 
 CBoostedTree& CBoostedTree::maximumNumberTrees(std::size_t maximumNumberTrees) {

@@ -124,6 +124,12 @@ public:
 
     //! \name Parameter Setters
     //@{
+    //! Set the number of folds to use for estimating the generalisation error.
+    CBoostedTree& numberFolds(std::size_t folds);
+    //! Set the lambda regularisation parameter.
+    CBoostedTree& lambda(double lambda);
+    //! Set the gamma regularisation parameter.
+    CBoostedTree& gamma(double gamma);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
