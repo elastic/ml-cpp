@@ -742,7 +742,7 @@ private:
 
         m_MaximumTreeSizeFraction = 10.0;
 
-        // We use a large number of trees by default in the main parameter
+        // We allow a large number of trees by default in the main parameter
         // optimisation loop. In practice, we should use many fewer if they
         // don't significantly improve test error.
         m_MaximumNumberTrees = 500;
