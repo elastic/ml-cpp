@@ -37,6 +37,9 @@ to the model. (See {ml-pull}214[#214].)
 
 * Use hardened compiler options to build 3rd party libraries. (See {ml-pull}453[#453].)
 
+* Only select more complex models trend models for forecasting if there is evidence that they are
+needed. (See {ml-pull}463[#463].)
+
 === Bug Fixes
 
 * Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
