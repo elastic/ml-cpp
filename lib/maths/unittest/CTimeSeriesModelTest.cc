@@ -2177,7 +2177,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 1.0);
+        CPPUNIT_ASSERT(percentageOutOfBounds < 2.0);
     }
 
     LOG_DEBUG(<< "Univariate: Saw Tooth");
