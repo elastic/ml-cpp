@@ -189,8 +189,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
                               "outlier_detection", "{\"k\": -1}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
-                                        "{\"k\": -1}")};
+            outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml",
+                                        "outlier_detection", "{\"k\": -1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
