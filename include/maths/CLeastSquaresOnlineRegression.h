@@ -240,11 +240,12 @@ public:
         return *this;
     }
 
-    //! Get the predicted value of \p r at \p x.
-    static double predict(const boost::array<double, N>& params, double x) {
+    //! Get the predicted value of the regression model with parameters
+    //! \p params at \p x.
+    static double predict(const TArray& params, double x) {
         double result = params[0];
         double xi = x;
-        for (std::size_t i = 1u; i < params.size(); ++i, xi *= x) {
+        for (std::size_t i = 1; i < params.size(); ++i, xi *= x) {
             result += params[i] * xi;
         }
         return result;
@@ -252,8 +253,13 @@ public:
 
     //! Get the predicted value at \p x.
     double predict(double x, double maxCondition = MAX_CONDITION) const {
+        return this->predict(N, x, maxCondition);
+    }
+
+    //! Get the predicted value at \p x for the order \p n model.
+    double predict(std::size_t n, double x, double maxCondition = MAX_CONDITION) const {
         TArray params;
-        this->parameters(params, maxCondition);
+        this->parameters(n, params, maxCondition);
         return predict(params, x);
     }
 
@@ -266,6 +272,9 @@ public:
     //! is worse than this it'll fit a lower order polynomial.
     //! \param[out] result Filled in with the regression parameters.
     bool parameters(TArray& result, double maxCondition = MAX_CONDITION) const;
+
+    //! Get the regression parameters for a model of order n (<= N).
+    bool parameters(std::size_t n, TArray& result, double maxCondition = MAX_CONDITION) const;
 
     //! Get the predicted value of the regression parameters at \p x.
     //!
@@ -308,6 +317,9 @@ public:
     //! \param[out] result Filled in with the covariance matrix.
     bool covariances(double variance, TMatrix& result, double maxCondition = MAX_CONDITION) const;
 
+    //! Get the parameter covariance matrix for a model of order \p n (<= N).
+    bool covariances(std::size_t n, double variance, TMatrix& result, double maxCondition = MAX_CONDITION) const;
+
     //! Get the safe prediction horizon based on the spread
     //! of the abscissa added to the model so far.
     double range() const {
@@ -326,7 +338,7 @@ public:
     void age(double factor, bool meanRevert = false) {
         if (meanRevert) {
             TVector& s = CBasicStatistics::moment<0>(m_S);
-            for (std::size_t i = 1u; i < N; ++i) {
+            for (std::size_t i = 1; i < N; ++i) {
                 s(i + 2 * N - 1) = factor * s(i + 2 * N - 1) +
                                    (1.0 - factor) * s(i) * s(2 * N - 1);
             }
@@ -352,7 +364,7 @@ public:
         if (interval == 0.0) {
             result = params[0];
             double xi = a;
-            for (std::size_t i = 1u; i < params.size(); ++i, xi *= a) {
+            for (std::size_t i = 1; i < params.size(); ++i, xi *= a) {
                 result += params[i] * xi;
             }
             return result;

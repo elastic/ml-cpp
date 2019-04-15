@@ -2054,7 +2054,7 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum
 CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::TVector
 CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::winsorise(const TVector& squareError) const {
     return CBasicStatistics::count(m_MeanErrors) > 10.0
-               ? min(squareError, 36.0 * CBasicStatistics::mean(m_MeanErrors))
+               ? min(squareError, CFloatStorage{36} * CBasicStatistics::mean(m_MeanErrors))
                : squareError;
 }
 
