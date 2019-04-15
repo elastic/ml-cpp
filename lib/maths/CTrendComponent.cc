@@ -557,6 +557,9 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
 
             double mseH1{CBasicStatistics::mean(model.s_Mse)(order - 1)};
             double dfH1{n - static_cast<double>(order)};
+            if (dfH1 < 0.0) {
+                break;
+            }
 
             double p{CStatisticalTests::leftTailFTest(mseH1 / mseH0, dfH1, dfH0)};
             if (p < MODEL_MSE_DECREASE_SIGNFICANT) {
