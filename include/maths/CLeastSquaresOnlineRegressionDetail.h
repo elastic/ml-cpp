@@ -82,10 +82,17 @@ void CLeastSquaresOnlineRegression<N, T>::shiftAbscissa(double dx) {
 
 template<std::size_t N, typename T>
 bool CLeastSquaresOnlineRegression<N, T>::parameters(TArray& result, double maxCondition) const {
+    return this->parameters(N, result, maxCondition);
+}
+
+template<std::size_t N, typename T>
+bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
+                                                     TArray& result,
+                                                     double maxCondition) const {
     result.fill(0.0);
 
     // Search for non-singular solution.
-    std::size_t n = N + 1;
+    n += 1;
     while (--n > 0) {
         switch (n) {
         case 1: {
@@ -117,10 +124,18 @@ template<std::size_t N, typename T>
 bool CLeastSquaresOnlineRegression<N, T>::covariances(double variance,
                                                       TMatrix& result,
                                                       double maxCondition) const {
+    return this->covariances(N, variance, result, maxCondition);
+}
+
+template<std::size_t N, typename T>
+bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
+                                                      double variance,
+                                                      TMatrix& result,
+                                                      double maxCondition) const {
     result = TMatrix(0.0);
 
     // Search for the covariance matrix of a non-singular subproblem.
-    std::size_t n = N + 1;
+    n += 1;
     while (--n > 0) {
         switch (n) {
         case 1: {
