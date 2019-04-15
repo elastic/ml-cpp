@@ -66,7 +66,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
     m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
-    m_NumberNeighbours = parameters[K].fallback(std::size_t{0});
+    m_K = parameters[K].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_MinimumScoreToWriteFeatureInfluence =
@@ -106,7 +106,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 this->numberPartitions(),
                                                 m_StandardizeColumns,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_NumberNeighbours,
+                                                m_K,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
     maths::COutliers::compute(params, frame, this->progressRecorder());
@@ -121,7 +121,7 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
                                                 numberPartitions,
                                                 m_StandardizeColumns,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_NumberNeighbours,
+                                                m_K,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
     return maths::COutliers::estimateMemoryUsedByCompute(
