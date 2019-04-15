@@ -191,7 +191,7 @@ auto forecastErrors(ITR actual, ITR endActual, core_t::TTime time, const maths::
     core_t::TTime interval(std::distance(actual, endActual) * BUCKET_LENGTH);
 
     TDouble3VecVec forecast;
-    component.forecast(time, time + interval, 3600, 95.0,
+    component.forecast(time, time + interval, BUCKET_LENGTH, 95.0,
                        [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
                        [&forecast](core_t::TTime, const TDouble3Vec& value) {
                            forecast.push_back(value);
@@ -314,7 +314,7 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.07);
+    CPPUNIT_ASSERT(error < 0.17);
     CPPUNIT_ASSERT(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Piecewise Linear");
@@ -323,7 +323,7 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3200000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3200000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.11);
+    CPPUNIT_ASSERT(error < 0.03);
     CPPUNIT_ASSERT(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Staircase");
@@ -332,8 +332,8 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 2000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 2000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.04);
-    CPPUNIT_ASSERT(errorAt95 < 0.001);
+    CPPUNIT_ASSERT(error < 0.15);
+    CPPUNIT_ASSERT(errorAt95 < 0.08);
 
     LOG_DEBUG(<< "Switching");
     values = switching(rng, 0, 3000000 + 1000 * BUCKET_LENGTH);
@@ -341,7 +341,7 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.06);
+    CPPUNIT_ASSERT(error < 0.14);
     CPPUNIT_ASSERT(errorAt95 < 0.001);
 }
 
@@ -433,7 +433,7 @@ void CTrendComponentTest::testUpgradeTo7p1() {
     double errorAt95;
     std::tie(error, errorAt95) =
         forecastErrors(values.begin(), values.end(), 3000000, component);
-    CPPUNIT_ASSERT(error < 0.07);
+    CPPUNIT_ASSERT(error < 0.17);
     CPPUNIT_ASSERT(errorAt95 < 0.001);
 }
 
