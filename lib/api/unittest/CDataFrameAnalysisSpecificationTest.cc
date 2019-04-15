@@ -186,11 +186,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     LOG_DEBUG(<< "Invalid number neighbours");
     {
         LOG_TRACE(<< jsonSpec("100", "20", "100000", "2", "ml",
-                              "outlier_detection", "{\"number_neighbours\": -1}"));
+                              "outlier_detection", "{\"k\": -1}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             outliersFactory(), jsonSpec("100", "20", "100000", "2", "ml", "outlier_detection",
-                                        "{\"number_neighbours\": -1}")};
+                                        "{\"k\": -1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }

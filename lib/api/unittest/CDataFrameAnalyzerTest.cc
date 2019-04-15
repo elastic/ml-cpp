@@ -63,8 +63,7 @@ outlierSpec(std::size_t rows = 110,
     }
     if (numberNeighbours > 0) {
         spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"number_neighbours\": " +
-                core::CStringUtils::typeToString(numberNeighbours);
+        spec += "      \"k\": " + core::CStringUtils::typeToString(numberNeighbours);
         hasTrailingParameter = true;
     }
     if (computeFeatureInfluence == false) {

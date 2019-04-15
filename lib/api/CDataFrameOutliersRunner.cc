@@ -27,7 +27,7 @@ namespace api {
 namespace {
 // Configuration
 const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
-const char* const NUMBER_NEIGHBOURS{"number_neighbours"};
+const char* const K{"k"};
 const char* const METHOD{"method"};
 const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
@@ -41,7 +41,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(STANDARDIZE_COLUMNS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(NUMBER_NEIGHBOURS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(K, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
                            {{lof, int{maths::COutliers::E_Lof}},
                             {ldof, int{maths::COutliers::E_Ldof}},
@@ -66,7 +66,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
     m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
-    m_NumberNeighbours = parameters[NUMBER_NEIGHBOURS].fallback(std::size_t{0});
+    m_NumberNeighbours = parameters[K].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_MinimumScoreToWriteFeatureInfluence =
