@@ -53,7 +53,7 @@ double logn(std::size_t n) {
 const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
-const double LOG_INITIAL_WEIGHT = std::log(1e-6);
+const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e6);
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 const double MAXIMUM_RELATIVE_ERROR = 1e-3;
 const double LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
@@ -268,9 +268,9 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
     this->adjustOffset(samples, weights);
 
-    double penalty = CTools::fastLog(this->numberSamples());
+    double n{this->numberSamples()};
     this->CPrior::addSamples(samples, weights);
-    penalty = (penalty - CTools::fastLog(this->numberSamples())) / 2.0;
+    n = this->numberSamples() - n;
 
     // For this 1-of-n model we assume that all the data come from one
     // the distributions which comprise the model. The model can be
@@ -322,83 +322,80 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
     // We need to check *before* adding samples to the constituent models.
-    bool isNonInformative = this->isNonInformative();
+    bool isNonInformative{this->isNonInformative()};
 
-    // Compute the unnormalized posterior weights and update the component
-    // priors. These weights are computed on the side since they are only
-    // updated if all marginal likelihoods can be computed.
-    TDouble5Vec logLikelihoods;
-    TMaxAccumulator maxLogLikelihood;
-    TBool5Vec used, uses;
+    TDouble5Vec minusBics;
+    TBool5Vec used;
+    TBool5Vec uses;
+    bool failed{false};
+
+    // If none of the models are a good fit for the new data then restrict
+    // the maximum Bayes Factor since to be accurate one of the models needs
+    // to be correct.
+    double m{std::max(n, 1.0)};
+    double maxLogBayesFactor{-m * MAXIMUM_LOG_BAYES_FACTOR};
+
     for (auto& model : m_Models) {
-        bool use = model.second->participatesInModelSelection();
 
-        // Update the weights with the marginal likelihoods.
-        double logLikelihood = 0.0;
-        maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood)
-                : maths_t::E_FpOverflowed;
+        double minusBic{0.0};
+        maths_t::EFloatingPointErrorStatus status{maths_t::E_FpOverflowed};
 
-        if (status & maths_t::E_FpFailed) {
-            LOG_ERROR(<< "Failed to compute log-likelihood");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            return;
+        used.push_back(model.second->participatesInModelSelection());
+        if (used.back()) {
+            double logLikelihood;
+            status = model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood);
+
+            minusBic = 2.0 * logLikelihood -
+                       model.second->unmarginalizedParameters() * CTools::fastLog(n);
+
+            double modeLogLikelihood;
+            TDouble1Vec modes;
+            modes.reserve(weights.size());
+            for (const auto& weight : weights) {
+                modes.push_back(model.second->marginalLikelihoodMode(weight));
+            }
+            model.second->jointLogMarginalLikelihood(modes, weights, modeLogLikelihood);
+            maxLogBayesFactor = std::max(maxLogBayesFactor, logLikelihood - std::max(modeLogLikelihood, logLikelihood));
         }
 
-        if (!(status & maths_t::E_FpOverflowed)) {
-            logLikelihood += model.second->unmarginalizedParameters() * penalty;
-            logLikelihoods.push_back(logLikelihood);
-            maxLogLikelihood.add(logLikelihood);
-        } else {
-            logLikelihoods.push_back(MINUS_INF);
-        }
+        minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
+        failed |= (status & maths_t::E_FpFailed);
 
         // Update the component prior distribution.
         model.second->addSamples(samples, weights);
 
-        used.push_back(use);
         uses.push_back(model.second->participatesInModelSelection());
+        if (!uses.back()) {
+            model.first.logWeight(MINUS_INF);
+        }
     }
 
+    if (failed) {
+        LOG_ERROR(<< "Failed to compute log-likelihood");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        return;
+    }
+    if (isNonInformative) {
+        return;
+    }
+
+    maxLogBayesFactor += m * MAXIMUM_LOG_BAYES_FACTOR;
+
+    LOG_TRACE(<< "BICs = " << core::CContainerPrinter::print(minusBics));
+    LOG_TRACE(<< "max Bayes Factor = " << maxLogBayesFactor << " n = " << n);
+
+    double maxLogModelWeight{MINUS_INF + m * MAXIMUM_LOG_BAYES_FACTOR};
+    double maxMinusBic{*std::max_element(minusBics.begin(), minusBics.end())};
     for (std::size_t i = 0; i < m_Models.size(); ++i) {
-        if (!uses[i]) {
-            CModelWeight& weight = m_Models[i].first;
-            weight.logWeight(MINUS_INF);
+        if (used[i] && uses[i]) {
+            m_Models[i].first.addLogFactor(
+                std::max(minusBics[i] / 2.0, maxMinusBic / 2.0 - maxLogBayesFactor));
+            maxLogModelWeight = std::max(maxLogModelWeight, m_Models[i].first.logWeight());
         }
     }
-
-    if (!isNonInformative && maxLogLikelihood.count() > 0) {
-        LOG_TRACE(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-
-        double n = 0.0;
-        try {
-            for (const auto& weight : weights) {
-                n += maths_t::count(weight);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to add samples: " << e.what());
-            return;
-        }
-
-        // The idea here is to limit the amount which extreme samples
-        // affect model selection, particularly early on in the model
-        // life-cycle.
-        double minLogLikelihood =
-            maxLogLikelihood[0] -
-            n * std::min(maxModelPenalty(this->numberSamples()), 100.0);
-
-        TMaxAccumulator maxLogWeight;
-        for (std::size_t i = 0; i < m_Models.size(); ++i) {
-            if (used[i]) {
-                CModelWeight& weight = m_Models[i].first;
-                weight.addLogFactor(std::max(logLikelihoods[i], minLogLikelihood));
-                maxLogWeight.add(weight.logWeight());
-            }
-        }
-        for (std::size_t i = 0u; i < m_Models.size(); ++i) {
-            if (!used[i] && uses[i]) {
-                m_Models[i].first.logWeight(maxLogWeight[0] + LOG_INITIAL_WEIGHT);
-            }
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
+        if (!used[i] && uses[i]) {
+            m_Models[i].first.logWeight(maxLogModelWeight - m * MAXIMUM_LOG_BAYES_FACTOR);
         }
     }
 
