@@ -29,6 +29,8 @@ public:
     //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
     CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
 
+    ~CDataFrameBoostedTreeRunner();
+
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
