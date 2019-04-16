@@ -46,7 +46,7 @@ private:
     //@{
     //! If non-zero this overrides default number of neighbours to use when computing
     //! outlier factors.
-    std::size_t m_NumberNeighbours = 0;
+    std::size_t m_K = 0;
 
     //! Selects the method to use to compute outlier factors; the default is an ensemble
     //! of all supported types.

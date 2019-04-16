@@ -649,7 +649,7 @@ public:
         //! The methods to use.
         EMethod s_Method;
         //! The number of neighbours to use if non-zero.
-        std::size_t s_NumberNeighbours;
+        std::size_t s_K;
         //! If true also compute the feature influence.
         bool s_ComputeFeatureInfluence;
         //! The fraction of true outliers amoung the points.
