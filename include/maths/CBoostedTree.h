@@ -130,12 +130,12 @@ public:
     CBoostedTree& lambda(double lambda);
     //! Set the gamma regularisation parameter.
     CBoostedTree& gamma(double gamma);
+    //! Set the amount we'll shrink the weights on each each iteration.
+    CBoostedTree& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTree& featureBagFraction(double featureBagFraction);
-    //! Set the amount we'll shrink the weights on each each iteration.
-    CBoostedTree& shrinkageFactor(double shrinkageFactor);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation.
     CBoostedTree& maximumHyperparameterOptimisationRounds(std::size_t rounds);

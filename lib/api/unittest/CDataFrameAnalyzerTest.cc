@@ -91,9 +91,11 @@ outlierSpec(std::size_t rows = 110,
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
 regressionSpec(std::size_t rows = 100,
                std::size_t memoryLimit = 100000,
+               double lambda = -1.0,
+               double gamma = -1.0,
+               double eta = -1.0,
                std::size_t maximumNumberTrees = 0,
-               double featureBagFraction = 0.0,
-               double leafWeightShrinkageFactor = 0.0) {
+               double featureBagFraction = -1.0) {
 
     std::string spec{"{\n"
                      "  \"rows\": " +
@@ -108,7 +110,20 @@ regressionSpec(std::size_t rows = 100,
                      "    \"name\": \"boosted_tree_regression\","};
     spec += "\n    \"parameters\": {";
     spec += "\n      \"dependent_variable\": 4";
+    if (lambda >= 0.0) {
+        spec += ",\n";
+        spec += "      \"lambda\": " + core::CStringUtils::typeToString(lambda);
+    }
+    if (gamma >= 0.0) {
+        spec += ",\n";
+        spec += "      \"gamma\": " + core::CStringUtils::typeToString(gamma);
+    }
+    if (eta > 0.0) {
+        spec += ",\n";
+        spec += "      \"eta\": " + core::CStringUtils::typeToString(eta);
+    }
     if (maximumNumberTrees > 0) {
+        spec += ",\n";
         spec += "      \"maximum_number_trees\": " +
                 core::CStringUtils::typeToString(maximumNumberTrees);
     }
@@ -116,11 +131,6 @@ regressionSpec(std::size_t rows = 100,
         spec += ",\n";
         spec += "      \"feature_bag_fraction\": " +
                 core::CStringUtils::typeToString(featureBagFraction);
-    }
-    if (leafWeightShrinkageFactor > 0.0) {
-        spec += ",\n";
-        spec += "      \"leaf_weight_shrinkage_factor\": " +
-                core::CStringUtils::typeToString(leafWeightShrinkageFactor);
     }
     spec += "\n";
     spec += "    }\n";
@@ -208,9 +218,11 @@ void addRegressionTestData(TStrVec fieldNames,
                            api::CDataFrameAnalyzer& analyzer,
                            TDoubleVec& expectedPredictions,
                            std::size_t numberExamples = 100,
+                           double lambda = -1.0,
+                           double gamma = -1.0,
+                           double eta = 0.0,
                            std::size_t maximumNumberTrees = 0,
-                           double featureBagFraction = 0.0,
-                           double leafWeightShrinkageFactor = 0.0) {
+                           double featureBagFraction = 0.0) {
 
     auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
         double result{0.0};
@@ -238,6 +250,9 @@ void addRegressionTestData(TStrVec fieldNames,
         for (int j = 0; j < row.size(); ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 row(j), core::CIEEE754::E_DoublePrecision);
+            double xj;
+            core::CStringUtils::stringToType(fieldValues[j], xj);
+            row(j) = xj;
         }
         analyzer.handleRecord(fieldNames, fieldValues);
 
@@ -248,6 +263,21 @@ void addRegressionTestData(TStrVec fieldNames,
 
     maths::CBoostedTree tree{1, weights.size(),
                              std::make_unique<maths::boosted_tree::CMse>()};
+    if (lambda >= 0.0) {
+        tree.lambda(lambda);
+    }
+    if (gamma >= 0.0) {
+        tree.gamma(gamma);
+    }
+    if (eta > 0.0) {
+        tree.eta(eta);
+    }
+    if (maximumNumberTrees > 0) {
+        tree.maximumNumberTrees(maximumNumberTrees);
+    }
+    if (featureBagFraction > 0.0) {
+        tree.featureBagFraction(featureBagFraction);
+    }
 
     tree.train(*frame);
 
@@ -533,7 +563,53 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
 
-    double maximumNumberTrees{1};
+    double lambda{1.0};
+    double gamma{10.0};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec(100, 100000, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions, 100,
+                          lambda, gamma, eta, maximumNumberTrees, featureBagFraction);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    bool progressCompleted{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedPrediction,
+                result["row_results"]["results"]["prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress_percent"].GetInt() == 100;
+        }
+    }
+    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
+    CPPUNIT_ASSERT(progressCompleted);
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {

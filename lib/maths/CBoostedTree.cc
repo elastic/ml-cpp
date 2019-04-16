@@ -486,16 +486,14 @@ public:
 
     void gamma(double gamma) { m_GammaOverride = gamma; }
 
+    void eta(double eta) { m_EtaOverride = eta; }
+
     void maximumNumberTrees(std::size_t maximumNumberTrees) {
         m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
     void featureBagFraction(double featureBagFraction) {
         m_FeatureBagFractionOverride = featureBagFraction;
-    }
-
-    void shrinkageFactor(double shrinkageFactor) {
-        m_ShrinkageFactorOverride = shrinkageFactor;
     }
 
     void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
@@ -534,10 +532,16 @@ public:
 
         for (std::size_t round = 0;
              round < m_MaximumHyperparameterOptimisationRounds; ++round) {
+            LOG_TRACE(<< "Optimisation round = " << round + 1);
+
             TMeanVarAccumulator lossMoments{this->crossValidateForest(
                 frame, trainingRowMasks, testingRowMasks, recordProgress)};
-            this->selectNextHyperparameters(lossMoments, bopt);
+
             this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
+
+            if (this->selectNextHyperparameters(lossMoments, bopt) == false) {
+                break;
+            }
         }
 
         this->restoreBestHyperparameters();
@@ -581,8 +585,8 @@ private:
     struct SHyperparameters {
         double s_Lambda;
         double s_Gamma;
+        double s_Eta;
         double s_FeatureBagFraction;
-        double s_ShrinkageFactor;
         TDoubleVec s_FeatureSampleProbabilities;
     };
 
@@ -695,18 +699,17 @@ private:
     //! overfit tree.
     void initializeHyperparameters(core::CDataFrame& frame, TProgressCallback recordProgress) {
 
+        m_Lambda = m_LambdaOverride.value_or(0.0);
+        m_Gamma = m_GammaOverride.value_or(0.0);
+        if (m_EtaOverride) {
+            m_Eta = *m_EtaOverride;
+        }
         if (m_MaximumNumberTreesOverride) {
             m_MaximumNumberTrees = *m_MaximumNumberTreesOverride;
         }
         if (m_FeatureBagFractionOverride) {
             m_FeatureBagFraction = *m_FeatureBagFractionOverride;
         }
-        if (m_ShrinkageFactorOverride) {
-            m_ShrinkageFactor = *m_ShrinkageFactorOverride;
-        }
-
-        m_Lambda = m_LambdaOverride.value_or(0.0);
-        m_Gamma = m_GammaOverride.value_or(0.0);
 
         if (m_LambdaOverride && m_GammaOverride) {
             // Fall through.
@@ -839,7 +842,7 @@ private:
                 this->refreshPredictionsGradientsAndCurvatures(frame, trainingRowMask,
                                                                shrinkage, tree);
                 forest.push_back(std::move(tree));
-                shrinkage *= m_ShrinkageFactor;
+                shrinkage *= m_Eta;
             }
         }
 
@@ -1135,17 +1138,17 @@ private:
         if (m_GammaOverride == boost::none) {
             result.emplace_back(std::log(m_Gamma / 10.0), std::log(10.0 * m_Gamma));
         }
+        if (m_EtaOverride == boost::none) {
+            result.emplace_back(0.8, 1.0);
+        }
         if (m_FeatureBagFractionOverride == boost::none) {
             result.emplace_back(0.2, 0.8);
-        }
-        if (m_ShrinkageFactorOverride == boost::none) {
-            result.emplace_back(0.8, 1.0);
         }
         return result;
     }
 
     //! Select the next hyperparameters for which to train a model.
-    void selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
+    bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
                                    CBayesianOptimisation& bopt) {
 
         TVector parameters{this->numberHyperparametersToTune()};
@@ -1158,11 +1161,14 @@ private:
         if (m_GammaOverride == boost::none) {
             parameters(i++) = std::log(m_Gamma);
         }
+        if (m_EtaOverride == boost::none) {
+            parameters(i++) = m_Eta;
+        }
         if (m_FeatureBagFractionOverride == boost::none) {
             parameters(i++) = m_FeatureBagFraction;
         }
-        if (m_ShrinkageFactorOverride == boost::none) {
-            parameters(i++) = m_ShrinkageFactor;
+        if (i == 0) {
+            return false;
         }
 
         double meanLoss{CBasicStatistics::mean(lossMoments)};
@@ -1179,25 +1185,24 @@ private:
         if (m_GammaOverride == boost::none) {
             m_Gamma = std::exp(parameters(i++));
         }
+        if (m_EtaOverride == boost::none) {
+            m_Eta = parameters(i++);
+        }
         if (m_FeatureBagFractionOverride == boost::none) {
             m_FeatureBagFraction = parameters(i++);
         }
-        if (m_ShrinkageFactorOverride == boost::none) {
-            m_ShrinkageFactor = parameters(i++);
-        }
 
-        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma
-                  << ", feature bag fraction = " << m_FeatureBagFraction
-                  << ", shrinkage = " << m_ShrinkageFactor);
+        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+                  << ", feature bag fraction = " << m_FeatureBagFraction);
+        return true;
     }
 
     //! Capture the current hyperparameter values.
     void captureBestHyperparameters(double loss) {
         if (loss < m_BestForestTestLoss) {
             m_BestForestTestLoss = loss;
-            m_BestHyperparameters =
-                SHyperparameters{m_Lambda, m_Gamma, m_FeatureBagFraction,
-                                 m_ShrinkageFactor, m_FeatureSampleProbabilities};
+            m_BestHyperparameters = SHyperparameters{m_Lambda, m_Gamma, m_Eta, m_FeatureBagFraction,
+                                                     m_FeatureSampleProbabilities};
         }
     }
 
@@ -1205,16 +1210,15 @@ private:
     void restoreBestHyperparameters() {
         m_Lambda = m_BestHyperparameters.s_Lambda;
         m_Gamma = m_BestHyperparameters.s_Gamma;
+        m_Eta = m_BestHyperparameters.s_Eta;
         m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
-        m_ShrinkageFactor = m_BestHyperparameters.s_ShrinkageFactor;
         m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
     }
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const {
         return (m_LambdaOverride ? 0 : 1) + (m_GammaOverride ? 0 : 1) +
-               (m_FeatureBagFractionOverride ? 0 : 1) +
-               (m_ShrinkageFactorOverride ? 0 : 1);
+               (m_EtaOverride ? 0 : 1) + (m_FeatureBagFractionOverride ? 0 : 1);
     }
 
 private:
@@ -1224,9 +1228,9 @@ private:
     TLossFunctionUPtr m_Loss;
     TOptionalDouble m_LambdaOverride;
     TOptionalDouble m_GammaOverride;
+    TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
-    TOptionalDouble m_ShrinkageFactorOverride;
     double m_Lambda = 0.0;
     double m_Gamma = 0.0;
     std::size_t m_NumberFolds = 5;
@@ -1236,7 +1240,7 @@ private:
     std::size_t m_MaximumHyperparameterOptimisationRounds = 20;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
-    double m_ShrinkageFactor = 0.98;
+    double m_Eta = 0.98;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     double m_BestForestTestLoss = INF;
@@ -1268,6 +1272,11 @@ CBoostedTree& CBoostedTree::gamma(double gamma) {
     return *this;
 }
 
+CBoostedTree& CBoostedTree::eta(double eta) {
+    m_Impl->eta(eta);
+    return *this;
+}
+
 CBoostedTree& CBoostedTree::maximumNumberTrees(std::size_t maximumNumberTrees) {
     m_Impl->maximumNumberTrees(maximumNumberTrees);
     return *this;
@@ -1275,11 +1284,6 @@ CBoostedTree& CBoostedTree::maximumNumberTrees(std::size_t maximumNumberTrees) {
 
 CBoostedTree& CBoostedTree::featureBagFraction(double featureBagFraction) {
     m_Impl->featureBagFraction(featureBagFraction);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::shrinkageFactor(double shrinkageFactor) {
-    m_Impl->shrinkageFactor(shrinkageFactor);
     return *this;
 }
 

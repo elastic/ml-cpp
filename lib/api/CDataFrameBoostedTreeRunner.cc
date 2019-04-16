@@ -23,20 +23,23 @@ namespace api {
 namespace {
 // Configuration
 const char* const DEPENDENT_VARIABLE{"dependent_variable"};
+const char* const LAMBDA{"lambda"};
+const char* const GAMMA{"gamma"};
+const char* const ETA{"eta"};
 const char* const MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
 const char* const FEATURE_BAG_FRACTION{"feature_bag_fraction"};
-const char* const LEAF_WEIGHT_SHRINKAGE_FACTOR{"leaf_weight_shrinkage_factor"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(DEPENDENT_VARIABLE,
                            CDataFrameAnalysisConfigReader::E_RequiredParameter);
     // TODO objective function, support train and predict.
+    theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(MAXIMUM_NUMBER_TREES,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(FEATURE_BAG_FRACTION,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(LEAF_WEIGHT_SHRINKAGE_FACTOR,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
@@ -55,28 +58,44 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     std::size_t maximumNumberTrees{
         parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
-    double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(0.0)};
-    double leafWeightShrinkageFactor{parameters[LEAF_WEIGHT_SHRINKAGE_FACTOR].fallback(0.0)};
-    if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
-        HANDLE_FATAL(<< "Input error: bad feature bag fraction. "
-                     << "It should be in the range 0 to 1 inclusive");
+
+    double lambda{parameters[LAMBDA].fallback(-1.0)};
+    double gamma{parameters[GAMMA].fallback(-1.0)};
+    double eta{parameters[ETA].fallback(-1.0)};
+    double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    if (lambda != -1.0 && lambda < 0.0) {
+        HANDLE_FATAL(<< "Input error: bad lambda value. It should be non-negative.");
     }
-    if (leafWeightShrinkageFactor < 0.0 || leafWeightShrinkageFactor > 1.0) {
-        HANDLE_FATAL(<< "Input error: bad leaf weight shrinkage factor. "
-                     << "It should be in the range 0 to 1 inclusive.");
+    if (gamma != -1.0 && gamma < 0.0) {
+        HANDLE_FATAL(<< "Input error: bad gamma value. It should be non-negative.");
+    }
+    if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
+        HANDLE_FATAL(<< "Input error: bad eta value. "
+                     << "It should be in the range (0, 1].");
+    }
+    if (featureBagFraction != -1.0 &&
+        (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
+        HANDLE_FATAL(<< "Input error: bad feature bag fraction. "
+                     << "It should be in the range (0, 1]");
     }
 
     m_BoostedTree = std::make_unique<maths::CBoostedTree>(
         this->spec().numberThreads(), dependentVariable,
         std::make_unique<maths::boosted_tree::CMse>());
+    if (lambda >= 0.0) {
+        m_BoostedTree->lambda(lambda);
+    }
+    if (gamma >= 0.0) {
+        m_BoostedTree->gamma(gamma);
+    }
+    if (eta > 0.0 && eta <= 1.0) {
+        m_BoostedTree->eta(eta);
+    }
     if (maximumNumberTrees > 0) {
         m_BoostedTree->maximumNumberTrees(maximumNumberTrees);
     }
-    if (featureBagFraction > 0.0) {
+    if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
         m_BoostedTree->featureBagFraction(featureBagFraction);
-    }
-    if (leafWeightShrinkageFactor > 0.0) {
-        m_BoostedTree->shrinkageFactor(leafWeightShrinkageFactor);
     }
 }
 
