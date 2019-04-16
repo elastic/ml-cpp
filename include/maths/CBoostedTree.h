@@ -124,12 +124,21 @@ public:
 
     //! \name Parameter Setters
     //@{
+    //! Set the number of folds to use for estimating the generalisation error.
+    CBoostedTree& numberFolds(std::size_t folds);
+    //! Set the lambda regularisation parameter.
+    CBoostedTree& lambda(double lambda);
+    //! Set the gamma regularisation parameter.
+    CBoostedTree& gamma(double gamma);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTree& featureBagFraction(double featureBagFraction);
     //! Set the amount we'll shrink the weights on each each iteration.
     CBoostedTree& shrinkageFactor(double shrinkageFactor);
+    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
+    //! optimisation.
+    CBoostedTree& maximumHyperparameterOptimisationRounds(std::size_t rounds);
     //@}
 
     //! Train the model on the values in \p frame.
@@ -145,7 +154,7 @@ public:
     std::size_t numberExtraColumnsForTrain() const override;
 
     //! Get the column containing the model's prediction for the dependent variable.
-    std::size_t columnHoldingPrediction(std::size_t columns) const override;
+    std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
 private:
     class CImpl;

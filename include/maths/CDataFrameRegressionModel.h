@@ -44,7 +44,7 @@ public:
     virtual std::size_t numberExtraColumnsForTrain() const = 0;
 
     //! Get the column containing the model's prediction for the dependent variable.
-    virtual std::size_t columnHoldingPrediction(std::size_t columns) const = 0;
+    virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
 protected:
     static void noop(double);
