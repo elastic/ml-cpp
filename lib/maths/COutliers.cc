@@ -858,7 +858,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
     }
 
     auto builders = CEnsemble<POINT>::makeBuilders(
-        methods, frame.numberRows(), frame.numberColumns(), params.s_K);
+        methods, frame.numberRows(), frame.numberColumns(), params.s_NumberNeighbours);
 
     frame.readRows(1, [&builders](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -1075,7 +1075,7 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
     auto methodSize = [=](std::size_t k, std::size_t numberPoints,
                           std::size_t projectionDimension) {
 
-        k = params.s_K > 0 ? params.s_K : k;
+        k = params.s_NumberNeighbours > 0 ? params.s_NumberNeighbours : k;
 
         if (params.s_Method == E_Ensemble) {
             // On average half of models use CLof.
