@@ -277,9 +277,9 @@ public:
     //! \param[in] rowMask If supplied only the rows corresponding to the one
     //! bits of this vector are read.
     //! \return The readers used. This is intended to allow the reader to
-    //! accumulate state in the reader which is passed back. RVO means any
-    //! copy will be elided. Otherwise, the reader must hold the state by
-    //! reference and must synchronize access to it.
+    //! accumulate state and pass it back. RVO means the copy on return will
+    //! be elided. If the reader holds state by reference it must synchronize
+    //! access to it.
     TRowFuncVecBoolPr readRows(std::size_t numberThreads,
                                std::size_t beginRows,
                                std::size_t endRows,
@@ -339,6 +339,10 @@ public:
     //! \param[in] writer The callback to write the columns.
     //! \param[in] rowMask If supplied only the rows corresponding to the one
     //! bits of this vector are written.
+    //! \return The writers used. This is intended to allow the writer to
+    //! accumulate state and pass it back. RVO means the copy on return will
+    //! be elided. If the writer holds state by reference it must synchronize
+    //! access to it.
     TRowFuncVecBoolPr writeColumns(std::size_t numberThreads,
                                    std::size_t beginRows,
                                    std::size_t endRows,
