@@ -551,13 +551,15 @@ public:
                          << "Please report this problem.");
             return;
         }
-
-        if (frame.writeColumns(m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+        bool successful;
+        std::tie(std::ignore, successful) = frame.writeColumns(
+            m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     row->writeColumn(predictionColumn(row->numberColumns()),
                                      predict(*row, m_BestForest));
                 }
-            }) == false) {
+            });
+        if (successful == false) {
             HANDLE_FATAL(<< "Internal error: failed model inference. "
                          << "Please report this problem.");
         }
