@@ -339,7 +339,8 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
                 modes.push_back(model.second->marginalLikelihoodMode(weight));
             }
             model.second->jointLogMarginalLikelihood(modes, weights, modeLogLikelihood);
-            maxLogBayesFactor = std::max(maxLogBayesFactor, logLikelihood - std::max(modeLogLikelihood, logLikelihood));
+            maxLogBayesFactor = std::max(
+                maxLogBayesFactor, logLikelihood - std::max(modeLogLikelihood, logLikelihood));
         }
 
         minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
