@@ -38,7 +38,7 @@ namespace maths {
 //!   \f$\displaystyle arg\max_x \doubleE_x[max(f^* - f, 0)]\f$
 //! </pre>
 //!
-//! Here, the expectation is w.r.t. the distribution of the maginal of the Gaussian
+//! Here, the expectation is w.r.t. the distribution of the marginal of the Gaussian
 //! Process at the point x.
 class MATHS_EXPORT CBayesianOptimisation {
 public:
@@ -89,7 +89,7 @@ private:
     //! </pre>
     //! where \f$[D(\theta_1)]_{ij} = (\theta_{1,i}^2 + \epsilon)\delta_{ij}\f$
     //! with \f$\epsilon\f$ being this constant. This stops the expected improvement
-    //! gradient collasping to zero in any direction.
+    //! gradient collapsing to zero in any direction.
     static const double MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE;
 
 private:
