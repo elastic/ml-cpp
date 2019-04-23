@@ -416,7 +416,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 
         // expect there to be 2 anomalies
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(99.0, highAnomalyFactors[1], 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(92.0, highAnomalyFactors[1], 2.0);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -444,7 +444,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 
         // expect there to be 1 anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(24.0, highAnomalyFactors[0], 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, highAnomalyFactors[0], 2.0);
     }
 }
 
