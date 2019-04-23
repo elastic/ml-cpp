@@ -372,8 +372,8 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     bool failed{false};
 
     // If none of the models are a good fit for the new data then restrict
-    // the maximum Bayes Factor since to be accurate one of the models needs
-    // to be correct.
+    // the maximum Bayes Factor since the data likelihood given the model
+    // is most useful if one of the models is (mostly) correct.
     double m{std::max(n, 1.0)};
     double maxLogBayesFactor{-m * MAXIMUM_LOG_BAYES_FACTOR};
 
