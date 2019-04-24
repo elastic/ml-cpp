@@ -16,6 +16,8 @@ public:
     void testRunOutlierDetectionPartitioned();
     void testRunOutlierFeatureInfluences();
     void testRunOutlierDetectionWithParams();
+    void testRunBoostedTreeTraining();
+    void testRunBoostedTreeTrainingWithParams();
     void testFlushMessage();
     void testErrors();
     void testRoundTripDocHashes();
