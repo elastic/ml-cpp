@@ -12,6 +12,7 @@
 #include <core/CRapidJsonLineWriter.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
+#include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <rapidjson/document.h>
@@ -31,6 +32,7 @@ using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerF
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
+    factories.push_back(std::make_unique<ml::api::CDataFrameBoostedTreeRunnerFactory>());
     factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
     // Add new analysis types here.
     return factories;
