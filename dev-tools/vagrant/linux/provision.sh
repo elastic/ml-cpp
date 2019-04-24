@@ -60,7 +60,11 @@ export PATH=/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 
 # Various env variables
 echo "Setting env variables..."
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export CXX='g++ -std=gnu++14'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
+unset LIBRARY_PATH
 
 # ----------------- Compile libxml2 -------------------------
 if [ ! -f libxml2.state ]; then
@@ -70,7 +74,6 @@ if [ ! -f libxml2.state ]; then
   mkdir libxml
   tar xfz LATEST_LIBXML2.tar.gz -C libxml --strip-components=1
   cd libxml
-  sed -i -e 's/-O2/-O3/g' configure
   echo "  Configuring..."
   ./configure --prefix=/usr/local/gcc73 --without-python --without-readline > configure.log 2>&1
   echo "  Making..."
@@ -161,7 +164,7 @@ if [ ! -f boost.state ]; then
 
   cd boost
   echo "  Bootstrapping..."
-  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
+  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
 
   echo "  Configuring..."
 
@@ -169,8 +172,8 @@ if [ ! -f boost.state ]; then
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp
 
   echo "  Building..."
-  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make.log 2>&1
-  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make_install.log 2>&1
+  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make.log 2>&1
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make_install.log 2>&1
 
   cd ..
   rm boost_1_65_1.tar.gz

@@ -117,7 +117,7 @@ public:
         }
 
         static std::size_t estimateMemoryUsage(std::size_t dimension) {
-            return sizeof(TFloat2Vec) + (dimension + 2) * sizeof(CFloatStorage);
+            return (dimension + 2) * sizeof(CFloatStorage);
         }
 
     private:
@@ -203,6 +203,8 @@ private:
 
         std::size_t memoryUsage() const {
             return core::CMemory::dynamicSize(m_Lookup) +
+                   core::CMemory::dynamicSize(m_Projection) +
+                   core::CMemory::dynamicSize(m_RowNormalizedProjection) +
                    core::CMemory::dynamicSize(m_Method) +
                    core::CMemory::dynamicSize(m_LogScoreMoments);
         }
@@ -391,10 +393,8 @@ CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSiz
     std::size_t numberNeighbours{(3 + maxNumberNeighbours) / 2};
 
     auto pointsMemory = [&] {
-        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(dimension);
-    };
-    auto projectedPointsMemory = [&] {
-        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(projectionDimension);
+        return partitionNumberPoints *
+               (sizeof(TPoint) + las::estimateMemoryUsage<TPoint>(dimension));
     };
     auto scorersMemory = [&] {
         return partitionNumberPoints *
@@ -414,8 +414,8 @@ CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSiz
                methodSize(numberNeighbours, partitionNumberPoints, projectionDimension);
     };
 
-    return pointsMemory() + projectedPointsMemory() + scorersMemory() +
-           numberModels * modelMemory() + partitionScoringMemory();
+    return pointsMemory() + scorersMemory() + numberModels * modelMemory() +
+           partitionScoringMemory();
 }
 
 template<typename POINT>
@@ -767,7 +767,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
     // Recover temporary memory.
     m_Method->recoverMemory();
 
-    recordMemoryUsage(core::CMemory::dynamicSize(m_Method) - methodMemoryAfterRun);
+    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(m_Method)) - methodMemoryAfterRun);
     std::int64_t scoresMemoryBeforeAdd(core::CMemory::dynamicSize(scores));
 
     // Update the scores.
@@ -780,8 +780,8 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
     }
 
-    recordMemoryUsage(core::CMemory::dynamicSize(scores) - scoresMemoryBeforeAdd);
-    recordMemoryUsage(-pointsMemory);
+    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(scores)) -
+                      scoresMemoryBeforeAdd - pointsMemory);
 }
 
 template<typename POINT>
@@ -858,7 +858,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
     }
 
     auto builders = CEnsemble<POINT>::makeBuilders(
-        methods, frame.numberRows(), frame.numberColumns(), params.s_NumberNeighbours);
+        methods, frame.numberRows(), frame.numberColumns(), params.s_K);
 
     frame.readRows(1, [&builders](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -1024,6 +1024,8 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             LOG_ERROR(<< "Failed to write scores to the data frame");
             return false;
         }
+
+        recordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(scores)));
     }
 
     return true;
@@ -1072,14 +1074,25 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
 
     auto methodSize = [=](std::size_t k, std::size_t numberPoints,
                           std::size_t projectionDimension) {
-        // On average half of models use CLof.
-        return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence, k,
-                                               numberPoints, projectionDimension) /
-               2;
+
+        k = params.s_K > 0 ? params.s_K : k;
+
+        if (params.s_Method == E_Ensemble) {
+            // On average half of models use CLof.
+            return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
+                                                   k, numberPoints, projectionDimension) /
+                   2;
+        }
+        if (params.s_Method == E_Lof) {
+            return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
+                                                   k, numberPoints, projectionDimension);
+        }
+        return std::size_t{0};
     };
     return CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-        methodSize, 2 /*number methods*/, params.s_ComputeFeatureInfluence,
-        totalNumberPoints, partitionNumberPoints, dimension);
+        methodSize, params.s_Method == E_Ensemble ? 2 : 1 /*number methods*/,
+        params.s_ComputeFeatureInfluence, totalNumberPoints,
+        partitionNumberPoints, dimension);
 }
 
 void COutliers::noopRecordProgress(double) {

@@ -9,6 +9,8 @@
 #include <core/CStaticThreadPool.h>
 #include <core/CStopWatch.h>
 
+#include <test/CRandomNumbers.h>
+
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -149,21 +151,24 @@ void CStaticThreadPoolTest::testManyTasksThroughput() {
 
 void CStaticThreadPoolTest::testSchedulingOverhead() {
 
-    // Test the overhead per task is less than 1.6 microseconds.
+    // Test the overhead per task is less than 0.7 microseconds.
 
     core::CStaticThreadPool pool{4};
 
     core::CStopWatch watch{true};
-    for (std::size_t i = 0; i < 1000000; ++i) {
+    for (std::size_t i = 0; i < 2000000; ++i) {
         if (i % 100000 == 0) {
             LOG_DEBUG(<< i);
         }
-        pool.schedule([]() {});
+        pool.schedule([ j = std::size_t{0}, count = i % 1000 ]() mutable {
+            for (j = 0; j < count; ++j) {
+            }
+        });
     }
 
     double overhead{static_cast<double>(watch.stop()) / 1000.0};
     LOG_DEBUG(<< "Total time = " << overhead);
-    //CPPUNIT_ASSERT(overhead < 1.6);
+    //CPPUNIT_ASSERT(overhead < 1.4);
 }
 
 void CStaticThreadPoolTest::testWithExceptions() {
@@ -175,8 +180,10 @@ void CStaticThreadPoolTest::testWithExceptions() {
     {
         core::CStaticThreadPool pool{2};
         for (std::size_t i = 0; i < 5; ++i) {
-            core::CStaticThreadPool::TTask bad;
-            pool.schedule(std::move(bad));
+            core::CStaticThreadPool::TTask null;
+            pool.schedule(std::move(null));
+            auto throws = []() { throw std::runtime_error{"bad"}; };
+            pool.schedule(throws);
         }
 
         // This would dealock due to lack of consumers if we'd killed our workers.

@@ -16,6 +16,8 @@
 
 #include <maths/CDecayRateController.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLinearAlgebraFwd.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
@@ -109,6 +111,31 @@ const core_t::TTime WEEK = core::constants::WEEK;
 const core_t::TTime YEAR = core::constants::YEAR;
 }
 
+class CNanInjector {
+public:
+    // insert a NaN into a seasonal component bucket
+    void injectNan(maths::CTimeSeriesDecomposition& decomposition, size_t bucketIndex) {
+        firstRegressionStatistic(seasonalComponent(decomposition), bucketIndex) =
+            std::numeric_limits<double>::quiet_NaN();
+    }
+
+private:
+    // helper methods to get access to the state of a seasonal component
+
+    // return the regression statistics from the provided seasonal component
+    static maths::CFloatStorage&
+    firstRegressionStatistic(maths::CSeasonalComponent& component, size_t bucketIndex) {
+        return maths::CBasicStatistics::moment<0>(
+            component.m_Bucketing.m_Buckets[bucketIndex].s_Regression.m_S)(0);
+    }
+
+    // return the first seasonal component from the provided decomposition
+    static maths::CSeasonalComponent&
+    seasonalComponent(maths::CTimeSeriesDecomposition& decomposition) {
+        return decomposition.m_Components.m_Seasonal->m_Components[0];
+    }
+};
+
 void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     TTimeVec times;
     TDoubleVec trend;
@@ -191,7 +218,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     CPPUNIT_ASSERT(totalSumResidual < 0.015 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.017 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.018 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -552,6 +579,66 @@ void CTimeSeriesDecompositionTest::testWeekend() {
         CPPUNIT_ASSERT(totalMaxResidual < 0.055 * totalMaxValue);
         CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
     }
+}
+
+void CTimeSeriesDecompositionTest::testNanHandling() {
+
+    TTimeVec times;
+    TDoubleVec trend;
+    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
+        double daily = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
+                                                static_cast<double>(time) /
+                                                static_cast<double>(DAY));
+        times.push_back(time);
+        trend.push_back(daily);
+    }
+
+    const double noiseMean = 20.0;
+    const double noiseVariance = 16.0;
+    test::CRandomNumbers rng;
+    TDoubleVec noise;
+    rng.generateNormalSamples(noiseMean, noiseVariance, times.size(), noise);
+
+    maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
+
+    // run through half of the periodic data
+    std::size_t i = 0u;
+    for (; i < times.size() / 2; ++i) {
+        core_t::TTime time = times[i];
+        double value = trend[i] + noise[i];
+
+        decomposition.addPoint(time, value);
+    }
+
+    // inject a NaN into one of the seasonal components
+    CNanInjector nanInjector;
+    nanInjector.injectNan(decomposition, 0L);
+
+    int componentsModified{0};
+    // run through the 2nd half of the periodic data set
+    for (++i; i < times.size(); ++i) {
+        core_t::TTime time = times[i];
+        auto value = decomposition.value(time);
+        CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(value.first));
+        CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(value.second));
+
+        if (decomposition.addPoint(time, trend[i] + noise[i])) {
+            ++componentsModified;
+        }
+    }
+
+    // The call to 'addPoint' that results in the removal of the component
+    // containing the NaN value also triggers an immediate re-detection of
+    // a daily seasonal component. Hence we only expect it to report that the
+    // components have been modified just the once even though two modification
+    // event have occurred.
+    CPPUNIT_ASSERT_EQUAL(1, componentsModified);
+
+    // Check that only the daily component has been initialized.
+    const TSeasonalComponentVec& components = decomposition.seasonalComponents();
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), components.size());
+    CPPUNIT_ASSERT_EQUAL(DAY, components[0].time().period());
+    CPPUNIT_ASSERT(components[0].initialized());
 }
 
 void CTimeSeriesDecompositionTest::testSinglePeriodicity() {
@@ -1940,7 +2027,7 @@ void CTimeSeriesDecompositionTest::testComponentLifecycle() {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.018, 0.012, 0.072};
+    double bounds[]{0.01, 0.018, 0.012, 0.073};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2295,6 +2382,9 @@ CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
         &CTimeSeriesDecompositionTest::testMinimizeLongComponents));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testWeekend", &CTimeSeriesDecompositionTest::testWeekend));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
+        "CTimeSeriesDecompositionTest::testNanHandling",
+        &CTimeSeriesDecompositionTest::testNanHandling));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testSinglePeriodicity",
         &CTimeSeriesDecompositionTest::testSinglePeriodicity));

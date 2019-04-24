@@ -11,7 +11,7 @@
 
 #include <maths/CAdaptiveBucketing.h>
 #include <maths/CBasicStatistics.h>
-#include <maths/CRegression.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/ImportExport.h>
 
@@ -20,6 +20,8 @@
 #include <vector>
 
 #include <stdint.h>
+
+class CNanInjector;
 
 namespace ml {
 namespace core {
@@ -35,8 +37,8 @@ namespace maths {
 class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing final : public CAdaptiveBucketing {
 public:
     using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
-    using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
-    using TRegression = CRegression::CLeastSquaresOnline<1, CFloatStorage>;
+    using TDoubleRegression = CLeastSquaresOnlineRegression<1, double>;
+    using TRegression = CLeastSquaresOnlineRegression<1, CFloatStorage>;
     using CAdaptiveBucketing::count;
 
 public:
@@ -133,6 +135,9 @@ public:
     //! Name of component
     std::string name() const override;
 
+    //! Check that the state is valid.
+    bool isBad() const override;
+
 private:
     using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
 
@@ -148,6 +153,9 @@ private:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         uint64_t checksum(uint64_t seed) const;
+
+        //! Check that the state is valid.
+        bool isBad() const;
 
         TRegression s_Regression;
         CFloatStorage s_Variance;
@@ -198,6 +206,9 @@ private:
 
     //! The buckets.
     TBucketVec m_Buckets;
+
+    //! Befriend a helper class used by the unit tests
+    friend class ::CNanInjector;
 };
 
 //! Create a free function which will be found by Koenig lookup.

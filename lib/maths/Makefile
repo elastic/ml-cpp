@@ -47,6 +47,7 @@ CIntegration.cc \
 CKMeansOnline1d.cc \
 CKMostCorrelated.cc \
 CLassoLogisticRegression.cc \
+CLeastSquaresOnlineRegression.cc \
 CLinearAlgebra.cc \
 CLinearAlgebraTools.cc \
 CLogNormalMeanPrecConjugate.cc \
@@ -83,7 +84,6 @@ CQDigest.cc \
 CQuantileSketch.cc \
 CRadialBasisFunction.cc \
 CRandomizedPeriodicityTest.cc \
-CRegression.cc \
 CRestoreParams.cc \
 CSampling.cc \
 CSeasonalComponent.cc \

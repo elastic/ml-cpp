@@ -16,8 +16,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CSignal.h>
 #include <maths/CStatisticalTests.h>
@@ -171,7 +171,7 @@ const std::string DIURNAL_COMPONENT_NAMES[] = {
 
 //! Fit and remove a linear trend from \p values.
 void removeLinearTrend(TFloatMeanAccumulatorVec& values) {
-    using TRegression = CRegression::CLeastSquaresOnline<1, double>;
+    using TRegression = CLeastSquaresOnlineRegression<1, double>;
     TRegression trend;
     double dt{10.0 / static_cast<double>(values.size())};
     double time{dt / 2.0};
@@ -1978,6 +1978,13 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     // We need fewer degrees of freedom in the trend model we're fitting
     // than non-empty buckets.
     if (df1 <= 0.0) {
+        return false;
+    }
+
+    // It's possible that none of the candidates are <= 1.05 times the minimum,
+    // this would be the case if a NaN were present in the values say.
+    // NaNs are detected and purged elsewhere so we simply return false here.
+    if (best.count() == 0) {
         return false;
     }
 

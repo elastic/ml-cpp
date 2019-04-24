@@ -515,7 +515,7 @@ void CPackedBitVectorTest::testInnerProductBitwiseOr() {
     }
 }
 
-void CPackedBitVectorTest::testProblemCases() {
+void CPackedBitVectorTest::testLineScanProblemCase() {
 
     // Test a problem case with line scan. We were accidentally inverting the bits
     // of the covector in bitwise operations if a run in both vectors stopped at the
@@ -577,6 +577,49 @@ void CPackedBitVectorTest::testProblemCases() {
     CPPUNIT_ASSERT_EQUAL(lhs.manhattan() - rhs.manhattan(), (lhs ^ rhs).manhattan());
 }
 
+void CPackedBitVectorTest::testZeroLengthRunProblemCase() {
+
+    test::CRandomNumbers rng;
+
+    auto toBits = [](const TSizeVec& components) {
+        TBoolVec result;
+        for (auto component : components) {
+            std::fill_n(std::back_inserter(result),
+                        core::CPackedBitVector::MAX_RUN_LENGTH, component);
+        }
+        return result;
+    };
+
+    TSizeVec components;
+
+    for (std::size_t i = 0; i < 100; ++i) {
+        TBoolVec bits[3];
+        for (std::size_t j = 0; j < 3; ++j) {
+            rng.generateUniformSamples(0, 2, 10, components);
+            bits[j] = toBits(components);
+        }
+
+        core::CPackedBitVector test[3]{core::CPackedBitVector{bits[0]},
+                                       core::CPackedBitVector{bits[1]},
+                                       core::CPackedBitVector{bits[2]}};
+
+        TBoolVec expected;
+        TSizeVec expectedIndices;
+        for (std::size_t j = 0; j < bits[0].size(); ++j) {
+            expected.push_back((bits[0][j] || bits[1][j]) && bits[2][j]);
+            if (expected.back()) {
+                expectedIndices.push_back(j);
+            }
+        }
+        core::CPackedBitVector actual{(test[0] | test[1]) & test[2]};
+        CPPUNIT_ASSERT_EQUAL(toBitString(expected), toBitString(actual));
+
+        TSizeVec actualIndices(actual.beginOneBits(), actual.endOneBits());
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedIndices),
+                             core::CContainerPrinter::print(actualIndices));
+    }
+}
+
 void CPackedBitVectorTest::testPersist() {
     TBoolVec bits{true,  true,  false, false, true,
                   false, false, false, true,  true};
@@ -620,7 +663,11 @@ CppUnit::Test* CPackedBitVectorTest::suite() {
         "CPackedBitVectorTest::testInnerProductBitwiseOr",
         &CPackedBitVectorTest::testInnerProductBitwiseOr));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testProblemCases", &CPackedBitVectorTest::testProblemCases));
+        "CPackedBitVectorTest::testLineScanProblemCase",
+        &CPackedBitVectorTest::testLineScanProblemCase));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
+        "CPackedBitVectorTest::testZeroLengthRunProblemCase",
+        &CPackedBitVectorTest::testZeroLengthRunProblemCase));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
         "CPackedBitVectorTest::testPersist", &CPackedBitVectorTest::testPersist));
 

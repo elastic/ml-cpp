@@ -68,16 +68,6 @@ bool CMathsFuncs::isNan(const CSymmetricMatrixNxN<double, N>& val) {
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isNan(const core::CSmallVector<double, N>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
-        if (isNan(val[i])) {
-            return true;
-        }
-    }
-    return false;
-}
-
-template<std::size_t N>
 bool CMathsFuncs::isInf(const CVectorNx1<double, N>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isInf), val);
 }
@@ -88,16 +78,6 @@ bool CMathsFuncs::isInf(const CSymmetricMatrixNxN<double, N>& val) {
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isInf(const core::CSmallVector<double, N>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
-        if (isInf(val[i])) {
-            return true;
-        }
-    }
-    return false;
-}
-
-template<std::size_t N>
 bool CMathsFuncs::isFinite(const CVectorNx1<double, N>& val) {
     return everyComponent(static_cast<bool (*)(double)>(&isFinite), val);
 }
@@ -105,16 +85,6 @@ bool CMathsFuncs::isFinite(const CVectorNx1<double, N>& val) {
 template<std::size_t N>
 bool CMathsFuncs::isFinite(const CSymmetricMatrixNxN<double, N>& val) {
     return everyElement(static_cast<bool (*)(double)>(&isFinite), val);
-}
-
-template<std::size_t N>
-bool CMathsFuncs::isFinite(const core::CSmallVector<double, N>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
-        if (!isFinite(val[i])) {
-            return false;
-        }
-    }
-    return true;
 }
 }
 }

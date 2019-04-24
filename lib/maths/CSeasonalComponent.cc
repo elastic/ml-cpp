@@ -15,7 +15,7 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 

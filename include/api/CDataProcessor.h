@@ -82,6 +82,9 @@ public:
     //! Access the output handler
     virtual COutputHandler& outputHandler() = 0;
 
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const = 0;
+
     //! Create debug for a record.  This is expensive so should NOT be
     //! called for every record as a matter of course.
     static std::string debugPrintRecord(const TStrStrUMap& dataRowFields);

@@ -22,10 +22,10 @@
 #include <maths/CChecksum.h>
 #include <maths/CExpandingWindow.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CPeriodicityHypothesisTests.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/CSeasonalTime.h>
@@ -328,7 +328,7 @@ bool upgradeTrendModelToVersion_6_3(const core_t::TTime bucketLength,
                                     const core_t::TTime lastValueTime,
                                     CTrendComponent& trend,
                                     core::CStateRestoreTraverser& traverser) {
-    using TRegression = CRegression::CLeastSquaresOnline<3, double>;
+    using TRegression = CLeastSquaresOnlineRegression<3, double>;
 
     TRegression regression;
     double variance{0.0};
@@ -1240,7 +1240,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
 
         if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
-            m_ComponentsAdded = true;
+            m_ComponentsModified = true;
         }
     } break;
     case SC_DISABLED:
@@ -1273,7 +1273,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         if (!this->addSeasonalComponents(result, window, predictor)) {
             break;
         }
-        m_ComponentsAdded = true;
+        m_ComponentsModified = true;
         LOG_DEBUG(<< "Detected seasonal components at " << time);
 
         m_UsingTrendForPrediction = true;
@@ -1331,12 +1331,12 @@ void CTimeSeriesDecompositionDetail::CComponents::testingForChange(bool value) {
     m_TestingForChange = value;
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::observeComponentsAdded() {
-    m_ComponentsAdded = false;
+void CTimeSeriesDecompositionDetail::CComponents::observeComponentsModified() {
+    m_ComponentsModified = false;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::componentsAdded() {
-    return m_ComponentsAdded;
+bool CTimeSeriesDecompositionDetail::CComponents::componentsModified() {
+    return m_ComponentsModified;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::shiftLevel(core_t::TTime time,
@@ -1828,10 +1828,19 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
         if (this->shouldInterpolate(time, lastTime)) {
             LOG_TRACE(<< "Interpolating values at " << time);
 
+            // Remove components that contain invalid (not finite) values,
+            // along with the associated prediction errors and signal that the
+            // set of components has been modified.
             if (m_Seasonal) {
+                if (m_Seasonal->removeComponentsWithBadValues(time)) {
+                    m_ComponentsModified = true;
+                }
                 m_Seasonal->interpolate(time, lastTime, true);
             }
             if (m_Calendar) {
+                if (m_Calendar->removeComponentsWithBadValues(time)) {
+                    m_ComponentsModified = true;
+                }
                 m_Calendar->interpolate(time, lastTime, true);
             }
 
@@ -2045,7 +2054,7 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum
 CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::TVector
 CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::winsorise(const TVector& squareError) const {
     return CBasicStatistics::count(m_MeanErrors) > 10.0
-               ? min(squareError, 36.0 * CBasicStatistics::mean(m_MeanErrors))
+               ? min(squareError, CFloatStorage{36} * CBasicStatistics::mean(m_MeanErrors))
                : squareError;
 }
 
@@ -2095,6 +2104,30 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::decayRate(double de
     for (auto& component : m_Components) {
         component.decayRate(decayRate);
     }
+}
+
+bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWithBadValues(core_t::TTime time) {
+
+    TBoolVec remove(m_Components.size(), false);
+    bool anyBadComponentsFound{false};
+    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+        const CSeasonalTime& time_{m_Components[i].time()};
+        if (m_Components[i].isBad()) {
+            LOG_DEBUG(<< "Removing seasonal component"
+                      << " with period '" << time_.period() << "' at " << time
+                      << ". Invalid values detected.");
+            remove[i] = true;
+            anyBadComponentsFound |= true;
+        }
+    }
+
+    if (anyBadComponentsFound) {
+        CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
+                                        [](bool remove_) { return remove_; });
+
+        return true;
+    }
+    return false;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(core_t::TTime start,
@@ -2517,6 +2550,29 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::prune(core_t::TTime
                                     [](bool remove_) { return remove_; });
 
     return m_Components.empty();
+}
+
+bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::removeComponentsWithBadValues(core_t::TTime time) {
+
+    TBoolVec remove(m_Components.size(), false);
+    bool anyBadComponentsFound{false};
+    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+        if (m_Components[i].isBad()) {
+            LOG_DEBUG(<< "Removing calendar component"
+                      << " '" << m_Components[i].feature().print() << "' at "
+                      << time << ". Invalid value detected.");
+            remove[i] = true;
+            anyBadComponentsFound |= true;
+        }
+    }
+
+    if (anyBadComponentsFound) {
+        CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
+                                        [](bool remove_) { return remove_; });
+        return true;
+    }
+
+    return false;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::add(const CCalendarFeature& feature,
