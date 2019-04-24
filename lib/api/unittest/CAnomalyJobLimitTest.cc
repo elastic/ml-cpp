@@ -353,7 +353,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
     } testParams[]{{600, 550, 6000, 300, 33, 40, 40},
-                   {3600, 550, 5500, 300, 28, 25, 20},
+                   {3600, 550, 5500, 300, 27, 25, 20},
                    {172800, 150, 850, 120, 6, 6, 3}};
 
     for (const auto& testParam : testParams) {
