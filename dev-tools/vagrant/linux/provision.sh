@@ -31,6 +31,14 @@ if [ ! -f java.state ]; then
   touch java.state
 fi
 
+# Env variables for hardening and optimisation
+echo "Setting env variables..."
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
+export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
+unset LIBRARY_PATH
+
 # ----------------- Compile gcc 7.3 -------------------------
 if [ ! -f gcc.state ]; then
   echo "Compiling GCC 7.3..."
@@ -41,6 +49,7 @@ if [ ! -f gcc.state ]; then
   tar xfz gcc-7.3.0.tar.gz -C gcc-source --strip-components=1
   cd gcc-source
   contrib/download_prerequisites
+  sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
   cd ..
   mkdir gcc-build
   cd gcc-build
@@ -54,17 +63,10 @@ if [ ! -f gcc.state ]; then
   touch gcc.state
 fi
 
-# Update paths to use the newly built compiler
+# Update paths to use the newly built compiler in C++14 mode
 export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
 export PATH=/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-
-# Various env variables
-echo "Setting env variables..."
-export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export CXX='g++ -std=gnu++14'
-export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
-export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
-unset LIBRARY_PATH
 
 # ----------------- Compile libxml2 -------------------------
 if [ ! -f libxml2.state ]; then

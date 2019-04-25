@@ -15,11 +15,18 @@ RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y gcc gcc-c++ git unzip wget zip zlib-devel
 
+# For compiling with hardening and optimisation
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
+ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
+
 # Build gcc 7.3
 RUN \
   wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz | tar zxf - && \
   cd gcc-7.3.0 && \
   contrib/download_prerequisites && \
+  sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
   mkdir gcc-7.3.0-build && \
   cd gcc-7.3.0-build && \
@@ -29,15 +36,10 @@ RUN \
   cd .. && \
   rm -rf gcc-7.3.0 gcc-7.3.0-build
 
-# Update paths to use the newly built compiler
+# Update paths to use the newly built compiler in C++14 mode
 ENV LD_LIBRARY_PATH /usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
 ENV PATH /usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin
-
-# For compiling in C++14 mode with hardening and optimisation
-ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
 ENV CXX "g++ -std=gnu++14"
-ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
-ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
 
 # Build libxml2
 RUN \
