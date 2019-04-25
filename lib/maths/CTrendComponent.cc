@@ -6,6 +6,8 @@
 
 #include <maths/CTrendComponent.h>
 
+#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -13,9 +15,11 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CSampling.h>
+#include <maths/CStatisticalTests.h>
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
@@ -35,6 +39,7 @@ using TOptionalDoubleDoublePr = boost::optional<std::pair<double, double>>;
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
 const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
 const double MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION{0.01};
+const double MODEL_MSE_DECREASE_SIGNFICANT{0.05};
 const double MAX_CONDITION{1e12};
 const core_t::TTime UNSET_TIME{0};
 const std::size_t NO_CHANGE_LABEL{0};
@@ -86,6 +91,8 @@ CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
     return CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, decayRate);
 }
 
+const std::string VERSION_7_1_TAG("7.1");
+
 const std::string TARGET_DECAY_RATE_TAG{"a"};
 const std::string FIRST_UPDATE_TAG{"b"};
 const std::string LAST_UPDATE_TAG{"c"};
@@ -96,9 +103,14 @@ const std::string VALUE_MOMENTS_TAG{"g"};
 const std::string TIME_OF_LAST_LEVEL_CHANGE_TAG{"h"};
 const std::string PROBABILITY_OF_LEVEL_CHANGE_MODEL_TAG{"i"};
 const std::string MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG{"j"};
-const std::string WEIGHT_TAG{"a"};
-const std::string REGRESSION_TAG{"b"};
-const std::string RESIDUAL_MOMENTS_TAG{"c"};
+// Version 7.1
+const std::string WEIGHT_7_1_TAG{"a"};
+const std::string REGRESSION_7_1_TAG{"b"};
+const std::string MSE_7_1_TAG{"c"};
+// Version < 7.1
+const std::string WEIGHT_OLD_TAG{"a"};
+const std::string REGRESSION_OLD_TAG{"b"};
+const std::string RESIDUAL_MOMENTS_OLD_TAG{"c"};
 }
 
 CTrendComponent::CTrendComponent(double decayRate)
@@ -271,10 +283,14 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
     for (auto& model : m_TrendModels) {
-        model.s_ResidualMoments.add(value - model.s_Regression.predict(scaledTime, MAX_CONDITION));
+        TVector mse;
+        for (std::size_t order = 1; order <= TRegression::N; ++order) {
+            mse(order - 1) = value - model.s_Regression.predict(order, scaledTime, MAX_CONDITION);
+        }
+        model.s_Mse.add(mse * mse, weight);
         model.s_Regression.add(scaledTime, value, weight);
     }
-    m_ValueMoments.add(value);
+    m_ValueMoments.add(value, weight);
 
     m_FirstUpdate = m_FirstUpdate == UNSET_TIME ? time : std::min(m_FirstUpdate, time);
     m_LastUpdate = std::max(m_LastUpdate, time);
@@ -294,12 +310,12 @@ void CTrendComponent::decayRate(double decayRate) {
 }
 
 void CTrendComponent::propagateForwardsByTime(core_t::TTime interval) {
-    TDoubleVec factors(this->factors(interval));
+    TDoubleVec factors(this->smoothingFactors(interval));
     double median{CBasicStatistics::median(factors)};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         m_TrendModels[i].s_Weight.age(median);
         m_TrendModels[i].s_Regression.age(factors[i]);
-        m_TrendModels[i].s_ResidualMoments.age(std::sqrt(factors[i]));
+        m_TrendModels[i].s_Mse.age(std::sqrt(factors[i]));
     }
     double interval_{static_cast<double>(interval) /
                      static_cast<double>(core::constants::DAY)};
@@ -319,7 +335,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
 
     TMeanAccumulator prediction_;
 
-    TDoubleVec weights(this->factors(std::abs(time - m_LastUpdate)));
+    TDoubleVec weights(this->smoothingFactors(std::abs(time - m_LastUpdate)));
     double Z{0.0};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         weights[i] *= CBasicStatistics::mean(m_TrendModels[i].s_Weight);
@@ -397,12 +413,16 @@ void CTrendComponent::forecast(core_t::TTime startTime,
 
     LOG_TRACE(<< "forecasting = " << this->print());
 
-    TDoubleVec factors(this->factors(step));
+    TSizeVec selectedModelOrders(this->selectModelOrdersForForecasting());
+    LOG_TRACE(<< "Selected model orders = "
+              << core::CContainerPrinter::print(selectedModelOrders));
+
+    TDoubleVec factors(this->smoothingFactors(step));
     TDoubleVec modelWeights(this->initialForecastModelWeights());
     TDoubleVec errorWeights(this->initialForecastErrorWeights());
     TRegressionArrayVec models(NUMBER_MODELS);
     TMatrixVec modelCovariances(NUMBER_MODELS);
-    TDoubleVec residualVariances(NUMBER_MODELS);
+    TDoubleVec mse(NUMBER_MODELS);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         // Note in the following we multiply the bias by the sample count
         // when estimating the regression coefficients' covariance matrix.
@@ -414,16 +434,14 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         // variance by the number of samples to undo the scaling applied
         // in the regression model covariance method.
         const SModel& model{m_TrendModels[i]};
+        std::size_t order{selectedModelOrders[i]};
         double n{model.s_Regression.count()};
-        double bias{CBasicStatistics::mean(model.s_ResidualMoments)};
-        double variance{CBasicStatistics::variance(model.s_ResidualMoments)};
-        residualVariances[i] = CTools::pow2(bias) + variance;
-        model.s_Regression.parameters(models[i], MAX_CONDITION);
-        model.s_Regression.covariances(n * CTools::pow2(bias) + variance,
-                                       modelCovariances[i], MAX_CONDITION);
+        mse[i] = CBasicStatistics::mean(model.s_Mse)(order - 1);
+        model.s_Regression.parameters(order, models[i], MAX_CONDITION);
+        model.s_Regression.covariances(order, n * mse[i], modelCovariances[i], MAX_CONDITION);
         LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
         LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited());
-        LOG_TRACE(<< "variances   = " << residualVariances[i]);
+        LOG_TRACE(<< "mse         = " << mse[i]);
     }
     LOG_TRACE(<< "long time variance = " << CBasicStatistics::variance(m_ValueMoments));
 
@@ -444,12 +462,13 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         }
 
         for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
-            variances[j] = times.inner(modelCovariances[j] * times) + residualVariances[j];
+            variances[j] = times.inner(modelCovariances[j] * times) + mse[j];
         }
         variances[NUMBER_MODELS] = CBasicStatistics::variance(m_ValueMoments);
         for (auto v = variances.rbegin(); v != variances.rend(); ++v) {
             *v = *std::min_element(variances.rbegin(), v + 1);
         }
+
         TMeanAccumulator variance_;
         for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
             variance_.add(variances[j], errorWeights[j]);
@@ -510,13 +529,47 @@ std::string CTrendComponent::print() const {
     return result.str();
 }
 
-CTrendComponent::TDoubleVec CTrendComponent::factors(core_t::TTime interval) const {
+CTrendComponent::TDoubleVec CTrendComponent::smoothingFactors(core_t::TTime interval) const {
     TDoubleVec result(NUMBER_MODELS);
     double factor{m_DefaultDecayRate * static_cast<double>(interval) /
                   static_cast<double>(core::constants::DAY)};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         result[i] = std::exp(-TIME_SCALES[i] * factor);
     }
+    return result;
+}
+
+CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() const {
+    // We test the models in order of increasing complexity and require
+    // reasonable evidence to select a more complex model.
+
+    TSizeVec result(NUMBER_MODELS, 1);
+
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
+
+        const SModel& model{m_TrendModels[i]};
+
+        double n{CBasicStatistics::count(model.s_Mse)};
+        double mseH0{CBasicStatistics::mean(model.s_Mse)(0)};
+        double dfH0{n - 1.0};
+
+        for (std::size_t order = 2; mseH0 > 0.0 && order <= TRegression::N; ++order) {
+
+            double mseH1{CBasicStatistics::mean(model.s_Mse)(order - 1)};
+            double dfH1{n - static_cast<double>(order)};
+            if (dfH1 < 0.0) {
+                break;
+            }
+
+            double p{CStatisticalTests::leftTailFTest(mseH1 / mseH0, dfH1, dfH0)};
+            if (p < MODEL_MSE_DECREASE_SIGNFICANT) {
+                result[i] = order;
+                mseH0 = mseH1;
+                dfH0 = dfH1;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -553,7 +606,7 @@ double CTrendComponent::value(const TDoubleVec& weights,
                               double time) const {
     TMeanAccumulator prediction;
     for (std::size_t i = 0u; i < models.size(); ++i) {
-        prediction.add(CRegression::predict(models[i], time), weights[i]);
+        prediction.add(TRegression::predict(models[i], time), weights[i]);
     }
     return CBasicStatistics::mean(prediction);
 }
@@ -578,28 +631,55 @@ CTrendComponent::SModel::SModel(double weight) {
 }
 
 void CTrendComponent::SModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(WEIGHT_TAG, s_Weight.toDelimited());
-    inserter.insertLevel(REGRESSION_TAG, boost::bind(&TRegression::acceptPersistInserter,
-                                                     &s_Regression, _1));
-    inserter.insertValue(RESIDUAL_MOMENTS_TAG, s_ResidualMoments.toDelimited());
+
+    inserter.insertValue(VERSION_7_1_TAG, "");
+    inserter.insertValue(WEIGHT_7_1_TAG, s_Weight.toDelimited());
+    inserter.insertLevel(REGRESSION_7_1_TAG, boost::bind(&TRegression::acceptPersistInserter,
+                                                         &s_Regression, _1));
+    inserter.insertValue(MSE_7_1_TAG, s_Mse.toDelimited());
 }
 
 bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name{traverser.name()};
-        RESTORE(WEIGHT_TAG, s_Weight.fromDelimited(traverser.value()))
-        RESTORE(REGRESSION_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
-        RESTORE(RESIDUAL_MOMENTS_TAG, s_ResidualMoments.fromDelimited(traverser.value()))
-    } while (traverser.next());
+    if (traverser.name() == VERSION_7_1_TAG) {
+        while (traverser.next()) {
+            const std::string& name{traverser.name()};
+            RESTORE(WEIGHT_7_1_TAG, s_Weight.fromDelimited(traverser.value()))
+            RESTORE(REGRESSION_7_1_TAG,
+                    traverser.traverseSubLevel(boost::bind(
+                        &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+            RESTORE(MSE_7_1_TAG, s_Mse.fromDelimited(traverser.value()))
+        }
+    } else {
+        TMeanVarAccumulator residualMoments;
+        do {
+            const std::string& name{traverser.name()};
+            RESTORE(WEIGHT_OLD_TAG, s_Weight.fromDelimited(traverser.value()))
+            RESTORE(REGRESSION_OLD_TAG,
+                    traverser.traverseSubLevel(boost::bind(
+                        &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+            RESTORE(RESIDUAL_MOMENTS_OLD_TAG,
+                    residualMoments.fromDelimited(traverser.value()))
+        } while (traverser.next());
+
+        // We need initial values for all models' mse to deal with forecasting
+        // immediately after upgrade. These values will be aged out reasonably
+        // quickly.
+
+        TVector mse;
+        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 2) {
+            mse(order - 1) = static_cast<double>(scale) *
+                             (CTools::pow2(CBasicStatistics::mean(residualMoments)) +
+                              CBasicStatistics::variance(residualMoments));
+        }
+        s_Mse.add(mse, 10.0);
+    }
     return true;
 }
 
 uint64_t CTrendComponent::SModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, s_Weight);
     seed = CChecksum::calculate(seed, s_Regression);
-    return CChecksum::calculate(seed, s_ResidualMoments);
+    return CChecksum::calculate(seed, s_Mse);
 }
 
 CTrendComponent::CForecastLevel::CForecastLevel(const CNaiveBayes& probability,

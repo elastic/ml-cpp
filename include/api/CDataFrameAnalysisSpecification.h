@@ -60,6 +60,7 @@ public:
     //!   "memory_limit": <integer>,
     //!   "threads": <integer>,
     //!   "temp_dir": <string>,
+    //!   "results_field": <string>,
     //!   "analysis": {
     //!     "name": <string>,
     //!     "parameters": <object>
@@ -105,6 +106,9 @@ public:
     //! \return The number of threads the analysis can use.
     std::size_t numberThreads() const;
 
+    //! \return The name of the results field.
+    const std::string& resultsField() const;
+
     //! Make a data frame suitable for this analysis specification.
     //!
     //! This chooses the storage strategy based on the analysis constraints and
@@ -134,6 +138,7 @@ private:
     std::size_t m_MemoryLimit = 0;
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
+    std::string m_ResultsField;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;

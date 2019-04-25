@@ -14,6 +14,19 @@
 
 namespace ml {
 namespace core {
+namespace {
+std::size_t read(std::uint8_t run) {
+    return static_cast<std::size_t>(run == 0 ? CPackedBitVector::MAX_RUN_LENGTH : run);
+}
+
+std::uint8_t write(std::size_t run) {
+    return static_cast<std::uint8_t>(run == CPackedBitVector::MAX_RUN_LENGTH ? 0 : run);
+}
+
+bool complete(std::uint8_t run) {
+    return run != CPackedBitVector::MAX_RUN_LENGTH;
+}
+}
 
 CPackedBitVector::CPackedBitVector()
     : m_Dimension(0), m_First(false), m_Parity(true) {
@@ -24,35 +37,22 @@ CPackedBitVector::CPackedBitVector(bool bit)
 }
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
-    : m_Dimension(static_cast<uint32_t>(dimension)), m_First(bit), m_Parity(true) {
-    if (dimension > 0) {
-        std::size_t remainder{static_cast<std::size_t>(MAX_RUN_LENGTH)};
-        for (/**/; remainder <= dimension;
-             remainder += static_cast<std::size_t>(MAX_RUN_LENGTH)) {
-            m_RunLengths.push_back(MAX_RUN_LENGTH);
-        }
-        remainder -= static_cast<std::size_t>(MAX_RUN_LENGTH);
-        m_RunLengths.push_back(static_cast<uint8_t>(dimension - remainder));
-    }
+    : m_Dimension(static_cast<std::uint32_t>(dimension)), m_First(bit), m_Parity(true) {
+    appendRun(dimension, m_RunLengths);
 }
 
 CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
-    : m_Dimension(static_cast<uint32_t>(bits.size())),
+    : m_Dimension(static_cast<std::uint32_t>(bits.size())),
       m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
-    std::size_t length{1};
-    for (std::size_t i = 1; i < bits.size(); ++i) {
-        if (bits[i] == bits[i - 1]) {
-            if (++length == static_cast<std::size_t>(MAX_RUN_LENGTH)) {
-                m_RunLengths.push_back(MAX_RUN_LENGTH);
-                length -= static_cast<std::size_t>(MAX_RUN_LENGTH);
-            }
-        } else {
+    std::size_t run{1};
+    for (std::size_t i = 1; i < bits.size(); ++i, ++run) {
+        if (bits[i] != bits[i - 1]) {
             m_Parity = !m_Parity;
-            m_RunLengths.push_back(static_cast<uint8_t>(length));
-            length = 1;
+            appendRun(run, m_RunLengths);
+            run = 0;
         }
     }
-    m_RunLengths.push_back(static_cast<uint8_t>(length));
+    appendRun(run, m_RunLengths);
 }
 
 void CPackedBitVector::contract() {
@@ -67,20 +67,19 @@ void CPackedBitVector::contract() {
         return;
     }
 
-    if (m_RunLengths.front() == MAX_RUN_LENGTH) {
-        std::size_t i{1};
-        for (/**/; m_RunLengths[i] == MAX_RUN_LENGTH && i < m_RunLengths.size(); ++i) {
-        }
-        if (m_RunLengths[i] == 0) {
-            m_RunLengths.erase(m_RunLengths.begin() + i);
-            --m_RunLengths[i - 1];
+    auto front = std::find_if(m_RunLengths.begin(), m_RunLengths.end(),
+                              [](std::uint8_t run) { return complete(run); });
+
+    if (*front == 0) {
+        *front = MAX_RUN_LENGTH - 1;
+    } else if (--(*front) == 0) {
+        if (front == m_RunLengths.begin()) {
+            m_First = !m_First;
+            m_Parity = !m_Parity;
         } else {
-            --m_RunLengths[i];
+            *(front - 1) = 0;
         }
-    } else if (--m_RunLengths.front() == 0) {
-        m_First = !m_First;
-        m_Parity = !m_Parity;
-        m_RunLengths.erase(m_RunLengths.begin());
+        m_RunLengths.erase(front);
     }
 }
 
@@ -97,13 +96,9 @@ void CPackedBitVector::extend(bool bit, std::size_t n) {
         appendRun(n, m_RunLengths);
     } else if (m_Parity ? (bit != m_First) : (bit == m_First)) {
         m_Parity = !m_Parity;
-        appendNewRun(n, m_RunLengths);
-    } else if (m_RunLengths.back() + n < MAX_RUN_LENGTH) {
-        m_RunLengths.back() += n;
-    } else {
-        n -= (MAX_RUN_LENGTH - m_RunLengths.back());
-        m_RunLengths.back() = MAX_RUN_LENGTH;
         appendRun(n, m_RunLengths);
+    } else {
+        extendRun(n, m_RunLengths);
     }
 }
 
@@ -207,9 +202,9 @@ std::size_t CPackedBitVector::dimension() const {
 
 bool CPackedBitVector::operator()(std::size_t i) const {
     bool parity{true};
-    for (std::size_t j = 0, k = static_cast<std::size_t>(m_RunLengths[j]);
-         k <= i; k += static_cast<std::size_t>(m_RunLengths[++j])) {
-        if (m_RunLengths[j] != MAX_RUN_LENGTH) {
+    for (std::size_t j = 0, k = read(m_RunLengths[j]); k <= i;
+         k += read(m_RunLengths[++j])) {
+        if (complete(m_RunLengths[j])) {
             parity = !parity;
         }
     }
@@ -217,13 +212,10 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 }
 
 double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) const {
-
     double result{0.0};
-
     this->lineScan(covector, [op, &result](int value, int covalue, std::size_t run) {
         result += static_cast<double>(bit(op, value, covalue)) * run;
     });
-
     return result;
 }
 
@@ -237,9 +229,9 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
 
     bool parity = true;
     for (std::size_t i = 0; i < m_RunLengths.size(); ++i) {
-        std::fill_n(std::back_inserter(result),
-                    static_cast<std::size_t>(m_RunLengths[i]), parity ? m_First : !m_First);
-        if (m_RunLengths[i] != MAX_RUN_LENGTH) {
+        std::fill_n(std::back_inserter(result), read(m_RunLengths[i]),
+                    parity ? m_First : !m_First);
+        if (complete(m_RunLengths[i])) {
             parity = !parity;
         }
     }
@@ -278,7 +270,7 @@ void CPackedBitVector::bitwise(EOperation op, const CPackedBitVector& other) {
         value = bit(op, value, covalue);
         if (last != value) {
             parity = !parity;
-            appendNewRun(cumulativeRun, runLengths);
+            appendRun(cumulativeRun, runLengths);
             last = 1 - last;
             cumulativeRun = run;
         } else {
@@ -320,60 +312,69 @@ bool CPackedBitVector::lineScan(const CPackedBitVector& covector, RUN_ACTION act
 
     int value{static_cast<int>(m_First)};
     int covalue{static_cast<int>(covector.m_First)};
-    std::size_t length{static_cast<std::size_t>(m_RunLengths[0])};
-    std::size_t colength{static_cast<std::size_t>(covector.m_RunLengths[0])};
-    std::size_t pos{length};
-    std::size_t copos{colength};
+    std::uint8_t run{m_RunLengths[0]};
+    std::uint8_t corun{covector.m_RunLengths[0]};
+    std::size_t pos{read(run)};
+    std::size_t copos{read(corun)};
 
     for (std::size_t i = 0, j = 0; pos < m_Dimension || copos < m_Dimension; /**/) {
 
-        std::size_t run{std::min(pos, copos) - std::max(pos - length, copos - colength)};
-        action(value, covalue, run);
+        std::size_t step{std::min(pos, copos) -
+                         std::max(pos - read(run), copos - read(corun))};
+        action(value, covalue, step);
 
         if (pos < copos) {
-            if (length != MAX_RUN_LENGTH) {
+            if (complete(run)) {
                 value = 1 - value;
             }
-            length = static_cast<std::size_t>(m_RunLengths[++i]);
-            pos += length;
+            run = m_RunLengths[++i];
+            pos += read(run);
         } else if (copos < pos) {
-            if (colength != MAX_RUN_LENGTH) {
+            if (complete(corun)) {
                 covalue = 1 - covalue;
             }
-            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
-            copos += colength;
+            corun = covector.m_RunLengths[++j];
+            copos += read(corun);
         } else {
-            if (length != MAX_RUN_LENGTH) {
+            if (complete(run)) {
                 value = 1 - value;
             }
-            if (colength != MAX_RUN_LENGTH) {
+            if (complete(corun)) {
                 covalue = 1 - covalue;
             }
-            length = static_cast<std::size_t>(m_RunLengths[++i]);
-            colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
-            pos += length;
-            copos += colength;
+            run = m_RunLengths[++i];
+            corun = covector.m_RunLengths[++j];
+            pos += read(run);
+            copos += read(corun);
         }
     }
 
-    std::size_t run{std::min(length, colength)};
-    action(value, covalue, run);
+    std::size_t step{std::min(read(run), read(corun))};
+    action(value, covalue, step);
 
     return true;
-}
-
-void CPackedBitVector::appendNewRun(std::size_t run, TUInt8Vec& runLengths) {
-    if (runLengths.size() > 0 && runLengths.back() == MAX_RUN_LENGTH) {
-        runLengths.push_back(0);
-    }
-    appendRun(run, runLengths);
 }
 
 void CPackedBitVector::appendRun(std::size_t run, TUInt8Vec& runLengths) {
     for (/**/; run > MAX_RUN_LENGTH; run -= MAX_RUN_LENGTH) {
         runLengths.push_back(MAX_RUN_LENGTH);
     }
-    runLengths.push_back(static_cast<std::uint8_t>(run));
+    runLengths.push_back(write(run));
+}
+
+void CPackedBitVector::extendRun(std::size_t run, TUInt8Vec& runLengths) {
+    if (runLengths.back() == 0) {
+        runLengths.back() = MAX_RUN_LENGTH;
+    }
+    if (runLengths.back() + run < MAX_RUN_LENGTH) {
+        runLengths.back() += run;
+    } else if (runLengths.back() + run == MAX_RUN_LENGTH) {
+        runLengths.back() = 0;
+    } else {
+        run -= (MAX_RUN_LENGTH - runLengths.back());
+        runLengths.back() = MAX_RUN_LENGTH;
+        appendRun(run, runLengths);
+    }
 }
 
 const std::uint8_t CPackedBitVector::MAX_RUN_LENGTH =
@@ -404,13 +405,12 @@ void CPackedBitVector::COneBitIndexConstIterator::skipRun() {
 
 std::size_t CPackedBitVector::COneBitIndexConstIterator::advanceToEndOfRun() {
     std::size_t run{0};
-    do {
-        if (m_RunLengthsItr != m_EndRunLengthsItr) {
-            run += *m_RunLengthsItr;
-        } else {
+    while (m_RunLengthsItr != m_EndRunLengthsItr) {
+        run += read(*m_RunLengthsItr);
+        if (complete(*m_RunLengthsItr++)) {
             break;
         }
-    } while (*m_RunLengthsItr++ == MAX_RUN_LENGTH);
+    }
     return run;
 }
 
@@ -437,7 +437,7 @@ std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v) {
     }
 
     o << '[' << CStringUtils::typeToString(static_cast<int>(v(0)));
-    for (std::size_t i = 1u; i < v.dimension(); ++i) {
+    for (std::size_t i = 1; i < v.dimension(); ++i) {
         o << ' ' << CStringUtils::typeToString(static_cast<int>(v(i)));
     }
     o << ']';

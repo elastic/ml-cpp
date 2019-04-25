@@ -40,6 +40,8 @@ public:
 
     virtual void finalise();
 
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! Restore previously saved state
     virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
                               ml::core_t::TTime& completeToTime);

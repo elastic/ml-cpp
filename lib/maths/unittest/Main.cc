@@ -37,6 +37,7 @@
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
 #include "CLbfgsTest.h"
+#include "CLeastSquaresOnlineRegressionTest.h"
 #include "CLinearAlgebraTest.h"
 #include "CLogNormalMeanPrecConjugateTest.h"
 #include "CLogTDistributionTest.h"
@@ -69,7 +70,6 @@
 #include "CRadialBasisFunctionTest.h"
 #include "CRandomProjectionClustererTest.h"
 #include "CRandomizedPeriodicityTestTest.h"
-#include "CRegressionTest.h"
 #include "CSamplingTest.h"
 #include "CSeasonalComponentAdaptiveBucketingTest.h"
 #include "CSeasonalComponentTest.h"
@@ -123,6 +123,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
     runner.addTest(CLbfgsTest::suite());
+    runner.addTest(CLeastSquaresOnlineRegressionTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
     runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());
@@ -155,7 +156,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CRadialBasisFunctionTest::suite());
     runner.addTest(CRandomProjectionClustererTest::suite());
     runner.addTest(CRandomizedPeriodicityTestTest::suite());
-    runner.addTest(CRegressionTest::suite());
     runner.addTest(CSamplingTest::suite());
     runner.addTest(CSeasonalComponentTest::suite());
     runner.addTest(CSeasonalComponentAdaptiveBucketingTest::suite());

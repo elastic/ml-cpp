@@ -197,8 +197,8 @@ private:
     void bitwise(EOperation op, const CPackedBitVector& other);
     template<typename RUN_ACTION>
     bool lineScan(const CPackedBitVector& covector, RUN_ACTION action) const;
-    static void appendNewRun(std::size_t run, TUInt8Vec& runLengths);
     static void appendRun(std::size_t run, TUInt8Vec& runLengths);
+    static void extendRun(std::size_t run, TUInt8Vec& runLengths);
     template<typename T>
     static T bit(EOperation op, T lhs, T rhs);
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CRegressionTest.h"
+#include "CLeastSquaresOnlineRegressionTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -16,8 +16,8 @@
 #include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegration.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -56,7 +56,7 @@ using TDoubleArray3 = boost::array<double, 3>;
 using TDoubleArray4 = boost::array<double, 4>;
 }
 
-void CRegressionTest::testInvariants() {
+void CLeastSquaresOnlineRegressionTest::testInvariants() {
     // Test at (local) minimum of quadratic residuals.
 
     test::CRandomNumbers rng;
@@ -68,7 +68,7 @@ void CRegressionTest::testInvariants() {
     double curvature = 0.2;
 
     for (std::size_t t = 0u; t < 100; ++t) {
-        maths::CRegression::CLeastSquaresOnline<2, double> ls;
+        maths::CLeastSquaresOnlineRegression<2, double> ls;
 
         TDoubleVec increments;
         rng.generateUniformSamples(1.0, 2.0, n, increments);
@@ -115,7 +115,7 @@ void CRegressionTest::testInvariants() {
     }
 }
 
-void CRegressionTest::testFit() {
+void CLeastSquaresOnlineRegressionTest::testFit() {
     test::CRandomNumbers rng;
 
     std::size_t n = 50;
@@ -128,7 +128,7 @@ void CRegressionTest::testFit() {
         TMeanAccumulator slopeError;
 
         for (std::size_t t = 0u; t < 100; ++t) {
-            maths::CRegression::CLeastSquaresOnline<1> ls;
+            maths::CLeastSquaresOnlineRegression<1> ls;
 
             TDoubleVec increments;
             rng.generateUniformSamples(1.0, 5.0, n, increments);
@@ -165,7 +165,7 @@ void CRegressionTest::testFit() {
 
     {
         for (std::size_t t = 0u; t < 10; ++t) {
-            maths::CRegression::CLeastSquaresOnline<2, double> ls;
+            maths::CLeastSquaresOnlineRegression<2, double> ls;
 
             TDoubleVec curve;
             rng.generateUniformSamples(0.0, 2.0, 3, curve);
@@ -192,7 +192,7 @@ void CRegressionTest::testFit() {
     }
 }
 
-void CRegressionTest::testShiftAbscissa() {
+void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
     // Test shifting the abscissa is equivalent to updating
     // with shifted X-values.
 
@@ -200,8 +200,8 @@ void CRegressionTest::testShiftAbscissa() {
         double intercept = 5.0;
         double slope = 2.0;
 
-        maths::CRegression::CLeastSquaresOnline<1> ls;
-        maths::CRegression::CLeastSquaresOnline<1> lss;
+        maths::CLeastSquaresOnlineRegression<1> ls;
+        maths::CLeastSquaresOnlineRegression<1> lss;
 
         for (std::size_t i = 0u; i < 100; ++i) {
             double x = static_cast<double>(i);
@@ -234,8 +234,8 @@ void CRegressionTest::testShiftAbscissa() {
         double slope = 2.0;
         double curvature = 0.1;
 
-        maths::CRegression::CLeastSquaresOnline<2, double> ls;
-        maths::CRegression::CLeastSquaresOnline<2, double> lss;
+        maths::CLeastSquaresOnlineRegression<2, double> ls;
+        maths::CLeastSquaresOnlineRegression<2, double> lss;
 
         for (std::size_t i = 0u; i < 100; ++i) {
             double x = static_cast<double>(i);
@@ -268,12 +268,12 @@ void CRegressionTest::testShiftAbscissa() {
     }
 }
 
-void CRegressionTest::testShiftOrdinate() {
+void CLeastSquaresOnlineRegressionTest::testShiftOrdinate() {
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
 
-    maths::CRegression::CLeastSquaresOnline<3, double> regression;
+    maths::CLeastSquaresOnlineRegression<3, double> regression;
     for (double x = 0.0; x < 100.0; x += 1.0) {
         regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
     }
@@ -296,12 +296,12 @@ void CRegressionTest::testShiftOrdinate() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CRegressionTest::testShiftGradient() {
+void CLeastSquaresOnlineRegressionTest::testShiftGradient() {
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
 
-    maths::CRegression::CLeastSquaresOnline<3, double> regression;
+    maths::CLeastSquaresOnlineRegression<3, double> regression;
     for (double x = 0.0; x < 100.0; x += 1.0) {
         regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
     }
@@ -324,11 +324,11 @@ void CRegressionTest::testShiftGradient() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CRegressionTest::testLinearScale() {
+void CLeastSquaresOnlineRegressionTest::testLinearScale() {
     // Test that linearly scaling a regression linearly
     // scales all the parameters.
 
-    maths::CRegression::CLeastSquaresOnline<3, double> regression;
+    maths::CLeastSquaresOnlineRegression<3, double> regression;
     for (double x = 0.0; x < 100.0; x += 1.0) {
         regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
     }
@@ -360,7 +360,7 @@ void CRegressionTest::testLinearScale() {
     }
 }
 
-void CRegressionTest::testAge() {
+void CLeastSquaresOnlineRegressionTest::testAge() {
     // Test that the regression is mean reverting.
 
     double intercept = 5.0;
@@ -368,7 +368,7 @@ void CRegressionTest::testAge() {
     double curvature = 0.2;
 
     {
-        maths::CRegression::CLeastSquaresOnline<1> ls;
+        maths::CLeastSquaresOnlineRegression<1> ls;
 
         for (std::size_t i = 0u; i <= 100; ++i) {
             double x = static_cast<double>(i);
@@ -419,7 +419,7 @@ void CRegressionTest::testAge() {
     }
 
     {
-        maths::CRegression::CLeastSquaresOnline<2, double> ls;
+        maths::CLeastSquaresOnlineRegression<2, double> ls;
 
         for (std::size_t i = 0u; i <= 100; ++i) {
             double x = static_cast<double>(i);
@@ -478,7 +478,7 @@ void CRegressionTest::testAge() {
     }
 }
 
-void CRegressionTest::testPrediction() {
+void CLeastSquaresOnlineRegressionTest::testPrediction() {
     // Check we get successive better predictions of a power
     // series function, i.e. x -> sin(x), using higher order
     // approximations.
@@ -486,9 +486,9 @@ void CRegressionTest::testPrediction() {
     double pi = 3.14159265358979;
 
     TMeanAccumulator m;
-    maths::CRegression::CLeastSquaresOnline<1> ls1;
-    maths::CRegression::CLeastSquaresOnline<2> ls2;
-    maths::CRegression::CLeastSquaresOnline<3> ls3;
+    maths::CLeastSquaresOnlineRegression<1> ls1;
+    maths::CLeastSquaresOnlineRegression<2> ls2;
+    maths::CLeastSquaresOnlineRegression<3> ls3;
 
     TMeanAccumulator em;
     TMeanAccumulator e2;
@@ -557,7 +557,7 @@ void CRegressionTest::testPrediction() {
                    0.025 * maths::CBasicStatistics::mean(em));
 }
 
-void CRegressionTest::testCombination() {
+void CLeastSquaresOnlineRegressionTest::testCombination() {
     // Test that we can combine regressions on two subsets of
     // the points to get the same result as the regression on
     // the full collection of points.
@@ -573,9 +573,9 @@ void CRegressionTest::testCombination() {
     TDoubleVec errors;
     rng.generateNormalSamples(0.0, 2.0, n, errors);
 
-    maths::CRegression::CLeastSquaresOnline<2> lsA;
-    maths::CRegression::CLeastSquaresOnline<2> lsB;
-    maths::CRegression::CLeastSquaresOnline<2> ls;
+    maths::CLeastSquaresOnlineRegression<2> lsA;
+    maths::CLeastSquaresOnlineRegression<2> lsB;
+    maths::CLeastSquaresOnlineRegression<2> ls;
 
     for (std::size_t i = 0u; i < (2 * n) / 3; ++i) {
         double x = static_cast<double>(i);
@@ -590,7 +590,7 @@ void CRegressionTest::testCombination() {
         ls.add(x, y);
     }
 
-    maths::CRegression::CLeastSquaresOnline<2> lsAPlusB = lsA + lsB;
+    maths::CLeastSquaresOnlineRegression<2> lsAPlusB = lsA + lsB;
 
     TDoubleArray3 paramsA;
     lsA.parameters(paramsA);
@@ -612,14 +612,14 @@ void CRegressionTest::testCombination() {
     }
 }
 
-void CRegressionTest::testSingular() {
+void CLeastSquaresOnlineRegressionTest::testSingular() {
     // Test that we get the highest order polynomial regression
     // available for the points added at any time. In particular,
     // one needs at least n + 1 points to be able to determine
     // the parameters of a order n polynomial.
 
     {
-        maths::CRegression::CLeastSquaresOnline<2> regression;
+        maths::CLeastSquaresOnlineRegression<2> regression;
         regression.add(0.0, 1.0);
 
         TDoubleArray3 params;
@@ -647,7 +647,7 @@ void CRegressionTest::testSingular() {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 0.0, 5e-6);
     }
     {
-        maths::CRegression::CLeastSquaresOnline<2> regression;
+        maths::CLeastSquaresOnlineRegression<2> regression;
         regression.add(0.0, 1.0);
 
         TDoubleArray3 params;
@@ -675,9 +675,9 @@ void CRegressionTest::testSingular() {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 1.0, 5e-6);
     }
     {
-        maths::CRegression::CLeastSquaresOnline<1, double> regression1;
-        maths::CRegression::CLeastSquaresOnline<2, double> regression2;
-        maths::CRegression::CLeastSquaresOnline<3, double> regression3;
+        maths::CLeastSquaresOnlineRegression<1, double> regression1;
+        maths::CLeastSquaresOnlineRegression<2, double> regression2;
+        maths::CLeastSquaresOnlineRegression<3, double> regression3;
 
         regression1.add(0.0, 1.5 + 2.0 * 0.0 + 1.1 * 0.0 * 0.0 + 3.3 * 0.0 * 0.0 * 0.0);
         regression2.add(0.0, 1.5 + 2.0 * 0.0 + 1.1 * 0.0 * 0.0 + 3.3 * 0.0 * 0.0 * 0.0);
@@ -730,10 +730,10 @@ void CRegressionTest::testSingular() {
     }
 }
 
-void CRegressionTest::testScale() {
+void CLeastSquaresOnlineRegressionTest::testScale() {
     // Test that scale reduces the count in the regression statistic
 
-    maths::CRegression::CLeastSquaresOnline<1, double> regression;
+    maths::CLeastSquaresOnlineRegression<1, double> regression;
 
     for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
@@ -745,7 +745,7 @@ void CRegressionTest::testScale() {
     regression.parameters(params1);
     CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
 
-    maths::CRegression::CLeastSquaresOnline<1, double> regression2 = regression.scaled(0.5);
+    maths::CLeastSquaresOnlineRegression<1, double> regression2 = regression.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression2.statistic());
     TDoubleArray2 params2;
     regression2.parameters(params2);
@@ -753,7 +753,7 @@ void CRegressionTest::testScale() {
                          core::CContainerPrinter::print(params2));
     CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
 
-    maths::CRegression::CLeastSquaresOnline<1, double> regression3 = regression2.scaled(0.5);
+    maths::CLeastSquaresOnlineRegression<1, double> regression3 = regression2.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression3.statistic());
     TDoubleArray2 params3;
     regression3.parameters(params3);
@@ -768,7 +768,7 @@ public:
     using result_type = double;
 
 public:
-    CRegressionPrediction(const maths::CRegression::CLeastSquaresOnline<N, double>& regression)
+    CRegressionPrediction(const maths::CLeastSquaresOnlineRegression<N, double>& regression)
         : m_Regression(regression) {}
 
     bool operator()(double x, double& result) const {
@@ -777,10 +777,10 @@ public:
     }
 
 private:
-    maths::CRegression::CLeastSquaresOnline<N, double> m_Regression;
+    maths::CLeastSquaresOnlineRegression<N, double> m_Regression;
 };
 
-void CRegressionTest::testMean() {
+void CLeastSquaresOnlineRegressionTest::testMean() {
     // Test that the mean agrees with the numeric integration
     // of the regression.
 
@@ -788,7 +788,7 @@ void CRegressionTest::testMean() {
     for (std::size_t i = 0; i < 5; ++i) {
         TDoubleVec coeffs;
         rng.generateUniformSamples(-1.0, 1.0, 4, coeffs);
-        maths::CRegression::CLeastSquaresOnline<3, double> regression;
+        maths::CLeastSquaresOnlineRegression<3, double> regression;
         for (double x = 0.0; x < 10.0; x += 1.0) {
             regression.add(x, 0.2 * coeffs[0] * x * x * x + 0.4 * coeffs[1] * x * x +
                                   coeffs[2] * x + 2.0 * coeffs[3]);
@@ -823,7 +823,7 @@ void CRegressionTest::testMean() {
     }
 }
 
-void CRegressionTest::testCovariances() {
+void CLeastSquaresOnlineRegressionTest::testCovariances() {
     // Test the covariance matrix of the regression parameters
     // agree with the observed sample covariances of independent
     // fits to a matched model.
@@ -844,7 +844,7 @@ void CRegressionTest::testCovariances() {
         for (std::size_t i = 0u; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
-            maths::CRegression::CLeastSquaresOnline<1, double> regression;
+            maths::CLeastSquaresOnlineRegression<1, double> regression;
             for (double x = 0.0; x < n; x += 1.0) {
                 regression.add(x, 1.5 * x + noise[static_cast<std::size_t>(x)]);
             }
@@ -854,7 +854,7 @@ void CRegressionTest::testCovariances() {
         }
         TMatrix2 expected = maths::CBasicStatistics::covariances(covariances);
 
-        maths::CRegression::CLeastSquaresOnline<1, double> regression;
+        maths::CLeastSquaresOnlineRegression<1, double> regression;
         for (double x = 0.0; x < n; x += 1.0) {
             regression.add(x, 1.5 * x);
         }
@@ -875,7 +875,7 @@ void CRegressionTest::testCovariances() {
         for (std::size_t i = 0u; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
-            maths::CRegression::CLeastSquaresOnline<2, double> regression;
+            maths::CLeastSquaresOnlineRegression<2, double> regression;
             for (double x = 0.0; x < n; x += 1.0) {
                 regression.add(x, 0.25 * x * x + 1.5 * x +
                                       noise[static_cast<std::size_t>(x)]);
@@ -886,7 +886,7 @@ void CRegressionTest::testCovariances() {
         }
         TMatrix3 expected = maths::CBasicStatistics::covariances(covariances);
 
-        maths::CRegression::CLeastSquaresOnline<2, double> regression;
+        maths::CLeastSquaresOnlineRegression<2, double> regression;
         for (double x = 0.0; x < n; x += 1.0) {
             regression.add(x, 0.25 * x * x + 1.5 * x);
         }
@@ -899,8 +899,8 @@ void CRegressionTest::testCovariances() {
     }
 }
 
-void CRegressionTest::testParameters() {
-    maths::CRegression::CLeastSquaresOnline<3, double> regression;
+void CLeastSquaresOnlineRegressionTest::testParameters() {
+    maths::CLeastSquaresOnlineRegression<3, double> regression;
 
     for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
@@ -910,7 +910,7 @@ void CRegressionTest::testParameters() {
     for (std::size_t i = 20u; i < 25; ++i) {
         TDoubleArray4 params1 = regression.parameters(static_cast<double>(i - 19));
 
-        maths::CRegression::CLeastSquaresOnline<3, double> regression2(regression);
+        maths::CLeastSquaresOnlineRegression<3, double> regression2(regression);
         regression2.shiftAbscissa(19.0 - static_cast<double>(i));
         TDoubleArray4 params2;
         regression2.parameters(params2);
@@ -922,10 +922,10 @@ void CRegressionTest::testParameters() {
     }
 }
 
-void CRegressionTest::testPersist() {
+void CLeastSquaresOnlineRegressionTest::testPersist() {
     // Test that persistence is idempotent.
 
-    maths::CRegression::CLeastSquaresOnline<2, double> origRegression;
+    maths::CLeastSquaresOnlineRegression<2, double> origRegression;
 
     for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
@@ -946,9 +946,9 @@ void CRegressionTest::testPersist() {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    maths::CRegression::CLeastSquaresOnline<2, double> restoredRegression;
+    maths::CLeastSquaresOnlineRegression<2, double> restoredRegression;
     CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-        &maths::CRegression::CLeastSquaresOnline<2, double>::acceptRestoreTraverser,
+        &maths::CLeastSquaresOnlineRegression<2, double>::acceptRestoreTraverser,
         &restoredRegression, _1)));
 
     CPPUNIT_ASSERT_EQUAL(origRegression.checksum(), restoredRegression.checksum());
@@ -962,144 +962,54 @@ void CRegressionTest::testPersist() {
     CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
 }
 
-void CRegressionTest::testParameterProcess() {
-    // Approximately test the variance predicted by the regression
-    // parameter process is an unbiased estimator. This is done by
-    // simulating an approximation of the process d^2X(t)/dt^2 = W(t),
-    // fitting our regression model to it and fitting the parameter
-    // process to the changes in its coefficients over time. We then
-    // check for agreement in the mean predicted variance versus a
-    // Monte Carlo simulation of underlying process, i.e. we check
-    // that the parameter process gives us an unbiased estimate of
-    // evolution of the process position uncertainty.
+CppUnit::Test* CLeastSquaresOnlineRegressionTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLeastSquaresOnlineRegressionTest");
 
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TVector = maths::CVectorNx1<double, 4>;
-
-    test::CRandomNumbers rng;
-
-    double variances[] = {1.0, 0.5, 0.1, 5.0, 10.0};
-    double intervals[] = {0.4, 0.4, 0.8, 0.6, 0.7, 0.5, 0.6, 1.3, 0.3, 1.7,
-                          0.3, 0.5, 1.0, 0.2, 0.3, 0.1, 0.5, 1.4, 0.7, 0.9,
-                          0.1, 0.4, 0.8, 1.0, 0.6, 0.5, 0.8, 1.3, 0.3, 1.7,
-                          0.3, 1.2, 0.3, 1.2, 0.3, 0.1, 0.5, 0.4, 0.7, 0.9,
-                          0.8, 0.6, 0.8, 1.1, 0.6, 0.5, 0.5, 1.3, 0.3, 0.7};
-
-    TMeanAccumulator error;
-
-    for (std::size_t test = 0u; test < boost::size(variances); ++test) {
-        LOG_DEBUG(<< "variance = " << variances[test]);
-
-        TMeanAccumulator actual;
-        TMeanAccumulator estimate;
-
-        for (std::size_t run = 0u; run < 25; ++run) {
-            maths::CRegression::CLeastSquaresOnline<3, double> regression;
-            maths::CRegression::CLeastSquaresOnlineParameterProcess<4, double> parameterProcess;
-
-            double t = 0.0;
-            double x = 0.0;
-            double v = 5.0;
-            double a = 1.0;
-            for (std::size_t i = 0u; i < boost::size(intervals); t += intervals[i], ++i) {
-                double dt = intervals[i];
-                TDoubleVec da;
-                rng.generateNormalSamples(0.0, variances[test],
-                                          static_cast<std::size_t>(dt / 0.05), da);
-                for (auto da_ : da) {
-                    x += (v + 0.5 * a * 0.05) * 0.05;
-                    v += a * 0.05;
-                    a += da_;
-                }
-
-                bool sufficientHistoryBeforeUpdate = regression.range() >= 1.0;
-                TVector paramsDrift(regression.parameters(t + dt));
-                regression.add(t + dt, x);
-                paramsDrift -= TVector(regression.parameters(t + dt));
-                if (sufficientHistoryBeforeUpdate && regression.range() >= 1.0) {
-                    parameterProcess.add(t + dt, paramsDrift, TVector(dt));
-                }
-                parameterProcess.age(std::exp(-0.05 * intervals[i]));
-            }
-
-            TMeanVarAccumulator moments;
-            for (std::size_t trial = 0u; trial < 500; ++trial) {
-                double xt = 0.0;
-                double vt = 0.0;
-                double at = 0.0;
-                for (std::size_t i = 0u; i < 5; ++i) {
-                    double dt = intervals[i];
-                    TDoubleVec da;
-                    rng.generateNormalSamples(0.0, variances[test],
-                                              static_cast<std::size_t>(dt / 0.05), da);
-                    for (auto da_ : da) {
-                        xt += (vt + 0.5 * at * 0.05) * 0.05;
-                        vt += at * 0.05;
-                        at += da_;
-                    }
-                }
-                moments.add(xt);
-            }
-
-            double interval = std::accumulate(intervals, intervals + 5, 0.0);
-            if (run % 5 == 0) {
-                LOG_DEBUG(<< "  " << maths::CBasicStatistics::variance(moments) << " vs "
-                          << parameterProcess.predictionVariance(interval));
-            }
-            actual.add(maths::CBasicStatistics::variance(moments));
-            estimate.add(parameterProcess.predictionVariance(interval));
-        }
-
-        LOG_DEBUG(<< "actual   = " << maths::CBasicStatistics::mean(actual));
-        LOG_DEBUG(<< "estimate = " << maths::CBasicStatistics::mean(estimate));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(actual),
-                                     maths::CBasicStatistics::mean(estimate),
-                                     0.25 * maths::CBasicStatistics::mean(actual));
-
-        error.add((maths::CBasicStatistics::mean(actual) -
-                   maths::CBasicStatistics::mean(estimate)) /
-                  maths::CBasicStatistics::mean(actual));
-    }
-
-    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.08);
-}
-
-CppUnit::Test* CRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegressionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testInvariants", &CRegressionTest::testInvariants));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testFit", &CRegressionTest::testFit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testShiftAbscissa", &CRegressionTest::testShiftAbscissa));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testShiftOrdinate", &CRegressionTest::testShiftOrdinate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testShiftGradient", &CRegressionTest::testShiftGradient));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testLinearScale", &CRegressionTest::testLinearScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testAge", &CRegressionTest::testAge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testPrediction", &CRegressionTest::testPrediction));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testCombination", &CRegressionTest::testCombination));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testSingular", &CRegressionTest::testSingular));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testScale", &CRegressionTest::testScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testMean", &CRegressionTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testCovariances", &CRegressionTest::testCovariances));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testParameters", &CRegressionTest::testParameters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testPersist", &CRegressionTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
-        "CRegressionTest::testParameterProcess", &CRegressionTest::testParameterProcess));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testInvariants",
+        &CLeastSquaresOnlineRegressionTest::testInvariants));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testFit",
+        &CLeastSquaresOnlineRegressionTest::testFit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testShiftAbscissa",
+        &CLeastSquaresOnlineRegressionTest::testShiftAbscissa));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testShiftOrdinate",
+        &CLeastSquaresOnlineRegressionTest::testShiftOrdinate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testShiftGradient",
+        &CLeastSquaresOnlineRegressionTest::testShiftGradient));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testLinearScale",
+        &CLeastSquaresOnlineRegressionTest::testLinearScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testAge",
+        &CLeastSquaresOnlineRegressionTest::testAge));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testPrediction",
+        &CLeastSquaresOnlineRegressionTest::testPrediction));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testCombination",
+        &CLeastSquaresOnlineRegressionTest::testCombination));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testSingular",
+        &CLeastSquaresOnlineRegressionTest::testSingular));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testScale",
+        &CLeastSquaresOnlineRegressionTest::testScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testMean",
+        &CLeastSquaresOnlineRegressionTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testCovariances",
+        &CLeastSquaresOnlineRegressionTest::testCovariances));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testParameters",
+        &CLeastSquaresOnlineRegressionTest::testParameters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
+        "CLeastSquaresOnlineRegressionTest::testPersist",
+        &CLeastSquaresOnlineRegressionTest::testPersist));
 
     return suiteOfTests;
 }

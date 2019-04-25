@@ -10,11 +10,11 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CNaiveBayes.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CPRNG.h>
-#include <maths/CRegression.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -44,14 +44,9 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CTrendComponent {
 public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TDoubleVec = std::vector<double>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
-    using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TVector = CVectorNx1<double, 3>;
-    using TVectorVec = std::vector<TVector>;
-    using TVectorVecVec = std::vector<TVectorVec>;
     using TMatrix = CSymmetricMatrixNxN<double, 3>;
     using TMatrixVec = std::vector<TMatrix>;
     using TSeasonalForecast = std::function<TDouble3Vec(core_t::TTime)>;
@@ -158,11 +153,12 @@ public:
     std::string print() const;
 
 private:
-    using TRegression = CRegression::CLeastSquaresOnline<2, double>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TRegression = CLeastSquaresOnlineRegression<2, double>;
     using TRegressionArray = TRegression::TArray;
     using TRegressionArrayVec = std::vector<TRegressionArray>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     //! \brief A model of the trend at a specific time scale.
@@ -173,7 +169,7 @@ private:
         uint64_t checksum(uint64_t seed) const;
         TMeanAccumulator s_Weight;
         TRegression s_Regression;
-        TMeanVarAccumulator s_ResidualMoments;
+        TVectorMeanAccumulator s_Mse;
     };
     using TModelVec = std::vector<SModel>;
 
@@ -213,8 +209,11 @@ private:
     };
 
 private:
-    //! Get the factors by which to age the different regression models.
-    TDoubleVec factors(core_t::TTime interval) const;
+    //! Get the smoothing factors for the different regression models.
+    TDoubleVec smoothingFactors(core_t::TTime interval) const;
+
+    //! Select the most complex model for which there is significant evidence.
+    TSizeVec selectModelOrdersForForecasting() const;
 
     //! Get the initial weights to use for forecast predictions.
     TDoubleVec initialForecastModelWeights() const;

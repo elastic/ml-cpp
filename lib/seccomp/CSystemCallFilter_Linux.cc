@@ -35,6 +35,7 @@ const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
 #define SECCOMP_RET_ERRNO 0x00050000U
 #define SECCOMP_RET_ALLOW 0x7fff0000U
 #define SECCOMP_RET_DATA 0x0000ffffU
+#define SECCOMP_RET_KILL 0x00000000U
 
 // Added in Linux 3.5
 #ifndef PR_SET_NO_NEW_PRIVS
@@ -45,17 +46,18 @@ const struct sock_filter FILTER[] = {
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
     // Only applies to X86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 40, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
 
     // Allowed sys calls, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 39, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 38, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 40, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 38, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 37, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 35, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 34, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 33, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 32, 0),

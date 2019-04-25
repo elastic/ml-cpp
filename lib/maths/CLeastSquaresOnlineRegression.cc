@@ -4,11 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CRegression.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 
 namespace ml {
 namespace maths {
-namespace regression_detail {
+namespace least_squares_online_regression_detail {
 const double CMaxCondition<CFloatStorage>::VALUE = 1e7;
 }
 }

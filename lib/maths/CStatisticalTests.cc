@@ -79,7 +79,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f_distribution<> F(d1, d2);
+        boost::math::fisher_f F(d1, d2);
         return boost::math::cdf(F, x);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()
@@ -100,7 +100,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f_distribution<> F(d1, d2);
+        boost::math::fisher_f F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()

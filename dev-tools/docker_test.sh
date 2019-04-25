@@ -62,7 +62,7 @@ for PLATFORM in `echo $PLATFORMS | tr ' ' '\n' | sort -u`
 do
 
     # This Dockerfile is for the temporary image that is used to do the build
-    # and unit tests.  It is based on a pre-built test image stored on Docker
+    # and unit tests.  It is based on a pre-built build image stored on Docker
     # Hub, but will have the local repository contents copied into it before
     # the entrypoint script is run.  This temporary image is discarded after
     # the build and unit tests are complete.

@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+class CNanInjector;
+
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -186,6 +188,9 @@ public:
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;
 
+    //! Check that the state is valid.
+    bool isBad() const { return m_Bucketing.isBad(); }
+
 private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(double decayRate,
@@ -202,6 +207,9 @@ private:
 
     //! Regression models for a collection of buckets covering the period.
     CSeasonalComponentAdaptiveBucketing m_Bucketing;
+
+    //! Befriend a helper class used by the unit tests
+    friend class ::CNanInjector;
 };
 
 //! Create a free function which will be picked up in Koenig lookup.
