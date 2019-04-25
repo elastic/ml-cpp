@@ -43,6 +43,7 @@ export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export CXX='g++ -std=gnu++14'
 export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
+export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
 ```
 
@@ -60,6 +61,7 @@ Unlike most automake-based tools, gcc must be built in a directory adjacent to t
 tar zxvf gcc-7.3.0.tar.gz
 cd gcc-7.3.0
 contrib/download_prerequisites
+sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
 mkdir gcc-7.3.0-build
 cd gcc-7.3.0-build
