@@ -212,6 +212,8 @@ private:
         m_KDistances.resize(k * m_EndAddresses, {0, UNSET_DISTANCE});
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
+        std::copy(m_LrdOfLookupPoints.begin(), m_LrdOfLookupPoints.end(), m_Lrd.begin());
+        m_LrdOfLookupPoints.assign(m_Lrd.begin(), m_Lrd.begin() + m_StartAddresses);
 
         if (this->computeFeatureInfluence()) {
             m_CoordinateLrd.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
@@ -274,9 +276,11 @@ private:
             min += result.s_FunctionState;
         }
         if (min.count() > 0) {
-            // Use twice the maximum "density" at any other point if there
-            // are k-fold duplicates.
-            for (std::size_t i = m_StartAddresses; i < m_EndAddresses; ++i) {
+            // Use twice the maximum "density" at any other point if there are
+            // k-fold duplicates. Note it is possible that all lookup points are
+            // duplicates, in which case we need to set their local reachability
+            // density in this loop. The overwritten densities are reset in setup.
+            for (std::size_t i = 0; i < m_EndAddresses; ++i) {
                 if (m_Lrd[i] == UNSET_DISTANCE) {
                     m_Lrd[i] = 2.0 / min[0];
                 }
@@ -402,6 +406,7 @@ private:
     // flattened: [neighbours of 0, neighbours of 1,...].
     TUInt32CoordinatePrVec m_KDistances;
     TCoordinateVec m_Lrd;
+    TCoordinateVec m_LrdOfLookupPoints;
     // The coordinate local reachability distances are stored flattened:
     // [coordinates of 0, coordinates of 2, ...].
     TCoordinateVec m_CoordinateLrd;

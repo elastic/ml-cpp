@@ -655,6 +655,57 @@ void COutliersTest::testProgressMonitoring() {
     core::startDefaultAsyncExecutor();
 }
 
+void COutliersTest::testMostlyDuplicate() {
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+
+    TPointVec points;
+
+    TSizeDoublePrVec outliers{{68, 0.4},   {5252, 0.2},  {5822, 0.2},
+                              {7929, 0.2}, {12692, 0.4}, {16792, 0.4}};
+    for (std::size_t i = 0; i < 16793; ++i) {
+        auto outlier = std::find_if(
+            outliers.begin(), outliers.end(),
+            [i](const TSizeDoublePr& outlier_) { return i == outlier_.first; });
+        TPoint point(1);
+        point(0) = outlier != outliers.end() ? outlier->second : 0.0;
+        points.push_back(point);
+    }
+
+    for (std::size_t numberPartitions : {1, 3}) {
+        auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+        maths::COutliers::SComputeParameters params{1, // Number threads
+                                                    numberPartitions,
+                                                    true, // Standardize columns
+                                                    maths::COutliers::E_Ensemble,
+                                                    0, // Compute number neighbours
+                                                    false, // Compute feature influences
+                                                    0.05}; // Outlier fraction
+        maths::COutliers::compute(params, *frame);
+
+        TDoubleVec outlierScores(outliers.size());
+        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                               core::CDataFrame::TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto outlier = std::find_if(
+                    outliers.begin(),
+                    outliers.end(), [i = row->index()](const TSizeDoublePr& outlier_) {
+                        return i == outlier_.first;
+                    });
+                if (outlier != outliers.end()) {
+                    outlierScores[outlier - outliers.begin()] = (*row)[1];
+                }
+            }
+        });
+
+        LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
+        for (auto score : outlierScores) {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.98, score, 0.02);
+        }
+    }
+}
+
 CppUnit::Test* COutliersTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutliersTest");
 
@@ -675,6 +726,8 @@ CppUnit::Test* COutliersTest::suite() {
         &COutliersTest::testEstimateMemoryUsedByCompute));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testMostlyDuplicate", &COutliersTest::testMostlyDuplicate));
 
     return suiteOfTests;
 }

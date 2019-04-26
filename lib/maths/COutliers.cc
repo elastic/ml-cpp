@@ -556,23 +556,27 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
     // of benchmark sets to make this effective a priori. We also account for the
     // fact that the scores will be somewhat correlated.
 
+    // We lower bound the coefficient of variation (to 1e-4) of the log-normal we
+    // use to compute the score c.d.f. This is log(1 + CV^2) which for small CV is
+    // very nearly CV^2.
+    static const double MINIMUM_VARIANCE{1e-8};
+
     auto scoreCdfComplement = [&](std::size_t i, std::size_t j) {
         double location{CBasicStatistics::mean(logScoreMoments[i])};
-        double scale{std::sqrt(CBasicStatistics::variance(logScoreMoments[i]))};
-        if (scale > 0.0) {
-            try {
-                boost::math::lognormal lognormal{location, scale};
-                return CTools::safeCdfComplement(lognormal, shift(scores[i][j]));
-            } catch (const std::exception& e) {
-                // In this case, we use the initial value of 0.5 for the cdfComplement
-                // which means P(outlier | score) = P(inlier | score) = 0.5. The outcome
-                // is the score conveys no information about whether or not a point is
-                // an outlier, it is effectively ignored. The rationale for keeping going
-                // therefore is that this handling is good enough that the results may
-                // still be useful.
-                LOG_WARN(<< "Failed to normalise scores: '" << e.what()
-                         << "'. Results maybe compromised.");
-            }
+        double scale{std::sqrt(std::max(
+            CBasicStatistics::variance(logScoreMoments[i]), MINIMUM_VARIANCE))};
+        try {
+            boost::math::lognormal lognormal{location, scale};
+            return CTools::safeCdfComplement(lognormal, shift(scores[i][j]));
+        } catch (const std::exception& e) {
+            // In this case, we use the initial value of 0.5 for the cdfComplement
+            // which means P(outlier | score) = P(inlier | score) = 0.5. The outcome
+            // is the score conveys no information about whether or not a point is
+            // an outlier, it is effectively ignored. The rationale for keeping going
+            // therefore is that this handling is good enough that the results may
+            // still be useful.
+            LOG_WARN(<< "Failed to normalise scores: '" << e.what()
+                     << "'. Results maybe compromised.");
         }
         return 0.5;
     };
@@ -717,7 +721,6 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
     TProgressCallback noop{[](double) {}};
 
     for (auto& method : methods) {
-
         method->progressRecorder().swap(noop);
         TDouble1VecVec2Vec scores(method->run(sample, sample.size()));
         method->progressRecorder().swap(noop);
