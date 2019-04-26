@@ -557,8 +557,9 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
     // fact that the scores will be somewhat correlated.
 
     // We lower bound the coefficient of variation (to 1e-4) of the log-normal we
-    // use to compute the score c.d.f.
-    static const double MINIMUM_VARIANCE{CTools::fastLog(1.0 + 1e-8)};
+    // use to compute the score c.d.f. This is log(1 + CV^2) which for small CV is
+    // very nearly CV^2.
+    static const double MINIMUM_VARIANCE{1e-8};
 
     auto scoreCdfComplement = [&](std::size_t i, std::size_t j) {
         double location{CBasicStatistics::mean(logScoreMoments[i])};
