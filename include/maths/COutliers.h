@@ -276,11 +276,10 @@ private:
             min += result.s_FunctionState;
         }
         if (min.count() > 0) {
-            // Use twice times the maximum "density" at any other point if there
-            // are k-fold duplicates. Note it is possible that all reference
-            // points are duplicates, in which case we need to set their local
-            // reachability density in this loop too. The overwritten densities
-            // are reset in setup.
+            // Use twice the maximum "density" at any other point if there are
+            // k-fold duplicates. Note it is possible that all lookup points are
+            // duplicates, in which case we need to set their local reachability
+            // density in this loop. The overwritten densities are reset in setup.
             for (std::size_t i = 0; i < m_EndAddresses; ++i) {
                 if (m_Lrd[i] == UNSET_DISTANCE) {
                     m_Lrd[i] = 2.0 / min[0];
