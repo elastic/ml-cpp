@@ -38,7 +38,9 @@ CPackedBitVector::CPackedBitVector(bool bit)
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
     : m_Dimension(static_cast<std::uint32_t>(dimension)), m_First(bit), m_Parity(true) {
-    appendRun(dimension, m_RunLengths);
+    if (dimension > 0) {
+        appendRun(dimension, m_RunLengths);
+    }
 }
 
 CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
