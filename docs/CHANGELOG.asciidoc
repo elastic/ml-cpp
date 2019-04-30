@@ -40,6 +40,8 @@ to the model. (See {ml-pull}214[#214].)
 * Only select more complex trend models for forecasting if there is evidence that they are needed.
 (See {ml-pull}463[#463].)
 
+* Improve residual model selection. (See {ml-pull}468[#468].)
+
 === Bug Fixes
 
 * Handle NaNs when detrending seasonal components. {ml-pull}408[#408]

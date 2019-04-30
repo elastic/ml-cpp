@@ -67,7 +67,6 @@ CNaiveBayes.cc \
 CNaturalBreaksClassifier.cc \
 CNormalMeanPrecConjugate.cc \
 COneOfNPrior.cc \
-Constants.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
