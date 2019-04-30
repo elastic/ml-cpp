@@ -55,6 +55,7 @@ const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
 const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e6);
+const double MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR = 9.0;
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 const double MAXIMUM_RELATIVE_ERROR = 1e-3;
 const double LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
@@ -409,7 +410,8 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
         varianceMismatchPenalties.push_back(
             -m * MAXIMUM_LOG_BAYES_FACTOR *
-            std::max(1.0 - 9.0 * CBasicStatistics::variance(m_SampleMoments) /
+            std::max(1.0 - MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR *
+                               CBasicStatistics::variance(m_SampleMoments) /
                                model.second->marginalLikelihoodVariance(),
                      0.0));
 

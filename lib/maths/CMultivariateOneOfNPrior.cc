@@ -358,6 +358,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
     if (failed) {
         LOG_ERROR(<< "Failed to compute log-likelihood");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         return;
     }
     if (isNonInformative) {
