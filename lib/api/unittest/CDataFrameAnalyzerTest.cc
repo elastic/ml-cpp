@@ -542,7 +542,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
             CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedPrediction,
-                result["row_results"]["results"]["prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
@@ -596,7 +596,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
             CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedPrediction,
-                result["row_results"]["results"]["prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);

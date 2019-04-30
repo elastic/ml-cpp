@@ -545,6 +545,8 @@ public:
             }
         }
 
+        LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
+
         this->restoreBestHyperparameters();
         m_BestForest = this->trainForest(
             frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
