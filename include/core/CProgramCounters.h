@@ -86,10 +86,25 @@ enum ECounterTypes {
     //! The number of times partial memory estimates have been carried out
     E_TSADNumberMemoryUsageEstimates = 18,
 
+    //! The estimated peak memory usage for outlier detection
+    E_DFOEstimatedPeakMemoryUsage = 19,
+
+    //! The peak memory usage of outlier detection in bytes
+    E_DFOPeakMemoryUsage = 20,
+
+    //! The time in ms to create the ensemble for outlier detection
+    E_DFOTimeToCreateEnsemble = 21,
+
+    //! The time in ms to compute the outlier scores
+    E_DFOTimeToComputeScores = 22,
+
+    //! The number of partitions used
+    E_DFONumberPartitions = 23,
+
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 19
+    E_LastEnumCounter = 24
 };
 
 static constexpr size_t NUM_COUNTERS = static_cast<size_t>(E_LastEnumCounter);
@@ -165,6 +180,13 @@ private:
         CCounter& operator+=(std::uint64_t counter) {
             m_Counter += counter;
             return *this;
+        }
+
+        void max(std::uint64_t counter) {
+            std::uint64_t previousCounter{m_Counter.load(std::memory_order_relaxed)};
+            while (previousCounter < counter &&
+                   m_Counter.compare_exchange_weak(previousCounter, counter) == false) {
+            }
         }
 
         operator std::uint64_t() const { return m_Counter; }
@@ -272,7 +294,16 @@ private:
          {counter_t::E_TSADNumberMemoryLimitModelCreationFailures, "E_TSADNumberMemoryLimitModelCreationFailures",
           "The number of model creation failures from being over memory limit"},
          {counter_t::E_TSADNumberPrunedItems, "E_TSADNumberPrunedItems",
-          "The number of old people or attributes pruned from the models"}}};
+          "The number of old people or attributes pruned from the models"},
+         {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
+          "The estimate of the peak memory outlier detection will use"},
+         {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},
+         {counter_t::E_DFOTimeToCreateEnsemble, "E_DFOTimeToCreateEnsemble",
+          "The time it takes to create the ensemble used for outlier detection"},
+         {counter_t::E_DFOTimeToComputeScores, "E_DFOTimeToComputeScores",
+          "The time it takes to compute outlier scores"},
+         {counter_t::E_DFONumberPartitions, "E_DFONumberPartitions",
+          "The number of partitions outlier detection used"}}};
 
     //! Enabling printing out the current counters.
     friend CORE_EXPORT std::ostream& operator<<(std::ostream& o,

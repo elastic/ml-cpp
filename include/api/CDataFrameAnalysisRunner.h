@@ -130,6 +130,9 @@ public:
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
+    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
+                                    std::size_t partitionNumberRows,
+                                    std::size_t numberColumns) const;
 
 private:
     virtual void runImpl(core::CDataFrame& frame) = 0;
@@ -137,9 +140,6 @@ private:
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,
                                                        std::size_t numberColumns) const = 0;
-    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
-                                    std::size_t partitionNumberRows,
-                                    std::size_t numberColumns) const;
 
     //! This adds \p fractionalProgess to the current progress.
     //!

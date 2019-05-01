@@ -7,6 +7,8 @@
 #include <maths/COutliers.h>
 
 #include <core/CDataFrame.h>
+#include <core/CProgramCounters.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CDataFrameUtils.h>
 #include <maths/CIntegration.h>
@@ -890,9 +892,12 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     // Use scoping to recover memory before resizing the data frame.
     {
+        core::CStopWatch watch{true};
         CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
             params, frame, std::move(recordProgress), recordMemoryUsage)};
         LOG_TRACE(<< "Ensemble = " << ensemble.print());
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
+            watch.stop();
 
         // The points will be entirely overwritten by readRows so the initial value
         // is not important. This is presized so that rowsToPoints only needs to
@@ -918,7 +923,11 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
             return false;
         }
 
+        watch.reset(true);
         scores = ensemble.computeOutlierScores(points);
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) =
+            watch.stop();
+
         recordMemoryUsage(-pointsMemory);
 
         // This is a sanity check against CEnsemble accidentally writing to the data
@@ -960,12 +969,15 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     using TPoint = CDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
+    core::CStopWatch watch{true};
     CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
         params, frame,
         [=](double progress) {
             recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
         },
         recordMemoryUsage)};
+    core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
+        watch.stop();
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
@@ -1010,7 +1022,10 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             return false;
         }
 
+        watch.reset(true);
         auto scores = ensemble.computeOutlierScores(points);
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
+            watch.stop();
 
         auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
