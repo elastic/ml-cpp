@@ -116,9 +116,6 @@ const double MINIMUM_CLUSTER_SPLIT_COUNT{24.0};
 
 //! The minimum count of a category in the sketch to cluster.
 const double MINIMUM_CATEGORY_COUNT{0.5};
-
-//! Get the maximum amount we'll penalize a model in addSamples.
-MATHS_EXPORT double maxModelPenalty(double numberSamples);
 }
 }
 

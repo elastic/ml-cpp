@@ -324,7 +324,7 @@ private:
     using TDoubleSizePr5Vec = core::CSmallVector<TDoubleSizePr, 5>;
     using TWeightPriorPtrPr = std::pair<CModelWeight, TPriorPtr>;
     using TWeightPriorPtrPrVec = std::vector<TWeightPriorPtrPr>;
-    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 private:
     //! Read parameters from \p traverser.
@@ -350,6 +350,9 @@ private:
 private:
     //! A collection of component models and their probabilities.
     TWeightPriorPtrPrVec m_Models;
+
+    //! The moments of the samples added.
+    TMeanVarAccumulator m_SampleMoments;
 };
 }
 }
