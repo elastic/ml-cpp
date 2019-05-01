@@ -18,6 +18,7 @@ public:
     void testCacheCounters();
     void testUnknownCounter();
     void testMissingCounter();
+    void testMax();
 
     static CppUnit::Test* suite();
 

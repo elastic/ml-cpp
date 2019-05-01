@@ -18,6 +18,7 @@
 #include <core/CLogger.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CProcessPriority.h>
+#include <core/CProgramCounters.h>
 #include <core/Concurrency.h>
 
 #include <ver/CBuildInfo.h>
@@ -72,6 +73,17 @@ CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 }
 
 int main(int argc, char** argv) {
+    // Register the set of counters in which this program is interested
+    // clang-format off
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_DFOEstimatedPeakMemoryUsage,
+        ml::counter_t::E_DFOPeakMemoryUsage,
+        ml::counter_t::E_DFOTimeToCreateEnsemble,
+        ml::counter_t::E_DFOTimeToComputeScores,
+        ml::counter_t::E_DFONumberPartitions};
+    // clang-format on
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     // Read command line options
     std::string configFile;
     std::string logProperties;
@@ -159,9 +171,12 @@ int main(int argc, char** argv) {
         dataFrameAnalyzer.run();
     }
 
+    // Print out the runtime counters generated during this execution context.
+    LOG_DEBUG(<< ml::core::CProgramCounters::instance());
+
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
-    // message indicating early exit then the process has probably core dumped
+    // message indicating early exit then the process has probably core dumped.
     LOG_DEBUG(<< "Ml data frame analyzer exiting");
 
     return EXIT_SUCCESS;
