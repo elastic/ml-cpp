@@ -336,7 +336,7 @@ void CProgramCountersTest::testPersist() {
 
 void CProgramCountersTest::testMax() {
     ml::test::CRandomNumbers rng;
-    std::size_t m1, m2;
+    std::size_t m1{0}, m2{0};
     std::thread thread1{[&m1, &rng] {
         std::vector<std::size_t> samples;
         rng.generateUniformSamples(0, 100000, 1000, samples);
