@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/COutliers.h>
@@ -102,6 +103,14 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
+
+    core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
+        this->numberPartitions();
+    core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage) =
+        this->estimateMemoryUsage(frame.numberRows(),
+                                  frame.numberRows() / this->numberPartitions(),
+                                  frame.numberColumns());
+
     maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
                                                 this->numberPartitions(),
                                                 m_StandardizeColumns,
@@ -109,7 +118,9 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, this->progressRecorder());
+    maths::COutliers::compute(params, frame, this->progressRecorder(), [](std::uint64_t memory) {
+        core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory);
+    });
 }
 
 std::size_t

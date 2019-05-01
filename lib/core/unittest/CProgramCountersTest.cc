@@ -13,7 +13,10 @@
 #include <core/CRegex.h>
 #include <core/CSleep.h>
 
-#include <stdint.h>
+#include <test/CRandomNumbers.h>
+
+#include <cstdint>
+#include <thread>
 
 CppUnit::Test* CProgramCountersTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProgramCountersTest");
@@ -28,6 +31,8 @@ CppUnit::Test* CProgramCountersTest::suite() {
         "CProgramCountersTest::testUnknownCounter", &CProgramCountersTest::testUnknownCounter));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProgramCountersTest>(
         "CProgramCountersTest::testMissingCounter", &CProgramCountersTest::testMissingCounter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProgramCountersTest>(
+        "CProgramCountersTest::testMax", &CProgramCountersTest::testMax));
     return suiteOfTests;
 }
 
@@ -162,9 +167,9 @@ void CProgramCountersTest::testCacheCounters() {
 
     // check that the cached and live counters match and that the values are as expected
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(counters.counter(i)),
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::uint64_t>(counters.counter(i)),
                              counters.m_Cache[i]);
-        CPPUNIT_ASSERT_EQUAL(uint64_t(i + 1), counters.m_Cache[i]);
+        CPPUNIT_ASSERT_EQUAL(std::uint64_t(i + 1), counters.m_Cache[i]);
     }
 
     // Take a local copy of the cached counters
@@ -177,7 +182,7 @@ void CProgramCountersTest::testCacheCounters() {
 
     // compare with the cached values, they should have not changed
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        CPPUNIT_ASSERT_EQUAL(uint64_t(1), counters.counter(i) - counters.m_Cache[i]);
+        CPPUNIT_ASSERT_EQUAL(std::uint64_t(1), counters.counter(i) - counters.m_Cache[i]);
         CPPUNIT_ASSERT_EQUAL(origCache[i], counters.m_Cache[i]);
     }
 
@@ -235,8 +240,8 @@ void CProgramCountersTest::testPersist() {
     ml::core::CRegex regex;
     // Look for "name":"E.*"value": 0}
     regex.init(".*\"name\":\"E.*\"value\":.*");
-    for (ml::core::CRegex::TStrVecCItr i = tokens.begin(); i != (tokens.end() - 1); ++i) {
-        CPPUNIT_ASSERT(regex.matches(*i));
+    for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
+        CPPUNIT_ASSERT(regex.matches(tokens[i]));
     }
 
     LOG_DEBUG(<< output);
@@ -327,6 +332,37 @@ void CProgramCountersTest::testPersist() {
 
     // check that the order in which the counters are given doesn't affect the order in which they are printed
     CPPUNIT_ASSERT_EQUAL(outputOrder1, outputOrder2);
+}
+
+void CProgramCountersTest::testMax() {
+    ml::test::CRandomNumbers rng;
+    std::size_t m1{0}, m2{0};
+    std::thread thread1{[&m1, &rng] {
+        std::vector<std::size_t> samples;
+        rng.generateUniformSamples(0, 100000, 1000, samples);
+        for (auto sample : samples) {
+            ml::core::CProgramCounters::counter(ml::counter_t::E_DFOEstimatedPeakMemoryUsage)
+                .max(sample);
+            m1 = std::max(m1, sample);
+        }
+    }};
+    std::thread thread2{[&m2, &rng] {
+        std::vector<std::size_t> samples;
+        rng.generateUniformSamples(0, 100000, 1000, samples);
+        for (auto sample : samples) {
+            ml::core::CProgramCounters::counter(ml::counter_t::E_DFOEstimatedPeakMemoryUsage)
+                .max(sample);
+            m2 = std::max(m2, sample);
+        }
+    }};
+
+    thread1.join();
+    thread2.join();
+
+    std::size_t expected{std::max(m1, m2)};
+    std::size_t actual{ml::core::CProgramCounters::counter(
+        ml::counter_t::E_DFOEstimatedPeakMemoryUsage)};
+    CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
 std::string CProgramCountersTest::persist(bool doCacheCounters) {
