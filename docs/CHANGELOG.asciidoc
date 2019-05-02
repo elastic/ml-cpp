@@ -28,7 +28,7 @@
 
 //=== Regressions
 
-== {es} version 7.1.0
+== {es} version 7.2.0
 
 === Enhancements
 
@@ -41,6 +41,8 @@ to the model. (See {ml-pull}214[#214].)
 (See {ml-pull}463[#463].)
 
 * Improve residual model selection. (See {ml-pull}468[#468].)
+
+* Stop linking to libcrypt on Linux. (See {ml-pull}480[#480].)
 
 === Bug Fixes
 

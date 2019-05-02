@@ -95,6 +95,10 @@ if [ ! -f apr.state ]; then
   tar xfz apr-1.5.2.tar.gz -C apr --strip-components=1
   cd apr
   echo "  Configuring..."
+
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
+  sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in
+
   ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
@@ -113,6 +117,10 @@ if [ ! -f apr-util.state ]; then
   tar xfz apr-util-1.5.4.tar.gz -C apr-util --strip-components=1
   cd apr-util
   echo "  Configuring..."
+
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
+  sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c
+
   ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
