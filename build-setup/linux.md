@@ -160,7 +160,31 @@ Extract the tarball to a temporary directory:
 tar jxvf apr-1.5.2.tar.bz2
 ```
 
-Build using:
+We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
+
+```
+for ac_lib in '' crypt ufc; do
+```
+
+to:
+
+```
+for ac_lib in ''; do
+```
+
+And in `include/apr.h.in` change:
+
+```
+#define APR_HAVE_CRYPT_H         @crypth@
+```
+
+to:
+
+```
+#define APR_HAVE_CRYPT_H         0
+```
+
+Then build using:
 
 ```
 ./configure --prefix=/usr/local/gcc73
@@ -178,7 +202,31 @@ Extract the tarball to a temporary directory:
 tar jxvf apr-util-1.5.4.tar.bz2
 ```
 
-Build using:
+We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
+
+```
+for ac_lib in '' crypt ufc; do
+```
+
+to:
+
+```
+for ac_lib in ''; do
+```
+
+And in `crypto/apr_passwd.c` change:
+
+```
+#define CRYPT_MISSING 0
+```
+
+to:
+
+```
+#define CRYPT_MISSING 1
+```
+
+Then build using:
 
 ```
 ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin
