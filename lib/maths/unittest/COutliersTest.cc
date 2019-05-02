@@ -17,6 +17,7 @@
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
 
@@ -350,7 +351,7 @@ void COutliersTest::testEnsemble() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
@@ -413,7 +414,7 @@ void COutliersTest::testFeatureInfluences() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
@@ -514,7 +515,7 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
 
@@ -588,7 +589,7 @@ void COutliersTest::testProgressMonitoring() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
