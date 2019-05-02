@@ -55,6 +55,8 @@ RUN \
 RUN \
   wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2 | tar jxf - && \
   cd apr-1.5.2 && \
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
+  sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in && \
   ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
@@ -65,6 +67,8 @@ RUN \
 RUN \
   wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2 | tar jxf - && \
   cd apr-util-1.5.4 && \
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
+  sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c && \
   ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
