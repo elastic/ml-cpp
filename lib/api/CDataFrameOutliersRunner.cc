@@ -118,9 +118,12 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, this->progressRecorder(), [](std::uint64_t memory) {
-        core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory);
-    });
+    std::atomic<std::int64_t> memory;
+    maths::COutliers::compute(
+        params, frame, this->progressRecorder(), [&memory](std::int64_t delta) mutable {
+            std::int64_t memory_{memory.fetch_add(delta)};
+            core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory_);
+        });
 }
 
 std::size_t
