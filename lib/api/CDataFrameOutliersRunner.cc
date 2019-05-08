@@ -120,7 +120,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_OutlierFraction};
     std::atomic<std::int64_t> memory;
     maths::COutliers::compute(
-        params, frame, this->progressRecorder(), [&memory](std::int64_t delta) mutable {
+        params, frame, this->progressRecorder(), [&memory](std::int64_t delta) {
             std::int64_t memory_{memory.fetch_add(delta)};
             core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory_);
         });
