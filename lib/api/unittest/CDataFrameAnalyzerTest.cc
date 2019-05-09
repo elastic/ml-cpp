@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 
 #include <maths/CBasicStatistics.h>
@@ -242,6 +243,13 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
     CPPUNIT_ASSERT(progressCompleted);
+
+    LOG_DEBUG(<< "number partitions = "
+              << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
+    LOG_DEBUG(<< "peak memory = "
+              << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
 }
 
 void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
@@ -281,6 +289,13 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+
+    LOG_DEBUG(<< "number partitions = "
+              << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
+    LOG_DEBUG(<< "peak memory = "
+              << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 110000); // + 10%
 }
 
 void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
