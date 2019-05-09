@@ -118,7 +118,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    std::atomic<std::int64_t> memory;
+    std::atomic<std::int64_t> memory{0};
     maths::COutliers::compute(
         params, frame, this->progressRecorder(), [&memory](std::int64_t delta) {
             std::int64_t memory_{memory.fetch_add(delta)};
