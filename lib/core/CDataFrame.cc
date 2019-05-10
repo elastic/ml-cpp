@@ -176,28 +176,24 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
                                                 std::move(reader), rowMask, false);
 }
 
-bool CDataFrame::writeColumns(std::size_t numberThreads,
-                              std::size_t beginRows,
-                              std::size_t endRows,
-                              TRowFunc writer,
-                              const CPackedBitVector* rowMask) {
+CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads,
+                                                       std::size_t beginRows,
+                                                       std::size_t endRows,
+                                                       TRowFunc writer,
+                                                       const CPackedBitVector* rowMask) {
 
     beginRows = std::min(beginRows, m_NumberRows);
     endRows = std::min(endRows, m_NumberRows);
 
     if (beginRows >= endRows) {
-        return true;
+        return {{std::move(writer)}, true};
     }
 
-    bool successful;
-    std::tie(std::ignore, successful) =
-        numberThreads > 1
-            ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                           std::move(writer), rowMask, true)
-            : this->sequentialApplyToAllRows(beginRows, endRows,
-                                             std::move(writer), rowMask, true);
-
-    return successful;
+    return numberThreads > 1
+               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
+                                              std::move(writer), rowMask, true)
+               : this->sequentialApplyToAllRows(beginRows, endRows,
+                                                std::move(writer), rowMask, true);
 }
 
 void CDataFrame::writeRow(const TWriteFunc& writeRow) {

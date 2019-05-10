@@ -128,7 +128,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 9.5);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 8.2);
 }
 
 void CBoostedTreeTest::testLinear() {

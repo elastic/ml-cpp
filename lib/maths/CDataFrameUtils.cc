@@ -74,7 +74,7 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
         }
     };
 
-    return frame.writeColumns(numberThreads, standardiseColumns);
+    return frame.writeColumns(numberThreads, standardiseColumns).second;
 }
 
 bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
