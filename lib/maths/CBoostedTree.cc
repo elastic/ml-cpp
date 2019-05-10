@@ -498,7 +498,7 @@ public:
     }
 
     void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
-        m_MaximumHyperparameterOptimisationRounds = rounds;
+        m_MaximumOptimisationRoundsPerHyperparameter = rounds;
     }
 
     //! Train the model on the values in \p frame.
@@ -531,15 +531,19 @@ public:
 
         CBayesianOptimisation bopt{this->hyperparameterBoundingBox()};
 
-        for (std::size_t round = 0;
-             round < m_MaximumHyperparameterOptimisationRounds; ++round) {
+        std::size_t numberRounds{this->numberHyperparameterTuningRounds()};
+        for (std::size_t round = 0; round < numberRounds; ++round) {
             LOG_TRACE(<< "Optimisation round = " << round + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(
                 frame, trainingRowMasks, testingRowMasks, recordProgress)};
 
-            this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
+            this->captureBestHyperparameters(lossMoments);
 
+            if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
+                1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
+                break;
+            }
             if (this->selectNextHyperparameters(lossMoments, bopt) == false) {
                 break;
             }
@@ -580,6 +584,9 @@ public:
         // TODO
     }
 
+    //! Get the feature sample probabilities.
+    TDoubleVec featureWeights() const { return m_FeatureSampleProbabilities; }
+
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TOptionalDouble = boost::optional<double>;
@@ -591,6 +598,7 @@ private:
         double s_Lambda;
         double s_Gamma;
         double s_Eta;
+        double s_EtaGrowthRatePerTree;
         double s_FeatureBagFraction;
         TDoubleVec s_FeatureSampleProbabilities;
     };
@@ -708,9 +716,15 @@ private:
         m_Gamma = m_GammaOverride.value_or(0.0);
         if (m_EtaOverride) {
             m_Eta = *m_EtaOverride;
+        } else {
+            m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
+                                             frame.numberColumns() - 4)));
+            m_EtaGrowthRatePerTree = 1.0 + m_Eta / 2.0;
         }
         if (m_MaximumNumberTreesOverride) {
             m_MaximumNumberTrees = *m_MaximumNumberTreesOverride;
+        } else {
+            m_MaximumNumberTrees = static_cast<std::size_t>(2.0 / m_Eta + 0.5);
         }
         if (m_FeatureBagFractionOverride) {
             m_FeatureBagFraction = *m_FeatureBagFractionOverride;
@@ -757,7 +771,7 @@ private:
         // We allow a large number of trees by default in the main parameter
         // optimisation loop. In practice, we should use many fewer if they
         // don't significantly improve test error.
-        m_MaximumNumberTrees = 500;
+        m_MaximumNumberTrees *= 10;
     }
 
     //! Compute the sum loss for the predictions from \p frame and the leaf
@@ -808,10 +822,11 @@ private:
             TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
             double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
             lossMoments.add(loss);
-            LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
+            LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
+                      << " test set loss = " << loss);
         }
-        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(lossMoments) << ", standard deviation = "
-                  << std::sqrt(CBasicStatistics::mean(lossMoments)));
+        LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
+                  << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
         return lossMoments;
     }
 
@@ -829,9 +844,10 @@ private:
         //  1. Compute weighted quantiles for features F
         //  2. Compute candidate split set S from quantiles of F
         //  3. Build one tree on (F, S)
-        //  4. Shrink weights and update predictions and loss derivatives
+        //  4. Update predictions and loss derivatives
 
-        double shrinkage{1.0};
+        double eta{m_Eta};
+        double sumEta{eta};
 
         for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
@@ -841,13 +857,16 @@ private:
 
             retries = tree.size() == 1 ? retries + 1 : 0;
 
-            if (retries == m_MaximumAttemptsToAddTree) {
+            if (sumEta > 1.0 && retries == m_MaximumAttemptsToAddTree) {
                 break;
-            } else if (retries == 0) {
-                this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
-                                                           shrinkage, tree);
+            }
+
+            if (sumEta < 1.0 || retries == 0) {
+                this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, eta, tree);
                 forest.push_back(std::move(tree));
-                shrinkage *= m_Eta;
+                eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
+                sumEta += eta;
+                retries = 0;
             }
         }
 
@@ -1025,7 +1044,7 @@ private:
             &trainingRowMask);
 
         TNodeVec tree(1);
-        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
+        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
 
         return tree;
     }
@@ -1034,7 +1053,7 @@ private:
     //! rows in \p frame with predictions of \p tree.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& trainingRowMask,
-                                              double shrinkage,
+                                              double eta,
                                               TNodeVec& tree) const {
 
         using TArgMinLossUPtrVec = std::vector<CLoss::TArgMinLossUPtr>;
@@ -1046,7 +1065,7 @@ private:
         }
 
         frame.readRows(
-            m_NumberThreads, 0, frame.numberRows(),
+            1, 0, frame.numberRows(),
             [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
@@ -1058,7 +1077,7 @@ private:
             &trainingRowMask);
 
         for (std::size_t i = 0; i < tree.size(); ++i) {
-            tree[i].value(shrinkage * leafValues[i]->value());
+            tree[i].value(eta * leafValues[i]->value());
         }
 
         LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -1144,6 +1163,7 @@ private:
         }
         return result;
     }
+
     //! Get the bounding box to use for hyperparameter optimisation.
     TDoubleDoublePrVec hyperparameterBoundingBox() const {
         TDoubleDoublePrVec result;
@@ -1154,12 +1174,21 @@ private:
             result.emplace_back(std::log(m_Gamma / 10.0), std::log(10.0 * m_Gamma));
         }
         if (m_EtaOverride == boost::none) {
-            result.emplace_back(0.8, 1.0);
+            double rate{m_EtaGrowthRatePerTree - 1.0};
+            result.emplace_back(std::log(0.3 * m_Eta), std::log(3.0 * m_Eta));
+            result.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             result.emplace_back(0.2, 0.8);
         }
         return result;
+    }
+
+    //! Get the number of hyperparameter tuning rounds to use.
+    std::size_t numberHyperparameterTuningRounds() const {
+        return std::max(m_MaximumOptimisationRoundsPerHyperparameter *
+                            this->numberHyperparametersToTune(),
+                        std::size_t{1});
     }
 
     //! Select the next hyperparameters for which to train a model.
@@ -1177,13 +1206,11 @@ private:
             parameters(i++) = std::log(m_Gamma);
         }
         if (m_EtaOverride == boost::none) {
-            parameters(i++) = m_Eta;
+            parameters(i++) = std::log(m_Eta);
+            parameters(i++) = m_EtaGrowthRatePerTree;
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             parameters(i++) = m_FeatureBagFraction;
-        }
-        if (i == 0) {
-            return false;
         }
 
         double meanLoss{CBasicStatistics::mean(lossMoments)};
@@ -1201,23 +1228,30 @@ private:
             m_Gamma = std::exp(parameters(i++));
         }
         if (m_EtaOverride == boost::none) {
-            m_Eta = parameters(i++);
+            m_Eta = std::exp(parameters(i++));
+            m_EtaGrowthRatePerTree = parameters(i++);
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             m_FeatureBagFraction = parameters(i++);
         }
 
-        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma
+                  << ", eta = " << m_Eta << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
                   << ", feature bag fraction = " << m_FeatureBagFraction);
         return true;
     }
 
     //! Capture the current hyperparameter values.
-    void captureBestHyperparameters(double loss) {
+    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments) {
+        // We capture the parameters with the lowest error at one standard
+        // deviation above the mean. If the mean error improvement is marginal
+        // we prefer the solution with the least variation across the folds.
+        double loss{CBasicStatistics::mean(lossMoments) +
+                    std::sqrt(CBasicStatistics::variance(lossMoments))};
         if (loss < m_BestForestTestLoss) {
             m_BestForestTestLoss = loss;
-            m_BestHyperparameters = SHyperparameters{m_Lambda, m_Gamma, m_Eta, m_FeatureBagFraction,
-                                                     m_FeatureSampleProbabilities};
+            m_BestHyperparameters = SHyperparameters{
+                m_Lambda, m_Gamma, m_Eta, m_EtaGrowthRatePerTree, m_FeatureBagFraction, m_FeatureSampleProbabilities};
         }
     }
 
@@ -1226,14 +1260,18 @@ private:
         m_Lambda = m_BestHyperparameters.s_Lambda;
         m_Gamma = m_BestHyperparameters.s_Gamma;
         m_Eta = m_BestHyperparameters.s_Eta;
+        m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
         m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
         m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
+        LOG_TRACE(<< "lambda* = " << m_Lambda << ", gamma* = " << m_Gamma
+                  << ", eta* = " << m_Eta << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+                  << ", feature bag fraction* = " << m_FeatureBagFraction);
     }
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const {
         return (m_LambdaOverride ? 0 : 1) + (m_GammaOverride ? 0 : 1) +
-               (m_EtaOverride ? 0 : 1) + (m_FeatureBagFractionOverride ? 0 : 1);
+               (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
     }
 
 private:
@@ -1248,14 +1286,15 @@ private:
     TOptionalDouble m_FeatureBagFractionOverride;
     double m_Lambda = 0.0;
     double m_Gamma = 0.0;
-    std::size_t m_NumberFolds = 5;
-    std::size_t m_MaximumNumberTrees = 5;
+    double m_Eta = 0.1;
+    double m_EtaGrowthRatePerTree = 1.05;
+    std::size_t m_NumberFolds = 4;
+    std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 40;
-    std::size_t m_MaximumHyperparameterOptimisationRounds = 20;
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
-    double m_Eta = 0.98;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     double m_BestForestTestLoss = INF;
@@ -1317,6 +1356,10 @@ void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProg
 
 void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
     m_Impl->write(writer);
+}
+
+CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
+    return m_Impl->featureWeights();
 }
 
 std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
