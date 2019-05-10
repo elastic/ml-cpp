@@ -13,6 +13,7 @@
 #include <core/Concurrency.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/unordered_map.hpp>
@@ -199,7 +200,7 @@ void CDataFrameTest::testOnDiskBasicReadWrite() {
     TFloatVec components{testData(rows, cols)};
 
     auto frameAndDirectory = core::makeDiskStorageDataFrame(
-        boost::filesystem::current_path().string(), cols, rows, capacity);
+        test::CTestTmpDir::tmpDir(), cols, rows, capacity);
     auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
@@ -228,7 +229,7 @@ void CDataFrameTest::testOnDiskParallelRead() {
     TFloatVec components{testData(rows, cols)};
 
     auto frameAndDirectory = core::makeDiskStorageDataFrame(
-        boost::filesystem::current_path().string(), cols, rows, capacity);
+        test::CTestTmpDir::tmpDir(), cols, rows, capacity);
     auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
@@ -268,8 +269,7 @@ void CDataFrameTest::testReadRange() {
     TFloatVec components{testData(rows, cols)};
 
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -336,8 +336,7 @@ void CDataFrameTest::testWriteRange() {
     TFloatVec components{testData(rows, cols)};
 
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -413,8 +412,8 @@ void CDataFrameTest::testMemoryUsage() {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -457,8 +456,8 @@ void CDataFrameTest::testReserve() {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -530,8 +529,8 @@ void CDataFrameTest::testResizeColumns() {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -589,8 +588,8 @@ void CDataFrameTest::testWriteColumns() {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -644,8 +643,8 @@ void CDataFrameTest::testDocHashes() {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {

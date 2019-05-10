@@ -377,27 +377,27 @@ void COneOfNPriorTest::testModelSelection() {
     test::CRandomNumbers rng;
 
     {
-        // Generate Poisson samples and update the mixed model. The log normal
-        // weight should diminish relative to the Poisson weight on average
-        // per sample (uniform law of large numbers) as:
-        //   log(2 * pi * e * r) / 2 - E[ log(f(x)) ]
+        // Generate Poisson samples and update the mixed model. The log weight
+        // of the normal should diminish relative to the weight of the Poisson
+        // on average per sample (uniform law of large numbers) as:
+        //   log(2 * pi * e * rate) / 2 - E[ log(f(X)) ]
         //
-        // where,
-        //   f(x) is the Poisson density function with mean r,
-        //   E[.] is the expectation with respect to f(x).
+        // where, f(x) is the Poisson density function and X ~ f(x). Note
+        // because we limit the difference in log-likelihoods we expect this
+        // to be somewhat larger than the expectation.
 
         TPriorPtrVec models;
-        models.push_back(TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
-        models.push_back(TPriorPtr(
-            CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone()));
+        models.emplace_back(CPoissonMeanConjugate::nonInformativePrior().clone());
+        models.emplace_back(
+            CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone());
 
-        const unsigned int nSamples = 10000u;
+        const unsigned int numberSamples = 10000;
         const double rate = 2.0;
         const double mean = rate;
         const double variance = rate;
 
-        boost::math::poisson_distribution<> poisson(rate);
-        boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
+        boost::math::poisson poisson(rate);
+        boost::math::normal normal(mean, std::sqrt(variance));
 
         double poissonExpectedLogWeight = -maths::CTools::differentialEntropy(poisson);
         double normalExpectedLogWeight = -maths::CTools::differentialEntropy(normal);
@@ -405,14 +405,14 @@ void COneOfNPriorTest::testModelSelection() {
         COneOfNPrior filter(maths::COneOfNPrior(clone(models), E_ContinuousData));
 
         TUIntVec samples;
-        rng.generatePoissonSamples(rate, nSamples, samples);
+        rng.generatePoissonSamples(rate, numberSamples, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
-            filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[i])));
+        for (auto sample : samples) {
+            filter.addSamples(TDouble1Vec{static_cast<double>(sample)});
         }
 
         double expectedLogWeightRatio = (normalExpectedLogWeight - poissonExpectedLogWeight) *
-                                        static_cast<double>(nSamples);
+                                        static_cast<double>(numberSamples);
 
         TDoubleVec logWeights = filter.logWeights();
         double logWeightRatio = logWeights[1] - logWeights[0];
@@ -420,69 +420,57 @@ void COneOfNPriorTest::testModelSelection() {
         LOG_DEBUG(<< "expectedLogWeightRatio = " << expectedLogWeightRatio
                   << ", logWeightRatio = " << logWeightRatio);
 
-        CPPUNIT_ASSERT(std::fabs(logWeightRatio - expectedLogWeightRatio) /
-                           std::fabs(expectedLogWeightRatio) <
-                       0.05);
+        CPPUNIT_ASSERT(logWeightRatio > expectedLogWeightRatio);
+        CPPUNIT_ASSERT(logWeightRatio < 0.95 * expectedLogWeightRatio);
     }
 
     {
-        // Generate Normal samples and update the mixed model. The Poisson
-        // weight should diminish relative to the normal weight on average
+        // Generate log normal samples and update the mixed model. The normal
+        // weight should diminish relative to the log-normal weight on average
         // per sample (uniform law of large numbers) as:
-        //   log(2 * pi * e * m) - log(2 * pi * e * v)
+        //   log(2 * pi * e * var(X)) - E[ log(f(X)) ]
         //
-        // when,
-        //   m, which is the Gaussian mean, is large,
-        //   v, which is the Gaussian variance, is small compared to m.
-        //
-        // This is when the moment matched Gaussian approximation is reasonable.
-        // Note, the tails have a pretty large impact on this integral because
-        // we are taking the expectation of the log. Really we want to compute
-        // the expectation of the log of the appropriate negative binomial density
-        // function, but reasonable correlation with the approximate value is
-        // a sufficiently good test.
+        // where, f(x) is the log-normal density function and X ~ f(x). Note
+        // because we limit the difference in log-likelihoods we expect this
+        // to be somewhat larger than the expectation.
 
         TPriorPtrVec models;
-        models.push_back(TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
-        models.push_back(TPriorPtr(
-            CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone()));
+        models.emplace_back(
+            CLogNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone());
+        models.emplace_back(
+            CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone());
 
-        const unsigned int nSamples[] = {1000u, 2000u, 3000u};
-        const double mean = 100.0;
-        const double variance = 5.0;
+        const unsigned int numberSamples = 10000;
+        const double location = 1.0;
+        const double squareScale = 0.5;
 
-        boost::math::normal_distribution<> poissonApprox(mean, std::sqrt(mean));
-        boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
+        boost::math::lognormal logNormal(location, std::sqrt(squareScale));
+        boost::math::normal normal(boost::math::mean(logNormal),
+                                   boost::math::standard_deviation(logNormal));
 
-        double poissonExpectedLogWeight = -maths::CTools::differentialEntropy(poissonApprox);
+        double logNormalExpectedLogWeight = -maths::CTools::differentialEntropy(logNormal);
         double normalExpectedLogWeight = -maths::CTools::differentialEntropy(normal);
 
-        for (size_t n = 0; n < boost::size(nSamples); ++n) {
-            COneOfNPrior filter(maths::COneOfNPrior(clone(models), E_ContinuousData));
+        COneOfNPrior filter(maths::COneOfNPrior(clone(models), E_ContinuousData));
 
-            TDoubleVec samples;
-            rng.generateNormalSamples(mean, variance, nSamples[n], samples);
+        TDoubleVec samples;
+        rng.generateLogNormalSamples(location, squareScale, numberSamples, samples);
 
-            // Make sure we don't have negative values.
-            truncateUpTo(0.0, samples);
-
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                filter.addSamples(TDouble1Vec(1, samples[i]));
-            }
-
-            double expectedLogWeightRatio = (poissonExpectedLogWeight - normalExpectedLogWeight) *
-                                            static_cast<double>(nSamples[n]);
-
-            TDoubleVec logWeights = filter.logWeights();
-            double logWeightRatio = logWeights[0] - logWeights[1];
-
-            LOG_DEBUG(<< "expectedLogWeightRatio = " << expectedLogWeightRatio
-                      << ", logWeightRatio = " << logWeightRatio);
-
-            CPPUNIT_ASSERT(std::fabs(logWeightRatio - expectedLogWeightRatio) /
-                               std::fabs(expectedLogWeightRatio) <
-                           0.35);
+        for (auto sample : samples) {
+            filter.addSamples(TDouble1Vec{sample});
         }
+
+        double expectedLogWeightRatio = (normalExpectedLogWeight - logNormalExpectedLogWeight) *
+                                        static_cast<double>(numberSamples);
+
+        TDoubleVec logWeights = filter.logWeights();
+        double logWeightRatio = logWeights[1] - logWeights[0];
+
+        LOG_DEBUG(<< "expectedLogWeightRatio = " << expectedLogWeightRatio
+                  << ", logWeightRatio = " << logWeightRatio);
+
+        CPPUNIT_ASSERT(logWeightRatio > expectedLogWeightRatio);
+        CPPUNIT_ASSERT(logWeightRatio < 0.75 * expectedLogWeightRatio);
     }
     {
         // Check we correctly select the multimodal model when the data have

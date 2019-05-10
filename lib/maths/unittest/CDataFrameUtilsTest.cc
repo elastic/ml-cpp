@@ -13,6 +13,7 @@
 #include <maths/CQuantileSketch.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
 
@@ -52,8 +53,7 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
     }
 
     TFactoryFunc makeOnDisk{[=] {
-        return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
             .first;
     }};
     TFactoryFunc makeMainMemory{

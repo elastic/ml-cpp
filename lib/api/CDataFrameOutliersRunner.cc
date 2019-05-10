@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/COutliers.h>
@@ -27,7 +28,7 @@ namespace api {
 namespace {
 // Configuration
 const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
-const char* const K{"k"};
+const char* const N_NEIGHBORS{"n_neighbors"};
 const char* const METHOD{"method"};
 const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
@@ -41,7 +42,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(STANDARDIZE_COLUMNS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(K, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(N_NEIGHBORS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
                            {{lof, int{maths::COutliers::E_Lof}},
                             {ldof, int{maths::COutliers::E_Ldof}},
@@ -66,7 +67,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
     m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
-    m_K = parameters[K].fallback(std::size_t{0});
+    m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_MinimumScoreToWriteFeatureInfluence =
@@ -102,14 +103,27 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
 }
 
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
+
+    core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
+        this->numberPartitions();
+    core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage) =
+        this->estimateMemoryUsage(frame.numberRows(),
+                                  frame.numberRows() / this->numberPartitions(),
+                                  frame.numberColumns());
+
     maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
                                                 this->numberPartitions(),
                                                 m_StandardizeColumns,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_K,
+                                                m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, this->progressRecorder());
+    std::atomic<std::int64_t> memory{0};
+    maths::COutliers::compute(
+        params, frame, this->progressRecorder(), [&memory](std::int64_t delta) {
+            std::int64_t memory_{memory.fetch_add(delta)};
+            core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory_);
+        });
 }
 
 std::size_t
@@ -121,7 +135,7 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
                                                 numberPartitions,
                                                 m_StandardizeColumns,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_K,
+                                                m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
     return maths::COutliers::estimateMemoryUsedByCompute(
