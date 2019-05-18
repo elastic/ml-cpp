@@ -16,6 +16,8 @@ namespace {
 const std::string JOB_ID("job_id");
 const std::string MODEL_SIZE_STATS("model_size_stats");
 const std::string MODEL_BYTES("model_bytes");
+const std::string MODEL_BYTES_EXCEEDED("model_bytes_exceeded");
+const std::string MODEL_BYTES_MEMORY_LIMIT("model_bytes_memory_limit");
 const std::string TOTAL_BY_FIELD_COUNT("total_by_field_count");
 const std::string TOTAL_OVER_FIELD_COUNT("total_over_field_count");
 const std::string TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
@@ -33,17 +35,15 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
 
     writer.String(JOB_ID);
     writer.String(jobId);
+
     writer.String(MODEL_BYTES);
-    // Background persist causes the memory size to double due to copying
-    // the models. On top of that, after the persist is done we may not
-    // be able to retrieve that memory back. Thus, we report twice the
-    // memory usage in order to allow for that.
-    // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-    // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-    // discusses adding an option to perform only foreground persist.
-    // If that gets implemented, we should only double when background
-    // persist is configured.
-    writer.Uint64(results.s_Usage * 2);
+    writer.Uint64(results.s_AdjustedUsage);
+
+    writer.String(MODEL_BYTES_EXCEEDED);
+    writer.Uint64(results.s_BytesExceeded);
+
+    writer.String(MODEL_BYTES_MEMORY_LIMIT);
+    writer.Uint64(results.s_BytesMemoryLimit);
 
     writer.String(TOTAL_BY_FIELD_COUNT);
     writer.Uint64(results.s_ByFields);
