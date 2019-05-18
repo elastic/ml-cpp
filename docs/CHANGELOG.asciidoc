@@ -44,6 +44,8 @@ to the model. (See {ml-pull}214[#214].)
 
 * Stop linking to libcrypt on Linux. (See {ml-pull}480[#480].)
 
+* Improvements to hard_limit audit message. (See {ml-pull}486[#486].)
+
 === Bug Fixes
 
 * Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
