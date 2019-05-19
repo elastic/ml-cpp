@@ -34,15 +34,12 @@ class MODEL_EXPORT CResourceMonitor {
 public:
     struct MODEL_EXPORT SResults {
         std::size_t s_Usage;
-        std::size_t s_AdjustedUsage;
         std::size_t s_ByFields;
         std::size_t s_PartitionFields;
         std::size_t s_OverFields;
         std::size_t s_AllocationFailures;
         model_t::EMemoryStatus s_MemoryStatus;
         core_t::TTime s_BucketStartTime;
-        std::size_t s_BytesExceeded;
-        std::size_t s_BytesMemoryLimit;
     };
 
 public:
@@ -67,6 +64,10 @@ public:
     //! Query the resource monitor to find out if the models are
     //! taking up too much memory and further allocations should be banned
     bool areAllocationsAllowed() const;
+
+    //! Query the resource monitor to found out if it's Ok to
+    //! create structures of a certain size
+    bool areAllocationsAllowed(std::size_t size) const;
 
     //! Return the amount of remaining space for allocations
     std::size_t allocationLimit() const;
@@ -163,11 +164,6 @@ private:
     //! Returns the sum of used memory plus any extra memory
     std::size_t totalMemory() const;
 
-    //! Adjusts the amount of memory reported to take into
-    //! account the current value of the byte limit margin and the effects
-    //! of background persistence.
-    std::size_t adjustedUsage(std::size_t usage) const;
-
 private:
     //! The registered collection of components
     TDetectorPtrSizeUMap m_Detectors;
@@ -229,9 +225,6 @@ private:
 
     //! Don't do any sort of memory checking if this is set
     bool m_NoLimit;
-
-    //! The number of bytes over the high limit for memory usage at the last allocation failure
-    std::size_t m_CurrentBytesExceeded;
 
     //! Test friends
     friend class ::CResourceMonitorTest;

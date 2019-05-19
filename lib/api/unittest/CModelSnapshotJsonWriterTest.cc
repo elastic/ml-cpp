@@ -33,15 +33,12 @@ void CModelSnapshotJsonWriterTest::testWrite() {
     {
         model::CResourceMonitor::SResults modelSizeStats{
             10000,                     // bytes used
-            20000,                     // bytes used (adjusted)
             3,                         // # by fields
             1,                         // # partition fields
             150,                       // # over fields
             4,                         // # allocation failures
             model_t::E_MemoryStatusOk, // memory status
-            core_t::TTime(1521046309), // bucket start time
-            0,                         // model bytes exceeded
-            50000                      // model bytes memory limit
+            core_t::TTime(1521046309)  // bucket start time
         };
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
@@ -117,11 +114,6 @@ void CModelSnapshotJsonWriterTest::testWrite() {
     CPPUNIT_ASSERT(modelSizeStats.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1521046309000), modelSizeStats["timestamp"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("log_time"));
-    CPPUNIT_ASSERT(modelSizeStats.HasMember("model_bytes_exceeded"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(0), modelSizeStats["model_bytes_exceeded"].GetInt64());
-    CPPUNIT_ASSERT(modelSizeStats.HasMember("model_bytes_memory_limit"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(50000),
-                         modelSizeStats["model_bytes_memory_limit"].GetInt64());
 
     CPPUNIT_ASSERT(snapshot.HasMember("quantiles"));
     const rapidjson::Value& quantiles = snapshot["quantiles"];

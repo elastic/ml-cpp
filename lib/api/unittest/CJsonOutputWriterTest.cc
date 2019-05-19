@@ -1555,15 +1555,12 @@ void CJsonOutputWriterTest::testReportMemoryUsage() {
 
         ml::model::CResourceMonitor::SResults resourceUsage;
         resourceUsage.s_Usage = 1;
-        resourceUsage.s_AdjustedUsage = 2;
-        resourceUsage.s_ByFields = 3;
-        resourceUsage.s_PartitionFields = 4;
-        resourceUsage.s_OverFields = 5;
-        resourceUsage.s_AllocationFailures = 6;
+        resourceUsage.s_ByFields = 2;
+        resourceUsage.s_PartitionFields = 3;
+        resourceUsage.s_OverFields = 4;
+        resourceUsage.s_AllocationFailures = 5;
         resourceUsage.s_MemoryStatus = ml::model_t::E_MemoryStatusHardLimit;
-        resourceUsage.s_BucketStartTime = 7;
-        resourceUsage.s_BytesExceeded = 8;
-        resourceUsage.s_BytesMemoryLimit = 9;
+        resourceUsage.s_BucketStartTime = 6;
 
         writer.reportMemoryUsage(resourceUsage);
         writer.endOutputBatch(false, 1ul);
@@ -1583,15 +1580,15 @@ void CJsonOutputWriterTest::testReportMemoryUsage() {
     CPPUNIT_ASSERT(sizeStats.HasMember("model_bytes"));
     CPPUNIT_ASSERT_EQUAL(2, sizeStats["model_bytes"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("total_by_field_count"));
-    CPPUNIT_ASSERT_EQUAL(3, sizeStats["total_by_field_count"].GetInt());
+    CPPUNIT_ASSERT_EQUAL(2, sizeStats["total_by_field_count"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("total_partition_field_count"));
-    CPPUNIT_ASSERT_EQUAL(4, sizeStats["total_partition_field_count"].GetInt());
+    CPPUNIT_ASSERT_EQUAL(3, sizeStats["total_partition_field_count"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("total_over_field_count"));
-    CPPUNIT_ASSERT_EQUAL(5, sizeStats["total_over_field_count"].GetInt());
+    CPPUNIT_ASSERT_EQUAL(4, sizeStats["total_over_field_count"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("bucket_allocation_failures_count"));
-    CPPUNIT_ASSERT_EQUAL(6, sizeStats["bucket_allocation_failures_count"].GetInt());
+    CPPUNIT_ASSERT_EQUAL(5, sizeStats["bucket_allocation_failures_count"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("timestamp"));
-    CPPUNIT_ASSERT_EQUAL(7000, sizeStats["timestamp"].GetInt());
+    CPPUNIT_ASSERT_EQUAL(6000, sizeStats["timestamp"].GetInt());
     CPPUNIT_ASSERT(sizeStats.HasMember("memory_status"));
     CPPUNIT_ASSERT_EQUAL(std::string("hard_limit"),
                          std::string(sizeStats["memory_status"].GetString()));
@@ -1599,10 +1596,6 @@ void CJsonOutputWriterTest::testReportMemoryUsage() {
     int64_t nowMs = ml::core::CTimeUtils::now() * 1000ll;
     CPPUNIT_ASSERT(nowMs >= sizeStats["log_time"].GetInt64());
     CPPUNIT_ASSERT(nowMs + 1000ll >= sizeStats["log_time"].GetInt64());
-    CPPUNIT_ASSERT(sizeStats.HasMember("model_bytes_exceeded"));
-    CPPUNIT_ASSERT_EQUAL(8, sizeStats["model_bytes_exceeded"].GetInt());
-    CPPUNIT_ASSERT(sizeStats.HasMember("model_bytes_memory_limit"));
-    CPPUNIT_ASSERT_EQUAL(9, sizeStats["model_bytes_memory_limit"].GetInt());
 }
 
 void CJsonOutputWriterTest::testWriteScheduledEvent() {
