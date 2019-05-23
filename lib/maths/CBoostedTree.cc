@@ -82,7 +82,9 @@ public:
         if (this->isLeaf()) {
             return index;
         }
-        return row[m_SplitFeature] < m_SplitValue
+        double value{row[m_SplitFeature]};
+        bool missing{CDataFrameUtils::isMissing(value)};
+        return (missing && m_AssignMissingToLeft) || (missing == false && value < m_SplitValue)
                    ? tree[m_LeftChild].leafIndex(row, tree, m_LeftChild)
                    : tree[m_RightChild].leafIndex(row, tree, m_RightChild);
     }
@@ -100,9 +102,10 @@ public:
 
     //! Split this node and add its child nodes to \p tree.
     std::pair<std::size_t, std::size_t>
-    split(std::size_t splitFeature, double splitValue, TNodeVec& tree) {
+    split(std::size_t splitFeature, double splitValue, bool assignMissingToLeft, TNodeVec& tree) {
         m_SplitFeature = splitFeature;
         m_SplitValue = splitValue;
+        m_AssignMissingToLeft = assignMissingToLeft;
         m_LeftChild = static_cast<std::int32_t>(tree.size());
         m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
         tree.resize(tree.size() + 2);
@@ -112,8 +115,7 @@ public:
     //! Get the row masks of the left and right children of this node.
     auto rowMasks(std::size_t numberThreads,
                   const core::CDataFrame& frame,
-                  core::CPackedBitVector rowMask,
-                  bool assignMissingToLeft) const {
+                  core::CPackedBitVector rowMask) const {
 
         LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
         LOG_TRACE(<< "# rows in node = " << rowMask.manhattan());
@@ -127,7 +129,7 @@ public:
                         std::size_t index{row->index()};
                         double value{(*row)[m_SplitFeature]};
                         bool missing{CDataFrameUtils::isMissing(value)};
-                        if ((missing && assignMissingToLeft) ||
+                        if ((missing && m_AssignMissingToLeft) ||
                             (missing == false && value < m_SplitValue)) {
                             leftRowMask.extend(false, index - leftRowMask.size());
                             leftRowMask.extend(true);
@@ -180,6 +182,7 @@ private:
 private:
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
+    bool m_AssignMissingToLeft = true;
     std::int32_t m_LeftChild = -1;
     std::int32_t m_RightChild = -1;
     double m_NodeValue = 0.0;
@@ -980,15 +983,15 @@ private:
             bool assignMissingToLeft{split->assignMissingToLeft()};
 
             std::size_t leftChildId, rightChildId;
-            std::tie(leftChildId, rightChildId) =
-                tree[split->id()].split(splitFeature, splitValue, tree);
+            std::tie(leftChildId, rightChildId) = tree[split->id()].split(
+                splitFeature, splitValue, assignMissingToLeft, tree);
 
             TSizeVec featureBag{this->featureBag(frame)};
 
             core::CPackedBitVector leftChildRowMask;
             core::CPackedBitVector rightChildRowMask;
             std::tie(leftChildRowMask, rightChildRowMask) = tree[split->id()].rowMasks(
-                m_NumberThreads, frame, std::move(split->rowMask()), assignMissingToLeft);
+                m_NumberThreads, frame, std::move(split->rowMask()));
 
             leaves.push(std::make_shared<CLeafNodeStatistics>(
                 leftChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
