@@ -214,11 +214,81 @@ public:
 
         this->computeAggregateLossDerivatives(numberThreads, frame);
     }
+    //! This should only called by split but is public so it's accessible to make_shared.
+    CLeafNodeStatistics(std::size_t id,
+                        const CLeafNodeStatistics& parent,
+                        const CLeafNodeStatistics& sibling,
+                        core::CPackedBitVector rowMask)
+        : m_Id{id}, m_Lambda{sibling.m_Lambda}, m_Gamma{sibling.m_Gamma},
+          m_CandidateSplits{sibling.m_CandidateSplits},
+          m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
+
+        LOG_TRACE(<< "row mask = " << m_RowMask);
+        LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+
+        m_Gradients.resize(m_CandidateSplits.size());
+        m_Curvatures.resize(m_CandidateSplits.size());
+        m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
+        m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
+
+        for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+            std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
+            m_Gradients[i].resize(numberSplits);
+            m_Curvatures[i].resize(numberSplits);
+            for (std::size_t j = 0; j < numberSplits; ++j) {
+                m_Gradients[i][j] = parent.m_Gradients[i][j] - sibling.m_Gradients[i][j];
+                m_Curvatures[i][j] = parent.m_Curvatures[i][j] -
+                                     sibling.m_Curvatures[i][j];
+            }
+            m_MissingGradients[i] = parent.m_MissingGradients[i] -
+                                    sibling.m_MissingGradients[i];
+            m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
+                                     sibling.m_MissingCurvatures[i];
+        }
+
+        LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
+        LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+        LOG_TRACE(<< "missing gradients = "
+                  << core::CContainerPrinter::print(m_MissingGradients));
+        LOG_TRACE(<< "missing curvatures = "
+                  << core::CContainerPrinter::print(m_MissingCurvatures));
+    }
 
     CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
     CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
     CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
     CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
+
+    //! Apply the split defined by (\p leftChildRowMask, \p rightChildRowMask).
+    auto split(std::size_t leftChildId,
+               std::size_t rightChildId,
+               std::size_t numberThreads,
+               const core::CDataFrame& frame,
+               double lambda,
+               double gamma,
+               const TDoubleVecVec& candidateSplits,
+               TSizeVec featureBag,
+               core::CPackedBitVector leftChildRowMask,
+               core::CPackedBitVector rightChildRowMask) {
+
+        if (leftChildRowMask.manhattan() < rightChildRowMask.manhattan()) {
+            auto leftChild = std::make_shared<CLeafNodeStatistics>(
+                leftChildId, numberThreads, frame, lambda, gamma,
+                candidateSplits, featureBag, std::move(leftChildRowMask));
+            auto rightChild = std::make_shared<CLeafNodeStatistics>(
+                rightChildId, *this, *leftChild, std::move(rightChildRowMask));
+
+            return std::make_pair(leftChild, rightChild);
+        }
+
+        auto rightChild = std::make_shared<CLeafNodeStatistics>(
+            rightChildId, numberThreads, frame, lambda, gamma, candidateSplits,
+            featureBag, std::move(rightChildRowMask));
+        auto leftChild = std::make_shared<CLeafNodeStatistics>(
+            leftChildId, *this, *rightChild, std::move(leftChildRowMask));
+
+        return std::make_pair(leftChild, rightChild);
+    }
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CLeafNodeStatistics& rhs) const {
@@ -273,14 +343,16 @@ private:
 
     //! \brief A collection of aggregate derivatives.
     struct SDerivatives {
-        SDerivatives(const TSizeVec& featureBag, const TDoubleVecVec& candidateSplits)
-            : s_Gradients(featureBag.size()), s_Curvatures(featureBag.size()),
-              s_MissingGradients(featureBag.size(), 0.0),
-              s_MissingCurvatures(featureBag.size(), 0.0) {
+        SDerivatives(const TDoubleVecVec& candidateSplits)
+            : s_Gradients(candidateSplits.size()),
+              s_Curvatures(candidateSplits.size()),
+              s_MissingGradients(candidateSplits.size(), 0.0),
+              s_MissingCurvatures(candidateSplits.size(), 0.0) {
 
-            for (std::size_t i = 0; i < featureBag.size(); ++i) {
-                s_Gradients[i].resize(candidateSplits[featureBag[i]].size() + 1, 0.0);
-                s_Curvatures[i].resize(candidateSplits[featureBag[i]].size() + 1, 0.0);
+            for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
+                std::size_t numberSplits{candidateSplits[i].size() + 1};
+                s_Gradients[i].resize(numberSplits, 0.0);
+                s_Curvatures[i].resize(numberSplits, 0.0);
             }
         }
 
@@ -302,7 +374,7 @@ private:
                         this->addRowDerivatives(*row, state);
                     }
                 },
-                SDerivatives{m_FeatureBag, m_CandidateSplits}),
+                SDerivatives{m_CandidateSplits}),
             &m_RowMask);
 
         auto& results = result.first;
@@ -314,8 +386,8 @@ private:
 
         for (std::size_t k = 1; k < results.size(); ++k) {
             const auto& derivatives = results[k].s_FunctionState;
-            for (std::size_t i = 0; i < m_FeatureBag.size(); ++i) {
-                std::size_t numberSplits{m_CandidateSplits[m_FeatureBag[i]].size() + 1};
+            for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+                std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
                 for (std::size_t j = 0; j < numberSplits; ++j) {
                     m_Gradients[i][j] += derivatives.s_Gradients[i][j];
                     m_Curvatures[i][j] += derivatives.s_Curvatures[i][j];
@@ -339,15 +411,15 @@ private:
         std::size_t gradientColumn{lossGradientColumn(numberColumns)};
         std::size_t curvatureColumn{lossCurvatureColumn(numberColumns)};
 
-        for (std::size_t i = 0; i < m_FeatureBag.size(); ++i) {
-            std::size_t column{m_FeatureBag[i]};
-            if (CDataFrameUtils::isMissing(row[column])) {
+        for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+            double featureValue{row[i]};
+            if (CDataFrameUtils::isMissing(featureValue)) {
                 derivatives.s_MissingGradients[i] += row[gradientColumn];
                 derivatives.s_MissingCurvatures[i] += row[curvatureColumn];
             } else {
-                auto j = std::upper_bound(m_CandidateSplits[column].begin(),
-                                          m_CandidateSplits[column].end(), row[column]) -
-                         m_CandidateSplits[column].begin();
+                auto j = std::upper_bound(m_CandidateSplits[i].begin(),
+                                          m_CandidateSplits[i].end(), featureValue) -
+                         m_CandidateSplits[i].begin();
                 derivatives.s_Gradients[i][j] += row[gradientColumn];
                 derivatives.s_Curvatures[i][j] += row[curvatureColumn];
             }
@@ -368,7 +440,7 @@ private:
 
         SSplitStatistics result{-INF, m_FeatureBag.size(), INF, true};
 
-        for (std::size_t i = 0; i < m_FeatureBag.size(); ++i) {
+        for (auto i : m_FeatureBag) {
             double g{std::accumulate(m_Gradients[i].begin(), m_Gradients[i].end(), 0.0) +
                      m_MissingGradients[i]};
             double h{std::accumulate(m_Curvatures[i].begin(), m_Curvatures[i].end(), 0.0) +
@@ -409,8 +481,7 @@ private:
 
             double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Lambda)) - m_Gamma};
 
-            SSplitStatistics candidate{gain, m_FeatureBag[i],
-                                       m_CandidateSplits[m_FeatureBag[i]][splitAt],
+            SSplitStatistics candidate{gain, i, m_CandidateSplits[i][splitAt],
                                        assignMissingTo == ASSIGN_MISSING_TO_LEFT};
             LOG_TRACE(<< "candidate split: " << candidate.print());
 
@@ -1030,39 +1101,42 @@ private:
 
         for (std::size_t i = 0; i < maximumTreeSize; ++i) {
 
-            auto split = leaves.top();
+            auto leaf = leaves.top();
             leaves.pop();
 
-            if (split->gain() < MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            if (leaf->gain() < MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
                 break;
             }
 
-            totalGain += split->gain();
-            LOG_TRACE(<< "total gain = " << totalGain);
+            totalGain += leaf->gain();
+            LOG_TRACE(<< "splitting " << leaf->id() << " total gain = " << totalGain);
 
             std::size_t splitFeature;
             double splitValue;
-            std::tie(splitFeature, splitValue) = split->bestSplit();
+            std::tie(splitFeature, splitValue) = leaf->bestSplit();
 
-            bool assignMissingToLeft{split->assignMissingToLeft()};
+            bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
             std::size_t leftChildId, rightChildId;
-            std::tie(leftChildId, rightChildId) = tree[split->id()].split(
-                splitFeature, splitValue, assignMissingToLeft, tree);
+            std::tie(leftChildId, rightChildId) =
+                tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft, tree);
 
             TSizeVec featureBag{this->featureBag(frame)};
 
             core::CPackedBitVector leftChildRowMask;
             core::CPackedBitVector rightChildRowMask;
-            std::tie(leftChildRowMask, rightChildRowMask) = tree[split->id()].rowMasks(
-                m_NumberThreads, frame, std::move(split->rowMask()));
+            std::tie(leftChildRowMask, rightChildRowMask) = tree[leaf->id()].rowMasks(
+                m_NumberThreads, frame, std::move(leaf->rowMask()));
 
-            leaves.push(std::make_shared<CLeafNodeStatistics>(
-                leftChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
-                candidateSplits, featureBag, std::move(leftChildRowMask)));
-            leaves.push(std::make_shared<CLeafNodeStatistics>(
-                rightChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
-                candidateSplits, featureBag, std::move(rightChildRowMask)));
+            TLeafNodeStatisticsPtr leftChild;
+            TLeafNodeStatisticsPtr rightChild;
+            std::tie(leftChild, rightChild) = leaf->split(
+                leftChildId, rightChildId, m_NumberThreads, frame, m_Lambda,
+                m_Gamma, candidateSplits, std::move(featureBag),
+                std::move(leftChildRowMask), std::move(rightChildRowMask));
+
+            leaves.push(std::move(leftChild));
+            leaves.push(std::move(rightChild));
         }
 
         LOG_TRACE(<< "Trained one tree");
