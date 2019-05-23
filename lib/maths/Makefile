@@ -53,6 +53,7 @@ CLinearAlgebraTools.cc \
 CLogNormalMeanPrecConjugate.cc \
 CLogTDistribution.cc \
 CMathsFuncs.cc \
+CMic.cc \
 CMixtureDistribution.cc \
 CModel.cc \
 CModelStateSerialiser.cc \

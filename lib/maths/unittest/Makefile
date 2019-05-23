@@ -55,6 +55,7 @@ SRCS=\
 	CLogTDistributionTest.cc \
 	CMathsFuncsTest.cc \
 	CMathsMemoryTest.cc \
+	CMicTest.cc \
 	CMixtureDistributionTest.cc \
 	CModelTest.cc \
 	CMultimodalPriorTest.cc \
