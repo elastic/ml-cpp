@@ -512,7 +512,7 @@ public:
 
     void eta(double eta) {
         if (eta < MINIMUM_ETA) {
-            LOG_WARN(<< "Truncating learning rate " << eta
+            LOG_WARN(<< "Truncating supplied learning rate " << eta
                      << " which must be no smaller than " << MINIMUM_ETA);
             eta = std::max(eta, MINIMUM_ETA);
         }
@@ -524,21 +524,21 @@ public:
     }
 
     void maximumNumberTrees(std::size_t maximumNumberTrees) {
-        if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
-            LOG_WARN(<< "Truncating maximum number of trees " << maximumNumberTrees
-                     << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
-            maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
-        }
         if (maximumNumberTrees == 0) {
             LOG_WARN(<< "Forest must have at least one tree");
-            maximumNumberTrees = std::make(maximumNumberTrees, std::size_t{1});
+            maximumNumberTrees = 1;
+        }
+        if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
+            LOG_WARN(<< "Truncating supplied maximum number of trees " << maximumNumberTrees
+                     << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
+            maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
         }
         m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
     void featureBagFraction(double featureBagFraction) {
         if (featureBagFraction <= 0.0 || featureBagFraction > 1.0) {
-            LOG_WARN(<< "Truncating feature bag fraction " << featureBagFraction
+            LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
                      << " which must be positive and not more than one");
             featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
         }
