@@ -775,12 +775,12 @@ private:
             // function we're trying to learn. Using more trees with a smaller learning
             // rate reduces the variance that the decisions or particular sample we
             // train with introduces to predictions. The scope for variation increases
-            // with the number of features so we use a lower learn rate with more
+            // with the number of features so we use a lower learning rate with more
             // features. Furthermore, the leaf weights naturally decrease as we add
             // more trees, since the prediction errors decrease, so we slowly increase
-            // the learn rate to maintain more equal tree weights. This tends to produce
-            // forests which generalise as well but are much smaller and so train
-            // faster.
+            // the learning rate to maintain more equal tree weights. This tends to
+            // produce forests which generalise as well but are much smaller and so
+            // train faster.
             m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
                                              frame.numberColumns() - 4)));
             m_EtaGrowthRatePerTree = 1.0 + m_Eta / 2.0;
@@ -1241,8 +1241,8 @@ private:
         // high probability of containing good parameter values. We also parameterise
         // so the probability any subinterval contains a good value is proportional
         // to its length. For parameters whose difference is naturally measured as
-        // a ratio, i.e. roughly speaking difference(p_0, p_1) = p_1 / p_0, this
-        // translates to using log parameter values.
+        // a ratio, i.e. roughly speaking difference(p_1, p_0) = p_1 / p_0 for p_0
+        // less than p_1, this translates to using log parameter values.
 
         TDoubleDoublePrVec result;
         if (m_LambdaOverride == boost::none) {
