@@ -29,6 +29,10 @@ void CMic::reserve(std::size_t n) {
     m_Samples.reserve(n);
 }
 
+const CMic& CMic::operator+=(const CMic& other) {
+    m_Samples.insert(m_Samples.end(), other.m_Samples.begin(), other.m_Samples.end());
+}
+
 void CMic::add(double x, double y) {
     TVector2d p;
     p(0) = x;
@@ -108,7 +112,9 @@ std::size_t CMic::b() const {
     double fa{f[a - std::begin(x)]};
 
     return static_cast<std::size_t>(
-        std::pow(n, CTools::linearlyInterpolate(*a, *b, fa, fb, n)) + 0.5);
+        std::pow(static_cast<double>(m_Samples.size()),
+                 CTools::linearlyInterpolate(*a, *b, fa, fb, n)) +
+        0.5);
 }
 
 double CMic::c() const {

@@ -13,16 +13,22 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CMathsFuncs.h>
+#include <maths/CMic.h>
+#include <maths/CPRNG.h>
 #include <maths/CQuantileSketch.h>
+#include <maths/CSampling.h>
 
+#include <thread>
 #include <vector>
 
 namespace ml {
 namespace maths {
 using TRowItr = core::CDataFrame::TRowItr;
+namespace {
+const std::size_t NUMBER_SAMPLES_TO_COMPUTE_MIC{10000};
+}
 
 bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame) {
-    using TDoubleVec = std::vector<double>;
     using TMeanVarAccumulatorVec =
         std::vector<CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
 
@@ -115,6 +121,116 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     }
 
     return true;
+}
+
+CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThreads,
+                                                           const core::CDataFrame& frame,
+                                                           const TSizeVec& columnMask,
+                                                           std::size_t targetColumn) {
+
+    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVecVec = std::vector<TFloatVec>;
+    using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
+
+    TDoubleVec mics(frame.numberColumns());
+
+    std::size_t n{std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows())};
+
+    CPRNG::CXorOShiro128Plus rng;
+    TFloatVecVec samples;
+    std::mutex samplesMutex;
+
+    if (frame.inMainMemory()) {
+
+        for (auto i : columnMask) {
+
+            auto onSample = [&](std::size_t slot, const TRowRef& row) {
+                if (slot >= samples.size()) {
+                    samples.push_back({row[i], row[targetColumn]});
+                } else {
+                    samples[slot][0] = row[i];
+                    samples[slot][1] = row[targetColumn];
+                }
+            };
+            TRowSampler sampler{n, onSample};
+
+            auto result = frame.readRows(
+                1, core::bindRetrievableState(
+                       [&](std::size_t& missing, TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               if (isMissing((*row)[i])) {
+                                   ++missing;
+                               } else if (isMissing((*row)[targetColumn]) == false) {
+                                   sampler.sample(*row);
+                               }
+                           }
+                       },
+                       std::size_t{0}));
+
+            double fractionMissing{static_cast<double>(result.first[0].s_FunctionState) /
+                                   static_cast<double>(frame.numberRows())};
+
+            CMic mic;
+            mic.reserve(samples.size());
+            for (const auto& sample : samples) {
+                mic.add(sample[0], sample[1]);
+            }
+
+            mics[i] = (1.0 - fractionMissing) * mic.compute();
+            samples.clear();
+        }
+
+    } else {
+
+        auto onSample = [&](std::size_t slot, const TRowRef& row) {
+            std::unique_lock<std::mutex> lock{samplesMutex};
+            if (slot >= samples.size()) {
+                samples.push_back(TFloatVec(row.numberColumns()));
+                row.copyTo(samples.back().begin());
+            } else {
+                row.copyTo(samples[slot].begin());
+            }
+        };
+        TRowSampler sampler{n, onSample};
+
+        auto results = frame.readRows(
+            numberThreads,
+            core::bindRetrievableState(
+                [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        for (std::size_t i = 0; i < row->numberColumns(); ++i) {
+                            missing[i] += isMissing((*row)[i]) ? 1 : 0;
+                        }
+                        if (isMissing((*row)[targetColumn]) == false) {
+                            sampler.sample(*row);
+                        }
+                    }
+                },
+                TSizeVec(frame.numberColumns(), 0)));
+
+        TDoubleVec fractionMissing(frame.numberColumns());
+        for (std::size_t i = 0; i < fractionMissing.size(); ++i) {
+            for (const auto& result : results.first) {
+                fractionMissing[i] += static_cast<double>(result.s_FunctionState[i]) /
+                                      static_cast<double>(frame.numberRows());
+            }
+        }
+
+        for (auto i : columnMask) {
+            if (i != targetColumn) {
+                CMic mic;
+                mic.reserve(samples.size());
+                for (const auto& sample : samples) {
+                    if (isMissing(sample[i]) == false) {
+                        mic.add(sample[i], sample[targetColumn]);
+                    }
+                }
+                mics[i] = (1.0 - fractionMissing[i]) * mic.compute();
+            }
+        }
+    }
+
+    return mics;
 }
 
 bool CDataFrameUtils::isMissing(double x) {

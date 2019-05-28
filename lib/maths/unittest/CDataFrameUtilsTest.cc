@@ -157,8 +157,7 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
     }
 
     TFactoryFunc makeOnDisk{[=] {
-        return core::makeDiskStorageDataFrame(
-                   boost::filesystem::current_path().string(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
             .first;
     }};
     TFactoryFunc makeMainMemory{
@@ -224,6 +223,31 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
     core::stopDefaultAsyncExecutor();
 }
 
+void CDataFrameUtilsTest::testMicWithColumn() {
+
+    std::size_t capacity{500};
+
+    // Test we get exactly the value we expect when the number of rows is less
+    // than the target sample size.
+    {
+        std::size_t rows{2000};
+        std::size_t cols{4};
+
+        TFactoryFunc makeOnDisk{[=] {
+            return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(),
+                                                  cols, rows, capacity)
+                .first;
+        }};
+        TFactoryFunc makeMainMemory{[=] {
+            return core::makeMainStorageDataFrame(cols, capacity).first;
+        }};
+    }
+
+    // Test missing values.
+
+    // Test we're close when we're downsampling rows.
+}
+
 CppUnit::Test* CDataFrameUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameUtilsTest");
 
@@ -232,6 +256,8 @@ CppUnit::Test* CDataFrameUtilsTest::suite() {
         &CDataFrameUtilsTest::testStandardizeColumns));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testColumnQuantiles", &CDataFrameUtilsTest::testColumnQuantiles));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testMicWithColumn", &CDataFrameUtilsTest::testMicWithColumn));
 
     return suiteOfTests;
 }

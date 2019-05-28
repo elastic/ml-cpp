@@ -9,6 +9,8 @@
 
 #include <maths/CLinearAlgebra.h>
 
+#include <boost/operators.hpp>
+
 #include <vector>
 
 class CMicTest;
@@ -27,10 +29,13 @@ namespace maths {
 //! for different granularity of bins and MICe is the maximum normalized score for this
 //! collection of grids. See http://jmlr.csail.mit.edu/papers/volume17/15-308/15-308.pdf
 //! for more information.
-class CMic final {
+class CMic final : private boost::addable<CMic> {
 public:
     //! Reserve space for the number of samples if this known in advance.
     void reserve(std::size_t n);
+
+    //! Merge this and \p other.
+    const CMic& operator+=(const CMic& other);
 
     //! Add a sample of the random variable (X, Y).
     void add(double x, double y);

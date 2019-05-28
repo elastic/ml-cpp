@@ -14,8 +14,8 @@ public:
     void testOptimizeXAxis();
     void testInvariants();
     void testIndependent();
-    void testNoiseless();
-    void testNoisy();
+    void testOneToOne();
+    void testCorrelated();
     void testVsMutualInformation();
     void testEdgeCases();
 

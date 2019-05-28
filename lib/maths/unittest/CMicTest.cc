@@ -231,7 +231,7 @@ void CMicTest::testIndependent() {
     }
 }
 
-void CMicTest::testNoiseless() {
+void CMicTest::testOneToOne() {
 
     // Test for one-to-one function MICe is close to 1.
 
@@ -282,7 +282,7 @@ void CMicTest::testNoiseless() {
     }
 }
 
-void CMicTest::testNoisy() {
+void CMicTest::testCorrelated() {
 
     // Test MICe monotonically reduces with increasing noise.
 
@@ -438,7 +438,38 @@ void CMicTest::testVsMutualInformation() {
 
 void CMicTest::testEdgeCases() {
 
-    // Constant, etc.
+    // Test small number samples and constant.
+
+    test::CRandomNumbers rng;
+
+    LOG_DEBUG(<< "Test small n");
+
+    for (std::size_t t = 1; t < 10; ++t) {
+
+        TDoubleVec samples;
+        rng.generateUniformSamples(0.0, 1.0, 2 * t, samples);
+
+        maths::CMic mic;
+        mic.reserve(t);
+        for (std::size_t i = 0; i < 2 * t; i += 2) {
+            mic.add(samples[i], samples[i + 1]);
+        }
+
+        double mic_{mic.compute()};
+        LOG_DEBUG(<< "MICe = " << mic_);
+        CPPUNIT_ASSERT(mic_ < 0.65);
+    }
+
+    LOG_DEBUG(<< "Test constant");
+
+    maths::CMic mic;
+    mic.reserve(100);
+    for (std::size_t i = 0; i < 100; ++i) {
+        mic.add(1.0, 5.0);
+    }
+    double mic_{mic.compute()};
+    LOG_DEBUG(<< "MICe = " << mic_);
+    CPPUNIT_ASSERT_EQUAL(0.0, mic_);
 }
 
 CppUnit::Test* CMicTest::suite() {
@@ -451,9 +482,9 @@ CppUnit::Test* CMicTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testIndependent", &CMicTest::testIndependent));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testNoiseless", &CMicTest::testNoiseless));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>("CMicTest::testNoisy",
-                                                            &CMicTest::testNoisy));
+        "CMicTest::testOneToOne", &CMicTest::testOneToOne));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
+        "CMicTest::testCorrelated", &CMicTest::testCorrelated));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testVsMutualInformation", &CMicTest::testVsMutualInformation));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(

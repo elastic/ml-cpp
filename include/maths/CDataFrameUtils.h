@@ -53,6 +53,7 @@ struct SRowTo<CDenseVector<T>> {
 //! \brief A collection of basic utilities for analyses on a data frame.
 class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
+    using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TWeightFunction = std::function<double(TRowRef)>;
@@ -89,6 +90,20 @@ public:
                                 const CQuantileSketch& sketch,
                                 TQuantileSketchVec& result,
                                 TWeightFunction weight = unitWeight);
+
+    //! Assess the strenght of the relationship for each column with \p targetColumn
+    //! by computing the maximum information coefficient (MIC).
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the column MICs.
+    //! \param[in] columnMask A mask of the columns for which to compute MIC.
+    //! \param[in] targetColumn The column with which to compute MIC.
+    //! \return A collection containing the MIC of each column with \p targetColumn
+    //! indexed by column index.
+    static TDoubleVec micWithColumn(std::size_t numberThreads,
+                                    const core::CDataFrame& frame,
+                                    const TSizeVec& columnMask,
+                                    std::size_t targetColumn);
 
     //! Check if a data frame value is missing.
     static bool isMissing(double value);
