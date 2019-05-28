@@ -500,7 +500,7 @@ public:
         m_FeatureBagFractionOverride = featureBagFraction;
     }
 
-    void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
+    void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
         m_MaximumOptimisationRoundsPerHyperparameter = rounds;
     }
 
@@ -543,6 +543,9 @@ public:
 
             this->captureBestHyperparameters(lossMoments);
 
+            // Trap the case that the dependent variable is (effectively) constant.
+            // There is no point adjusting hyperparameters in this case - and we run
+            // into numerical issues trying - since any forest will do.
             if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
                 1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
                 break;
@@ -720,6 +723,19 @@ private:
         if (m_EtaOverride) {
             m_Eta = *m_EtaOverride;
         } else {
+            // Eta is the learning rate. There is a lot of empirical evidence that
+            // this should not be much larger than 0.1. Conceptually, we're making
+            // random choices regarding which features we'll use to split when
+            // fitting a single tree and we only observe a random sample from the
+            // function we're trying to learn. Using more trees with a smaller learning
+            // rate reduces the variance that the decisions or particular sample we
+            // train with introduces to predictions. The scope for variation increases
+            // with the number of features so we use a lower learn rate with more
+            // features. Furthermore, the leaf weights naturally decrease as we add
+            // more trees, since the prediction errors decrease, so we slowly increase
+            // the learn rate to maintain more equal tree weights. This tends to produce
+            // forests which generalise as well but are much smaller and so train
+            // faster.
             m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
                                              frame.numberColumns() - 4)));
             m_EtaGrowthRatePerTree = 1.0 + m_Eta / 2.0;
@@ -727,6 +743,7 @@ private:
         if (m_MaximumNumberTreesOverride) {
             m_MaximumNumberTrees = *m_MaximumNumberTreesOverride;
         } else {
+            // This needs to be tied to the learn rate to avoid bias.
             m_MaximumNumberTrees = static_cast<std::size_t>(2.0 / m_Eta + 0.5);
         }
         if (m_FeatureBagFractionOverride) {
@@ -771,10 +788,12 @@ private:
 
         m_MaximumTreeSizeFraction = 10.0;
 
-        // We allow a large number of trees by default in the main parameter
-        // optimisation loop. In practice, we should use many fewer if they
-        // don't significantly improve test error.
-        m_MaximumNumberTrees *= 10;
+        if (m_MaximumNumberTreesOverride == boost::none) {
+            // We allow a large number of trees by default in the main parameter
+            // optimisation loop. In practice, we should use many fewer if they
+            // don't significantly improve test error.
+            m_MaximumNumberTrees *= 10;
+        }
     }
 
     //! Compute the sum loss for the predictions from \p frame and the leaf
@@ -1169,6 +1188,17 @@ private:
 
     //! Get the bounding box to use for hyperparameter optimisation.
     TDoubleDoublePrVec hyperparameterBoundingBox() const {
+
+        // We need sensible bounds for the region we'll search for optimal values.
+        // For all parameters where we have initial estimates we use bounds of the
+        // form a * initial and b * initial for a < 1 < b. For other parameters we
+        // use a fixed range. Ideally, we'd use the smallest intervals that have a
+        // high probability of containing good parameter values. We also parameterise
+        // so the probability any subinterval contains a good value is proportional
+        // to its length. For parameters whose difference is naturally measured as
+        // a ratio, i.e. roughly speaking difference(p_0, p_1) = p_1 / p_0, this
+        // translates to using log parameter values.
+
         TDoubleDoublePrVec result;
         if (m_LambdaOverride == boost::none) {
             result.emplace_back(std::log(m_Lambda / 10.0), std::log(10.0 * m_Lambda));
@@ -1344,8 +1374,8 @@ CBoostedTree& CBoostedTree::featureBagFraction(double featureBagFraction) {
     return *this;
 }
 
-CBoostedTree& CBoostedTree::maximumHyperparameterOptimisationRounds(std::size_t rounds) {
-    m_Impl->maximumHyperparameterOptimisationRounds(rounds);
+CBoostedTree& CBoostedTree::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+    m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
     return *this;
 }
 

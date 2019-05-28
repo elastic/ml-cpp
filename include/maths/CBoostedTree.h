@@ -137,8 +137,8 @@ public:
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTree& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation.
-    CBoostedTree& maximumHyperparameterOptimisationRounds(std::size_t rounds);
+    //! optimisation per parameter.
+    CBoostedTree& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //@}
 
     //! Train the model on the values in \p frame.
