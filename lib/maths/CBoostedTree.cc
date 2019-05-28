@@ -477,6 +477,8 @@ public:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
+    static const double MINIMUM_ETA;
+    static const std::size_t MAXIMUM_NUMBER_TREES;
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
@@ -484,19 +486,62 @@ public:
         : m_NumberThreads{numberThreads},
           m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {}
 
-    void numberFolds(std::size_t numberFolds) { m_NumberFolds = numberFolds; }
+    void numberFolds(std::size_t numberFolds) {
+        if (numberFolds < 2) {
+            LOG_WARN(<< "Must use at least two-folds for cross validation");
+            numberFolds = 2;
+        }
+        m_NumberFolds = numberFolds;
+    }
 
-    void lambda(double lambda) { m_LambdaOverride = lambda; }
+    void lambda(double lambda) {
+        if (lambda < 0.0) {
+            LOG_WARN(<< "Lambda must be non-negative");
+            lambda = 0.0;
+        }
+        m_LambdaOverride = lambda;
+    }
 
-    void gamma(double gamma) { m_GammaOverride = gamma; }
+    void gamma(double gamma) {
+        if (gamma < 0.0) {
+            LOG_WARN(<< "Gamma must be non-negative");
+            gamma = 0.0;
+        }
+        m_GammaOverride = gamma;
+    }
 
-    void eta(double eta) { m_EtaOverride = eta; }
+    void eta(double eta) {
+        if (eta < MINIMUM_ETA) {
+            LOG_WARN(<< "Truncating learning rate " << eta
+                     << " which must be no smaller than " << MINIMUM_ETA);
+            eta = std::max(eta, MINIMUM_ETA);
+        }
+        if (eta > 1.0) {
+            LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
+            eta = std::min(eta, 1.0);
+        }
+        m_EtaOverride = eta;
+    }
 
     void maximumNumberTrees(std::size_t maximumNumberTrees) {
+        if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
+            LOG_WARN(<< "Truncating maximum number of trees " << maximumNumberTrees
+                     << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
+            maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
+        }
+        if (maximumNumberTrees == 0) {
+            LOG_WARN(<< "Forest must have at least one tree");
+            maximumNumberTrees = std::make(maximumNumberTrees, std::size_t{1});
+        }
         m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
     void featureBagFraction(double featureBagFraction) {
+        if (featureBagFraction <= 0.0 || featureBagFraction > 1.0) {
+            LOG_WARN(<< "Truncating feature bag fraction " << featureBagFraction
+                     << " which must be positive and not more than one");
+            featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
+        }
         m_FeatureBagFractionOverride = featureBagFraction;
     }
 
@@ -1335,6 +1380,9 @@ private:
     TNodeVecVec m_BestForest;
 };
 
+const double CBoostedTree::CImpl::MINIMUM_ETA{1e-3};
+const std::size_t CBoostedTree::CImpl::MAXIMUM_NUMBER_TREES{
+    static_cast<std::size_t>(2.0 / MINIMUM_ETA + 0.5)};
 const double CBoostedTree::CImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 
 CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
