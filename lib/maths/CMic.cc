@@ -47,8 +47,7 @@ double CMic::compute() {
         return 0.0;
     }
 
-    // Compute the MICe statistic. See "Measuring Dependence Powerfully and Equitably"
-    // Reshef et al.
+    // Compute the MICe statistic.
 
     this->setup();
 
@@ -164,8 +163,8 @@ CMic::TDoubleVec CMic::equipartitionAxis(std::size_t variable, std::size_t l) co
 
 CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::size_t k) const {
 
-    // Compute the split k-partition of the x-axis which maximises the mutual
-    // information between the variables given a fixed partition of the y-axis.
+    // Compute the k-partition of the x-axis which maximises the mutual information
+    // between the variables given a fixed l-partition of the y-axis.
 
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
