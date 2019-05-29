@@ -164,7 +164,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
         // Unbiased...
         CPPUNIT_ASSERT(modelPredictionBias[i] <
-                       2.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
         CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 13.0);
 
@@ -217,7 +217,7 @@ void CBoostedTreeTest::testLinear() {
 
         // Unbiased...
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
-                       2.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
         CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 20.0);
 
@@ -272,7 +272,7 @@ void CBoostedTreeTest::testNonLinear() {
 
         // Unbiased...
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
-                       2.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
         CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 30.0);
 
