@@ -723,8 +723,7 @@ private:
         std::iota(regressors.begin(), regressors.end(), 0);
         regressors.erase(regressors.begin() + m_DependentVariable);
 
-        TDoubleVec mics(CDataFrameUtils::micWithColumn(
-            m_NumberThreads, frame, regressors, m_DependentVariable));
+        TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors, m_DependentVariable));
 
         regressors.erase(
             std::remove_if(regressors.begin(), regressors.end(),
@@ -742,7 +741,7 @@ private:
                              });
 
             std::size_t maximumNumberFeatures{frame.numberRows() / m_RowsPerFeature};
-            LOG_DEBUG(<< "Using up to " << maximumNumberFeatures << " out of "
+            LOG_TRACE(<< "Using up to " << maximumNumberFeatures << " out of "
                       << regressors.size() << " features");
 
             regressors.resize(std::min(maximumNumberFeatures, regressors.size()));
@@ -750,12 +749,12 @@ private:
             double Z{std::accumulate(
                 regressors.begin(), regressors.end(), 0.0,
                 [&mics](double z, std::size_t i) { return z + mics[i]; })};
-            LOG_DEBUG(<< "Z = " << Z);
+            LOG_TRACE(<< "Z = " << Z);
             for (auto i : regressors) {
                 m_FeatureSampleProbabilities[i] = mics[i] / Z;
             }
         }
-        LOG_DEBUG(<< "P(sample) = "
+        LOG_TRACE(<< "P(sample) = "
                   << core::CContainerPrinter::print(m_FeatureSampleProbabilities));
     }
 
@@ -1073,8 +1072,8 @@ private:
 
     //! Get the number of features to consider splitting on.
     std::size_t featureBagSize(const core::CDataFrame& frame) const {
-        return static_cast<std::size_t>(std::max(std::ceil(
-            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
+        return static_cast<std::size_t>(std::max(
+            std::ceil(m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
     }
 
     //! Sample the features according to their categorical distribution.

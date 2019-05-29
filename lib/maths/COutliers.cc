@@ -150,7 +150,7 @@ public:
 
 public:
     CEnsemble(const TMethodFactoryVec& methodFactories,
-              TModelBuilderVec modelBuilders,
+              TModelBuilderVec builders,
               TMemoryUsageCallback recordMemoryUsage);
     ~CEnsemble() {
         m_RecordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(m_Models)));

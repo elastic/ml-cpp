@@ -31,6 +31,7 @@ void CMic::reserve(std::size_t n) {
 
 const CMic& CMic::operator+=(const CMic& other) {
     m_Samples.insert(m_Samples.end(), other.m_Samples.begin(), other.m_Samples.end());
+    return *this;
 }
 
 void CMic::add(double x, double y) {

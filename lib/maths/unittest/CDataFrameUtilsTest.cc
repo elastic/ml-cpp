@@ -10,6 +10,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CMic.h>
 #include <maths/CQuantileSketch.h>
 
 #include <test/CRandomNumbers.h>
@@ -18,6 +19,7 @@
 #include <boost/filesystem.hpp>
 
 #include <functional>
+#include <limits>
 #include <numeric>
 #include <vector>
 
@@ -25,6 +27,7 @@ using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 
 void CDataFrameUtilsTest::testStandardizeColumns() {
@@ -129,7 +132,6 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
 
 void CDataFrameUtilsTest::testColumnQuantiles() {
 
-    using TSizeVec = std::vector<std::size_t>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
@@ -225,27 +227,114 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
 
 void CDataFrameUtilsTest::testMicWithColumn() {
 
+    test::CRandomNumbers rng;
+
     std::size_t capacity{500};
+    std::size_t numberRows{2000};
+    std::size_t numberCols{4};
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(),
+                                              numberCols, numberRows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{[=] {
+        return core::makeMainStorageDataFrame(numberCols, capacity).first;
+    }};
 
     // Test we get exactly the value we expect when the number of rows is less
     // than the target sample size.
-    {
-        std::size_t rows{2000};
-        std::size_t cols{4};
 
-        TFactoryFunc makeOnDisk{[=] {
-            return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(),
-                                                  cols, rows, capacity)
-                .first;
-        }};
-        TFactoryFunc makeMainMemory{[=] {
-            return core::makeMainStorageDataFrame(cols, capacity).first;
-        }};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+        auto frame = factory();
+
+        TDoubleVecVec rows;
+
+        for (std::size_t i = 0; i < numberRows; ++i) {
+
+            TDoubleVec row;
+            rng.generateUniformSamples(-5.0, 5.0, 4, row);
+            row[3] = 2.0 * row[0] - 1.5 * row[1] + 4.0 * row[2];
+            rows.push_back(row);
+
+            frame->writeRow([&row, numberCols](core::CDataFrame::TFloatVecItr column,
+                                               std::int32_t&) {
+                for (std::size_t j = 0; j < numberCols; ++j, ++column) {
+                    *column = row[j];
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        TDoubleVec expected(4, 0.0);
+        for (std::size_t j : {0, 1, 2}) {
+            maths::CMic mic;
+            for (const auto& row : rows) {
+                mic.add(row[j], row[3]);
+            }
+            expected[j] = mic.compute();
+        }
+
+        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(*frame, {0, 1, 2}, 3));
+
+        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
+        LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
+                             core::CContainerPrinter::print(actual));
     }
 
     // Test missing values.
 
-    // Test we're close when we're downsampling rows.
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        auto frame = factory();
+
+        TDoubleVecVec rows;
+        TSizeVec missing(4, 0);
+
+        for (std::size_t i = 0; i < numberRows; ++i) {
+
+            TDoubleVec row;
+            rng.generateUniformSamples(-5.0, 5.0, 4, row);
+            row[3] = 2.0 * row[0] - 1.5 * row[1] + 4.0 * row[2];
+            for (std::size_t j = 0; j < row.size(); ++j) {
+                TDoubleVec p;
+                rng.generateUniformSamples(0.0, 1.0, 1, p);
+                if (p[0] < 0.01) {
+                    row[j] = std::numeric_limits<double>::quiet_NaN();
+                    ++missing[j];
+                }
+            }
+            rows.push_back(row);
+
+            frame->writeRow([&row, numberCols](core::CDataFrame::TFloatVecItr column,
+                                               std::int32_t&) {
+                for (std::size_t j = 0; j < numberCols; ++j, ++column) {
+                    *column = row[j];
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        TDoubleVec expected(4, 0.0);
+        for (std::size_t j : {0, 1, 2}) {
+            maths::CMic mic;
+            for (const auto& row : rows) {
+                if (maths::CDataFrameUtils::isMissing(row[j]) == false &&
+                    maths::CDataFrameUtils::isMissing(row[3]) == false) {
+                    mic.add(row[j], row[3]);
+                }
+            }
+            expected[j] = (1.0 - static_cast<double>(missing[j]) /
+                                     static_cast<double>(rows.size())) *
+                          mic.compute();
+        }
+
+        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(*frame, {0, 1, 2}, 3));
+
+        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
+        LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+    }
 }
 
 CppUnit::Test* CDataFrameUtilsTest::suite() {

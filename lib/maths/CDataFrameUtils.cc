@@ -18,7 +18,6 @@
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 
-#include <thread>
 #include <vector>
 
 namespace ml {
@@ -123,8 +122,7 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     return true;
 }
 
-CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThreads,
-                                                           const core::CDataFrame& frame,
+CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(const core::CDataFrame& frame,
                                                            const TSizeVec& columnMask,
                                                            std::size_t targetColumn) {
 
@@ -138,7 +136,6 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThr
 
     CPRNG::CXorOShiro128Plus rng;
     TFloatVecVec samples;
-    std::mutex samplesMutex;
 
     if (frame.inMainMemory()) {
 
@@ -146,11 +143,10 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThr
 
             auto onSample = [&](std::size_t slot, const TRowRef& row) {
                 if (slot >= samples.size()) {
-                    samples.push_back({row[i], row[targetColumn]});
-                } else {
-                    samples[slot][0] = row[i];
-                    samples[slot][1] = row[targetColumn];
+                    samples.resize(slot + 1, TFloatVec(2));
                 }
+                samples[slot][0] = row[i];
+                samples[slot][1] = row[targetColumn];
             };
             TRowSampler sampler{n, onSample};
 
@@ -166,9 +162,11 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThr
                            }
                        },
                        std::size_t{0}));
+            LOG_TRACE(<< "# samples = " << samples.size());
 
             double fractionMissing{static_cast<double>(result.first[0].s_FunctionState) /
                                    static_cast<double>(frame.numberRows())};
+            LOG_TRACE(<< "Fraction missing = " << fractionMissing);
 
             CMic mic;
             mic.reserve(samples.size());
@@ -183,30 +181,27 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThr
     } else {
 
         auto onSample = [&](std::size_t slot, const TRowRef& row) {
-            std::unique_lock<std::mutex> lock{samplesMutex};
             if (slot >= samples.size()) {
-                samples.push_back(TFloatVec(row.numberColumns()));
-                row.copyTo(samples.back().begin());
-            } else {
-                row.copyTo(samples[slot].begin());
+                samples.resize(slot + 1, TFloatVec(row.numberColumns()));
             }
+            row.copyTo(samples[slot].begin());
         };
         TRowSampler sampler{n, onSample};
 
         auto results = frame.readRows(
-            numberThreads,
-            core::bindRetrievableState(
-                [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
-                    for (auto row = beginRows; row != endRows; ++row) {
-                        for (std::size_t i = 0; i < row->numberColumns(); ++i) {
-                            missing[i] += isMissing((*row)[i]) ? 1 : 0;
-                        }
-                        if (isMissing((*row)[targetColumn]) == false) {
-                            sampler.sample(*row);
-                        }
-                    }
-                },
-                TSizeVec(frame.numberColumns(), 0)));
+            1, core::bindRetrievableState(
+                   [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
+                       for (auto row = beginRows; row != endRows; ++row) {
+                           for (std::size_t i = 0; i < row->numberColumns(); ++i) {
+                               missing[i] += isMissing((*row)[i]) ? 1 : 0;
+                           }
+                           if (isMissing((*row)[targetColumn]) == false) {
+                               sampler.sample(*row);
+                           }
+                       }
+                   },
+                   TSizeVec(frame.numberColumns(), 0)));
+        LOG_TRACE(<< "# samples = " << samples.size());
 
         TDoubleVec fractionMissing(frame.numberColumns());
         for (std::size_t i = 0; i < fractionMissing.size(); ++i) {
@@ -215,6 +210,7 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(std::size_t numberThr
                                       static_cast<double>(frame.numberRows());
             }
         }
+        LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));
 
         for (auto i : columnMask) {
             if (i != targetColumn) {

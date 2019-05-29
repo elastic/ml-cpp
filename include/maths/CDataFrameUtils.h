@@ -94,14 +94,12 @@ public:
     //! Assess the strenght of the relationship for each column with \p targetColumn
     //! by computing the maximum information coefficient (MIC).
     //!
-    //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the column MICs.
     //! \param[in] columnMask A mask of the columns for which to compute MIC.
     //! \param[in] targetColumn The column with which to compute MIC.
     //! \return A collection containing the MIC of each column with \p targetColumn
     //! indexed by column index.
-    static TDoubleVec micWithColumn(std::size_t numberThreads,
-                                    const core::CDataFrame& frame,
+    static TDoubleVec micWithColumn(const core::CDataFrame& frame,
                                     const TSizeVec& columnMask,
                                     std::size_t targetColumn);
 

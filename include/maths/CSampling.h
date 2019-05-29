@@ -68,10 +68,10 @@ public:
     //! std::vector<double> sample;
     //! CRandomStreamSampler sampler{[&sample](std::size_t i, const double& x) {
     //!     if (i >= sample.size()) {
-    //!         sample.push_back(x);
-    //!     } else {
-    //!         sample[i] = x;
-    //!     }}};
+    //!         sample.resize(i + 1);
+    //!     }
+    //!     sample[i] = x;
+    //! }};
     //!
     //! for (auto x : stream) {
     //!     sampler.sample(x);
