@@ -14,13 +14,14 @@ public:
     void testPiecewiseConstant();
     void testLinear();
     void testNonLinear();
+    void testThreading();
     void testConstantFeatures();
     void testConstantObjective();
     void testMissingData();
     // TODO void testCategoricalRegressors();
     // TODO void testFeatureWeights();
     // TODO void testNuisanceFeatures();
-    // TODO void testModelReflection();
+    // TODO void testCheckpointing();
     void testErrors();
 
     static CppUnit::Test* suite();
