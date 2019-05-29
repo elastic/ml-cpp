@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CMic_h
 
 #include <maths/CLinearAlgebra.h>
+#include <maths/ImportExport.h>
 
 #include <boost/operators.hpp>
 
@@ -29,7 +30,7 @@ namespace maths {
 //! for different granularity of bins and MICe is the maximum normalized score for this
 //! collection of grids. See http://jmlr.csail.mit.edu/papers/volume17/15-308/15-308.pdf
 //! for more information.
-class CMic final : private boost::addable<CMic> {
+class MATHS_EXPORT CMic final : private boost::addable<CMic> {
 public:
     //! Reserve space for the number of samples if this known in advance.
     void reserve(std::size_t n);

@@ -170,9 +170,9 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
         meanMseImprovement.add(modelPredictionMseImprovement[i]);
     }
-    LOG_TRACE(<< "mean MSE improvement = "
+    LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 25.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 20.0);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -225,7 +225,7 @@ void CBoostedTreeTest::testLinear() {
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 40.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 35.0);
 }
 
 void CBoostedTreeTest::testNonLinear() {
@@ -274,7 +274,7 @@ void CBoostedTreeTest::testNonLinear() {
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
                        2.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
-        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 35.0);
+        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 30.0);
 
         meanMseImprovement.add(modelPredictionMseImprovement[i]);
     }
