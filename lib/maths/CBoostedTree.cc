@@ -518,7 +518,7 @@ public:
         }
         if (eta > 1.0) {
             LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
-            eta = std::min(eta, 1.0);
+            eta = 1.0;
         }
         m_EtaOverride = eta;
     }
@@ -537,7 +537,7 @@ public:
     }
 
     void featureBagFraction(double featureBagFraction) {
-        if (featureBagFraction <= 0.0 || featureBagFraction > 1.0) {
+        if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
             LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
                      << " which must be positive and not more than one");
             featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
@@ -1072,8 +1072,8 @@ private:
 
     //! Get the number of features to consider splitting on.
     std::size_t featureBagSize(const core::CDataFrame& frame) const {
-        return static_cast<std::size_t>(std::ceil(
-            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))));
+        return static_cast<std::size_t>(std::max(std::ceil(
+            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
     }
 
     //! Sample the features according to their categorical distribution.
