@@ -82,7 +82,9 @@ public:
         if (this->isLeaf()) {
             return index;
         }
-        return row[m_SplitFeature] < m_SplitValue
+        double value{row[m_SplitFeature]};
+        bool missing{CDataFrameUtils::isMissing(value)};
+        return (missing && m_AssignMissingToLeft) || (missing == false && value < m_SplitValue)
                    ? tree[m_LeftChild].leafIndex(row, tree, m_LeftChild)
                    : tree[m_RightChild].leafIndex(row, tree, m_RightChild);
     }
@@ -100,9 +102,10 @@ public:
 
     //! Split this node and add its child nodes to \p tree.
     std::pair<std::size_t, std::size_t>
-    split(std::size_t splitFeature, double splitValue, TNodeVec& tree) {
+    split(std::size_t splitFeature, double splitValue, bool assignMissingToLeft, TNodeVec& tree) {
         m_SplitFeature = splitFeature;
         m_SplitValue = splitValue;
+        m_AssignMissingToLeft = assignMissingToLeft;
         m_LeftChild = static_cast<std::int32_t>(tree.size());
         m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
         tree.resize(tree.size() + 2);
@@ -112,8 +115,7 @@ public:
     //! Get the row masks of the left and right children of this node.
     auto rowMasks(std::size_t numberThreads,
                   const core::CDataFrame& frame,
-                  core::CPackedBitVector rowMask,
-                  bool assignMissingToLeft) const {
+                  core::CPackedBitVector rowMask) const {
 
         LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
         LOG_TRACE(<< "# rows in node = " << rowMask.manhattan());
@@ -127,7 +129,7 @@ public:
                         std::size_t index{row->index()};
                         double value{(*row)[m_SplitFeature]};
                         bool missing{CDataFrameUtils::isMissing(value)};
-                        if ((missing && assignMissingToLeft) ||
+                        if ((missing && m_AssignMissingToLeft) ||
                             (missing == false && value < m_SplitValue)) {
                             leftRowMask.extend(false, index - leftRowMask.size());
                             leftRowMask.extend(true);
@@ -180,6 +182,7 @@ private:
 private:
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
+    bool m_AssignMissingToLeft = true;
     std::int32_t m_LeftChild = -1;
     std::int32_t m_RightChild = -1;
     double m_NodeValue = 0.0;
@@ -474,6 +477,8 @@ public:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
+    static const double MINIMUM_ETA;
+    static const std::size_t MAXIMUM_NUMBER_TREES;
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
@@ -481,24 +486,67 @@ public:
         : m_NumberThreads{numberThreads},
           m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {}
 
-    void numberFolds(std::size_t numberFolds) { m_NumberFolds = numberFolds; }
+    void numberFolds(std::size_t numberFolds) {
+        if (numberFolds < 2) {
+            LOG_WARN(<< "Must use at least two-folds for cross validation");
+            numberFolds = 2;
+        }
+        m_NumberFolds = numberFolds;
+    }
 
-    void lambda(double lambda) { m_LambdaOverride = lambda; }
+    void lambda(double lambda) {
+        if (lambda < 0.0) {
+            LOG_WARN(<< "Lambda must be non-negative");
+            lambda = 0.0;
+        }
+        m_LambdaOverride = lambda;
+    }
 
-    void gamma(double gamma) { m_GammaOverride = gamma; }
+    void gamma(double gamma) {
+        if (gamma < 0.0) {
+            LOG_WARN(<< "Gamma must be non-negative");
+            gamma = 0.0;
+        }
+        m_GammaOverride = gamma;
+    }
 
-    void eta(double eta) { m_EtaOverride = eta; }
+    void eta(double eta) {
+        if (eta < MINIMUM_ETA) {
+            LOG_WARN(<< "Truncating supplied learning rate " << eta
+                     << " which must be no smaller than " << MINIMUM_ETA);
+            eta = std::max(eta, MINIMUM_ETA);
+        }
+        if (eta > 1.0) {
+            LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
+            eta = 1.0;
+        }
+        m_EtaOverride = eta;
+    }
 
     void maximumNumberTrees(std::size_t maximumNumberTrees) {
+        if (maximumNumberTrees == 0) {
+            LOG_WARN(<< "Forest must have at least one tree");
+            maximumNumberTrees = 1;
+        }
+        if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
+            LOG_WARN(<< "Truncating supplied maximum number of trees " << maximumNumberTrees
+                     << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
+            maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
+        }
         m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
     void featureBagFraction(double featureBagFraction) {
+        if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
+            LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
+                     << " which must be positive and not more than one");
+            featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
+        }
         m_FeatureBagFractionOverride = featureBagFraction;
     }
 
-    void maximumHyperparameterOptimisationRounds(std::size_t rounds) {
-        m_MaximumHyperparameterOptimisationRounds = rounds;
+    void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+        m_MaximumOptimisationRoundsPerHyperparameter = rounds;
     }
 
     //! Train the model on the values in \p frame.
@@ -531,15 +579,22 @@ public:
 
         CBayesianOptimisation bopt{this->hyperparameterBoundingBox()};
 
-        for (std::size_t round = 0;
-             round < m_MaximumHyperparameterOptimisationRounds; ++round) {
+        std::size_t numberRounds{this->numberHyperparameterTuningRounds()};
+        for (std::size_t round = 0; round < numberRounds; ++round) {
             LOG_TRACE(<< "Optimisation round = " << round + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(
                 frame, trainingRowMasks, testingRowMasks, recordProgress)};
 
-            this->captureBestHyperparameters(CBasicStatistics::mean(lossMoments));
+            this->captureBestHyperparameters(lossMoments);
 
+            // Trap the case that the dependent variable is (effectively) constant.
+            // There is no point adjusting hyperparameters in this case - and we run
+            // into numerical issues trying - since any forest will do.
+            if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
+                1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
+                break;
+            }
             if (this->selectNextHyperparameters(lossMoments, bopt) == false) {
                 break;
             }
@@ -580,6 +635,9 @@ public:
         // TODO
     }
 
+    //! Get the feature sample probabilities.
+    TDoubleVec featureWeights() const { return m_FeatureSampleProbabilities; }
+
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TOptionalDouble = boost::optional<double>;
@@ -591,6 +649,7 @@ private:
         double s_Lambda;
         double s_Gamma;
         double s_Eta;
+        double s_EtaGrowthRatePerTree;
         double s_FeatureBagFraction;
         TDoubleVec s_FeatureSampleProbabilities;
     };
@@ -708,9 +767,29 @@ private:
         m_Gamma = m_GammaOverride.value_or(0.0);
         if (m_EtaOverride) {
             m_Eta = *m_EtaOverride;
+        } else {
+            // Eta is the learning rate. There is a lot of empirical evidence that
+            // this should not be much larger than 0.1. Conceptually, we're making
+            // random choices regarding which features we'll use to split when
+            // fitting a single tree and we only observe a random sample from the
+            // function we're trying to learn. Using more trees with a smaller learning
+            // rate reduces the variance that the decisions or particular sample we
+            // train with introduces to predictions. The scope for variation increases
+            // with the number of features so we use a lower learning rate with more
+            // features. Furthermore, the leaf weights naturally decrease as we add
+            // more trees, since the prediction errors decrease, so we slowly increase
+            // the learning rate to maintain more equal tree weights. This tends to
+            // produce forests which generalise as well but are much smaller and so
+            // train faster.
+            m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
+                                             frame.numberColumns() - 4)));
+            m_EtaGrowthRatePerTree = 1.0 + m_Eta / 2.0;
         }
         if (m_MaximumNumberTreesOverride) {
             m_MaximumNumberTrees = *m_MaximumNumberTreesOverride;
+        } else {
+            // This needs to be tied to the learn rate to avoid bias.
+            m_MaximumNumberTrees = static_cast<std::size_t>(2.0 / m_Eta + 0.5);
         }
         if (m_FeatureBagFractionOverride) {
             m_FeatureBagFraction = *m_FeatureBagFractionOverride;
@@ -754,10 +833,12 @@ private:
 
         m_MaximumTreeSizeFraction = 10.0;
 
-        // We allow a large number of trees by default in the main parameter
-        // optimisation loop. In practice, we should use many fewer if they
-        // don't significantly improve test error.
-        m_MaximumNumberTrees = 500;
+        if (m_MaximumNumberTreesOverride == boost::none) {
+            // We allow a large number of trees by default in the main parameter
+            // optimisation loop. In practice, we should use many fewer if they
+            // don't significantly improve test error.
+            m_MaximumNumberTrees *= 10;
+        }
     }
 
     //! Compute the sum loss for the predictions from \p frame and the leaf
@@ -808,10 +889,11 @@ private:
             TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
             double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
             lossMoments.add(loss);
-            LOG_TRACE(<< "fold = " << i << " test set loss = " << loss);
+            LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
+                      << " test set loss = " << loss);
         }
-        LOG_TRACE(<< "mean test set loss = " << CBasicStatistics::mean(lossMoments) << ", standard deviation = "
-                  << std::sqrt(CBasicStatistics::mean(lossMoments)));
+        LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
+                  << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
         return lossMoments;
     }
 
@@ -829,9 +911,10 @@ private:
         //  1. Compute weighted quantiles for features F
         //  2. Compute candidate split set S from quantiles of F
         //  3. Build one tree on (F, S)
-        //  4. Shrink weights and update predictions and loss derivatives
+        //  4. Update predictions and loss derivatives
 
-        double shrinkage{1.0};
+        double eta{m_Eta};
+        double sumEta{eta};
 
         for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
@@ -841,13 +924,16 @@ private:
 
             retries = tree.size() == 1 ? retries + 1 : 0;
 
-            if (retries == m_MaximumAttemptsToAddTree) {
+            if (sumEta > 1.0 && retries == m_MaximumAttemptsToAddTree) {
                 break;
-            } else if (retries == 0) {
-                this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
-                                                           shrinkage, tree);
+            }
+
+            if (sumEta < 1.0 || retries == 0) {
+                this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, eta, tree);
                 forest.push_back(std::move(tree));
-                shrinkage *= m_Eta;
+                eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
+                sumEta += eta;
+                retries = 0;
             }
         }
 
@@ -961,15 +1047,15 @@ private:
             bool assignMissingToLeft{split->assignMissingToLeft()};
 
             std::size_t leftChildId, rightChildId;
-            std::tie(leftChildId, rightChildId) =
-                tree[split->id()].split(splitFeature, splitValue, tree);
+            std::tie(leftChildId, rightChildId) = tree[split->id()].split(
+                splitFeature, splitValue, assignMissingToLeft, tree);
 
             TSizeVec featureBag{this->featureBag(frame)};
 
             core::CPackedBitVector leftChildRowMask;
             core::CPackedBitVector rightChildRowMask;
             std::tie(leftChildRowMask, rightChildRowMask) = tree[split->id()].rowMasks(
-                m_NumberThreads, frame, std::move(split->rowMask()), assignMissingToLeft);
+                m_NumberThreads, frame, std::move(split->rowMask()));
 
             leaves.push(std::make_shared<CLeafNodeStatistics>(
                 leftChildId, m_NumberThreads, frame, m_Lambda, m_Gamma,
@@ -986,8 +1072,8 @@ private:
 
     //! Get the number of features to consider splitting on.
     std::size_t featureBagSize(const core::CDataFrame& frame) const {
-        return static_cast<std::size_t>(std::ceil(
-            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))));
+        return static_cast<std::size_t>(std::max(std::ceil(
+            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
     }
 
     //! Sample the features according to their categorical distribution.
@@ -1025,7 +1111,7 @@ private:
             &trainingRowMask);
 
         TNodeVec tree(1);
-        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
+        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
 
         return tree;
     }
@@ -1034,7 +1120,7 @@ private:
     //! rows in \p frame with predictions of \p tree.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& trainingRowMask,
-                                              double shrinkage,
+                                              double eta,
                                               TNodeVec& tree) const {
 
         using TArgMinLossUPtrVec = std::vector<CLoss::TArgMinLossUPtr>;
@@ -1046,7 +1132,7 @@ private:
         }
 
         frame.readRows(
-            m_NumberThreads, 0, frame.numberRows(),
+            1, 0, frame.numberRows(),
             [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t numberColumns{row->numberColumns()};
@@ -1058,7 +1144,7 @@ private:
             &trainingRowMask);
 
         for (std::size_t i = 0; i < tree.size(); ++i) {
-            tree[i].value(shrinkage * leafValues[i]->value());
+            tree[i].value(eta * leafValues[i]->value());
         }
 
         LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -1144,8 +1230,20 @@ private:
         }
         return result;
     }
+
     //! Get the bounding box to use for hyperparameter optimisation.
     TDoubleDoublePrVec hyperparameterBoundingBox() const {
+
+        // We need sensible bounds for the region we'll search for optimal values.
+        // For all parameters where we have initial estimates we use bounds of the
+        // form a * initial and b * initial for a < 1 < b. For other parameters we
+        // use a fixed range. Ideally, we'd use the smallest intervals that have a
+        // high probability of containing good parameter values. We also parameterise
+        // so the probability any subinterval contains a good value is proportional
+        // to its length. For parameters whose difference is naturally measured as
+        // a ratio, i.e. roughly speaking difference(p_1, p_0) = p_1 / p_0 for p_0
+        // less than p_1, this translates to using log parameter values.
+
         TDoubleDoublePrVec result;
         if (m_LambdaOverride == boost::none) {
             result.emplace_back(std::log(m_Lambda / 10.0), std::log(10.0 * m_Lambda));
@@ -1154,12 +1252,21 @@ private:
             result.emplace_back(std::log(m_Gamma / 10.0), std::log(10.0 * m_Gamma));
         }
         if (m_EtaOverride == boost::none) {
-            result.emplace_back(0.8, 1.0);
+            double rate{m_EtaGrowthRatePerTree - 1.0};
+            result.emplace_back(std::log(0.3 * m_Eta), std::log(3.0 * m_Eta));
+            result.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             result.emplace_back(0.2, 0.8);
         }
         return result;
+    }
+
+    //! Get the number of hyperparameter tuning rounds to use.
+    std::size_t numberHyperparameterTuningRounds() const {
+        return std::max(m_MaximumOptimisationRoundsPerHyperparameter *
+                            this->numberHyperparametersToTune(),
+                        std::size_t{1});
     }
 
     //! Select the next hyperparameters for which to train a model.
@@ -1177,13 +1284,11 @@ private:
             parameters(i++) = std::log(m_Gamma);
         }
         if (m_EtaOverride == boost::none) {
-            parameters(i++) = m_Eta;
+            parameters(i++) = std::log(m_Eta);
+            parameters(i++) = m_EtaGrowthRatePerTree;
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             parameters(i++) = m_FeatureBagFraction;
-        }
-        if (i == 0) {
-            return false;
         }
 
         double meanLoss{CBasicStatistics::mean(lossMoments)};
@@ -1201,23 +1306,30 @@ private:
             m_Gamma = std::exp(parameters(i++));
         }
         if (m_EtaOverride == boost::none) {
-            m_Eta = parameters(i++);
+            m_Eta = std::exp(parameters(i++));
+            m_EtaGrowthRatePerTree = parameters(i++);
         }
         if (m_FeatureBagFractionOverride == boost::none) {
             m_FeatureBagFraction = parameters(i++);
         }
 
-        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+        LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma
+                  << ", eta = " << m_Eta << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
                   << ", feature bag fraction = " << m_FeatureBagFraction);
         return true;
     }
 
     //! Capture the current hyperparameter values.
-    void captureBestHyperparameters(double loss) {
+    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments) {
+        // We capture the parameters with the lowest error at one standard
+        // deviation above the mean. If the mean error improvement is marginal
+        // we prefer the solution with the least variation across the folds.
+        double loss{CBasicStatistics::mean(lossMoments) +
+                    std::sqrt(CBasicStatistics::variance(lossMoments))};
         if (loss < m_BestForestTestLoss) {
             m_BestForestTestLoss = loss;
-            m_BestHyperparameters = SHyperparameters{m_Lambda, m_Gamma, m_Eta, m_FeatureBagFraction,
-                                                     m_FeatureSampleProbabilities};
+            m_BestHyperparameters = SHyperparameters{
+                m_Lambda, m_Gamma, m_Eta, m_EtaGrowthRatePerTree, m_FeatureBagFraction, m_FeatureSampleProbabilities};
         }
     }
 
@@ -1226,14 +1338,18 @@ private:
         m_Lambda = m_BestHyperparameters.s_Lambda;
         m_Gamma = m_BestHyperparameters.s_Gamma;
         m_Eta = m_BestHyperparameters.s_Eta;
+        m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
         m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
         m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
+        LOG_TRACE(<< "lambda* = " << m_Lambda << ", gamma* = " << m_Gamma
+                  << ", eta* = " << m_Eta << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+                  << ", feature bag fraction* = " << m_FeatureBagFraction);
     }
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const {
         return (m_LambdaOverride ? 0 : 1) + (m_GammaOverride ? 0 : 1) +
-               (m_EtaOverride ? 0 : 1) + (m_FeatureBagFractionOverride ? 0 : 1);
+               (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
     }
 
 private:
@@ -1248,14 +1364,15 @@ private:
     TOptionalDouble m_FeatureBagFractionOverride;
     double m_Lambda = 0.0;
     double m_Gamma = 0.0;
-    std::size_t m_NumberFolds = 5;
-    std::size_t m_MaximumNumberTrees = 5;
+    double m_Eta = 0.1;
+    double m_EtaGrowthRatePerTree = 1.05;
+    std::size_t m_NumberFolds = 4;
+    std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 40;
-    std::size_t m_MaximumHyperparameterOptimisationRounds = 20;
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
-    double m_Eta = 0.98;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     double m_BestForestTestLoss = INF;
@@ -1263,6 +1380,9 @@ private:
     TNodeVecVec m_BestForest;
 };
 
+const double CBoostedTree::CImpl::MINIMUM_ETA{1e-3};
+const std::size_t CBoostedTree::CImpl::MAXIMUM_NUMBER_TREES{
+    static_cast<std::size_t>(2.0 / MINIMUM_ETA + 0.5)};
 const double CBoostedTree::CImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 
 CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
@@ -1302,8 +1422,8 @@ CBoostedTree& CBoostedTree::featureBagFraction(double featureBagFraction) {
     return *this;
 }
 
-CBoostedTree& CBoostedTree::maximumHyperparameterOptimisationRounds(std::size_t rounds) {
-    m_Impl->maximumHyperparameterOptimisationRounds(rounds);
+CBoostedTree& CBoostedTree::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+    m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
     return *this;
 }
 
@@ -1317,6 +1437,10 @@ void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProg
 
 void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
     m_Impl->write(writer);
+}
+
+CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
+    return m_Impl->featureWeights();
 }
 
 std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
