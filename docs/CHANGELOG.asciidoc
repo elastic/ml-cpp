@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.2.1
+
+=== Bug Fixes
+
+* Fix an edge case causing spurious anomalies (false positives) if the variance in the count of events
+changed significantly throughout the period of a seasonal quantity. (See {ml-pull}489[#489].)
+
 == {es} version 7.2.0
 
 === Enhancements

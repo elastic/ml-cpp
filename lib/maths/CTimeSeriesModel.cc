@@ -1619,6 +1619,9 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
+    // We can't properly handle periodicity in the variance of the rate if
+    // using a Poisson process so remove it from model detectio if we detect
+    // seasonality.
     m_ResidualModel->removeModels(
         maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
