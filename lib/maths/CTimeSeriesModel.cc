@@ -1619,6 +1619,11 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
+    // We can't properly handle periodicity in the variance of the rate if
+    // using a Poisson process so remove it from model detectio if we detect
+    // seasonality.
+    m_ResidualModel->removeModels(
+        maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
     if (initialValues.size() > 0) {
@@ -1648,16 +1653,6 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         }
     }
 
-    // Note we can't reinitialize this from the initial values because we do
-    // not expect these to be at the bucket length granularity.
-    if (m_MultibucketFeature != nullptr) {
-        m_MultibucketFeature->clear();
-    }
-    if (m_MultibucketFeatureModel != nullptr) {
-        m_MultibucketFeatureModel->setToNonInformative(
-            0.0, m_MultibucketFeatureModel->decayRate());
-    }
-
     if (m_Correlations != nullptr) {
         m_Correlations->clearCorrelationModels(m_Id);
     }
@@ -1670,6 +1665,18 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
             controller.reset();
         }
     }
+
+    // Note we can't reinitialize this from the initial values because we do
+    // not expect these to be at the bucket length granularity.
+    if (m_MultibucketFeature != nullptr) {
+        m_MultibucketFeature->clear();
+    }
+    if (m_MultibucketFeatureModel != nullptr) {
+        m_MultibucketFeatureModel->removeModels(
+            maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
+        m_MultibucketFeatureModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+    }
+
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->reset();
     }
@@ -2987,16 +2994,6 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         }
     }
 
-    // Note we can't reinitialize this from the initial values because we do
-    // not expect these to be at the bucket length granularity.
-    if (m_MultibucketFeature != nullptr) {
-        m_MultibucketFeature->clear();
-    }
-    if (m_MultibucketFeatureModel != nullptr) {
-        m_MultibucketFeatureModel->setToNonInformative(
-            0.0, m_MultibucketFeatureModel->decayRate());
-    }
-
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
                                    (*m_Controllers)[E_ResidualControl].multiplier());
@@ -3008,6 +3005,17 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
             controller.reset();
         }
     }
+
+    // Note we can't reinitialize this from the initial values because we do
+    // not expect these to be at the bucket length granularity.
+    if (m_MultibucketFeature != nullptr) {
+        m_MultibucketFeature->clear();
+    }
+
+    if (m_MultibucketFeatureModel != nullptr) {
+        m_MultibucketFeatureModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+    }
+
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->reset();
     }
