@@ -592,7 +592,7 @@ void CEventRateModelTest::testProbabilityCalculation() {
             for (int j = 0; j < 2; ++j) {
                 double multiBucketImpact = minProbabilities[j].third.s_MultiBucketImpact;
                 LOG_DEBUG(<< "multi_bucket_impact = " << multiBucketImpact);
-                CPPUNIT_ASSERT(multiBucketImpact > expectedMultiBucketImpactThresholds[j]);
+                CPPUNIT_ASSERT(multiBucketImpact >= expectedMultiBucketImpactThresholds[j]);
                 CPPUNIT_ASSERT(multiBucketImpact <= CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE);
             }
         }
