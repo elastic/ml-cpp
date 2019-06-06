@@ -216,6 +216,9 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
+        //! Record a linear scale of \p scale at \p time.
+        void linearScale(core_t::TTime time, double scale);
+
         //! Shift the start of the tests' expanding windows by \p dt.
         void shiftTime(core_t::TTime dt);
 
@@ -236,6 +239,8 @@ public:
         std::size_t memoryUsage() const;
 
     private:
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
         using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
@@ -254,9 +259,14 @@ public:
         //! Get a new \p test. (Warning: this is owned by the caller.)
         CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
 
-        //! Account for memory that is not yet allocated
-        //! during the initial state
+        //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;
+
+        //! Get the accounting for linear scales in the test window. 
+        TPredictor scaledPredictor(const TPredictor& predictor) const;
+
+        //! Remove any linear scale events outside the test windows.
+        void pruneLinearScales();
 
     private:
         //! The state machine.
@@ -270,6 +280,9 @@ public:
 
         //! Expanding windows on the "recent" time series values.
         TExpandingWindowPtrAry m_Windows;
+
+        //! The times of linear scales in the window range.
+        TTimeDoublePrVec m_LinearScales;
     };
 
     //! \brief Tests for cyclic calendar components explaining large prediction

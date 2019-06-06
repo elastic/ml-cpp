@@ -1611,7 +1611,6 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
 void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
@@ -1629,11 +1628,11 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                  })};
         double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
-        for (const auto& sample : residuals) {
-            double weight(CBasicStatistics::count(sample));
+        for (const auto& residual : residuals) {
+            double weight(CBasicStatistics::count(residual));
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weightScale * weight);
-                m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weights);
+                m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
             }
         }
     }
@@ -2918,7 +2917,6 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
     using TDouble10VecVec = std::vector<TDouble10Vec>;
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 

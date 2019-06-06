@@ -220,6 +220,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback) {
+
     if (CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR("Discarding invalid value.");
         return;
@@ -262,6 +263,7 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
     case SChangeDescription::E_LinearScale:
+        m_PeriodicityTest.linearScale(time, change.s_Value[0]);
         m_Components.linearScale(time, change.s_Value[0]);
         break;
     case SChangeDescription::E_TimeShift: {

@@ -46,6 +46,8 @@ using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TSeasonalComponentVec = maths_t::TSeasonalComponentVec;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TFloatMeanAccumulatorVec =
+    std::vector<maths::CBasicStatistics::SSampleMean<maths::CFloatStorage>::TAccumulator>;
 
 double mean(const TDoubleDoublePr& x) {
     return (x.first + x.second) / 2.0;
@@ -199,7 +201,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.052 * sumValue);
+                CPPUNIT_ASSERT(sumResidual < 0.055 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.10 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.03 * sumValue);
                 totalSumResidual += sumResidual;
@@ -217,8 +219,8 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.015 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.018 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.016 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.02 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -366,7 +368,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                CPPUNIT_ASSERT(sumResidual < 0.29 * sumValue);
+                CPPUNIT_ASSERT(sumResidual < 0.27 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.56 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.22 * sumValue);
 
@@ -485,7 +487,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     CPPUNIT_ASSERT(totalSumResidual < 0.05 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.19 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.20 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.02 * totalSumValue);
 
     meanSlope /= refinements;
@@ -615,6 +617,7 @@ void CTimeSeriesDecompositionTest::testNanHandling() {
     nanInjector.injectNan(decomposition, 0L);
 
     int componentsModified{0};
+
     // run through the 2nd half of the periodic data set
     for (++i; i < times.size(); ++i) {
         core_t::TTime time = times[i];
@@ -622,9 +625,10 @@ void CTimeSeriesDecompositionTest::testNanHandling() {
         CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(value.first));
         CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(value.second));
 
-        if (decomposition.addPoint(time, trend[i] + noise[i])) {
-            ++componentsModified;
-        }
+        decomposition.addPoint(time, trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
+                               [&componentsModified](TFloatMeanAccumulatorVec) {
+                                   ++componentsModified;
+                               });
     }
 
     // The call to 'addPoint' that results in the removal of the component
@@ -814,13 +818,13 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
             totalPercentileError += percentileError;
 
             const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-            if (time > 13 * WEEK) {
+            if (time > 12 * WEEK) {
                 // Check that both components have been initialized.
-                CPPUNIT_ASSERT(components.size() > 2);
+                CPPUNIT_ASSERT(components.size() >= 2);
                 CPPUNIT_ASSERT(components[0].initialized());
                 CPPUNIT_ASSERT(components[1].initialized());
                 CPPUNIT_ASSERT(components[2].initialized());
-            } else if (time > 12 * WEEK) {
+            } else if (time > 11 * WEEK) {
                 // Check that both components have been initialized.
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), components.size());
                 CPPUNIT_ASSERT(components[0].initialized());
@@ -890,7 +894,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale() {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError))
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.28);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.3);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(percentileError) < 0.05);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(meanScale), 0.04);
     }
@@ -1060,9 +1064,17 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        if (decomposition.addPoint(time, value)) {
-            model.setToNonInformative(0.0, 0.01);
-        }
+        decomposition.addPoint(
+            time, value, maths_t::CUnitWeights::UNIT,
+            [&model](TFloatMeanAccumulatorVec residuals) {
+                model.setToNonInformative(0.0, 0.01);
+                for (const auto& residual : residuals) {
+                    if (maths::CBasicStatistics::count(residual) > 0.0) {
+                        model.addSamples({maths::CBasicStatistics::mean(residual)},
+                                         maths_t::CUnitWeights::SINGLE_UNIT);
+                    }
+                }
+            });
         model.addSamples({decomposition.detrend(time, value, 70.0)},
                          maths_t::CUnitWeights::SINGLE_UNIT);
         debug.addValue(time, value);
@@ -1073,8 +1085,8 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     CPPUNIT_ASSERT(totalSumResidual < 0.20 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.38 * totalMaxValue);
-    CPPUNIT_ASSERT(totalPercentileError < 0.17 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.41 * totalMaxValue);
+    CPPUNIT_ASSERT(totalPercentileError < 0.16 * totalSumValue);
 
     //std::ofstream file;
     //file.open("results.m");
@@ -1305,7 +1317,7 @@ void CTimeSeriesDecompositionTest::testMixedSmoothAndSpikeyDataProblemCase() {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     CPPUNIT_ASSERT(totalSumResidual < 0.2 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.43 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.44 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.06 * totalSumValue);
 }
 
@@ -1819,15 +1831,15 @@ void CTimeSeriesDecompositionTest::testYearly() {
         meanError.add(error);
         debug.addValue(time, trend);
         debug.addPrediction(time, prediction, trend - prediction);
-        if (time / HOUR % 40 == 0 || error > 0.1) {
+        if (time / HOUR % 40 == 0 || error > 0.18) {
             LOG_DEBUG(<< "error = " << error);
         }
-        CPPUNIT_ASSERT(error < 0.1);
+        CPPUNIT_ASSERT(error < 0.18);
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
 
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.012);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.025);
 }
 
 void CTimeSeriesDecompositionTest::testWithOutliers() {
@@ -1865,7 +1877,12 @@ void CTimeSeriesDecompositionTest::testWithOutliers() {
                 ? (spikeOrTroughSelector[outlier - outliers.begin()] > 0.5 ? 0.0 : 50.0)
                 : trend(time);
 
-        if (decomposition.addPoint(time, value)) {
+        bool newComponents{false};
+        decomposition.addPoint(
+            time, value, maths_t::CUnitWeights::UNIT,
+            [&newComponents](TFloatMeanAccumulatorVec) { newComponents = true; });
+
+        if (newComponents) {
             TMeanAccumulator error;
             for (core_t::TTime endTime = time + DAY; time < endTime; time += TEN_MINS) {
                 double prediction =
@@ -2027,7 +2044,7 @@ void CTimeSeriesDecompositionTest::testComponentLifecycle() {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.018, 0.012, 0.073};
+    double bounds[]{0.01, 0.018, 0.025, 0.06};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);

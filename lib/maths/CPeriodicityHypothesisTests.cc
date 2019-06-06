@@ -169,19 +169,6 @@ const std::string DIURNAL_COMPONENT_NAMES[] = {
     "weekend daily",  "weekend weekly", "weekday daily",
     "weekday weekly", "daily",          "weekly"};
 
-//! Fit and remove a constant from \p values.
-void removeLevel(TFloatMeanAccumulatorVec& values) {
-    TMeanAccumulator level;
-    for (const auto& value : values) {
-        level.add(CBasicStatistics::mean(value), CBasicStatistics::count(value));
-    }
-    for (auto& value : values) {
-        if (CBasicStatistics::count(value) > 0.0) {
-            CBasicStatistics::moment<0>(value) -= CBasicStatistics::mean(level);
-        }
-    }
-}
-
 //! Fit and remove a linear trend from \p values.
 void removeLinearTrend(TFloatMeanAccumulatorVec& values) {
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
@@ -539,25 +526,18 @@ void CPeriodicityHypothesisTestsResult::trend(CTrendHypothesis value) {
 }
 
 void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& values) const {
-    switch (m_Trend.type()) {
-    case CTrendHypothesis::E_None:
-        removeLevel(values);
-        break;
-    case CTrendHypothesis::E_Linear:
+    if (m_Trend.type() == CTrendHypothesis::E_Linear) {
         removeLinearTrend(values);
-        break;
-    case CTrendHypothesis::E_PiecewiseLinear:
-        values = CTimeSeriesSegmentation::removePiecewiseLinear(
-            values, CTimeSeriesSegmentation::piecewiseLinear(values));
-        break;
+    } else if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
+        TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+        values = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(values), segmentation);
     }
 }
 
 void CPeriodicityHypothesisTestsResult::removeDiscontinuities(TFloatMeanAccumulatorVec& values) const {
-    if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
-        values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
-            values, CTimeSeriesSegmentation::piecewiseLinear(values));
-    }
+    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+    values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
+        std::move(values), segmentation);
 }
 
 bool CPeriodicityHypothesisTestsResult::periodic() const {
