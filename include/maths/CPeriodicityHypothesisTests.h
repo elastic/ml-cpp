@@ -124,10 +124,10 @@ public:
     std::string print() const;
 
 private:
-    //! The trend used for the hypothesis.
+    //! The trend hypothesis for the test.
     CTrendHypothesis m_Trend;
 
-    //! The periodic components.
+    //! The periodic components found.
     TComponent5Vec m_Components;
 };
 
