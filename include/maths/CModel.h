@@ -467,16 +467,12 @@ protected:
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                        const TDouble2Vec& value,
-                                        bool bucketEmpty,
+    static double correctForEmptyBucket(bool bucketEmpty,
                                         double probabilityBucketEmpty,
                                         double probability);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                        double value,
-                                        const TBool2Vec& bucketEmpty,
+    static double correctForEmptyBucket(const TBool2Vec& bucketEmpty,
                                         const TDouble2Vec& probabilityEmptyBucket,
                                         double probability);
 

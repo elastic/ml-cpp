@@ -22,40 +22,6 @@ namespace ml {
 namespace maths {
 namespace {
 
-using TDouble2Vec = core::CSmallVector<double, 2>;
-
-//! Check if all the elements of \p lhs are less than or equal to the \p rhs.
-bool lessThanEqual(const TDouble2Vec& lhs, double rhs) {
-    return std::find_if(lhs.begin(), lhs.end(),
-                        [rhs](double lhs_) { return lhs_ > rhs; }) == lhs.end();
-}
-
-//! Check if all the elements of \p lhs are less than or equal to the \p rhs.
-bool greaterThanEqual(const TDouble2Vec& lhs, double rhs) {
-    return std::find_if(lhs.begin(), lhs.end(),
-                        [rhs](double lhs_) { return lhs_ < rhs; }) == lhs.end();
-}
-
-//! Get the correction to apply to the one-sided probability calculations.
-//!
-//! The value of a feature is always zero on an empty bucket therefore
-//! if the calculation is one sided below (above) we need to add on twice
-//! the probability of zero if the actual feature value is greater (less)
-//! than zero.
-double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculation,
-                                     const TDouble2Vec& value,
-                                     double probabilityEmptyBucket) {
-    switch (calculation) {
-    case maths_t::E_OneSidedBelow:
-        return greaterThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
-    case maths_t::E_OneSidedAbove:
-        return lessThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
-    case maths_t::E_TwoSided:
-        break;
-    }
-    return 0.0;
-}
-
 const std::string EMPTY_STRING;
 const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
                                0.57, 0.54, 0.52, 0.51};
@@ -322,49 +288,33 @@ CModelParams& CModel::params() {
     return m_Params;
 }
 
-double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                     const TDouble2Vec& value,
-                                     bool bucketEmpty,
-                                     double probabilityBucketEmpty,
-                                     double probability) {
-    double pCorrected{(1.0 - probabilityBucketEmpty) * probability};
-
-    if (!bucketEmpty) {
-        double pOneSided{oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty)};
-        return std::min(pOneSided + pCorrected, 1.0);
+double CModel::correctForEmptyBucket(bool bucketEmpty, double probabilityBucketEmpty, double probability) {
+    if (bucketEmpty == false) {
+        return (1.0 - probabilityBucketEmpty) * probability;
     }
-
-    return probabilityBucketEmpty + pCorrected;
+    return probabilityBucketEmpty + (1.0 - probabilityBucketEmpty) * probability;
 }
 
-double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                     double value,
-                                     const TBool2Vec& bucketEmpty,
+double CModel::correctForEmptyBucket(const TBool2Vec& bucketEmpty,
                                      const TDouble2Vec& probabilityEmptyBucket,
                                      double probability) {
-    if (!bucketEmpty[0] && !bucketEmpty[1]) {
-        double pState{(1.0 - probabilityEmptyBucket[0]) *
-                      (1.0 - probabilityEmptyBucket[1])};
-        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value}, 1.0 - pState)};
-        return std::min(pOneSided + pState * probability, 1.0);
+
+    double p00{probabilityEmptyBucket[0]};
+    double p10{probabilityEmptyBucket[1]};
+
+    if (bucketEmpty[0] == false && bucketEmpty[1] == false) {
+        return (1.0 - p00) * (1.0 - p10) * probability;
     }
 
-    if (!bucketEmpty[0]) {
-        double pState{(1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1]};
-        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value},
-                                                       probabilityEmptyBucket[0])};
-        return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
+    if (bucketEmpty[0] == false) {
+        return (1.0 - p00) * probability * (p10 + (1.0 - p10) * probability);
     }
 
-    if (!bucketEmpty[1]) {
-        double pState{probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1])};
-        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value},
-                                                       probabilityEmptyBucket[1])};
-        return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
+    if (bucketEmpty[1] == false) {
+        return (p00 + (1.0 - p00) * probability) * (1.0 - p10) * probability;
     }
 
-    double pState = probabilityEmptyBucket[0] * probabilityEmptyBucket[1];
-    return pState + (1.0 - pState) * probability;
+    return (p00 + (1.0 - p00) * probability) * (p10 + (1.0 - p10) * probability);
 }
 
 //////// CModelStub ////////
