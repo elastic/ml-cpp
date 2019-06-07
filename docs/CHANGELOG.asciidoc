@@ -34,6 +34,7 @@
 
 * Fix an edge case causing spurious anomalies (false positives) if the variance in the count of events
 changed significantly throughout the period of a seasonal quantity. (See {ml-pull}489[#489].)
+* Reduce false positives associated with the multi-bucket feature. (See {ml-pull}491[#491].)
 
 == {es} version 7.2.0
 
