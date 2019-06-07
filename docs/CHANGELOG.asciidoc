@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.3.0
+
+=== Bug Fixes
+
+* Reduce false positives associated with the multi-bucket feature. (See {ml-pull}491[#491].)
+
 == {es} version 7.2.1
 
 === Bug Fixes
