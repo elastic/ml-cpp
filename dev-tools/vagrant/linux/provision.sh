@@ -18,7 +18,7 @@ if [ ! -f package.state ]; then
   echo "Installing misc packages..."
   add-apt-repository -y ppa:webupd8team/java
   apt-get update
-  apt-get -qq -y install git wget build-essential maven unzip perl libbz2-1.0 libbz2-dev python-setuptools zlib1g-dev
+  apt-get -qq -y install git wget build-essential maven unzip perl libbz2-1.0 libbz2-dev bzip2 python-setuptools zlib1g-dev
   touch package.state
 fi
 
@@ -86,13 +86,32 @@ if [ ! -f libxml2.state ]; then
   touch libxml2.state
 fi
 
+# ----------------- Compile expat -------------------------
+if [ ! -f expat.state ]; then
+  echo "Compiling expat..."
+  echo "  Downloading..."
+  wget --quiet http://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2
+  mkdir expat
+  tar xfj expat-2.2.6.tar.bz2 -C expat --strip-components=1
+  cd expat
+  echo "  Configuring..."
+
+  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
+  echo "  Making..."
+  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
+  make install > make_install.log 2>&1
+  cd ..
+  rm expat-2.2.6.tar.bz2
+  touch expat.state
+fi
+
 # ----------------- Compile APR -------------------------
 if [ ! -f apr.state ]; then
   echo "Compiling APR..."
   echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-1.5.2.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-1.7.0.tar.gz
   mkdir apr
-  tar xfz apr-1.5.2.tar.gz -C apr --strip-components=1
+  tar xfz apr-1.7.0.tar.gz -C apr --strip-components=1
   cd apr
   echo "  Configuring..."
 
@@ -104,7 +123,7 @@ if [ ! -f apr.state ]; then
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm apr-1.5.2.tar.gz
+  rm apr-1.7.0.tar.gz
   touch apr.state
 fi
 
@@ -112,21 +131,21 @@ fi
 if [ ! -f apr-util.state ]; then
   echo "Compiling APR-Utilities..."
   echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz
   mkdir apr-util
-  tar xfz apr-util-1.5.4.tar.gz -C apr-util --strip-components=1
+  tar xfz apr-util-1.6.1.tar.gz -C apr-util --strip-components=1
   cd apr-util
   echo "  Configuring..."
 
   sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
   sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c
 
-  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm apr-util-1.5.4.tar.gz
+  rm apr-util-1.6.1.tar.gz
   touch apr-util.state
 fi
 
