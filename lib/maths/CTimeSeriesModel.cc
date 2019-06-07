@@ -112,6 +112,7 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
 
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
+const std::string VERSION_7_2_TAG("7.2");
 
 // Models
 // Version >= 6.3
@@ -139,13 +140,15 @@ const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
 const std::string IS_FORECASTABLE_OLD_TAG{"h"};
 
 // Anomaly model
+// Version >= 7.2
+const std::string LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG{"d"};
 // Version >= 6.5
 const std::string ANOMALY_6_5_TAG{"e"};
 const std::string ANOMALY_FEATURE_MODEL_6_5_TAG{"f"};
 // Version < 6.5
 // Discarded on state upgrade because features have changed.
 // Anomaly only restored for 6.5 state.
-const std::string OPEN_TIME_6_5_TAG{"a"};
+const std::string FIRST_ANOMALOUS_BUCKET_TIME_6_5_TAG{"a"};
 const std::string SUM_PREDICTION_ERROR_6_5_TAG{"b"};
 const std::string MEAN_ABS_PREDICTION_ERROR_6_5_TAG{"c"};
 
@@ -283,7 +286,7 @@ public:
 
     //! If the time series is currently anomalous, compute the anomalousness
     //! of the anomaly feature vector.
-    TDoubleDoublePr probability(core_t::TTime time, double overallProbability) const;
+    TDoubleDoublePr probability(double bucketProbability, double overallProbability) const;
 
     //! Age the model to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
@@ -316,31 +319,35 @@ private:
 
     public:
         CAnomaly() = default;
-        explicit CAnomaly(core_t::TTime time) : m_OpenTime(time) {}
+        explicit CAnomaly(core_t::TTime time)
+            : m_FirstAnomalousBucketTime(time) {}
 
         //! Add a result to the anomaly.
-        void update(double predictionError) {
+        void update(core_t::TTime time, double predictionError) {
+            m_LastAnomalousBucketTime = time;
             m_SumPredictionError += predictionError;
             m_MeanAbsPredictionError.add(std::fabs(predictionError));
         }
 
         //! Get the weight to apply to this anomaly on update.
-        double weight(core_t::TTime time) const {
-            return 1.0 / (1.0 + std::max(static_cast<double>(time - m_OpenTime), 0.0));
+        double weight() const {
+            core_t::TTime length{m_LastAnomalousBucketTime - m_FirstAnomalousBucketTime};
+            return 1.0 / (1.0 + std::max(static_cast<double>(length), 0.0));
         }
 
         //! Check if this anomaly is positive or negative.
         bool positive() const { return m_SumPredictionError > 0.0; }
 
         //! Get the feature vector for this anomaly.
-        TDouble10Vec features(core_t::TTime time) const {
-            return {static_cast<double>(time - m_OpenTime),
+        TDouble10Vec features() const {
+            return {static_cast<double>(m_LastAnomalousBucketTime - m_FirstAnomalousBucketTime),
                     CBasicStatistics::mean(m_MeanAbsPredictionError)};
         }
 
         //! Compute a checksum for this object.
         uint64_t checksum(uint64_t seed) const {
-            seed = CChecksum::calculate(seed, m_OpenTime);
+            seed = CChecksum::calculate(seed, m_FirstAnomalousBucketTime);
+            seed = CChecksum::calculate(seed, m_LastAnomalousBucketTime);
             seed = CChecksum::calculate(seed, m_SumPredictionError);
             return CChecksum::calculate(seed, m_MeanAbsPredictionError);
         }
@@ -349,7 +356,8 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
             do {
                 const std::string& name{traverser.name()};
-                RESTORE_BUILT_IN(OPEN_TIME_6_5_TAG, m_OpenTime)
+                RESTORE_BUILT_IN(FIRST_ANOMALOUS_BUCKET_TIME_6_5_TAG, m_FirstAnomalousBucketTime)
+                RESTORE_BUILT_IN(LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG, m_LastAnomalousBucketTime)
                 RESTORE_BUILT_IN(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError)
                 RESTORE(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                         m_MeanAbsPredictionError.fromDelimited(traverser.value()))
@@ -359,7 +367,8 @@ private:
 
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-            inserter.insertValue(OPEN_TIME_6_5_TAG, m_OpenTime);
+            inserter.insertValue(FIRST_ANOMALOUS_BUCKET_TIME_6_5_TAG, m_FirstAnomalousBucketTime);
+            inserter.insertValue(LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG, m_LastAnomalousBucketTime);
             inserter.insertValue(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError,
                                  core::CIEEE754::E_SinglePrecision);
             inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
@@ -367,8 +376,11 @@ private:
         }
 
     private:
-        //! The time at which the anomaly started.
-        core_t::TTime m_OpenTime = 0;
+        //! The time at which the first anomalous bucket was detected.
+        core_t::TTime m_FirstAnomalousBucketTime = 0;
+
+        //! The time at which the last anomalous bucket was detected.
+        core_t::TTime m_LastAnomalousBucketTime = 0;
 
         //! The sum of the errors in our base model predictions for the
         //! anomaly.
@@ -387,10 +399,15 @@ private:
 
 private:
     //! Update the anomaly model with a sample of the current feature vector.
-    void sample(const CModelProbabilityParams& params, core_t::TTime time, double weight);
+    void sample(const CModelProbabilityParams& params, double weight);
 
     //! Compute the probability of the anomaly feature vector.
-    bool anomalyProbability(core_t::TTime time, double& result) const;
+    bool anomalyProbability(double& result) const;
+
+    //! Get the largest probability the model counts as anomalous.
+    double largestAnomalyProbability() const {
+        return 2.0 * LARGEST_SIGNIFICANT_PROBABILITY;
+    }
 
     //! Get the scaled time.
     core_t::TTime scale(core_t::TTime time) const {
@@ -420,9 +437,9 @@ CTimeSeriesAnomalyModel::CTimeSeriesAnomalyModel(core_t::TTime bucketLength, dou
     : m_BucketLength(bucketLength) {
     m_AnomalyFeatureModels.reserve(2);
     m_AnomalyFeatureModels.push_back(TMultivariateNormalConjugate::nonInformativePrior(
-        maths_t::E_ContinuousData, LARGEST_SIGNIFICANT_PROBABILITY * decayRate));
+        maths_t::E_ContinuousData, this->largestAnomalyProbability() * decayRate / 2.0));
     m_AnomalyFeatureModels.push_back(TMultivariateNormalConjugate::nonInformativePrior(
-        maths_t::E_ContinuousData, LARGEST_SIGNIFICANT_PROBABILITY * decayRate));
+        maths_t::E_ContinuousData, this->largestAnomalyProbability() * decayRate / 2.0));
 }
 
 void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params,
@@ -431,31 +448,28 @@ void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params,
                                      double bucketProbability,
                                      double overallProbability) {
 
-    if (overallProbability < 2.0 * LARGEST_SIGNIFICANT_PROBABILITY) {
+    if (overallProbability < this->largestAnomalyProbability()) {
         if (m_Anomaly == boost::none) {
             m_Anomaly.reset(CAnomaly{this->scale(time)});
         }
-        if (bucketProbability < 2.0 * LARGEST_SIGNIFICANT_PROBABILITY) {
-            m_Anomaly->update(predictionError);
-            this->sample(params, time, m_Anomaly->weight(this->scale(time)));
+        if (bucketProbability < this->largestAnomalyProbability()) {
+            m_Anomaly->update(this->scale(time), predictionError);
+            this->sample(params, m_Anomaly->weight());
         }
     } else if (m_Anomaly != boost::none) {
-        this->sample(params, time, 1.0 - m_Anomaly->weight(this->scale(time)));
+        this->sample(params, 1.0 - m_Anomaly->weight());
         m_Anomaly.reset();
     }
 }
 
-void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params,
-                                     core_t::TTime time,
-                                     double weight) {
+void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params, double weight) {
     // In case a rule triggered to skip model update,
     // this is the bit that we want to skip.
     // The rest of sample is necessary as it creates
     // the feature vector related to the current anomaly.
     if (params.skipAnomalyModelUpdate() == false) {
         auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
-        TDouble10Vec1Vec features{m_Anomaly->features(this->scale(time))};
-        model.addSamples(features, {maths_t::countWeight(weight, 2)});
+        model.addSamples({m_Anomaly->features()}, {maths_t::countWeight(weight, 2)});
     }
 }
 
@@ -466,18 +480,13 @@ void CTimeSeriesAnomalyModel::reset() {
     }
 }
 
-TDoubleDoublePr CTimeSeriesAnomalyModel::probability(core_t::TTime time,
+TDoubleDoublePr CTimeSeriesAnomalyModel::probability(double bucketProbability,
                                                      double overallProbability) const {
+
     double anomalyProbability{1.0};
 
-    if (overallProbability < 2.0 * LARGEST_SIGNIFICANT_PROBABILITY &&
-        this->anomalyProbability(time, anomalyProbability)) {
-
-        static const double A{-CTools::fastLog(2.0 * LARGEST_SIGNIFICANT_PROBABILITY)};
-        static const double B{-CTools::fastLog(SMALL_PROBABILITY)};
-
-        double logOverallProbability{CTools::fastLog(overallProbability)};
-        double logAnomalyProbability{CTools::fastLog(anomalyProbability)};
+    if (overallProbability < this->largestAnomalyProbability() &&
+        this->anomalyProbability(anomalyProbability)) {
 
         // We logarithmically interpolate the anomaly probability and the
         // probability we've determined for the bucket. This determines
@@ -489,7 +498,7 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(core_t::TTime time,
         //      (which corresponds to a weight equal to 0.5),
         //   3) For fixed anomaly probability the derivative of the weight
         //      w.r.t. minus log the bucket probability is negative and
-        //      approaches 0.0 at the "anomaly" cutoff probability, and
+        //      approaches 0.0 at the largest anomaly probability, and
         //   4) For fixed bucket probability the derivative of the weight
         //      w.r.t. minus log the anomaly probability is positive.
         // Note that condition 1) means we won't fall into the case that
@@ -503,32 +512,40 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(core_t::TTime time,
         // changes, finally condition 4) means that if the anomaly features
         // are highly unusual we can still assign the bucket a low probability
         // even if we don't think the bucket value is particularly unusual.
-        double x{std::max((B + logOverallProbability) / (B - A), 0.0)};
-        double y{(1.0 - B / (B - logAnomalyProbability))};
+        // We relax the anomaly probability back to 1.0 by a factor lambda
+        // based on how normal the individual bucket is.
+
+        double a{-CTools::fastLog(this->largestAnomalyProbability())};
+        double b{-CTools::fastLog(SMALL_PROBABILITY)};
+        double lambda{std::min(this->largestAnomalyProbability() / bucketProbability, 1.0)};
+        double logOverallProbability{CTools::fastLog(overallProbability)};
+        double logAnomalyProbability{CTools::fastLog(anomalyProbability)};
+
+        double x{std::max((b + logOverallProbability) / (b - a), 0.0)};
+        double y{(1.0 - b / (b - logAnomalyProbability))};
         double alpha{0.5 * (1.0 - x + x * y)};
 
         overallProbability = std::exp((1.0 - alpha) * logOverallProbability +
-                                      alpha * logAnomalyProbability);
+                                      alpha * lambda * logAnomalyProbability);
         LOG_TRACE(<< "alpha = " << alpha << ", p(combined) = " << overallProbability);
     }
 
     return {overallProbability, anomalyProbability};
 }
 
-bool CTimeSeriesAnomalyModel::anomalyProbability(core_t::TTime time, double& result) const {
+bool CTimeSeriesAnomalyModel::anomalyProbability(double& result) const {
     const auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
     if (m_Anomaly == boost::none || model.isNonInformative()) {
         return false;
     }
-    TDouble10Vec1Vec features{m_Anomaly->features(this->scale(time))};
     double pl, pu;
     TTail10Vec tail;
-    if (model.probabilityOfLessLikelySamples(maths_t::E_OneSidedAbove, features,
-                                             UNIT, pl, pu, tail) == false) {
+    if (model.probabilityOfLessLikelySamples(
+            maths_t::E_OneSidedAbove, {m_Anomaly->features()}, UNIT, pl, pu, tail) == false) {
         return false;
     }
     result = (pl + pu) / 2.0;
-    LOG_TRACE(<< "features = " << features << " p(anomaly) = " << result);
+    LOG_TRACE(<< "features = " << m_Anomaly->features() << " p(anomaly) = " << result);
     return true;
 }
 
@@ -558,8 +575,16 @@ std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                      core::CStateRestoreTraverser& traverser) {
     m_BucketLength = boost::unwrap_ref(params.s_Params).bucketLength();
-    // We can't upgrade the state of the anomaly model.
-    if (traverser.name() == VERSION_6_5_TAG) {
+    if (traverser.name() == VERSION_7_2_TAG) {
+        std::size_t index{0};
+        while (traverser.next()) {
+            const std::string& name{traverser.name()};
+            RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
+                    traverser.traverseSubLevel(boost::bind(
+                        &TMultivariateNormalConjugate::acceptRestoreTraverser,
+                        &m_AnomalyFeatureModels[index++], _1)))
+        }
+    } else if (traverser.name() == VERSION_6_5_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -573,11 +598,13 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& 
                         &m_AnomalyFeatureModels[index++], _1)))
         }
     }
+    // else we can't upgrade the state of the anomaly model pre 6.5.
+
     return true;
 }
 
 void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(VERSION_6_5_TAG, "");
+    inserter.insertValue(VERSION_7_2_TAG, "");
     if (m_Anomaly) {
         inserter.insertLevel(ANOMALY_6_5_TAG, boost::bind(&CAnomaly::acceptPersistInserter,
                                                           m_Anomaly.get(), _1));
@@ -1057,7 +1084,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
         m_AnomalyModel->sample(params, time, residual, probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
-            m_AnomalyModel->probability(time, probability);
+            m_AnomalyModel->probability(probabilities[0], probability);
         probabilities.push_back(anomalyProbability);
         featureProbabilities.emplace_back(
             SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
@@ -1191,7 +1218,7 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
                                probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
-            m_AnomalyModel->probability(mostAnomalousTime, probability);
+            m_AnomalyModel->probability(probabilities[0], probability);
         probabilities.push_back(anomalyProbability);
         featureProbabilities.emplace_back(
             SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
@@ -2620,7 +2647,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         m_AnomalyModel->sample(params, time, residual, probabilities[0], probability);
         double anomalyProbability;
         std::tie(probability, anomalyProbability) =
-            m_AnomalyModel->probability(time, probability);
+            m_AnomalyModel->probability(probabilities[0], probability);
         probabilities.push_back(anomalyProbability);
         featureProbabilities.emplace_back(
             SModelProbabilityResult::E_AnomalyModelProbability, anomalyProbability);
