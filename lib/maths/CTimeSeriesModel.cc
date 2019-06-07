@@ -579,6 +579,10 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& 
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
+            RESTORE_SETUP_TEARDOWN(ANOMALY_6_5_TAG, CAnomaly restored,
+                                   traverser.traverseSubLevel(boost::bind(
+                                       &CAnomaly::acceptRestoreTraverser, &restored, _1)),
+                                   m_Anomaly.reset(restored))
             RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
                     traverser.traverseSubLevel(boost::bind(
                         &TMultivariateNormalConjugate::acceptRestoreTraverser,
@@ -588,10 +592,6 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& 
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
-            RESTORE_SETUP_TEARDOWN(ANOMALY_6_5_TAG, CAnomaly restored,
-                                   traverser.traverseSubLevel(boost::bind(
-                                       &CAnomaly::acceptRestoreTraverser, &restored, _1)),
-                                   m_Anomaly.reset(restored))
             RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
                     traverser.traverseSubLevel(boost::bind(
                         &TMultivariateNormalConjugate::acceptRestoreTraverser,
