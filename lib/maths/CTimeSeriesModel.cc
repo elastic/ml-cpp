@@ -112,7 +112,7 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
 
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
-const std::string VERSION_7_2_TAG("7.2");
+const std::string VERSION_7_3_TAG("7.3");
 
 // Models
 // Version >= 6.3
@@ -140,8 +140,8 @@ const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
 const std::string IS_FORECASTABLE_OLD_TAG{"h"};
 
 // Anomaly model
-// Version >= 7.2
-const std::string LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG{"d"};
+// Version >= 7.3
+const std::string LAST_ANOMALOUS_BUCKET_TIME_7_3_TAG{"d"};
 // Version >= 6.5
 const std::string ANOMALY_6_5_TAG{"e"};
 const std::string ANOMALY_FEATURE_MODEL_6_5_TAG{"f"};
@@ -357,7 +357,7 @@ private:
             do {
                 const std::string& name{traverser.name()};
                 RESTORE_BUILT_IN(FIRST_ANOMALOUS_BUCKET_TIME_6_5_TAG, m_FirstAnomalousBucketTime)
-                RESTORE_BUILT_IN(LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG, m_LastAnomalousBucketTime)
+                RESTORE_BUILT_IN(LAST_ANOMALOUS_BUCKET_TIME_7_3_TAG, m_LastAnomalousBucketTime)
                 RESTORE_BUILT_IN(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError)
                 RESTORE(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                         m_MeanAbsPredictionError.fromDelimited(traverser.value()))
@@ -368,7 +368,7 @@ private:
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertValue(FIRST_ANOMALOUS_BUCKET_TIME_6_5_TAG, m_FirstAnomalousBucketTime);
-            inserter.insertValue(LAST_ANOMALOUS_BUCKET_TIME_7_2_TAG, m_LastAnomalousBucketTime);
+            inserter.insertValue(LAST_ANOMALOUS_BUCKET_TIME_7_3_TAG, m_LastAnomalousBucketTime);
             inserter.insertValue(SUM_PREDICTION_ERROR_6_5_TAG, m_SumPredictionError,
                                  core::CIEEE754::E_SinglePrecision);
             inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
@@ -575,7 +575,7 @@ std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                      core::CStateRestoreTraverser& traverser) {
     m_BucketLength = boost::unwrap_ref(params.s_Params).bucketLength();
-    if (traverser.name() == VERSION_7_2_TAG) {
+    if (traverser.name() == VERSION_7_3_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -604,7 +604,7 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& 
 }
 
 void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(VERSION_7_2_TAG, "");
+    inserter.insertValue(VERSION_7_3_TAG, "");
     if (m_Anomaly) {
         inserter.insertLevel(ANOMALY_6_5_TAG, boost::bind(&CAnomaly::acceptPersistInserter,
                                                           m_Anomaly.get(), _1));
