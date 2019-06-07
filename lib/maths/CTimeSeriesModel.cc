@@ -320,7 +320,7 @@ private:
     public:
         CAnomaly() = default;
         explicit CAnomaly(core_t::TTime time)
-            : m_FirstAnomalousBucketTime(time) {}
+            : m_FirstAnomalousBucketTime(time), m_LastAnomalousBucketTime(time) {}
 
         //! Add a result to the anomaly.
         void update(core_t::TTime time, double predictionError) {
