@@ -467,14 +467,14 @@ protected:
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(bool bucketEmpty,
-                                        double probabilityBucketEmpty,
-                                        double probability);
+    static double jointProbabilityGivenBucket(bool bucketEmpty,
+                                              double probabilityBucketEmpty,
+                                              double probability);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(const TBool2Vec& bucketEmpty,
-                                        const TDouble2Vec& probabilityEmptyBucket,
-                                        double probability);
+    static double jointProbabilityGivenBucket(const TBool2Vec& bucketEmpty,
+                                              const TDouble2Vec& probabilityEmptyBucket,
+                                              double probability);
 
 private:
     //! The model parameters.

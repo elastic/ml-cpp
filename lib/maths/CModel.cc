@@ -288,29 +288,29 @@ CModelParams& CModel::params() {
     return m_Params;
 }
 
-double CModel::correctForEmptyBucket(bool bucketEmpty, double probabilityBucketEmpty, double probability) {
-    if (bucketEmpty == false) {
+double CModel::jointProbabilityGivenBucket(bool empty, double probabilityBucketEmpty, double probability) {
+    if (empty == false) {
         return (1.0 - probabilityBucketEmpty) * probability;
     }
     return probabilityBucketEmpty + (1.0 - probabilityBucketEmpty) * probability;
 }
 
-double CModel::correctForEmptyBucket(const TBool2Vec& bucketEmpty,
-                                     const TDouble2Vec& probabilityEmptyBucket,
-                                     double probability) {
+double CModel::jointProbabilityGivenBucket(const TBool2Vec& empty,
+                                           const TDouble2Vec& probabilityEmptyBucket,
+                                           double probability) {
 
     double p00{probabilityEmptyBucket[0]};
     double p10{probabilityEmptyBucket[1]};
 
-    if (bucketEmpty[0] == false && bucketEmpty[1] == false) {
+    if (empty[0] == false && empty[1] == false) {
         return (1.0 - p00) * (1.0 - p10) * probability;
     }
 
-    if (bucketEmpty[0] == false) {
+    if (empty[0] == false) {
         return (1.0 - p00) * probability * (p10 + (1.0 - p10) * probability);
     }
 
-    if (bucketEmpty[1] == false) {
+    if (empty[1] == false) {
         return (p00 + (1.0 - p00) * probability) * (1.0 - p10) * probability;
     }
 
