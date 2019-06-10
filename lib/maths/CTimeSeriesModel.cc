@@ -109,10 +109,10 @@ double featureProbabilityGivenBucket(TBool2Vec empty,
     // is non-null for an empty bucket it's value is defined to be zero. This is
     // true for all our current features, i.e. counts and sums.
 
-    auto pOneSide = [&](double pBucketEmpty) {
+    auto pOneSide = [probability](double pBucketEmpty) {
         return std::min(2.0 * (pBucketEmpty + (1.0 - pBucketEmpty) * probability / 2.0), 1.0);
     };
-    auto pTwoSides = [&](double pBucketEmpty) {
+    auto pTwoSides = [probability](double pBucketEmpty) {
         return pBucketEmpty + (1.0 - pBucketEmpty) * probability;
     };
 
