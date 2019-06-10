@@ -30,6 +30,10 @@
 
 == {es} version 7.3.0
 
+=== Enhancements
+
+* Upgrade to a newer version of the Apache Portable Runtime library. (See {ml-pull}495[#495].)
+
 === Bug Fixes
 
 * Reduce false positives associated with the multi-bucket feature. (See {ml-pull}491[#491].)

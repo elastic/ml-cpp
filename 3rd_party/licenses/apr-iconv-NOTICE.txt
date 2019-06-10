@@ -1,2 +1,5 @@
-This product includes software developed by
+Apache Portable Runtime ICONV Charset Conversion Library
+Copyright (c) 2000-2017 The Apache Software Foundation.
+
+This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).

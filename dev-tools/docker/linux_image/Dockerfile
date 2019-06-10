@@ -51,29 +51,39 @@ RUN \
   cd .. && \
   rm -rf libxml2-2.9.4
 
+# Build expat
+RUN \
+  wget --quiet -O - http://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2 | tar jxf - && \
+  cd expat-2.2.6 && \
+  ./configure --prefix=/usr/local/gcc73 && \
+  make -j`grep -c '^processor' /proc/cpuinfo` && \
+  make install && \
+  cd .. && \
+  rm -rf expat-2.2.6
+
 # Build APR
 RUN \
-  wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2 | tar jxf - && \
-  cd apr-1.5.2 && \
+  wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.7.0.tar.bz2 | tar jxf - && \
+  cd apr-1.7.0 && \
   sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
   sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in && \
   ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf apr-1.5.2
+  rm -rf apr-1.7.0
 
 # Build APR utilities
 RUN \
-  wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2 | tar jxf - && \
-  cd apr-util-1.5.4 && \
+  wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.bz2 | tar jxf - && \
+  cd apr-util-1.6.1 && \
   sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
   sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c && \
-  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin && \
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf apr-util-1.5.4
+  rm -rf apr-util-1.6.1
 
 # Build log4cxx
 RUN \
