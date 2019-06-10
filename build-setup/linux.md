@@ -150,14 +150,32 @@ sudo make install
 
 to install.
 
-### APR
+### expat
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2>.
+Download expat from <https://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar jxvf apr-1.5.2.tar.bz2
+tar jxvf expat-2.2.6.tar.bz2
+```
+
+Then build using:
+
+```
+./configure --prefix=/usr/local/gcc73 --without-docbook
+make
+sudo make install
+```
+
+### APR
+
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.7.0.tar.bz2>.
+
+Extract the tarball to a temporary directory:
+
+```
+tar jxvf apr-1.7.0.tar.bz2
 ```
 
 We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
@@ -194,12 +212,12 @@ sudo make install
 
 ### APR utilities
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2>.
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar jxvf apr-util-1.5.4.tar.bz2
+tar jxvf apr-util-1.6.1.tar.bz2
 ```
 
 We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
@@ -229,7 +247,7 @@ to:
 Then build using:
 
 ```
-./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin
+./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73
 make
 sudo make install
 ```
