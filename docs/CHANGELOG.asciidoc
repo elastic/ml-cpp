@@ -30,6 +30,10 @@
 
 == {es} version 7.2.1
 
+=== Enhancements
+
+* Upgrade to a newer version of the Apache Portable Runtime library. (See {ml-pull}495[#495].)
+
 === Bug Fixes
 
 * Fix an edge case causing spurious anomalies (false positives) if the variance in the count of events

@@ -226,8 +226,6 @@ Download the Windows source for version 1.6.1 of the Apache Portable Runtime (AP
 
 Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-util-1.6.1`. Rename this to simply `apr-util`.
 
-Right-click on the directory `C:\tools\apr-util\xml`, go to Properties -&gt; Security -&gt; CREATOR OWNER -&gt; Edit..., check Full Control -&gt; Allow and then OK all the open dialog boxes.
-
 In both `C:\tools\apr-util\apr-util.mak` and `C:\tools\apr-util\libaprutil.mak` globally replace `./xml/expat/lib` with `../expat-2.2.6/lib`.
 
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
