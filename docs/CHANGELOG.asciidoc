@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.3.0
+
+=== Bug Fixes
+
+* Reduce false positives associated with the multi-bucket feature. (See {ml-pull}491[#491].)
+* Reduce false positives for sum and count functions on sparse data. (See {ml-pull}492[#492].)
+
 == {es} version 7.2.1
 
 === Bug Fixes
