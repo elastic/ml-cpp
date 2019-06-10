@@ -96,7 +96,7 @@ if [ ! -f expat.state ]; then
   cd expat
   echo "  Configuring..."
 
-  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 --without-docbook > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
