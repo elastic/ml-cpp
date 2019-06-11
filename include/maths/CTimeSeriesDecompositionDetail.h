@@ -262,7 +262,7 @@ public:
         //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;
 
-        //! Get the accounting for linear scales in the test window. 
+        //! Get the accounting for linear scales in the test window.
         TPredictor scaledPredictor(const TPredictor& predictor) const;
 
         //! Remove any linear scale events outside the test windows.
