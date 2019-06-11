@@ -109,6 +109,9 @@ public:
     //! \return The name of the results field.
     const std::string& resultsField() const;
 
+    //! \return The names of the categorical fields.
+    const TStrVec& categoricalFieldNames() const;
+
     //! Make a data frame suitable for this analysis specification.
     //!
     //! This chooses the storage strategy based on the analysis constraints and
@@ -139,6 +142,7 @@ private:
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
     std::string m_ResultsField;
+    TStrVec m_CategoricalFieldNames;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;

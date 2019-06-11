@@ -45,6 +45,7 @@ const char* const MEMORY_LIMIT{"memory_limit"};
 const char* const THREADS{"threads"};
 const char* const TEMPORARY_DIRECTORY{"temp_dir"};
 const char* const RESULTS_FIELD{"results_field"};
+const char* const CATEGORICAL_FIELD_NAMES{"categorical_fields"};
 const char* const ANALYSIS{"analysis"};
 const char* const NAME{"name"};
 const char* const PARAMETERS{"parameters"};
@@ -61,6 +62,7 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     theReader.addParameter(TEMPORARY_DIRECTORY,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(CATEGORICAL_FIELD_NAMES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
     return theReader;
 }()};
@@ -101,6 +103,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
             boost::filesystem::current_path().string());
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
+        m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
@@ -131,6 +134,10 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
 
 const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
+}
+
+const CDataFrameAnalysisSpecification::TStrVec& CDataFrameAnalysisSpecification::categoricalFieldNames() const {
+    return m_CategoricalFieldNames;
 }
 
 CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
