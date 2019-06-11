@@ -117,9 +117,9 @@ public:
     template<typename T, std::size_t N>
     void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
                     core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(clusterer.persistenceTag(),
+        inserter.insertLevel(clusterer.persistenceTag(inserter.readableTags()),
                              std::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
-                                       &clusterer, std::placeholders::_1));
+                                         &clusterer, std::placeholders::_1));
     }
 };
 }

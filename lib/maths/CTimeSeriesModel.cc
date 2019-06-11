@@ -170,6 +170,9 @@ const std::string CONTROLLER_6_3_TAG{"e"};
 const std::string TREND_MODEL_6_3_TAG{"f"};
 const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
+
+const std::string READABLE_RESIDUAL_MODEL_6_3_TAG{"residual_model"};
+
 //const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5
 const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
 const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
@@ -1423,6 +1426,15 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
         } while (traverser.next());
     }
     return true;
+}
+
+void CUnivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    if (m_ResidualModel != nullptr) {
+        const bool readableTags{inserter.readableTags()};
+        inserter.insertLevel(readableTags ? READABLE_RESIDUAL_MODEL_6_3_TAG : RESIDUAL_MODEL_6_3_TAG,
+                             std::bind<void>(CPriorStateSerialiser{},
+                                               std::cref(*m_ResidualModel), std::placeholders::_1));
+    }
 }
 
 void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -2859,9 +2871,11 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
                              std::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
                                              std::cref(*trend), std::placeholders::_1));
     }
-    inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                         std::bind<void>(CPriorStateSerialiser(), std::cref(*m_ResidualModel),
-                                         std::placeholders::_1));
+    if (m_ResidualModel != nullptr) {
+        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
+                             std::bind<void>(CPriorStateSerialiser(),
+                                               std::cref(*m_ResidualModel), std::placeholders::_1));
+    }
     if (m_MultibucketFeature != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,
                              std::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
@@ -2879,6 +2893,10 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
                              std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
                                        m_AnomalyModel.get(), std::placeholders::_1));
     }
+}
+
+void CMultivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter&/* inserter*/) const {
+    // NO-OP
 }
 
 maths_t::EDataType CMultivariateTimeSeriesModel::dataType() const {

@@ -38,6 +38,7 @@ void setConstant(double value, TOptionalDouble& result) {
 
 // We use short field names to reduce the state size
 const std::string CONSTANT_TAG("a");
+const std::string READABLE_CONSTANT_TAG("constant");
 
 const std::string EMPTY_STRING;
 
@@ -355,7 +356,8 @@ std::size_t CConstantPrior::staticSize() const {
 
 void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     if (m_Constant) {
-        inserter.insertValue(CONSTANT_TAG, *m_Constant, core::CIEEE754::E_DoublePrecision);
+        const std::string constantTag{inserter.readableTags() ? READABLE_CONSTANT_TAG : CONSTANT_TAG};
+        inserter.insertValue(constantTag, *m_Constant, core::CIEEE754::E_DoublePrecision);
     }
 }
 

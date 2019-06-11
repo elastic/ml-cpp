@@ -9,6 +9,8 @@
 namespace ml {
 namespace maths {
 namespace {
+const std::string READABLE_INDEX_TAG("index");
+
 const std::string INDEX_TAG("a");
 }
 
@@ -30,7 +32,8 @@ bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestor
 }
 
 void CClustererTypes::CIndexGenerator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(INDEX_TAG, *m_IndexHeap, inserter);
+    const bool readableTags{inserter.readableTags()};
+    core::CPersistUtils::persist(readableTags ? READABLE_INDEX_TAG : INDEX_TAG, *m_IndexHeap, inserter);
 }
 
 CClustererTypes::CIndexGenerator CClustererTypes::CIndexGenerator::deepCopy() const {
@@ -67,6 +70,9 @@ std::size_t CClustererTypes::CIndexGenerator::memoryUsage() const {
 std::string CClustererTypes::CIndexGenerator::print() const {
     return core::CContainerPrinter::print(*m_IndexHeap);
 }
+const std::string CClustererTypes::READABLE_X_MEANS_ONLINE_1D_TAG("x_means_online_1d");
+const std::string CClustererTypes::READABLE_K_MEANS_ONLINE_1D_TAG("k_means_online_1d");
+const std::string CClustererTypes::READABLE_X_MEANS_ONLINE_TAG("x_means_online");
 
 const std::string CClustererTypes::X_MEANS_ONLINE_1D_TAG("a");
 const std::string CClustererTypes::K_MEANS_ONLINE_1D_TAG("b");

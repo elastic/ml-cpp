@@ -42,6 +42,16 @@ const std::string ONE_OF_N_TAG("e");
 const std::string POISSON_TAG("f");
 const std::string MULTINOMIAL_TAG("g");
 const std::string CONSTANT_TAG("h");
+
+const std::string READABLE_GAMMA_TAG("gamma");
+const std::string READABLE_LOG_NORMAL_TAG("log_normal");
+const std::string READABLE_MULTIMODAL_TAG("multimodal");
+const std::string READABLE_NORMAL_TAG("normal");
+const std::string READABLE_ONE_OF_N_TAG("one-of-n");
+const std::string READABLE_POISSON_TAG("poisson");
+const std::string READABLE_MULTINOMIAL_TAG("multimonial");
+const std::string READABLE_CONSTANT_TAG("constant");
+
 const std::string EMPTY_STRING;
 
 //! Implements restore for std::shared_ptr.
@@ -140,22 +150,23 @@ void CPriorStateSerialiser::operator()(const CPrior& prior,
                                        core::CStatePersistInserter& inserter) const {
     std::string tagName;
 
+    const bool readableTags{inserter.readableTags()};
     if (dynamic_cast<const CConstantPrior*>(&prior) != nullptr) {
-        tagName = CONSTANT_TAG;
+        tagName = readableTags ? READABLE_CONSTANT_TAG : CONSTANT_TAG;
     } else if (dynamic_cast<const CGammaRateConjugate*>(&prior) != nullptr) {
-        tagName = GAMMA_TAG;
+        tagName = readableTags ? READABLE_GAMMA_TAG : GAMMA_TAG;
     } else if (dynamic_cast<const CLogNormalMeanPrecConjugate*>(&prior) != nullptr) {
-        tagName = LOG_NORMAL_TAG;
+        tagName = readableTags ? READABLE_LOG_NORMAL_TAG : LOG_NORMAL_TAG;
     } else if (dynamic_cast<const CMultimodalPrior*>(&prior) != nullptr) {
-        tagName = MULTIMODAL_TAG;
+        tagName = readableTags ? READABLE_MULTIMODAL_TAG : MULTIMODAL_TAG;
     } else if (dynamic_cast<const CMultinomialConjugate*>(&prior) != nullptr) {
-        tagName = MULTINOMIAL_TAG;
+        tagName = readableTags ? READABLE_MULTINOMIAL_TAG : MULTINOMIAL_TAG;
     } else if (dynamic_cast<const CNormalMeanPrecConjugate*>(&prior) != nullptr) {
-        tagName = NORMAL_TAG;
+        tagName = readableTags ? READABLE_NORMAL_TAG : NORMAL_TAG;
     } else if (dynamic_cast<const COneOfNPrior*>(&prior) != nullptr) {
-        tagName = ONE_OF_N_TAG;
+        tagName = readableTags ? READABLE_ONE_OF_N_TAG : ONE_OF_N_TAG;
     } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != nullptr) {
-        tagName = POISSON_TAG;
+        tagName = readableTags ? READABLE_POISSON_TAG : POISSON_TAG;
     } else {
         LOG_ERROR(<< "Prior distribution with type '" << typeid(prior).name()
                   << "' has no defined field name");

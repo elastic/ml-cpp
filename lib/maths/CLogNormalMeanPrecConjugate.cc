@@ -595,6 +595,14 @@ private:
 
 } // detail::
 
+const std::string READABLE_OFFSET_TAG("offset");
+const std::string READABLE_GAUSSIAN_MEAN_TAG("gaussian_mean");
+const std::string READABLE_GAUSSIAN_PRECISION_TAG("gaussian_precision");
+const std::string READABLE_GAMMA_SHAPE_TAG("gamma_shape");
+const std::string READABLE_GAMMA_RATE_TAG("gamma_rate");
+const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
+const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+
 // We use short field names to reduce the state size
 const std::string OFFSET_TAG("a");
 const std::string GAUSSIAN_MEAN_TAG("b");
@@ -1489,13 +1497,14 @@ std::size_t CLogNormalMeanPrecConjugate::staticSize() const {
 }
 
 void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
-    inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean.toString());
-    inserter.insertValue(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toString());
-    inserter.insertValue(GAMMA_SHAPE_TAG, m_GammaShape.toString());
-    inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+    const bool readableTags{inserter.readableTags()};
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_MEAN_TAG : GAUSSIAN_MEAN_TAG, m_GaussianMean.toString());
+    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_PRECISION_TAG : GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toString());
+    inserter.insertValue(readableTags ? READABLE_GAMMA_SHAPE_TAG : GAMMA_SHAPE_TAG, m_GammaShape.toString());
+    inserter.insertValue(readableTags ? READABLE_GAMMA_RATE_TAG : GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }
 

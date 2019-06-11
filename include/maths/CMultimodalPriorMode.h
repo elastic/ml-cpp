@@ -34,6 +34,9 @@ struct SMultimodalPriorMode {
     static const std::string INDEX_TAG;
     static const std::string PRIOR_TAG;
 
+    static const std::string READABLE_INDEX_TAG;
+    static const std::string READABLE_PRIOR_TAG;
+
     SMultimodalPriorMode() : s_Index(0), s_Prior() {}
     SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior)
         : s_Index(index), s_Prior(prior->clone()) {}
@@ -76,10 +79,10 @@ struct SMultimodalPriorMode {
 
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(INDEX_TAG, s_Index);
-        inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                        std::cref(*s_Prior),
-                                                        std::placeholders::_1));
+        const bool readableTags{inserter.readableTags()};
+        inserter.insertValue(readableTags ? READABLE_INDEX_TAG : INDEX_TAG, s_Index);
+        inserter.insertLevel(readableTags ? READABLE_PRIOR_TAG : PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
+                                                          std::cref(*s_Prior), std::placeholders::_1));
     }
 
     //! Full debug dump of the mode weights.
@@ -104,6 +107,11 @@ template<typename PRIOR>
 const std::string SMultimodalPriorMode<PRIOR>::INDEX_TAG("a");
 template<typename PRIOR>
 const std::string SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b");
+
+template<typename PRIOR>
+const std::string SMultimodalPriorMode<PRIOR>::READABLE_INDEX_TAG("index");
+template<typename PRIOR>
+const std::string SMultimodalPriorMode<PRIOR>::READABLE_PRIOR_TAG("prior");
 }
 }
 

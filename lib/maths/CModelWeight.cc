@@ -21,6 +21,9 @@ namespace maths {
 namespace {
 
 // We use short field names to reduce the state size
+const std::string READABLE_LOG_WEIGHT_TAG("log_weight");
+const std::string READABLE_LONG_TERM_LOG_WEIGHT_TAG("long_term_log_weight");
+
 const std::string LOG_WEIGHT_TAG("a");
 const std::string LONG_TERM_LOG_WEIGHT_TAG("c");
 const double LOG_SMALLEST_WEIGHT = std::log(CTools::smallestProbability());
@@ -65,8 +68,9 @@ bool CModelWeight::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 }
 
 void CModelWeight::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(LOG_WEIGHT_TAG, m_LogWeight, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight,
+    const bool readableTags{inserter.readableTags()};
+    inserter.insertValue(readableTags ? READABLE_LOG_WEIGHT_TAG : LOG_WEIGHT_TAG, m_LogWeight, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(readableTags ? READABLE_LONG_TERM_LOG_WEIGHT_TAG : LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight,
                          core::CIEEE754::E_SinglePrecision);
 }
 }

@@ -54,6 +54,10 @@ public:
         f(*this);
     }
 
+    virtual bool readableTags() const {
+        return false;
+    }
+
 protected:
     //! Start a new level with the given name
     virtual void newLevel(const std::string& name) = 0;

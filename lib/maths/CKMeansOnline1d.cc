@@ -71,6 +71,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample,
 // 1 - "smallest hard assignment weight"
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
+const std::string READABLE_CLUSTER_TAG("cluster");
 const std::string CLUSTER_TAG("a");
 }
 
@@ -98,15 +99,15 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     return true;
 }
 
-std::string CKMeansOnline1d::persistenceTag() const {
-    return K_MEANS_ONLINE_1D_TAG;
+std::string CKMeansOnline1d::persistenceTag(bool readableTags) const {
+    return readableTags ? READABLE_K_MEANS_ONLINE_1D_TAG : K_MEANS_ONLINE_1D_TAG;
 }
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    const bool readableTags{inserter.readableTags()};
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG,
-                             std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                       &m_Clusters[i], std::placeholders::_1));
+        inserter.insertLevel(readableTags ? READABLE_CLUSTER_TAG : CLUSTER_TAG, std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                                      &m_Clusters[i], std::placeholders::_1));
     }
 }
 

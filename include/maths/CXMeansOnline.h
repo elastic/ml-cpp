@@ -122,11 +122,11 @@ public:
 
         //! Persist state by passing information to the supplied inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-            inserter.insertValue(INDEX_TAG, m_Index);
-            inserter.insertValue(COVARIANCES_TAG, m_Covariances.toDelimited());
-            inserter.insertLevel(STRUCTURE_TAG,
-                                 std::bind(&TKMeansOnline::acceptPersistInserter,
-                                           m_Structure, std::placeholders::_1));
+            const bool readableTags{inserter.readableTags()};
+            inserter.insertValue(readableTags ? READABLE_INDEX_TAG : INDEX_TAG, m_Index);
+            inserter.insertValue(readableTags ? READABLE_COVARIANCES_TAG : COVARIANCES_TAG, m_Covariances.toDelimited());
+            inserter.insertLevel(readableTags ? READABLE_STRUCTURE_TAG : STRUCTURE_TAG, std::bind(&TKMeansOnline::acceptPersistInserter,
+                                                            m_Structure, std::placeholders::_1));
         }
 
         //! Efficiently swap the contents of this and \p other.
@@ -660,27 +660,27 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual std::string persistenceTag() const {
-        return CClustererTypes::X_MEANS_ONLINE_TAG;
+    virtual std::string persistenceTag(bool readableTags) const {
+        return readableTags ? CClustererTypes::READABLE_X_MEANS_ONLINE_TAG : CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+        const bool readableTags{inserter.readableTags()};
         for (const auto& cluster : m_Clusters) {
-            inserter.insertLevel(CLUSTER_TAG,
-                                 std::bind(&CCluster::acceptPersistInserter,
-                                           &cluster, std::placeholders::_1));
+            inserter.insertLevel(readableTags ? READABLE_CLUSTER_TAG : CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter,
+                                                          &cluster, std::placeholders::_1));
         }
-        inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
-        inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength.toString());
-        inserter.insertValue(RNG_TAG, m_Rng.toString());
-        inserter.insertValue(WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
-        inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG,
+        inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, m_DecayRate.toString());
+        inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG, m_HistoryLength.toString());
+        inserter.insertValue(readableTags ? READABLE_RNG_TAG : RNG_TAG, m_Rng.toString());
+        inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
+        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG : MINIMUM_CLUSTER_FRACTION_TAG,
                              m_MinimumClusterFraction.toString());
-        inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
-        inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
+        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
+        inserter.insertLevel(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : CLUSTER_INDEX_GENERATOR_TAG,
                              std::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
-                                       &m_ClusterIndexGenerator, std::placeholders::_1));
+                                         &m_ClusterIndexGenerator, std::placeholders::_1));
     }
 
     //! Creates a copy of the clusterer.
@@ -1171,6 +1171,16 @@ private:
 private:
     //! \name Tags for Persisting CXMeansOnline
     //@{
+    static const std::string READABLE_WEIGHT_CALC_TAG;
+    static const std::string READABLE_MINIMUM_CLUSTER_FRACTION_TAG;
+    static const std::string READABLE_MINIMUM_CLUSTER_COUNT_TAG;
+    static const std::string READABLE_WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+    static const std::string READABLE_CLUSTER_INDEX_GENERATOR_TAG;
+    static const std::string READABLE_CLUSTER_TAG;
+    static const std::string READABLE_RNG_TAG;
+    static const std::string READABLE_DECAY_RATE_TAG;
+    static const std::string READABLE_HISTORY_LENGTH_TAG;
+
     static const std::string WEIGHT_CALC_TAG;
     static const std::string MINIMUM_CLUSTER_FRACTION_TAG;
     static const std::string MINIMUM_CLUSTER_COUNT_TAG;
@@ -1184,6 +1194,10 @@ private:
 
     //! \name Tags for Persisting CXMeansOnline::CCluster
     //@{
+    static const std::string READABLE_INDEX_TAG;
+    static const std::string READABLE_COVARIANCES_TAG;
+    static const std::string READABLE_STRUCTURE_TAG;
+
     static const std::string INDEX_TAG;
     static const std::string COVARIANCES_TAG;
     static const std::string STRUCTURE_TAG;
@@ -1245,6 +1259,29 @@ private:
     //! The clusters.
     TClusterVec m_Clusters;
 };
+
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_WEIGHT_CALC_TAG("weight_calc");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_MINIMUM_CLUSTER_FRACTION_TAG("minimum_cluster_fraction");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_MINIMUM_CLUSTER_COUNT_TAG("minimum_cluster_count");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_CLUSTER_INDEX_GENERATOR_TAG("cluster_index_generator");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_CLUSTER_TAG("cluster");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_RNG_TAG("rng");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_DECAY_RATE_TAG("decay_rate");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_HISTORY_LENGTH_TAG("history_length");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_INDEX_TAG("index");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_COVARIANCES_TAG("covariances");
+template<typename T, std::size_t N>
+const std::string CXMeansOnline<T, N>::READABLE_STRUCTURE_TAG("structure");
 
 template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a");

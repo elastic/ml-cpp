@@ -110,6 +110,11 @@ protected:
     static const std::string POINTS_TAG;
     static const std::string RNG_TAG;
 
+    static const std::string READABLE_K_TAG;
+    static const std::string READABLE_CLUSTERS_TAG;
+    static const std::string READABLE_POINTS_TAG;
+    static const std::string READABLE_RNG_TAG;
+
 public:
     //! \param[in] k The maximum space in numbers of clusters.
     //! A cluster comprises one float point vector, one count and
@@ -160,10 +165,11 @@ public:
 
     //! Persist state by passing to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(RNG_TAG, m_Rng.toString());
-        core::CPersistUtils::persist(K_TAG, m_K, inserter);
-        core::CPersistUtils::persist(CLUSTERS_TAG, m_Clusters, inserter);
-        core::CPersistUtils::persist(POINTS_TAG, m_PointsBuffer, inserter);
+        const bool readableTags{inserter.readableTags()};
+        inserter.insertValue(readableTags ? READABLE_RNG_TAG : RNG_TAG, m_Rng.toString());
+        core::CPersistUtils::persist(readableTags ? READABLE_K_TAG : K_TAG, m_K, inserter);
+        core::CPersistUtils::persist(readableTags ? READABLE_CLUSTERS_TAG : CLUSTERS_TAG, m_Clusters, inserter);
+        core::CPersistUtils::persist(readableTags ? READABLE_POINTS_TAG : POINTS_TAG, m_PointsBuffer, inserter);
     }
 
     //! Efficiently swap the contents of this and \p other.
@@ -616,6 +622,15 @@ template<typename POINT>
 const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
 template<typename POINT>
 const std::string CKMeansOnline<POINT>::RNG_TAG("d");
+
+template<typename POINT>
+const std::string CKMeansOnline<POINT>::READABLE_K_TAG("k");
+template<typename POINT>
+const std::string CKMeansOnline<POINT>::READABLE_CLUSTERS_TAG("clusters");
+template<typename POINT>
+const std::string CKMeansOnline<POINT>::READABLE_POINTS_TAG("points");
+template<typename POINT>
+const std::string CKMeansOnline<POINT>::READABLE_RNG_TAG("rng");
 }
 }
 

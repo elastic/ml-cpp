@@ -31,6 +31,11 @@ namespace core {
 
 namespace persist_utils_detail {
 
+const std::string READABLE_FIRST_TAG("first");
+const std::string READABLE_SECOND_TAG("second");
+const std::string READABLE_MAP_TAG("map");
+const std::string READABLE_SIZE_TAG("size");
+
 const std::string FIRST_TAG("a");
 const std::string SECOND_TAG("b");
 const std::string MAP_TAG("c");
@@ -699,8 +704,9 @@ public:
 private:
     template<typename A, typename B>
     static void newLevel(const std::pair<A, B>& t, CStatePersistInserter& inserter) {
-        persist(FIRST_TAG, t.first, inserter);
-        persist(SECOND_TAG, t.second, inserter);
+        const bool readableTags{inserter.readableTags()};
+        persist(readableTags ? READABLE_FIRST_TAG : FIRST_TAG, t.first, inserter);
+        persist(readableTags ? READABLE_SECOND_TAG : SECOND_TAG, t.second, inserter);
     }
 };
 
@@ -824,9 +830,10 @@ private:
     //! pre-size the new container if appropriate
     template<typename ITR>
     static void newLevel(ITR begin, ITR end, std::size_t size, CStatePersistInserter& inserter) {
-        inserter.insertValue(SIZE_TAG, size);
+        const bool readableTags{inserter.readableTags()};
+        inserter.insertValue(readableTags ? READABLE_SIZE_TAG : SIZE_TAG, size);
         for (; begin != end; ++begin) {
-            persist(FIRST_TAG, *begin, inserter);
+            persist(readableTags ? READABLE_FIRST_TAG : FIRST_TAG, *begin, inserter);
         }
     }
 };

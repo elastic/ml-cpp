@@ -40,7 +40,7 @@ namespace api {
 //! If the filter is applied on data in the restore format it does not change it.
 //!
 //! NOTE:\n
-//! When using it with boost::iostreams::filtering_ostream not that the filters gets
+//! When using it with boost::iostreams::filtering_ostream note that the filters gets
 //! copied once pushed to the ostream instance.
 //!
 class API_EXPORT CStateRestoreStreamFilter

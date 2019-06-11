@@ -161,6 +161,12 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
 
 } // detail::
 
+const std::string READABLE_SHAPE_TAG("shape");
+const std::string READABLE_RATE_TAG("rate");
+const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
+const std::string READABLE_OFFSET_TAG("offset");
+const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+
 // We use short field names to reduce the state size
 const std::string SHAPE_TAG("a");
 const std::string RATE_TAG("b");
@@ -865,11 +871,12 @@ std::size_t CPoissonMeanConjugate::staticSize() const {
 }
 
 void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
-    inserter.insertValue(SHAPE_TAG, m_Shape.toString());
-    inserter.insertValue(RATE_TAG, m_Rate.toString());
-    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+    const bool readableTags{inserter.readableTags()};
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(readableTags ? READABLE_SHAPE_TAG : SHAPE_TAG, m_Shape.toString());
+    inserter.insertValue(readableTags ? READABLE_RATE_TAG : RATE_TAG, m_Rate.toString());
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }
 

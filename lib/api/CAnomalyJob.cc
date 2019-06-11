@@ -83,6 +83,16 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! The minimum version required to read the state corresponding to a model snapshot.
 //! This should be updated every time there is a breaking change to the model state.
 const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
+
+// Persist state as JSON with meaningful tag names.
+class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter
+{
+public:
+    explicit CReadableJsonStatePersistInserter(std::ostream& outputStream) : core::CJsonStatePersistInserter(outputStream) {}
+    virtual bool readableTags() const {
+        return true;
+    }
+};
 }
 
 // Statics
@@ -972,6 +982,18 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
+bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister)  {
+    TKeyCRefAnomalyDetectorPtrPrVec detectors;
+    this->sortedDetectors(detectors);
+
+    // Persistence operates on a cached collection of counters rather than on the live counters directly.
+    // This is in order that background persistence operates on a consistent set of counters however we
+    // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
+    core::CProgramCounters::cacheCounters();
+
+    return this->persistResidualModelsState(detectors, persister);
+}
+
 bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     if (m_PeriodicPersister != nullptr) {
         // This will not happen if finalise() was called before persisting state
@@ -1072,6 +1094,43 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
                               args->s_InterimBucketCorrector, args->s_Aggregator,
                               args->s_NormalizerState, args->s_LatestRecordTime,
                               args->s_LastResultsTime, persister);
+}
+
+bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors, core::CDataAdder& persister) {
+    try {
+        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
+        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
+        core::CDataAdder::TOStreamP strm = persister.addStreamed(
+            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+        if (strm != nullptr) {
+            {
+                // The JSON inserter must be destroyed before the stream is complete
+                CReadableJsonStatePersistInserter inserter(*strm);
+                for (const auto& detector_ : detectors) {
+                    const model::CAnomalyDetector* detector(detector_.second.get());
+                    if (detector == nullptr) {
+                        LOG_ERROR(<< "Unexpected NULL pointer for key '"
+                                  << pairDebug(detector_.first) << '\'');
+                        continue;
+                    }
+
+                    detector->persistResidualModelsState(inserter);
+
+                    LOG_DEBUG(<< "Persisted state for '" << detector->description() << "'");
+                }
+            }
+
+            if (persister.streamComplete(strm, true) == false || strm->bad()) {
+                LOG_ERROR(<< "Failed to complete last persistence stream");
+                return false;
+            }
+        }
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to persist state! " << e.what());
+        return false;
+    }
+
+    return true;
 }
 
 bool CAnomalyJob::persistState(const std::string& descriptionPrefix,

@@ -52,6 +52,12 @@ using TSizeSet = std::set<std::size_t>;
 const std::size_t MODE_SPLIT_NUMBER_SAMPLES(50u);
 const std::size_t MODE_MERGE_NUMBER_SAMPLES(25u);
 
+const std::string READABLE_CLUSTERER_TAG("clusterer");
+const std::string READABLE_SEED_PRIOR_TAG("seed_prior");
+const std::string READABLE_MODE_TAG("mode");
+const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
+const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+
 // We use short field names to reduce the state size
 const std::string CLUSTERER_TAG("a");
 const std::string SEED_PRIOR_TAG("b");
@@ -548,18 +554,18 @@ std::size_t CMultimodalPrior::staticSize() const {
 }
 
 void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLUSTERER_TAG, std::bind<void>(CClustererStateSerialiser(),
-                                                        std::cref(*m_Clusterer),
-                                                        std::placeholders::_1));
-    inserter.insertLevel(SEED_PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                         std::cref(*m_SeedPrior),
-                                                         std::placeholders::_1));
+    const bool readableTags{inserter.readableTags()};
+    inserter.insertLevel(readableTags ? READABLE_CLUSTERER_TAG : CLUSTERER_TAG,
+                         std::bind<void>(CClustererStateSerialiser(),
+                                           std::cref(*m_Clusterer), std::placeholders::_1));
+    inserter.insertLevel(readableTags ? READABLE_SEED_PRIOR_TAG : SEED_PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
+                                                           std::cref(*m_SeedPrior), std::placeholders::_1));
     for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
-        inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
-                                                 &m_Modes[i], std::placeholders::_1));
+        inserter.insertLevel(
+                readableTags ? READABLE_MODE_TAG : MODE_TAG, std::bind(&TMode::acceptPersistInserter, &m_Modes[i], std::placeholders::_1));
     }
-    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }
 
