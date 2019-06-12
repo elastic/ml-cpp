@@ -159,22 +159,47 @@ nmake
 nmake install
 ```
 
+### expat
+
+Download expat from <https://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2>.
+
+Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
+
+```
+cd /c/tools
+tar jxvf /z/cpp_src/expat-2.2.6.tar.bz2
+```
+
+Double click `C:\tools\expat-2.2.6\expat.sln`. Visual Studio 2017 should load.
+
+Select "Release" in the "Solution Configurations" dropdown and "x64" in the "Solution Platforms" dropdown.
+
+Right click on "expat_static" on the right hand side of the screen and choose "Properties...".  Then in the dialog box, go to Configuration Properties -&gt; C/C++ -&gt; Code Generation and change "Runtime Library" to "Multi-threaded DLL (/MD)".  Also go to Configuration Properties -&gt; Librarian -&gt; General and change "Output File" from "..\win32\bin\Release\libexpatMT.lib" to "..\x64\bin\Release\libexpatMD.lib".  Then click "OK".
+
+Build the static library by right clicking "expat_static" again and choosing "Build".
+
+Then from `C:\tools\expat-2.2.6\x64\bin\Release` manually copy `libexpatMD.lib` into `C:\usr\local\lib`, and from `C:\tools\expat-2.2.6\lib` manually copy `expat.h` and `expat_external.h` into `C:\usr\local\include`.
+
 ### APR
 
-Download the Windows source for version 1.5.2 of the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.5.2-win32-src.zip>.
+Download the Windows source for version 1.7.0 of the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.7.0-win32-src.zip>.
 
-Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-1.5.2`. Rename this to simply `apr`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-1.7.0`. Rename this to simply `apr`.
 
-Within the files `C:\tools\apr\apr.mak` and `C:\tools\apr\libapr.mak`, globally replace:
-
-```
-/D "WIN32"
-```
-
-with:
+Edit `C:\tools\apr\include\apr.hw` and change lines 87-89 from:
 
 ```
-/D "WIN32" /D_WIN32_WINNT=0x0601
+/* Restrict the server to a subset of Windows XP header files by default
+ */
+#define _WIN32_WINNT 0x0501
+```
+
+to:
+
+```
+/* Restrict the server to a subset of Windows 7 header files by default
+ */
+#define _WIN32_WINNT 0x0601
 ```
 
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
@@ -183,69 +208,25 @@ Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt
 cd C:\tools\apr
 copy include\apr.hw include\apr.h
 copy include\apr.hw apr.h
-nmake -f Makefile.win ARCH="x64 Release"
+nmake -f Makefile.win ARCH="x64 Release" buildall
 nmake -f Makefile.win PREFIX=C:\usr\local ARCH="x64 Release" install
 ```
 
 ### APR iconv
 
-Download the Windows source for version 1.2.1 of the Apache Portable Runtime (APR) version of iconv from <http://archive.apache.org/dist/apr/apr-iconv-1.2.1-win32-src.zip>.
+Download the Windows source for version 1.2.2 of the Apache Portable Runtime (APR) version of iconv from <http://archive.apache.org/dist/apr/apr-iconv-1.2.2-win32-src.zip>.
 
-Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-iconv-1.2.1`. Rename this to simply `apr-iconv`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-iconv-1.2.2`. Rename this to simply `apr-iconv`.
 
-Within the files `C:\tools\apr-iconv\apriconv.mak` and `C:\tools\apr-iconv\libapriconv.mak`, globally replace:
-
-```
-/D "WIN32"
-```
-
-with:
-
-```
-/D "WIN32" /D_WIN32_WINNT=0x0601
-```
-
-Also, from the same two `.mak` files completely remove the following options:
-
-- `/Fp"$(INTDIR)\apriconv.pch" /Yc"iconv.h"`
-- `/Fp"$(INTDIR)\apriconv.pch" /Yu"iconv.h"`
-- `/Fp"$(INTDIR)\libapriconv.pch" /Yc"iconv.h"`
-- `/Fp"$(INTDIR)\libapriconv.pch" /Yu"iconv.h"`
-
-Finally, completely remove the following options from `C:\tools\apr-iconv\build\modules.mk.win`:
-
-- `/Fp$(MODRES).pch`
-- `/Yciconv.h`
-- `/Yuiconv.h`
-
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
-
-```
-cd C:\tools\apr-iconv
-nmake -f apriconv.mak CFG="apriconv - x64 Release"
-```
-
-Note that this does not install all the iconv utilities - this will be done when you build the APR utility library, which you must do next.
+Note that this does not install the iconv utilities - this will be done when you build the APR utility library, which you must do next.
 
 ### APR util
 
-Download the Windows source for version 1.5.4 of the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.5.4-win32-src.zip>.
+Download the Windows source for version 1.6.1 of the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.6.1-win32-src.zip>.
 
-Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-util-1.5.4`. Rename this to simply `apr-util`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-util-1.6.1`. Rename this to simply `apr-util`.
 
-Within the files `C:\tools\apr-util\aprutil.mak` and `C:\tools\apr-util\libaprutil.mak`, globally replace:
-
-```
-/D "WIN32"
-```
-
-with:
-
-```
-/D "WIN32" /D_WIN32_WINNT=0x0601
-```
-
-Right-click on the directory `C:\tools\apr-util\xml`, go to Properties -&gt; Security -&gt; CREATOR OWNER -&gt; Edit..., check Full Control -&gt; Allow and then OK all the open dialog boxes.
+In both `C:\tools\apr-util\apr-util.mak` and `C:\tools\apr-util\libaprutil.mak` globally replace `./xml/expat/lib` with `../expat-2.2.6/lib`.
 
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
 
@@ -254,8 +235,8 @@ cd C:\tools\apr-util
 copy include\apr_ldap.hw include\apr-ldap.h
 copy include\apu.hw include\apu.h
 copy include\apu_want.hw include\apr_want.h
-nmake -f Makefile.win ARCH="x64 Release"
-nmake -f Makefile.win PREFIX=C:\usr\local ARCH="x64 Release" install
+nmake -f Makefile.win XML_PARSER=..\expat-2.2.6\x64\bin\Release\libexpatMD ARCH="x64 Release" buildall
+nmake -f Makefile.win XML_PARSER=..\expat-2.2.6\x64\bin\Release\libexpatMD PREFIX=C:\usr\local ARCH="x64 Release" install
 ```
 
 It is extremely important with this library that it is NOT linked to all sorts of unnecessary 3rd party libraries that we don't need (some of which are GPL). Therefore, once the build is complete, use `dumpbin` to confirm that `libaprutil-1.dll` does NOT have dependencies like MySQL, PostgreSQL, Berkeley DB, GNU DB Manager, LDAP, SQLite or ODBC. If it does, do the build again having first researched why the extra databases were linked.

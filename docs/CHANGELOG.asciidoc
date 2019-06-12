@@ -32,6 +32,7 @@
 
 === Enhancements
 
+* Upgrade to a newer version of the Apache Portable Runtime library. (See {ml-pull}495[#495].)
 * Improve stability of modelling around change points. (See {ml-pull}496[#496].)
 
 === Bug Fixes
