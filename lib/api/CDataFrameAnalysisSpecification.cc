@@ -62,7 +62,8 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     theReader.addParameter(TEMPORARY_DIRECTORY,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(CATEGORICAL_FIELD_NAMES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(CATEGORICAL_FIELD_NAMES,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
     return theReader;
 }()};
@@ -136,7 +137,8 @@ const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
 }
 
-const CDataFrameAnalysisSpecification::TStrVec& CDataFrameAnalysisSpecification::categoricalFieldNames() const {
+const CDataFrameAnalysisSpecification::TStrVec&
+CDataFrameAnalysisSpecification::categoricalFieldNames() const {
     return m_CategoricalFieldNames;
 }
 
