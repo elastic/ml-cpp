@@ -3,10 +3,10 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CSingleJsonFileDataAdder.h" // XXX A copy of CMultiFileDataAdder from the test lib but renamed to better match its use here. Include directly from 'test'?
-
 #include <api/CAnomalyJob.h>
 #include <api/CFieldConfig.h>
+#include <api/CIoManager.h>
+#include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
@@ -17,6 +17,10 @@
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 #include <core/COsFileFuncs.h>
+
+#include <ver/CBuildInfo.h>
+
+#include "CCmdLineParser.h"
 
 #include <fstream>
 #include <ios>
@@ -37,31 +41,56 @@ namespace {
 using namespace ml;
 
 int main(int argc, char** argv) {
-    if (argc != 5) {
-        std::cerr << "Utility to extract model state from a file created by 'autodetect --persist arg' "
-                "to an output file in JSON format." << std::endl;
-        std::cerr << "Usage: " << argv[0] << " --input <file> --output <file>" << std::endl;
-        exit(EXIT_FAILURE);
+
+    // Read command line options
+    std::string logProperties;
+    std::string inputFileName;
+    bool isInputFileNamedPipe(false);
+    std::string outputFileName;
+    bool isOutputFileNamedPipe(false);
+    if (model_extractor::CCmdLineParser::parse(
+            argc, argv,  logProperties, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe) == false) {
+        return EXIT_FAILURE;
     }
 
-    // TODO Everything...
-    std::string inputFileName(argv[2]);
-    std::string outputFileName(argv[4]);
+    // Construct the IO manager before reconfiguring the logger, as it performs
+    // std::ios actions that only work before first use
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
 
-    std::cout << "Input file = " << inputFileName << std::endl;
-    std::cout << "Output file = " << outputFileName << std::endl;
-
-
-    // XXX For now just restore from file. Support for other data sources such as named pipe at a later date?
-    std::ifstream restoreStream(inputFileName.c_str());
-    if (!restoreStream.is_open()) {
-        std::cerr << "Failed to open " << inputFileName << " for reading." << std::endl;
-        exit(EXIT_FAILURE);
+    const std::string logPipe{};
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        return EXIT_FAILURE;
     }
 
-    auto filterStream = std::make_shared<boost::iostreams::filtering_istream>();
-    filterStream->push(ml::api::CStateRestoreStreamFilter());
-    filterStream->push(restoreStream);
+    // Log the program version immediately after reconfiguring the logger.  This
+    // must be done from the program, and NOT a shared library, as each program
+    // statically links its own version library.
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (ioMgr.initIo() == false) {
+        LOG_FATAL(<< "Failed to initialise IO");
+        return EXIT_FAILURE;
+    }
+
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    const TDataSearcherUPtr restoreSearcher{[isInputFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
+        if (ioMgr.inputStream()) {
+            // Check whether state is restored from a file, if so we assume that this is a debugging case
+            // and therefore does not originate from the ML Java code.
+            if (isInputFileNamedPipe == false) {
+                // apply a filter to overcome differences in the way persistence vs. restore works
+                auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+                strm->push(ml::api::CStateRestoreStreamFilter());
+                strm->push(ioMgr.inputStream());
+                return std::make_unique<ml::api::CSingleStreamSearcher>(strm);
+            }
+            core::CNamedPipeFactory::TIStreamP restoreStrm{&ioMgr.inputStream(), [](std::istream*){}};
+            return std::make_unique<ml::api::CSingleStreamSearcher>(restoreStrm);
+        }
+        return nullptr;
+    }()};
 
     // create a job with basic config sufficient enough to restore state.
     static const ml::core_t::TTime BUCKET_SIZE(600);
@@ -80,38 +109,27 @@ int main(int argc, char** argv) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
-    // dummy output stream to satisfy CAnomalyJob ctor requirements
-    std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    if(!outputStrm.is_open()) {
+    // dummy job output stream to satisfy CAnomalyJob ctor requirements
+    std::ofstream jobOutputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
+    if(!jobOutputStrm.is_open()) {
         LOG_ERROR(<< "Failed to open output stream.");
     }
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(jobOutputStrm);
 
     ml::api::CAnomalyJob restoredJob(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport){});
 
     ml::core_t::TTime completeToTime(0);
-    ml::api::CSingleStreamSearcher fileSearcher(filterStream);
-    if (!restoredJob.restoreState(fileSearcher, completeToTime)) {
+    if (!restoredJob.restoreState(*restoreSearcher, completeToTime)) {
         LOG_ERROR(<< "Failed to restore state from file \"" << inputFileName << "\"");
         exit(EXIT_FAILURE);
     }
     assert(completeToTime > 0);
-    std::size_t numDocsInStateFile{filterStream->component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount()};
-    LOG_DEBUG( << "Restored " << numDocsInStateFile << " documents from persisted state. Complete to time " << completeToTime << std::endl);
+    LOG_DEBUG( << "Restore complete to time " << completeToTime << std::endl);
 
+    core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(), [](std::ostream*){}};
+    ml::api::CSingleStreamDataAdder persister(persistStrm);
 
-    boost::filesystem::path outputPath(outputFileName);
-
-    try {
-        boost::filesystem::remove_all(outputPath);
-    } catch (const boost::filesystem::filesystem_error &fsx) {
-        LOG_ERROR(<< fsx.what());
-        exit(EXIT_FAILURE);
-    }
-
-    ml::modelextractor::CSingleJsonFileDataAdder persister(outputFileName);
-
-    // Attempt to persist state to a plain JSON formatted file
+    // Attempt to persist state in a plain JSON formatted file or stream or stream
     if (restoredJob.persistResidualModelsState(persister) == false) {
         LOG_FATAL(<< "Failed to persist state as JSON");
         exit(EXIT_FAILURE);

@@ -23,7 +23,7 @@ all: build
 
 SRCS= \
     Main.cc \
-    CSingleJsonFileDataAdder.cc \
+    CCmdLineParser.cc \
 
 NO_TEST_CASES=1
 
