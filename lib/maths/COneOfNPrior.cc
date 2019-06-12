@@ -54,7 +54,7 @@ double logn(std::size_t n) {
 const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
-const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e6);
+const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e8);
 const double MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR = 9.0;
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 const double MAXIMUM_RELATIVE_ERROR = 1e-3;
