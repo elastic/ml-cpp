@@ -1831,10 +1831,10 @@ void CTimeSeriesDecompositionTest::testYearly() {
         meanError.add(error);
         debug.addValue(time, trend);
         debug.addPrediction(time, prediction, trend - prediction);
-        if (time / HOUR % 40 == 0 || error > 0.18) {
+        if (time / HOUR % 40 == 0 || error > 0.19) {
             LOG_DEBUG(<< "error = " << error);
         }
-        CPPUNIT_ASSERT(error < 0.18);
+        CPPUNIT_ASSERT(error < 0.19);
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
