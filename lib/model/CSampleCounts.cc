@@ -32,7 +32,7 @@ const std::string EFFECTIVE_SAMPLE_VARIANCE_TAG("d");
 const double NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT(3.0);
 const double NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT(30.0);
 
-using TStrCRef = boost::reference_wrapper<const std::string>;
+using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SReferenceLess>;
 }
 

@@ -82,10 +82,10 @@ const std::string EMPTY_STRING;
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CPrior& prior,
                                 core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(
-        WEIGHT_TAG, boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                      boost::cref(prior), _1));
+    inserter.insertLevel(WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter,
+                                               &weight, std::placeholders::_1));
+    inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(), std::cref(prior),
+                                                    std::placeholders::_1));
 }
 }
 
@@ -127,8 +127,8 @@ COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models,
 COneOfNPrior::COneOfNPrior(const SDistributionRestoreParams& params,
                            core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(boost::bind(&COneOfNPrior::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -139,9 +139,9 @@ bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& para
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_7_1_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
                                    this->decayRate(decayRate))
-            RESTORE(MODEL_7_1_TAG, traverser.traverseSubLevel(boost::bind(
-                                       &COneOfNPrior::modelAcceptRestoreTraverser,
-                                       this, boost::cref(params), _1)))
+            RESTORE(MODEL_7_1_TAG, traverser.traverseSubLevel(std::bind(
+                                       &COneOfNPrior::modelAcceptRestoreTraverser, this,
+                                       std::cref(params), std::placeholders::_1)))
             RESTORE(SAMPLE_MOMENTS_7_1_TAG,
                     m_SampleMoments.fromDelimited(traverser.value()))
             RESTORE_SETUP_TEARDOWN(
@@ -155,9 +155,9 @@ bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& para
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_OLD_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
                                    this->decayRate(decayRate))
-            RESTORE(MODEL_OLD_TAG, traverser.traverseSubLevel(boost::bind(
-                                       &COneOfNPrior::modelAcceptRestoreTraverser,
-                                       this, boost::cref(params), _1)))
+            RESTORE(MODEL_OLD_TAG, traverser.traverseSubLevel(std::bind(
+                                       &COneOfNPrior::modelAcceptRestoreTraverser, this,
+                                       std::cref(params), std::placeholders::_1)))
             RESTORE_SETUP_TEARDOWN(
                 NUMBER_SAMPLES_OLD_TAG, double numberSamples,
                 core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -1017,9 +1017,10 @@ std::size_t COneOfNPrior::staticSize() const {
 void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_7_1_TAG, "");
     for (const auto& model : m_Models) {
-        inserter.insertLevel(MODEL_7_1_TAG, boost::bind(&modelAcceptPersistInserter,
-                                                        boost::cref(model.first),
-                                                        boost::cref(*model.second), _1));
+        inserter.insertLevel(MODEL_7_1_TAG, std::bind(&modelAcceptPersistInserter,
+                                                      std::cref(model.first),
+                                                      std::cref(*model.second),
+                                                      std::placeholders::_1));
     }
     inserter.insertValue(SAMPLE_MOMENTS_7_1_TAG, m_SampleMoments.toDelimited());
     inserter.insertValue(DECAY_RATE_7_1_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
@@ -1070,14 +1071,15 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams&
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
-                               /*no-op*/,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &CModelWeight::acceptRestoreTraverser, &weight, _1)),
-                               gotWeight = true)
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                               CPriorStateSerialiser(), boost::cref(params),
-                               boost::ref(model), _1)))
+        RESTORE_SETUP_TEARDOWN(
+            WEIGHT_TAG,
+            /*no-op*/,
+            traverser.traverseSubLevel(std::bind(&CModelWeight::acceptRestoreTraverser,
+                                                 &weight, std::placeholders::_1)),
+            gotWeight = true)
+        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                               CPriorStateSerialiser(), std::cref(params),
+                               std::ref(model), std::placeholders::_1)))
     } while (traverser.next());
 
     if (!gotWeight) {

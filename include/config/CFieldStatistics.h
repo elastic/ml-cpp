@@ -12,11 +12,11 @@
 #include <config/ConfigTypes.h>
 #include <config/ImportExport.h>
 
+#include <boost/variant.hpp>
+
+#include <functional>
 #include <string>
 #include <vector>
-
-#include <boost/ref.hpp>
-#include <boost/variant.hpp>
 
 namespace ml {
 namespace config {
@@ -30,7 +30,7 @@ class CPenalty;
 //! and gather the appropriate summary statistics.
 class CONFIG_EXPORT CFieldStatistics {
 public:
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
 
 public:
     CFieldStatistics(const std::string& fieldName, const CAutoconfigurerParams& params);

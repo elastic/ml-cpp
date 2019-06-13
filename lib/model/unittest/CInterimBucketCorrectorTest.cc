@@ -210,8 +210,8 @@ void CInterimBucketCorrectorTest::testPersist() {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
-    traverser.traverseSubLevel(boost::bind(
-        &CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
+    traverser.traverseSubLevel(std::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
+                                         &restoredCorrector, std::placeholders::_1));
 
     corrector.currentBucketCount(now, 50);
     correction = restoredCorrector.corrections(1000, value);

@@ -43,8 +43,8 @@ CCountMinSketch::CCountMinSketch(std::size_t rows, std::size_t columns)
 
 CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
     : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {
-    traverser.traverseSubLevel(
-        boost::bind(&CCountMinSketch::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CCountMinSketch::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CCountMinSketch::swap(CCountMinSketch& other) {
@@ -127,8 +127,9 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
             sketch.s_Hashes.reserve(m_Rows);
             sketch.s_Counts.reserve(m_Rows);
-            if (traverser.traverseSubLevel(boost::bind(&SSketch::acceptRestoreTraverser, &sketch,
-                                                       _1, m_Rows, m_Columns)) == false) {
+            if (traverser.traverseSubLevel(
+                    std::bind(&SSketch::acceptRestoreTraverser, &sketch,
+                              std::placeholders::_1, m_Rows, m_Columns)) == false) {
                 return false;
             }
         }
@@ -147,8 +148,8 @@ void CCountMinSketch::acceptPersistInserter(core::CStatePersistInserter& inserte
     } else {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            inserter.insertLevel(
-                SKETCH_TAG, boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
+            inserter.insertLevel(SKETCH_TAG, std::bind(&SSketch::acceptPersistInserter,
+                                                       &sketch, std::placeholders::_1));
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception " << e.what());
         }

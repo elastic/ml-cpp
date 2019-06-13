@@ -79,8 +79,7 @@ public:
     }
 
     bool operator==(const CCountStatisticsKey& rhs) const {
-        return std::equal(boost::begin(m_Fields), boost::end(m_Fields),
-                          boost::begin(rhs.m_Fields));
+        return std::equal(std::begin(m_Fields), std::end(m_Fields), std::begin(rhs.m_Fields));
     }
 
 private:

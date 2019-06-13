@@ -32,8 +32,7 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -128,8 +127,9 @@ int main(int argc, char** argv) {
     }
 
     // Now handle the numbers to be normalised from stdin
-    if (inputParser->readStreamIntoMaps(boost::bind(
-            &ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
+    if (inputParser->readStreamIntoMaps(
+            std::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer,
+                      std::placeholders::_1)) == false) {
         LOG_FATAL(<< "Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }

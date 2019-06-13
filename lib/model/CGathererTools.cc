@@ -63,7 +63,7 @@ struct SSumSerializer {
 struct SInfluencerSumSerializer {
     using TStoredStringPtrDoubleUMap = boost::unordered_map<core::CStoredStringPtr, double>;
     using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefDoublePr = std::pair<TStrCRef, double>;
     using TStrCRefDoublePrVec = std::vector<TStrCRefDoublePr>;
 
@@ -179,7 +179,7 @@ SMetricFeatureData
 CGathererTools::CSumGatherer::featureData(core_t::TTime time,
                                           core_t::TTime /*bucketLength*/,
                                           const TSampleVec& emptySample) const {
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
@@ -237,18 +237,21 @@ void CGathererTools::CSumGatherer::resetBucket(core_t::TTime bucketStart) {
 }
 
 void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLASSIFIER_TAG, boost::bind(&CDataClassifier::acceptPersistInserter,
-                                                     &m_Classifier, _1));
+    inserter.insertLevel(CLASSIFIER_TAG,
+                         std::bind(&CDataClassifier::acceptPersistInserter,
+                                   &m_Classifier, std::placeholders::_1));
     if (m_BucketSums.size() > 0) {
-        inserter.insertLevel(BUCKET_SUM_QUEUE_TAG,
-                             boost::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(),
-                                               boost::cref(m_BucketSums), _1));
+        inserter.insertLevel(
+            BUCKET_SUM_QUEUE_TAG,
+            std::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(),
+                            std::cref(m_BucketSums), std::placeholders::_1));
     }
     for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
         inserter.insertLevel(
             INFLUENCER_BUCKET_SUM_QUEUE_TAG,
-            boost::bind<void>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(),
-                              boost::cref(m_InfluencerBucketSums[i]), _1));
+            std::bind<void>(
+                TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(),
+                std::cref(m_InfluencerBucketSums[i]), std::placeholders::_1));
     }
 }
 
@@ -257,24 +260,25 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     do {
         const std::string& name = traverser.name();
         if (name == CLASSIFIER_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CDataClassifier::acceptRestoreTraverser,
-                                                       &m_Classifier, _1)) == false) {
+            if (traverser.traverseSubLevel(
+                    std::bind(&CDataClassifier::acceptRestoreTraverser,
+                              &m_Classifier, std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Invalid classifier in " << traverser.value());
                 continue;
             }
         } else if (name == BUCKET_SUM_QUEUE_TAG) {
-            if (traverser.traverseSubLevel(
-                    boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(),
-                                      boost::ref(m_BucketSums), _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind<bool>(
+                    TSampleVecQueue::CSerializer<SSumSerializer>(),
+                    std::ref(m_BucketSums), std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }
         } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG) {
             if (i < m_InfluencerBucketSums.size() &&
-                traverser.traverseSubLevel(boost::bind<bool>(
+                traverser.traverseSubLevel(std::bind<bool>(
                     TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(
                         TStoredStringPtrDoubleUMap(1)),
-                    boost::ref(m_InfluencerBucketSums[i++]), _1)) == false) {
+                    std::ref(m_InfluencerBucketSums[i++]), std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }

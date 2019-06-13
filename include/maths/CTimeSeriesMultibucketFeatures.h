@@ -147,7 +147,7 @@ public:
 
     //! Clone this feature.
     virtual TPtr clone() const {
-        return boost::make_unique<CTimeSeriesMultibucketMean>(*this);
+        return std::make_unique<CTimeSeriesMultibucketMean>(*this);
     }
 
     //! Get the feature value and weight.

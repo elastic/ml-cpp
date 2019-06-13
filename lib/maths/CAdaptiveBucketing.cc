@@ -97,11 +97,13 @@ CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLen
 }
 
 CAdaptiveBucketing::TRestoreFunc CAdaptiveBucketing::getAcceptRestoreTraverser() {
-    return boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this, _1);
+    return std::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this,
+                     std::placeholders::_1);
 }
 
 CAdaptiveBucketing::TPersistFunc CAdaptiveBucketing::getAcceptPersistInserter() const {
-    return boost::bind(&CAdaptiveBucketing::acceptPersistInserter, this, _1);
+    return std::bind(&CAdaptiveBucketing::acceptPersistInserter, this,
+                     std::placeholders::_1);
 }
 
 bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

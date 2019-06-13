@@ -9,27 +9,29 @@
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
 #include <core/CNonInstantiatable.h>
+#include <core/UnwrapRef.h>
 
 #include <boost/any.hpp>
-#include <boost/array.hpp>
 #include <boost/circular_buffer_fwd.hpp>
 #include <boost/container/container_fwd.hpp>
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 #include <boost/utility/enable_if.hpp>
 
+#include <array>
 #include <cstddef>
 #include <deque>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -38,7 +40,7 @@ namespace core {
 
 template<typename T, std::size_t N>
 class CSmallVector;
-using TTypeInfoCRef = boost::reference_wrapper<const std::type_info>;
+using TTypeInfoCRef = std::reference_wrapper<const std::type_info>;
 
 namespace memory_detail {
 
@@ -99,7 +101,7 @@ struct SMemoryStaticSize<T, typename enable_if_member_function<T, &T::staticSize
 //! \brief Base implementation checks for POD.
 template<typename T, typename ENABLE = void>
 struct SDynamicSizeAlwaysZero {
-    static inline bool value() { return boost::is_pod<T>::value; }
+    static inline bool value() { return std::is_pod<T>::value; }
 };
 
 //! \brief Checks types in pair.
@@ -139,15 +141,15 @@ struct STypeInfoLess {
     template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs,
                     const std::pair<TTypeInfoCRef, T>& rhs) const {
-        return boost::unwrap_ref(lhs.first).before(boost::unwrap_ref(rhs.first));
+        return ml::core::unwrap_ref(lhs.first).before(ml::core::unwrap_ref(rhs.first));
     }
     template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs, TTypeInfoCRef rhs) const {
-        return boost::unwrap_ref(lhs.first).before(boost::unwrap_ref(rhs));
+        return ml::core::unwrap_ref(lhs.first).before(ml::core::unwrap_ref(rhs));
     }
     template<typename T>
     bool operator()(TTypeInfoCRef lhs, const std::pair<TTypeInfoCRef, T>& rhs) const {
-        return boost::unwrap_ref(lhs).before(boost::unwrap_ref(rhs.first));
+        return ml::core::unwrap_ref(lhs).before(ml::core::unwrap_ref(rhs.first));
     }
 };
 
@@ -225,14 +227,14 @@ public:
         template<typename T>
         bool registerCallback() {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
-                                      boost::cref(typeid(T)),
+                                      std::cref(typeid(T)),
                                       memory_detail::STypeInfoLess());
             if (i == m_Callbacks.end()) {
-                m_Callbacks.emplace_back(boost::cref(typeid(T)),
+                m_Callbacks.emplace_back(std::cref(typeid(T)),
                                          &CAnyVisitor::dynamicSizeCallback<T>);
                 return true;
             } else if (i->first.get() != typeid(T)) {
-                m_Callbacks.insert(i, {boost::cref(typeid(T)),
+                m_Callbacks.insert(i, {std::cref(typeid(T)),
                                        &CAnyVisitor::dynamicSizeCallback<T>});
                 return true;
             }
@@ -243,8 +245,8 @@ public:
         //! registered for its type.
         std::size_t dynamicSize(const boost::any& x) const {
             if (!x.empty()) {
-                auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
-                                          boost::cref(x.type()),
+                auto i = std::lower_bound(m_Callbacks.begin(),
+                                          m_Callbacks.end(), std::cref(x.type()),
                                           memory_detail::STypeInfoLess());
                 if (i != m_Callbacks.end() && i->first.get() == x.type()) {
                     return (*i->second)(x);
@@ -308,9 +310,9 @@ public:
         return t == nullptr ? 0 : staticSize(*t) + dynamicSize(*t);
     }
 
-    //! Overload for boost::array.
+    //! Overload for std::array.
     template<typename T, std::size_t N>
-    static std::size_t dynamicSize(const boost::array<T, N>& t) {
+    static std::size_t dynamicSize(const std::array<T, N>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             for (auto i = t.begin(); i != t.end(); ++i) {
@@ -508,9 +510,9 @@ public:
         return dynamicSize(*t);
     }
 
-    //! Overload for boost::reference_wrapper.
+    //! Overload for std::reference_wrapper.
     template<typename T>
-    static std::size_t dynamicSize(const boost::reference_wrapper<T>& /*t*/) {
+    static std::size_t dynamicSize(const std::reference_wrapper<T>& /*t*/) {
         return 0;
     }
 
@@ -619,14 +621,14 @@ public:
         template<typename T>
         bool registerCallback() {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
-                                      boost::cref(typeid(T)),
+                                      std::cref(typeid(T)),
                                       memory_detail::STypeInfoLess());
             if (i == m_Callbacks.end()) {
-                m_Callbacks.emplace_back(boost::cref(typeid(T)),
+                m_Callbacks.emplace_back(std::cref(typeid(T)),
                                          &CAnyVisitor::dynamicSizeCallback<T>);
                 return true;
             } else if (i->first.get() != typeid(T)) {
-                m_Callbacks.insert(i, {boost::cref(typeid(T)),
+                m_Callbacks.insert(i, {std::cref(typeid(T)),
                                        &CAnyVisitor::dynamicSizeCallback<T>});
                 return true;
             }
@@ -639,8 +641,8 @@ public:
                          const boost::any& x,
                          CMemoryUsage::TMemoryUsagePtr mem) const {
             if (!x.empty()) {
-                auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
-                                          boost::cref(x.type()),
+                auto i = std::lower_bound(m_Callbacks.begin(),
+                                          m_Callbacks.end(), std::cref(x.type()),
                                           memory_detail::STypeInfoLess());
                 if (i != m_Callbacks.end() && i->first.get() == x.type()) {
                     (*i->second)(name, x, mem);
@@ -730,10 +732,10 @@ public:
         }
     }
 
-    //! Overload for boost::array.
+    //! Overload for std::array.
     template<typename T, std::size_t N>
     static void dynamicSize(const char* name,
-                            const boost::array<T, N>& t,
+                            const std::array<T, N>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             std::string componentName(name);
@@ -1032,10 +1034,10 @@ public:
         }
     }
 
-    //! Overload for boost::reference_wrapper.
+    //! Overload for std::reference_wrapper.
     template<typename T>
     static void dynamicSize(const char* /*name*/,
-                            const boost::reference_wrapper<T>& /*t*/,
+                            const std::reference_wrapper<T>& /*t*/,
                             CMemoryUsage::TMemoryUsagePtr /*mem*/) {
         return;
     }

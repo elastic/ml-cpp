@@ -426,8 +426,7 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
     LOG_TRACE(<< "normalizedScores[3] = " << normalizedScores[3] << ", score = " << score
               << ", probability = " << scoreToProbability(score));
 
-    score = std::min(*std::min_element(boost::begin(normalizedScores),
-                                       boost::end(normalizedScores)),
+    score = std::min(*std::min_element(std::begin(normalizedScores), std::end(normalizedScores)),
                      m_MaximumNormalizedScore);
     LOG_TRACE(<< "normalizedScore = " << score << ", scope = " << scope.print());
 
@@ -790,11 +789,11 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(HIGH_PERCENTILE_SCORE_TAG, m_HighPercentileScore);
     inserter.insertValue(HIGH_PERCENTILE_COUNT_TAG, m_HighPercentileCount);
     inserter.insertLevel(RAW_SCORE_QUANTILE_SUMMARY,
-                         boost::bind(&maths::CQDigest::acceptPersistInserter,
-                                     &m_RawScoreQuantileSummary, _1));
+                         std::bind(&maths::CQDigest::acceptPersistInserter,
+                                   &m_RawScoreQuantileSummary, std::placeholders::_1));
     inserter.insertLevel(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
-                         boost::bind(&maths::CQDigest::acceptPersistInserter,
-                                     &m_RawScoreHighQuantileSummary, _1));
+                         std::bind(&maths::CQDigest::acceptPersistInserter,
+                                   &m_RawScoreHighQuantileSummary, std::placeholders::_1));
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
     if (m_IsForMembersOfPopulation != boost::none) {
         inserter.insertValue(IS_FOR_MEMBERS_OF_POPULATION_TAG,
@@ -819,12 +818,13 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
                 core::CStringUtils::stringToType(traverser.value(), m_HighPercentileCount));
 
         RESTORE(RAW_SCORE_QUANTILE_SUMMARY,
-                traverser.traverseSubLevel(boost::bind(&maths::CQDigest::acceptRestoreTraverser,
-                                                       &m_RawScoreQuantileSummary, _1)));
-        RESTORE(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
                 traverser.traverseSubLevel(
-                    boost::bind(&maths::CQDigest::acceptRestoreTraverser,
-                                &m_RawScoreHighQuantileSummary, _1)));
+                    std::bind(&maths::CQDigest::acceptRestoreTraverser,
+                              &m_RawScoreQuantileSummary, std::placeholders::_1)));
+        RESTORE(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
+                traverser.traverseSubLevel(std::bind(
+                    &maths::CQDigest::acceptRestoreTraverser,
+                    &m_RawScoreHighQuantileSummary, std::placeholders::_1)));
         RESTORE_SETUP_TEARDOWN(IS_FOR_MEMBERS_OF_POPULATION_TAG, int value,
                                core::CStringUtils::stringToType(traverser.value(), value),
                                m_IsForMembersOfPopulation.reset(value == 1))
@@ -891,8 +891,9 @@ CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAn
     // The influencer named 'bucket_time' corresponds to the root level
     // normalizer for which we have keyed the maximum score on a blank
     // personName.
-    const std::string& personFieldName =
-        (m_PersonFieldName.get() == TIME_INFLUENCER) ? EMPTY_STRING : m_PersonFieldName;
+    const std::string& personFieldName = (m_PersonFieldName.get() == TIME_INFLUENCER)
+                                             ? EMPTY_STRING
+                                             : m_PersonFieldName.get();
 
     return dictionary.word(m_PartitionFieldName, m_PartitionFieldValue,
                            personFieldName, m_PersonFieldValue);
@@ -995,8 +996,9 @@ bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser& traverser,
                 }
             }
         } else if (name == NORMALIZER_TAG) {
-            restoredNormalizer = traverser.traverseSubLevel(boost::bind(
-                &CAnomalyScore::CNormalizer::acceptRestoreTraverser, &normalizer, _1));
+            restoredNormalizer = traverser.traverseSubLevel(
+                std::bind(&CAnomalyScore::CNormalizer::acceptRestoreTraverser,
+                          &normalizer, std::placeholders::_1));
             if (!restoredNormalizer) {
                 LOG_ERROR(<< "Unable to restore quantiles to the normaliser");
             }
@@ -1038,8 +1040,9 @@ void CAnomalyScore::normalizerToJson(const CNormalizer& normalizer,
         inserter.insertValue(MLVERSION_ATTRIBUTE, CURRENT_FORMAT_VERSION);
         inserter.insertValue(TIME_ATTRIBUTE, core::CStringUtils::typeToString(time));
 
-        inserter.insertLevel(NORMALIZER_TAG, boost::bind(&CNormalizer::acceptPersistInserter,
-                                                         &normalizer, _1));
+        inserter.insertLevel(NORMALIZER_TAG,
+                             std::bind(&CNormalizer::acceptPersistInserter,
+                                       &normalizer, std::placeholders::_1));
     }
 
     json = ss.str();

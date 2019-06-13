@@ -116,7 +116,7 @@ private:
 
     //! Attempt to parse a single length encoded record from the stream into
     //! the strings in the vector provided.  The vector is a template
-    //! argument so that it may be a vector of boost::reference_wrappers
+    //! argument so that it may be a vector of std::reference_wrappers
     //! of std::strings instead of std::strings.  The first template
     //! argument indicates whether the vector must have the correct size
     //! when the function is called or whether the function is allowed to

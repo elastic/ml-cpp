@@ -152,8 +152,8 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
 }
 
 CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(
-        &CStatisticalTests::CCramerVonMises::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -212,9 +212,9 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     // Linearly interpolate between the rows of the T statistic
     // values.
     double tt[16];
-    ptrdiff_t row = CTools::truncate(
-        std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N,
-        ptrdiff_t(1), ptrdiff_t(12));
+    ptrdiff_t row =
+        CTools::truncate(std::lower_bound(std::begin(N), std::end(N), m_Size + 1) - N,
+                         ptrdiff_t(1), ptrdiff_t(12));
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) /
                    static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
@@ -230,9 +230,8 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
         return 1.0;
     }
 
-    ptrdiff_t col =
-        CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt,
-                         ptrdiff_t(1), ptrdiff_t(15));
+    ptrdiff_t col = CTools::truncate(std::lower_bound(std::begin(tt), std::end(tt), t) - tt,
+                                     ptrdiff_t(1), ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];

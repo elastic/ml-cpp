@@ -82,7 +82,7 @@ void CAnomalyScoreTest::testComputeScores() {
     {
         double p[] = {0.21, 0.52, 0.13,  0.67, 0.89,
                       0.32, 0.46, 0.222, 0.35, 0.93};
-        TDoubleVec probabilities(boost::begin(p), boost::end(p));
+        TDoubleVec probabilities(std::begin(p), std::end(p));
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
@@ -97,7 +97,7 @@ void CAnomalyScoreTest::testComputeScores() {
         double p[] = {0.11, 0.13, 0.12, 0.22, 0.14, 0.09, 0.01, 0.13,
                       0.15, 0.14, 0.11, 0.13, 0.12, 0.22, 0.09, 0.01};
 
-        TDoubleVec probabilities(boost::begin(p), boost::end(p));
+        TDoubleVec probabilities(std::begin(p), std::end(p));
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
@@ -129,7 +129,7 @@ void CAnomalyScoreTest::testComputeScores() {
         double p[] = {0.21,  0.52, 0.13, 0.67, 0.89, 0.32, 0.46,
                       0.222, 0.35, 0.93, 0.89, 0.32, 0.46, 0.000021};
 
-        TDoubleVec probabilities(boost::begin(p), boost::end(p));
+        TDoubleVec probabilities(std::begin(p), std::end(p));
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
@@ -162,7 +162,7 @@ void CAnomalyScoreTest::testComputeScores() {
         double p[] = {0.21,  0.52, 0.0058, 0.13, 0.67, 0.89, 0.32, 0.03,  0.46,
                       0.222, 0.35, 0.93,   0.01, 0.89, 0.32, 0.46, 0.0021};
 
-        TDoubleVec probabilities(boost::begin(p), boost::end(p));
+        TDoubleVec probabilities(std::begin(p), std::end(p));
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
@@ -194,7 +194,7 @@ void CAnomalyScoreTest::testComputeScores() {
         double p[] = {1e-100,   1.7e-20,  1.6e-150, 2.2e-150,
                       1.3e-180, 1.35e-95, 1.7e-180, 1.21e-300};
 
-        TDoubleVec probabilities(boost::begin(p), boost::end(p));
+        TDoubleVec probabilities(std::begin(p), std::end(p));
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
@@ -535,8 +535,8 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero() {
 
         TDoubleVec samples(500u, 0.0);
         for (std::size_t j = 0u; j < nonZeroCounts[i]; ++j) {
-            if (std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), j) ==
-                boost::end(anomalyTimes)) {
+            if (std::find(std::begin(anomalyTimes), std::end(anomalyTimes), j) ==
+                std::end(anomalyTimes)) {
                 samples[j] += 0.0055;
             }
         }
@@ -695,8 +695,9 @@ void CAnomalyScoreTest::testJsonConversion() {
     model::CAnomalyScore::CNormalizer restoredNormalizer(config);
     {
         core::CJsonStateRestoreTraverser traverser(iss);
-        traverser.traverseSubLevel(boost::bind(&model::CAnomalyScore::CNormalizer::acceptRestoreTraverser,
-                                               &restoredNormalizer, _1));
+        traverser.traverseSubLevel(
+            std::bind(&model::CAnomalyScore::CNormalizer::acceptRestoreTraverser,
+                      &restoredNormalizer, std::placeholders::_1));
     }
 
     // The new JSON representation of the new filter should be the same as the original

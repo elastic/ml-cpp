@@ -161,8 +161,9 @@ void CRandomizedPeriodicityTestTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &maths::CRandomizedPeriodicityTest::acceptRestoreTraverser, &test2, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&maths::CRandomizedPeriodicityTest::acceptRestoreTraverser,
+                      &test2, std::placeholders::_1)));
     }
     std::string newXml;
     {

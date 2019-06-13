@@ -25,6 +25,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <type_traits>
 
 using namespace ml;
 
@@ -595,7 +596,7 @@ void CMemoryUsageTest::testUsage() {
             LOG_TRACE(<< ss.str());
         }
         // boost:reference_wrapper should give zero
-        boost::reference_wrapper<CBase> baseRef(boost::ref(*base));
+        std::reference_wrapper<CBase> baseRef(std::ref(*base));
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
         {
             core::CMemoryUsage mem;
@@ -785,7 +786,7 @@ void CMemoryUsageTest::testDynamicSizeAlwaysZero() {
     CPPUNIT_ASSERT_EQUAL(haveStructPodCompilerSupport, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
-    test = boost::is_pod<SFoo>::value;
+    test = std::is_pod<SFoo>::value;
     CPPUNIT_ASSERT_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);

@@ -39,8 +39,8 @@ CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
                                                        core::CStateRestoreTraverser& traverser)
     : m_MaxExamples(maxExamples) {
-    traverser.traverseSubLevel(
-        boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CCategoryExamplesCollector::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CCategoryExamplesCollector::add(std::size_t category, const std::string& example) {
@@ -86,9 +86,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
 
     for (const auto& exampleByCategory : orderedData) {
         inserter.insertLevel(EXAMPLES_BY_CATEGORY_TAG,
-                             boost::bind(&CCategoryExamplesCollector::persistExamples,
-                                         this, exampleByCategory.first,
-                                         boost::cref(*exampleByCategory.second), _1));
+                             std::bind(&CCategoryExamplesCollector::persistExamples,
+                                       this, exampleByCategory.first,
+                                       std::cref(*exampleByCategory.second),
+                                       std::placeholders::_1));
     }
 }
 
@@ -106,8 +107,8 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
     do {
         const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(
-                    &CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(&CCategoryExamplesCollector::restoreExamples,
+                                                     this, std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring examples by category");
                 return false;
             }

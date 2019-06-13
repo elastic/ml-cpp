@@ -201,7 +201,8 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, dou
 void CModelTools::CProbabilityAggregator::add(double probability, double weight) {
     m_TotalWeight += weight;
     for (auto& aggregator : m_Aggregators) {
-        boost::apply_visitor(boost::bind<void>(SAddProbability(), probability, weight, _1),
+        boost::apply_visitor(std::bind<void>(SAddProbability(), probability,
+                                             weight, std::placeholders::_1),
                              aggregator.first);
     }
 }
@@ -228,10 +229,10 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
             n += aggregator.second;
         }
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(),
-                                                        aggregator.second / n,
-                                                        boost::ref(p), _1),
-                                      aggregator.first)) {
+            if (!boost::apply_visitor(
+                    std::bind<bool>(SReadProbability(), aggregator.second / n,
+                                    std::ref(p), std::placeholders::_1),
+                    aggregator.first)) {
                 return false;
             }
         }
@@ -240,9 +241,9 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     case E_Min: {
         TMinAccumulator p_;
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(
-                    boost::bind<bool>(SReadProbability(), boost::ref(p_), _1),
-                    aggregator.first)) {
+            if (!boost::apply_visitor(std::bind<bool>(SReadProbability(), std::ref(p_),
+                                                      std::placeholders::_1),
+                                      aggregator.first)) {
                 return false;
             }
         }

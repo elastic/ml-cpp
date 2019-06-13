@@ -543,8 +543,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -571,8 +571,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -597,8 +597,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -626,8 +626,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -652,8 +652,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarSkewAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -681,8 +681,8 @@ void CBasicStatisticsTest::testCentralMoments() {
                 CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarSkewAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                    boost::bind(SRestore(), boost::ref(restored), _1)));
+                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                    SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
@@ -829,8 +829,7 @@ void CBasicStatisticsTest::testCovariances() {
         for (std::size_t i = 0u; i < boost::size(raw); ++i) {
             LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(raw[i]));
             covariances1.add(maths::CVectorNx1<double, 3>(raw[i]));
-            covariances2.add(maths::CVector<double>(boost::begin(raw[i]),
-                                                    boost::end(raw[i])));
+            covariances2.add(maths::CVector<double>(std::begin(raw[i]), std::end(raw[i])));
             maths::CDenseVector<double> v(3);
             v << raw[i][0], raw[i][1], raw[i][2];
             covariances3.add(v);
@@ -990,11 +989,11 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf() {
     for (std::size_t i = 0u; i < boost::size(means); ++i) {
         LOG_DEBUG(<< "*** test " << i << " ***");
 
-        TDoubleVec mean(boost::begin(means[i]), boost::end(means[i]));
+        TDoubleVec mean(std::begin(means[i]), std::end(means[i]));
         TDoubleVecVec covariance;
         for (std::size_t j = 0u; j < boost::size(covariances[i]); ++j) {
-            covariance.emplace_back(boost::begin(covariances[i][j]),
-                                    boost::end(covariances[i][j]));
+            covariance.emplace_back(std::begin(covariances[i][j]),
+                                    std::end(covariances[i][j]));
         }
         TMatrix2 covExpected(covariance);
         LOG_DEBUG(<< "cov expected = " << covExpected);
@@ -1178,12 +1177,12 @@ void CBasicStatisticsTest::testOrderStatistics() {
             (2 * i < boost::size(data) ? minFirstHalf : minSecondHalf).add(data[i]);
         }
 
-        std::sort(boost::begin(data), boost::end(data));
+        std::sort(std::begin(data), std::end(data));
         minValues.sort();
         LOG_DEBUG(<< "x_1 = " << minValues[0] << ", x_2 = " << minValues[1]);
         CPPUNIT_ASSERT(std::equal(minValues.begin(), minValues.end(), data));
 
-        std::sort(boost::begin(data), boost::end(data), std::greater<double>());
+        std::sort(std::begin(data), std::end(data), std::greater<double>());
         maxValues.sort();
         LOG_DEBUG(<< "x_n = " << maxValues[0] << ", x_(n-1) = " << maxValues[1]
                   << ", x_(n-2) = " << maxValues[2]);
@@ -1214,8 +1213,8 @@ void CBasicStatisticsTest::testOrderStatistics() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                boost::bind(SRestore(), boost::ref(restoredMinValues), _1)));
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                SRestore(), std::ref(restoredMinValues), std::placeholders::_1)));
         }
 
         // The XML representation of the new stats object should be unchanged.
@@ -1243,12 +1242,12 @@ void CBasicStatisticsTest::testOrderStatistics() {
             max20Values.add(data[i]);
         }
 
-        std::sort(boost::begin(data), boost::end(data));
+        std::sort(std::begin(data), std::end(data));
         min2Values.sort();
         LOG_DEBUG(<< "x_1 = " << min2Values[0] << ", x_2 = " << min2Values[1]);
         CPPUNIT_ASSERT(std::equal(min2Values.begin(), min2Values.end(), data));
 
-        std::sort(boost::begin(data), boost::end(data), std::greater<double>());
+        std::sort(std::begin(data), std::end(data), std::greater<double>());
         max3Values.sort();
         LOG_DEBUG(<< "x_n = " << max3Values[0] << ", x_(n-1) = " << max3Values[1]
                   << ", x_(n-2) = " << max3Values[2]);
@@ -1275,8 +1274,8 @@ void CBasicStatisticsTest::testOrderStatistics() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(
-                boost::bind(SRestore(), boost::ref(restoredMaxValues), _1)));
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                SRestore(), std::ref(restoredMaxValues), std::placeholders::_1)));
         }
 
         // The XML representation of the new stats object should be unchanged.

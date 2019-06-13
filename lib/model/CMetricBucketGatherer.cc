@@ -41,7 +41,7 @@ using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
-using TStrCRef = boost::reference_wrapper<const std::string>;
+using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
     std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLexicographicalCompare>;
@@ -271,8 +271,9 @@ public:
             return;
         }
 
-        inserter.insertLevel(this->tagName(category),
-                             boost::bind<void>(SDoPersist(), boost::cref(data), _1));
+        inserter.insertLevel(
+            this->tagName(category),
+            std::bind<void>(SDoPersist(), std::cref(data), std::placeholders::_1));
     }
 
 private:
@@ -320,8 +321,9 @@ private:
 
             for (auto itr : dataItrs) {
                 inserter.insertLevel(ATTRIBUTE_TAG,
-                                     boost::bind<void>(SDoPersist(), itr->first,
-                                                       boost::cref(itr->second), _1));
+                                     std::bind<void>(SDoPersist(), itr->first,
+                                                     std::cref(itr->second),
+                                                     std::placeholders::_1));
             }
         }
 
@@ -343,17 +345,18 @@ private:
                       });
 
             for (auto itr : pidItrs) {
-                inserter.insertLevel(
-                    PERSON_TAG, boost::bind<void>(SDoPersist(), itr->first,
-                                                  boost::cref(itr->second), _1));
+                inserter.insertLevel(PERSON_TAG,
+                                     std::bind<void>(SDoPersist(), itr->first,
+                                                     std::cref(itr->second),
+                                                     std::placeholders::_1));
             }
         }
 
         template<typename T>
         void operator()(std::size_t pid, const T& data, core::CStatePersistInserter& inserter) const {
             inserter.insertValue(PERSON_TAG, pid);
-            inserter.insertLevel(
-                DATA_TAG, boost::bind<void>(&T::acceptPersistInserter, &data, _1));
+            inserter.insertLevel(DATA_TAG, std::bind<void>(&T::acceptPersistInserter, &data,
+                                                           std::placeholders::_1));
         }
     };
 };
@@ -390,11 +393,13 @@ private:
         }
 
         if (isNewVersion) {
-            return traverser.traverseSubLevel(boost::bind<bool>(
-                CDoNewRestore(dimension), _1, boost::cref(gatherer), boost::ref(data)));
+            return traverser.traverseSubLevel(
+                std::bind<bool>(CDoNewRestore(dimension), std::placeholders::_1,
+                                std::cref(gatherer), std::ref(data)));
         } else {
-            return traverser.traverseSubLevel(boost::bind<bool>(
-                CDoOldRestore(dimension), _1, boost::cref(gatherer), boost::ref(data)));
+            return traverser.traverseSubLevel(
+                std::bind<bool>(CDoOldRestore(dimension), std::placeholders::_1,
+                                std::cref(gatherer), std::ref(data)));
         }
     }
 
@@ -410,9 +415,9 @@ private:
             do {
                 const std::string& name = traverser.name();
                 if (name == ATTRIBUTE_TAG) {
-                    if (traverser.traverseSubLevel(boost::bind<bool>(
-                            &CDoNewRestore::restoreAttributes<T>, this, _1,
-                            boost::cref(gatherer), boost::ref(result))) == false) {
+                    if (traverser.traverseSubLevel(std::bind<bool>(
+                            &CDoNewRestore::restoreAttributes<T>, this, std::placeholders::_1,
+                            std::cref(gatherer), std::ref(result))) == false) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -444,9 +449,9 @@ private:
                                   << traverser.value());
                         return false;
                     }
-                    if (traverser.traverseSubLevel(boost::bind<bool>(
-                            &CDoNewRestore::restorePeople<T>, this, _1,
-                            boost::cref(gatherer), boost::ref(result[lastCid]))) == false) {
+                    if (traverser.traverseSubLevel(std::bind<bool>(
+                            &CDoNewRestore::restorePeople<T>, this, std::placeholders::_1,
+                            std::cref(gatherer), std::ref(result[lastCid]))) == false) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -481,8 +486,9 @@ private:
                               gatherer.currentBucketStartTime(),
                               gatherer.bucketLength(), gatherer.beginInfluencers(),
                               gatherer.endInfluencers());
-                    if (traverser.traverseSubLevel(boost::bind<bool>(
-                            &T::acceptRestoreTraverser, &initial, _1)) == false) {
+                    if (traverser.traverseSubLevel(
+                            std::bind<bool>(&T::acceptRestoreTraverser, &initial,
+                                            std::placeholders::_1)) == false) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -527,8 +533,9 @@ private:
                               gatherer.currentBucketStartTime(),
                               gatherer.bucketLength(), gatherer.beginInfluencers(),
                               gatherer.endInfluencers());
-                    if (traverser.traverseSubLevel(boost::bind(
-                            &T::acceptRestoreTraverser, &initial, _1)) == false) {
+                    if (traverser.traverseSubLevel(
+                            std::bind(&T::acceptRestoreTraverser, &initial,
+                                      std::placeholders::_1)) == false) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -568,8 +575,9 @@ private:
                               gatherer.currentBucketStartTime(),
                               gatherer.bucketLength(), gatherer.beginInfluencers(),
                               gatherer.endInfluencers());
-                    if (traverser.traverseSubLevel(boost::bind(
-                            &T::acceptRestoreTraverser, &initial, _1)) == false) {
+                    if (traverser.traverseSubLevel(
+                            std::bind(&T::acceptRestoreTraverser, &initial,
+                                      std::placeholders::_1)) == false) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -851,7 +859,7 @@ struct SAddValue {
             data[cid]
                 .emplace(boost::unordered::piecewise_construct, boost::make_tuple(pid),
                          boost::make_tuple(
-                             boost::cref(gatherer.dataGatherer().params()),
+                             std::cref(gatherer.dataGatherer().params()),
                              category.second, gatherer.currentBucketStartTime(),
                              gatherer.bucketLength(), gatherer.beginInfluencers(),
                              gatherer.endInfluencers()))
@@ -938,8 +946,8 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
     : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
       m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(
-        boost::bind(&CMetricBucketGatherer::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
     this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
 }
 
@@ -955,11 +963,11 @@ CMetricBucketGatherer::CMetricBucketGatherer(bool isForPersistence,
 }
 
 void CMetricBucketGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        BASE_TAG, boost::bind(&CBucketGatherer::baseAcceptPersistInserter, this, _1));
+    inserter.insertLevel(BASE_TAG, std::bind(&CBucketGatherer::baseAcceptPersistInserter,
+                                             this, std::placeholders::_1));
     inserter.insertValue(VERSION_TAG, CURRENT_VERSION);
-    apply(m_FeatureData,
-          boost::bind<void>(CPersistFeatureData(), _1, _2, boost::ref(inserter)));
+    apply(m_FeatureData, std::bind<void>(CPersistFeatureData(), std::placeholders::_1,
+                                         std::placeholders::_2, std::ref(inserter)));
 }
 
 bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -969,8 +977,8 @@ bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser&
     do {
         const std::string& name = traverser.name();
         if (name == BASE_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(
-                    &CBucketGatherer::baseAcceptRestoreTraverser, this, _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(&CBucketGatherer::baseAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Invalid data gatherer in " << traverser.value());
                 return false;
             }
@@ -1263,15 +1271,16 @@ void CMetricBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
         return;
     }
 
-    apply(m_FeatureData,
-          boost::bind<void>(SRemovePeople(), _1, _2, boost::cref(peopleToRemove)));
+    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                                         std::placeholders::_2, std::cref(peopleToRemove)));
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CMetricBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    apply(m_FeatureData, boost::bind<void>(SRemovePeople(), _1, _2, lowestPersonToRemove,
-                                           m_DataGatherer.numberPeople()));
+    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                                         std::placeholders::_2, lowestPersonToRemove,
+                                         m_DataGatherer.numberPeople()));
 
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
@@ -1282,8 +1291,9 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
     }
 
     if (m_DataGatherer.isPopulation()) {
-        apply(m_FeatureData, boost::bind<void>(SRemoveAttributes(), _1, _2,
-                                               boost::cref(attributesToRemove)));
+        apply(m_FeatureData,
+              std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                              std::placeholders::_2, std::cref(attributesToRemove)));
     }
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
@@ -1291,8 +1301,9 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
 
 void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     if (m_DataGatherer.isPopulation()) {
-        apply(m_FeatureData, boost::bind<void>(SRemoveAttributes(), _1, _2, lowestAttributeToRemove,
-                                               m_DataGatherer.numberAttributes()));
+        apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                             std::placeholders::_2, lowestAttributeToRemove,
+                                             m_DataGatherer.numberAttributes()));
     }
 
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
@@ -1302,8 +1313,8 @@ uint64_t CMetricBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
-    apply(m_FeatureData,
-          boost::bind<void>(SHash(), _1, _2, boost::cref(*this), boost::ref(hashes)));
+    apply(m_FeatureData, std::bind<void>(SHash(), std::placeholders::_1, std::placeholders::_2,
+                                         std::cref(*this), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     return maths::CChecksum::calculate(seed, hashes);
@@ -1343,19 +1354,22 @@ bool CMetricBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     if (this->CBucketGatherer::resetBucket(bucketStart) == false) {
         return false;
     }
-    apply(m_FeatureData, boost::bind<void>(SResetBucket(), _1, _2, bucketStart));
+    apply(m_FeatureData, std::bind<void>(SResetBucket(), std::placeholders::_1,
+                                         std::placeholders::_2, bucketStart));
     return true;
 }
 
 void CMetricBucketGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
-    apply(m_FeatureData, boost::bind<void>(SReleaseMemory(), _1, _2, samplingCutoffTime));
+    apply(m_FeatureData, std::bind<void>(SReleaseMemory(), std::placeholders::_1,
+                                         std::placeholders::_2, samplingCutoffTime));
 }
 
 void CMetricBucketGatherer::sample(core_t::TTime time) {
     if (m_DataGatherer.sampleCounts()) {
         apply(m_FeatureData,
-              boost::bind<void>(SDoSample(), _1, _2, time, boost::cref(*this),
-                                boost::ref(*m_DataGatherer.sampleCounts())));
+              std::bind<void>(SDoSample(), std::placeholders::_1,
+                              std::placeholders::_2, time, std::cref(*this),
+                              std::ref(*m_DataGatherer.sampleCounts())));
     }
 }
 
@@ -1380,9 +1394,9 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
                 auto end = begin;
                 ++end;
                 apply(begin, end,
-                      boost::bind<void>(SExtractFeatureData(), _1, _2,
-                                        boost::cref(*this), feature, time,
-                                        bucketLength, boost::ref(result)));
+                      std::bind<void>(SExtractFeatureData(), std::placeholders::_1,
+                                      std::placeholders::_2, std::cref(*this), feature,
+                                      time, bucketLength, std::ref(result)));
             } else {
                 LOG_ERROR(<< "No data for category " << model_t::print(category));
             }
@@ -1423,8 +1437,9 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
     }
 
     stat.s_Influences = &influences;
-    apply(m_FeatureData, boost::bind<void>(SAddValue(), _1, _2, pid, cid,
-                                           boost::cref(*this), boost::ref(stat)));
+    apply(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1,
+                                         std::placeholders::_2, pid, cid,
+                                         std::cref(*this), std::ref(stat)));
 }
 
 void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates) {
@@ -1466,7 +1481,8 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
             m_DataGatherer.sampleCounts()->refresh(m_DataGatherer);
         }
     }
-    apply(m_FeatureData, boost::bind<void>(SStartNewBucket(), _1, _2, time));
+    apply(m_FeatureData, std::bind<void>(SStartNewBucket(), std::placeholders::_1,
+                                         std::placeholders::_2, time));
 }
 
 void CMetricBucketGatherer::initializeFieldNamesPart1(const std::string& personFieldName,

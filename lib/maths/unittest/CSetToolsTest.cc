@@ -30,7 +30,7 @@ void CSetToolsTest::testInplaceSetDifference() {
         LOG_DEBUG(<< "Edge cases");
 
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
-        TDoubleVec A(boost::begin(a), boost::end(a));
+        TDoubleVec A(std::begin(a), std::end(a));
 
         for (std::size_t i = 0u; i < boost::size(a); ++i) {
             TDoubleVec left;
@@ -108,7 +108,7 @@ void CSetToolsTest::testSetSizes() {
         LOG_DEBUG(<< "Edge cases");
 
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
-        TDoubleVec A(boost::begin(a), boost::end(a));
+        TDoubleVec A(std::begin(a), std::end(a));
 
         for (std::size_t i = 0u; i < boost::size(a); ++i) {
             TDoubleVec left;

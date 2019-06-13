@@ -1090,7 +1090,7 @@ const CFieldConfig::TStrDetectionRulePrVec& CFieldConfig::scheduledEvents() cons
 void CFieldConfig::influencerFieldNames(TStrVec influencers) {
     LOG_DEBUG(<< "Set influencers : " << core::CContainerPrinter::print(influencers));
     std::for_each(influencers.begin(), influencers.end(),
-                  boost::bind(&CFieldConfig::seenField, this, _1));
+                  std::bind(&CFieldConfig::seenField, this, std::placeholders::_1));
     m_Influencers.swap(influencers);
 }
 

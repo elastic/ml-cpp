@@ -9,8 +9,7 @@
 
 #include <model/ImportExport.h>
 
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -25,7 +24,7 @@ namespace model {
 //! constant cost access to the partition field.
 class MODEL_EXPORT CPartitioningFields {
 public:
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
 

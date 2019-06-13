@@ -334,7 +334,7 @@ void CSeasonalComponentTest::testConstantPeriodic() {
             TTimeDoublePr(82800, 1.0),   TTimeDoublePr(84600, 1.0),
             TTimeDoublePr(86400, 1.0)};
 
-        TTimeDoublePrVec function(boost::begin(knotPoints), boost::end(knotPoints));
+        TTimeDoublePrVec function(std::begin(knotPoints), std::end(knotPoints));
 
         std::size_t n = 6000u;
 
@@ -452,7 +452,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic() {
         TTimeDoublePr(82800, 1.0),   TTimeDoublePr(84600, 1.0),
         TTimeDoublePr(86400, 1.0)};
 
-    TTimeDoublePrVec function(boost::begin(knotPoints), boost::end(knotPoints));
+    TTimeDoublePrVec function(std::begin(knotPoints), std::end(knotPoints));
 
     test::CRandomNumbers rng;
 

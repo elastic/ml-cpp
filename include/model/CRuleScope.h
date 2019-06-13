@@ -34,7 +34,7 @@ class MODEL_EXPORT CRuleScope {
 public:
     enum ERuleScopeFilterType { E_Include, E_Exclude };
 
-    using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
+    using TPatternSetCRef = std::reference_wrapper<const core::CPatternSet>;
     using TStrPatternSetCRefFilterTypeTriple =
         core::CTriple<std::string, TPatternSetCRef, ERuleScopeFilterType>;
     using TStrPatternSetCRefFilterTypeTripleVec = std::vector<TStrPatternSetCRefFilterTypeTriple>;

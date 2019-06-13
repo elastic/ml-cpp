@@ -23,6 +23,7 @@
 
 #include <boost/ref.hpp>
 
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -178,7 +179,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using THandlerRef = boost::reference_wrapper<CHandler>;
+        using THandlerRef = std::reference_wrapper<CHandler>;
         using THandlerRefVec = std::vector<THandlerRef>;
 
     private:
@@ -242,7 +243,7 @@ public:
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
         using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
-        using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
+        using TExpandingWindowPtrAry = std::array<TExpandingWindowPtr, 2>;
 
     private:
         //! The longest bucket length at which we'll test for periodic

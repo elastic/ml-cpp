@@ -145,19 +145,19 @@ void CTrendComponent::acceptPersistInserter(core::CStatePersistInserter& inserte
     inserter.insertValue(LAST_UPDATE_TAG, m_LastUpdate);
     inserter.insertValue(REGRESSION_ORIGIN_TAG, m_RegressionOrigin);
     for (const auto& model : m_TrendModels) {
-        inserter.insertLevel(
-            MODEL_TAG, boost::bind(&SModel::acceptPersistInserter, &model, _1));
+        inserter.insertLevel(MODEL_TAG, std::bind(&SModel::acceptPersistInserter,
+                                                  &model, std::placeholders::_1));
     }
     inserter.insertValue(PREDICTION_ERROR_VARIANCE_TAG, m_PredictionErrorVariance,
                          core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(VALUE_MOMENTS_TAG, m_ValueMoments.toDelimited());
     inserter.insertValue(TIME_OF_LAST_LEVEL_CHANGE_TAG, m_TimeOfLastLevelChange);
     inserter.insertLevel(PROBABILITY_OF_LEVEL_CHANGE_MODEL_TAG,
-                         boost::bind(&CNaiveBayes::acceptPersistInserter,
-                                     &m_ProbabilityOfLevelChangeModel, _1));
+                         std::bind(&CNaiveBayes::acceptPersistInserter, &m_ProbabilityOfLevelChangeModel,
+                                   std::placeholders::_1));
     inserter.insertLevel(MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG,
-                         boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                     &m_MagnitudeOfLevelChangeModel, _1));
+                         std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                   &m_MagnitudeOfLevelChangeModel, std::placeholders::_1));
 }
 
 bool CTrendComponent::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -169,8 +169,9 @@ bool CTrendComponent::acceptRestoreTraverser(const SDistributionRestoreParams& p
         RESTORE_BUILT_IN(FIRST_UPDATE_TAG, m_FirstUpdate)
         RESTORE_BUILT_IN(LAST_UPDATE_TAG, m_LastUpdate)
         RESTORE_BUILT_IN(REGRESSION_ORIGIN_TAG, m_RegressionOrigin)
-        RESTORE(MODEL_TAG, traverser.traverseSubLevel(boost::bind(
-                               &SModel::acceptRestoreTraverser, &m_TrendModels[i++], _1)))
+        RESTORE(MODEL_TAG, traverser.traverseSubLevel(std::bind(
+                               &SModel::acceptRestoreTraverser,
+                               &m_TrendModels[i++], std::placeholders::_1)))
         RESTORE_BUILT_IN(PREDICTION_ERROR_VARIANCE_TAG, m_PredictionErrorVariance)
         RESTORE(VALUE_MOMENTS_TAG, m_ValueMoments.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(TIME_OF_LAST_LEVEL_CHANGE_TAG, m_TimeOfLastLevelChange)
@@ -634,8 +635,9 @@ void CTrendComponent::SModel::acceptPersistInserter(core::CStatePersistInserter&
 
     inserter.insertValue(VERSION_7_1_TAG, "");
     inserter.insertValue(WEIGHT_7_1_TAG, s_Weight.toDelimited());
-    inserter.insertLevel(REGRESSION_7_1_TAG, boost::bind(&TRegression::acceptPersistInserter,
-                                                         &s_Regression, _1));
+    inserter.insertLevel(REGRESSION_7_1_TAG,
+                         std::bind(&TRegression::acceptPersistInserter,
+                                   &s_Regression, std::placeholders::_1));
     inserter.insertValue(MSE_7_1_TAG, s_Mse.toDelimited());
 }
 
@@ -644,9 +646,9 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE(WEIGHT_7_1_TAG, s_Weight.fromDelimited(traverser.value()))
-            RESTORE(REGRESSION_7_1_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+            RESTORE(REGRESSION_7_1_TAG, traverser.traverseSubLevel(std::bind(
+                                            &TRegression::acceptRestoreTraverser,
+                                            &s_Regression, std::placeholders::_1)))
             RESTORE(MSE_7_1_TAG, s_Mse.fromDelimited(traverser.value()))
         }
     } else {
@@ -654,9 +656,9 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         do {
             const std::string& name{traverser.name()};
             RESTORE(WEIGHT_OLD_TAG, s_Weight.fromDelimited(traverser.value()))
-            RESTORE(REGRESSION_OLD_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+            RESTORE(REGRESSION_OLD_TAG, traverser.traverseSubLevel(std::bind(
+                                            &TRegression::acceptRestoreTraverser,
+                                            &s_Regression, std::placeholders::_1)))
             RESTORE(RESIDUAL_MOMENTS_OLD_TAG,
                     residualMoments.fromDelimited(traverser.value()))
         } while (traverser.next());

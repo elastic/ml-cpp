@@ -31,8 +31,9 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inse
     }
     for (const auto& sketch : m_Sketches) {
         inserter.insertValue(DETECTOR_TAG, sketch.first);
-        inserter.insertLevel(SKETCH_TAG, boost::bind(&maths::CQuantileSketch::acceptPersistInserter,
-                                                     boost::cref(sketch.second), _1));
+        inserter.insertLevel(
+            SKETCH_TAG, std::bind(&maths::CQuantileSketch::acceptPersistInserter,
+                                  std::cref(sketch.second), std::placeholders::_1));
     }
 }
 
@@ -50,9 +51,9 @@ bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             }
             m_Sketches.emplace_back(
                 *detector, maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE));
-            if (traverser.traverseSubLevel(
-                    boost::bind(&maths::CQuantileSketch::acceptRestoreTraverser,
-                                boost::ref(m_Sketches.back().second), _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &maths::CQuantileSketch::acceptRestoreTraverser,
+                    std::ref(m_Sketches.back().second), std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Failed to restore SKETCH_TAG, got " << traverser.value());
                 m_Sketches.pop_back();
                 return false;

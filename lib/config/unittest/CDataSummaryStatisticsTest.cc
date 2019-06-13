@@ -115,8 +115,8 @@ void CDataSummaryStatisticsTest::testCategoricalTopN() {
         rng.generateUniformSamples(0.0, 1.0, 1, p);
 
         if (p[0] < 0.05) {
-            std::size_t b = std::upper_bound(boost::begin(freq), boost::end(freq), j / 2000) -
-                            boost::begin(freq);
+            std::size_t b = std::upper_bound(std::begin(freq), std::end(freq), j / 2000) -
+                            std::begin(freq);
             rng.generateUniformSamples(0, b, 1, index);
             index[0] = freq[index[0]];
         } else {
@@ -124,9 +124,9 @@ void CDataSummaryStatisticsTest::testCategoricalTopN() {
         }
 
         const std::size_t* f =
-            std::lower_bound(boost::begin(freq), boost::end(freq), index[0]);
-        if (f != boost::end(freq) && *f == index[0]) {
-            ++counts[f - boost::begin(freq)];
+            std::lower_bound(std::begin(freq), std::end(freq), index[0]);
+        if (f != std::end(freq) && *f == index[0]) {
+            ++counts[f - std::begin(freq)];
         }
 
         summary.add(static_cast<core_t::TTime>(j), categories[index[0]]);

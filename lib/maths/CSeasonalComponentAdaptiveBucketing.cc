@@ -105,8 +105,8 @@ CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    traverser.traverseSubLevel(boost::bind(
-        &CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 const CSeasonalComponentAdaptiveBucketing& CSeasonalComponentAdaptiveBucketing::
@@ -121,8 +121,9 @@ operator=(const CSeasonalComponentAdaptiveBucketing& rhs) {
 void CSeasonalComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_3_TAG, "");
     inserter.insertLevel(ADAPTIVE_BUCKETING_6_3_TAG, this->getAcceptPersistInserter());
-    inserter.insertLevel(TIME_6_3_TAG, boost::bind(&CSeasonalTimeStateSerializer::acceptPersistInserter,
-                                                   boost::cref(*m_Time), _1));
+    inserter.insertLevel(TIME_6_3_TAG,
+                         std::bind(&CSeasonalTimeStateSerializer::acceptPersistInserter,
+                                   std::cref(*m_Time), std::placeholders::_1));
     core::CPersistUtils::persist(BUCKETS_6_3_TAG, m_Buckets, inserter);
 }
 
@@ -308,9 +309,9 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             const std::string& name{traverser.name()};
             RESTORE(ADAPTIVE_BUCKETING_6_3_TAG,
                     traverser.traverseSubLevel(this->getAcceptRestoreTraverser()))
-            RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel(boost::bind(
+            RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel(std::bind(
                                       &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
-                                      boost::ref(m_Time), _1)))
+                                      std::ref(m_Time), std::placeholders::_1)))
             RESTORE(BUCKETS_6_3_TAG,
                     core::CPersistUtils::restore(BUCKETS_6_3_TAG, m_Buckets, traverser))
         }
@@ -328,15 +329,15 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             const std::string& name{traverser.name()};
             RESTORE(ADAPTIVE_BUCKETING_OLD_TAG,
                     traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
-            RESTORE(TIME_OLD_TAG, traverser.traverseSubLevel(boost::bind(
+            RESTORE(TIME_OLD_TAG, traverser.traverseSubLevel(std::bind(
                                       &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
-                                      boost::ref(m_Time), _1)))
+                                      std::ref(m_Time), std::placeholders::_1)))
             RESTORE_BUILT_IN(INITIAL_TIME_OLD_TAG, initialTime)
-            RESTORE_SETUP_TEARDOWN(
-                REGRESSION_OLD_TAG, TRegression regression,
-                traverser.traverseSubLevel(boost::bind(
-                    &TRegression::acceptRestoreTraverser, &regression, _1)),
-                regressions.push_back(regression))
+            RESTORE_SETUP_TEARDOWN(REGRESSION_OLD_TAG, TRegression regression,
+                                   traverser.traverseSubLevel(std::bind(
+                                       &TRegression::acceptRestoreTraverser,
+                                       &regression, std::placeholders::_1)),
+                                   regressions.push_back(regression))
             RESTORE(VARIANCES_OLD_TAG,
                     core::CPersistUtils::fromString(traverser.value(), variances))
             RESTORE(LAST_UPDATES_OLD_TAG,
@@ -616,9 +617,9 @@ CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(const TRegression& regress
 bool CSeasonalComponentAdaptiveBucketing::SBucket::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(REGRESSION_6_3_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+        RESTORE(REGRESSION_6_3_TAG, traverser.traverseSubLevel(std::bind(
+                                        &TRegression::acceptRestoreTraverser,
+                                        &s_Regression, std::placeholders::_1)))
         RESTORE(VARIANCE_6_3_TAG, s_Variance.fromString(traverser.value()))
         RESTORE_BUILT_IN(FIRST_UPDATE_6_3_TAG, s_FirstUpdate)
         RESTORE_BUILT_IN(LAST_UPDATE_6_3_TAG, s_LastUpdate)
@@ -628,8 +629,9 @@ bool CSeasonalComponentAdaptiveBucketing::SBucket::acceptRestoreTraverser(core::
 
 void CSeasonalComponentAdaptiveBucketing::SBucket::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(REGRESSION_6_3_TAG, boost::bind(&TRegression::acceptPersistInserter,
-                                                         &s_Regression, _1));
+    inserter.insertLevel(REGRESSION_6_3_TAG,
+                         std::bind(&TRegression::acceptPersistInserter,
+                                   &s_Regression, std::placeholders::_1));
     inserter.insertValue(VARIANCE_6_3_TAG, s_Variance.toString());
     inserter.insertValue(FIRST_UPDATE_6_3_TAG, s_FirstUpdate);
     inserter.insertValue(LAST_UPDATE_6_3_TAG, s_LastUpdate);

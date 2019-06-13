@@ -118,7 +118,7 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams&
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
     if (model_t::isConstant(feature)) {
-        return boost::make_unique<maths::CConstantPrior>();
+        return std::make_unique<maths::CConstantPrior>();
     }
 
     // The data will be arbitrary metric values. Metrics with negative values
@@ -165,7 +165,7 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams&
         priors.emplace_back(multimodalPrior.clone());
     }
 
-    return boost::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
+    return std::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
 }
 
 CMetricModelFactory::TMultivariatePriorUPtr

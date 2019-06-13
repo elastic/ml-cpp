@@ -111,8 +111,8 @@ void CDynamicStringIdRegistryTest::testPersist() {
     CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
                                               counter_t::E_TSADNumberNewPeopleNotAllowed,
                                               counter_t::E_TSADNumberNewPeopleRecycled);
-    traverser.traverseSubLevel(boost::bind(
-        &CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry, _1));
+    traverser.traverseSubLevel(std::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
+                                         &restoredRegistry, std::placeholders::_1));
 
     std::string restoredXml;
     {

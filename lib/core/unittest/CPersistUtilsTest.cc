@@ -245,7 +245,7 @@ void CPersistUtilsTest::testPersistContainers() {
     }
     LOG_DEBUG(<< "*** array ***");
     {
-        boost::array<double, 5> collection;
+        std::array<double, 5> collection;
         collection[0] = 1.2;
         collection[1] = 4.6;
         collection[2] = 5.81;
@@ -437,7 +437,7 @@ void CPersistUtilsTest::testPersistContainers() {
         state += "12.3";
         state += core::CPersistUtils::DELIMITER;
         state += "2.4";
-        boost::array<double, 3> wrongSize;
+        std::array<double, 3> wrongSize;
         CPPUNIT_ASSERT(!core::CPersistUtils::fromString(state, wrongSize));
     }
 }

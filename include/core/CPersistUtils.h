@@ -411,7 +411,7 @@ public:
     //! Wrapper for arrays of built in types.
     template<typename T, std::size_t N>
     static bool fromString(const std::string& state,
-                           boost::array<T, N>& collection,
+                           std::array<T, N>& collection,
                            const char delimiter = DELIMITER,
                            const char pairDelimiter = PAIR_DELIMITER) {
         CBuiltinFromString f(pairDelimiter);
@@ -486,7 +486,7 @@ public:
         return true;
     }
 
-    //! Restore a boost::array from a string created by toString.
+    //! Restore a std::array from a string created by toString.
     //!
     //! \param[in] state The string description of the
     //! collection.
@@ -507,7 +507,7 @@ public:
     template<typename T, std::size_t N, typename F>
     static bool fromString(const std::string& state,
                            const F& stringFunc,
-                           boost::array<T, N>& collection,
+                           std::array<T, N>& collection,
                            const char delimiter = DELIMITER) {
         if (state.empty()) {
             LOG_ERROR(<< "Unexpected number of elements 0"
@@ -693,7 +693,8 @@ public:
     static void dispatch(const std::string& tag,
                          const std::pair<A, B>& t,
                          CStatePersistInserter& inserter) {
-        inserter.insertLevel(tag, boost::bind(&newLevel<A, B>, boost::cref(t), _1));
+        inserter.insertLevel(
+            tag, std::bind(&newLevel<A, B>, std::cref(t), std::placeholders::_1));
     }
 
 private:
@@ -797,8 +798,9 @@ private:
                          boost::false_type,
                          boost::false_type) {
         using TCItr = typename T::const_iterator;
-        inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>, container.begin(),
-                                              container.end(), container.size(), _1));
+        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, container.begin(),
+                                            container.end(), container.size(),
+                                            std::placeholders::_1));
     }
 
     //! Handle the case for a non-built-in type, which will be added
@@ -812,8 +814,9 @@ private:
                          boost::false_type,
                          boost::true_type) {
         using TCItr = boost::indirect_iterator<typename T::const_iterator>;
-        inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>, TCItr(t.begin()),
-                                              TCItr(t.end()), t.size(), _1));
+        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, TCItr(t.begin()),
+                                            TCItr(t.end()), t.size(),
+                                            std::placeholders::_1));
     }
 
     //! Dispatch a collection of items
@@ -835,7 +838,8 @@ class CPersisterImpl<MemberPersist> {
 public:
     template<typename T>
     static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
-        inserter.insertLevel(tag, boost::bind(&newLevel<T>, boost::cref(t), _1));
+        inserter.insertLevel(
+            tag, std::bind(&newLevel<T>, std::cref(t), std::placeholders::_1));
     }
 
 private:
@@ -879,7 +883,7 @@ public:
                 return false;
             }
             ret = traverser.traverseSubLevel(
-                boost::bind(&newLevel<A, B>, boost::ref(t), _1));
+                std::bind(&newLevel<A, B>, std::ref(t), std::placeholders::_1));
         }
         return ret;
     }
@@ -960,9 +964,9 @@ private:
         }
 
         template<typename T, std::size_t N>
-        bool operator()(boost::array<T, N>& container, CStateRestoreTraverser& traverser) {
+        bool operator()(std::array<T, N>& container, CStateRestoreTraverser& traverser) {
             using TValueType = typename remove_const<T>::type;
-            typename boost::array<T, N>::iterator i = container.begin();
+            typename std::array<T, N>::iterator i = container.begin();
             do {
                 TValueType value;
                 if (traverser.name() == FIRST_TAG) {
@@ -1001,8 +1005,8 @@ private:
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(
-                boost::bind<bool>(SSubLevel(), boost::ref(container), _1));
+            ret = traverser.traverseSubLevel(std::bind<bool>(
+                SSubLevel(), std::ref(container), std::placeholders::_1));
         }
         return ret;
     }
@@ -1020,7 +1024,8 @@ public:
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(boost::bind(&subLevel<T>, boost::ref(t), _1));
+            ret = traverser.traverseSubLevel(
+                std::bind(&subLevel<T>, std::ref(t), std::placeholders::_1));
         }
         return ret;
     }

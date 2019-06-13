@@ -121,7 +121,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
     if (model_t::isConstant(feature)) {
-        return boost::make_unique<maths::CConstantPrior>();
+        return std::make_unique<maths::CConstantPrior>();
     }
 
     if (model_t::isDiurnal(feature)) {
@@ -174,7 +174,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
         priors.emplace_back(multimodalPrior.clone());
     }
 
-    return boost::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
+    return std::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
 }
 
 CEventRatePopulationModelFactory::TMultivariatePriorUPtr

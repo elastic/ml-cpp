@@ -57,8 +57,8 @@ void CSplineTest::testNatural() {
         double x_[] = {0.0, 20.0, 21.0, 30.0, 56.0, 100.0, 102.0};
         double y_[] = {1.0, 5.0, 4.0, 13.0, 20.0, 12.0, 17.0};
 
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
 
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
@@ -87,7 +87,7 @@ void CSplineTest::testNatural() {
 
     {
         double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
 
         TDoubleVec y;
         y.reserve(x.size());
@@ -122,8 +122,8 @@ void CSplineTest::testParabolicRunout() {
         double x_[] = {0.0, 20.0, 21.0, 30.0, 56.0, 100.0, 102.0};
         double y_[] = {1.0, 5.0, 4.0, 13.0, 20.0, 12.0, 17.0};
 
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
 
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_ParabolicRunout);
@@ -154,7 +154,7 @@ void CSplineTest::testParabolicRunout() {
 
     {
         double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
 
         TDoubleVec y;
         y.reserve(x.size());
@@ -189,7 +189,7 @@ void CSplineTest::testParabolicRunout() {
 void CSplineTest::testPeriodic() {
     {
         double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
 
         TDoubleVec y;
         y.reserve(x.size());
@@ -219,8 +219,8 @@ void CSplineTest::testPeriodic() {
         double y_[] = {10.0, 7.0,  5.0,  3.0,  1.5,  3.5,  7.5,
                        15.5, 15.6, 15.5, 15.0, 14.0, 13.0, 12.0,
                        10.0, 8.0,  4.0,  4.1,  10.0, 10.0};
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
-        y.insert(y.end(), boost::begin(y_), boost::end(y_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
+        y.insert(y.end(), std::begin(y_), std::end(y_));
 
         LOG_DEBUG(<< "x = " << core::CContainerPrinter::print(x));
         LOG_DEBUG(<< "y = " << core::CContainerPrinter::print(y));
@@ -249,10 +249,10 @@ void CSplineTest::testMean() {
 
     {
         double x_[] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
         std::size_t n = x.size() - 1;
         double y_[] = {0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0};
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
 
         for (std::size_t t = 0u; t < boost::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
@@ -345,9 +345,9 @@ void CSplineTest::testIllposed() {
 
     double x_[] = {0.0,  0.0,  10.0, 10.0, 15.0, 15.5,
                    20.0, 20.0, 20.0, 28.0, 30.0, 30.0};
-    TDoubleVec x(boost::begin(x_), boost::end(x_));
+    TDoubleVec x(std::begin(x_), std::end(x_));
     double y_[] = {0.0, 0.0, 1.9, 2.1, 3.0, 3.1, 4.0, 4.0, 4.0, 5.6, 5.9, 6.1};
-    TDoubleVec y(boost::begin(y_), boost::end(y_));
+    TDoubleVec y(std::begin(y_), std::end(y_));
 
     maths::CSplineTypes::EType types[] = {maths::CSplineTypes::E_Linear,
                                           maths::CSplineTypes::E_Cubic};
@@ -386,10 +386,10 @@ void CSplineTest::testSlope() {
 
     {
         double x_[] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
-        TDoubleVec x(boost::begin(x_), boost::end(x_));
+        TDoubleVec x(std::begin(x_), std::end(x_));
         std::size_t n = x.size() - 1;
         double y_[] = {0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0};
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
         double range = x[n] - x[0];
 
         for (std::size_t t = 0u; t < boost::size(types); ++t) {
@@ -487,12 +487,12 @@ void CSplineTest::testSlope() {
 
 void CSplineTest::testSplineReference() {
     using TFloatVec = std::vector<maths::CFloatStorage>;
-    using TFloatVecRef = boost::reference_wrapper<TFloatVec>;
-    using TDoubleVecRef = boost::reference_wrapper<TDoubleVec>;
+    using TFloatVecRef = std::reference_wrapper<TFloatVec>;
+    using TDoubleVecRef = std::reference_wrapper<TDoubleVec>;
     using TSplineRef = maths::CSpline<TFloatVecRef, TFloatVecRef, TDoubleVecRef>;
 
     double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
-    TDoubleVec x(boost::begin(x_), boost::end(x_));
+    TDoubleVec x(std::begin(x_), std::end(x_));
 
     TDoubleVec y;
     y.reserve(x.size());
@@ -507,8 +507,8 @@ void CSplineTest::testSplineReference() {
     TFloatVec knotsStorage;
     TFloatVec valuesStorage;
     TDoubleVec curvaturesStorage;
-    TSplineRef splineRef(maths::CSplineTypes::E_Cubic, boost::ref(knotsStorage),
-                         boost::ref(valuesStorage), boost::ref(curvaturesStorage));
+    TSplineRef splineRef(maths::CSplineTypes::E_Cubic, std::ref(knotsStorage),
+                         std::ref(valuesStorage), std::ref(curvaturesStorage));
     splineRef.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(spline.knots()),

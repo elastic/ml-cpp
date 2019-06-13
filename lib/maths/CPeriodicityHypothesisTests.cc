@@ -195,10 +195,10 @@ double weekendPartitionVarianceCorrection(std::size_t bucketsPerWeek) {
     static const std::size_t BUCKETS_PER_WEEK[]{7, 14, 21, 28, 42, 56, 84, 168};
     static const double CORRECTIONS[]{1.0,  1.0,  1.0,  1.12,
                                       1.31, 1.31, 1.31, 1.31};
-    std::ptrdiff_t index{std::min(std::lower_bound(boost::begin(BUCKETS_PER_WEEK),
-                                                   boost::end(BUCKETS_PER_WEEK), bucketsPerWeek) -
-                                      boost::begin(BUCKETS_PER_WEEK),
-                                  std::ptrdiff_t(boost::size(BUCKETS_PER_WEEK) - 1))};
+    std::ptrdiff_t index{std::min(
+        std::lower_bound(std::begin(BUCKETS_PER_WEEK), std::end(BUCKETS_PER_WEEK), bucketsPerWeek) -
+            std::begin(BUCKETS_PER_WEEK),
+        std::ptrdiff_t(boost::size(BUCKETS_PER_WEEK) - 1))};
     return CORRECTIONS[index];
 }
 
@@ -766,37 +766,41 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
     TNestedHypothesesVec& hypotheses) const {
 
     if (WEEK % m_Period == 0) {
-        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                       this, boost::cref(windowForTestingWeekly),
-                                       boost::cref(bucketsForTestingWeekly), _1);
-        auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this, boost::cref(windowForTestingWeekly),
-                                         boost::cref(bucketsForTestingWeekly), false, _1);
-        auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this, boost::cref(windowForTestingWeekly),
-                                        boost::cref(bucketsForTestingWeekly), false, _1);
-        auto testForWeekly = boost::bind(&CPeriodicityHypothesisTests::testForWeekly,
-                                         this, boost::cref(windowForTestingWeekly),
-                                         boost::cref(bucketsForTestingWeekly), false, _1);
-        auto testForPeriodWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                        boost::cref(windowForTestingWeekly),
-                        boost::cref(bucketsForTestingWeekly), true, _1);
-        auto testForDailyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                        boost::cref(windowForTestingWeekly),
-                        boost::cref(bucketsForTestingWeekly), true, _1);
-        auto testForWeeklyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForWeekly, this,
-                        boost::cref(windowForTestingWeekly),
-                        boost::cref(bucketsForTestingWeekly), true, _1);
+        auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                     this, std::cref(windowForTestingWeekly),
+                                     std::cref(bucketsForTestingWeekly),
+                                     std::placeholders::_1);
+        auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                       this, std::cref(windowForTestingWeekly),
+                                       std::cref(bucketsForTestingWeekly),
+                                       false, std::placeholders::_1);
+        auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                      this, std::cref(windowForTestingWeekly),
+                                      std::cref(bucketsForTestingWeekly), false,
+                                      std::placeholders::_1);
+        auto testForWeekly = std::bind(&CPeriodicityHypothesisTests::testForWeekly,
+                                       this, std::cref(windowForTestingWeekly),
+                                       std::cref(bucketsForTestingWeekly),
+                                       false, std::placeholders::_1);
+        auto testForPeriodWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForPeriod, this,
+            std::cref(windowForTestingWeekly),
+            std::cref(bucketsForTestingWeekly), true, std::placeholders::_1);
+        auto testForDailyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForDaily, this,
+            std::cref(windowForTestingWeekly),
+            std::cref(bucketsForTestingWeekly), true, std::placeholders::_1);
+        auto testForWeeklyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForWeekly, this,
+            std::cref(windowForTestingWeekly),
+            std::cref(bucketsForTestingWeekly), true, std::placeholders::_1);
         auto testForDailyWithWeekend =
-            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
-                        this, boost::cref(bucketsForTestingWeekly), _1);
-        auto testForWeeklyGivenWeekend = boost::bind(
-            &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-            this, boost::cref(windowForTestingWeekly),
-            boost::cref(bucketsForTestingWeekly), _1);
+            std::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend, this,
+                      std::cref(bucketsForTestingWeekly), std::placeholders::_1);
+        auto testForWeeklyGivenWeekend =
+            std::bind(&CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
+                      this, std::cref(windowForTestingWeekly),
+                      std::cref(bucketsForTestingWeekly), std::placeholders::_1);
 
         hypotheses.resize(2);
         if (DAY % m_Period == 0) {
@@ -856,37 +860,41 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
             // clang-format on
         }
     } else if (m_Period % WEEK == 0) {
-        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                       this, boost::cref(windowForTestingPeriod),
-                                       boost::cref(bucketsForTestingPeriod), _1);
-        auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this, boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod), false, _1);
-        auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this, boost::cref(windowForTestingPeriod),
-                                        boost::cref(bucketsForTestingPeriod), false, _1);
-        auto testForWeekly = boost::bind(&CPeriodicityHypothesisTests::testForWeekly,
-                                         this, boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod), false, _1);
-        auto testForPeriodWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                        boost::cref(windowForTestingPeriod),
-                        boost::cref(bucketsForTestingPeriod), true, _1);
-        auto testForDailyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                        boost::cref(windowForTestingPeriod),
-                        boost::cref(bucketsForTestingPeriod), true, _1);
-        auto testForWeeklyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForWeekly, this,
-                        boost::cref(windowForTestingPeriod),
-                        boost::cref(bucketsForTestingPeriod), true, _1);
+        auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                     this, std::cref(windowForTestingPeriod),
+                                     std::cref(bucketsForTestingPeriod),
+                                     std::placeholders::_1);
+        auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                       this, std::cref(windowForTestingPeriod),
+                                       std::cref(bucketsForTestingPeriod),
+                                       false, std::placeholders::_1);
+        auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                      this, std::cref(windowForTestingPeriod),
+                                      std::cref(bucketsForTestingPeriod), false,
+                                      std::placeholders::_1);
+        auto testForWeekly = std::bind(&CPeriodicityHypothesisTests::testForWeekly,
+                                       this, std::cref(windowForTestingPeriod),
+                                       std::cref(bucketsForTestingPeriod),
+                                       false, std::placeholders::_1);
+        auto testForPeriodWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForPeriod, this,
+            std::cref(windowForTestingPeriod),
+            std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
+        auto testForDailyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForDaily, this,
+            std::cref(windowForTestingPeriod),
+            std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
+        auto testForWeeklyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForWeekly, this,
+            std::cref(windowForTestingPeriod),
+            std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
         auto testForDailyWithWeekend =
-            boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
-                        this, boost::cref(bucketsForTestingPeriod), _1);
-        auto testForWeeklyGivenWeekend = boost::bind(
-            &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-            this, boost::cref(windowForTestingPeriod),
-            boost::cref(bucketsForTestingPeriod), _1);
+            std::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend, this,
+                      std::cref(bucketsForTestingPeriod), std::placeholders::_1);
+        auto testForWeeklyGivenWeekend =
+            std::bind(&CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
+                      this, std::cref(windowForTestingPeriod),
+                      std::cref(bucketsForTestingPeriod), std::placeholders::_1);
 
         // clang-format off
         hypotheses.resize(2);
@@ -924,32 +932,33 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
     } else {
         hypotheses.resize(4);
         {
-            auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this, boost::cref(windowForTestingWeekly),
-                                           boost::cref(bucketsForTestingWeekly), _1);
-            auto testForDaily =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingWeekly),
-                            boost::cref(bucketsForTestingWeekly), false, _1);
-            auto testForWeekly =
-                boost::bind(&CPeriodicityHypothesisTests::testForWeekly, this,
-                            boost::cref(windowForTestingWeekly),
-                            boost::cref(bucketsForTestingWeekly), false, _1);
-            auto testForDailyWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingWeekly),
-                            boost::cref(bucketsForTestingWeekly), true, _1);
-            auto testForWeeklyWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForWeekly, this,
-                            boost::cref(windowForTestingWeekly),
-                            boost::cref(bucketsForTestingWeekly), true, _1);
-            auto testForDailyWithWeekend =
-                boost::bind(&CPeriodicityHypothesisTests::testForDailyWithWeekend,
-                            this, boost::cref(bucketsForTestingWeekly), _1);
-            auto testForWeeklyGivenWeekend = boost::bind(
+            auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                         this, std::cref(windowForTestingWeekly),
+                                         std::cref(bucketsForTestingWeekly),
+                                         std::placeholders::_1);
+            auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                          this, std::cref(windowForTestingWeekly),
+                                          std::cref(bucketsForTestingWeekly),
+                                          false, std::placeholders::_1);
+            auto testForWeekly = std::bind(&CPeriodicityHypothesisTests::testForWeekly,
+                                           this, std::cref(windowForTestingWeekly),
+                                           std::cref(bucketsForTestingWeekly),
+                                           false, std::placeholders::_1);
+            auto testForDailyWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForDaily, this,
+                std::cref(windowForTestingWeekly),
+                std::cref(bucketsForTestingWeekly), true, std::placeholders::_1);
+            auto testForWeeklyWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForWeekly, this,
+                std::cref(windowForTestingWeekly),
+                std::cref(bucketsForTestingWeekly), true, std::placeholders::_1);
+            auto testForDailyWithWeekend = std::bind(
+                &CPeriodicityHypothesisTests::testForDailyWithWeekend, this,
+                std::cref(bucketsForTestingWeekly), std::placeholders::_1);
+            auto testForWeeklyGivenWeekend = std::bind(
                 &CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend,
-                this, boost::cref(windowForTestingWeekly),
-                boost::cref(bucketsForTestingWeekly), _1);
+                this, std::cref(windowForTestingWeekly),
+                std::cref(bucketsForTestingWeekly), std::placeholders::_1);
 
             // clang-format off
             hypotheses[0].null(testForNull)
@@ -971,25 +980,26 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
             // clang-format on
         }
         if (m_Period % DAY == 0) {
-            auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this, boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod), _1);
-            auto testForDaily =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), false, _1);
-            auto testForPeriod =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), false, _1);
-            auto testForDailyWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), true, _1);
-            auto testForPeriodWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), true, _1);
+            auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                         this, std::cref(windowForTestingPeriod),
+                                         std::cref(bucketsForTestingPeriod),
+                                         std::placeholders::_1);
+            auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                          this, std::cref(windowForTestingPeriod),
+                                          std::cref(bucketsForTestingPeriod),
+                                          false, std::placeholders::_1);
+            auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                           this, std::cref(windowForTestingPeriod),
+                                           std::cref(bucketsForTestingPeriod),
+                                           false, std::placeholders::_1);
+            auto testForDailyWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForDaily, this,
+                std::cref(windowForTestingPeriod),
+                std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
+            auto testForPeriodWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForPeriod, this,
+                std::cref(windowForTestingPeriod),
+                std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
 
             // clang-format off
             hypotheses[2].null(testForNull)
@@ -1004,17 +1014,18 @@ void CPeriodicityHypothesisTests::hypothesesForWeekly(
                              .addAlternative(testForPeriodWithScaling);
             // clang-format on
         } else {
-            auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this, boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod), _1);
-            auto testForPeriod =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), false, _1);
-            auto testForPeriodWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), true, _1);
+            auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                         this, std::cref(windowForTestingPeriod),
+                                         std::cref(bucketsForTestingPeriod),
+                                         std::placeholders::_1);
+            auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                           this, std::cref(windowForTestingPeriod),
+                                           std::cref(bucketsForTestingPeriod),
+                                           false, std::placeholders::_1);
+            auto testForPeriodWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForPeriod, this,
+                std::cref(windowForTestingPeriod),
+                std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
 
             // clang-format off
             hypotheses[2].null(testForNull)
@@ -1033,23 +1044,26 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
     const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
     TNestedHypothesesVec& hypotheses) const {
     if (DAY % m_Period == 0) {
-        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                       this, boost::cref(windowForTestingDaily),
-                                       boost::cref(bucketsForTestingDaily), _1);
-        auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this, boost::cref(windowForTestingDaily),
-                                         boost::cref(bucketsForTestingDaily), false, _1);
-        auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this, boost::cref(windowForTestingDaily),
-                                        boost::cref(bucketsForTestingDaily), false, _1);
-        auto testForPeriodWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                        boost::cref(windowForTestingDaily),
-                        boost::cref(bucketsForTestingDaily), true, _1);
-        auto testForDailyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                        boost::cref(windowForTestingDaily),
-                        boost::cref(bucketsForTestingDaily), true, _1);
+        auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                     this, std::cref(windowForTestingDaily),
+                                     std::cref(bucketsForTestingDaily),
+                                     std::placeholders::_1);
+        auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                       this, std::cref(windowForTestingDaily),
+                                       std::cref(bucketsForTestingDaily), false,
+                                       std::placeholders::_1);
+        auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                      this, std::cref(windowForTestingDaily),
+                                      std::cref(bucketsForTestingDaily), false,
+                                      std::placeholders::_1);
+        auto testForPeriodWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForPeriod, this,
+            std::cref(windowForTestingDaily), std::cref(bucketsForTestingDaily),
+            true, std::placeholders::_1);
+        auto testForDailyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForDaily, this,
+            std::cref(windowForTestingDaily), std::cref(bucketsForTestingDaily),
+            true, std::placeholders::_1);
 
         hypotheses.resize(2);
         // clang-format off
@@ -1065,23 +1079,26 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
                          .addAlternative(testForDailyWithScaling);
         // clang-format on
     } else if (m_Period % DAY == 0) {
-        auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                       this, boost::cref(windowForTestingPeriod),
-                                       boost::cref(bucketsForTestingPeriod), _1);
-        auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                         this, boost::cref(windowForTestingPeriod),
-                                         boost::cref(bucketsForTestingPeriod), false, _1);
-        auto testForDaily = boost::bind(&CPeriodicityHypothesisTests::testForDaily,
-                                        this, boost::cref(windowForTestingPeriod),
-                                        boost::cref(bucketsForTestingPeriod), false, _1);
-        auto testForPeriodWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                        boost::cref(windowForTestingDaily),
-                        boost::cref(bucketsForTestingDaily), true, _1);
-        auto testForDailyWithScaling =
-            boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                        boost::cref(windowForTestingDaily),
-                        boost::cref(bucketsForTestingDaily), true, _1);
+        auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                     this, std::cref(windowForTestingPeriod),
+                                     std::cref(bucketsForTestingPeriod),
+                                     std::placeholders::_1);
+        auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                       this, std::cref(windowForTestingPeriod),
+                                       std::cref(bucketsForTestingPeriod),
+                                       false, std::placeholders::_1);
+        auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                      this, std::cref(windowForTestingPeriod),
+                                      std::cref(bucketsForTestingPeriod), false,
+                                      std::placeholders::_1);
+        auto testForPeriodWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForPeriod, this,
+            std::cref(windowForTestingDaily), std::cref(bucketsForTestingDaily),
+            true, std::placeholders::_1);
+        auto testForDailyWithScaling = std::bind(
+            &CPeriodicityHypothesisTests::testForDaily, this,
+            std::cref(windowForTestingDaily), std::cref(bucketsForTestingDaily),
+            true, std::placeholders::_1);
 
         hypotheses.resize(2);
         // clang-format off
@@ -1095,17 +1112,18 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
     } else {
         hypotheses.resize(4);
         {
-            auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this, boost::cref(windowForTestingDaily),
-                                           boost::cref(bucketsForTestingDaily), _1);
-            auto testForDaily =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingDaily),
-                            boost::cref(bucketsForTestingDaily), false, _1);
-            auto testForDailyWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForDaily, this,
-                            boost::cref(windowForTestingDaily),
-                            boost::cref(bucketsForTestingDaily), true, _1);
+            auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                         this, std::cref(windowForTestingDaily),
+                                         std::cref(bucketsForTestingDaily),
+                                         std::placeholders::_1);
+            auto testForDaily = std::bind(&CPeriodicityHypothesisTests::testForDaily,
+                                          this, std::cref(windowForTestingDaily),
+                                          std::cref(bucketsForTestingDaily),
+                                          false, std::placeholders::_1);
+            auto testForDailyWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForDaily, this,
+                std::cref(windowForTestingDaily),
+                std::cref(bucketsForTestingDaily), true, std::placeholders::_1);
 
             // clang-format off
             hypotheses[0].null(testForNull)
@@ -1115,17 +1133,18 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
             // clang-format on
         }
         {
-            auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull,
-                                           this, boost::cref(windowForTestingPeriod),
-                                           boost::cref(bucketsForTestingPeriod), _1);
-            auto testForPeriod =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), false, _1);
-            auto testForPeriodWithScaling =
-                boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                            boost::cref(windowForTestingPeriod),
-                            boost::cref(bucketsForTestingPeriod), true, _1);
+            auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                         this, std::cref(windowForTestingPeriod),
+                                         std::cref(bucketsForTestingPeriod),
+                                         std::placeholders::_1);
+            auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                           this, std::cref(windowForTestingPeriod),
+                                           std::cref(bucketsForTestingPeriod),
+                                           false, std::placeholders::_1);
+            auto testForPeriodWithScaling = std::bind(
+                &CPeriodicityHypothesisTests::testForPeriod, this,
+                std::cref(windowForTestingPeriod),
+                std::cref(bucketsForTestingPeriod), true, std::placeholders::_1);
             // clang-format off
             hypotheses[2].null(testForNull)
                              .addNested(testForPeriod);
@@ -1139,14 +1158,15 @@ void CPeriodicityHypothesisTests::hypothesesForDaily(
 void CPeriodicityHypothesisTests::hypothesesForPeriod(const TTimeTimePr2Vec& windows,
                                                       const TFloatMeanAccumulatorCRng& buckets,
                                                       TNestedHypothesesVec& hypotheses) const {
-    auto testForNull = boost::bind(&CPeriodicityHypothesisTests::testForNull, this,
-                                   boost::cref(windows), boost::cref(buckets), _1);
-    auto testForPeriod = boost::bind(&CPeriodicityHypothesisTests::testForPeriod,
-                                     this, boost::cref(windows),
-                                     boost::cref(buckets), false, _1);
-    auto testForPeriodWithScaling =
-        boost::bind(&CPeriodicityHypothesisTests::testForPeriod, this,
-                    boost::cref(windows), boost::cref(buckets), true, _1);
+    auto testForNull = std::bind(&CPeriodicityHypothesisTests::testForNull,
+                                 this, std::cref(windows), std::cref(buckets),
+                                 std::placeholders::_1);
+    auto testForPeriod = std::bind(&CPeriodicityHypothesisTests::testForPeriod,
+                                   this, std::cref(windows), std::cref(buckets),
+                                   false, std::placeholders::_1);
+    auto testForPeriodWithScaling = std::bind(
+        &CPeriodicityHypothesisTests::testForPeriod, this, std::cref(windows),
+        std::cref(buckets), true, std::placeholders::_1);
 
     hypotheses.resize(2);
     // clang-format off

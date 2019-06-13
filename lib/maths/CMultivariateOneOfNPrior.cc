@@ -106,14 +106,15 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
-                               /**/,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &CModelWeight::acceptRestoreTraverser, &weight, _1)),
-                               gotWeight = true)
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                               CPriorStateSerialiser(), boost::cref(params),
-                               boost::ref(model), _1)))
+        RESTORE_SETUP_TEARDOWN(
+            WEIGHT_TAG,
+            /**/,
+            traverser.traverseSubLevel(std::bind(&CModelWeight::acceptRestoreTraverser,
+                                                 &weight, std::placeholders::_1)),
+            gotWeight = true)
+        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                               CPriorStateSerialiser(), std::cref(params),
+                               std::ref(model), std::placeholders::_1)))
     } while (traverser.next());
 
     if (!gotWeight) {
@@ -139,9 +140,9 @@ bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(DECAY_RATE_TAG, decayRate)
-        RESTORE(MODEL_TAG, traverser.traverseSubLevel(boost::bind(
-                               &modelAcceptRestoreTraverser,
-                               boost::cref(params), boost::ref(models), _1)))
+        RESTORE(MODEL_TAG, traverser.traverseSubLevel(std::bind(
+                               &modelAcceptRestoreTraverser, std::cref(params),
+                               std::ref(models), std::placeholders::_1)))
         RESTORE_BUILT_IN(NUMBER_SAMPLES_TAG, numberSamples)
     } while (traverser.next());
 
@@ -153,10 +154,10 @@ bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CMultivariatePrior& prior,
                                 core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(
-        WEIGHT_TAG, boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                      boost::cref(prior), _1));
+    inserter.insertLevel(WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter,
+                                               &weight, std::placeholders::_1));
+    inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(), std::cref(prior),
+                                                    std::placeholders::_1));
 }
 
 const double DERATE = 0.99999;
@@ -210,9 +211,9 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
       m_Dimension(dimension) {
     double decayRate;
     double numberSamples;
-    if (traverser.traverseSubLevel(boost::bind(
-            &acceptRestoreTraverser, boost::cref(params), boost::ref(m_Models),
-            boost::ref(decayRate), boost::ref(numberSamples), _1)) == false) {
+    if (traverser.traverseSubLevel(std::bind(
+            &acceptRestoreTraverser, std::cref(params), std::ref(m_Models),
+            std::ref(decayRate), std::ref(numberSamples), std::placeholders::_1)) == false) {
         return;
     }
     this->decayRate(decayRate);
@@ -440,7 +441,7 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {boost::make_unique<COneOfNPrior>(models, this->dataType(), this->decayRate()),
+    return {std::make_unique<COneOfNPrior>(models, this->dataType(), this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -473,8 +474,8 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {boost::make_unique<CMultivariateOneOfNPrior>(2, models, this->dataType(),
-                                                         this->decayRate()),
+    return {std::make_unique<CMultivariateOneOfNPrior>(2, models, this->dataType(),
+                                                       this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -768,9 +769,9 @@ std::string CMultivariateOneOfNPrior::persistenceTag() const {
 
 void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& model : m_Models) {
-        inserter.insertLevel(MODEL_TAG, boost::bind(&modelAcceptPersistInserter,
-                                                    boost::cref(model.first),
-                                                    boost::cref(*model.second), _1));
+        inserter.insertLevel(
+            MODEL_TAG, std::bind(&modelAcceptPersistInserter, std::cref(model.first),
+                                 std::cref(*model.second), std::placeholders::_1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),

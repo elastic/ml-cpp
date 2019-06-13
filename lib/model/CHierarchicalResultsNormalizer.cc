@@ -133,7 +133,7 @@ void CHierarchicalResultsNormalizer::propagateForwardByTime(double time) {
         LOG_ERROR(<< "Can't propagate normalizer backwards in time");
         return;
     }
-    this->age(boost::bind(&TNormalizer::propagateForwardByTime, _1, time));
+    this->age(std::bind(&TNormalizer::propagateForwardByTime, std::placeholders::_1, time));
 }
 
 bool CHierarchicalResultsNormalizer::hasLastUpdateCausedBigChange() const {

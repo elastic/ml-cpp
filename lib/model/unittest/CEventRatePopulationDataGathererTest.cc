@@ -517,11 +517,11 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
             const TStrSet& uniqueValues = iter->second;
 
             core::CDeflator compressor(false);
-            CPPUNIT_ASSERT_EQUAL(
-                uniqueValues.size(),
-                static_cast<size_t>(std::count_if(
-                    uniqueValues.begin(), uniqueValues.end(),
-                    boost::bind(&core::CCompressUtil::addString, &compressor, _1))));
+            CPPUNIT_ASSERT_EQUAL(uniqueValues.size(),
+                                 static_cast<size_t>(std::count_if(
+                                     uniqueValues.begin(), uniqueValues.end(),
+                                     std::bind(&core::CCompressUtil::addString,
+                                               &compressor, std::placeholders::_1))));
             size_t length(0);
             CPPUNIT_ASSERT(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;

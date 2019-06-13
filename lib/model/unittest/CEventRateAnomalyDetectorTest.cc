@@ -270,8 +270,8 @@ void CEventRateAnomalyDetectorTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
-                        &restoredDetector, EMPTY_STRING, _1)));
+            std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
+                      &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
     // The XML representation of the new typer should be the same as the original

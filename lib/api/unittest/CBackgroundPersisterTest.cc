@@ -125,8 +125,8 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist() {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-            boost::bind(&ml::api::CDataProcessor::handleRecord, &typer, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &ml::api::CDataProcessor::handleRecord, &typer, std::placeholders::_1)));
 
         // Persist the processors' state in the background
         CPPUNIT_ASSERT(typer.periodicPersistState(backgroundPersister));
@@ -198,8 +198,8 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
         ml::api::CAnomalyJob job(
             JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-            boost::bind(&reportPersistComplete, _1, boost::ref(snapshotId),
-                        boost::ref(numDocs)),
+            std::bind(&reportPersistComplete, std::placeholders::_1,
+                      std::ref(snapshotId), std::ref(numDocs)),
             &backgroundPersister, -1, "time", "%d/%b/%Y:%T %z");
 
         ml::api::CDataProcessor* firstProcessor(&job);
@@ -217,8 +217,8 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(boost::bind(
-            &ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
         // Persist the processors' state in the background
         CPPUNIT_ASSERT(firstProcessor->periodicPersistState(backgroundPersister));
@@ -299,16 +299,16 @@ void CBackgroundPersisterTest::foregroundBackgroundCompAnomalyDetectionAfterStat
 
         ml::api::CAnomalyJob job(
             JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-            boost::bind(&reportPersistComplete, _1, boost::ref(snapshotId),
-                        boost::ref(numDocs)),
+            std::bind(&reportPersistComplete, std::placeholders::_1,
+                      std::ref(snapshotId), std::ref(numDocs)),
             &backgroundPersister, -1, "time", "%d/%b/%Y:%T %z");
 
         ml::api::CDataProcessor* firstProcessor(&job);
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(boost::bind(
-            &ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
         // Ensure the model size stats are up to date
         job.finalise();

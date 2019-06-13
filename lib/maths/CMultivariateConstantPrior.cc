@@ -71,8 +71,8 @@ CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension,
 CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension,
                                                        core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(maths_t::E_DiscreteData, 0.0), m_Dimension(dimension) {
-    traverser.traverseSubLevel(
-        boost::bind(&CMultivariateConstantPrior::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMultivariateConstantPrior::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -130,9 +130,9 @@ CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
     }
 
     return this->isNonInformative()
-               ? TUnivariatePriorPtrDoublePr(boost::make_unique<CConstantPrior>(), 0.0)
+               ? TUnivariatePriorPtrDoublePr(std::make_unique<CConstantPrior>(), 0.0)
                : TUnivariatePriorPtrDoublePr(
-                     boost::make_unique<CConstantPrior>((*m_Constant)[i1[0]]), 0.0);
+                     std::make_unique<CConstantPrior>((*m_Constant)[i1[0]]), 0.0);
 }
 
 CMultivariateConstantPrior::TPriorPtrDoublePr
@@ -159,9 +159,9 @@ CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
         TDouble10Vec constant;
         constant[0] = (*m_Constant)[i1[0]];
         constant[1] = (*m_Constant)[i1[1]];
-        return {boost::make_unique<CMultivariateConstantPrior>(2, constant), 0.0};
+        return {std::make_unique<CMultivariateConstantPrior>(2, constant), 0.0};
     }
-    return {boost::make_unique<CMultivariateConstantPrior>(2), 0.0};
+    return {std::make_unique<CMultivariateConstantPrior>(2), 0.0};
 }
 
 CMultivariateConstantPrior::TDouble10VecDouble10VecPr

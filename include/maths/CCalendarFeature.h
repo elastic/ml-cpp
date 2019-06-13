@@ -11,9 +11,9 @@
 
 #include <maths/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/operators.hpp>
 
+#include <array>
 #include <stdint.h>
 
 namespace ml {
@@ -37,7 +37,7 @@ public:
     static const uint16_t BEGIN_FEATURES = 1;
     static const uint16_t END_FEATURES = 5;
 
-    using TCalendarFeature4Ary = boost::array<CCalendarFeature, 4>;
+    using TCalendarFeature4Ary = std::array<CCalendarFeature, 4>;
 
 public:
     CCalendarFeature();

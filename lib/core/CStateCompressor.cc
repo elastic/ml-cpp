@@ -18,7 +18,7 @@ const std::string CStateCompressor::END_OF_STREAM_ATTRIBUTE("eos");
 
 CStateCompressor::CStateCompressor(CDataAdder& compressedAdder)
     : m_FilterSink(compressedAdder),
-      m_OutStream(std::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
+      m_OutStream(std::make_shared<CCompressOStream>(std::ref(m_FilterSink))) {
     LOG_TRACE(<< "New compressor");
 }
 

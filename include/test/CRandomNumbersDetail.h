@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iterator>
 
 namespace ml {
@@ -32,7 +33,7 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
     samples.clear();
     samples.reserve(numberSamples);
     std::generate_n(std::back_inserter(samples), numberSamples,
-                    boost::bind(distribution, boost::ref(randomNumberGenerator)));
+                    std::bind(distribution, std::ref(randomNumberGenerator)));
 }
 
 template<typename T, std::size_t N>

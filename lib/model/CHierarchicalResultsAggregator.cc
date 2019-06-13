@@ -136,13 +136,13 @@ void CHierarchicalResultsAggregator::propagateForwardByTime(double time) {
     }
     double factor{std::exp(
         -m_DecayRate * CDetectorEqualizer::largestProbabilityToCorrect() * time)};
-    this->age(boost::bind(&TDetectorEqualizer::age, _1, factor));
+    this->age(std::bind(&TDetectorEqualizer::age, std::placeholders::_1, factor));
 }
 
 void CHierarchicalResultsAggregator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(BUCKET_TAG,
-                         boost::bind(&TDetectorEqualizer::acceptPersistInserter,
-                                     boost::cref(this->bucketElement()), _1));
+    inserter.insertLevel(BUCKET_TAG, std::bind(&TDetectorEqualizer::acceptPersistInserter,
+                                               std::cref(this->bucketElement()),
+                                               std::placeholders::_1));
     core::CPersistUtils::persist(INFLUENCER_BUCKET_TAG, this->influencerBucketSet(), inserter);
     core::CPersistUtils::persist(INFLUENCER_TAG, this->influencerSet(), inserter);
     core::CPersistUtils::persist(PARTITION_TAG, this->partitionSet(), inserter);
@@ -153,9 +153,9 @@ void CHierarchicalResultsAggregator::acceptPersistInserter(core::CStatePersistIn
 bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE(BUCKET_TAG, traverser.traverseSubLevel(boost::bind(
+        RESTORE(BUCKET_TAG, traverser.traverseSubLevel(std::bind(
                                 &TDetectorEqualizer::acceptRestoreTraverser,
-                                boost::ref(this->bucketElement()), _1)))
+                                std::ref(this->bucketElement()), std::placeholders::_1)))
         RESTORE(INFLUENCER_BUCKET_TAG,
                 core::CPersistUtils::restore(INFLUENCER_BUCKET_TAG,
                                              this->influencerBucketSet(), traverser));

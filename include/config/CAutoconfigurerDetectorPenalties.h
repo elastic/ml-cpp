@@ -9,8 +9,7 @@
 
 #include <config/ImportExport.h>
 
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -43,9 +42,9 @@ public:
     TPenaltyPtr penaltyFor(const CDetectorSpecification& spec);
 
 private:
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
     using TAutoconfigurerFieldRolePenaltiesCRef =
-        boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties>;
+        std::reference_wrapper<const CAutoconfigurerFieldRolePenalties>;
     using TPenaltyPtrVec = std::vector<TPenaltyPtr>;
 
 private:

@@ -93,7 +93,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
         normals.emplace_back(dataType, moments_, decayRate);
     }
 
-    m_Clusterer = boost::make_unique<CKMeansOnline1d>(normals);
+    m_Clusterer = std::make_unique<CKMeansOnline1d>(normals);
 
     m_Modes.reserve(normals.size());
     for (std::size_t i = 0u; i < normals.size(); ++i) {
@@ -112,8 +112,8 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
 CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(boost::bind(&CMultimodalPrior::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -123,17 +123,17 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
-        RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                   CClustererStateSerialiser(), boost::cref(params),
-                                   boost::ref(m_Clusterer), _1)))
-        RESTORE(SEED_PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                    CPriorStateSerialiser(), boost::cref(params),
-                                    boost::ref(m_SeedPrior), _1)))
-        RESTORE_SETUP_TEARDOWN(
-            MODE_TAG, TMode mode,
-            traverser.traverseSubLevel(boost::bind(&TMode::acceptRestoreTraverser,
-                                                   &mode, boost::cref(params), _1)),
-            m_Modes.push_back(std::move(mode)))
+        RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                                   CClustererStateSerialiser(), std::cref(params),
+                                   std::ref(m_Clusterer), std::placeholders::_1)))
+        RESTORE(SEED_PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                                    CPriorStateSerialiser(), std::cref(params),
+                                    std::ref(m_SeedPrior), std::placeholders::_1)))
+        RESTORE_SETUP_TEARDOWN(MODE_TAG, TMode mode,
+                               traverser.traverseSubLevel(std::bind(
+                                   &TMode::acceptRestoreTraverser, &mode,
+                                   std::cref(params), std::placeholders::_1)),
+                               m_Modes.push_back(std::move(mode)))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
                                this->numberSamples(numberSamples))
@@ -551,14 +551,15 @@ std::size_t CMultimodalPrior::staticSize() const {
 }
 
 void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLUSTERER_TAG,
-                         boost::bind<void>(CClustererStateSerialiser(),
-                                           boost::cref(*m_Clusterer), _1));
-    inserter.insertLevel(SEED_PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                           boost::cref(*m_SeedPrior), _1));
+    inserter.insertLevel(CLUSTERER_TAG, std::bind<void>(CClustererStateSerialiser(),
+                                                        std::cref(*m_Clusterer),
+                                                        std::placeholders::_1));
+    inserter.insertLevel(SEED_PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
+                                                         std::cref(*m_SeedPrior),
+                                                         std::placeholders::_1));
     for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
-        inserter.insertLevel(
-            MODE_TAG, boost::bind(&TMode::acceptPersistInserter, &m_Modes[i], _1));
+        inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
+                                                 &m_Modes[i], std::placeholders::_1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),

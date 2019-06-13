@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <numeric>
 #include <vector>
 
@@ -111,9 +112,9 @@ public:
                 const std::string& name = traverser.name();
                 RESTORE_BUILT_IN(INDEX_TAG, m_Index)
                 RESTORE(COVARIANCES_TAG, m_Covariances.fromDelimited(traverser.value()))
-                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(boost::bind(
-                                           &TKMeansOnline::acceptRestoreTraverser,
-                                           &m_Structure, boost::cref(params), _1)))
+                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(std::bind(
+                                           &TKMeansOnline::acceptRestoreTraverser, &m_Structure,
+                                           std::cref(params), std::placeholders::_1)))
             } while (traverser.next());
 
             return true;
@@ -123,8 +124,9 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertValue(INDEX_TAG, m_Index);
             inserter.insertValue(COVARIANCES_TAG, m_Covariances.toDelimited());
-            inserter.insertLevel(STRUCTURE_TAG, boost::bind(&TKMeansOnline::acceptPersistInserter,
-                                                            m_Structure, _1));
+            inserter.insertLevel(STRUCTURE_TAG,
+                                 std::bind(&TKMeansOnline::acceptPersistInserter,
+                                           m_Structure, std::placeholders::_1));
         }
 
         //! Efficiently swap the contents of this and \p other.
@@ -597,8 +599,8 @@ public:
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
           m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
-                                               this, boost::cref(params), _1));
+        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
+                                             std::cref(params), std::placeholders::_1));
     }
 
     //! Construct by traversing a state document.
@@ -611,8 +613,8 @@ public:
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
           m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
-                                               this, boost::cref(params), _1));
+        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
+                                             std::cref(params), std::placeholders::_1));
     }
 
     //! The x-means clusterer has value semantics.
@@ -665,8 +667,9 @@ public:
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (const auto& cluster : m_Clusters) {
-            inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter,
-                                                          &cluster, _1));
+            inserter.insertLevel(CLUSTER_TAG,
+                                 std::bind(&CCluster::acceptPersistInserter,
+                                           &cluster, std::placeholders::_1));
         }
         inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
         inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength.toString());
@@ -676,8 +679,8 @@ public:
                              m_MinimumClusterFraction.toString());
         inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
         inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
-                             boost::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
-                                         &m_ClusterIndexGenerator, _1));
+                             std::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
+                                       &m_ClusterIndexGenerator, std::placeholders::_1));
     }
 
     //! Creates a copy of the clusterer.
@@ -985,9 +988,9 @@ protected:
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(CLUSTER_TAG, CCluster cluster(*this),
-                                   traverser.traverseSubLevel(boost::bind(
-                                       &CCluster::acceptRestoreTraverser,
-                                       &cluster, boost::cref(params), _1)),
+                                   traverser.traverseSubLevel(std::bind(
+                                       &CCluster::acceptRestoreTraverser, &cluster,
+                                       std::cref(params), std::placeholders::_1)),
                                    m_Clusters.push_back(cluster))
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
@@ -995,9 +998,9 @@ protected:
             RESTORE(HISTORY_LENGTH_TAG, m_HistoryLength.fromString(traverser.value()))
             RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
             RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &CClustererTypes::CIndexGenerator::acceptRestoreTraverser,
-                        &m_ClusterIndexGenerator, _1)))
+                        &m_ClusterIndexGenerator, std::placeholders::_1)))
             RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
             RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
                     m_MinimumClusterFraction.fromString(traverser.value()))

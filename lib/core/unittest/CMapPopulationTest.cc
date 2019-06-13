@@ -94,14 +94,14 @@ void CMapPopulationTest::testMapInsertSpeed() {
     ml::core::CStaticThreadPool tp{numCpus / 3 + 1};
 
     // Add tasks for all the tests to the pool
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapInsertStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapInsertCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapOpSqBracStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testMapOpSqBracCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapInsertStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapInsertCharP, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapOpSqBracStr, this));
-    tp.schedule(boost::bind(&CMapPopulationTest::testUMapOpSqBracCharP, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testMapInsertStr, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testMapInsertCharP, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testMapOpSqBracStr, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testMapOpSqBracCharP, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testUMapInsertStr, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testUMapInsertCharP, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testUMapOpSqBracStr, this));
+    tp.schedule(std::bind(&CMapPopulationTest::testUMapOpSqBracCharP, this));
 }
 
 void CMapPopulationTest::testMapInsertStr() {

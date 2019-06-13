@@ -150,7 +150,7 @@ void CForecastRunner::forecastWorker() {
 
                 // initialize persistence restore exactly once
                 if (!series.s_ToForecastPersisted.empty()) {
-                    modelRestore = boost::make_unique<model::CForecastModelPersist::CRestore>(
+                    modelRestore = std::make_unique<model::CForecastModelPersist::CRestore>(
                         series.s_ModelParams, series.s_MinimumSeasonalVarianceScale,
                         series.s_ToForecastPersisted);
                 }
@@ -268,7 +268,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     SForecast forecastJob;
     if (parseAndValidateForecastRequest(
             controlMessage, forecastJob, lastResultsTime,
-            boost::bind(&CForecastRunner::sendErrorMessage, this, _1, _2)) == false) {
+            std::bind(&CForecastRunner::sendErrorMessage, this,
+                      std::placeholders::_1, std::placeholders::_2)) == false) {
         return false;
     }
 

@@ -64,7 +64,7 @@ public:
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;

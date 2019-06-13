@@ -55,8 +55,8 @@ CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
 
 CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, 0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CConstantPrior::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

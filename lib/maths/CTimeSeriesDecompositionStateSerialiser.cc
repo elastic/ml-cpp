@@ -43,7 +43,7 @@ void doRestore(std::shared_ptr<CTimeSeriesDecompositionInterface>& ptr) {
 //! Implements restore for std::unique_ptr.
 template<typename T>
 void doRestore(std::unique_ptr<CTimeSeriesDecompositionInterface>& ptr) {
-    ptr = boost::make_unique<T>();
+    ptr = std::make_unique<T>();
 }
 
 //! Implements restore for std::shared_ptr.
@@ -59,7 +59,7 @@ template<typename T>
 void doRestore(const STimeSeriesDecompositionRestoreParams& params,
                std::unique_ptr<CTimeSeriesDecompositionInterface>& ptr,
                core::CStateRestoreTraverser& traverser) {
-    ptr = boost::make_unique<T>(params, traverser);
+    ptr = std::make_unique<T>(params, traverser);
 }
 
 //! Implements restore into the supplied pointer.
@@ -112,8 +112,9 @@ operator()(const CTimeSeriesDecompositionInterface& decomposition,
     if (dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition) != nullptr) {
         inserter.insertLevel(
             TIME_SERIES_DECOMPOSITION_TAG,
-            boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
-                        dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition), _1));
+            std::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
+                      dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition),
+                      std::placeholders::_1));
     } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != nullptr) {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
     } else {

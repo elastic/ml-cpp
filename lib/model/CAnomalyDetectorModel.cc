@@ -239,7 +239,7 @@ bool CAnomalyDetectorModel::addResults(int detector,
             results.addSimpleCountResult(annotatedProbability, this, startTime);
         } else {
             LOG_TRACE(<< "AddResult, for time [" << startTime << "," << endTime << ")");
-            partitioningFields.back().second = boost::cref(this->personName(pid));
+            partitioningFields.back().second = std::cref(this->personName(pid));
             std::for_each(m_DataGatherer->beginInfluencers(),
                           m_DataGatherer->endInfluencers(),
                           [&results](const std::string& influencer) {
@@ -292,7 +292,7 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
     TStrCRefUInt64Map hashes;
     for (std::size_t pid = 0u; pid < m_PersonBucketCounts.size(); ++pid) {
         if (m_DataGatherer->isPersonActive(pid)) {
-            uint64_t& hash{hashes[boost::cref(m_DataGatherer->personName(pid))]};
+            uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
             hash = maths::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
         }
     }
@@ -440,9 +440,9 @@ bool CAnomalyDetectorModel::shouldIgnoreResult(model_t::EFeature feature,
                                                core_t::TTime time) const {
     bool shouldIgnore =
         checkScheduledEvents(this->params().s_ScheduledEvents.get(),
-                             boost::cref(*this), feature, CDetectionRule::E_SkipResult,
+                             std::cref(*this), feature, CDetectionRule::E_SkipResult,
                              resultType, pid, cid, time) ||
-        checkRules(this->params().s_DetectionRules.get(), boost::cref(*this), feature,
+        checkRules(this->params().s_DetectionRules.get(), std::cref(*this), feature,
                    CDetectionRule::E_SkipResult, resultType, pid, cid, time);
 
     return shouldIgnore;
@@ -453,10 +453,10 @@ bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
                                                std::size_t cid,
                                                core_t::TTime time) const {
     bool shouldIgnore =
-        checkScheduledEvents(this->params().s_ScheduledEvents.get(),
-                             boost::cref(*this), feature, CDetectionRule::E_SkipModelUpdate,
+        checkScheduledEvents(this->params().s_ScheduledEvents.get(), std::cref(*this),
+                             feature, CDetectionRule::E_SkipModelUpdate,
                              SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) ||
-        checkRules(this->params().s_DetectionRules.get(), boost::cref(*this),
+        checkRules(this->params().s_DetectionRules.get(), std::cref(*this),
                    feature, CDetectionRule::E_SkipModelUpdate,
                    SKIP_SAMPLING_RESULT_TYPE, pid, cid, time);
 
@@ -491,8 +491,8 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
         if (traverser.name() == MODEL_TAG) {
             TMathsModelUPtr model;
             if (!traverser.traverseSubLevel(
-                    boost::bind<bool>(maths::CModelStateSerialiser(),
-                                      boost::cref(params), boost::ref(model), _1))) {
+                    std::bind<bool>(maths::CModelStateSerialiser(), std::cref(params),
+                                    std::ref(model), std::placeholders::_1))) {
                 return false;
             }
             s_Models.push_back(std::move(model));
@@ -503,8 +503,9 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
 
 void CAnomalyDetectorModel::SFeatureModels::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& model : s_Models) {
-        inserter.insertLevel(MODEL_TAG, boost::bind<void>(maths::CModelStateSerialiser(),
-                                                          boost::cref(*model), _1));
+        inserter.insertLevel(
+            MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
+                                       std::cref(*model), std::placeholders::_1));
     }
 }
 
@@ -533,9 +534,9 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     std::size_t count{0u};
     do {
         if (traverser.name() == MODEL_TAG) {
-            if (!traverser.traverseSubLevel(
-                    boost::bind(&maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
-                                s_Models.get(), boost::cref(params), _1)) ||
+            if (!traverser.traverseSubLevel(std::bind(
+                    &maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
+                    s_Models.get(), std::cref(params), std::placeholders::_1)) ||
                 count++ > 0) {
                 return false;
             }
@@ -546,8 +547,8 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(MODEL_TAG, boost::bind(&maths::CTimeSeriesCorrelations::acceptPersistInserter,
-                                                s_Models.get(), _1));
+    inserter.insertLevel(MODEL_TAG, std::bind(&maths::CTimeSeriesCorrelations::acceptPersistInserter,
+                                              s_Models.get(), std::placeholders::_1));
 }
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(

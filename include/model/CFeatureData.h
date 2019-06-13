@@ -40,7 +40,7 @@ public:
 //! \brief The data for an event rate series feature.
 struct MODEL_EXPORT SEventRateFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
@@ -69,7 +69,7 @@ struct MODEL_EXPORT SMetricFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TOptionalSample = boost::optional<CSample>;
     using TSampleVec = std::vector<CSample>;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;

@@ -82,7 +82,7 @@ TUInt64Vec rawEventCounts(std::size_t copies = 1) {
                          48, 53, 51, 50, 57, 53, 49};
     TUInt64Vec result;
     for (std::size_t i = 0u; i < copies; ++i) {
-        result.insert(result.end(), boost::begin(counts), boost::end(counts));
+        result.insert(result.end(), std::begin(counts), std::end(counts));
     }
     return result;
 }

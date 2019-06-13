@@ -136,8 +136,9 @@ struct SBucketCountsPersister {
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end());
         for (std::size_t i = 0; i < personAttributeCounts.size(); ++i) {
             inserter.insertLevel(PERSON_ATTRIBUTE_COUNT_TAG,
-                                 boost::bind(&insertPersonAttributeCounts,
-                                             boost::cref(personAttributeCounts[i]), _1));
+                                 std::bind(&insertPersonAttributeCounts,
+                                           std::cref(personAttributeCounts[i]),
+                                           std::placeholders::_1));
         }
     }
 
@@ -150,8 +151,8 @@ struct SBucketCountsPersister {
                 continue;
             }
             if (traverser.traverseSubLevel(
-                    boost::bind(&restorePersonAttributeCounts, _1,
-                                boost::ref(key), boost::ref(count))) == false) {
+                    std::bind(&restorePersonAttributeCounts, std::placeholders::_1,
+                              std::ref(key), std::ref(count))) == false) {
                 LOG_ERROR(<< "Invalid person attribute count");
                 continue;
             }
@@ -171,8 +172,8 @@ struct SInfluencerCountsPersister {
         for (std::size_t i = 0; i < data.size(); ++i) {
             inserter.insertValue(INFLUENCE_COUNT_TAG, i);
             inserter.insertLevel(INFLUENCE_ITEM_TAG,
-                                 boost::bind(&insertInfluencerPersonAttributeCounts,
-                                             boost::cref(data[i]), _1));
+                                 std::bind(&insertInfluencerPersonAttributeCounts,
+                                           std::cref(data[i]), std::placeholders::_1));
         }
     }
 
@@ -184,8 +185,9 @@ struct SInfluencerCountsPersister {
             RESTORE_BUILT_IN(INFLUENCE_COUNT_TAG, i)
             RESTORE_SETUP_TEARDOWN(
                 INFLUENCE_ITEM_TAG, data.resize(std::max(data.size(), i + 1)),
-                traverser.traverseSubLevel(boost::bind(&restoreInfluencerPersonAttributeCounts,
-                                                       _1, boost::ref(data[i]))),
+                traverser.traverseSubLevel(
+                    std::bind(&restoreInfluencerPersonAttributeCounts,
+                              std::placeholders::_1, std::ref(data[i]))),
                 /**/)
         } while (traverser.next());
         return true;
@@ -504,7 +506,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
 }
 
 uint64_t CBucketGatherer::checksum() const {
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
     using TStrCRefStrCRefPrUInt64Pr = std::pair<TStrCRefStrCRefPr, uint64_t>;
@@ -599,15 +601,14 @@ void CBucketGatherer::baseAcceptPersistInserter(core::CStatePersistInserter& ins
     inserter.insertValue(BUCKET_START_TAG, m_BucketStart);
     inserter.insertLevel(
         BUCKET_COUNT_TAG,
-        boost::bind<void>(TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(),
-                          boost::cref(m_PersonAttributeCounts), _1));
+        std::bind<void>(TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(),
+                        std::cref(m_PersonAttributeCounts), std::placeholders::_1));
     // Clear any empty collections before persist these are resized on restore.
     TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue influencerCounts{m_InfluencerCounts};
     inserter.insertLevel(
         INFLUENCERS_COUNT_TAG,
-        boost::bind<void>(
-            TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue::CSerializer<detail::SInfluencerCountsPersister>(),
-            boost::cref(m_InfluencerCounts), _1));
+        std::bind<void>(TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue::CSerializer<detail::SInfluencerCountsPersister>(),
+                        std::cref(m_InfluencerCounts), std::placeholders::_1));
     core::CPersistUtils::persist(BUCKET_EXPLICIT_NULLS_TAG,
                                  m_PersonAttributeExplicitNulls, inserter);
 }
@@ -622,18 +623,18 @@ bool CBucketGatherer::baseAcceptRestoreTraverser(core::CStateRestoreTraverser& t
             m_PersonAttributeCounts = TSizeSizePrUInt64UMapQueue(
                 m_DataGatherer.params().s_LatencyBuckets, this->bucketLength(),
                 m_BucketStart, TSizeSizePrUInt64UMap(1)),
-            traverser.traverseSubLevel(boost::bind<bool>(
+            traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrUInt64UMapQueue::CSerializer<detail::SBucketCountsPersister>(
                     TSizeSizePrUInt64UMap(1)),
-                boost::ref(m_PersonAttributeCounts), _1)),
+                std::ref(m_PersonAttributeCounts), std::placeholders::_1)),
             /**/)
         RESTORE_SETUP_TEARDOWN(
             INFLUENCERS_COUNT_TAG,
             m_InfluencerCounts = TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue(
                 m_DataGatherer.params().s_LatencyBuckets + 3, this->bucketLength(), m_BucketStart),
-            traverser.traverseSubLevel(boost::bind<bool>(
+            traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue::CSerializer<detail::SInfluencerCountsPersister>(),
-                boost::ref(m_InfluencerCounts), _1)),
+                std::ref(m_InfluencerCounts), std::placeholders::_1)),
             /**/)
         RESTORE_SETUP_TEARDOWN(
             BUCKET_EXPLICIT_NULLS_TAG,

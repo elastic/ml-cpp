@@ -13,11 +13,11 @@
 #include <config/Constants.h>
 #include <config/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
+#include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -203,8 +203,8 @@ public:
 private:
     using TStrVecVec = std::vector<TStrVec>;
     using TOptionalTime = boost::optional<core_t::TTime>;
-    using TSizeVecCPtrAry = boost::array<const TSizeVec*, 2>;
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TSizeVecCPtrAry = std::array<const TSizeVec*, 2>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
 
 private:
     //! Get the parameters.

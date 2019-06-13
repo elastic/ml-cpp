@@ -11,6 +11,7 @@
 #include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/ImportExport.h>
+#include <core/UnwrapRef.h>
 
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional/optional_fwd.hpp>
@@ -228,9 +229,9 @@ private:
     template<typename T>
     static std::string printElement(const T& value) {
         using namespace printer_detail;
-        using U = typename boost::unwrap_reference<T>::type;
+        using U = typename ml::core::unwrap_reference<T>::type;
         using Printer = CNodePrinter<typename has_const_iterator<U>::value, CContainerPrinter>;
-        return Printer::print(boost::unwrap_ref(value));
+        return Printer::print(ml::core::unwrap_ref(value));
     }
 
     //! Print a non associative element pointer to const for debug.
@@ -240,7 +241,7 @@ private:
             return "\"null\"";
         }
         std::ostringstream result;
-        result << printElement(boost::unwrap_ref(*value));
+        result << printElement(ml::core::unwrap_ref(*value));
         return result.str();
     }
 
@@ -251,7 +252,7 @@ private:
             return "\"null\"";
         }
         std::ostringstream result;
-        result << printElement(boost::unwrap_ref(*value));
+        result << printElement(ml::core::unwrap_ref(*value));
         return result.str();
     }
 
@@ -295,7 +296,7 @@ private:
             return "\"null\"";
         }
         std::ostringstream result;
-        result << printElement(boost::unwrap_ref(*value));
+        result << printElement(ml::core::unwrap_ref(*value));
         return result.str();
     }
 
@@ -303,8 +304,8 @@ private:
     template<typename U, typename V>
     static std::string printElement(const std::pair<U, V>& value) {
         std::ostringstream result;
-        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", "
-               << printElement(boost::unwrap_ref(value.second)) << ")";
+        result << "(" << printElement(ml::core::unwrap_ref(value.first)) << ", "
+               << printElement(ml::core::unwrap_ref(value.second)) << ")";
         return result.str();
     }
 
@@ -347,8 +348,8 @@ public:
     //! Print a STL compliant container for debug.
     template<typename CONTAINER>
     static std::string print(const CONTAINER& container) {
-        return print(boost::unwrap_ref(container).begin(),
-                     boost::unwrap_ref(container).end());
+        return print(ml::core::unwrap_ref(container).begin(),
+                     ml::core::unwrap_ref(container).end());
     }
 
     //! Specialization for arrays.

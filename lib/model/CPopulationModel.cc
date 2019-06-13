@@ -35,7 +35,7 @@ namespace model {
 
 namespace {
 
-using TStrCRef = boost::reference_wrapper<const std::string>;
+using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
 
 enum EEntity { E_Person, E_Attribute };
@@ -72,7 +72,7 @@ void hashActive(EEntity entity,
                 TStrCRefUInt64Map& hashes) {
     for (std::size_t id = 0u; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
-            uint64_t& hash = hashes[boost::cref(name(entity, gatherer, id))];
+            uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
             hash = maths::CChecksum::calculate(hash, values[id]);
         }
     }
@@ -286,13 +286,15 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
                                  m_AttributeLastBucketTimes, inserter);
     for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
         inserter.insertLevel(PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
-                             boost::bind(&maths::CCountMinSketch::acceptPersistInserter,
-                                         &m_PersonAttributeBucketCounts[cid], _1));
+                             std::bind(&maths::CCountMinSketch::acceptPersistInserter,
+                                       &m_PersonAttributeBucketCounts[cid],
+                                       std::placeholders::_1));
     }
     for (std::size_t cid = 0; cid < m_DistinctPersonCounts.size(); ++cid) {
-        inserter.insertLevel(DISTINCT_PERSON_COUNT_TAG,
-                             boost::bind(&maths::CBjkstUniqueValues::acceptPersistInserter,
-                                         &m_DistinctPersonCounts[cid], _1));
+        inserter.insertLevel(
+            DISTINCT_PERSON_COUNT_TAG,
+            std::bind(&maths::CBjkstUniqueValues::acceptPersistInserter,
+                      &m_DistinctPersonCounts[cid], std::placeholders::_1));
     }
 }
 

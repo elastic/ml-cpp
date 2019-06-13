@@ -81,9 +81,13 @@ bool CForecastDataSink::CForecastModelWrapper::forecast(const SForecastResultSer
     return m_ForecastModel->forecast(
         m_FirstDataTime, m_LastDataTime, startTime, endTime, boundsPercentile,
         support.first, support.second,
-        boost::bind(&model::CForecastDataSink::push, &sink, _1, model_t::print(m_Feature),
-                    series.s_PartitionFieldName, series.s_PartitionFieldValue,
-                    series.s_ByFieldName, m_ByFieldValue, series.s_DetectorIndex),
+        std::bind(static_cast<void (CForecastDataSink::*)(
+                      const maths::SErrorBar, const std::string&, const std::string&,
+                      const std::string&, const std::string&, const std::string&, int)>(
+                      &model::CForecastDataSink::push),
+                  &sink, std::placeholders::_1, model_t::print(m_Feature),
+                  series.s_PartitionFieldName, series.s_PartitionFieldValue,
+                  series.s_ByFieldName, m_ByFieldValue, series.s_DetectorIndex),
         message);
 }
 

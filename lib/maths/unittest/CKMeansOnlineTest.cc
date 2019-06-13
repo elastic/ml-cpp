@@ -378,11 +378,11 @@ void CKMeansOnlineTest::testSplit() {
     std::size_t four[]{20, 21, 25, 26, 27, 28};
     std::size_t five[]{29};
     TSizeVecVec split;
-    split.push_back(TSizeVec(boost::begin(one), boost::end(one)));
-    split.push_back(TSizeVec(boost::begin(two), boost::end(two)));
-    split.push_back(TSizeVec(boost::begin(three), boost::end(three)));
-    split.push_back(TSizeVec(boost::begin(four), boost::end(four)));
-    split.push_back(TSizeVec(boost::begin(five), boost::end(five)));
+    split.push_back(TSizeVec(std::begin(one), std::end(one)));
+    split.push_back(TSizeVec(std::begin(two), std::end(two)));
+    split.push_back(TSizeVec(std::begin(three), std::end(three)));
+    split.push_back(TSizeVec(std::begin(four), std::end(four)));
+    split.push_back(TSizeVec(std::begin(five), std::end(five)));
 
     maths::CKMeansOnline<TVector2>::TSphericalClusterVec clusters;
     kmeansOnline.clusters(clusters);
@@ -642,8 +642,8 @@ void CKMeansOnlineTest::testPersist() {
             maths_t::E_ContinuousData, 0.1, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
             maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser,
-                        &restoredKmeans, boost::cref(params), _1)));
+            std::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser,
+                      &restoredKmeans, std::cref(params), std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origKmeans.checksum()
                   << ", new checksum = " << restoredKmeans.checksum());
