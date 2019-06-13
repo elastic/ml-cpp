@@ -354,7 +354,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
     } testParams[]{{600, 550, 6000, 300, 33, 40, 40},
                    {3600, 550, 5500, 300, 27, 25, 20},
-                   {172800, 150, 850, 120, 6, 6, 3}};
+                   {172800, 150, 850, 110, 6, 6, 3}};
 
     for (const auto& testParam : testParams) {
         TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};

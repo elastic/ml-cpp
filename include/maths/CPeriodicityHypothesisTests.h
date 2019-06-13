@@ -25,13 +25,29 @@ namespace ml {
 namespace maths {
 class CSeasonalTime;
 
-//! \brief Represents the result of running the periodicity
-//! hypothesis tests.
-class MATHS_EXPORT CPeriodicityHypothesisTestsResult
+//! \brief Represents the different trend hypotheses.
+class MATHS_EXPORT CTrendHypothesis final {
+public:
+    enum EType { E_None, E_Linear, E_PiecewiseLinear };
+
+public:
+    explicit CTrendHypothesis(std::size_t segments = 0);
+
+    EType type() const;
+    std::size_t segments() const;
+
+private:
+    std::size_t m_Segments;
+};
+
+//! \brief Represents the result of running the periodicity tests.
+class MATHS_EXPORT CPeriodicityHypothesisTestsResult final
     : boost::equality_comparable<CPeriodicityHypothesisTestsResult> {
 public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TSizeVec = std::vector<std::size_t>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
     //! \brief Component data.
     struct MATHS_EXPORT SComponent {
@@ -89,11 +105,14 @@ public:
     //! Remove the component with \p description.
     void remove(const TRemoveCondition& condition);
 
-    //! Set if this is a piecewise linear trend.
-    void piecewiseLinearTrend(bool value);
+    //! Set the type of trend the hypothesis assumes.
+    void trend(CTrendHypothesis value);
 
-    //! Check if this is a piecewise linear trend.
-    bool piecewiseLinearTrend() const;
+    //! Fit and remove the appropriate trend from \p values.
+    void removeTrend(TFloatMeanAccumulatorVec& values) const;
+
+    //! Remove any discontinuities in \p values.
+    void removeDiscontinuities(TFloatMeanAccumulatorVec& values) const;
 
     //! Check if there are any periodic components.
     bool periodic() const;
@@ -105,18 +124,16 @@ public:
     std::string print() const;
 
 private:
-    //! If true then the hypothesis used a piecewise linear trend.
-    bool m_PiecewiseLinearTrend = false;
+    //! The trend hypothesis for the test.
+    CTrendHypothesis m_Trend;
 
-    //! The periodic components.
+    //! The periodic components found.
     TComponent5Vec m_Components;
 };
 
 //! \brief Configures the periodicity testing.
-class MATHS_EXPORT CPeriodicityHypothesisTestsConfig {
+class MATHS_EXPORT CPeriodicityHypothesisTestsConfig final {
 public:
-    CPeriodicityHypothesisTestsConfig();
-
     //! Disable diurnal periodicity tests.
     void disableDiurnal();
     //! Test given we know there is daily periodic component.
@@ -141,15 +158,15 @@ public:
 
 private:
     //! True if we should test for diurnal periodicity.
-    bool m_TestForDiurnal;
+    bool m_TestForDiurnal = true;
     //! True if we know there is a daily component.
-    bool m_HasDaily;
+    bool m_HasDaily = false;
     //! True if we know there is a weekend.
-    bool m_HasWeekend;
+    bool m_HasWeekend = false;
     //! True if we know there is a weekly component.
-    bool m_HasWeekly;
+    bool m_HasWeekly = false;
     //! The start of the week.
-    core_t::TTime m_StartOfWeek;
+    core_t::TTime m_StartOfWeek = 0;
 };
 
 //! \brief Implements a set of hypothesis tests to discover the
@@ -164,7 +181,7 @@ private:
 //! of the amplitude. It also compares these possibilities with a
 //! specified period (typically found by examining the cyclic
 //! autocorrelation).
-class MATHS_EXPORT CPeriodicityHypothesisTests {
+class MATHS_EXPORT CPeriodicityHypothesisTests final {
 public:
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
@@ -256,7 +273,7 @@ private:
     };
 
     //! \brief Manages the testing of a set of nested hypotheses.
-    class CNestedHypotheses {
+    class CNestedHypotheses final {
     public:
         using TTestFunc = std::function<CPeriodicityHypothesisTestsResult(STestStats&)>;
 
@@ -285,8 +302,8 @@ private:
         CNestedHypotheses& addNested(TTestFunc test);
         //! Test the hypotheses.
         CPeriodicityHypothesisTestsResult test(STestStats& stats) const;
-        //! Set if the hypothesis uses a piecewise linear trend.
-        void trendSegments(std::size_t segments);
+        //! Set if the type of trend the hypothesis is using.
+        void trend(CTrendHypothesis trend);
         //! Check if the hypothesis uses a piecewise linear trend.
         std::size_t trendSegments() const;
 
@@ -296,8 +313,8 @@ private:
     private:
         //! The test.
         TTestFunc m_Test;
-        //! The number of segments in the trend.
-        std::size_t m_TrendSegments;
+        //! The type of trend the hypothesis is using.
+        CTrendHypothesis m_Trend;
         //! If true always test the nested hypotheses.
         bool m_AlwaysTestNested;
         //! The nested hypotheses to test.

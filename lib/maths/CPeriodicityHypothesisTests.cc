@@ -488,17 +488,21 @@ R residualVariance(const CONTAINER& trend, double scale) {
 }
 }
 
+CTrendHypothesis::CTrendHypothesis(std::size_t segments)
+    : m_Segments{segments} {
+}
+
+CTrendHypothesis::EType CTrendHypothesis::type() const {
+    return m_Segments == 0 ? E_None : (m_Segments == 1 ? E_Linear : E_PiecewiseLinear);
+}
+
+std::size_t CTrendHypothesis::segments() const {
+    return m_Segments;
+}
+
 bool CPeriodicityHypothesisTestsResult::
 operator==(const CPeriodicityHypothesisTestsResult& other) const {
     return m_Components == other.m_Components;
-}
-
-void CPeriodicityHypothesisTestsResult::piecewiseLinearTrend(bool value) {
-    m_PiecewiseLinearTrend = value;
-}
-
-bool CPeriodicityHypothesisTestsResult::piecewiseLinearTrend() const {
-    return m_PiecewiseLinearTrend;
 }
 
 void CPeriodicityHypothesisTestsResult::add(const std::string& description,
@@ -515,6 +519,25 @@ void CPeriodicityHypothesisTestsResult::add(const std::string& description,
 void CPeriodicityHypothesisTestsResult::remove(const TRemoveCondition& condition) {
     m_Components.erase(std::remove_if(m_Components.begin(), m_Components.end(), condition),
                        m_Components.end());
+}
+
+void CPeriodicityHypothesisTestsResult::trend(CTrendHypothesis value) {
+    m_Trend = value;
+}
+
+void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& values) const {
+    if (m_Trend.type() == CTrendHypothesis::E_Linear) {
+        removeLinearTrend(values);
+    } else if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
+        TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+        values = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(values), segmentation);
+    }
+}
+
+void CPeriodicityHypothesisTestsResult::removeDiscontinuities(TFloatMeanAccumulatorVec& values) const {
+    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+    values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
+        std::move(values), segmentation);
 }
 
 bool CPeriodicityHypothesisTestsResult::periodic() const {
@@ -557,11 +580,6 @@ CSeasonalTime* CPeriodicityHypothesisTestsResult::SComponent::seasonalTime() con
                                 s_Window.second, s_Period, s_Precedence);
     }
     return new CGeneralPeriodTime(s_Period, s_Precedence);
-}
-
-CPeriodicityHypothesisTestsConfig::CPeriodicityHypothesisTestsConfig()
-    : m_TestForDiurnal(true), m_HasDaily(false), m_HasWeekend(false),
-      m_HasWeekly(false), m_StartOfWeek(0) {
 }
 
 void CPeriodicityHypothesisTestsConfig::disableDiurnal() {
@@ -679,6 +697,9 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::test() const {
 
     std::size_t numberHypotheses(segmentation.size() > 2 ? 3 : 2);
 
+    CTrendHypothesis trendHypotheses[]{CTrendHypothesis{0}, CTrendHypothesis{1},
+                                       CTrendHypothesis{segmentation.size()}};
+
     TTimeTimePr2Vec windowForTestingDaily(window(DAY));
     TTimeTimePr2Vec windowForTestingWeekly(window(WEEK));
     TTimeTimePr2Vec windowForTestingPeriod(window(m_Period));
@@ -720,9 +741,11 @@ CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::test() const {
             this->hypothesesForPeriod(windowForTestingPeriod,
                                       bucketsForTestingPeriod[i], hypotheses_);
         }
+
+        CTrendHypothesis trendHypothesis{trendHypotheses[i]};
         std::for_each(hypotheses_.begin(), hypotheses_.end(),
-                      [&segmentation, i](CNestedHypotheses& hypothesis) {
-                          hypothesis.trendSegments(i < 2 ? 1 : segmentation.size() - 1);
+                      [&trendHypothesis](CNestedHypotheses& hypothesis) {
+                          hypothesis.trend(trendHypothesis);
                       });
 
         LOG_TRACE(<< "# hypotheses = " << hypotheses_.size());
@@ -2232,7 +2255,7 @@ bool CPeriodicityHypothesisTests::STestStats::nullHypothesisGoodEnough() const {
 }
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CNestedHypotheses(TTestFunc test)
-    : m_Test(test), m_TrendSegments(1), m_AlwaysTestNested(false) {
+    : m_Test(test), m_AlwaysTestNested(false) {
 }
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder
@@ -2256,21 +2279,21 @@ CPeriodicityHypothesisTests::CNestedHypotheses::test(STestStats& stats) const {
         for (const auto& child : m_Nested) {
             CPeriodicityHypothesisTestsResult childResult{child.test(stats)};
             if (result != childResult) {
-                childResult.piecewiseLinearTrend(m_TrendSegments > 1);
+                childResult.trend(m_Trend);
                 return childResult;
             }
         }
     }
-    result.piecewiseLinearTrend(m_TrendSegments > 1);
+    result.trend(m_Trend);
     return result;
 }
 
-void CPeriodicityHypothesisTests::CNestedHypotheses::trendSegments(std::size_t segments) {
-    m_TrendSegments = segments;
+void CPeriodicityHypothesisTests::CNestedHypotheses::trend(CTrendHypothesis value) {
+    m_Trend = value;
 }
 
 std::size_t CPeriodicityHypothesisTests::CNestedHypotheses::trendSegments() const {
-    return m_TrendSegments;
+    return m_Trend.segments();
 }
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::CBuilder(CNestedHypotheses& hypothesis) {

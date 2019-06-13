@@ -30,13 +30,20 @@ class CPrior;
 class CSeasonalComponent;
 struct SChangeDescription;
 
+//! \brief Type definitions shared by the CTimeSeriesDecompositionInterface
+//! hierarchy and CTimeSeriesDecompositionDetails.
+class MATHS_EXPORT CTimeSeriesDecompositionTypes {
+public:
+    using TPredictor = std::function<double(core_t::TTime)>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TComponentChangeCallback = std::function<void(TFloatMeanAccumulatorVec)>;
+};
+
 //! \brief The interface for decomposing times series into periodic,
 //! calendar periodic and trend components.
-class MATHS_EXPORT CTimeSeriesDecompositionInterface {
+class MATHS_EXPORT CTimeSeriesDecompositionInterface : public CTimeSeriesDecompositionTypes {
 public:
-    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -78,16 +85,18 @@ public:
 
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
-    //! \param[in] time The time of the function point.
-    //! \param[in] value The function value at \p time.
+    //! \param[in] time The time of the data point.
+    //! \param[in] value The value of the data point.
     //! \param[in] weights The weights of \p value. The smaller
     //! the product count weight the less influence \p value has
     //! on the trend and it's local variance.
-    //! \return True if number of estimated components changed
-    //! and false otherwise.
-    virtual bool addPoint(core_t::TTime time,
-                          double value,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT) = 0;
+    //! \param[in] componentChangeCallback Called if the components
+    //! change as a result of adding the data point.
+    virtual void
+    addPoint(core_t::TTime time,
+             double value,
+             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+             const TComponentChangeCallback& componentChangeCallback = noop) = 0;
 
     //! Apply \p change at \p time.
     //!
@@ -155,11 +164,8 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
 
-    //! Check if this might add components between now and \p time.
-    virtual bool mightAddComponents(core_t::TTime time) const = 0;
-
     //! Get the values in a recent time window.
-    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const = 0;
+    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;
@@ -185,6 +191,9 @@ public:
     //! This is the latest time of any point added to this object or
     //! the time skipped to.
     virtual core_t::TTime lastValueTime() const = 0;
+
+protected:
+    static void noop(TFloatMeanAccumulatorVec) {}
 };
 }
 }
