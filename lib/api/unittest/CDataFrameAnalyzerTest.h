@@ -21,6 +21,7 @@ public:
     void testFlushMessage();
     void testErrors();
     void testRoundTripDocHashes();
+    void testCategoricalFields();
 
     static CppUnit::Test* suite();
 };

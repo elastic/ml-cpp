@@ -40,6 +40,20 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
+std::string toJsonArray(const TStrVec& categoricalFieldNames) {
+    if (categoricalFieldNames.empty()) {
+        return "[]";
+    }
+
+    std::ostringstream result;
+    result << "[ \"" << categoricalFieldNames[0] << "\"";
+    for (std::size_t i = 1; i < categoricalFieldNames.size(); ++i) {
+        result << ", \"" << categoricalFieldNames[i] << "\"";
+    }
+    result << " ]";
+    return result.str();
+}
+
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
 outlierSpec(std::size_t rows = 110,
             std::size_t memoryLimit = 100000,
@@ -91,6 +105,7 @@ outlierSpec(std::size_t rows = 110,
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
 regressionSpec(std::size_t rows = 100,
                std::size_t memoryLimit = 100000,
+               const TStrVec& categoricalFieldNames = TStrVec{},
                double lambda = -1.0,
                double gamma = -1.0,
                double eta = -1.0,
@@ -106,8 +121,11 @@ regressionSpec(std::size_t rows = 100,
                      std::to_string(memoryLimit) +
                      ",\n"
                      "  \"threads\": 1,\n"
+                     "  \"categorical_fields\": " +
+                     toJsonArray(categoricalFieldNames) +
+                     ",\n"
                      "  \"analysis\": {\n"
-                     "    \"name\": \"boosted_tree_regression\","};
+                     "    \"name\": \"regression\","};
     spec += "\n    \"parameters\": {";
     spec += "\n      \"dependent_variable\": 4";
     if (lambda >= 0.0) {
@@ -589,7 +607,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec(100, 100000, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
+        regressionSpec(100, 100000, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
     TDoubleVec expectedPredictions;
@@ -745,6 +763,80 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
     }
 }
 
+void CDataFrameAnalyzerTest::testCategoricalFields() {
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    {
+        api::CDataFrameAnalyzer analyzer{regressionSpec(1000, 100000, {"x1", "x2"}),
+                                         outputWriterFactory};
+
+        TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
+                    {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
+
+        for (std::size_t i = 0; i < 10; ++i) {
+            analyzer.handleRecord({"x1", "x2", "x3", "x4", "x5", ".", "."},
+                                  {x[0][i % x[0].size()], x[1][i % x[1].size()],
+                                   std::to_string(i), std::to_string(i),
+                                   std::to_string(i), std::to_string(i), ""});
+        }
+        analyzer.receivedAllRows();
+
+        bool passed{true};
+
+        const core::CDataFrame& frame{analyzer.dataFrame()};
+        frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t i{0};
+            for (auto row = beginRows; row != endRows; ++row, ++i) {
+                core::CFloatStorage expected[]{static_cast<double>(i % x[0].size()),
+                                               static_cast<double>(i % x[1].size())};
+                passed &= (expected[0] == (*row)[0]);
+                passed &= (expected[1] == (*row)[1]);
+            }
+        });
+
+        CPPUNIT_ASSERT(passed);
+    }
+
+    LOG_DEBUG(<< "Test overflow");
+    {
+        std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
+
+        api::CDataFrameAnalyzer analyzer{regressionSpec(rows, 1000000000, {"x1"}),
+                                         outputWriterFactory};
+
+        TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "", ""};
+        for (std::size_t i = 0; i < rows; ++i) {
+            std::fill_n(fieldValues.begin(), 6, std::to_string(i));
+            analyzer.handleRecord(fieldNames, fieldValues);
+        }
+        analyzer.receivedAllRows();
+
+        bool passed{true};
+        std::size_t i{0};
+
+        const core::CDataFrame& frame{analyzer.dataFrame()};
+        frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row, ++i) {
+                if (i < api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY) {
+                    core::CFloatStorage expected{static_cast<double>(i)};
+                    passed &= (expected == (*row)[0]);
+                } else {
+                    core::CFloatStorage expected{static_cast<double>(
+                        api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY)};
+                    passed &= (expected == (*row)[0]);
+                }
+            }
+        });
+
+        CPPUNIT_ASSERT(passed);
+    }
+}
+
 CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerTest");
 
@@ -776,6 +868,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRoundTripDocHashes",
         &CDataFrameAnalyzerTest::testRoundTripDocHashes));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testCategoricalFields",
+        &CDataFrameAnalyzerTest::testCategoricalFields));
 
     return suiteOfTests;
 }

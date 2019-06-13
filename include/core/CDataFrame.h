@@ -186,6 +186,7 @@ private:
 //! time consuming.
 class CORE_EXPORT CDataFrame final {
 public:
+    using TBoolVec = std::vector<bool>;
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
@@ -206,6 +207,7 @@ public:
     enum class EReadWriteToStorage { E_Async, E_Sync };
 
 public:
+    //! \param[in] inMainMemory True if the data frame is stored in main memory.
     //! \param[in] numberColumns The number of columns in the data frame.
     //! \param[in] sliceCapacityInRows The capacity of a slice of the data frame
     //! as a number of rows.
@@ -403,6 +405,9 @@ public:
     //! writing rows.
     void writeRow(const TWriteFunc& writeRow);
 
+    //! Write which columns contain categorical data.
+    void writeCategoricalColumns(TBoolVec columnIsCategorical);
+
     //! This retrieves the asynchronous work from writing the rows to the store
     //! and updates the stored rows.
     //!
@@ -412,6 +417,9 @@ public:
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
     void finishWritingRows();
+
+    //! \return Indicator of columns containing categorical data.
+    const TBoolVec& columnIsCategorical() const;
 
     //! Get the memory used by the data frame.
     std::size_t memoryUsage() const;
@@ -507,6 +515,9 @@ private:
     EReadWriteToStorage m_ReadAndWriteToStoreSyncStrategy;
     //! The callback to write a slice to storage.
     TWriteSliceToStoreFunc m_WriteSliceToStore;
+
+    //! Indicator vector of the columns which contain categorical values.
+    TBoolVec m_ColumnIsCategorical;
 
     //! The stored slices.
     TRowSlicePtrVec m_Slices;
