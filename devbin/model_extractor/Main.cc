@@ -74,23 +74,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
-    const TDataSearcherUPtr restoreSearcher{[isInputFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
-        if (ioMgr.inputStream()) {
-            // Check whether state is restored from a file, if so we assume that this is a debugging case
-            // and therefore does not originate from the ML Java code.
-            if (isInputFileNamedPipe == false) {
-                // apply a filter to overcome differences in the way persistence vs. restore works
-                auto strm = std::make_shared<boost::iostreams::filtering_istream>();
-                strm->push(ml::api::CStateRestoreStreamFilter());
-                strm->push(ioMgr.inputStream());
-                return std::make_unique<ml::api::CSingleStreamSearcher>(strm);
-            }
-            core::CNamedPipeFactory::TIStreamP restoreStrm{&ioMgr.inputStream(), [](std::istream*){}};
-            return std::make_unique<ml::api::CSingleStreamSearcher>(restoreStrm);
-        }
-        return nullptr;
-    }()};
+    // apply a filter to allow us to restore from an autodetect persistence (debug) dump
+    ml::api::CSingleStreamSearcher restoreSearcher([&ioMgr]() {
+        auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+        strm->push(ml::api::CStateRestoreStreamFilter());
+        strm->push(ioMgr.inputStream());
+        return strm;
+    }());
 
     // create a job with basic config sufficient enough to restore state.
     static const ml::core_t::TTime BUCKET_SIZE(600);
@@ -119,7 +109,7 @@ int main(int argc, char** argv) {
     ml::api::CAnomalyJob restoredJob(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport){});
 
     ml::core_t::TTime completeToTime(0);
-    if (!restoredJob.restoreState(*restoreSearcher, completeToTime)) {
+    if (!restoredJob.restoreState(restoreSearcher, completeToTime)) {
         LOG_ERROR(<< "Failed to restore state from file \"" << inputFileName << "\"");
         exit(EXIT_FAILURE);
     }
