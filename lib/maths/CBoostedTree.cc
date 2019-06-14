@@ -1072,8 +1072,8 @@ private:
 
     //! Get the number of features to consider splitting on.
     std::size_t featureBagSize(const core::CDataFrame& frame) const {
-        return static_cast<std::size_t>(std::max(std::ceil(
-            m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
+        return static_cast<std::size_t>(std::max(
+            std::ceil(m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
     }
 
     //! Sample the features according to their categorical distribution.
