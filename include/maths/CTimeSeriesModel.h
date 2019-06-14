@@ -55,8 +55,7 @@ double weight(const CMultivariatePrior& prior,
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
@@ -206,8 +205,6 @@ private:
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TDouble1VecDoubleWeightsAry1VecPr =
-        std::pair<TDouble1Vec, maths_t::TDoubleWeightsAry1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
     using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
@@ -247,7 +244,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(const TTimeFloatMeanAccumulatorPrVec& initialValues);
+    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const CModelProbabilityParams& params,
@@ -527,10 +524,8 @@ public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
-    using TTimeFloatMeanAccumulatorPrVec10Vec =
-        core::CSmallVector<TTimeFloatMeanAccumulatorPrVec, 10>;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TFloatMeanAccumulatorVec10Vec = core::CSmallVector<TFloatMeanAccumulatorVec, 10>;
     using TDouble10VecWeightsAry = maths_t::TDouble10VecWeightsAry;
     using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
@@ -677,12 +672,8 @@ private:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
     using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
-    using TDouble10Vec1VecDouble10VecWeightsAry1VecPr =
-        std::pair<TDouble10Vec1Vec, TDouble10VecWeightsAry1Vec>;
     using TVector = CVector<CFloatStorage>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TTimeVectorMeanAccumulatorPr = std::pair<core_t::TTime, TVectorMeanAccumulator>;
-    using TTimeVectorMeanAccumulatorPrCBuf = boost::circular_buffer<TTimeVectorMeanAccumulatorPr>;
     using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TMultivariatePriorPtr = std::unique_ptr<CMultivariatePrior>;
@@ -706,7 +697,7 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(const TTimeFloatMeanAccumulatorPrVec10Vec& initialValues);
+    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals);
 
     //! Get the model dimension.
     std::size_t dimension() const;

@@ -1513,14 +1513,17 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
     newTrendModel->decayRate(m_TrendModel->decayRate());
     newResidualModel->decayRate(m_ResidualModel->decayRate());
 
-    TTimeFloatMeanAccumulatorPrVec window(m_TrendModel->windowValues());
-
-    m_TrendModel = newTrendModel;
-    if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
-        this->reinitializeStateGivenNewComponent(window);
+    if (newTrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
+        TFloatMeanAccumulatorVec window(m_TrendModel->windowValues([this](core_t::TTime time) {
+            return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
+        }));
+        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(window)};
+        this->reinitializeStateGivenNewComponent(
+            CTimeSeriesSegmentation::removePiecewiseLinear(std::move(window), segmentation));
     } else {
         m_ResidualModel = newResidualModel;
     }
+    m_TrendModel = newTrendModel;
 
     return E_Success;
 }
@@ -1548,32 +1551,27 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                              samples[rhs].first, samples[rhs].second);
                      });
 
-    // Maybe get a window of historical values with which to reinitialize
-    // the residual model if new components of the time series decomposition
-    // are identified.
-    TTimeFloatMeanAccumulatorPrVec window;
-    for (auto i : timeorder) {
-        if (m_TrendModel->mightAddComponents(samples[i].first)) {
-            window = m_TrendModel->windowValues();
-            break;
-        }
-    }
-
     // Do the update.
+
+    TFloatMeanAccumulatorVec window;
+    auto componentChangeCallback = [&window, &result](TFloatMeanAccumulatorVec window_) {
+        window = std::move(window_);
+        result = E_Reset;
+    };
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        if (m_TrendModel->addPoint(time, value, weight)) {
-            result = E_Reset;
-        }
+        m_TrendModel->addPoint(time, value, weight, componentChangeCallback);
     }
 
     if (result == E_Reset) {
         if (window.empty()) {
-            window = m_TrendModel->windowValues();
+            window = m_TrendModel->windowValues([this](core_t::TTime time) {
+                return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
+            });
         }
-        this->reinitializeStateGivenNewComponent(window);
+        this->reinitializeStateGivenNewComponent(std::move(window));
     }
 
     return result;
@@ -1637,12 +1635,9 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const TTimeFloatMeanAccumulatorPrVec& initialValues) {
-    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
@@ -1653,29 +1648,18 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    if (initialValues.size() > 0) {
-        TFloatMeanAccumulatorVec samples;
-        samples.reserve(initialValues.size());
-        double totalWeight{0.0};
-
-        for (const auto& value : initialValues) {
-            CFloatStorage weight(CBasicStatistics::count(value.second));
-            samples.push_back(CBasicStatistics::momentsAccumulator(
-                weight, CFloatStorage(m_TrendModel->detrend(
-                            value.first, CBasicStatistics::mean(value.second), 0.0))));
-            totalWeight += weight;
-        }
-
-        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samples)};
-        samples = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(samples), segmentation);
-
+    if (residuals.size() > 0) {
+        double Z{std::accumulate(residuals.begin(), residuals.end(), 0.0,
+                                 [](double weight, const TFloatMeanAccumulator& sample) {
+                                     return weight + CBasicStatistics::count(sample);
+                                 })};
+        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / totalWeight};
-        for (const auto& sample : samples) {
-            double weight(CBasicStatistics::count(sample));
+        for (const auto& residual : residuals) {
+            double weight(CBasicStatistics::count(residual));
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weightScale * weight);
-                m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weights);
+                m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
             }
         }
     }
@@ -2871,25 +2855,13 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
                              samples[rhs].first, samples[rhs].second);
                      });
 
-    // Maybe get a window of historical values with which to reinitialize
-    // the residual model if new components of the time series decomposition
-    // are identified.
-    EUpdateResult result{E_Success};
-    TTimeFloatMeanAccumulatorPrVec10Vec window;
-    for (auto i : timeorder) {
-        core_t::TTime time{samples[i].first};
-        if (std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
-                        [time](const TDecompositionPtr& model) {
-                            return model->mightAddComponents(time);
-                        })) {
-            for (std::size_t d = 0; d < dimension; ++d) {
-                window.push_back(m_TrendModel[d]->windowValues());
-            }
-            break;
-        }
-    }
-
     // Do the update.
+
+    EUpdateResult result;
+    auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
+        result = E_Reset;
+    };
+
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
@@ -2898,19 +2870,18 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            if (m_TrendModel[d]->addPoint(time, value[d], weight)) {
-                result = E_Reset;
-            }
+            m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback);
         }
     }
 
     if (result == E_Reset) {
-        if (window.empty()) {
-            for (std::size_t d = 0; d < dimension; ++d) {
-                window.push_back(m_TrendModel[d]->windowValues());
-            }
+        TFloatMeanAccumulatorVec10Vec window(dimension);
+        for (std::size_t d = 0; d < dimension; ++d) {
+            window[d] = m_TrendModel[d]->windowValues([this, d](core_t::TTime time) {
+                return CBasicStatistics::mean(m_TrendModel[d]->value(time));
+            });
         }
-        this->reinitializeStateGivenNewComponent(window);
+        this->reinitializeStateGivenNewComponent(std::move(window));
     }
 
     return result;
@@ -2967,57 +2938,45 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const TTimeFloatMeanAccumulatorPrVec10Vec& initialValues) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals) {
+
+    using TDoubleVec = std::vector<double>;
     using TDouble10VecVec = std::vector<TDouble10Vec>;
-    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    if (initialValues.size() > 0) {
+    if (residuals.size() > 0) {
         std::size_t dimension{this->dimension()};
 
         TDouble10VecVec samples;
-
+        TDoubleVec weights;
         for (std::size_t d = 0; d < dimension; ++d) {
-            TFloatMeanAccumulatorVec samplesForDimension;
-            samplesForDimension.reserve(initialValues[d].size());
+            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(residuals[d])};
+            residuals[d] = CTimeSeriesSegmentation::removePiecewiseLinear(
+                std::move(residuals[d]), segmentation);
 
-            for (const auto& value : initialValues[d]) {
-                samplesForDimension.push_back(CBasicStatistics::momentsAccumulator(
-                    CBasicStatistics::count(value.second),
-                    CFloatStorage(m_TrendModel[d]->detrend(
-                        value.first, CBasicStatistics::mean(value.second), 0.0))));
-            }
-
-            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samplesForDimension)};
-            samplesForDimension = CTimeSeriesSegmentation::removePiecewiseLinear(
-                std::move(samplesForDimension), segmentation);
-
-            samplesForDimension.erase(
-                std::remove_if(samplesForDimension.begin(), samplesForDimension.end(),
-                               [](const TFloatMeanAccumulator& sample) {
-                                   return CBasicStatistics::count(sample) == 0.0;
-                               }),
-                samplesForDimension.end());
-
-            samples.resize(samplesForDimension.size(), TDouble10Vec(dimension));
-            for (std::size_t i = 0; i < samplesForDimension.size(); ++i) {
-                samples[i][d] = CBasicStatistics::mean(samplesForDimension[i]);
+            samples.resize(residuals[d].size(), TDouble10Vec(dimension));
+            weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
+            for (std::size_t i = 0; i < residuals[d].size(); ++i) {
+                samples[i][d] = CBasicStatistics::mean(residuals[d][i]);
+                weights[i] = std::min(
+                    weights[i],
+                    static_cast<double>(CBasicStatistics::count(residuals[d][i])));
             }
         }
 
-        maths_t::TDouble10VecWeightsAry1Vec weight{
-            maths_t::countWeight(10.0 * std::max(this->params().learnRate(), 1.0) /
-                                     static_cast<double>(samples.size()),
-                                 dimension)};
-        for (const auto& sample : samples) {
-            m_ResidualModel->addSamples({sample}, weight);
+        double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
+        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
+        maths_t::TDouble10VecWeightsAry1Vec weight(1);
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (weights[i] > 0.0) {
+                weight[0] = maths_t::countWeight(weightScale * weights[i], dimension);
+                m_ResidualModel->addSamples({samples[i]}, weight);
+            }
         }
     }
 
