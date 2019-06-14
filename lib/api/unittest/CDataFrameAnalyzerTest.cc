@@ -793,8 +793,13 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 core::CFloatStorage expected[]{static_cast<double>(i % x[0].size()),
                                                static_cast<double>(i % x[1].size())};
+                bool wasPassed{passed};
                 passed &= (expected[0] == (*row)[0]);
                 passed &= (expected[1] == (*row)[1]);
+                if (wasPassed && passed == false) {
+                    LOG_ERROR(<< "expected " << core::CContainerPrinter::print(expected)
+                              << "got [" << (*row)[0] << ", " << (*row)[1] << "]");
+                }
             }
         });
 
@@ -822,13 +827,14 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         const core::CDataFrame& frame{analyzer.dataFrame()};
         frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row, ++i) {
-                if (i < api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY) {
-                    core::CFloatStorage expected{static_cast<double>(i)};
-                    passed &= (expected == (*row)[0]);
-                } else {
-                    core::CFloatStorage expected{static_cast<double>(
-                        api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY)};
-                    passed &= (expected == (*row)[0]);
+                core::CFloatStorage expected{
+                    i < api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY
+                        ? static_cast<double>(i)
+                        : static_cast<double>(api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY)};
+                bool wasPassed{passed};
+                passed &= (expected == (*row)[0]);
+                if (wasPassed && passed == false) {
+                    LOG_ERROR(<< "expected " << expected << " got " << (*row)[0]);
                 }
             }
         });
