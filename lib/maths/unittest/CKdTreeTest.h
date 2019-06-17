@@ -15,6 +15,7 @@ public:
     void testBuildWithMove();
     void testNearestNeighbour();
     void testNearestNeighbours();
+    void testRequestingEveryPoint();
 
     static CppUnit::Test* suite();
 };
