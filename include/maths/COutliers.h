@@ -224,7 +224,7 @@ private:
     void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec&) override {
         // This is called exactly once for each point therefore an element
         // of m_KDistances is only ever written by one thread.
-        if (neighbours.empty()) {
+        if (neighbours.size() < 2) {
             return;
         }
         std::size_t i{point.annotation()};
@@ -435,9 +435,9 @@ private:
 
         std::size_t dimension{las::dimension(point)};
         auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+        score.assign(this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
 
-        if (neighbours.empty()) {
+        if (neighbours.size() < 2) {
             return;
         }
 
@@ -503,9 +503,9 @@ private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
         auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+        score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
 
-        if (neighbours.empty()) {
+        if (neighbours.size() < 2) {
             return;
         }
 
@@ -543,7 +543,7 @@ private:
         auto& score = scores[point.annotation()];
         score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
 
-        if (neighbours.empty()) {
+        if (neighbours.size() < 2) {
             return;
         }
 

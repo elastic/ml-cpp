@@ -231,6 +231,7 @@ void COutliersTest::testLof() {
 }
 
 void COutliersTest::testDlof() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -270,6 +271,7 @@ void COutliersTest::testDlof() {
 }
 
 void COutliersTest::testDistancekNN() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -302,6 +304,7 @@ void COutliersTest::testDistancekNN() {
 }
 
 void COutliersTest::testTotalDistancekNN() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -339,6 +342,7 @@ void COutliersTest::testTotalDistancekNN() {
 }
 
 void COutliersTest::testEnsemble() {
+
     // Check error stats for scores, 0.1, 0.5 and 0.9. We should see precision increase
     // for higher scores but recall decrease.
     //
@@ -709,44 +713,50 @@ void COutliersTest::testMostlyDuplicate() {
 
 void COutliersTest::testFewPoints() {
 
+    // Check there are no failures when there only a few points.
+
     std::size_t rows{101};
-
-    TPointVec points;
-
     test::CRandomNumbers rng;
 
-    TDoubleVec components;
-    for (std::size_t i = 0; i < 5; ++i) {
-        TPoint point(rows);
-        rng.generateUniformSamples(0.0, 10.0, rows, components);
-        for (std::size_t j = 0; j < components.size(); ++j) {
-            point(j) = components[j];
+    for (std::size_t numberPoints : {1, 2, 5}) {
+
+        LOG_DEBUG(<< "# points = " << numberPoints);
+
+        TPointVec points;
+        TDoubleVec components;
+        for (std::size_t i = 0; i < numberPoints; ++i) {
+            TPoint point(rows);
+            rng.generateUniformSamples(0.0, 10.0, rows, components);
+            for (std::size_t j = 0; j < components.size(); ++j) {
+                point(j) = components[j];
+            }
+            points.push_back(std::move(point));
         }
-        points.push_back(std::move(point));
+
+        auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+        maths::COutliers::SComputeParameters params{1,    // Number threads
+                                                    1,    // Number partitions,
+                                                    true, // Standardize columns
+                                                    maths::COutliers::E_Ensemble,
+                                                    0, // Compute number neighbours
+                                                    true, // Compute feature influences
+                                                    0.05}; // Outlier fraction
+        maths::COutliers::compute(params, *frame);
+
+        bool passed{true};
+
+        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                               core::CDataFrame::TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                // Check score is in range 0 to 1.
+                LOG_DEBUG(<< "outlier score = " << (*row)[rows]);
+                passed &= (*row)[rows] >= 0.0 && (*row)[rows] <= 1.0;
+            }
+        });
+
+        CPPUNIT_ASSERT(passed);
     }
-
-    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
-
-    maths::COutliers::SComputeParameters params{1,    // Number threads
-                                                1,    // Number partitions,
-                                                true, // Standardize columns
-                                                maths::COutliers::E_Ensemble,
-                                                0, // Compute number neighbours
-                                                true, // Compute feature influences
-                                                0.05}; // Outlier fraction
-    maths::COutliers::compute(params, *frame);
-
-    bool passed{true};
-
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            // Check score is in range 0 to 1.
-            LOG_DEBUG(<< "outlier score = " << (*row)[rows]);
-            passed &= (*row)[rows] >= 0.0 && (*row)[rows] <= 1.0;
-        }
-    });
-
-    CPPUNIT_ASSERT(passed);
 }
 
 CppUnit::Test* COutliersTest::suite() {
