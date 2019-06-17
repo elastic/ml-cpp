@@ -271,7 +271,7 @@ public:
             for (const auto& neighbour : neighbours) {
                 result.push_back(neighbour.second);
             }
-        } else if (n > m_Nodes.size()) {
+        } else if (n >= m_Nodes.size()) {
             TDoubleVec distances;
             distances.reserve(m_Nodes.size());
             result.reserve(m_Nodes.size());
