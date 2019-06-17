@@ -670,7 +670,7 @@ void COutliersTest::testMostlyDuplicate() {
             [i](const TSizeDoublePr& outlier_) { return i == outlier_.first; });
         TPoint point(1);
         point(0) = outlier != outliers.end() ? outlier->second : 0.0;
-        points.push_back(point);
+        points.push_back(std::move(point));
     }
 
     for (std::size_t numberPartitions : {1, 3}) {
@@ -707,6 +707,48 @@ void COutliersTest::testMostlyDuplicate() {
     }
 }
 
+void COutliersTest::testFewPoints() {
+
+    std::size_t rows{101};
+
+    TPointVec points;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec components;
+    for (std::size_t i = 0; i < 5; ++i) {
+        TPoint point(rows);
+        rng.generateUniformSamples(0.0, 10.0, rows, components);
+        for (std::size_t j = 0; j < components.size(); ++j) {
+            point(j) = components[j];
+        }
+        points.push_back(std::move(point));
+    }
+
+    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+    maths::COutliers::SComputeParameters params{1,    // Number threads
+                                                1,    // Number partitions,
+                                                true, // Standardize columns
+                                                maths::COutliers::E_Ensemble,
+                                                0, // Compute number neighbours
+                                                true, // Compute feature influences
+                                                0.05}; // Outlier fraction
+    maths::COutliers::compute(params, *frame);
+
+    bool passed{true};
+
+    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            // Check score is in range 0 to 1.
+            LOG_DEBUG(<< "outlier score = " << (*row)[rows]);
+            passed &= (*row)[rows] >= 0.0 && (*row)[rows] <= 1.0;
+        }
+    });
+
+    CPPUNIT_ASSERT(passed);
+}
+
 CppUnit::Test* COutliersTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutliersTest");
 
@@ -729,6 +771,8 @@ CppUnit::Test* COutliersTest::suite() {
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testMostlyDuplicate", &COutliersTest::testMostlyDuplicate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testFewPoints", &COutliersTest::testFewPoints));
 
     return suiteOfTests;
 }

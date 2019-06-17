@@ -224,6 +224,9 @@ private:
     void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec&) override {
         // This is called exactly once for each point therefore an element
         // of m_KDistances is only ever written by one thread.
+        if (neighbours.empty()) {
+            return;
+        }
         std::size_t i{point.annotation()};
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
@@ -430,6 +433,14 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
+        std::size_t dimension{las::dimension(point)};
+        auto& score = scores[point.annotation()];
+        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+
+        if (neighbours.empty()) {
+            return;
+        }
+
         auto ldof = [](const TMeanAccumulator& d, const TMeanAccumulator& D) {
             return CBasicStatistics::mean(D) > 0.0
                        ? CBasicStatistics::mean(d) / CBasicStatistics::mean(D)
@@ -438,10 +449,6 @@ private:
 
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-        std::size_t dimension{las::dimension(point)};
-
-        auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1);
 
         TMeanAccumulator D;
         {
@@ -495,12 +502,16 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
+        auto& score = scores[point.annotation()];
+        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+
+        if (neighbours.empty()) {
+            return;
+        }
+
         std::size_t k{std::min(this->k() + 1, neighbours.size() - 1) -
                       (point == neighbours[0] ? 0 : 1)};
         const auto& kthNeighbour = neighbours[k];
-
-        auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1);
 
         double d{las::distance(point, kthNeighbour)};
         score[0] = d;
@@ -529,11 +540,15 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
-        std::size_t a(point == neighbours[0] ? 1 : 0);
-        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-
         auto& score = scores[point.annotation()];
         score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+
+        if (neighbours.empty()) {
+            return;
+        }
+
+        std::size_t a(point == neighbours[0] ? 1 : 0);
+        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
         for (std::size_t i = a; i <= b; ++i) {
             double d{las::distance(point, neighbours[i])};
