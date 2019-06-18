@@ -306,6 +306,11 @@ private:
 
                     std::size_t i{point.annotation()};
                     this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
+
+                    if (neighbours.size() < 2) {
+                        return;
+                    }
+
                     std::size_t a(point == neighbours[0] ? 1 : 0);
                     std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
@@ -336,8 +341,10 @@ private:
                             double distance{las::distance(point_, neighbour)};
                             reachability_.add(std::max(kdistance, distance));
                         }
-                        double reachability{
-                            std::max(CBasicStatistics::mean(reachability_), min[0])};
+                        double reachability{CBasicStatistics::mean(reachability_)};
+                        if (min.count() > 0) {
+                            reachability = std::max(reachability, min[0]);
+                        }
 
                         point_(j) = point(j);
 
