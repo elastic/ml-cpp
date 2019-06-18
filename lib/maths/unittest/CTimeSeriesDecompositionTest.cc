@@ -819,17 +819,16 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset() {
 
             const TSeasonalComponentVec& components = decomposition.seasonalComponents();
             if (time > 12 * WEEK) {
-                // Check that both components have been initialized.
+                // Check that there are at two least components.
                 CPPUNIT_ASSERT(components.size() >= 2);
                 CPPUNIT_ASSERT(components[0].initialized());
                 CPPUNIT_ASSERT(components[1].initialized());
-                CPPUNIT_ASSERT(components[2].initialized());
             } else if (time > 11 * WEEK) {
-                // Check that both components have been initialized.
+                // Check that there is at least one component.
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), components.size());
                 CPPUNIT_ASSERT(components[0].initialized());
             } else {
-                // Check that neither component has been initialized.
+                // Check that there are no components.
                 CPPUNIT_ASSERT(components.empty());
             }
             lastWeek += WEEK;
