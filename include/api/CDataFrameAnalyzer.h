@@ -11,6 +11,8 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <cinttypes>
 #include <functional>
 #include <memory>
@@ -38,6 +40,11 @@ public:
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
 public:
+    //! The maximum number of distinct categorical fields we can faithfully
+    //! represent.
+    static const std::size_t MAX_CATEGORICAL_CARDINALITY;
+
+public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                        TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
     ~CDataFrameAnalyzer();
@@ -57,8 +64,13 @@ public:
     //! Get the data frame's temporary directory if there is one.
     const TTemporaryDirectoryPtr& dataFrameDirectory() const;
 
+    //! Get the data frame asserting there is one.
+    const core::CDataFrame& dataFrame() const;
+
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 private:
     static const std::ptrdiff_t FIELD_UNSET{-2};
@@ -87,6 +99,8 @@ private:
     std::uint64_t m_BadValueCount;
     std::uint64_t m_BadDocHashCount;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
+    TStrVec m_CategoricalFieldNames;
+    TStrSizeUMapVec m_CategoricalFieldValues;
     TDataFrameUPtr m_DataFrame;
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;

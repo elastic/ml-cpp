@@ -114,7 +114,8 @@ CDataFrame::CDataFrame(bool inMainMemory,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_InMainMemory{inMainMemory}, m_NumberColumns{numberColumns},
       m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore} {
+      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore},
+      m_ColumnIsCategorical(numberColumns, false) {
 }
 
 CDataFrame::CDataFrame(bool inMainMemory,
@@ -205,6 +206,10 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     (*m_Writer)(writeRow);
 }
 
+void CDataFrame::writeCategoricalColumns(TBoolVec columnIsCategorical) {
+    m_ColumnIsCategorical = std::move(columnIsCategorical);
+}
+
 void CDataFrame::finishWritingRows() {
     // Get any slices which have been written, append and clear the writer.
 
@@ -219,6 +224,10 @@ void CDataFrame::finishWritingRows() {
         }
         LOG_TRACE(<< "# slices = " << m_Slices.size());
     }
+}
+
+const CDataFrame::TBoolVec& CDataFrame::columnIsCategorical() const {
+    return m_ColumnIsCategorical;
 }
 
 std::size_t CDataFrame::memoryUsage() const {
