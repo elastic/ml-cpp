@@ -444,7 +444,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 
         // expect there to be 1 anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, highAnomalyFactors[0], 2.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, highAnomalyFactors[0], 2.0);
     }
 }
 

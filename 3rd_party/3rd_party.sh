@@ -64,9 +64,8 @@ case `uname` in
                 LOG4CXX_EXTENSION=.so.10
                 XML_LOCATION=/usr/local/gcc73/lib
                 XML_EXTENSION=.so.2
-                # Ship the version of expat that came with the apr-util library
                 EXPAT_LOCATION=/usr/local/gcc73/lib
-                EXPAT_EXTENSION=.so.0
+                EXPAT_EXTENSION=.so.1
                 GCC_RT_LOCATION=/usr/local/gcc73/lib64
                 GCC_RT_EXTENSION=.so.1
                 STL_LOCATION=/usr/local/gcc73/lib64
@@ -85,9 +84,8 @@ case `uname` in
                 LOG4CXX_EXTENSION=.so.10
                 XML_LOCATION=/usr/local/lib
                 XML_EXTENSION=.so.2
-                # Ship the version of expat that came with the apr-util library
                 EXPAT_LOCATION=/usr/local/lib
-                EXPAT_EXTENSION=.so.0
+                EXPAT_EXTENSION=.so.1
                 GCC_RT_LOCATION=
                 STL_LOCATION=
                 ATOMIC_LOCATION=

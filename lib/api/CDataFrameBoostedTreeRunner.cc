@@ -133,7 +133,7 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
 }
 
 const char* CDataFrameBoostedTreeRunnerFactory::name() const {
-    return "boosted_tree_regression";
+    return "regression";
 }
 
 CDataFrameBoostedTreeRunnerFactory::TRunnerUPtr
