@@ -33,7 +33,9 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
     samples.clear();
     samples.reserve(numberSamples);
     std::generate_n(std::back_inserter(samples), numberSamples,
-                    std::bind(distribution, std::ref(randomNumberGenerator)));
+					[&distribution, &randomNumberGenerator]() {
+					return const_cast<Distribution&>(distribution)(randomNumberGenerator);
+					});
 }
 
 template<typename T, std::size_t N>
