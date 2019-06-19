@@ -22,7 +22,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/bind.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 

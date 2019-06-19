@@ -23,11 +23,8 @@
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesChangeDetector.h>
 
-#include <boost/bind.hpp>
 #include <boost/container/flat_map.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/ref.hpp>
 
 #include <cmath>
 #include <string>

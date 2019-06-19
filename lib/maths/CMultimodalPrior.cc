@@ -33,11 +33,8 @@
 #include <maths/CToolsDetail.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
 #include <cmath>
 #include <set>

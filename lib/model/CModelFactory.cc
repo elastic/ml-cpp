@@ -30,7 +30,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <boost/bind.hpp>
 
 #include <array>
 #include <memory>

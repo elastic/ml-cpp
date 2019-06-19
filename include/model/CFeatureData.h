@@ -15,7 +15,6 @@
 #include <model/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
 #include <cstddef>
 #include <string>

@@ -32,9 +32,7 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <string>

@@ -15,7 +15,6 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/bind.hpp>
 
 #include <fstream>
 #include <sstream>

@@ -22,7 +22,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 

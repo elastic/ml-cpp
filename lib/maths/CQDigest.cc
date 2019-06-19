@@ -14,7 +14,6 @@
 
 #include <maths/CChecksum.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>

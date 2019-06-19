@@ -9,8 +9,6 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <vector>

@@ -23,7 +23,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventRatePopulationModel.h>
 
-#include <boost/make_unique.hpp>
 
 #include <memory>
 

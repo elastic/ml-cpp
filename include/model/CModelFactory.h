@@ -19,7 +19,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <map>

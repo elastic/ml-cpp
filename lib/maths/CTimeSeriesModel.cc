@@ -30,7 +30,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/make_unique.hpp>
 
 #include <cmath>
 #include <cstddef>

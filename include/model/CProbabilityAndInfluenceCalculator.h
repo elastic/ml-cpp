@@ -16,7 +16,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/ref.hpp>
 
 #include <string>
 #include <utility>

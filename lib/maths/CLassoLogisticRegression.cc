@@ -13,7 +13,6 @@
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/range.hpp>
 
 #include <cmath>

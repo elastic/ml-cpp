@@ -20,8 +20,6 @@
 #include <maths/CTools.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <numeric>

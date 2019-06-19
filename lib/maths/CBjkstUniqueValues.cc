@@ -13,7 +13,6 @@
 
 #include <maths/CChecksum.h>
 
-#include <boost/bind.hpp>
 #include <boost/operators.hpp>
 
 #include <algorithm>

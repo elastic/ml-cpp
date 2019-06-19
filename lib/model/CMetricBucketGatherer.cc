@@ -23,7 +23,6 @@
 #include <model/CSearchKey.h>
 
 #include <boost/any.hpp>
-#include <boost/ref.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 

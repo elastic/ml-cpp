@@ -16,7 +16,6 @@
 #include <maths/CIntegerTools.h>
 
 #include <boost/array.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <cstddef>

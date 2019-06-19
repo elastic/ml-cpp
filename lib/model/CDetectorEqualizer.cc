@@ -14,7 +14,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
 #include <boost/optional.hpp>
 
 namespace ml {

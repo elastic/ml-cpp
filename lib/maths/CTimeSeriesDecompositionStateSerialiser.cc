@@ -14,8 +14,6 @@
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesDecompositionStub.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 
 #include <memory>
 #include <string>

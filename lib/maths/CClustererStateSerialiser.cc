@@ -11,7 +11,6 @@
 #include <maths/CKMeansOnline1d.h>
 #include <maths/CXMeansOnline1d.h>
 
-#include <boost/make_unique.hpp>
 
 namespace ml {
 namespace maths {

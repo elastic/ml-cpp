@@ -13,7 +13,6 @@
 #include <maths/CQDigest.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 
 #include <cmath>

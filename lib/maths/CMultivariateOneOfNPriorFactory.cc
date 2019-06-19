@@ -8,7 +8,6 @@
 
 #include <maths/CMultivariateOneOfNPrior.h>
 
-#include <boost/make_unique.hpp>
 
 namespace ml {
 namespace maths {

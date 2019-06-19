@@ -10,10 +10,8 @@
 #include <core/CScopedFastLock.h>
 #include <core/CStringUtils.h>
 
-#include <boost/bind.hpp>
 #include <boost/config.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <iterator>

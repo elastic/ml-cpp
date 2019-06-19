@@ -23,7 +23,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/unordered_map.hpp>
 

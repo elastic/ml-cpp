@@ -15,7 +15,6 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 
 #include <memory>

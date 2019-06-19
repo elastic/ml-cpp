@@ -19,7 +19,6 @@
 #include <api/CDetectionRulesJsonParser.h>
 #include <api/CFieldDataTyper.h>
 
-#include <boost/bind.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/tokenizer.hpp>

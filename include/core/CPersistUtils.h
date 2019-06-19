@@ -15,7 +15,6 @@
 #include <core/ImportExport.h>
 
 #include <boost/array.hpp>
-#include <boost/bind.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>

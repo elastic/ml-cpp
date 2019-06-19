@@ -22,7 +22,6 @@
 #include <maths/CStatisticalTests.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/range.hpp>

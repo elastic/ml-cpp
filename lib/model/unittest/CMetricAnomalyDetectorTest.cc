@@ -25,7 +25,6 @@
 
 #include <test/CTimeSeriesTestData.h>
 
-#include <boost/bind.hpp>
 #include <boost/range.hpp>
 
 #include <algorithm>

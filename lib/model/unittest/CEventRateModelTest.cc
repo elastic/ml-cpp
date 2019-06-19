@@ -39,7 +39,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 

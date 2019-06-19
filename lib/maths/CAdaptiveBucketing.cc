@@ -18,7 +18,6 @@
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/range.hpp>
 

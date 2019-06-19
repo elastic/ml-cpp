@@ -7,7 +7,6 @@
 
 #include <core/CLogger.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 #include <memory>

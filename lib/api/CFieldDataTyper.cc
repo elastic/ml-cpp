@@ -21,7 +21,6 @@
 #include <api/COutputHandler.h>
 #include <api/CTokenListReverseSearchCreator.h>
 
-#include <boost/bind.hpp>
 
 #include <sstream>
 

@@ -19,7 +19,6 @@
 
 #include <map>
 
-#include <boost/ref.hpp>
 
 namespace ml {
 namespace model {

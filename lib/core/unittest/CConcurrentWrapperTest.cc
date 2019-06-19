@@ -11,8 +11,6 @@
 #include <core/CMemoryUsage.h>
 #include <core/CStaticThreadPool.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <chrono>

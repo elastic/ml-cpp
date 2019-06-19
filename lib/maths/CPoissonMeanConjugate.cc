@@ -20,7 +20,6 @@
 #include <maths/CTools.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>

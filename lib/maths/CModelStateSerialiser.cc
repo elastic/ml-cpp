@@ -8,8 +8,6 @@
 
 #include <maths/CTimeSeriesModel.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 
 namespace ml {
 namespace maths {

@@ -16,7 +16,6 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
-#include <boost/bind.hpp>
 
 namespace ml {
 namespace model {

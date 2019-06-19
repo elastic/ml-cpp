@@ -15,7 +15,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
 
 #include <rapidjson/document.h>
 

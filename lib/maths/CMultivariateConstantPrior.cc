@@ -18,8 +18,6 @@
 #include <maths/CMathsFuncs.h>
 #include <maths/CMathsFuncsForMatrixAndVectorTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/optional.hpp>
 
 #include <iomanip>

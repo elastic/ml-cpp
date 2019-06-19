@@ -22,10 +22,7 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>

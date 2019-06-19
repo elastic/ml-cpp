@@ -19,7 +19,6 @@
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 

@@ -16,7 +16,6 @@
 
 #include <boost/array.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>

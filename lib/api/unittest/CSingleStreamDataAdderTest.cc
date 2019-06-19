@@ -26,9 +26,7 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
-#include <boost/bind.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/ref.hpp>
 
 #include <fstream>
 #include <memory>

@@ -26,7 +26,6 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
-#include <boost/ref.hpp>
 
 #include <set>
 #include <sstream>

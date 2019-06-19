@@ -22,11 +22,9 @@
 #include <model/CLimits.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <boost/bind.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>

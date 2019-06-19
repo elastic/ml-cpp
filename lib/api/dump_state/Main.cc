@@ -40,7 +40,6 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
-#include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 

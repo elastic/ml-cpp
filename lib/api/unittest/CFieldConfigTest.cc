@@ -9,7 +9,6 @@
 
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 

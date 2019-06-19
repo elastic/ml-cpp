@@ -12,7 +12,6 @@
 
 #include <api/CTokenListReverseSearchCreatorIntf.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 #include <cmath>

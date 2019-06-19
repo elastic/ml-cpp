@@ -18,7 +18,6 @@
 
 #include <model/CStringStore.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 #include <functional>

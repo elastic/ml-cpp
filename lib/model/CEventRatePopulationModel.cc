@@ -30,7 +30,6 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 

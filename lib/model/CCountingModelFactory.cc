@@ -16,7 +16,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 
-#include <boost/make_unique.hpp>
 
 #include <memory>
 

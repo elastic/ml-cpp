@@ -27,10 +27,7 @@
 #include <maths/CTimeSeriesModel.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/utility/in_place_factory.hpp>
 
 namespace ml {

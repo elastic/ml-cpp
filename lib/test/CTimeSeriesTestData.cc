@@ -11,7 +11,6 @@
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
-#include <boost/bind.hpp>
 
 #include <fstream>
 

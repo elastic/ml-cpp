@@ -24,8 +24,6 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <fstream>
 

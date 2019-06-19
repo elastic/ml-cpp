@@ -15,7 +15,6 @@
 #include <maths/CChecksum.h>
 #include <maths/CMathsFuncs.h>
 
-#include <boost/bind.hpp>
 
 #include <cmath>
 #include <iomanip>

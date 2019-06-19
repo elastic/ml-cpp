@@ -16,7 +16,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/bind.hpp>
 
 using namespace ml;
 using namespace handy_typedefs;

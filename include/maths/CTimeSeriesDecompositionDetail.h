@@ -21,7 +21,6 @@
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
 
-#include <boost/ref.hpp>
 
 #include <array>
 #include <cstddef>

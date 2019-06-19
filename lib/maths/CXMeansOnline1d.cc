@@ -26,7 +26,6 @@
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/special_functions/digamma.hpp>

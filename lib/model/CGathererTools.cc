@@ -23,7 +23,6 @@
 
 #include <model/CStringStore.h>
 
-#include <boost/bind.hpp>
 
 namespace ml {
 namespace model {

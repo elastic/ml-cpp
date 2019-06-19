@@ -15,7 +15,6 @@
 #include <boost/circular_buffer_fwd.hpp>
 #include <boost/container/container_fwd.hpp>
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>

@@ -15,7 +15,6 @@
 
 #include <model/CSample.h>
 
-#include <boost/bind.hpp>
 
 #include <algorithm>
 #include <functional>

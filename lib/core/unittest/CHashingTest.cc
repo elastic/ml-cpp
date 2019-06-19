@@ -13,10 +13,8 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/bind.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_set.hpp>
 
 using namespace ml;

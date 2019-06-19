@@ -13,7 +13,6 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-#include <boost/bind.hpp>
 
 using namespace ml;
 using namespace model;

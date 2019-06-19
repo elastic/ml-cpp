@@ -27,9 +27,7 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/ref.hpp>
 
 #include <fstream>
 #include <ios>

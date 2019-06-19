@@ -24,8 +24,6 @@
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 
 #include <algorithm>
 

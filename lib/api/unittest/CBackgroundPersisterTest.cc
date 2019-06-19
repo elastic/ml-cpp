@@ -26,8 +26,6 @@
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <fstream>

@@ -30,11 +30,9 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 

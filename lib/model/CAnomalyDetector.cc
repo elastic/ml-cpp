@@ -26,7 +26,6 @@
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 
-#include <boost/bind.hpp>
 
 #include <limits>
 #include <sstream>

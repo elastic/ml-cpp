@@ -22,7 +22,6 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/make_unique.hpp>
 
 #include <memory>
 #include <numeric>

@@ -10,7 +10,6 @@
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
-#include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
 #include <algorithm>

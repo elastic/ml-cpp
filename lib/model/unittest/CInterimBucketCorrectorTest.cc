@@ -15,7 +15,6 @@
 
 #include <model/CInterimBucketCorrector.h>
 
-#include <boost/bind.hpp>
 
 using namespace ml;
 using namespace model;

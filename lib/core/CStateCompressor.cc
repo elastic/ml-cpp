@@ -8,7 +8,6 @@
 #include <core/CCompressOStream.h>
 #include <core/CLogger.h>
 
-#include <boost/ref.hpp>
 
 namespace ml {
 namespace core {

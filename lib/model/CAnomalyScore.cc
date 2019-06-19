@@ -26,7 +26,6 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 
 #include <numeric>
 #include <vector>

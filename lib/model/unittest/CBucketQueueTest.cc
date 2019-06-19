@@ -13,7 +13,6 @@
 
 #include <model/CBucketQueue.h>
 
-#include <boost/bind.hpp>
 #include <boost/unordered_map.hpp>
 
 using namespace ml;

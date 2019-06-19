@@ -24,8 +24,6 @@
 #include <maths/CPoissonMeanConjugate.h>
 #include <maths/CPrior.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 
 #include <memory>
 #include <string>

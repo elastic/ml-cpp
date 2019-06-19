@@ -25,8 +25,6 @@
 #include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 

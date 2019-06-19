@@ -14,7 +14,6 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
-#include <boost/make_unique.hpp>
 
 #include <memory>
 
