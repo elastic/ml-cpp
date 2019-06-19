@@ -16,7 +16,6 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
-
 namespace ml {
 namespace model {
 

@@ -8,7 +8,6 @@
 
 #include <maths/CMultivariateOneOfNPrior.h>
 
-
 namespace ml {
 namespace maths {
 

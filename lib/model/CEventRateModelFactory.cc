@@ -23,7 +23,6 @@
 #include <model/CEventRateModel.h>
 #include <model/CSearchKey.h>
 
-
 #include <memory>
 
 namespace ml {

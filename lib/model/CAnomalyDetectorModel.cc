@@ -29,7 +29,6 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-
 #include <algorithm>
 
 namespace ml {

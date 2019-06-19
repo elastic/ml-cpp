@@ -24,7 +24,6 @@
 #include <maths/CPoissonMeanConjugate.h>
 #include <maths/CPrior.h>
 
-
 #include <memory>
 #include <string>
 #include <typeinfo>

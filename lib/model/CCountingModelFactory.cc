@@ -16,7 +16,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 
-
 #include <memory>
 
 namespace ml {

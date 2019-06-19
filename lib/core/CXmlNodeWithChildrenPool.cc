@@ -7,7 +7,6 @@
 
 #include <core/CLogger.h>
 
-
 #include <algorithm>
 #include <memory>
 

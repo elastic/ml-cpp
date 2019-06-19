@@ -21,7 +21,6 @@
 #include <api/COutputHandler.h>
 #include <api/CTokenListReverseSearchCreator.h>
 
-
 #include <sstream>
 
 namespace ml {

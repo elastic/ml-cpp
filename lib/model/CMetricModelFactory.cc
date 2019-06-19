@@ -21,7 +21,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CMetricModel.h>
 
-
 #include <memory>
 
 namespace ml {

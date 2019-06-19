@@ -12,7 +12,6 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-
 namespace ml {
 namespace model {
 

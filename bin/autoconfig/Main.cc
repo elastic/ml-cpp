@@ -32,7 +32,6 @@
 
 #include "CCmdLineParser.h"
 
-
 #include <memory>
 #include <string>
 

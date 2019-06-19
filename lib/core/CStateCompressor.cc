@@ -8,7 +8,6 @@
 #include <core/CCompressOStream.h>
 #include <core/CLogger.h>
 
-
 namespace ml {
 namespace core {
 

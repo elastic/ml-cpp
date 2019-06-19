@@ -11,7 +11,6 @@
 #include <core/CPatternSet.h>
 #include <core/CTriple.h>
 
-
 #include <string>
 #include <vector>
 

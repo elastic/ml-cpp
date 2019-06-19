@@ -11,7 +11,6 @@
 #include <core/CMemoryUsage.h>
 #include <core/CStaticThreadPool.h>
 
-
 #include <algorithm>
 #include <chrono>
 #include <iomanip>

@@ -21,7 +21,6 @@
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
 
-
 #include <array>
 #include <cstddef>
 #include <functional>

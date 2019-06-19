@@ -15,7 +15,6 @@
 
 #include <rapidjson/document.h>
 
-
 #include <fstream>
 #include <sstream>
 #include <string>

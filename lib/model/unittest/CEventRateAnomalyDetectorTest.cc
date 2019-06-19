@@ -24,7 +24,6 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
-
 #include <fstream>
 
 namespace {

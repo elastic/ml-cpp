@@ -23,7 +23,6 @@
 
 #include <model/CStringStore.h>
 
-
 namespace ml {
 namespace model {
 

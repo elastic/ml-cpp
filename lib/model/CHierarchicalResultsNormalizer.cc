@@ -15,7 +15,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/FunctionTypes.h>
 
-
 #include <rapidjson/document.h>
 
 #include <algorithm>

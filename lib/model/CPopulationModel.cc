@@ -25,7 +25,6 @@
 #include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 
-
 #include <algorithm>
 
 namespace ml {

@@ -26,7 +26,6 @@
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 
-
 #include <limits>
 #include <sstream>
 #include <vector>

@@ -26,7 +26,6 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
-
 #include <set>
 #include <sstream>
 #include <string>

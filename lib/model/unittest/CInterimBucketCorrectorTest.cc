@@ -15,7 +15,6 @@
 
 #include <model/CInterimBucketCorrector.h>
 
-
 using namespace ml;
 using namespace model;
 

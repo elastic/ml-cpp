@@ -30,7 +30,6 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/FrequencyPredicates.h>
 
-
 #include <algorithm>
 
 namespace ml {

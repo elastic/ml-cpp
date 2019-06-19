@@ -11,7 +11,6 @@
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CPRNG.h>
 
-
 #include <algorithm>
 #include <memory>
 #include <vector>

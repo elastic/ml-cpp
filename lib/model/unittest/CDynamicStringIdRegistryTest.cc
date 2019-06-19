@@ -14,7 +14,6 @@
 #include <model/CDynamicStringIdRegistry.h>
 #include <model/CResourceMonitor.h>
 
-
 #include <vector>
 
 using namespace ml;

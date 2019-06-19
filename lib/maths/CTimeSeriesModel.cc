@@ -30,7 +30,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-
 #include <cmath>
 #include <cstddef>
 #include <limits>

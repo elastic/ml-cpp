@@ -16,7 +16,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-
 #include <string>
 #include <utility>
 #include <vector>

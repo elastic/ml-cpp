@@ -11,7 +11,6 @@
 
 #include <maths/CIntegerTools.h>
 
-
 #include <vector>
 
 namespace ml {

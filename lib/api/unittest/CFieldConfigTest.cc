@@ -9,7 +9,6 @@
 
 #include <model/FunctionTypes.h>
 
-
 #include <algorithm>
 
 CppUnit::Test* CFieldConfigTest::suite() {

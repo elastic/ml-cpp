@@ -16,7 +16,6 @@
 
 #include "TestUtils.h"
 
-
 using namespace ml;
 using namespace handy_typedefs;
 

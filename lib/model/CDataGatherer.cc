@@ -24,7 +24,6 @@
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 
-
 #include <algorithm>
 
 namespace ml {

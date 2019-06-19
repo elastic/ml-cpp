@@ -20,7 +20,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CStringStore.h>
 
-
 #include <algorithm>
 
 namespace ml {

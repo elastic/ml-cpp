@@ -18,7 +18,6 @@
 
 #include <model/CStringStore.h>
 
-
 #include <algorithm>
 #include <functional>
 #include <ostream>

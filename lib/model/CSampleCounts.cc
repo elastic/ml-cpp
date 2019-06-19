@@ -19,7 +19,6 @@
 
 #include <map>
 
-
 namespace ml {
 namespace model {
 

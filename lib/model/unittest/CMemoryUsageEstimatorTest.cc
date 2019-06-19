@@ -13,7 +13,6 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-
 using namespace ml;
 using namespace model;
 

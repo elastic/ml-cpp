@@ -8,7 +8,6 @@
 
 #include <maths/CTimeSeriesModel.h>
 
-
 namespace ml {
 namespace maths {
 namespace {

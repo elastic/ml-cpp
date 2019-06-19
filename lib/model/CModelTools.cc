@@ -15,7 +15,6 @@
 
 #include <model/CSample.h>
 
-
 #include <algorithm>
 #include <functional>
 #include <numeric>

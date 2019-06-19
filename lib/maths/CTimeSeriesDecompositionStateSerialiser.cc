@@ -14,7 +14,6 @@
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesDecompositionStub.h>
 
-
 #include <memory>
 #include <string>
 #include <typeinfo>

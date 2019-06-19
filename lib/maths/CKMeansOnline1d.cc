@@ -17,7 +17,6 @@
 #include <maths/CRestoreParams.h>
 #include <maths/MathsTypes.h>
 
-
 #include <algorithm>
 #include <cmath>
 #include <string>

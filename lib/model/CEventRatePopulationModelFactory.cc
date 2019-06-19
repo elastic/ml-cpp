@@ -23,7 +23,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventRatePopulationModel.h>
 
-
 #include <memory>
 
 namespace ml {

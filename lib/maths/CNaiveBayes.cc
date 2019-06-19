@@ -20,7 +20,6 @@
 #include <maths/CTools.h>
 #include <maths/MathsTypes.h>
 
-
 #include <algorithm>
 #include <numeric>
 #include <string>

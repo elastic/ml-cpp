@@ -14,7 +14,6 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
-
 #include <memory>
 
 namespace {
