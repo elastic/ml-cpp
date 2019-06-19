@@ -4,6 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+//! Temporary substitute for std::unwrap_ref. This will be replaced by
+//! std::unwrap_ref once all our compilers support it. The names in this
+//! file do not conform to the coding style to ease the eventual transition
+//! to std::unwrap_ref.
+
 #ifndef INCLUDED_ml_core_UNWRAPREF_H_
 #define INCLUDED_ml_core_UNWRAPREF_H_
 
