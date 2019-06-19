@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDE_CORE_UNWRAPREF_H_
-#define INCLUDE_CORE_UNWRAPREF_H_
+#ifndef INCLUDED_ml_core_UNWRAPREF_H_
+#define INCLUDED_ml_core_UNWRAPREF_H_
 
 #include <functional>
 
@@ -39,4 +39,4 @@ typename unwrap_reference<T>::type& unwrap_ref(T& t) {
 }
 }
 
-#endif /* INCLUDE_CORE_UNWRAPREF_H_ */
+#endif /* INCLUDED_ml_core_UNWRAPREF_H_ */
