@@ -91,7 +91,7 @@ public:
                                 TQuantileSketchVec& result,
                                 TWeightFunction weight = unitWeight);
 
-    //! Assess the strenght of the relationship for each column with \p targetColumn
+    //! Assess the strength of the relationship for each column with \p targetColumn
     //! by computing the maximum information coefficient (MIC).
     //!
     //! \param[in] frame The data frame for which to compute the column MICs.
