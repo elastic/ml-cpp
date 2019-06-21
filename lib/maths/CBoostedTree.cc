@@ -1118,8 +1118,8 @@ private:
             bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
             std::size_t leftChildId, rightChildId;
-            std::tie(leftChildId, rightChildId) =
-                tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft, tree);
+            std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+                splitFeature, splitValue, assignMissingToLeft, tree);
 
             TSizeVec featureBag{this->featureBag(frame)};
 
