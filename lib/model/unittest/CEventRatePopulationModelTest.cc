@@ -150,11 +150,11 @@ void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, T
     std::size_t c4People[] = {3};
 
     TSizeVecVec attributePeople;
-    attributePeople.push_back(TSizeVec(boost::begin(c0People), boost::end(c0People)));
-    attributePeople.push_back(TSizeVec(boost::begin(c1People), boost::end(c1People)));
-    attributePeople.push_back(TSizeVec(boost::begin(c2People), boost::end(c2People)));
-    attributePeople.push_back(TSizeVec(boost::begin(c3People), boost::end(c3People)));
-    attributePeople.push_back(TSizeVec(boost::begin(c4People), boost::end(c4People)));
+    attributePeople.push_back(TSizeVec(std::begin(c0People), std::end(c0People)));
+    attributePeople.push_back(TSizeVec(std::begin(c1People), std::end(c1People)));
+    attributePeople.push_back(TSizeVec(std::begin(c2People), std::end(c2People)));
+    attributePeople.push_back(TSizeVec(std::begin(c3People), std::end(c3People)));
+    attributePeople.push_back(TSizeVec(std::begin(c4People), std::end(c4People)));
 
     double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
 
@@ -172,8 +172,8 @@ void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, T
 
             for (std::size_t k = 0u; k < samples.size(); ++k) {
                 unsigned int n = samples[k];
-                if (std::binary_search(boost::begin(anomaliesAttributePerson),
-                                       boost::end(anomaliesAttributePerson),
+                if (std::binary_search(std::begin(anomaliesAttributePerson),
+                                       std::end(anomaliesAttributePerson),
                                        TSizeSizeSizeTr(i, j, attributePeople[j][k]))) {
                     n += static_cast<unsigned int>(2.5 * attributeRates[j]);
                     LOG_DEBUG(<< i << " " << attributes[j] << " generating anomaly " << n);
@@ -666,10 +666,10 @@ void CEventRatePopulationModelTest::testPrune() {
     TMessageVec expectedMessages;
     expectedMessages.reserve(messages.size());
     for (std::size_t i = 0u; i < messages.size(); ++i) {
-        if (std::binary_search(boost::begin(expectedPeople),
-                               boost::end(expectedPeople), messages[i].s_Person) &&
-            std::binary_search(boost::begin(expectedAttributes),
-                               boost::end(expectedAttributes), messages[i].s_Attribute)) {
+        if (std::binary_search(std::begin(expectedPeople),
+                               std::end(expectedPeople), messages[i].s_Person) &&
+            std::binary_search(std::begin(expectedAttributes),
+                               std::end(expectedAttributes), messages[i].s_Attribute)) {
             expectedMessages.push_back(messages[i]);
         }
     }

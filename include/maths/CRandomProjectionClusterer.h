@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_maths_CRandomProjectionClusterer_h
 #define INCLUDED_ml_maths_CRandomProjectionClusterer_h
 
+#include <core/UnwrapRef.h>
+
 #include <maths/CAgglomerativeClusterer.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CKMeans.h>
@@ -17,12 +19,12 @@
 #include <maths/CSampling.h>
 #include <maths/CXMeans.h>
 
-#include <boost/array.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -77,7 +79,7 @@ public:
 protected:
     using TVector = CVector<double>;
     using TVectorVec = std::vector<TVector>;
-    using TVectorArray = boost::array<TVector, N>;
+    using TVectorArray = std::array<TVector, N>;
     using TVectorArrayVec = std::vector<TVectorArray>;
 
 protected:
@@ -128,7 +130,7 @@ protected:
     //! Extend the projections for an increase in data
     //! dimension to \p dimension.
     bool extendProjections(std::size_t dimension) {
-        using TDoubleVecArray = boost::array<TDoubleVec, N>;
+        using TDoubleVecArray = std::array<TDoubleVec, N>;
 
         if (dimension <= m_Dimension) {
             return true;
@@ -294,14 +296,14 @@ protected:
     struct SHashVector {
         template<typename VECTOR>
         std::size_t operator()(const VECTOR& lhs) const {
-            return static_cast<std::size_t>(boost::unwrap_ref(lhs).checksum());
+            return static_cast<std::size_t>(ml::core::unwrap_ref(lhs).checksum());
         }
     };
     //! \brief Checks two vectors for equality.
     struct SVectorsEqual {
         template<typename VECTOR>
         bool operator()(const VECTOR& lhs, const VECTOR& rhs) const {
-            return boost::unwrap_ref(lhs) == boost::unwrap_ref(rhs);
+            return ml::core::unwrap_ref(lhs) == ml::core::unwrap_ref(rhs);
         }
     };
 
@@ -323,7 +325,7 @@ protected:
                             TVectorNx1VecVec& M,
                             TSvdNxNVecVec& C,
                             TSizeUSet& I) const {
-        using TVectorNx1CRef = boost::reference_wrapper<const TVectorNx1>;
+        using TVectorNx1CRef = std::reference_wrapper<const TVectorNx1>;
         using TVectorNx1CRefSizeUMap =
             boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
         using TClusterVec = typename CLUSTERER::TClusterVec;
@@ -353,7 +355,7 @@ protected:
             lookup.clear();
             lookup.rehash(P.size());
             for (std::size_t j = 0u; j < m_ProjectedData[i].size(); ++j) {
-                lookup[boost::cref(m_ProjectedData[i][j])] = j;
+                lookup[std::cref(m_ProjectedData[i][j])] = j;
             }
 
             // Cluster the i'th projection.
@@ -389,7 +391,7 @@ protected:
                 fij.reserve(nij);
                 double pmax = boost::numeric::bounds<double>::lowest();
                 for (std::size_t k = 0u; k < nij; ++k) {
-                    std::size_t index = lookup[boost::cref(points[k])];
+                    std::size_t index = lookup[std::cref(points[k])];
                     if (I.count(index) == 0) {
                         TEigenVectorNx1 x = toDenseVector(points[k] - mij);
                         pij.push_back(-0.5 * x.transpose() * Cij.solve(x));

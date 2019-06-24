@@ -24,11 +24,9 @@
 #include <maths/CSampling.h>
 #include <maths/CStatisticalTests.h>
 
-#include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -49,7 +47,7 @@ using TTimeVec = std::vector<core_t::TTime>;
 template<typename ITR>
 void generateUniformSamples(boost::random::mt19937_64& rng, double a, double b, std::size_t n, ITR samples) {
     boost::random::uniform_real_distribution<> uniform(a, b);
-    std::generate_n(samples, n, boost::bind(uniform, boost::ref(rng)));
+    std::generate_n(samples, n, std::bind(uniform, std::ref(rng)));
 }
 
 //! Force the sample mean to zero.

@@ -752,7 +752,7 @@ void CIntegrationTest::testAdaptive() {
         TDoubleDoublePr intervals_[] = {
             TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0),
             TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
-        TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
+        TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
@@ -782,7 +782,7 @@ void CIntegrationTest::testAdaptive() {
         TDoubleDoublePr intervals_[] = {
             TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0),
             TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
-        TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
+        TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
@@ -814,7 +814,7 @@ void CIntegrationTest::testAdaptive() {
 
         TDoubleDoublePr intervals_[] = {TDoubleDoublePr(0.0, 20.0),
                                         TDoubleDoublePr(20.0, 40.0)};
-        TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
+        TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(

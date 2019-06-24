@@ -170,11 +170,11 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
             }
 
             // The two argument form of resize is used to avoid compiler errors
-            // caused by boost::reference_wrapper not having a default
+            // caused by std::reference_wrapper not having a default
             // constructor.  However, it's clearly wrong to create references to
             // a temporary string like this, so it is crucial that the
             // RESIZE_ALLOWED template argument is set to false when STR_VEC is
-            // some type of vector of boost::reference_wrappers.
+            // some type of vector of std::reference_wrappers.
             using TVecValue = typename std::remove_cv<typename STR_VEC::value_type>::type;
             static_assert(!RESIZE_ALLOWED || !std::is_same<TVecValue, TStrRef>::value,
                           "RESIZE_ALLOWED must be false for reference vectors");

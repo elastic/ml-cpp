@@ -9,8 +9,7 @@
 #include <api/COutputHandler.h>
 #include <api/ImportExport.h>
 
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <string>
 
 namespace ml {
@@ -102,7 +101,7 @@ private:
     //! processor
     TStrStrUMap m_WorkRecordFields;
 
-    using TStrRef = boost::reference_wrapper<std::string>;
+    using TStrRef = std::reference_wrapper<std::string>;
     using TStrRefVec = std::vector<TStrRef>;
     using TStrRefVecCItr = TStrRefVec::const_iterator;
 

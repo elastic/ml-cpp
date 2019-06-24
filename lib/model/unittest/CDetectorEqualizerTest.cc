@@ -160,8 +160,9 @@ void CDetectorEqualizerTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
+                      &restoredEqualizer, std::placeholders::_1)));
     }
 
     // Checksums should agree.

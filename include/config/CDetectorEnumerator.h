@@ -11,8 +11,8 @@
 #include <config/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -72,7 +72,7 @@ private:
     using TStrVec = std::vector<std::string>;
     using TOptionalStr = boost::optional<std::string>;
     using TFunctionCategoryVec = std::vector<config_t::EFunctionCategory>;
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
 
 private:
     //! Add the detectors with no partitioning fields.

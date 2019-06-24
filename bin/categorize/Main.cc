@@ -42,8 +42,7 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -177,8 +176,8 @@ int main(int argc, char** argv) {
                                    outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
-            &ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
+        periodicPersister->firstProcessorPeriodicPersistFunc(std::bind(
+            &ml::api::CFieldDataTyper::periodicPersistState, &typer, std::placeholders::_1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

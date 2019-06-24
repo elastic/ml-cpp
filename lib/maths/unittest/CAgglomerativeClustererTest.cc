@@ -293,7 +293,7 @@ void CAgglomerativeClustererTest::testSimplePermutations() {
             LOG_DEBUG(<< "canonical clusters = " << core::CContainerPrinter::print(clusters));
 
             CPPUNIT_ASSERT_EQUAL(expected[o], core::CContainerPrinter::print(clusters));
-        } while (std::next_permutation(boost::begin(p), boost::end(p)));
+        } while (std::next_permutation(std::begin(p), std::end(p)));
     }
 }
 
@@ -363,7 +363,7 @@ void CAgglomerativeClustererTest::testDegenerate() {
                            expected[o][1] == core::CContainerPrinter::print(clusters) ||
                            expected[o][2] == core::CContainerPrinter::print(clusters));
             ++count;
-        } while (std::next_permutation(boost::begin(p), boost::end(p)));
+        } while (std::next_permutation(std::begin(p), std::end(p)));
     }
 }
 

@@ -26,9 +26,7 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
-#include <boost/bind.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/ref.hpp>
 
 #include <fstream>
 #include <memory>
@@ -129,8 +127,8 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     std::size_t numOrigDocs(0);
     ml::api::CAnomalyJob origJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId),
-                    boost::ref(numOrigDocs)),
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(origSnapshotId), std::ref(numOrigDocs)),
         nullptr, -1, "time", timeFormat);
 
     ml::api::CDataProcessor* firstProcessor(&origJob);
@@ -154,8 +152,8 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
-        boost::bind(&ml::api::CDataProcessor::handleRecord, firstProcessor, _1)));
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(std::bind(
+        &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
     // Persist the detector state to a stringstream
 
@@ -174,8 +172,8 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId),
-                    boost::ref(numRestoredDocs)));
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
     ml::api::CDataProcessor* restoredFirstProcessor(&restoredJob);
 

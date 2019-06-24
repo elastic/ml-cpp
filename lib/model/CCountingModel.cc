@@ -46,8 +46,8 @@ CCountingModel::CCountingModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, {}),
       m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(
-        boost::bind(&CCountingModel::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)
@@ -255,7 +255,7 @@ CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const {
     for (auto& event : events) {
         // Note that as the counting model is not aware of partitions
         // scheduled events cannot support partitions as the code stands.
-        if (event.second.apply(CDetectionRule::E_SkipModelUpdate, boost::cref(*this),
+        if (event.second.apply(CDetectionRule::E_SkipModelUpdate, std::cref(*this),
                                model_t::E_IndividualCountByBucketAndPerson,
                                model_t::CResultType(), model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                                model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, sampleTime)) {

@@ -25,7 +25,6 @@
 
 #include <test/CTimeSeriesTestData.h>
 
-#include <boost/bind.hpp>
 #include <boost/range.hpp>
 
 #include <algorithm>
@@ -372,8 +371,8 @@ void CMetricAnomalyDetectorTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
-                        &restoredDetector, EMPTY_STRING, _1)));
+            std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
+                      &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
     // The XML representation of the new typer should be the same as the original

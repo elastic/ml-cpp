@@ -118,7 +118,7 @@ public:
         std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
     using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
         CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
-    using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
+    using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
     using TBucketGathererPtr = std::unique_ptr<CBucketGatherer>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
@@ -686,7 +686,7 @@ private:
     static const std::string EXPLICIT_NULL;
 
 private:
-    using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
+    using TModelParamsCRef = std::reference_wrapper<const SModelParams>;
 
 private:
     //! Restore state from supplied traverser.

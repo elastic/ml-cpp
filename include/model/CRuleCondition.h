@@ -10,8 +10,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/ref.hpp>
-
 #include <string>
 
 namespace ml {
@@ -31,7 +29,7 @@ class CAnomalyDetectorModel;
 //! condition is checked.
 class MODEL_EXPORT CRuleCondition {
 public:
-    using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
+    using TPatternSetCRef = std::reference_wrapper<const core::CPatternSet>;
 
 public:
     enum ERuleConditionAppliesTo {

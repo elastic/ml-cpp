@@ -30,8 +30,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
+#include <array>
+#include <memory>
 
 namespace ml {
 namespace model {
@@ -72,7 +72,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
         return nullptr;
     }
 
-    using TDecayRateController2Ary = boost::array<maths::CDecayRateController, 2>;
+    using TDecayRateController2Ary = std::array<maths::CDecayRateController, 2>;
 
     maths::CModelParams params{bucketLength,
                                m_ModelParams.s_LearnRate,
@@ -99,7 +99,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
         TPriorPtr prior{this->defaultPrior(feature)};
         model_t::TUnivariateMultibucketFeaturePtr multibucketFeature{model_t::univariateMultibucketFeature(
             feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
-        return boost::make_unique<maths::CUnivariateTimeSeriesModel>(
+        return std::make_unique<maths::CUnivariateTimeSeriesModel>(
             params, 0 /*identifier (overridden)*/, *trend, *prior,
             controlDecayRate ? &controllers : nullptr, multibucketFeature.get(),
             modelAnomalies && model_t::isConstant(feature) == false);
@@ -108,7 +108,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
     TMultivariatePriorUPtr prior{this->defaultMultivariatePrior(feature)};
     model_t::TMultivariateMultibucketFeaturePtr multibucketFeature{model_t::multivariateMultibucketFeature(
         feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
-    return boost::make_unique<maths::CMultivariateTimeSeriesModel>(
+    return std::make_unique<maths::CMultivariateTimeSeriesModel>(
         params, *trend, *prior, controlDecayRate ? &controllers : nullptr,
         multibucketFeature.get(), modelAnomalies && model_t::isConstant(feature) == false);
 }
@@ -134,7 +134,7 @@ CModelFactory::defaultCorrelates(const TFeatureVec& features) const {
     result.reserve(features.size());
     for (auto feature : features) {
         if (!model_t::isCategorical(feature) && model_t::dimension(feature) == 1) {
-            result.emplace_back(feature, boost::make_unique<maths::CTimeSeriesCorrelations>(
+            result.emplace_back(feature, std::make_unique<maths::CTimeSeriesCorrelations>(
                                              m_ModelParams.s_MinimumSignificantCorrelation,
                                              m_ModelParams.s_DecayRate));
         }
@@ -338,8 +338,8 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& param
         0.03 /*minimumClusterFraction*/, 4 /*minimumClusterCount*/,
         CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION);
 
-    return boost::make_unique<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
-                                                       params.s_DecayRate);
+    return std::make_unique<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
+                                                     params.s_DecayRate);
 }
 
 CModelFactory::TMultivariatePriorUPtr

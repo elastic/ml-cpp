@@ -16,8 +16,6 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
-#include <boost/bind.hpp>
-
 namespace ml {
 namespace model {
 
@@ -53,8 +51,9 @@ void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
         inserter.insertValue(BY_FIELD_VALUE_TAG, byFieldValue);
         inserter.insertValue(FIRST_DATA_TIME_TAG, firstDataTime);
         inserter.insertValue(LAST_DATA_TIME_TAG, lastDataTime);
-        inserter.insertLevel(MODEL_TAG, boost::bind<void>(maths::CModelStateSerialiser(),
-                                                          boost::cref(*model), _1));
+        inserter.insertLevel(
+            MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
+                                       std::cref(*model), std::placeholders::_1));
     };
 
     core::CJsonStatePersistInserter inserter(m_OutStream);
@@ -129,9 +128,9 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                         m_ModelParams.distributionRestoreParams(dataType)},
                     m_ModelParams.distributionRestoreParams(dataType)};
 
-                if (traverser.traverseSubLevel(boost::bind<bool>(
-                        maths::CModelStateSerialiser(), boost::cref(params),
-                        boost::ref(model_), _1)) == false) {
+                if (traverser.traverseSubLevel(std::bind<bool>(
+                        maths::CModelStateSerialiser(), std::cref(params),
+                        std::ref(model_), std::placeholders::_1)) == false) {
                     LOG_ERROR(<< "Failed to restore forecast model, model missing");
                     return false;
                 }
@@ -148,8 +147,8 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
     };
 
     TMathsModelPtr originalModel;
-    if (m_RestoreTraverser.traverseSubLevel(boost::bind<bool>(
-            restoreOneModel, _1, boost::ref(originalModel))) == false) {
+    if (m_RestoreTraverser.traverseSubLevel(std::bind<bool>(
+            restoreOneModel, std::placeholders::_1, std::ref(originalModel))) == false) {
         LOG_ERROR(<< "Failed to restore forecast model, internal error");
         return false;
     }

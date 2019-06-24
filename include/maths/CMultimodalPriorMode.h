@@ -16,6 +16,7 @@
 #include <maths/CPriorStateSerialiser.h>
 
 #include <cstddef>
+#include <functional>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -65,9 +66,9 @@ struct SMultimodalPriorMode {
         do {
             const std::string& name = traverser.name();
             RESTORE_BUILT_IN(INDEX_TAG, s_Index)
-            RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                   CPriorStateSerialiser(), boost::cref(params),
-                                   boost::ref(s_Prior), _1)))
+            RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                                   CPriorStateSerialiser(), std::cref(params),
+                                   std::ref(s_Prior), std::placeholders::_1)))
         } while (traverser.next());
 
         return true;
@@ -76,8 +77,9 @@ struct SMultimodalPriorMode {
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(INDEX_TAG, s_Index);
-        inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                          boost::cref(*s_Prior), _1));
+        inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
+                                                        std::cref(*s_Prior),
+                                                        std::placeholders::_1));
     }
 
     //! Full debug dump of the mode weights.

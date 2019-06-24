@@ -21,7 +21,7 @@ namespace maths_t {
 namespace {
 TDoubleWeightsAry unitWeight() {
     TDoubleWeightsAry result;
-    result.assign(1.0);
+    result.fill(1.0);
     return result;
 }
 }

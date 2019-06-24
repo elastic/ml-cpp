@@ -172,7 +172,8 @@ void CResourceMonitorTest::testMonitor() {
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
-        mon.memoryUsageReporter(boost::bind(&CResourceMonitorTest::reportCallback, this, _1));
+        mon.memoryUsageReporter(std::bind(&CResourceMonitorTest::reportCallback,
+                                          this, std::placeholders::_1));
         m_CallbackResults.s_Usage = 0;
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), m_CallbackResults.s_Usage);
 
@@ -188,7 +189,8 @@ void CResourceMonitorTest::testMonitor() {
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
-        mon.memoryUsageReporter(boost::bind(&CResourceMonitorTest::reportCallback, this, _1));
+        mon.memoryUsageReporter(std::bind(&CResourceMonitorTest::reportCallback,
+                                          this, std::placeholders::_1));
         m_CallbackResults.s_AllocationFailures = 0;
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), m_CallbackResults.s_AllocationFailures);
 
@@ -256,7 +258,8 @@ void CResourceMonitorTest::testMonitor() {
     {
         // Test the need to report usage based on a change in levels, up and down
         CResourceMonitor mon;
-        mon.memoryUsageReporter(boost::bind(&CResourceMonitorTest::reportCallback, this, _1));
+        mon.memoryUsageReporter(std::bind(&CResourceMonitorTest::reportCallback,
+                                          this, std::placeholders::_1));
         CPPUNIT_ASSERT(!mon.needToSendReport());
 
         std::size_t origTotalMemory = mon.totalMemory();

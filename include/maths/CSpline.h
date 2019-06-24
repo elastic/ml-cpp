@@ -10,6 +10,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/CChecksum.h>
 #include <maths/CTools.h>
@@ -125,9 +126,9 @@ template<typename KNOTS = std::vector<CFloatStorage>,
          typename CURVATURES = std::vector<double>>
 class CSpline : public CSplineTypes {
 public:
-    using TKnots = typename boost::unwrap_reference<KNOTS>::type;
-    using TValues = typename boost::unwrap_reference<VALUES>::type;
-    using TCurvatures = typename boost::unwrap_reference<CURVATURES>::type;
+    using TKnots = typename ml::core::unwrap_reference<KNOTS>::type;
+    using TValues = typename ml::core::unwrap_reference<VALUES>::type;
+    using TCurvatures = typename ml::core::unwrap_reference<CURVATURES>::type;
     using TNonConstKnots = typename boost::remove_const<TKnots>::type;
     using TNonConstValues = typename boost::remove_const<TValues>::type;
     using TNonConstCurvatures = typename boost::remove_const<TCurvatures>::type;
@@ -630,29 +631,31 @@ public:
 
     //! Get the knot points of the spline.
     inline const TNonConstKnots& knots() const {
-        return boost::unwrap_ref(m_Knots);
+        return ml::core::unwrap_ref(m_Knots);
     }
 
     //! Get the values at the knot points of the spline.
     inline const TNonConstValues& values() const {
-        return boost::unwrap_ref(m_Values);
+        return ml::core::unwrap_ref(m_Values);
     }
 
     //! Get the curvatures at the knot points of the spline.
     inline const TNonConstCurvatures& curvatures() const {
-        return boost::unwrap_ref(m_Curvatures);
+        return ml::core::unwrap_ref(m_Curvatures);
     }
 
 private:
     //! Get the knot points of the spline.
-    inline TKnots& knotsRef() { return boost::unwrap_ref(m_Knots); }
+    inline TKnots& knotsRef() { return ml::core::unwrap_ref(m_Knots); }
 
     //! Get the values at the knot points of the spline.
-    inline TNonConstValues& valuesRef() { return boost::unwrap_ref(m_Values); }
+    inline TNonConstValues& valuesRef() {
+        return ml::core::unwrap_ref(m_Values);
+    }
 
     //! Get the curvatures at the knot points of the spline.
     inline TCurvatures& curvaturesRef() {
-        return boost::unwrap_ref(m_Curvatures);
+        return ml::core::unwrap_ref(m_Curvatures);
     }
 
 private:

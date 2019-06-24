@@ -13,10 +13,8 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/bind.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_set.hpp>
 
 using namespace ml;
@@ -107,7 +105,7 @@ void CHashingTest::testUniversalHash() {
 
         TUInt32Vec samples;
         std::generate_n(std::back_inserter(samples), 1000u,
-                        boost::bind(uniform, boost::ref(generator)));
+                        std::bind(uniform, std::ref(generator)));
 
         CHashing::CUniversalHash::TUInt32HashVec hashes;
         CHashing::CUniversalHash::generateHashes(100u, 10000u, hashes);

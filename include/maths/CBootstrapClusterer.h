@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -986,7 +987,7 @@ public:
 
     //! \note Assumes \p points are sorted.
     void cluster(const TPointVec& points, TSizeVecVec& result) {
-        using TPointVecCRef = boost::reference_wrapper<const TPointVec>;
+        using TPointVecCRef = std::reference_wrapper<const TPointVec>;
         using TPointVecCRefVec = std::vector<TPointVecCRef>;
 
         // Initialize
@@ -1000,7 +1001,7 @@ public:
         // Extract
         TPointVecCRefVec clusterPoints;
         for (std::size_t i = 0u; i < m_Xmeans.clusters().size(); ++i) {
-            clusterPoints.push_back(boost::cref(m_Xmeans.clusters()[i].points()));
+            clusterPoints.push_back(std::cref(m_Xmeans.clusters()[i].points()));
         }
         this->extract(points, clusterPoints, result);
     }

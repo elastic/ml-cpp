@@ -18,14 +18,15 @@
 
 #include <boost/array.hpp>
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/boost_array.hpp>
+//#include <boost/geometry/geometries/adapted/boost_array.hpp>
+#include <boost/geometry/geometries/adapted/std_array.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/operators.hpp>
 
 #include <cmath>
 #include <cstddef>
 
-BOOST_GEOMETRY_REGISTER_BOOST_ARRAY_CS(cs::cartesian)
+BOOST_GEOMETRY_REGISTER_STD_ARRAY_CS(cs::cartesian)
 
 namespace ml {
 namespace maths {
@@ -238,11 +239,11 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
                                     boost::multipliable< CSymmetricMatrixNxN<T, N>,
                                     boost::multipliable2< CSymmetricMatrixNxN<T, N>, T,
                                     boost::dividable2< CSymmetricMatrixNxN<T, N>, T > > > > > > >,
-                            private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N * (N + 1) / 2> >,
+                            private linear_algebra_detail::SSymmetricMatrix<std::array<T, N * (N + 1) / 2> >,
                             private linear_algebra_detail::CBoundsCheck<N>::InRange {
     // clang-format on
 private:
-    using TBase = linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>;
+    using TBase = linear_algebra_detail::SSymmetricMatrix<std::array<T, N*(N + 1) / 2>>;
     template<typename U, std::size_t>
     friend class CSymmetricMatrixNxN;
 
@@ -250,7 +251,7 @@ public:
     using TArray = T[N][N];
     using TVec = std::vector<T>;
     using TVecVec = std::vector<TVec>;
-    using TConstIterator = typename boost::array<T, N*(N + 1) / 2>::const_iterator;
+    using TConstIterator = typename std::array<T, N*(N + 1) / 2>::const_iterator;
 
 public:
     //! See core::CMemory.
@@ -925,17 +926,17 @@ class CVectorNx1 : private boost::equality_comparable< CVectorNx1<T, N>,
                            boost::multipliable2< CVectorNx1<T, N>, T,
                            boost::dividable< CVectorNx1<T, N>,
                            boost::dividable2< CVectorNx1<T, N>, T > > > > > > > >,
-                   private linear_algebra_detail::SVector<boost::array<T, N> >,
+                   private linear_algebra_detail::SVector<std::array<T, N> >,
                    private linear_algebra_detail::CBoundsCheck<N>::InRange {
     // clang-format on
 private:
-    using TBase = linear_algebra_detail::SVector<boost::array<T, N>>;
+    using TBase = linear_algebra_detail::SVector<std::array<T, N>>;
     template<typename U, std::size_t>
     friend class CVectorNx1;
 
 public:
     using TArray = T[N];
-    using TBoostArray = boost::array<T, N>;
+    using TBoostArray = std::array<T, N>;
     using TConstIterator = typename TBoostArray::const_iterator;
 
 public:
@@ -957,7 +958,7 @@ public:
 
     //! Construct from a boost array.
     template<typename U>
-    explicit CVectorNx1(const boost::array<U, N>& a) {
+    explicit CVectorNx1(const std::array<U, N>& a) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = a[i];
         }
@@ -1246,7 +1247,7 @@ public:
 
     //! Construct from a boost array.
     template<std::size_t N>
-    explicit CVector(const boost::array<T, N>& a) {
+    explicit CVector(const std::array<T, N>& a) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = a[i];
         }

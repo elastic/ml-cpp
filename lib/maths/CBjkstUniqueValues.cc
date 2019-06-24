@@ -13,7 +13,6 @@
 
 #include <maths/CChecksum.h>
 
-#include <boost/bind.hpp>
 #include <boost/operators.hpp>
 
 #include <algorithm>
@@ -253,8 +252,8 @@ CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t max
 
 CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
     : m_MaxSize(0), m_NumberHashes(0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CBjkstUniqueValues::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CBjkstUniqueValues::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) {
@@ -320,8 +319,9 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             sketch.s_H.reserve(m_NumberHashes);
             sketch.s_Z.reserve(m_NumberHashes);
             sketch.s_B.reserve(m_NumberHashes);
-            if (traverser.traverseSubLevel(boost::bind(
-                    &SSketch::acceptRestoreTraverser, &sketch, _1, m_NumberHashes)) == false) {
+            if (traverser.traverseSubLevel(
+                    std::bind(&SSketch::acceptRestoreTraverser, &sketch,
+                              std::placeholders::_1, m_NumberHashes)) == false) {
                 return false;
             }
             continue;
@@ -341,8 +341,8 @@ void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inse
     } else {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            inserter.insertLevel(
-                SKETCH_TAG, boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
+            inserter.insertLevel(SKETCH_TAG, std::bind(&SSketch::acceptPersistInserter,
+                                                       &sketch, std::placeholders::_1));
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
         }

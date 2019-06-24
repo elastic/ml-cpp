@@ -16,7 +16,6 @@
 #include <maths/CIntegerTools.h>
 
 #include <boost/array.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <cstddef>
@@ -135,7 +134,7 @@ CDiurnalTime* CDiurnalTime::clone() const {
 }
 
 bool CDiurnalTime::fromString(const std::string& value) {
-    boost::array<core_t::TTime, 5> times;
+    std::array<core_t::TTime, 5> times;
     if (core::CPersistUtils::fromString(value, times)) {
         m_StartOfWeek = times[0];
         m_WindowStart = times[1];
@@ -148,7 +147,7 @@ bool CDiurnalTime::fromString(const std::string& value) {
 }
 
 std::string CDiurnalTime::toString() const {
-    boost::array<core_t::TTime, 5> times;
+    std::array<core_t::TTime, 5> times;
     times[0] = m_StartOfWeek;
     times[1] = m_WindowStart;
     times[2] = m_WindowEnd;
@@ -200,7 +199,7 @@ CGeneralPeriodTime* CGeneralPeriodTime::clone() const {
 }
 
 bool CGeneralPeriodTime::fromString(const std::string& value) {
-    boost::array<core_t::TTime, 2> times;
+    std::array<core_t::TTime, 2> times;
     if (core::CPersistUtils::fromString(value, times)) {
         this->period(times[0]);
         this->regressionOrigin(times[1]);
@@ -210,7 +209,7 @@ bool CGeneralPeriodTime::fromString(const std::string& value) {
 }
 
 std::string CGeneralPeriodTime::toString() const {
-    boost::array<core_t::TTime, 2> times;
+    std::array<core_t::TTime, 2> times;
     times[0] = this->period();
     times[1] = this->regressionOrigin();
     return core::CPersistUtils::toString(times);
@@ -253,11 +252,11 @@ bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& resu
     do {
         const std::string& name = traverser.name();
         if (name == DIURNAL_TIME_TAG) {
-            result = boost::make_unique<CDiurnalTime>();
+            result = std::make_unique<CDiurnalTime>();
             result->fromString(traverser.value());
             ++numResults;
         } else if (name == ARBITRARY_PERIOD_TIME_TAG) {
-            result = boost::make_unique<CGeneralPeriodTime>();
+            result = std::make_unique<CGeneralPeriodTime>();
             result->fromString(traverser.value());
             ++numResults;
         } else {

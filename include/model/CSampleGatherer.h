@@ -30,9 +30,7 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -57,7 +55,7 @@ public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
@@ -109,25 +107,27 @@ public:
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(DIMENSION_TAG, m_Dimension);
-        inserter.insertLevel(CLASSIFIER_TAG, boost::bind(&CDataClassifier::acceptPersistInserter,
-                                                         &m_Classifier, _1));
+        inserter.insertLevel(CLASSIFIER_TAG,
+                             std::bind(&CDataClassifier::acceptPersistInserter,
+                                       &m_Classifier, std::placeholders::_1));
         if (m_SampleStats.size() > 0) {
-            inserter.insertLevel(SAMPLE_STATS_TAG, boost::bind(&TSampleQueue::acceptPersistInserter,
-                                                               &m_SampleStats, _1));
+            inserter.insertLevel(SAMPLE_STATS_TAG,
+                                 std::bind(&TSampleQueue::acceptPersistInserter,
+                                           &m_SampleStats, std::placeholders::_1));
         }
         if (m_BucketStats.size() > 0) {
             inserter.insertLevel(
                 BUCKET_STATS_TAG,
-                boost::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
-                                  boost::cref(m_BucketStats), _1));
+                std::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
+                                std::cref(m_BucketStats), std::placeholders::_1));
         }
         for (const auto& stats : m_InfluencerBucketStats) {
             inserter.insertLevel(
                 INFLUENCER_BUCKET_STATS_TAG,
-                boost::bind<void>(TStoredStringPtrStatUMapBucketQueueSerializer(
-                                      TStoredStringPtrStatUMap(1),
-                                      CStoredStringPtrStatUMapSerializer(m_Dimension)),
-                                  boost::cref(stats), _1));
+                std::bind<void>(TStoredStringPtrStatUMapBucketQueueSerializer(
+                                    TStoredStringPtrStatUMap(1),
+                                    CStoredStringPtrStatUMapSerializer(m_Dimension)),
+                                std::cref(stats), std::placeholders::_1));
         }
     }
 
@@ -138,23 +138,23 @@ public:
             const std::string& name = traverser.name();
             TMetricPartialStatistic stat(m_Dimension);
             RESTORE_BUILT_IN(DIMENSION_TAG, m_Dimension)
-            RESTORE(CLASSIFIER_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &CDataClassifier::acceptRestoreTraverser, &m_Classifier, _1)))
-            RESTORE(SAMPLE_STATS_TAG,
-                    traverser.traverseSubLevel(boost::bind(
-                        &TSampleQueue::acceptRestoreTraverser, &m_SampleStats, _1)))
+            RESTORE(CLASSIFIER_TAG, traverser.traverseSubLevel(std::bind(
+                                        &CDataClassifier::acceptRestoreTraverser,
+                                        &m_Classifier, std::placeholders::_1)))
+            RESTORE(SAMPLE_STATS_TAG, traverser.traverseSubLevel(std::bind(
+                                          &TSampleQueue::acceptRestoreTraverser,
+                                          &m_SampleStats, std::placeholders::_1)))
             RESTORE(BUCKET_STATS_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
+                    traverser.traverseSubLevel(std::bind<bool>(
                         TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
-                        boost::ref(m_BucketStats), _1)))
+                        std::ref(m_BucketStats), std::placeholders::_1)))
             RESTORE(INFLUENCER_BUCKET_STATS_TAG,
                     i < m_InfluencerBucketStats.size() &&
-                        traverser.traverseSubLevel(boost::bind<bool>(
+                        traverser.traverseSubLevel(std::bind<bool>(
                             TStoredStringPtrStatUMapBucketQueueSerializer(
                                 TStoredStringPtrStatUMap(1),
                                 CStoredStringPtrStatUMapSerializer(m_Dimension)),
-                            boost::ref(m_InfluencerBucketStats[i++]), _1)))
+                            std::ref(m_InfluencerBucketStats[i++]), std::placeholders::_1)))
         } while (traverser.next());
         return true;
     }
@@ -186,7 +186,7 @@ public:
                     influenceValues[i].reserve(influencerStats.size());
                     for (const auto& stat : influencerStats) {
                         influenceValues[i].emplace_back(
-                            boost::cref(*stat.first),
+                            std::cref(*stat.first),
                             std::make_pair(
                                 CMetricStatisticWrappers::influencerValue(stat.second),
                                 CMetricStatisticWrappers::count(stat.second)));
@@ -362,7 +362,7 @@ private:
 
         void operator()(const TStoredStringPtrStatUMap& map,
                         core::CStatePersistInserter& inserter) const {
-            using TStatCRef = boost::reference_wrapper<const STATISTIC>;
+            using TStatCRef = std::reference_wrapper<const STATISTIC>;
             using TStrCRefStatCRefPr = std::pair<TStrCRef, TStatCRef>;
             using TStrCRefStatCRefPrVec = std::vector<TStrCRefStatCRefPr>;
             TStrCRefStatCRefPrVec ordered;

@@ -346,8 +346,9 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                boost::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                    _1, _2, boost::ref(tail)),
+                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
+                                  std::placeholders::_1, std::placeholders::_2,
+                                  std::ref(tail)),
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_Shape, m_Rate, m_Mean, m_Precision, probability) ||
             !probability.calculate(result)) {
@@ -626,8 +627,8 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
     : CPrior(params.s_DataType, params.s_DecayRate), m_Offset(0.0),
       m_OffsetMargin(offsetMargin), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

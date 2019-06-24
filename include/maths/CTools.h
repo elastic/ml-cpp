@@ -15,12 +15,12 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/policies/policy.hpp>
 #include <boost/optional.hpp>
 #include <boost/static_assert.hpp>
 
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <iosfwd>
@@ -439,7 +439,7 @@ private:
         static const std::size_t BINS = 1 << BITS;
 
     public:
-        using TArray = boost::array<double, BINS>;
+        using TArray = std::array<double, BINS>;
 
     public:
         //! Builds the table.

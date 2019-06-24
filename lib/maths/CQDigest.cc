@@ -14,7 +14,6 @@
 
 #include <maths/CChecksum.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
@@ -61,8 +60,8 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         RESTORE_BUILT_IN(N_TAG, m_N)
         if (name == NODE_TAG) {
             CNode node;
-            if (traverser.traverseSubLevel(boost::bind(&CNode::acceptRestoreTraverser,
-                                                       &node, _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(&CNode::acceptRestoreTraverser, &node,
+                                                     std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Failed to restore NODE_TAG, got " << traverser.value());
             }
             if (nodeCount++ == 0) {
@@ -745,7 +744,8 @@ const uint64_t& CQDigest::CNode::subtreeCount() const {
 
 void CQDigest::CNode::persistRecursive(const std::string& nodeTag,
                                        core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(NODE_TAG, boost::bind(&CNode::acceptPersistInserter, this, _1));
+    inserter.insertLevel(NODE_TAG, std::bind(&CNode::acceptPersistInserter,
+                                             this, std::placeholders::_1));
 
     // Note the tree is serialized flat in pre-order.
     for (const auto& descendant : m_Descendants) {

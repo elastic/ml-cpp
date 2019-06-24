@@ -33,9 +33,7 @@
 #include <model/CSampleGatherer.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <string>
@@ -89,7 +87,8 @@ CMetricModel::CMetricModel(const SModelParams& params,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(boost::bind(&CMetricModel::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMetricModel::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel& other)
@@ -102,16 +101,16 @@ CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel& other)
 }
 
 void CMetricModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(INDIVIDUAL_STATE_TAG,
-                         boost::bind(&CMetricModel::doAcceptPersistInserter, this, _1));
+    inserter.insertLevel(INDIVIDUAL_STATE_TAG, std::bind(&CMetricModel::doAcceptPersistInserter,
+                                                         this, std::placeholders::_1));
 }
 
 bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == INDIVIDUAL_STATE_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(
-                    &CMetricModel::doAcceptRestoreTraverser, this, _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(&CMetricModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)) == false) {
                 // Logging handled already.
                 return false;
             }
@@ -410,7 +409,7 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 
     uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
-#define KEY(pid) boost::cref(this->personName(pid))
+#define KEY(pid) std::cref(this->personName(pid))
 
     TStrCRefUInt64Map hashes;
     if (includeCurrentBucketStats) {

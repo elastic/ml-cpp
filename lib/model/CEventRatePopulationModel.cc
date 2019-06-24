@@ -30,8 +30,6 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 
 namespace ml {
@@ -103,8 +101,8 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(
-        boost::bind(&CEventRatePopulationModel::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CEventRatePopulationModel::initialize(
@@ -165,23 +163,24 @@ CEventRatePopulationModel::CEventRatePopulationModel(bool isForPersistence,
 }
 
 void CEventRatePopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        POPULATION_STATE_TAG,
-        boost::bind(&CEventRatePopulationModel::doAcceptPersistInserter, this, _1));
+    inserter.insertLevel(POPULATION_STATE_TAG,
+                         std::bind(&CEventRatePopulationModel::doAcceptPersistInserter,
+                                   this, std::placeholders::_1));
     inserter.insertLevel(NEW_ATTRIBUTE_PROBABILITY_PRIOR_TAG,
-                         boost::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
-                                     &m_NewAttributeProbabilityPrior, _1));
+                         std::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
+                                   &m_NewAttributeProbabilityPrior, std::placeholders::_1));
     inserter.insertLevel(ATTRIBUTE_PROBABILITY_PRIOR_TAG,
-                         boost::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
-                                     &m_AttributeProbabilityPrior, _1));
+                         std::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
+                                   &m_AttributeProbabilityPrior, std::placeholders::_1));
     for (const auto& feature : m_FeatureModels) {
-        inserter.insertLevel(FEATURE_MODELS_TAG, boost::bind(&SFeatureModels::acceptPersistInserter,
-                                                             &feature, _1));
+        inserter.insertLevel(FEATURE_MODELS_TAG,
+                             std::bind(&SFeatureModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     for (const auto& feature : m_FeatureCorrelatesModels) {
         inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
-                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter,
-                                         &feature, _1));
+                             std::bind(&SFeatureCorrelateModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
@@ -191,8 +190,8 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CEventRatePopulationModel::doAcceptRestoreTraverser, this, _1)))
+                traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)))
         RESTORE_NO_ERROR(
             NEW_ATTRIBUTE_PROBABILITY_PRIOR_TAG,
             maths::CMultinomialConjugate restored(
@@ -205,14 +204,15 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
             m_AttributeProbabilityPrior.swap(restored))
         RESTORE(FEATURE_MODELS_TAG,
                 i == m_FeatureModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
-                        &SFeatureModels::acceptRestoreTraverser,
-                        &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                    traverser.traverseSubLevel(std::bind(
+                        &SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
                 j == m_FeatureCorrelatesModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &SFeatureCorrelateModels::acceptRestoreTraverser,
-                        &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                        &m_FeatureCorrelatesModels[j++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -741,7 +741,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     for (std::size_t i = 0u; i < categories.size(); ++i) {
         std::size_t cid = static_cast<std::size_t>(categories[i]);
         uint64_t& hash =
-            hashes[{boost::cref(EMPTY_STRING), boost::cref(this->attributeName(cid))}];
+            hashes[{std::cref(EMPTY_STRING), std::cref(this->attributeName(cid))}];
         hash = maths::CChecksum::calculate(hash, concentrations[i]);
     }
 
@@ -749,7 +749,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
         for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
-                    hashes[{boost::cref(EMPTY_STRING), boost::cref(gatherer.attributeName(cid))}];
+                    hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
                 hash = maths::CChecksum::calculate(hash, feature.s_Models[cid]);
             }
         }
@@ -760,9 +760,8 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
             std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) &&
                 gatherer.isAttributeActive(cids[1])) {
-                uint64_t& hash =
-                    hashes[{boost::cref(gatherer.attributeName(cids[0])),
-                            boost::cref(gatherer.attributeName(cids[1]))}];
+                uint64_t& hash = hashes[{std::cref(gatherer.attributeName(cids[0])),
+                                         std::cref(gatherer.attributeName(cids[1]))}];
                 hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
@@ -771,7 +770,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     if (includeCurrentBucketStats) {
         for (const auto& personCount : this->personCounts()) {
             uint64_t& hash =
-                hashes[{boost::cref(gatherer.personName(personCount.first)), boost::cref(EMPTY_STRING)}];
+                hashes[{std::cref(gatherer.personName(personCount.first)), std::cref(EMPTY_STRING)}];
             hash = maths::CChecksum::calculate(hash, personCount.second);
         }
         for (const auto& feature : m_CurrentBucketStats.s_FeatureData) {
@@ -779,7 +778,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
                 std::size_t pid = CDataGatherer::extractPersonId(data);
                 std::size_t cid = CDataGatherer::extractAttributeId(data);
                 uint64_t& hash =
-                    hashes[{boost::cref(this->personName(pid)), boost::cref(this->attributeName(cid))}];
+                    hashes[{std::cref(this->personName(pid)), std::cref(this->attributeName(cid))}];
                 hash = maths::CChecksum::calculate(
                     hash, CDataGatherer::extractData(data).s_Count);
             }
@@ -921,8 +920,8 @@ void CEventRatePopulationModel::refreshCorrelationModels(std::size_t resourceLim
     std::size_t n = this->numberOfPeople();
     double maxNumberCorrelations = this->params().s_CorrelationModelsOverhead *
                                    static_cast<double>(n);
-    auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
-                                   this, n, 0, _1);
+    auto memoryUsage = std::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
+                                 this, n, 0, std::placeholders::_1);
     CTimeSeriesCorrelateModelAllocator allocator(
         resourceMonitor, memoryUsage, resourceLimit,
         static_cast<std::size_t>(maxNumberCorrelations + 0.5));

@@ -218,8 +218,8 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId),
-                    boost::ref(numRestoredDocs)));
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
     std::size_t numDocsInStateFile(0);
     {
