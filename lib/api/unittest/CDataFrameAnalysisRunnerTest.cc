@@ -36,6 +36,7 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
                                  std::to_string(numberCols) +
                                  ",\n"
                                  "  \"memory_limit\": 100000000,\n"
+								 "  \"disk_usage_allowed\": true,\n"
                                  "  \"threads\": 1,\n"
                                  "  \"analysis\": {\n"
                                  "    \"name\": \"outlier_detection\""
@@ -70,6 +71,57 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
     // TODO test running memory is in acceptable range.
 }
 
+std::string CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(
+		std::size_t numberRows, std::size_t numberCols, bool diskUsageAllowed) {
+	std::string jsonSpec{"{\n"
+							 "  \"rows\": " +
+							 std::to_string(numberRows) +
+							 ",\n"
+							 "  \"cols\": " +
+							 std::to_string(numberCols) +
+							 ",\n"
+							 "  \"memory_limit\": 100,\n"
+							 "  \"disk_usage_allowed\": " +
+							 (diskUsageAllowed ? "true" : "false") +
+							 ",\n"
+							 "  \"threads\": 1,\n"
+							 "}"};
+	return jsonSpec;
+}
+
+void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag() {
+
+	std::vector<std::string> errors;
+	std::mutex errorsMutex;
+	auto errorHandler = [&errors, &errorsMutex](std::string error) {
+		std::lock_guard<std::mutex> lock {errorsMutex};
+		errors.push_back(error);
+	};
+
+	core::CLogger::CScopeSetFatalErrorHandler scope { errorHandler };
+
+	// Test with bad analysis specification.
+	{
+		errors.clear();
+		api::CDataFrameAnalyzer analyzer { std::make_unique<
+				api::CDataFrameAnalysisSpecification>(std::string { "junk" }),
+				outputWriterFactory };
+		LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+		CPPUNIT_ASSERT(errors.size() > 0);
+		CPPUNIT_ASSERT_EQUAL(false, analyzer.handleRecord( { "c1", "c2", "c3",
+				"c4", "c5" }, { "10", "10", "10", "10", "10" }));
+	}
+
+	std::string jsonSpec { createSpecJsonForDiskUsageTest(1000000, 100, false) };
+	try {
+		new api::CDataFrameAnalysisSpecification(jsonSpec);
+	} catch (const std::exception& ex) {
+		std::cout << ex.what() << std::endl;
+	}
+//	CPPUNIT_ASSERT_THROW(new api::CDataFrameAnalysisSpecification(jsonSpec), CppUnit::Exception);
+
+}
+
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
@@ -77,5 +129,11 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
         "CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers",
         &CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers));
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+		"CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
+		&CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
+
     return suiteOfTests;
 }
+
+
