@@ -523,7 +523,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
     test::CRandomNumbers rng;
 
     std::size_t sizes_[] = {200, 150, 300};
-    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
     TMeanAccumulator meanZ;
     TMeanAccumulator meanMeanError;
@@ -583,7 +583,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
             CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
 
             for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
-                TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
+                TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                 TDoubleVec b(a);
                 b[0] += 2.0 * std::sqrt(trace);
                 b[1] += 2.0 * std::sqrt(trace);
@@ -690,7 +690,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
     double eps = 1e-6;
 
     std::size_t sizes_[] = {150, 200, 100};
-    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
     test::CRandomNumbers rng;
 

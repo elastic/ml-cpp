@@ -25,12 +25,12 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -108,8 +108,9 @@ private:
 
         //! Persist to a state document.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-            inserter.insertLevel(SAMPLE_TAG, boost::bind(&TMetricPartialStatistic::persist,
-                                                         &s_Statistic, _1));
+            inserter.insertLevel(SAMPLE_TAG,
+                                 std::bind(&TMetricPartialStatistic::persist,
+                                           &s_Statistic, std::placeholders::_1));
             inserter.insertValue(SAMPLE_START_TAG, s_Start);
             inserter.insertValue(SAMPLE_END_TAG, s_End);
         }
@@ -119,8 +120,9 @@ private:
             do {
                 const std::string& name = traverser.name();
                 if (name == SAMPLE_TAG) {
-                    if (traverser.traverseSubLevel(boost::bind(
-                            &TMetricPartialStatistic::restore, &s_Statistic, _1)) == false) {
+                    if (traverser.traverseSubLevel(
+                            std::bind(&TMetricPartialStatistic::restore, &s_Statistic,
+                                      std::placeholders::_1)) == false) {
                         LOG_ERROR(<< "Invalid sample value");
                         return false;
                     }
@@ -304,8 +306,9 @@ public:
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (const_reverse_iterator itr = m_Queue.rbegin(); itr != m_Queue.rend(); ++itr) {
-            inserter.insertLevel(SUB_SAMPLE_TAG, boost::bind(&SSubSample::acceptPersistInserter,
-                                                             *itr, _1));
+            inserter.insertLevel(SUB_SAMPLE_TAG,
+                                 std::bind(&SSubSample::acceptPersistInserter,
+                                           *itr, std::placeholders::_1));
         }
     }
 
@@ -315,8 +318,9 @@ public:
             const std::string& name = traverser.name();
             if (name == SUB_SAMPLE_TAG) {
                 SSubSample subSample(m_Dimension, 0);
-                if (traverser.traverseSubLevel(boost::bind(
-                        &SSubSample::acceptRestoreTraverser, &subSample, _1)) == false) {
+                if (traverser.traverseSubLevel(
+                        std::bind(&SSubSample::acceptRestoreTraverser,
+                                  &subSample, std::placeholders::_1)) == false) {
                     LOG_ERROR(<< "Invalid sub-sample in " << traverser.value());
                     return false;
                 }

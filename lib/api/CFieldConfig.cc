@@ -19,7 +19,6 @@
 #include <api/CDetectionRulesJsonParser.h>
 #include <api/CFieldDataTyper.h>
 
-#include <boost/bind.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/tokenizer.hpp>
@@ -1090,7 +1089,7 @@ const CFieldConfig::TStrDetectionRulePrVec& CFieldConfig::scheduledEvents() cons
 void CFieldConfig::influencerFieldNames(TStrVec influencers) {
     LOG_DEBUG(<< "Set influencers : " << core::CContainerPrinter::print(influencers));
     std::for_each(influencers.begin(), influencers.end(),
-                  boost::bind(&CFieldConfig::seenField, this, _1));
+                  std::bind(&CFieldConfig::seenField, this, std::placeholders::_1));
     m_Influencers.swap(influencers);
 }
 

@@ -80,7 +80,7 @@ void CPackedBitVectorTest::testCreation() {
                          core::CContainerPrinter::print(test6.toBitVector()));
 
     bool bits1_[] = {true, true};
-    TBoolVec bits1(boost::begin(bits1_), boost::end(bits1_));
+    TBoolVec bits1(std::begin(bits1_), std::end(bits1_));
     maths::CPackedBitVector test7(bits1);
     LOG_DEBUG(<< "test7 = " << test7);
     CPPUNIT_ASSERT_EQUAL(bits1.size(), test7.dimension());
@@ -89,7 +89,7 @@ void CPackedBitVectorTest::testCreation() {
 
     bool bits2_[] = {true,  false, false, true, true, false, false,
                      false, false, true,  true, true, true,  false};
-    TBoolVec bits2(boost::begin(bits2_), boost::end(bits2_));
+    TBoolVec bits2(std::begin(bits2_), std::end(bits2_));
     maths::CPackedBitVector test8(bits2);
     LOG_DEBUG(<< "test8 = " << test8);
     CPPUNIT_ASSERT_EQUAL(bits2.size(), test8.dimension());
@@ -242,10 +242,10 @@ void CPackedBitVectorTest::testInner() {
     maths::CPackedBitVector test2(10, false);
     bool bits1[] = {true,  true,  false, false, true,
                     false, false, false, true,  true};
-    maths::CPackedBitVector test3(TBoolVec(boost::begin(bits1), boost::end(bits1)));
+    maths::CPackedBitVector test3(TBoolVec(std::begin(bits1), std::end(bits1)));
     bool bits2[] = {false, false, true,  false, true,
                     false, false, false, false, false};
-    maths::CPackedBitVector test4(TBoolVec(boost::begin(bits2), boost::end(bits2)));
+    maths::CPackedBitVector test4(TBoolVec(std::begin(bits2), std::end(bits2)));
 
     CPPUNIT_ASSERT_EQUAL(10.0, test1.inner(test1));
     CPPUNIT_ASSERT_EQUAL(0.0, test1.inner(test2));
@@ -348,8 +348,7 @@ void CPackedBitVectorTest::testPersist() {
                    false, false, false, true,  true};
 
     for (std::size_t t = 0u; t < boost::size(bits); ++t) {
-        maths::CPackedBitVector origVector(
-            TBoolVec(boost::begin(bits), boost::begin(bits) + t));
+        maths::CPackedBitVector origVector(TBoolVec(std::begin(bits), std::begin(bits) + t));
 
         std::string origXml = origVector.toDelimited();
         LOG_DEBUG(<< "xml = " << origXml);

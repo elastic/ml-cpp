@@ -25,9 +25,7 @@
 
 #include "TestUtils.h"
 
-#include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/ref.hpp>
 
 #include <memory>
 
@@ -301,8 +299,9 @@ void CForecastTest::testNonNegative() {
     core_t::TTime end{time + 20 * core::constants::DAY};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(0, start, start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE,
-                            boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(
+        0, start, start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+        std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};
@@ -380,8 +379,9 @@ void CForecastTest::testFinancialIndex() {
     core_t::TTime end{timeseries[timeseries.size() - 1].first};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(startTime, start, start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE,
-                            boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(
+        startTime, start, start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+        std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};
@@ -433,9 +433,10 @@ void CForecastTest::testTruncation() {
 
         TErrorBarVec prediction;
         std::string m1;
-        model.forecast(0, dataEndTime, dataEndTime, dataEndTime + 2 * core::constants::DAY,
-                       90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
-                       boost::bind(&mockSink, _1, boost::ref(prediction)), m1);
+        model.forecast(
+            0, dataEndTime, dataEndTime, dataEndTime + 2 * core::constants::DAY,
+            90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+            std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m1);
         LOG_DEBUG(<< "response = '" << m1 << "'");
         CPPUNIT_ASSERT((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
         CPPUNIT_ASSERT(prediction.size() > 0);
@@ -445,10 +446,10 @@ void CForecastTest::testTruncation() {
 
         prediction.clear();
         std::string m2;
-        model.forecast(0, dataEndTime, dataEndTime + 30 * core::constants::DAY,
-                       dataEndTime + 40 * core::constants::DAY, 90.0,
-                       MINIMUM_VALUE, MAXIMUM_VALUE,
-                       boost::bind(&mockSink, _1, boost::ref(prediction)), m2);
+        model.forecast(
+            0, dataEndTime, dataEndTime + 30 * core::constants::DAY,
+            dataEndTime + 40 * core::constants::DAY, 90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+            std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m2);
         LOG_DEBUG(<< "response = '" << m2 << "'");
         CPPUNIT_ASSERT(m2.empty() == false);
         CPPUNIT_ASSERT(m1 != m2);
@@ -527,8 +528,9 @@ void CForecastTest::test(TTrend trend,
     core_t::TTime end{time + 2 * core::constants::WEEK};
     TModelPtr forecastModel(model.cloneForForecast());
     std::string m;
-    forecastModel->forecast(0, start, start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
-                            boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(
+        0, start, start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+        std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};

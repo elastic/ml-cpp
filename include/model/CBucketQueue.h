@@ -13,9 +13,9 @@
 #include <core/CPersistUtils.h>
 #include <core/CoreTypes.h>
 
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
 
+#include <functional>
 #include <string>
 
 namespace ml {
@@ -42,7 +42,7 @@ public:
     static const std::string BUCKET_TAG;
     static const std::string INDEX_TAG;
 
-    //! \brief Wraps persist and restore so they can be used with boost::bind.
+    //! \brief Wraps persist and restore so they can be used with std::bind.
     template<typename F>
     class CSerializer {
     public:
@@ -230,7 +230,8 @@ private:
         for (std::size_t i = 0; i < m_Queue.size(); i++) {
             inserter.insertValue(INDEX_TAG, i);
             inserter.insertLevel(
-                BUCKET_TAG, boost::bind<void>(bucketPersist, boost::cref(m_Queue[i]), _1));
+                BUCKET_TAG, std::bind<void>(bucketPersist, std::cref(m_Queue[i]),
+                                            std::placeholders::_1));
         }
     }
 
@@ -252,16 +253,17 @@ private:
                     if (traverser.hasSubLevel()) {
                         // Restore into a temporary
                         T dummy = initial;
-                        if (traverser.traverseSubLevel(boost::bind<bool>(
-                                bucketRestore, dummy, _1)) == false) {
+                        if (traverser.traverseSubLevel(std::bind<bool>(
+                                bucketRestore, dummy, std::placeholders::_1)) == false) {
                             LOG_ERROR(<< "Invalid bucket");
                         }
                     }
                 } else {
                     m_Queue[i] = initial;
                     if (traverser.hasSubLevel()) {
-                        if (traverser.traverseSubLevel(boost::bind<bool>(
-                                bucketRestore, boost::ref(m_Queue[i]), _1)) == false) {
+                        if (traverser.traverseSubLevel(
+                                std::bind<bool>(bucketRestore, std::ref(m_Queue[i]),
+                                                std::placeholders::_1)) == false) {
                             LOG_ERROR(<< "Invalid bucket");
                             return false;
                         }

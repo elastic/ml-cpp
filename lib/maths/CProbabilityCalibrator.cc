@@ -13,7 +13,6 @@
 #include <maths/CQDigest.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 
 #include <cmath>
@@ -57,8 +56,9 @@ void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter& 
     inserter.insertValue(STYLE_TAG, static_cast<int>(m_Style));
     inserter.insertValue(CUTOFF_PROBABILITY_TAG, m_CutoffProbability);
     inserter.insertLevel(DISCRETE_PROBABILITY_QUANTILE_TAG,
-                         boost::bind(&CQDigest::acceptPersistInserter,
-                                     m_DiscreteProbabilityQuantiles.get(), _1));
+                         std::bind(&CQDigest::acceptPersistInserter,
+                                   m_DiscreteProbabilityQuantiles.get(),
+                                   std::placeholders::_1));
 }
 
 bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -78,9 +78,9 @@ bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser
                 return false;
             }
         } else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG) {
-            if (traverser.traverseSubLevel(
-                    boost::bind(&CQDigest::acceptRestoreTraverser,
-                                m_DiscreteProbabilityQuantiles.get(), _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &CQDigest::acceptRestoreTraverser,
+                    m_DiscreteProbabilityQuantiles.get(), std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Invalid quantiles in " << traverser.value());
                 return false;
             }

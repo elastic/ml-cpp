@@ -936,8 +936,8 @@ void CGammaRateConjugateTest::testAnomalyScore() {
                 for (unsigned int time = 0; time < samples.size(); ++time) {
                     double sample =
                         samples[time] +
-                        (anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) -
-                                   boost::begin(anomalyTimes)] *
+                        (anomalies[std::find(std::begin(anomalyTimes), std::end(anomalyTimes), time) -
+                                   std::begin(anomalyTimes)] *
                          boost::math::standard_deviation(gamma));
 
                     TDouble1Vec sampleVec(1, sample);
@@ -964,7 +964,7 @@ void CGammaRateConjugateTest::testAnomalyScore() {
                 TUIntVec falsePositives;
                 std::set_difference(candidateAnomalies.begin(),
                                     candidateAnomalies.end(),
-                                    boost::begin(anomalyTimes), boost::end(anomalyTimes),
+                                    std::begin(anomalyTimes), std::end(anomalyTimes),
                                     std::back_inserter(falsePositives));
 
                 double falsePositiveRate = static_cast<double>(falsePositives.size()) /
@@ -973,10 +973,10 @@ void CGammaRateConjugateTest::testAnomalyScore() {
                 totalFalsePositiveRate += falsePositiveRate;
 
                 TUIntVec positives;
-                std::set_intersection(
-                    candidateAnomalies.begin(), candidateAnomalies.end(),
-                    boost::begin(anomalyTimes), boost::end(anomalyTimes),
-                    std::back_inserter(positives));
+                std::set_intersection(candidateAnomalies.begin(),
+                                      candidateAnomalies.end(),
+                                      std::begin(anomalyTimes), std::end(anomalyTimes),
+                                      std::back_inserter(positives));
 
                 LOG_DEBUG(<< "falsePositiveRate = " << falsePositiveRate
                           << ", positives = " << positives.size());

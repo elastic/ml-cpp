@@ -25,7 +25,7 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! The two pairs don't have to have exactly the same type, although the first
 //! element of both pairs must be either a std::string, or convertible to a
-//! const std::string & (e.g. a boost::reference_wrapper<const std::string &>).
+//! const std::string & (e.g. a std::reference_wrapper<const std::string &>).
 //!
 class CORE_EXPORT CStrPairFirstElementEqual {
 public:

@@ -18,8 +18,6 @@
 
 #include <model/CStringStore.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 #include <functional>
 #include <ostream>
@@ -77,7 +75,7 @@ CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful
     : m_Identifier(0), m_Function(function_t::E_IndividualCount),
       m_UseNull(false), m_ExcludeFrequent(model_t::E_XF_None), m_Hash(0) {
     successful = traverser.traverseSubLevel(
-        boost::bind(&CSearchKey::acceptRestoreTraverser, this, _1));
+        std::bind(&CSearchKey::acceptRestoreTraverser, this, std::placeholders::_1));
 }
 
 bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

@@ -16,8 +16,7 @@
 
 #include <model/ImportExport.h>
 
-#include <boost/bind.hpp>
-
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -194,16 +193,16 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     static void persist(const TMedianAccumulator& stat,
                         const std::string& tag,
                         core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(
-            tag, boost::bind(&TMedianAccumulator::acceptPersistInserter, &stat, _1));
+        inserter.insertLevel(tag, std::bind(&TMedianAccumulator::acceptPersistInserter,
+                                            &stat, std::placeholders::_1));
     }
     //! Persist a multivariate statistic.
     template<typename STATISTIC>
     static void persist(const CMetricMultivariateStatistic<STATISTIC>& stat,
                         const std::string& tag,
                         core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(
-            tag, boost::bind(&CMetricMultivariateStatistic<STATISTIC>::persist, &stat, _1));
+        inserter.insertLevel(tag, std::bind(&CMetricMultivariateStatistic<STATISTIC>::persist,
+                                            &stat, std::placeholders::_1));
     }
 
     //! Restore an order statistic.
@@ -235,15 +234,16 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     }
     //! Restore a median statistic.
     static bool restore(core::CStateRestoreTraverser& traverser, TMedianAccumulator& stat) {
-        return traverser.traverseSubLevel(
-            boost::bind(&TMedianAccumulator::acceptRestoreTraverser, &stat, _1));
+        return traverser.traverseSubLevel(std::bind(&TMedianAccumulator::acceptRestoreTraverser,
+                                                    &stat, std::placeholders::_1));
     }
     //! Restore a multivariate statistic.
     template<typename STATISTIC>
     static bool restore(core::CStateRestoreTraverser& traverser,
                         CMetricMultivariateStatistic<STATISTIC>& stat) {
-        return traverser.traverseSubLevel(boost::bind(
-            &CMetricMultivariateStatistic<STATISTIC>::restore, &stat, _1));
+        return traverser.traverseSubLevel(
+            std::bind(&CMetricMultivariateStatistic<STATISTIC>::restore, &stat,
+                      std::placeholders::_1));
     }
 };
 }

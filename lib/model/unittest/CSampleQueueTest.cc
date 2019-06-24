@@ -968,8 +968,8 @@ void CSampleQueueTest::testPersistence() {
 
     TTestSampleQueue restoredQueue(1, sampleCountFactor, latencyBuckets,
                                    growthFactor, bucketLength);
-    traverser.traverseSubLevel(
-        boost::bind(&TTestSampleQueue::acceptRestoreTraverser, &restoredQueue, _1));
+    traverser.traverseSubLevel(std::bind(&TTestSampleQueue::acceptRestoreTraverser,
+                                         &restoredQueue, std::placeholders::_1));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), restoredQueue.size());
 

@@ -218,9 +218,9 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        traverser.traverseSubLevel(boost::bind(
+        traverser.traverseSubLevel(std::bind(
             &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
-            &restoredDetector, boost::cref(params), _1));
+            &restoredDetector, std::cref(params), std::placeholders::_1));
 
         LOG_DEBUG(<< "expected " << origDetector.checksum() << " got "
                   << restoredDetector.checksum());

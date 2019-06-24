@@ -203,7 +203,7 @@ void CDynamicStringIdRegistry::clear() {
 }
 
 uint64_t CDynamicStringIdRegistry::checksum() const {
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
 
     TStrCRefVec people;

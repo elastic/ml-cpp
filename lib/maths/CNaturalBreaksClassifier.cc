@@ -236,7 +236,7 @@ bool CNaturalBreaksClassifier::split(const TSizeVec& split, TClassifierVec& resu
 
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
-        !boost::algorithm::is_sorted(split.begin(), split.end())) {
+        !std::is_sorted(split.begin(), split.end())) {
         LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }
@@ -321,7 +321,7 @@ bool CNaturalBreaksClassifier::categories(const TSizeVec& split, TTupleVec& resu
 
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
-        !boost::algorithm::is_sorted(split.begin(), split.end())) {
+        !std::is_sorted(split.begin(), split.end())) {
         LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }

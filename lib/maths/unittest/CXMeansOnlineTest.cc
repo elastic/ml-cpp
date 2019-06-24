@@ -68,8 +68,9 @@ using TXMeans2FloatForTest = CXMeansOnlineForTest<maths::CFloatStorage, 2>;
 bool restore(const maths::SDistributionRestoreParams& params,
              core::CRapidXmlStateRestoreTraverser& traverser,
              TXMeans2::CCluster& result) {
-    return traverser.traverseSubLevel(boost::bind(&TXMeans2::CCluster::acceptRestoreTraverser,
-                                                  &result, boost::cref(params), _1));
+    return traverser.traverseSubLevel(
+        std::bind(&TXMeans2::CCluster::acceptRestoreTraverser, &result,
+                  std::cref(params), std::placeholders::_1));
 }
 }
 
@@ -335,8 +336,7 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
     double outliers_[][2] = {{600, 10}, {650, 11}, {610, 12}, {700, 16}, {690, 14}};
     TDoubleVecVec outliers;
     for (std::size_t i = 0u; i < boost::size(outliers_); ++i) {
-        outliers.push_back(
-            TDoubleVec(boost::begin(outliers_[i]), boost::end(outliers_[i])));
+        outliers.push_back(TDoubleVec(std::begin(outliers_[i]), std::end(outliers_[i])));
     }
 
     // We use the cluster moments to indirectly measure the purity
@@ -433,7 +433,7 @@ void CXMeansOnlineTest::testManyClusters() {
     const std::size_t sizes_[] = {1800, 800,  1100, 400, 600,  400, 600,
                                   1300, 400,  900,  500, 700,  400, 800,
                                   1500, 1200, 500,  300, 1200, 800};
-    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
     double Z = static_cast<double>(std::accumulate(sizes.begin(), sizes.end(), 0));
 

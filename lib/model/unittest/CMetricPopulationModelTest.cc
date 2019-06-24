@@ -174,15 +174,15 @@ void generateTestMessages(std::size_t dimension,
     TSizeSizePr attribute4AnomalyBucketPerson[] = {TSizeSizePr(60u, 2u)};
 
     TSizeSizePrVecVec anomalies;
-    anomalies.push_back(TSizeSizePrVec(boost::begin(attribute0AnomalyBucketPerson),
-                                       boost::end(attribute0AnomalyBucketPerson)));
+    anomalies.push_back(TSizeSizePrVec(std::begin(attribute0AnomalyBucketPerson),
+                                       std::end(attribute0AnomalyBucketPerson)));
     anomalies.push_back(TSizeSizePrVec());
-    anomalies.push_back(TSizeSizePrVec(boost::begin(attribute2AnomalyBucketPerson),
-                                       boost::end(attribute2AnomalyBucketPerson)));
-    anomalies.push_back(TSizeSizePrVec(boost::begin(attribute3AnomalyBucketPerson),
-                                       boost::end(attribute3AnomalyBucketPerson)));
-    anomalies.push_back(TSizeSizePrVec(boost::begin(attribute4AnomalyBucketPerson),
-                                       boost::end(attribute4AnomalyBucketPerson)));
+    anomalies.push_back(TSizeSizePrVec(std::begin(attribute2AnomalyBucketPerson),
+                                       std::end(attribute2AnomalyBucketPerson)));
+    anomalies.push_back(TSizeSizePrVec(std::begin(attribute3AnomalyBucketPerson),
+                                       std::end(attribute3AnomalyBucketPerson)));
+    anomalies.push_back(TSizeSizePrVec(std::begin(attribute4AnomalyBucketPerson),
+                                       std::end(attribute4AnomalyBucketPerson)));
 
     test::CRandomNumbers rng;
 
@@ -926,10 +926,10 @@ void CMetricPopulationModelTest::testPrune() {
     TMessageVec expectedMessages;
     expectedMessages.reserve(messages.size());
     for (std::size_t i = 0u; i < messages.size(); ++i) {
-        if (std::binary_search(boost::begin(expectedPeople),
-                               boost::end(expectedPeople), messages[i].s_Person) &&
-            std::binary_search(boost::begin(expectedAttributes),
-                               boost::end(expectedAttributes), messages[i].s_Attribute)) {
+        if (std::binary_search(std::begin(expectedPeople),
+                               std::end(expectedPeople), messages[i].s_Person) &&
+            std::binary_search(std::begin(expectedAttributes),
+                               std::end(expectedAttributes), messages[i].s_Attribute)) {
             expectedMessages.push_back(messages[i]);
         }
     }

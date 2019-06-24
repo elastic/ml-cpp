@@ -10,10 +10,9 @@
 #include <core/CNonInstantiatable.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CVectorRange.h>
+#include <core/UnwrapRef.h>
 
-#include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
@@ -59,16 +58,16 @@ public:
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? boost::unwrap_ref(*lhs) < boost::unwrap_ref(*rhs)
+                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
         template<typename T>
         static inline bool less(const T& lhs, const boost::optional<T>& rhs) {
-            return !rhs ? true : boost::unwrap_ref(lhs) < boost::unwrap_ref(*rhs);
+            return !rhs ? true : ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(*rhs);
         }
         template<typename T>
         static inline bool less(const boost::optional<T>& lhs, const T& rhs) {
-            return !lhs ? false : boost::unwrap_ref(*lhs) < boost::unwrap_ref(rhs);
+            return !lhs ? false : ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(rhs);
         }
     };
 
@@ -91,16 +90,16 @@ public:
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? boost::unwrap_ref(*lhs) > boost::unwrap_ref(*rhs)
+                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
         template<typename T>
         static inline bool greater(const T& lhs, const boost::optional<T>& rhs) {
-            return !rhs ? false : boost::unwrap_ref(lhs) > boost::unwrap_ref(*rhs);
+            return !rhs ? false : ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(*rhs);
         }
         template<typename T>
         static inline bool greater(const boost::optional<T>& lhs, const T& rhs) {
-            return !lhs ? true : boost::unwrap_ref(*lhs) > boost::unwrap_ref(rhs);
+            return !lhs ? true : ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(rhs);
         }
     };
 
@@ -120,7 +119,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? boost::unwrap_ref(*lhs) < boost::unwrap_ref(*rhs)
+                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
     };
@@ -141,7 +140,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? boost::unwrap_ref(*lhs) > boost::unwrap_ref(*rhs)
+                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
     };
@@ -158,7 +157,7 @@ public:
 
         template<typename U, typename V>
         static inline bool less(const U& lhs, const V& rhs) {
-            return boost::unwrap_ref(lhs) < boost::unwrap_ref(rhs);
+            return ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(rhs);
         }
     };
 
@@ -174,7 +173,7 @@ public:
 
         template<typename U, typename V>
         static inline bool greater(const U& lhs, const V& rhs) {
-            return boost::unwrap_ref(lhs) > boost::unwrap_ref(rhs);
+            return ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(rhs);
         }
     };
 
@@ -637,7 +636,7 @@ public:
     // So the containers are sorted in at most O(N) additional steps to
     // the N * log(N) taken to sort the indices.
 #define SIMULTANEOUS_SORT_IMPL                                                 \
-    if (boost::algorithm::is_sorted(keys.begin(), keys.end(), comp)) {         \
+    if (std::is_sorted(keys.begin(), keys.end(), comp)) {                      \
         return true;                                                           \
     }                                                                          \
     using TSizeVec = std::vector<std::size_t>;                                 \

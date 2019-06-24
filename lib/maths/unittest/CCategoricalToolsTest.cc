@@ -46,8 +46,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -63,7 +63,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
@@ -80,8 +80,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -97,7 +97,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
@@ -113,8 +113,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -130,7 +130,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
@@ -152,8 +152,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -169,7 +169,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
@@ -187,8 +187,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -204,7 +204,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
@@ -221,8 +221,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
             for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
-                    TDoubleVec(boost::begin(categories), boost::end(categories)),
-                    TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                    TDoubleVec(std::begin(categories), std::end(categories)),
+                    TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                     boost::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
@@ -238,7 +238,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(
-                TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
+                TDoubleVec(std::begin(probabilities), std::end(probabilities)),
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 

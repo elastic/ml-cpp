@@ -10,10 +10,8 @@
 #include <core/CScopedFastLock.h>
 #include <core/CStringUtils.h>
 
-#include <boost/bind.hpp>
 #include <boost/config.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <iterator>
@@ -196,7 +194,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
 
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        boost::bind(uniform1, boost::ref(ms_Generator)));
+                        std::bind(uniform1, std::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
                 LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
@@ -206,7 +204,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        boost::bind(uniform0, boost::ref(ms_Generator)));
+                        std::bind(uniform0, std::ref(ms_Generator)));
     }
 
     result.reserve(k);
@@ -226,7 +224,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
 
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        boost::bind(uniform1, boost::ref(ms_Generator)));
+                        std::bind(uniform1, std::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
                 LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
@@ -236,7 +234,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        boost::bind(uniform0, boost::ref(ms_Generator)));
+                        std::bind(uniform0, std::ref(ms_Generator)));
     }
 
     result.reserve(k);
@@ -264,7 +262,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
             a.back().reserve(n);
             TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
             std::generate_n(std::back_inserter(a.back()), n,
-                            boost::bind(uniform1, boost::ref(ms_Generator)));
+                            std::bind(uniform1, std::ref(ms_Generator)));
             for (std::size_t j = 0u; j < a.back().size(); ++j) {
                 if ((a.back())[j] == 0) {
                     LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
@@ -275,7 +273,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
 
         TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        boost::bind(uniform0, boost::ref(ms_Generator)));
+                        std::bind(uniform0, std::ref(ms_Generator)));
     }
 
     result.reserve(k);

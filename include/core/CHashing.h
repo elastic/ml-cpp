@@ -13,7 +13,6 @@
 #include <core/ImportExport.h>
 
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/ref.hpp>
 
 #include <functional>
 #include <string>
@@ -386,7 +385,7 @@ public:
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
-        using TStrCRef = boost::reference_wrapper<const std::string>;
+        using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:
         CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
@@ -416,7 +415,7 @@ public:
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
-        using TStrCRef = boost::reference_wrapper<const std::string>;
+        using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:
         CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}

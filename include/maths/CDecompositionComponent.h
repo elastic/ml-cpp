@@ -15,9 +15,10 @@
 #include <maths/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
+#include <array>
 #include <cstddef>
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -33,11 +34,10 @@ public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
     using TDoubleVec = std::vector<double>;
     using TFloatVec = std::vector<CFloatStorage>;
-    using TSplineCRef = CSpline<boost::reference_wrapper<const TFloatVec>,
-                                boost::reference_wrapper<const TFloatVec>,
-                                boost::reference_wrapper<const TDoubleVec>>;
+    using TSplineCRef =
+        CSpline<std::reference_wrapper<const TFloatVec>, std::reference_wrapper<const TFloatVec>, std::reference_wrapper<const TDoubleVec>>;
     using TSplineRef =
-        CSpline<boost::reference_wrapper<TFloatVec>, boost::reference_wrapper<TFloatVec>, boost::reference_wrapper<TDoubleVec>>;
+        CSpline<std::reference_wrapper<TFloatVec>, std::reference_wrapper<TFloatVec>, std::reference_wrapper<TDoubleVec>>;
 
 public:
     //! Persist state by passing information to \p inserter.
@@ -53,9 +53,9 @@ protected:
         enum ESpline { E_Value = 0, E_Variance = 1 };
 
     public:
-        using TTypeArray = boost::array<CSplineTypes::EType, 2>;
-        using TFloatVecArray = boost::array<TFloatVec, 2>;
-        using TDoubleVecArray = boost::array<TDoubleVec, 2>;
+        using TTypeArray = std::array<CSplineTypes::EType, 2>;
+        using TFloatVecArray = std::array<TFloatVec, 2>;
+        using TDoubleVecArray = std::array<TDoubleVec, 2>;
 
     public:
         CPackedSplines(CSplineTypes::EType valueInterpolationType,

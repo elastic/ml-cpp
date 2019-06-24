@@ -18,6 +18,7 @@
 #include <boost/array.hpp>
 #include <boost/operators.hpp>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -95,7 +96,7 @@ class CLeastSquaresOnlineRegression : boost::addable<CLeastSquaresOnlineRegressi
     // clang-format on
 public:
     static const std::size_t N = N_ + 1;
-    using TArray = boost::array<double, N>;
+    using TArray = std::array<double, N>;
     using TVector = CVectorNx1<T, 3 * N - 1>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;

@@ -13,6 +13,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
+#include <core/UnwrapRef.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
@@ -346,11 +347,11 @@ void CMetricDataGathererTest::singleSeriesTests() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoublePrVecVec buckets;
-        buckets.push_back(TTimeDoublePrVec(boost::begin(bucket1), boost::end(bucket1)));
-        buckets.push_back(TTimeDoublePrVec(boost::begin(bucket2), boost::end(bucket2)));
-        buckets.push_back(TTimeDoublePrVec(boost::begin(bucket3), boost::end(bucket3)));
-        buckets.push_back(TTimeDoublePrVec(boost::begin(bucket4), boost::end(bucket4)));
-        buckets.push_back(TTimeDoublePrVec(boost::begin(bucket5), boost::end(bucket5)));
+        buckets.push_back(TTimeDoublePrVec(std::begin(bucket1), std::end(bucket1)));
+        buckets.push_back(TTimeDoublePrVec(std::begin(bucket2), std::end(bucket2)));
+        buckets.push_back(TTimeDoublePrVec(std::begin(bucket3), std::end(bucket3)));
+        buckets.push_back(TTimeDoublePrVec(std::begin(bucket4), std::end(bucket4)));
+        buckets.push_back(TTimeDoublePrVec(std::begin(bucket5), std::end(bucket5)));
 
         for (std::size_t i = 0u; i < buckets.size(); ++i) {
             LOG_DEBUG(<< "Processing bucket " << i);
@@ -426,11 +427,11 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     TTimeDoublePr bucket15[] = {TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2),
                                 TTimeDoublePr(2490, 3.8)};
     TTimeDoublePrVecVec buckets1;
-    buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket11), boost::end(bucket11)));
-    buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket12), boost::end(bucket12)));
-    buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket13), boost::end(bucket13)));
-    buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket14), boost::end(bucket14)));
-    buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket15), boost::end(bucket15)));
+    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket11), std::end(bucket11)));
+    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket12), std::end(bucket12)));
+    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket13), std::end(bucket13)));
+    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket14), std::end(bucket14)));
+    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket15), std::end(bucket15)));
 
     TTimeDoublePr bucket21[] = {
         TTimeDoublePr(1, 1.0),   TTimeDoublePr(5, 1.0),
@@ -450,11 +451,11 @@ void CMetricDataGathererTest::multipleSeriesTests() {
         TTimeDoublePr(2490, 3.9), TTimeDoublePr(2500, 3.4),
         TTimeDoublePr(2550, 4.1), TTimeDoublePr(2600, 3.8)};
     TTimeDoublePrVecVec buckets2;
-    buckets2.push_back(TTimeDoublePrVec(boost::begin(bucket21), boost::end(bucket21)));
-    buckets2.push_back(TTimeDoublePrVec(boost::begin(bucket22), boost::end(bucket22)));
-    buckets2.push_back(TTimeDoublePrVec(boost::begin(bucket23), boost::end(bucket23)));
-    buckets2.push_back(TTimeDoublePrVec(boost::begin(bucket24), boost::end(bucket24)));
-    buckets2.push_back(TTimeDoublePrVec(boost::begin(bucket25), boost::end(bucket25)));
+    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket21), std::end(bucket21)));
+    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket22), std::end(bucket22)));
+    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket23), std::end(bucket23)));
+    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket24), std::end(bucket24)));
+    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket25), std::end(bucket25)));
 
     for (std::size_t i = 0u; i < 5; ++i) {
         LOG_DEBUG(<< "Processing bucket " << i);
@@ -875,10 +876,10 @@ void CMetricDataGathererTest::testSum() {
                     expected, featureData[j].second.s_BucketValue->value()[0]);
                 CPPUNIT_ASSERT_EQUAL(
                     std::size_t(1),
-                    boost::unwrap_ref(featureData[j].second.s_Samples).size());
+                    ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
                 CPPUNIT_ASSERT_EQUAL(
                     expected,
-                    boost::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                    ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
             }
         }
         {
@@ -895,10 +896,10 @@ void CMetricDataGathererTest::testSum() {
                         expected, featureData[j].second.s_BucketValue->value()[0]);
                     CPPUNIT_ASSERT_EQUAL(
                         std::size_t(1),
-                        boost::unwrap_ref(featureData[j].second.s_Samples).size());
+                        ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
                     CPPUNIT_ASSERT_EQUAL(
                         expected,
-                        boost::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                        ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
                 }
             }
         }
@@ -1461,7 +1462,7 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    TStrVec influencerNames(boost::begin(influencerNames_), boost::end(influencerNames_));
+    TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            influencerNames, KEY, features, startTime, 2u);
@@ -1658,16 +1659,11 @@ void CMetricDataGathererTest::testMultivariate() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
-        buckets.push_back(TTimeDoubleDoubleTupleVec(boost::begin(bucket1),
-                                                    boost::end(bucket1)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(boost::begin(bucket2),
-                                                    boost::end(bucket2)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(boost::begin(bucket3),
-                                                    boost::end(bucket3)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(boost::begin(bucket4),
-                                                    boost::end(bucket4)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(boost::begin(bucket5),
-                                                    boost::end(bucket5)));
+        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket1), std::end(bucket1)));
+        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket2), std::end(bucket2)));
+        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket3), std::end(bucket3)));
+        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket4), std::end(bucket4)));
+        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket5), std::end(bucket5)));
 
         for (std::size_t i = 0u; i < buckets.size(); ++i) {
             LOG_DEBUG(<< "Processing bucket " << i);
@@ -1717,9 +1713,9 @@ void CMetricDataGathererTest::testStatisticsPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         CGathererTools::TMeanGatherer::TMetricPartialStatistic restored(1);
-        traverser.traverseSubLevel(boost::bind(
-            &CGathererTools::TMeanGatherer::TMetricPartialStatistic::restore,
-            boost::ref(restored), _1));
+        traverser.traverseSubLevel(
+            std::bind(&CGathererTools::TMeanGatherer::TMetricPartialStatistic::restore,
+                      std::ref(restored), std::placeholders::_1));
 
         restoredTime = restored.time();
         {

@@ -131,8 +131,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
         bool inWindow{bucketing1.feature().inWindow(t)};
         if (inWindow) {
             core_t::TTime x{bucketing1.feature().offset(t)};
-            ptrdiff_t i{std::lower_bound(boost::begin(times), boost::end(times), x) -
-                        boost::begin(times)};
+            ptrdiff_t i{std::lower_bound(std::begin(times), std::end(times), x) -
+                        std::begin(times)};
             double x0{static_cast<double>(times[i - 1])};
             double x1{static_cast<double>(times[i])};
             double y0{function[i - 1]};
@@ -155,8 +155,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{static_cast<core_t::TTime>(
             0.5 * (endpoints1[i] + endpoints1[i - 1] + 1.0))};
-        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) -
-                    boost::begin(times)};
+        ptrdiff_t j{std::lower_bound(std::begin(times), std::end(times), t) -
+                    std::begin(times)};
         double x0{static_cast<double>(times[j - 1])};
         double x1{static_cast<double>(times[j])};
         double y0{function[j - 1]};
@@ -173,8 +173,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{static_cast<core_t::TTime>(
             0.5 * (endpoints2[i] + endpoints2[i - 1] + 1.0))};
-        ptrdiff_t j{std::lower_bound(boost::begin(times), boost::end(times), t) -
-                    boost::begin(times)};
+        ptrdiff_t j{std::lower_bound(std::begin(times), std::end(times), t) -
+                    std::begin(times)};
         double x0{static_cast<double>(times[j - 1])};
         double x1{static_cast<double>(times[j])};
         double y0{function[j - 1]};
