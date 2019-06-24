@@ -12,8 +12,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <boost/array.hpp>
-
+#include <array>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -72,7 +71,7 @@ enum ESampleWeightStyle {
 const std::size_t NUMBER_WEIGHT_STYLES = 4;
 
 template<typename VECTOR>
-using TWeightsAry = boost::array<VECTOR, NUMBER_WEIGHT_STYLES>;
+using TWeightsAry = std::array<VECTOR, NUMBER_WEIGHT_STYLES>;
 using TDoubleWeightsAry = TWeightsAry<double>;
 using TDoubleWeightsAry1Vec = core::CSmallVector<TDoubleWeightsAry, 1>;
 using TDouble2VecWeightsAry = TWeightsAry<TDouble2Vec>;

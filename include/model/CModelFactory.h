@@ -19,7 +19,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <map>
@@ -70,7 +69,7 @@ public:
     using TFeatureVec = std::vector<model_t::EFeature>;
     using TStrVec = std::vector<std::string>;
     using TOptionalUInt = boost::optional<unsigned int>;
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TPriorPtr = std::unique_ptr<maths::CPrior>;
@@ -96,10 +95,10 @@ public:
     using TInterimBucketCorrectorWPtr = std::weak_ptr<CInterimBucketCorrector>;
     using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
     using TDetectionRuleVec = std::vector<CDetectionRule>;
-    using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
+    using TDetectionRuleVecCRef = std::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
     using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
-    using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
+    using TStrDetectionRulePrVecCRef = std::reference_wrapper<const TStrDetectionRulePrVec>;
 
 public:
     //! Wrapper around the model initialization data.

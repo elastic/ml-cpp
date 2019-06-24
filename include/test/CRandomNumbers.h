@@ -11,9 +11,6 @@
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CPRNG.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
-
 #include <algorithm>
 #include <memory>
 #include <vector>

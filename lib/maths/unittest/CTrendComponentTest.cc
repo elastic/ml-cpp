@@ -378,8 +378,9 @@ void CTrendComponentTest::testPersist() {
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
     maths::CTrendComponent restoredComponent{0.1};
-    traverser.traverseSubLevel(boost::bind(&maths::CTrendComponent::acceptRestoreTraverser,
-                                           &restoredComponent, boost::cref(params), _1));
+    traverser.traverseSubLevel(
+        std::bind(&maths::CTrendComponent::acceptRestoreTraverser,
+                  &restoredComponent, std::cref(params), std::placeholders::_1));
 
     CPPUNIT_ASSERT_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
@@ -424,8 +425,9 @@ void CTrendComponentTest::testUpgradeTo7p1() {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    traverser.traverseSubLevel(boost::bind(&maths::CTrendComponent::acceptRestoreTraverser,
-                                           &component, boost::cref(params), _1));
+    traverser.traverseSubLevel(
+        std::bind(&maths::CTrendComponent::acceptRestoreTraverser, &component,
+                  std::cref(params), std::placeholders::_1));
 
     test::CRandomNumbers rng;
 

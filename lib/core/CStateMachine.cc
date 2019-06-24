@@ -15,6 +15,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
+#include <core/UnwrapRef.h>
 
 #include <boost/numeric/conversion/bounds.hpp>
 
@@ -195,9 +196,9 @@ CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
 }
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine& rhs) const {
-    return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
-           boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
-           boost::unwrap_ref(s_States) == rhs.s_States;
+    return ml::core::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
+           ml::core::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
+           ml::core::unwrap_ref(s_States) == rhs.s_States;
 }
 
 CStateMachine::CMachineDeque::CMachineDeque()

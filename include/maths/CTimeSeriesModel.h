@@ -58,7 +58,7 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
-    using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
+    using TDecayRateController2Ary = std::array<CDecayRateController, 2>;
     using TMultibucketFeature = CTimeSeriesMultibucketFeature<double>;
 
 public:
@@ -530,7 +530,7 @@ public:
     using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
-    using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
+    using TDecayRateController2Ary = std::array<CDecayRateController, 2>;
     using TMultibucketFeature = CTimeSeriesMultibucketFeature<TDouble10Vec>;
 
 public:

@@ -13,7 +13,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/ref.hpp>
+#include <functional>
 
 namespace ml {
 namespace maths {
@@ -71,7 +71,7 @@ struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series models.
 struct MATHS_EXPORT SModelRestoreParams {
-    using TModelParamsCRef = boost::reference_wrapper<const CModelParams>;
+    using TModelParamsCRef = std::reference_wrapper<const CModelParams>;
 
     SModelRestoreParams(const CModelParams& params,
                         const STimeSeriesDecompositionRestoreParams& decompositionParams,

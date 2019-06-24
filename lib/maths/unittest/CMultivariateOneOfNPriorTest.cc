@@ -459,7 +459,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
                     TVector2 actualMean(0.0);
                     TMatrix2 actualCovariance(0.0);
                     for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
-                        TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
+                        TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                         TDoubleVec b(a);
                         b[0] += 2.0 * std::sqrt(trace);
                         b[1] += 2.0 * std::sqrt(trace);
@@ -506,7 +506,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
         LOG_DEBUG(<< "*** Multimodal ***");
 
         std::size_t sizes_[] = {200, 150, 300};
-        TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+        TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
         TMeanAccumulator meanZ;
         TMeanAccumulator meanMeanError;
@@ -575,7 +575,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
                 CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
 
                 for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
-                    TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
+                    TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                     TDoubleVec b(a);
                     b[0] += 2.0 * std::sqrt(trace);
                     b[1] += 2.0 * std::sqrt(trace);

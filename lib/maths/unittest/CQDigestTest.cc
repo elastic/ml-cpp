@@ -551,8 +551,8 @@ void CQDigestTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&CQDigest::acceptRestoreTraverser, &restoredQDigest, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            &CQDigest::acceptRestoreTraverser, &restoredQDigest, std::placeholders::_1)));
     }
 
     CPPUNIT_ASSERT(restoredQDigest.checkInvariants());

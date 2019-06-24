@@ -82,7 +82,7 @@ core_t::TTime playData(core_t::TTime start,
     api::CCsvInputParser parser(ss);
 
     CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-        boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        std::bind(&api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
     return t;
 }

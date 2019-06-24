@@ -1054,7 +1054,7 @@ void CToolsTest::testSpread() {
         double raw[] = {15.0,    120.0,   4500.0,  9000.0, 25700.0,
                         43100.0, 73000.0, 74000.0, 84300.0};
         double separation = 20.0;
-        TDoubleVec points(boost::begin(raw), boost::end(raw));
+        TDoubleVec points(std::begin(raw), std::end(raw));
         std::string expected = core::CContainerPrinter::print(points);
         CTools::spread(0.0, period, separation, points);
         CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
@@ -1069,7 +1069,7 @@ void CToolsTest::testSpread() {
                         73000.0, 73150.0, 73500.0, 73600.0, 73800.0, 74000.0};
         double separation = 126.0;
         std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
-        TDoubleVec points(boost::begin(raw), boost::end(raw));
+        TDoubleVec points(std::begin(raw), std::end(raw));
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
         CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));

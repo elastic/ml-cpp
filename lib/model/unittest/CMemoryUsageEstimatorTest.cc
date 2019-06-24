@@ -13,8 +13,6 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-#include <boost/bind.hpp>
-
 using namespace ml;
 using namespace model;
 
@@ -168,8 +166,9 @@ void CMemoryUsageEstimatorTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
+                      &restoredEstimator, std::placeholders::_1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.
@@ -206,8 +205,9 @@ void CMemoryUsageEstimatorTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
+                      &restoredEstimator, std::placeholders::_1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.

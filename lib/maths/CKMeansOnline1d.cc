@@ -17,8 +17,6 @@
 #include <maths/CRestoreParams.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <string>
@@ -83,8 +81,8 @@ CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
 
 CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CKMeansOnline1d::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -106,8 +104,9 @@ std::string CKMeansOnline1d::persistenceTag() const {
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                                      &m_Clusters[i], _1));
+        inserter.insertLevel(CLUSTER_TAG,
+                             std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                       &m_Clusters[i], std::placeholders::_1));
     }
 }
 

@@ -9,8 +9,6 @@
 
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 
 CppUnit::Test* CFieldConfigTest::suite() {
@@ -86,18 +84,21 @@ void CFieldConfigTest::testTrivial() {
 }
 
 void CFieldConfigTest::testValid() {
-    this->testValidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testValidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                  std::placeholders::_1, std::placeholders::_2),
                         "testfiles/new_mlfields.conf");
 }
 
 void CFieldConfigTest::testInvalid() {
-    this->testInvalidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testInvalidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                    std::placeholders::_1, std::placeholders::_2),
                           "testfiles/new_invalidmlfields.conf");
 }
 
 void CFieldConfigTest::testValidSummaryCountFieldName() {
     this->testValidSummaryCountFieldNameFile(
-        boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+        std::bind(&ml::api::CFieldConfig::initFromFile, std::placeholders::_1,
+                  std::placeholders::_2),
         "testfiles/new_mlfields_summarycount.conf");
 }
 
@@ -1076,13 +1077,15 @@ void CFieldConfigTest::testValidPopulationClauses() {
 }
 
 void CFieldConfigTest::testValidPopulation() {
-    this->testValidPopulationFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testValidPopulationFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                            std::placeholders::_1, std::placeholders::_2),
                                   "testfiles/new_populationmlfields.conf");
 }
 
 void CFieldConfigTest::testDefaultCategorizationField() {
     this->testDefaultCategorizationFieldFile(
-        boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+        std::bind(&ml::api::CFieldConfig::initFromFile, std::placeholders::_1,
+                  std::placeholders::_2),
         "testfiles/new_mlfields_sos_message_cat.conf");
 }
 
@@ -1316,17 +1319,20 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
 }
 
 void CFieldConfigTest::testExcludeFrequent() {
-    this->testExcludeFrequentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testExcludeFrequentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                            std::placeholders::_1, std::placeholders::_2),
                                   "testfiles/new_mlfields_excludefrequent.conf");
 }
 
 void CFieldConfigTest::testSlashes() {
-    this->testSlashesFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testSlashesFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                    std::placeholders::_1, std::placeholders::_2),
                           "testfiles/new_mlfields_slashes.conf");
 }
 
 void CFieldConfigTest::testBracketPercent() {
-    this->testBracketPercentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
+    this->testBracketPercentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                           std::placeholders::_1, std::placeholders::_2),
                                  "testfiles/new_mlfields_bracket_percent.conf");
 }
 

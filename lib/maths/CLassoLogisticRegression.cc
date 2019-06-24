@@ -13,7 +13,6 @@
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/range.hpp>
 
 #include <cmath>
@@ -718,7 +717,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     }
     LOG_TRACE(<< "log(L) = " << core::CContainerPrinter::print(logLikelihoods));
 
-    double* max = std::max_element(boost::begin(logLikelihoods), boost::end(logLikelihoods));
+    double* max = std::max_element(std::begin(logLikelihoods), std::end(logLikelihoods));
     ptrdiff_t a = std::max(max - logLikelihoods - 1, ptrdiff_t(0));
     ptrdiff_t b = std::min(max - logLikelihoods + 1, ptrdiff_t(7));
     LOG_TRACE(<< "a = " << a << ", b = " << b);
@@ -755,8 +754,9 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result
 
     // Create the model.
     TSizeDoublePrVec sparse;
-    sparse.reserve(std::count_if(m_Beta.begin(), m_Beta.end(),
-                                 boost::bind(std::greater<double>(), _1, 0.0)));
+    sparse.reserve(std::count_if(
+        m_Beta.begin(), m_Beta.end(),
+        std::bind(std::greater<double>(), std::placeholders::_1, 0.0)));
     for (std::size_t j = 0u; j < m_D; ++j) {
         if (m_Beta[j] > 0.0) {
             sparse.emplace_back(j, m_Beta[j]);

@@ -16,7 +16,6 @@
 
 #include <boost/array.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
@@ -79,14 +78,14 @@ public:
 
     // Const ref to detection rules map
     using TDetectionRuleVec = std::vector<CDetectionRule>;
-    using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
+    using TDetectionRuleVecCRef = std::reference_wrapper<const TDetectionRuleVec>;
     using TIntDetectionRuleVecUMap = boost::unordered_map<int, TDetectionRuleVec>;
-    using TIntDetectionRuleVecUMapCRef = boost::reference_wrapper<const TIntDetectionRuleVecUMap>;
+    using TIntDetectionRuleVecUMapCRef = std::reference_wrapper<const TIntDetectionRuleVecUMap>;
     using TIntDetectionRuleVecUMapCItr = TIntDetectionRuleVecUMap::const_iterator;
 
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
     using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
-    using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
+    using TStrDetectionRulePrVecCRef = std::reference_wrapper<const TStrDetectionRulePrVec>;
 
 public:
     //! \name Data Gathering

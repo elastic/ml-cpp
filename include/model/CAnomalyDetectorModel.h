@@ -22,7 +22,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -483,7 +482,7 @@ public:
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
 protected:
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
     using TFeatureSizeSize1VecUMapPr = std::pair<model_t::EFeature, TSizeSize1VecUMap>;
     using TFeatureSizeSize1VecUMapPrVec = std::vector<TFeatureSizeSize1VecUMapPr>;
@@ -681,7 +680,7 @@ protected:
     static maths::CModel* tinyModel();
 
 private:
-    using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
+    using TModelParamsCRef = std::reference_wrapper<const SModelParams>;
 
 private:
     //! Skip sampling the interval \p endTime - \p startTime.

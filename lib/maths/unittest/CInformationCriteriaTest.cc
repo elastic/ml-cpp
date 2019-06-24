@@ -60,8 +60,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         double mean_[] = {10.0, 20.0};
         double lowerTriangle[] = {variance, 0.0, variance};
 
-        TVector2 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector2 mean(std::begin(mean_), std::end(mean_));
+        TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -97,8 +97,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         double lowerTriangle[] = {variance, 0.0, variance, 0.0, 0.0,
                                   variance, 0.0, 0.0,      0.0, variance};
 
-        TVector4 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix4 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector4 mean(std::begin(mean_), std::end(mean_));
+        TMatrix4 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -138,8 +138,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         double mean_[] = {15.0, 27.0};
         double lowerTriangle[] = {variance, 0.0, variance};
 
-        TVector2 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector2 mean(std::begin(mean_), std::end(mean_));
+        TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -216,9 +216,9 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
     for (std::size_t i = 0u; i < boost::size(means_); ++i) {
-        means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
+        means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
-    TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+    TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
     LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
     LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -269,8 +269,8 @@ void CInformationCriteriaTest::testGaussian() {
         double mean_[] = {10.0, 20.0};
         double lowerTriangle[] = {5.0, 1.0, 5.0};
 
-        TVector2 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector2 mean(std::begin(mean_), std::end(mean_));
+        TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -305,8 +305,8 @@ void CInformationCriteriaTest::testGaussian() {
         double lowerTriangle[] = {8.0, 1.0, 8.0, 0.0, 0.0,
                                   8.0, 0.0, 2.0, 0.5, 8.0};
 
-        TVector4 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix4 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector4 mean(std::begin(mean_), std::end(mean_));
+        TMatrix4 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -345,8 +345,8 @@ void CInformationCriteriaTest::testGaussian() {
         double mean_[] = {15.0, 27.0};
         double lowerTriangle[] = {40.0, 5.0, 40.0};
 
-        TVector2 mean(boost::begin(mean_), boost::end(mean_));
-        TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+        TVector2 mean(std::begin(mean_), std::end(mean_));
+        TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
         LOG_DEBUG(<< "mean = " << mean);
         LOG_DEBUG(<< "covariance = " << covariance);
 
@@ -419,9 +419,9 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
     for (std::size_t i = 0u; i < boost::size(means_); ++i) {
-        means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
+        means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
-    TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
+    TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
     LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
     LOG_DEBUG(<< "covariance = " << covariance);
 

@@ -158,7 +158,7 @@ void CQuantileSketchTest::testReduce() {
             }
         }
 
-        std::sort(boost::begin(points), boost::end(points));
+        std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
         for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
             double x;
@@ -235,7 +235,7 @@ void CQuantileSketchTest::testReduce() {
             }
         }
 
-        std::sort(boost::begin(points), boost::end(points));
+        std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
         for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
             double x;
@@ -296,7 +296,7 @@ void CQuantileSketchTest::testMerge() {
         LOG_DEBUG(<< "merged sketch = "
                   << core::CContainerPrinter::print(sketch3.knots()));
 
-        std::sort(boost::begin(points), boost::end(points));
+        std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
         for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
             double x;
@@ -553,7 +553,7 @@ void CQuantileSketchTest::testCdf() {
 
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
-            sketch = std::for_each(boost::begin(values), boost::end(values), sketch);
+            sketch = std::for_each(std::begin(values), std::end(values), sketch);
             for (std::size_t i = 0u; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
@@ -567,7 +567,7 @@ void CQuantileSketchTest::testCdf() {
         }
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 10);
-            sketch = std::for_each(boost::begin(values), boost::end(values), sketch);
+            sketch = std::for_each(std::begin(values), std::end(values), sketch);
             for (std::size_t i = 0u; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
@@ -640,8 +640,9 @@ void CQuantileSketchTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &maths::CQuantileSketch::acceptRestoreTraverser, &restoredSketch, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&maths::CQuantileSketch::acceptRestoreTraverser,
+                      &restoredSketch, std::placeholders::_1)));
     }
 
     // Checksums should agree.

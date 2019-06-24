@@ -20,9 +20,7 @@
 #include <maths/MathsTypes.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>

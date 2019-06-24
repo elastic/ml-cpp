@@ -217,8 +217,8 @@ void CTimeSeriesMultibucketFeaturesTest::testUnivariateMean() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         TMultibucketMean restored{3};
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            &TMultibucketMean::acceptRestoreTraverser, &restored, std::placeholders::_1)));
         CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
         feature.clear();
     }
@@ -381,8 +381,8 @@ void CTimeSeriesMultibucketFeaturesTest::testMultivariateMean() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
 
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&TMultibucketMean::acceptRestoreTraverser, &restored, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            &TMultibucketMean::acceptRestoreTraverser, &restored, std::placeholders::_1)));
         CPPUNIT_ASSERT_EQUAL(feature.checksum(), restored.checksum());
         feature.clear();
     }

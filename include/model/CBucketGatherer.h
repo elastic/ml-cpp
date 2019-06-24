@@ -126,7 +126,7 @@ public:
         TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator;
     using TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap =
         std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
-    using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
+    using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;

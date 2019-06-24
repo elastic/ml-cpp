@@ -118,7 +118,7 @@ public:
             std::string print() const;
 
         private:
-            using TStrCRef = boost::reference_wrapper<const std::string>;
+            using TStrCRef = std::reference_wrapper<const std::string>;
 
         private:
             TStrCRef m_PartitionFieldName;

@@ -313,8 +313,9 @@ void CTokenListDataTyperTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &TTokenListDataTyperKeepsFields::acceptRestoreTraverser, &restoredTyper, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&TTokenListDataTyperKeepsFields::acceptRestoreTraverser,
+                      &restoredTyper, std::placeholders::_1)));
     }
 
     // The XML representation of the new typer should be the same as the original

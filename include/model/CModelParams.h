@@ -16,8 +16,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/ref.hpp>
-
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -40,10 +38,10 @@ namespace model {
 //! be forward declared.
 struct MODEL_EXPORT SModelParams {
     using TDetectionRuleVec = std::vector<CDetectionRule>;
-    using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
+    using TDetectionRuleVecCRef = std::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
     using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
-    using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
+    using TStrDetectionRulePrVecCRef = std::reference_wrapper<const TStrDetectionRulePrVec>;
     using TTimeVec = std::vector<core_t::TTime>;
 
     explicit SModelParams(core_t::TTime bucketLength);

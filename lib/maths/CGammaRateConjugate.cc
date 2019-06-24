@@ -513,8 +513,9 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                boost::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                    _1, _2, boost::ref(tail)),
+                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
+                                  std::placeholders::_1, std::placeholders::_2,
+                                  std::ref(tail)),
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
@@ -719,8 +720,8 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CGammaRateConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
