@@ -499,7 +499,8 @@ bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelP
     return true;
 }
 
-void CAnomalyDetectorModel::SFeatureModels::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+void CAnomalyDetectorModel::SFeatureModels::persistResidualModelsState(
+    core::CStatePersistInserter& inserter) const {
     for (const auto& model : s_Models) {
         model->persistResidualModelsState(inserter);
     }

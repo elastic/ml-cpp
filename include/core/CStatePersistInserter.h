@@ -54,9 +54,7 @@ public:
         f(*this);
     }
 
-    virtual bool readableTags() const {
-        return false;
-    }
+    virtual bool readableTags() const { return false; }
 
 protected:
     //! Start a new level with the given name

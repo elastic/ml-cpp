@@ -1448,6 +1448,21 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
         return;
     }
 
+    std::string meanStr{"<unknown>"};
+    std::string sdStr{"<unknown>"};
+
+    this->restoreDescriptiveStatistics(meanStr, sdStr);
+
+    result += "mean = " + meanStr + " sd = " + sdStr;
+}
+
+void CGammaRateConjugate::restoreDescriptiveStatistics(std::string& meanStr,
+                                                       std::string& sdStr) const {
+
+    if (this->isNonInformative()) {
+        return;
+    }
+
     try {
         if (this->priorShape() > 2.0) {
             double shape = (this->priorShape() - 2.0) /
@@ -1456,15 +1471,18 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
             boost::math::gamma_distribution<> gamma(shape, rate);
             double mean = boost::math::mean(gamma);
             double deviation = boost::math::standard_deviation(gamma);
-            result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-                      " sd = " + core::CStringUtils::typeToStringPretty(deviation);
+
+            meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
+            sdStr = core::CStringUtils::typeToStringPretty(deviation);
+
             return;
         }
     } catch (const std::exception&) {}
     double mean = CBasicStatistics::mean(m_SampleMoments);
     double deviation = std::sqrt(CBasicStatistics::variance(m_SampleMoments));
-    result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-              " sd = " + core::CStringUtils::typeToStringPretty(deviation);
+
+    meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
+    sdStr = core::CStringUtils::typeToStringPretty(deviation);
 }
 
 std::string CGammaRateConjugate::printJointDensityFunction() const {
@@ -1529,16 +1547,32 @@ std::size_t CGammaRateConjugate::staticSize() const {
 
 void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG, m_Offset.toString());
-    inserter.insertValue(readableTags ? READABLE_LIKELIHOOD_SHAPE_TAG : LIKELIHOOD_SHAPE_TAG, m_LikelihoodShape,
-            core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(readableTags ? READABLE_LOG_SAMPLES_MEAN_TAG : LOG_SAMPLES_MEAN_TAG, m_LogSamplesMean.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_SAMPLE_MOMENTS_TAG : SAMPLE_MOMENTS_TAG, m_SampleMoments.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_PRIOR_SHAPE_TAG : PRIOR_SHAPE_TAG, m_PriorShape.toString());
-    inserter.insertValue(readableTags ? READABLE_PRIOR_RATE_TAG : PRIOR_RATE_TAG, m_PriorRate.toString());
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG,
+                         m_Offset.toString());
+    inserter.insertValue(readableTags ? READABLE_LIKELIHOOD_SHAPE_TAG : LIKELIHOOD_SHAPE_TAG,
+                         m_LikelihoodShape, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(readableTags ? READABLE_LOG_SAMPLES_MEAN_TAG : LOG_SAMPLES_MEAN_TAG,
+                         m_LogSamplesMean.toDelimited());
+    inserter.insertValue(readableTags ? READABLE_SAMPLE_MOMENTS_TAG : SAMPLE_MOMENTS_TAG,
+                         m_SampleMoments.toDelimited());
+    inserter.insertValue(readableTags ? READABLE_PRIOR_SHAPE_TAG : PRIOR_SHAPE_TAG,
+                         m_PriorShape.toString());
+    inserter.insertValue(readableTags ? READABLE_PRIOR_RATE_TAG : PRIOR_RATE_TAG,
+                         m_PriorRate.toString());
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
+                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+
+    if (readableTags == true) {
+        std::string mean{"<unknown>"};
+        std::string sd{"<unknown>"};
+
+        this->restoreDescriptiveStatistics(mean, sd);
+
+        inserter.insertValue("mean", mean);
+        inserter.insertValue("standard_deviation", sd);
+    }
 }
 
 double CGammaRateConjugate::likelihoodShape() const {

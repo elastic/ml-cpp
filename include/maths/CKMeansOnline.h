@@ -168,8 +168,10 @@ public:
         const bool readableTags{inserter.readableTags()};
         inserter.insertValue(readableTags ? READABLE_RNG_TAG : RNG_TAG, m_Rng.toString());
         core::CPersistUtils::persist(readableTags ? READABLE_K_TAG : K_TAG, m_K, inserter);
-        core::CPersistUtils::persist(readableTags ? READABLE_CLUSTERS_TAG : CLUSTERS_TAG, m_Clusters, inserter);
-        core::CPersistUtils::persist(readableTags ? READABLE_POINTS_TAG : POINTS_TAG, m_PointsBuffer, inserter);
+        core::CPersistUtils::persist(readableTags ? READABLE_CLUSTERS_TAG : CLUSTERS_TAG,
+                                     m_Clusters, inserter);
+        core::CPersistUtils::persist(readableTags ? READABLE_POINTS_TAG : POINTS_TAG,
+                                     m_PointsBuffer, inserter);
     }
 
     //! Efficiently swap the contents of this and \p other.

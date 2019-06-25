@@ -661,7 +661,8 @@ public:
     //@{
     //! Get the tag name for this clusterer.
     virtual std::string persistenceTag(bool readableTags) const {
-        return readableTags ? CClustererTypes::READABLE_X_MEANS_ONLINE_TAG : CClustererTypes::X_MEANS_ONLINE_TAG;
+        return readableTags ? CClustererTypes::READABLE_X_MEANS_ONLINE_TAG
+                            : CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
     //! Persist state by passing information to the supplied inserter.
@@ -671,13 +672,18 @@ public:
             inserter.insertLevel(readableTags ? READABLE_CLUSTER_TAG : CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter,
                                                           &cluster, std::placeholders::_1));
         }
-        inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, m_DecayRate.toString());
-        inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG, m_HistoryLength.toString());
+        inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                             m_DecayRate.toString());
+        inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG,
+                             m_HistoryLength.toString());
         inserter.insertValue(readableTags ? READABLE_RNG_TAG : RNG_TAG, m_Rng.toString());
-        inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
-        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG : MINIMUM_CLUSTER_FRACTION_TAG,
+        inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG,
+                             static_cast<int>(m_WeightCalc));
+        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG
+                                          : MINIMUM_CLUSTER_FRACTION_TAG,
                              m_MinimumClusterFraction.toString());
-        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
+        inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG,
+                             m_MinimumClusterCount.toString());
         inserter.insertLevel(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : CLUSTER_INDEX_GENERATOR_TAG,
                              std::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
                                          &m_ClusterIndexGenerator, std::placeholders::_1));

@@ -755,15 +755,24 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserte
         inserter.insertLevel(
             readableTags ? READABLE_CLUSTER_TAG : CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter, &cluster, std::placeholders::_1));
     }
-    inserter.insertValue(readableTags ? READABLE_AVAILABLE_DISTRIBUTIONS_TAG : AVAILABLE_DISTRIBUTIONS_TAG, m_AvailableDistributions.toString());
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG, m_HistoryLength, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_SMALLEST_TAG : SMALLEST_TAG, m_Smallest.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_LARGEST_TAG : LARGEST_TAG, m_Largest.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
-    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG : MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction.toString());
-    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
-    inserter.insertValue(readableTags ? READABLE_WINSORISATION_CONFIDENCE_INTERVAL_TAG : WINSORISATION_CONFIDENCE_INTERVAL_TAG,
+    inserter.insertValue(readableTags ? READABLE_AVAILABLE_DISTRIBUTIONS_TAG : AVAILABLE_DISTRIBUTIONS_TAG,
+                         m_AvailableDistributions.toString());
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         m_DecayRate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG,
+                         m_HistoryLength, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_SMALLEST_TAG : SMALLEST_TAG,
+                         m_Smallest.toDelimited());
+    inserter.insertValue(readableTags ? READABLE_LARGEST_TAG : LARGEST_TAG,
+                         m_Largest.toDelimited());
+    inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG,
+                         static_cast<int>(m_WeightCalc));
+    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG : MINIMUM_CLUSTER_FRACTION_TAG,
+                         m_MinimumClusterFraction.toString());
+    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG,
+                         m_MinimumClusterCount.toString());
+    inserter.insertValue(readableTags ? READABLE_WINSORISATION_CONFIDENCE_INTERVAL_TAG
+                                      : WINSORISATION_CONFIDENCE_INTERVAL_TAG,
                          m_WinsorisationConfidenceInterval.toString());
     inserter.insertLevel(readableTags ? READABLE_CLUSTER_INDEX_GENERATOR_TAG : CLUSTER_INDEX_GENERATOR_TAG,
                          std::bind(&CIndexGenerator::acceptPersistInserter,

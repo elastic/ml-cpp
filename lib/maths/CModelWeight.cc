@@ -69,9 +69,10 @@ bool CModelWeight::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 
 void CModelWeight::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_LOG_WEIGHT_TAG : LOG_WEIGHT_TAG, m_LogWeight, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(readableTags ? READABLE_LONG_TERM_LOG_WEIGHT_TAG : LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight,
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_LOG_WEIGHT_TAG : LOG_WEIGHT_TAG,
+                         m_LogWeight, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(readableTags ? READABLE_LONG_TERM_LOG_WEIGHT_TAG : LONG_TERM_LOG_WEIGHT_TAG,
+                         m_LongTermLogWeight, core::CIEEE754::E_SinglePrecision);
 }
 }
 }

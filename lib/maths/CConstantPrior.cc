@@ -356,7 +356,8 @@ std::size_t CConstantPrior::staticSize() const {
 
 void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     if (m_Constant) {
-        const std::string constantTag{inserter.readableTags() ? READABLE_CONSTANT_TAG : CONSTANT_TAG};
+        const std::string constantTag{inserter.readableTags() ? READABLE_CONSTANT_TAG
+                                                              : CONSTANT_TAG};
         inserter.insertValue(constantTag, *m_Constant, core::CIEEE754::E_DoublePrecision);
     }
 }

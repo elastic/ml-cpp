@@ -268,7 +268,8 @@ private:
     virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! Persist state of the residual models only
-    bool persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors, core::CDataAdder& persister);
+    bool persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                                    core::CDataAdder& persister);
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);

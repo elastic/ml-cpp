@@ -93,10 +93,13 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
 
 void CNaturalBreaksClassifier::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, m_DecayRate.toString());
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         m_DecayRate.toString());
     inserter.insertValue(readableTags ? READABLE_SPACE_TAG : SPACE_TAG, m_Space);
-    core::CPersistUtils::persist(readableTags ? READABLE_CATEGORY_TAG: CATEGORY_TAG, m_Categories, inserter);
-    inserter.insertValue(readableTags ? READABLE_POINTS_TAG : POINTS_TAG, core::CPersistUtils::toString(m_PointsBuffer));
+    core::CPersistUtils::persist(readableTags ? READABLE_CATEGORY_TAG : CATEGORY_TAG,
+                                 m_Categories, inserter);
+    inserter.insertValue(readableTags ? READABLE_POINTS_TAG : POINTS_TAG,
+                         core::CPersistUtils::toString(m_PointsBuffer));
 }
 
 double CNaturalBreaksClassifier::percentile(double p) const {

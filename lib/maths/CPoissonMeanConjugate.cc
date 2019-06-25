@@ -805,10 +805,25 @@ void CPoissonMeanConjugate::print(const std::string& indent, std::string& result
         result += "non-informative";
         return;
     }
-    result += "mean = " + core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean()) +
-              " sd = " +
-              core::CStringUtils::typeToStringPretty(
-                  std::sqrt(this->marginalLikelihoodVariance()));
+
+    std::string meanStr{"<unknown>"};
+    std::string sdStr{"<unknown>"};
+
+    this->restoreDescriptiveStatistics(meanStr, sdStr);
+
+    result += "mean = " + meanStr + " sd = " + sdStr;
+}
+
+void CPoissonMeanConjugate::restoreDescriptiveStatistics(std::string& meanStr,
+                                                         std::string& sdStr) const {
+
+    if (this->isNonInformative()) {
+        return;
+    }
+
+    meanStr = core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean());
+    sdStr = core::CStringUtils::typeToStringPretty(
+        std::sqrt(this->marginalLikelihoodVariance()));
 }
 
 std::string CPoissonMeanConjugate::printJointDensityFunction() const {
@@ -872,12 +887,24 @@ std::size_t CPoissonMeanConjugate::staticSize() const {
 
 void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG,
+                         m_Offset.toString());
     inserter.insertValue(readableTags ? READABLE_SHAPE_TAG : SHAPE_TAG, m_Shape.toString());
     inserter.insertValue(readableTags ? READABLE_RATE_TAG : RATE_TAG, m_Rate.toString());
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
+                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+
+    if (readableTags == true) {
+        std::string mean{"<unknown>"};
+        std::string sd{"<unknown>"};
+
+        this->restoreDescriptiveStatistics(mean, sd);
+
+        inserter.insertValue("mean", mean);
+        inserter.insertValue("standard_deviation", sd);
+    }
 }
 
 double CPoissonMeanConjugate::priorMean() const {

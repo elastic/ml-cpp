@@ -13,10 +13,10 @@
 #include <core/CDataSearcher.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/COsFileFuncs.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
-#include <core/COsFileFuncs.h>
 
 #include <ver/CBuildInfo.h>
 
@@ -29,14 +29,11 @@
 
 #include <stdlib.h>
 
-#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 // We use short field names to reduce the state size
-namespace {
-
-
-}
+namespace {}
 
 using namespace ml;
 
@@ -48,15 +45,16 @@ int main(int argc, char** argv) {
     bool isInputFileNamedPipe(false);
     std::string outputFileName;
     bool isOutputFileNamedPipe(false);
-    if (model_extractor::CCmdLineParser::parse(
-            argc, argv,  logProperties, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe) == false) {
+    if (model_extractor::CCmdLineParser::parse(argc, argv, logProperties, inputFileName,
+                                               isInputFileNamedPipe, outputFileName,
+                                               isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe);
 
     const std::string logPipe{};
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
@@ -101,7 +99,7 @@ int main(int argc, char** argv) {
 
     // dummy job output stream to satisfy CAnomalyJob ctor requirements
     std::ofstream jobOutputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    if(!jobOutputStrm.is_open()) {
+    if (!jobOutputStrm.is_open()) {
         LOG_ERROR(<< "Failed to open output stream.");
     }
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(jobOutputStrm);
@@ -114,9 +112,10 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     assert(completeToTime > 0);
-    LOG_DEBUG( << "Restore complete to time " << completeToTime << std::endl);
+    LOG_DEBUG(<< "Restore complete to time " << completeToTime << std::endl);
 
-    core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(), [](std::ostream*){}};
+    core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(),
+                                                   [](std::ostream*) {}};
     ml::api::CSingleStreamDataAdder persister(persistStrm);
 
     // Attempt to persist state in a plain JSON formatted file or stream or stream

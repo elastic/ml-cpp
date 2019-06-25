@@ -2895,7 +2895,7 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     }
 }
 
-void CMultivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter&/* inserter*/) const {
+void CMultivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter& /* inserter*/) const {
     // NO-OP
 }
 

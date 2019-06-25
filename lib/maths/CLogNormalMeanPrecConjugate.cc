@@ -1404,17 +1404,33 @@ void CLogNormalMeanPrecConjugate::print(const std::string& indent, std::string& 
         return;
     }
 
+    std::string meanStr{"<unknown>"};
+    std::string sdStr{"<unknown>"};
+
+    this->restoreDescriptiveStatistics(meanStr, sdStr);
+
+    result += "mean = " + meanStr + " sd = " + sdStr;
+}
+
+void CLogNormalMeanPrecConjugate::restoreDescriptiveStatistics(std::string& meanStr,
+                                                               std::string& sdStr) const {
+
+    if (this->isNonInformative()) {
+        return;
+    }
+
     double scale = std::sqrt((m_GaussianPrecision + 1.0) / m_GaussianPrecision *
                              m_GammaRate / m_GammaShape);
     try {
         boost::math::lognormal lognormal(m_GaussianMean, scale);
         double mean = boost::math::mean(lognormal);
         double deviation = boost::math::standard_deviation(lognormal);
-        result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-                  " sd = " + core::CStringUtils::typeToStringPretty(deviation);
+
+        meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
+        sdStr = core::CStringUtils::typeToStringPretty(deviation);
+
         return;
     } catch (const std::exception&) {}
-    result += "mean = <unknown> variance = <unknown>";
 }
 
 std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
@@ -1498,14 +1514,28 @@ std::size_t CLogNormalMeanPrecConjugate::staticSize() const {
 
 void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG, m_Offset.toString());
-    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_MEAN_TAG : GAUSSIAN_MEAN_TAG, m_GaussianMean.toString());
-    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_PRECISION_TAG : GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toString());
-    inserter.insertValue(readableTags ? READABLE_GAMMA_SHAPE_TAG : GAMMA_SHAPE_TAG, m_GammaShape.toString());
-    inserter.insertValue(readableTags ? READABLE_GAMMA_RATE_TAG : GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG,
+                         m_Offset.toString());
+    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_MEAN_TAG : GAUSSIAN_MEAN_TAG,
+                         m_GaussianMean.toString());
+    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_PRECISION_TAG : GAUSSIAN_PRECISION_TAG,
+                         m_GaussianPrecision.toString());
+    inserter.insertValue(readableTags ? READABLE_GAMMA_SHAPE_TAG : GAMMA_SHAPE_TAG,
+                         m_GammaShape.toString());
+    inserter.insertValue(readableTags ? READABLE_GAMMA_RATE_TAG : GAMMA_RATE_TAG,
+                         m_GammaRate, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
+                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+
+    if (readableTags == true) {
+        std::string mean{"<unknown>"};
+        std::string sd{"<unknown>"};
+        this->restoreDescriptiveStatistics(mean, sd);
+        inserter.insertValue("mean", mean);
+        inserter.insertValue("standard_deviation", sd);
+    }
 }
 
 double CLogNormalMeanPrecConjugate::normalMean() const {

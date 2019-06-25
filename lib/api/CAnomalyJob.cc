@@ -85,13 +85,11 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
 
 // Persist state as JSON with meaningful tag names.
-class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter
-{
+class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
 public:
-    explicit CReadableJsonStatePersistInserter(std::ostream& outputStream) : core::CJsonStatePersistInserter(outputStream) {}
-    virtual bool readableTags() const {
-        return true;
-    }
+    explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
+        : core::CJsonStatePersistInserter(outputStream) {}
+    virtual bool readableTags() const { return true; }
 };
 }
 
@@ -982,7 +980,7 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
-bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister)  {
+bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -1096,7 +1094,8 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
                               args->s_LastResultsTime, persister);
 }
 
-bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors, core::CDataAdder& persister) {
+bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                                             core::CDataAdder& persister) {
     try {
         core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
         const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));

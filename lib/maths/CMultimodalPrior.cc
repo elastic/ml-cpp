@@ -564,9 +564,10 @@ void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& insert
         inserter.insertLevel(
                 readableTags ? READABLE_MODE_TAG : MODE_TAG, std::bind(&TMode::acceptPersistInserter, &m_Modes[i], std::placeholders::_1));
     }
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
+                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
 std::size_t CMultimodalPrior::numberModes() const {

@@ -1264,14 +1264,19 @@ std::size_t CMultinomialConjugate::staticSize() const {
 
 void CMultinomialConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_AVAILABLE_CATEGORIES_TAG : NUMBER_AVAILABLE_CATEGORIES_TAG, m_NumberAvailableCategories);
-    inserter.insertValue(readableTags ? READABLE_CATEGORY_TAG : CATEGORY_TAG, core::CPersistUtils::toString(m_Categories));
-    inserter.insertValue(readableTags ? READABLE_CONCENTRATION_TAG : CONCENTRATION_TAG, core::CPersistUtils::toString(m_Concentrations));
-    inserter.insertValue(readableTags ? READABLE_TOTAL_CONCENTRATION_TAG: TOTAL_CONCENTRATION_TAG, m_TotalConcentration,
-                         core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG, this->numberSamples(),
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
+                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_AVAILABLE_CATEGORIES_TAG
+                                      : NUMBER_AVAILABLE_CATEGORIES_TAG,
+                         m_NumberAvailableCategories);
+    inserter.insertValue(readableTags ? READABLE_CATEGORY_TAG : CATEGORY_TAG,
+                         core::CPersistUtils::toString(m_Categories));
+    inserter.insertValue(readableTags ? READABLE_CONCENTRATION_TAG : CONCENTRATION_TAG,
+                         core::CPersistUtils::toString(m_Concentrations));
+    inserter.insertValue(readableTags ? READABLE_TOTAL_CONCENTRATION_TAG : TOTAL_CONCENTRATION_TAG,
+                         m_TotalConcentration, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
+                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
 void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {

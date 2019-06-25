@@ -33,7 +33,8 @@ bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestor
 
 void CClustererTypes::CIndexGenerator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     const bool readableTags{inserter.readableTags()};
-    core::CPersistUtils::persist(readableTags ? READABLE_INDEX_TAG : INDEX_TAG, *m_IndexHeap, inserter);
+    core::CPersistUtils::persist(readableTags ? READABLE_INDEX_TAG : INDEX_TAG,
+                                 *m_IndexHeap, inserter);
 }
 
 CClustererTypes::CIndexGenerator CClustererTypes::CIndexGenerator::deepCopy() const {
