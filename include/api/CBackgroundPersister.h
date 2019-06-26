@@ -69,13 +69,16 @@ public:
     //! object until after this object is destroyed.  When using this
     //! constructor the first processor persistence function must be
     //! set before the object is used.
-    CBackgroundPersister(core_t::TTime periodicPersistInterval, core::CDataAdder& dataAdder);
+    CBackgroundPersister(core_t::TTime periodicPersistInterval,
+                         core::CDataAdder& dataAdder,
+                         std::size_t bucketPersistInterval = 0);
 
     //! As above, but also supply the first processor persistence
     //! function at construction time.
     CBackgroundPersister(core_t::TTime periodicPersistInterval,
                          const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-                         core::CDataAdder& dataAdder);
+                         core::CDataAdder& dataAdder,
+                         std::size_t bucketPersistInterval = 0);
 
     ~CBackgroundPersister();
 
@@ -150,6 +153,12 @@ private:
     //! What was the wall clock time when we started our last periodic
     //! persistence?
     core_t::TTime m_LastPeriodicPersistTime;
+
+    //! How many buckets must be processed between background persistence attempts.
+    std::size_t m_BucketPersistInterval;
+
+    //! How many buckets left to process before attempting the next background persist?
+    std::size_t m_NumberBucketsUntilNextPersist;
 
     //! The function that will be called to start the chain of background
     //! persistence.

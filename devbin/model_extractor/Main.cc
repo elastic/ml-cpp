@@ -104,24 +104,26 @@ int main(int argc, char** argv) {
     }
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(jobOutputStrm);
 
-    ml::api::CAnomalyJob restoredJob(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport){});
+    ml::api::CAnomalyJob restoredJob(
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport){});
 
-    ml::core_t::TTime completeToTime(0);
-    if (!restoredJob.restoreState(restoreSearcher, completeToTime)) {
-        LOG_ERROR(<< "Failed to restore state from file \"" << inputFileName << "\"");
-        exit(EXIT_FAILURE);
-    }
-    assert(completeToTime > 0);
-    LOG_DEBUG(<< "Restore complete to time " << completeToTime << std::endl);
+    ml::core_t::TTime completeToTime{0};
+    ml::core_t::TTime prevCompleteToTime{0};
+    while (restoredJob.restoreState(restoreSearcher, completeToTime) == true) {
+        assert(completeToTime > prevCompleteToTime);
+        prevCompleteToTime = completeToTime;
+        LOG_DEBUG(<< "Restore complete to time " << completeToTime << std::endl);
 
-    core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(),
-                                                   [](std::ostream*) {}};
-    ml::api::CSingleStreamDataAdder persister(persistStrm);
+        core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(),
+                                                       [](std::ostream*) {}};
+        ml::api::CSingleStreamDataAdder persister(persistStrm);
 
-    // Attempt to persist state in a plain JSON formatted file or stream or stream
-    if (restoredJob.persistResidualModelsState(persister) == false) {
-        LOG_FATAL(<< "Failed to persist state as JSON");
-        exit(EXIT_FAILURE);
+        // Attempt to persist state in a plain JSON formatted file or stream
+        if (restoredJob.persistResidualModelsState(persister, completeToTime) == false) {
+            LOG_FATAL(<< "Failed to persist state as JSON");
+            exit(EXIT_FAILURE);
+        }
     }
 
     exit(EXIT_SUCCESS);

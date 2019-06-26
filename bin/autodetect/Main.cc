@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles(false);
     ml::core_t::TTime persistInterval(-1);
+    std::size_t bucketPersistInterval(0);
     ml::core_t::TTime maxQuantileInterval(-1);
     std::string inputFileName;
     bool isInputFileNamedPipe(false);
@@ -115,8 +116,8 @@ int main(int argc, char** argv) {
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
-            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            summaryCountFieldName, delimiter, lengthEncodedInput, timeField, timeFormat,
+            quantilesStateFile, deleteStateFiles, persistInterval, bucketPersistInterval,
             maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
             isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
             persistFileName, isPersistFileNamedPipe, maxAnomalyRecords,
@@ -209,19 +210,23 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
-    if (persistInterval >= 0 && persister == nullptr) {
-        LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+    if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
+                  << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
+                  << "' argument "
                      "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
 
     using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
-    const TBackgroundPersisterUPtr periodicPersister{[persistInterval, &persister]() -> TBackgroundPersisterUPtr {
-        if (persistInterval >= 0) {
-            return std::make_unique<ml::api::CBackgroundPersister>(persistInterval, *persister);
-        }
-        return nullptr;
-    }()};
+    const TBackgroundPersisterUPtr periodicPersister{
+        [persistInterval, bucketPersistInterval, &persister]() -> TBackgroundPersisterUPtr {
+            if (persistInterval >= 0 || bucketPersistInterval > 0) {
+                return std::make_unique<ml::api::CBackgroundPersister>(
+                    persistInterval, *persister, bucketPersistInterval);
+            }
+            return nullptr;
+        }()};
 
     using InputParserCUPtr = std::unique_ptr<ml::api::CInputParser>;
     const InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> InputParserCUPtr {

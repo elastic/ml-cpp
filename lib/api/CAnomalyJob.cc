@@ -980,7 +980,8 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
-bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister) {
+bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
+                                             ml::core_t::TTime timestamp) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -989,7 +990,7 @@ bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister) {
     // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
     core::CProgramCounters::cacheCounters();
 
-    return this->persistResidualModelsState(detectors, persister);
+    return this->persistResidualModelsState(detectors, persister, timestamp);
 }
 
 bool CAnomalyJob::persistState(core::CDataAdder& persister) {
@@ -1095,10 +1096,10 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
 }
 
 bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                                             core::CDataAdder& persister) {
+                                             core::CDataAdder& persister,
+                                             ml::core_t::TTime timestamp) {
     try {
-        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
-        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
+        const std::string snapShotId(core::CStringUtils::typeToString(timestamp));
         core::CDataAdder::TOStreamP strm = persister.addStreamed(
             ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
         if (strm != nullptr) {
@@ -1119,10 +1120,16 @@ bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrV
                 }
             }
 
-            if (persister.streamComplete(strm, true) == false || strm->bad()) {
+            if (strm->bad()) {
                 LOG_ERROR(<< "Failed to complete last persistence stream");
                 return false;
             }
+
+            // Follow each document by a newline
+            strm->put('\n');
+
+            // Flush to ensure all data is pushed through
+            strm->flush();
         }
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());

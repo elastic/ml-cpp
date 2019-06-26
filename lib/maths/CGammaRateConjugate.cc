@@ -699,6 +699,8 @@ const std::string READABLE_PRIOR_SHAPE_TAG("prior_shape");
 const std::string READABLE_PRIOR_RATE_TAG("prior_rate");
 const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
 const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+const std::string READABLE_MEAN_TAG("mean");
+const std::string READABLE_STANDARD_DEVIATION_TAG("standard_deviation");
 
 // We use short field names to reduce the state size
 const std::string OFFSET_TAG("a");
@@ -1570,8 +1572,8 @@ void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& ins
 
         this->restoreDescriptiveStatistics(mean, sd);
 
-        inserter.insertValue("mean", mean);
-        inserter.insertValue("standard_deviation", sd);
+        inserter.insertValue(READABLE_MEAN_TAG, mean);
+        inserter.insertValue(READABLE_STANDARD_DEVIATION_TAG, sd);
     }
 }
 

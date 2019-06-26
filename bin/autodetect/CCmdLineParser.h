@@ -51,6 +51,7 @@ public:
                       std::string& quantilesState,
                       bool& deleteStateFiles,
                       core_t::TTime& persistInterval,
+                      std::size_t& bucketPersistInterval,
                       core_t::TTime& maxQuantileInterval,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,

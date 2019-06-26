@@ -166,6 +166,8 @@ const std::string READABLE_RATE_TAG("rate");
 const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
 const std::string READABLE_OFFSET_TAG("offset");
 const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+const std::string READABLE_MEAN_TAG("mean");
+const std::string READABLE_STANDARD_DEVIATION_TAG("standard_deviation");
 
 // We use short field names to reduce the state size
 const std::string SHAPE_TAG("a");
@@ -902,8 +904,8 @@ void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& i
 
         this->restoreDescriptiveStatistics(mean, sd);
 
-        inserter.insertValue("mean", mean);
-        inserter.insertValue("standard_deviation", sd);
+        inserter.insertValue(READABLE_MEAN_TAG, mean);
+        inserter.insertValue(READABLE_STANDARD_DEVIATION_TAG, sd);
     }
 }
 

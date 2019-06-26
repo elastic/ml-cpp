@@ -18,14 +18,18 @@ namespace api {
 
 namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
+const std::size_t PERSIST_BUCKET_INCREMENT{10};
 }
 
 CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
-                                           core::CDataAdder& dataAdder)
+                                           core::CDataAdder& dataAdder,
+                                           std::size_t bucketPersistInterval)
     : m_PeriodicPersistInterval(periodicPersistInterval),
-      m_LastPeriodicPersistTime(core::CTimeUtils::now()), m_DataAdder(dataAdder),
+      m_LastPeriodicPersistTime(core::CTimeUtils::now()),
+      m_BucketPersistInterval(bucketPersistInterval),
+      m_NumberBucketsUntilNextPersist(m_BucketPersistInterval), m_DataAdder(dataAdder),
       m_IsBusy(false), m_IsShutdown(false), m_BackgroundThread(*this) {
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
+    if (m_BucketPersistInterval == 0 && m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
         m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
@@ -34,13 +38,16 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
 
 CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
                                            const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-                                           core::CDataAdder& dataAdder)
+                                           core::CDataAdder& dataAdder,
+                                           std::size_t bucketPersistInterval)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
+      m_BucketPersistInterval(bucketPersistInterval),
+      m_NumberBucketsUntilNextPersist(m_BucketPersistInterval),
       m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
       m_DataAdder(dataAdder), m_IsBusy(false), m_IsShutdown(false),
       m_BackgroundThread(*this) {
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
+    if (m_BucketPersistInterval == 0 && m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
         m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
@@ -154,22 +161,49 @@ bool CBackgroundPersister::startBackgroundPersist() {
 }
 
 bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
-    core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
+    // Trigger persistence if either the specified number of buckets have elapsed OR the time interval has elapsed
+    // These are mutually exclusive.
     core_t::TTime now(core::CTimeUtils::now());
-    if (now < due) {
-        // Persist is not due
-        return false;
-    }
+    if (m_BucketPersistInterval > 0) {
+        m_NumberBucketsUntilNextPersist--;
 
-    if (this->isBusy()) {
-        m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
+        if (m_NumberBucketsUntilNextPersist > 0) {
+            // Persist is not due
+            return false;
+        }
 
-        LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
-                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
-                 << " is still in progress - increased persistence interval to "
-                 << m_PeriodicPersistInterval << " seconds");
+        m_NumberBucketsUntilNextPersist = m_BucketPersistInterval;
 
-        return false;
+        if (this->isBusy()) {
+
+            LOG_WARN(<< "Periodic persist is due after processing "
+                     << m_BucketPersistInterval << " buckets but previous persist started at "
+                     << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                     << " is still in progress - increasing persistence interval by "
+                     << PERSIST_BUCKET_INCREMENT << " buckets");
+
+            m_BucketPersistInterval += PERSIST_BUCKET_INCREMENT;
+
+            return false;
+        }
+
+    } else {
+        core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
+        if (now < due) {
+            // Persist is not due
+            return false;
+        }
+
+        if (this->isBusy()) {
+            m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
+
+            LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
+                     << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                     << " is still in progress - increased persistence interval to "
+                     << m_PeriodicPersistInterval << " seconds");
+
+            return false;
+        }
     }
 
     return this->startBackgroundPersist(now);
