@@ -221,14 +221,14 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
 
 void CAnomalyJob::finalise() {
     // Persist final state of normalizer iff an input record has been handled or time has been advanced.
-    if (this->isPersistenceNeeded("quantiles state")) {
+    if (this->isPersistenceNeeded("quantiles state and model size stats")) {
         m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
+
+        // Prune the models so that the final persisted state is as neat as possible
+        this->pruneAllModels();
+
+        this->refreshMemoryAndReport();
     }
-
-    // Prune the models so that the final persisted state is as neat as possible
-    this->pruneAllModels();
-
-    this->refreshMemoryAndReport();
 
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic periodic persist and final persist at the
@@ -1270,6 +1270,12 @@ void CAnomalyJob::writeOutModelPlot(const TModelPlotDataVec& modelPlotData) {
 }
 
 void CAnomalyJob::refreshMemoryAndReport() {
+    if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
+        LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
+                  << m_LastFinalisedBucketEndTime << ") is smaller than bucket span ("
+                  << m_ModelConfig.bucketLength() << ')');
+        return;
+    }
     // Make sure model size stats are up to date and then send a final memory
     // usage report
     for (const auto& detector_ : m_Detectors) {
