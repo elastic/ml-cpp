@@ -16,8 +16,6 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
-#include <boost/bind.hpp>
-
 namespace ml {
 namespace model {
 
@@ -53,8 +51,9 @@ void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
         inserter.insertValue(BY_FIELD_VALUE_TAG, byFieldValue);
         inserter.insertValue(FIRST_DATA_TIME_TAG, firstDataTime);
         inserter.insertValue(LAST_DATA_TIME_TAG, lastDataTime);
-        inserter.insertLevel(MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
-                                                          std::cref(*model), std::placeholders::_1));
+        inserter.insertLevel(
+            MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
+                                       std::cref(*model), std::placeholders::_1));
     };
 
     core::CJsonStatePersistInserter inserter(m_OutStream);
