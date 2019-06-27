@@ -61,6 +61,12 @@ to the model. (See {ml-pull}214[#214].)
 
 == {es} version 7.0.0-alpha1
 
+== {es} version 6.8.2
+
+=== Bug Fixes
+
+* Don't write model size stats when job is closed without any input {ml-pull}512[#512] (issue: {ml-issue}394[#394])
+
 == {es} version 6.7.2
 
 === Enhancements
