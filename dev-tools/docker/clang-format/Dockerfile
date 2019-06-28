@@ -11,9 +11,7 @@ FROM alpine:3.8
 MAINTAINER Valeriy Khakhutskyy <valeriy.khakhutskyy@elastic.co>
 
 RUN apk update && \
-    apk add clang bash git
+    apk add --no-cache clang bash git
 
 WORKDIR /ml-cpp
 ENV CPP_SRC_HOME=/ml-cpp
-    
-ENTRYPOINT ["/ml-cpp/dev-tools/clang-format.sh"]
