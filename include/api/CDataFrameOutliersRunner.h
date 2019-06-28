@@ -61,7 +61,7 @@ private:
     bool m_ComputeFeatureInfluence = true;
 
     //! The minimum outlier score for which we'll write out feature influence.
-    double m_MinimumScoreToWriteFeatureInfluence = 0.1;
+    double m_FeatureInfluenceThreshold = 0.1;
 
     //! The fraction of true outliers amoung the points.
     double m_OutlierFraction = 0.05;

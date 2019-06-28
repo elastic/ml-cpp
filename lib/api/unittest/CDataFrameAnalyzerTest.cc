@@ -73,7 +73,7 @@ outlierSpec(std::size_t rows = 110,
         hasTrailingParameter = true;
     } else {
         spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"minimum_score_to_write_feature_influence\": 0.0";
+        spec += "      \"feature_influence_threshold\": 0.0";
         hasTrailingParameter = true;
     }
     spec += (hasTrailingParameter ? "\n" : "");
