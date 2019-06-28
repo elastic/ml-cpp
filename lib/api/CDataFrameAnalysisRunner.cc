@@ -63,7 +63,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
         if (memoryUsage <= memoryLimit) {
             break;
         }
-        // if we are not allowed to spill over to disk than only one partition is possible
+        // if we are not allowed to spill over to disk then only one partition is possible
         if (not m_Spec.diskUsageAllowed()) {
             LOG_TRACE(<< "stop partition number computation since disk usage is turned off");
             break;
