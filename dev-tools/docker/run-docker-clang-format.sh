@@ -5,4 +5,4 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) alpine:clang-format
+docker run --rm -v $CPP_SRC_HOME:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style:2 /ml-cpp/dev-tools/clang-format.sh
