@@ -345,11 +345,11 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
     case 'p':
         this->doForecast(controlMessage);
         break;
-    case 'w': {
-        if (m_PeriodicPersister != nullptr) {
+    case 'w':
+        if (m_PeriodicPersister != nullptr && this->isPersistenceNeeded("state")) {
             m_PeriodicPersister->startBackgroundPersist();
         }
-    } break;
+        break;
     default:
         LOG_WARN(<< "Ignoring unknown control message of length "
                  << controlMessage.length() << " beginning with '"

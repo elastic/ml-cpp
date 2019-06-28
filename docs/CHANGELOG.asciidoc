@@ -85,6 +85,7 @@ to the model. (See {ml-pull}214[#214].)
 === Bug Fixes
 
 * Don't write model size stats when job is closed without any input {ml-pull}512[#512] (issue: {ml-issue}394[#394])
+* Don't persist model state at the end of lookback if the lookback did not generate any input {ml-pull}521[#521] (issue: {ml-issue}519[#519])
 
 == {es} version 6.7.2
 
