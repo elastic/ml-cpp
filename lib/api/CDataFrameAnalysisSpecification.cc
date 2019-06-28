@@ -62,7 +62,8 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
-    theReader.addParameter(DISK_USAGE_ALLOWED, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(DISK_USAGE_ALLOWED,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
@@ -136,7 +137,7 @@ const std::string& CDataFrameAnalysisSpecification::resultsField() const {
 }
 
 bool CDataFrameAnalysisSpecification::diskUsageAllowed() const {
-	return m_DiskUsageAllowed;
+    return m_DiskUsageAllowed;
 }
 
 CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
@@ -161,8 +162,6 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
     }
     return nullptr;
 }
-
-
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
     // We pass of the interpretation of the parameters object to the appropriate
