@@ -31,7 +31,7 @@ const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
 const char* const N_NEIGHBORS{"n_neighbors"};
 const char* const METHOD{"method"};
 const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
-const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
+const char* const FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const char* const OUTLIER_FRACTION{"outlier_fraction"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -50,7 +50,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
                             {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
     theReader.addParameter(COMPUTE_FEATURE_INFLUENCE,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE,
+    theReader.addParameter(FEATURE_INFLUENCE_THRESHOLD,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(OUTLIER_FRACTION, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
@@ -70,8 +70,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
-    m_MinimumScoreToWriteFeatureInfluence =
-        parameters[MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE].fallback(0.1);
+    m_FeatureInfluenceThreshold = parameters[FEATURE_INFLUENCE_THRESHOLD].fallback(0.1);
     m_OutlierFraction = parameters[OUTLIER_FRACTION].fallback(0.05);
 }
 
@@ -93,7 +92,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE);
     writer.Double(row[scoreColumn]);
-    if (row[scoreColumn] > m_MinimumScoreToWriteFeatureInfluence) {
+    if (row[scoreColumn] > m_FeatureInfluenceThreshold) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
             writer.Key(FEATURE_INFLUENCE_PREFIX + featureNames[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
