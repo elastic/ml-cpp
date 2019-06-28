@@ -15,3 +15,5 @@ RUN apk update && \
 
 WORKDIR /ml-cpp
 ENV CPP_SRC_HOME=/ml-cpp
+    
+ENTRYPOINT ["/ml-cpp/dev-tools/clang-format.sh"]
