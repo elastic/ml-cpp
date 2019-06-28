@@ -128,10 +128,10 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                         m_ModelParams.distributionRestoreParams(dataType)},
                     m_ModelParams.distributionRestoreParams(dataType)};
 
-                auto serialiser_operator = [&params = static_cast<const maths::SModelRestoreParams&>(params), &model_]
-											(core::CStateRestoreTraverser& traverser){
-                    return maths::CModelStateSerialiser()(params, model_, traverser);
-                };
+                auto serialiser_operator =
+                    [&params, &model_](core::CStateRestoreTraverser& traverser_) {
+                        return maths::CModelStateSerialiser()(params, model_, traverser_);
+                    };
                 if (traverser.traverseSubLevel(serialiser_operator) == false) {
                     LOG_ERROR(<< "Failed to restore forecast model, model missing");
                     return false;
