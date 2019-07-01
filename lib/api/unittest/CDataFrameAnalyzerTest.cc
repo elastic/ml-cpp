@@ -54,6 +54,7 @@ outlierSpec(std::size_t rows = 110,
                      std::to_string(memoryLimit) +
                      ",\n"
                      "  \"threads\": 1,\n"
+                     "  \"disk_usage_allowed\": true,\n"
                      "  \"analysis\": {\n"
                      "    \"name\": \"outlier_detection\""};
     spec += ",\n    \"parameters\": {\n";

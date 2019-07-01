@@ -6,11 +6,13 @@
 
 #include "CDataFrameAnalysisRunnerTest.h"
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameOutliersRunner.h>
 
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -36,6 +38,7 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
                                  std::to_string(numberCols) +
                                  ",\n"
                                  "  \"memory_limit\": 100000000,\n"
+                                 "  \"disk_usage_allowed\": true,\n"
                                  "  \"threads\": 1,\n"
                                  "  \"analysis\": {\n"
                                  "    \"name\": \"outlier_detection\""
@@ -70,12 +73,84 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
     // TODO test running memory is in acceptable range.
 }
 
+std::string
+CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberRows,
+                                                             std::size_t numberCols,
+                                                             bool diskUsageAllowed) {
+    std::string jsonSpec{"{\n"
+                         "  \"rows\": " +
+                         std::to_string(numberRows) +
+                         ",\n"
+                         "  \"cols\": " +
+                         std::to_string(numberCols) +
+                         ",\n"
+                         "  \"memory_limit\": 500000,\n"
+                         "  \"disk_usage_allowed\": " +
+                         (diskUsageAllowed ? "true" : "false") +
+                         ",\n"
+                         "  \"threads\": 1,\n"
+                         "  \"analysis\": {\n"
+                         "    \"name\": \"outlier_detection\""
+                         "  }"
+                         "}"};
+    return jsonSpec;
+}
+
+void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag() {
+
+    std::vector<std::string> errors;
+    std::mutex errorsMutex;
+    auto errorHandler = [&errors, &errorsMutex](std::string error) {
+        std::lock_guard<std::mutex> lock{errorsMutex};
+        errors.push_back(error);
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+    api::CDataFrameOutliersRunnerFactory factory;
+
+    // Test large memory requirement without disk usage
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, false)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // single error is registered that the memory limit is to low
+        CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
+        CPPUNIT_ASSERT(errors[0].find("Input error: memory limit is too low to perform analysis.") !=
+                       std::string::npos);
+    }
+
+    // Test large memory requirement with disk usage
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, true)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+
+    // Test low memory requirement without disk usage
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForDiskUsageTest(10, 10, false)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+}
+
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers",
         &CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers));
+
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
+        &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
 
     return suiteOfTests;
 }

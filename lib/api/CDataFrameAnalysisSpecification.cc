@@ -46,8 +46,10 @@ const char* const RESULTS_FIELD{"results_field"};
 const char* const ANALYSIS{"analysis"};
 const char* const NAME{"name"};
 const char* const PARAMETERS{"parameters"};
+const char* const DISK_USAGE_ALLOWED{"disk_usage_allowed"};
 
 const std::string DEFAULT_RESULT_FIELD("ml");
+const bool DEFAULT_DISK_USAGE_ALLOWED(false);
 
 const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
@@ -60,6 +62,8 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(DISK_USAGE_ALLOWED,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
@@ -99,6 +103,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
             boost::filesystem::current_path().string());
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
+        m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
@@ -129,6 +134,10 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
 
 const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
+}
+
+bool CDataFrameAnalysisSpecification::diskUsageAllowed() const {
+    return m_DiskUsageAllowed;
 }
 
 CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr

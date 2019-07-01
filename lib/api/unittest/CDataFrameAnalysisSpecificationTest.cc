@@ -77,11 +77,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             result << "     \"name\": \"" << name << "\"";
         }
         if (parameters.size() > 0) {
-            result << ",\n     \"parameters\": " << parameters << "\n";
+            result << ",\n     \"parameters\": " << parameters << ",\n";
         } else {
-            result << "\n";
+            result << ",\n";
         }
-        result << "   }\n}";
+        result << "     \"disk_usage_allowed\": true \n}\n}";
         return result.str();
     };
 
@@ -260,6 +260,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
                          "  \"cols\": 10,\n"
                          "  \"memory_limit\": 1000,\n"
                          "  \"threads\": 1,\n"
+                         "  \"disk_usage_allowed\": true,\n"
                          "  \"analysis\": {\n"
                          "    \"name\": \"test\""
                          "  }"
