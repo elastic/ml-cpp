@@ -326,7 +326,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(false, true)};
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
-        // single error is registered that the memory limit is to low
+        // single error is registered that temp dir is empty
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
         CPPUNIT_ASSERT(errors[0].find("Temporary directory path should be explicitly set") !=
                        std::string::npos);
