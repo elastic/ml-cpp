@@ -607,6 +607,7 @@ const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
+const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType dataType,
@@ -1397,8 +1398,8 @@ void CLogNormalMeanPrecConjugate::print(const std::string& indent, std::string& 
         return;
     }
 
-    std::string meanStr{"<unknown>"};
-    std::string sdStr{"<unknown>"};
+    std::string meanStr{UNKNOWN_VALUE_STRING};
+    std::string sdStr{UNKNOWN_VALUE_STRING};
 
     this->restoreDescriptiveStatistics(meanStr, sdStr);
 
@@ -1516,8 +1517,8 @@ void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInser
                          core::CIEEE754::E_SinglePrecision);
 
     if (inserter.readableTags() == true) {
-        std::string mean{"<unknown>"};
-        std::string sd{"<unknown>"};
+        std::string mean{UNKNOWN_VALUE_STRING};
+        std::string sd{UNKNOWN_VALUE_STRING};
         this->restoreDescriptiveStatistics(mean, sd);
         inserter.insertValue(MEAN_TAG, mean);
         inserter.insertValue(STANDARD_DEVIATION_TAG, sd);

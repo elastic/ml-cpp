@@ -104,9 +104,9 @@ bool CCmdLineParser::parse(int argc,
                         "Optional file to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
-                        "Optional time interval at which to periodically persist model state - if not specified then models will only be persisted at program exit. (Mutually exclusive with bucketPersistInterval)")
+                        "Optional time interval at which to periodically persist model state (Mutually exclusive with bucketPersistInterval)")
             ("bucketPersistInterval", boost::program_options::value<std::size_t>(),
-                        "Optional number of buckets after which to periodically persist model state - if not specified then models will only be persisted at program exit. (Mutually exclusive with persistInterval)")
+                        "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
             ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - if not specified then quantiles will only be output following a big anomaly")
             ("maxAnomalyRecords", boost::program_options::value<size_t>(),
@@ -130,7 +130,7 @@ bool CCmdLineParser::parse(int argc,
                                              const std::string& opt2) {
             if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) &&
                 !vm[opt2].defaulted())
-                throw std::logic_error("Conflicting options '" + opt1 +
+                throw std::runtime_error("Conflicting options '" + opt1 +
                                        "' and '" + opt2 + "'.");
         };
 

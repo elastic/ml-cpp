@@ -171,6 +171,7 @@ const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
+const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CPoissonMeanConjugate::CPoissonMeanConjugate(double offset, double shape, double rate, double decayRate /*= 0.0*/)
@@ -801,8 +802,8 @@ void CPoissonMeanConjugate::print(const std::string& indent, std::string& result
         return;
     }
 
-    std::string meanStr{"<unknown>"};
-    std::string sdStr{"<unknown>"};
+    std::string meanStr{UNKNOWN_VALUE_STRING};
+    std::string sdStr{UNKNOWN_VALUE_STRING};
 
     this->restoreDescriptiveStatistics(meanStr, sdStr);
 
@@ -889,8 +890,8 @@ void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& i
                          core::CIEEE754::E_SinglePrecision);
 
     if (inserter.readableTags() == true) {
-        std::string mean{"<unknown>"};
-        std::string sd{"<unknown>"};
+        std::string mean{UNKNOWN_VALUE_STRING};
+        std::string sd{UNKNOWN_VALUE_STRING};
 
         this->restoreDescriptiveStatistics(mean, sd);
 

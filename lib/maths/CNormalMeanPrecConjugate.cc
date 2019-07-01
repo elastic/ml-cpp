@@ -430,6 +430,7 @@ const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
 const std::string EMPTY_STRING;
+const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CNormalMeanPrecConjugate::CNormalMeanPrecConjugate(maths_t::EDataType dataType,
@@ -1156,8 +1157,8 @@ void CNormalMeanPrecConjugate::print(const std::string& indent, std::string& res
         return;
     }
 
-    std::string meanStr{"<unknown>"};
-    std::string sdStr{"<unknown>"};
+    std::string meanStr{UNKNOWN_VALUE_STRING};
+    std::string sdStr{UNKNOWN_VALUE_STRING};
 
     this->restoreDescriptiveStatistics(meanStr, sdStr);
 
@@ -1266,8 +1267,8 @@ void CNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter
                          core::CIEEE754::E_SinglePrecision);
 
     if (inserter.readableTags() == true) {
-        std::string mean{"<unknown>"};
-        std::string sd{"<unknown>"};
+        std::string mean{UNKNOWN_VALUE_STRING};
+        std::string sd{UNKNOWN_VALUE_STRING};
 
         this->restoreDescriptiveStatistics(mean, sd);
 
