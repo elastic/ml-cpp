@@ -289,6 +289,71 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     }
 }
 
+std::string
+CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
+                                                             bool diskUsageAllowed) {
+
+    std::string tempDirParameter = tempDirPathSet ? "  \"temp_dir\": \"/tmp\",\n" : "";
+    std::string diskUsageParameter = diskUsageAllowed ? "true" : "false";
+    std::string jsonSpec{"{\n"
+                         "  \"rows\": 100,\n"
+                         "  \"cols\": 3,\n"
+                         "  \"memory_limit\": 500000,\n" +
+                         tempDirParameter +
+                         "  \"disk_usage_allowed\": " + diskUsageParameter + ",\n"
+                         "  \"threads\": 1,\n"
+                         "  \"analysis\": {\n"
+                         "    \"name\": \"outlier_detection\""
+                         "  }"
+                         "}"};
+    return jsonSpec;
+}
+
+
+void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
+
+    std::vector<std::string> errors;
+    std::mutex errorsMutex;
+    auto errorHandler = [&errors, &errorsMutex](std::string error) {
+        std::lock_guard<std::mutex> lock{errorsMutex};
+        errors.push_back(error);
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    // No temp dir given, disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(false, true)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // single error is registered that the memory limit is to low
+        CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
+        CPPUNIT_ASSERT(errors[0].find("Temporary directory path should be explicitly set") !=
+                       std::string::npos);
+    }
+
+    // No temp dir given, no disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(false, false)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+
+    // Temp dir given and disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(true, true)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+}
+
 CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CDataFrameAnalysisSpecificationTest");
@@ -299,6 +364,9 @@ CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
         "CDataFrameAnalysisSpecificationTest::testRunAnalysis",
         &CDataFrameAnalysisSpecificationTest::testRunAnalysis));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
+            "CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage",
+            &CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage));
 
     return suiteOfTests;
 }
