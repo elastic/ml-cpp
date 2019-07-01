@@ -131,7 +131,7 @@ bool CCmdLineParser::parse(int argc,
             if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) &&
                 !vm[opt2].defaulted())
                 throw std::runtime_error("Conflicting options '" + opt1 +
-                                       "' and '" + opt2 + "'.");
+                                         "' and '" + opt2 + "'.");
         };
 
         if (vm.count("help") > 0) {

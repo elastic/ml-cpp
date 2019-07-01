@@ -348,9 +348,8 @@ public:
     }
 
     template<typename T>
-    static bool persist(const TPersistenceTag& tag,
-                        const T& collection,
-                        CStatePersistInserter& inserter) {
+    static bool
+    persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag.name(inserter.readableTags()),
                                              collection, inserter);
     }
