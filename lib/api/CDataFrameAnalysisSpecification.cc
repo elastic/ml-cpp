@@ -54,7 +54,6 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     theReader.addParameter(COLS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
     theReader.addParameter(MEMORY_LIMIT, CDataFrameAnalysisConfigReader::E_RequiredParameter);
     theReader.addParameter(THREADS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
-    // TODO required
     theReader.addParameter(TEMPORARY_DIRECTORY,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
