@@ -54,10 +54,10 @@ public:
 private:
     double m_Count;
 };
-const ml::core::TPersistenceTag SPACE_TAG("a", "space");
-const ml::core::TPersistenceTag CATEGORY_TAG("b", "category");
-const ml::core::TPersistenceTag POINTS_TAG("c", "points");
-const ml::core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
+const core::TPersistenceTag SPACE_TAG("a", "space");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag POINTS_TAG("c", "points");
+const core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
 
 const std::string EMPTY_STRING;
 }

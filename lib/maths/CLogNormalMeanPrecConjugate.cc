@@ -595,15 +595,15 @@ private:
 
 } // detail::
 
-const ml::core::TPersistenceTag OFFSET_TAG("a", "offset");
-const ml::core::TPersistenceTag GAUSSIAN_MEAN_TAG("b", "gaussian_mean");
-const ml::core::TPersistenceTag GAUSSIAN_PRECISION_TAG("c", "gaussian_precision");
-const ml::core::TPersistenceTag GAMMA_SHAPE_TAG("d", "gamma_shape");
-const ml::core::TPersistenceTag GAMMA_RATE_TAG("e", "gamma_rate");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("f", "number_samples");
+const core::TPersistenceTag OFFSET_TAG("a", "offset");
+const core::TPersistenceTag GAUSSIAN_MEAN_TAG("b", "gaussian_mean");
+const core::TPersistenceTag GAUSSIAN_PRECISION_TAG("c", "gaussian_precision");
+const core::TPersistenceTag GAMMA_SHAPE_TAG("d", "gamma_shape");
+const core::TPersistenceTag GAMMA_RATE_TAG("e", "gamma_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("f", "number_samples");
 //const std::string MINIMUM_TAG("g"); No longer used
 //const std::string MAXIMUM_TAG("h"); No longer used
-const ml::core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
+const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;

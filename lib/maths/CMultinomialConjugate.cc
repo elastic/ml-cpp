@@ -242,14 +242,14 @@ using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
 using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-const ml::core::TPersistenceTag NUMBER_AVAILABLE_CATEGORIES_TAG("a", "number_avalable_categories");
-const ml::core::TPersistenceTag CATEGORY_TAG("b", "category");
-const ml::core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
-const ml::core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
+const core::TPersistenceTag NUMBER_AVAILABLE_CATEGORIES_TAG("a", "number_avalable_categories");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
+const core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const ml::core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
 
 const std::string EMPTY_STRING;
 }

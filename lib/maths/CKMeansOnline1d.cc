@@ -71,7 +71,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample,
 // 1 - "smallest hard assignment weight"
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
-const ml::core::TPersistenceTag CLUSTER_TAG("a", "cluster");
+const core::TPersistenceTag CLUSTER_TAG("a", "cluster");
 }
 
 CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
@@ -98,7 +98,7 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     return true;
 }
 
-ml::core::TPersistenceTag CKMeansOnline1d::persistenceTag() const {
+core::TPersistenceTag CKMeansOnline1d::persistenceTag() const {
     return K_MEANS_ONLINE_1D_TAG;
 }
 

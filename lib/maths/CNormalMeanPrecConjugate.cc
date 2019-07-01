@@ -418,12 +418,12 @@ const double CLogMarginalLikelihood::LOG_2_PI =
 
 } // detail::
 
-const ml::core::TPersistenceTag GAUSSIAN_MEAN_TAG("a", "gaussian_mean");
-const ml::core::TPersistenceTag GAUSSIAN_PRECISION_TAG("b", "gaussian_precision");
-const ml::core::TPersistenceTag GAMMA_SHAPE_TAG("c", "gamma_shape");
-const ml::core::TPersistenceTag GAMMA_RATE_TAG("d", "gamma_rate");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
-const ml::core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+const core::TPersistenceTag GAUSSIAN_MEAN_TAG("a", "gaussian_mean");
+const core::TPersistenceTag GAUSSIAN_PRECISION_TAG("b", "gaussian_precision");
+const core::TPersistenceTag GAMMA_SHAPE_TAG("c", "gamma_shape");
+const core::TPersistenceTag GAMMA_RATE_TAG("d", "gamma_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
+const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 

@@ -31,10 +31,10 @@ namespace core {
 
 namespace persist_utils_detail {
 
-const ml::core::TPersistenceTag FIRST_TAG("a", "first");
-const ml::core::TPersistenceTag SECOND_TAG("b", "second");
-const ml::core::TPersistenceTag MAP_TAG("c", "map");
-const ml::core::TPersistenceTag SIZE_TAG("d", "size");
+const TPersistenceTag FIRST_TAG("a", "first");
+const TPersistenceTag SECOND_TAG("b", "second");
+const TPersistenceTag MAP_TAG("c", "map");
+const TPersistenceTag SIZE_TAG("d", "size");
 
 template<typename T>
 struct remove_const {
@@ -348,7 +348,7 @@ public:
     }
 
     template<typename T>
-    static bool persist(const ml::core::TPersistenceTag& tag,
+    static bool persist(const TPersistenceTag& tag,
                         const T& collection,
                         CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag.name(inserter.readableTags()),

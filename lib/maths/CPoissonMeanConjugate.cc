@@ -161,13 +161,13 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
 
 } // detail::
 
-const ml::core::TPersistenceTag SHAPE_TAG("a", "shape");
-const ml::core::TPersistenceTag RATE_TAG("b", "rate");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("c", "number_samples");
-const ml::core::TPersistenceTag OFFSET_TAG("d", "offset");
+const core::TPersistenceTag SHAPE_TAG("a", "shape");
+const core::TPersistenceTag RATE_TAG("b", "rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("c", "number_samples");
+const core::TPersistenceTag OFFSET_TAG("d", "offset");
 //const std::string MINIMUM_TAG("e"); No longer used
 //const std::string MAXIMUM_TAG("f"); No longer used
-const ml::core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
+const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;

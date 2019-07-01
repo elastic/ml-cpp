@@ -90,9 +90,9 @@ public:
     //!
     //! These tag the type of clusterer for polymorphic model persistence.
     //@{
-    static const ml::core::TPersistenceTag X_MEANS_ONLINE_1D_TAG;
-    static const ml::core::TPersistenceTag K_MEANS_ONLINE_1D_TAG;
-    static const ml::core::TPersistenceTag X_MEANS_ONLINE_TAG;
+    static const core::TPersistenceTag X_MEANS_ONLINE_1D_TAG;
+    static const core::TPersistenceTag K_MEANS_ONLINE_1D_TAG;
+    static const core::TPersistenceTag X_MEANS_ONLINE_TAG;
     //@}
 };
 
@@ -147,7 +147,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual ml::core::TPersistenceTag persistenceTag() const = 0;
+    virtual core::TPersistenceTag persistenceTag() const = 0;
 
     //! Creates a copy of the clusterer.
     //!

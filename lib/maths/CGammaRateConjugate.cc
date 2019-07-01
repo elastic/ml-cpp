@@ -691,16 +691,16 @@ private:
 
 } // detail::
 
-const ml::core::TPersistenceTag OFFSET_TAG("a", "offset");
-const ml::core::TPersistenceTag LIKELIHOOD_SHAPE_TAG("b", "likelihood_shape");
-const ml::core::TPersistenceTag LOG_SAMPLES_MEAN_TAG("c", "log_samples_mean");
-const ml::core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
-const ml::core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
-const ml::core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
+const core::TPersistenceTag OFFSET_TAG("a", "offset");
+const core::TPersistenceTag LIKELIHOOD_SHAPE_TAG("b", "likelihood_shape");
+const core::TPersistenceTag LOG_SAMPLES_MEAN_TAG("c", "log_samples_mean");
+const core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
+const core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
+const core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
 //const std::string MINIMUM_TAG("h"); No longer used
 //const std::string MAXIMUM_TAG("i"); No longer used
-const ml::core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;

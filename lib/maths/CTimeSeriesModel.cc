@@ -168,7 +168,7 @@ const std::string IS_FORECASTABLE_6_3_TAG{"c"};
 //const std::string RNG_6_3_TAG{"d"}; Removed in 6.5
 const std::string CONTROLLER_6_3_TAG{"e"};
 const std::string TREND_MODEL_6_3_TAG{"f"};
-const ml::core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
+const core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
 
 //const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5

@@ -52,13 +52,13 @@ using TSizeSet = std::set<std::size_t>;
 const std::size_t MODE_SPLIT_NUMBER_SAMPLES(50u);
 const std::size_t MODE_MERGE_NUMBER_SAMPLES(25u);
 
-const ml::core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
-const ml::core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
-const ml::core::TPersistenceTag MODE_TAG("c", "mode");
-const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
+const core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
+const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
+const core::TPersistenceTag MODE_TAG("c", "mode");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
 //const std::string MINIMUM_TAG("e"); No longer used
 //const std::string MAXIMUM_TAG("f"); No longer used
-const ml::core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
+const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 
 const std::string EMPTY_STRING;
 }

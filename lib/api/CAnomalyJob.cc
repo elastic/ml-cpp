@@ -981,7 +981,7 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
 }
 
 bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
-                                             ml::core_t::TTime timestamp) {
+                                             core_t::TTime timestamp) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -1097,7 +1097,7 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
 
 bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                              core::CDataAdder& persister,
-                                             ml::core_t::TTime timestamp) {
+                                             core_t::TTime timestamp) {
     try {
         const std::string snapShotId(core::CStringUtils::typeToString(timestamp));
         core::CDataAdder::TOStreamP strm = persister.addStreamed(

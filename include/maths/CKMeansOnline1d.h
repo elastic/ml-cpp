@@ -48,7 +48,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual ml::core::TPersistenceTag persistenceTag() const;
+    virtual core::TPersistenceTag persistenceTag() const;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

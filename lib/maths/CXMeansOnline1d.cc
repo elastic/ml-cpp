@@ -586,23 +586,23 @@ bool splitSearch(double minimumCount,
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
 // CXMeansOnline1d
-const ml::core::TPersistenceTag WEIGHT_CALC_TAG("a", "weight");
-const ml::core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG("b", "cluster_fraction");
-const ml::core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
-const ml::core::TPersistenceTag
+const core::TPersistenceTag WEIGHT_CALC_TAG("a", "weight");
+const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG("b", "cluster_fraction");
+const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
+const core::TPersistenceTag
     WINSORISATION_CONFIDENCE_INTERVAL_TAG("d", "winsorisation_confidence_interval");
-const ml::core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG("e", "index_generator");
-const ml::core::TPersistenceTag CLUSTER_TAG("f", "cluster");
-const ml::core::TPersistenceTag AVAILABLE_DISTRIBUTIONS_TAG("g", "available_distributions");
-const ml::core::TPersistenceTag SMALLEST_TAG("h", "smallest");
-const ml::core::TPersistenceTag LARGEST_TAG("i", "largest");
-const ml::core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
-const ml::core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
+const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG("e", "index_generator");
+const core::TPersistenceTag CLUSTER_TAG("f", "cluster");
+const core::TPersistenceTag AVAILABLE_DISTRIBUTIONS_TAG("g", "available_distributions");
+const core::TPersistenceTag SMALLEST_TAG("h", "smallest");
+const core::TPersistenceTag LARGEST_TAG("i", "largest");
+const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
 
 // CXMeansOnline1d::CCluster
-const ml::core::TPersistenceTag INDEX_TAG("a", "index");
-const ml::core::TPersistenceTag STRUCTURE_TAG("b", "structure");
-const ml::core::TPersistenceTag PRIOR_TAG("c", "prior");
+const core::TPersistenceTag INDEX_TAG("a", "index");
+const core::TPersistenceTag STRUCTURE_TAG("b", "structure");
+const core::TPersistenceTag PRIOR_TAG("c", "prior");
 
 const std::string EMPTY_STRING;
 }
@@ -731,7 +731,7 @@ void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     m_Clusters.swap(other.m_Clusters);
 }
 
-ml::core::TPersistenceTag CXMeansOnline1d::persistenceTag() const {
+core::TPersistenceTag CXMeansOnline1d::persistenceTag() const {
     return X_MEANS_ONLINE_1D_TAG;
 }
 

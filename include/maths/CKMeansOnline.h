@@ -105,10 +105,10 @@ protected:
     //! The maximum number of iterations to use for k-means in reduce.
     static const std::size_t MAX_ITERATIONS;
 
-    static const ml::core::TPersistenceTag K_TAG;
-    static const ml::core::TPersistenceTag CLUSTERS_TAG;
-    static const ml::core::TPersistenceTag POINTS_TAG;
-    static const ml::core::TPersistenceTag RNG_TAG;
+    static const core::TPersistenceTag K_TAG;
+    static const core::TPersistenceTag CLUSTERS_TAG;
+    static const core::TPersistenceTag POINTS_TAG;
+    static const core::TPersistenceTag RNG_TAG;
 
 public:
     //! \param[in] k The maximum space in numbers of clusters.
@@ -610,13 +610,13 @@ template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
 
 template<typename POINT>
-const ml::core::TPersistenceTag CKMeansOnline<POINT>::K_TAG("a", "k");
+const core::TPersistenceTag CKMeansOnline<POINT>::K_TAG("a", "k");
 template<typename POINT>
-const ml::core::TPersistenceTag CKMeansOnline<POINT>::CLUSTERS_TAG("b", "clusters");
+const core::TPersistenceTag CKMeansOnline<POINT>::CLUSTERS_TAG("b", "clusters");
 template<typename POINT>
-const ml::core::TPersistenceTag CKMeansOnline<POINT>::POINTS_TAG("c", "points");
+const core::TPersistenceTag CKMeansOnline<POINT>::POINTS_TAG("c", "points");
 template<typename POINT>
-const ml::core::TPersistenceTag CKMeansOnline<POINT>::RNG_TAG("d", "rng");
+const core::TPersistenceTag CKMeansOnline<POINT>::RNG_TAG("d", "rng");
 }
 }
 

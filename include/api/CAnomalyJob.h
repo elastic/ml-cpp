@@ -177,7 +177,7 @@ public:
     virtual bool persistState(core::CDataAdder& persister);
 
     //! Persist state of the residual models only
-    bool persistResidualModelsState(core::CDataAdder& persister, ml::core_t::TTime timestamp);
+    bool persistResidualModelsState(core::CDataAdder& persister, core_t::TTime timestamp);
 
     //! Initialise normalizer from quantiles state
     virtual bool initNormalizer(const std::string& quantilesStateFile);
@@ -270,7 +270,7 @@ private:
     //! Persist state of the residual models only
     bool persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                     core::CDataAdder& persister,
-                                    ml::core_t::TTime timestamp);
+                                    core_t::TTime timestamp);
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);

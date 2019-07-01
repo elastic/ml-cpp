@@ -660,7 +660,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual ml::core::TPersistenceTag persistenceTag() const {
+    virtual core::TPersistenceTag persistenceTag() const {
         return CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
@@ -1171,22 +1171,22 @@ private:
 private:
     //! \name Tags for Persisting CXMeansOnline
     //@{
-    static const ml::core::TPersistenceTag WEIGHT_CALC_TAG;
-    static const ml::core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG;
-    static const ml::core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG;
-    static const ml::core::TPersistenceTag WINSORISATION_CONFIDENCE_INTERVAL_TAG;
-    static const ml::core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG;
-    static const ml::core::TPersistenceTag CLUSTER_TAG;
-    static const ml::core::TPersistenceTag RNG_TAG;
-    static const ml::core::TPersistenceTag DECAY_RATE_TAG;
-    static const ml::core::TPersistenceTag HISTORY_LENGTH_TAG;
+    static const core::TPersistenceTag WEIGHT_CALC_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG;
+    static const core::TPersistenceTag WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+    static const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG;
+    static const core::TPersistenceTag CLUSTER_TAG;
+    static const core::TPersistenceTag RNG_TAG;
+    static const core::TPersistenceTag DECAY_RATE_TAG;
+    static const core::TPersistenceTag HISTORY_LENGTH_TAG;
     //@}
 
     //! \name Tags for Persisting CXMeansOnline::CCluster
     //@{
-    static const ml::core::TPersistenceTag INDEX_TAG;
-    static const ml::core::TPersistenceTag COVARIANCES_TAG;
-    static const ml::core::TPersistenceTag STRUCTURE_TAG;
+    static const core::TPersistenceTag INDEX_TAG;
+    static const core::TPersistenceTag COVARIANCES_TAG;
+    static const core::TPersistenceTag STRUCTURE_TAG;
     //@}
 
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -1247,30 +1247,30 @@ private:
 };
 
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a", "weight_calc");
+const core::TPersistenceTag CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a", "weight_calc");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag
+const core::TPersistenceTag
     CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b", "minimum_cluster_fraction");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag
+const core::TPersistenceTag
     CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag
+const core::TPersistenceTag
     CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e", "cluster_index_generator");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::CLUSTER_TAG("f", "cluster");
+const core::TPersistenceTag CXMeansOnline<T, N>::CLUSTER_TAG("f", "cluster");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::RNG_TAG("g", "rng");
+const core::TPersistenceTag CXMeansOnline<T, N>::RNG_TAG("g", "rng");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::DECAY_RATE_TAG("h", "decay_rate");
+const core::TPersistenceTag CXMeansOnline<T, N>::DECAY_RATE_TAG("h", "decay_rate");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i", "history_length");
+const core::TPersistenceTag CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i", "history_length");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::INDEX_TAG("a", "index");
+const core::TPersistenceTag CXMeansOnline<T, N>::INDEX_TAG("a", "index");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::COVARIANCES_TAG("b", "covariances");
+const core::TPersistenceTag CXMeansOnline<T, N>::COVARIANCES_TAG("b", "covariances");
 template<typename T, std::size_t N>
-const ml::core::TPersistenceTag CXMeansOnline<T, N>::STRUCTURE_TAG("c", "structure");
+const core::TPersistenceTag CXMeansOnline<T, N>::STRUCTURE_TAG("c", "structure");
 
 template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MINIMUM_SPLIT_DISTANCE(6.0);

@@ -9,7 +9,7 @@
 namespace ml {
 namespace maths {
 namespace {
-const ml::core::TPersistenceTag INDEX_TAG("a", "index");
+const core::TPersistenceTag INDEX_TAG("a", "index");
 }
 
 CClustererTypes::CIndexGenerator::CIndexGenerator()
@@ -67,8 +67,8 @@ std::size_t CClustererTypes::CIndexGenerator::memoryUsage() const {
 std::string CClustererTypes::CIndexGenerator::print() const {
     return core::CContainerPrinter::print(*m_IndexHeap);
 }
-const ml::core::TPersistenceTag CClustererTypes::X_MEANS_ONLINE_1D_TAG("a", "x_means_online_1d");
-const ml::core::TPersistenceTag CClustererTypes::K_MEANS_ONLINE_1D_TAG("b", "k_means_online_1d");
-const ml::core::TPersistenceTag CClustererTypes::X_MEANS_ONLINE_TAG("c", "x_means_online");
+const core::TPersistenceTag CClustererTypes::X_MEANS_ONLINE_1D_TAG("a", "x_means_online_1d");
+const core::TPersistenceTag CClustererTypes::K_MEANS_ONLINE_1D_TAG("b", "k_means_online_1d");
+const core::TPersistenceTag CClustererTypes::X_MEANS_ONLINE_TAG("c", "x_means_online");
 }
 }

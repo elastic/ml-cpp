@@ -37,7 +37,7 @@ void setConstant(double value, TOptionalDouble& result) {
 }
 
 // We use short field names to reduce the state size
-const ml::core::TPersistenceTag CONSTANT_TAG("a", "constant");
+const core::TPersistenceTag CONSTANT_TAG("a", "constant");
 
 const std::string EMPTY_STRING;
 
