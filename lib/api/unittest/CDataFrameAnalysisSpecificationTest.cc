@@ -291,7 +291,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
 
 std::string
 CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
-                                                             bool diskUsageAllowed) {
+                                                                           bool diskUsageAllowed) {
 
     std::string tempDirParameter = tempDirPathSet ? "  \"temp_dir\": \"/tmp\",\n" : "";
     std::string diskUsageParameter = diskUsageAllowed ? "true" : "false";
@@ -299,8 +299,8 @@ CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool 
                          "  \"rows\": 100,\n"
                          "  \"cols\": 3,\n"
                          "  \"memory_limit\": 500000,\n" +
-                         tempDirParameter +
-                         "  \"disk_usage_allowed\": " + diskUsageParameter + ",\n"
+                         tempDirParameter + "  \"disk_usage_allowed\": " + diskUsageParameter +
+                         ",\n"
                          "  \"threads\": 1,\n"
                          "  \"analysis\": {\n"
                          "    \"name\": \"outlier_detection\""
@@ -308,7 +308,6 @@ CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool 
                          "}"};
     return jsonSpec;
 }
-
 
 void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
 
@@ -365,8 +364,8 @@ CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
         "CDataFrameAnalysisSpecificationTest::testRunAnalysis",
         &CDataFrameAnalysisSpecificationTest::testRunAnalysis));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
-            "CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage",
-            &CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage));
+        "CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage",
+        &CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage));
 
     return suiteOfTests;
 }
