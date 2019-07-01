@@ -52,8 +52,9 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
 
 void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
                                            core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(clusterer.persistenceTag(inserter.readableTags()),
-                         std::bind(&CClusterer1d::acceptPersistInserter, &clusterer, std::placeholders::_1));
+    inserter.insertLevel(clusterer.persistenceTag(),
+                         std::bind(&CClusterer1d::acceptPersistInserter,
+                                   &clusterer, std::placeholders::_1));
 }
 }
 }

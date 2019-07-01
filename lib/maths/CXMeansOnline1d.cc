@@ -586,38 +586,24 @@ bool splitSearch(double minimumCount,
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
 // CXMeansOnline1d
-const std::string READABLE_WEIGHT_CALC_TAG("weight");
-const std::string READABLE_MINIMUM_CLUSTER_FRACTION_TAG("cluster_fraction");
-const std::string READABLE_MINIMUM_CLUSTER_COUNT_TAG("minimum_cluster_count");
-const std::string READABLE_WINSORISATION_CONFIDENCE_INTERVAL_TAG("winsorisation_confidence_interval");
-const std::string READABLE_CLUSTER_INDEX_GENERATOR_TAG("index_generator");
-const std::string READABLE_CLUSTER_TAG("cluster");
-const std::string READABLE_AVAILABLE_DISTRIBUTIONS_TAG("available_distributions");
-const std::string READABLE_SMALLEST_TAG("smallest");
-const std::string READABLE_LARGEST_TAG("largest");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
-const std::string READABLE_HISTORY_LENGTH_TAG("history_length");
-
-const std::string WEIGHT_CALC_TAG("a");
-const std::string MINIMUM_CLUSTER_FRACTION_TAG("b");
-const std::string MINIMUM_CLUSTER_COUNT_TAG("c");
-const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG("d");
-const std::string CLUSTER_INDEX_GENERATOR_TAG("e");
-const std::string CLUSTER_TAG("f");
-const std::string AVAILABLE_DISTRIBUTIONS_TAG("g");
-const std::string SMALLEST_TAG("h");
-const std::string LARGEST_TAG("i");
-const std::string DECAY_RATE_TAG("j");
-const std::string HISTORY_LENGTH_TAG("k");
+const ml::core::TPersistenceTag WEIGHT_CALC_TAG("a", "weight");
+const ml::core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG("b", "cluster_fraction");
+const ml::core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
+const ml::core::TPersistenceTag
+    WINSORISATION_CONFIDENCE_INTERVAL_TAG("d", "winsorisation_confidence_interval");
+const ml::core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG("e", "index_generator");
+const ml::core::TPersistenceTag CLUSTER_TAG("f", "cluster");
+const ml::core::TPersistenceTag AVAILABLE_DISTRIBUTIONS_TAG("g", "available_distributions");
+const ml::core::TPersistenceTag SMALLEST_TAG("h", "smallest");
+const ml::core::TPersistenceTag LARGEST_TAG("i", "largest");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const ml::core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
 
 // CXMeansOnline1d::CCluster
-const std::string READABLE_INDEX_TAG("index");
-const std::string READABLE_STRUCTURE_TAG("structure");
-const std::string READABLE_PRIOR_TAG("prior");
+const ml::core::TPersistenceTag INDEX_TAG("a", "index");
+const ml::core::TPersistenceTag STRUCTURE_TAG("b", "structure");
+const ml::core::TPersistenceTag PRIOR_TAG("c", "prior");
 
-const std::string INDEX_TAG("a");
-const std::string STRUCTURE_TAG("b");
-const std::string PRIOR_TAG("c");
 const std::string EMPTY_STRING;
 }
 
@@ -745,38 +731,28 @@ void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag(bool readbaleTags) const {
-    return readbaleTags ? READABLE_X_MEANS_ONLINE_1D_TAG : X_MEANS_ONLINE_1D_TAG;
+ml::core::TPersistenceTag CXMeansOnline1d::persistenceTag() const {
+    return X_MEANS_ONLINE_1D_TAG;
 }
 
 void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
     for (const auto& cluster : m_Clusters) {
-        inserter.insertLevel(
-            readableTags ? READABLE_CLUSTER_TAG : CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter, &cluster, std::placeholders::_1));
+        inserter.insertLevel(CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter,
+                                                    &cluster, std::placeholders::_1));
     }
-    inserter.insertValue(readableTags ? READABLE_AVAILABLE_DISTRIBUTIONS_TAG : AVAILABLE_DISTRIBUTIONS_TAG,
-                         m_AvailableDistributions.toString());
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         m_DecayRate, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_HISTORY_LENGTH_TAG : HISTORY_LENGTH_TAG,
-                         m_HistoryLength, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_SMALLEST_TAG : SMALLEST_TAG,
-                         m_Smallest.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_LARGEST_TAG : LARGEST_TAG,
-                         m_Largest.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_WEIGHT_CALC_TAG : WEIGHT_CALC_TAG,
-                         static_cast<int>(m_WeightCalc));
-    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_FRACTION_TAG : MINIMUM_CLUSTER_FRACTION_TAG,
-                         m_MinimumClusterFraction.toString());
-    inserter.insertValue(readableTags ? READABLE_MINIMUM_CLUSTER_COUNT_TAG : MINIMUM_CLUSTER_COUNT_TAG,
-                         m_MinimumClusterCount.toString());
-    inserter.insertValue(readableTags ? READABLE_WINSORISATION_CONFIDENCE_INTERVAL_TAG
-                                      : WINSORISATION_CONFIDENCE_INTERVAL_TAG,
+    inserter.insertValue(AVAILABLE_DISTRIBUTIONS_TAG, m_AvailableDistributions.toString());
+    inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(SMALLEST_TAG, m_Smallest.toDelimited());
+    inserter.insertValue(LARGEST_TAG, m_Largest.toDelimited());
+    inserter.insertValue(WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
+    inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction.toString());
+    inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
+    inserter.insertValue(WINSORISATION_CONFIDENCE_INTERVAL_TAG,
                          m_WinsorisationConfidenceInterval.toString());
-    inserter.insertLevel(readableTags ? READABLE_CLUSTER_INDEX_GENERATOR_TAG : CLUSTER_INDEX_GENERATOR_TAG,
+    inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
                          std::bind(&CIndexGenerator::acceptPersistInserter,
-                                     &m_ClusterIndexGenerator, std::placeholders::_1));
+                                   &m_ClusterIndexGenerator, std::placeholders::_1));
 }
 
 CXMeansOnline1d* CXMeansOnline1d::clone() const {
@@ -1319,12 +1295,12 @@ bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestor
 }
 
 void CXMeansOnline1d::CCluster::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_INDEX_TAG : INDEX_TAG, m_Index);
-    inserter.insertLevel(readableTags ? READABLE_PRIOR_TAG : PRIOR_TAG, std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                                &m_Prior, std::placeholders::_1));
-    inserter.insertLevel(readableTags ? READABLE_STRUCTURE_TAG : STRUCTURE_TAG, std::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
-                                                    &m_Structure, std::placeholders::_1));
+    inserter.insertValue(INDEX_TAG, m_Index);
+    inserter.insertLevel(PRIOR_TAG, std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                              &m_Prior, std::placeholders::_1));
+    inserter.insertLevel(STRUCTURE_TAG,
+                         std::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
+                                   &m_Structure, std::placeholders::_1));
 }
 
 void CXMeansOnline1d::CCluster::dataType(maths_t::EDataType dataType) {

@@ -54,15 +54,11 @@ public:
 private:
     double m_Count;
 };
-const std::string READABLE_SPACE_TAG("space");
-const std::string READABLE_CATEGORY_TAG("category");
-const std::string READABLE_POINTS_TAG("points");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
+const ml::core::TPersistenceTag SPACE_TAG("a", "space");
+const ml::core::TPersistenceTag CATEGORY_TAG("b", "category");
+const ml::core::TPersistenceTag POINTS_TAG("c", "points");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
 
-const std::string SPACE_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string POINTS_TAG("c");
-const std::string DECAY_RATE_TAG("d");
 const std::string EMPTY_STRING;
 }
 
@@ -92,14 +88,10 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
 }
 
 void CNaturalBreaksClassifier::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         m_DecayRate.toString());
-    inserter.insertValue(readableTags ? READABLE_SPACE_TAG : SPACE_TAG, m_Space);
-    core::CPersistUtils::persist(readableTags ? READABLE_CATEGORY_TAG : CATEGORY_TAG,
-                                 m_Categories, inserter);
-    inserter.insertValue(readableTags ? READABLE_POINTS_TAG : POINTS_TAG,
-                         core::CPersistUtils::toString(m_PointsBuffer));
+    inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
+    inserter.insertValue(SPACE_TAG, m_Space);
+    core::CPersistUtils::persist(CATEGORY_TAG, m_Categories, inserter);
+    inserter.insertValue(POINTS_TAG, core::CPersistUtils::toString(m_PointsBuffer));
 }
 
 double CNaturalBreaksClassifier::percentile(double p) const {

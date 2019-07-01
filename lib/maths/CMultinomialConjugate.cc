@@ -242,22 +242,15 @@ using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
 using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-const std::string READABLE_NUMBER_AVAILABLE_CATEGORIES_TAG("number_avalable_categories");
-const std::string READABLE_CATEGORY_TAG("category");
-const std::string READABLE_CONCENTRATION_TAG("concentration");
-const std::string READABLE_TOTAL_CONCENTRATION_TAG("total_concentration");
-const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
-
-// We use short field names to reduce the state size
-const std::string NUMBER_AVAILABLE_CATEGORIES_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string CONCENTRATION_TAG("c");
-const std::string TOTAL_CONCENTRATION_TAG("d");
-const std::string NUMBER_SAMPLES_TAG("e");
+const ml::core::TPersistenceTag NUMBER_AVAILABLE_CATEGORIES_TAG("a", "number_avalable_categories");
+const ml::core::TPersistenceTag CATEGORY_TAG("b", "category");
+const ml::core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
+const ml::core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
+const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const std::string DECAY_RATE_TAG("h");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+
 const std::string EMPTY_STRING;
 }
 
@@ -1263,20 +1256,14 @@ std::size_t CMultinomialConjugate::staticSize() const {
 }
 
 void CMultinomialConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_AVAILABLE_CATEGORIES_TAG
-                                      : NUMBER_AVAILABLE_CATEGORIES_TAG,
-                         m_NumberAvailableCategories);
-    inserter.insertValue(readableTags ? READABLE_CATEGORY_TAG : CATEGORY_TAG,
-                         core::CPersistUtils::toString(m_Categories));
-    inserter.insertValue(readableTags ? READABLE_CONCENTRATION_TAG : CONCENTRATION_TAG,
-                         core::CPersistUtils::toString(m_Concentrations));
-    inserter.insertValue(readableTags ? READABLE_TOTAL_CONCENTRATION_TAG : TOTAL_CONCENTRATION_TAG,
-                         m_TotalConcentration, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
-                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_AVAILABLE_CATEGORIES_TAG, m_NumberAvailableCategories);
+    inserter.insertValue(CATEGORY_TAG, core::CPersistUtils::toString(m_Categories));
+    inserter.insertValue(CONCENTRATION_TAG, core::CPersistUtils::toString(m_Concentrations));
+    inserter.insertValue(TOTAL_CONCENTRATION_TAG, m_TotalConcentration,
+                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 }
 
 void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {

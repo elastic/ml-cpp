@@ -691,28 +691,18 @@ private:
 
 } // detail::
 
-const std::string READABLE_OFFSET_TAG("offset");
-const std::string READABLE_LIKELIHOOD_SHAPE_TAG("likelihood_shape");
-const std::string READABLE_LOG_SAMPLES_MEAN_TAG("log_samples_mean");
-const std::string READABLE_SAMPLE_MOMENTS_TAG("sample_moments");
-const std::string READABLE_PRIOR_SHAPE_TAG("prior_shape");
-const std::string READABLE_PRIOR_RATE_TAG("prior_rate");
-const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
-const std::string READABLE_MEAN_TAG("mean");
-const std::string READABLE_STANDARD_DEVIATION_TAG("standard_deviation");
-
-// We use short field names to reduce the state size
-const std::string OFFSET_TAG("a");
-const std::string LIKELIHOOD_SHAPE_TAG("b");
-const std::string LOG_SAMPLES_MEAN_TAG("c");
-const std::string SAMPLE_MOMENTS_TAG("d");
-const std::string PRIOR_SHAPE_TAG("e");
-const std::string PRIOR_RATE_TAG("f");
-const std::string NUMBER_SAMPLES_TAG("g");
+const ml::core::TPersistenceTag OFFSET_TAG("a", "offset");
+const ml::core::TPersistenceTag LIKELIHOOD_SHAPE_TAG("b", "likelihood_shape");
+const ml::core::TPersistenceTag LOG_SAMPLES_MEAN_TAG("c", "log_samples_mean");
+const ml::core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
+const ml::core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
+const ml::core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
+const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
 //const std::string MINIMUM_TAG("h"); No longer used
 //const std::string MAXIMUM_TAG("i"); No longer used
-const std::string DECAY_RATE_TAG("j");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
 }
 
@@ -1548,32 +1538,25 @@ std::size_t CGammaRateConjugate::staticSize() const {
 }
 
 void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG,
-                         m_Offset.toString());
-    inserter.insertValue(readableTags ? READABLE_LIKELIHOOD_SHAPE_TAG : LIKELIHOOD_SHAPE_TAG,
-                         m_LikelihoodShape, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(readableTags ? READABLE_LOG_SAMPLES_MEAN_TAG : LOG_SAMPLES_MEAN_TAG,
-                         m_LogSamplesMean.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_SAMPLE_MOMENTS_TAG : SAMPLE_MOMENTS_TAG,
-                         m_SampleMoments.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_PRIOR_SHAPE_TAG : PRIOR_SHAPE_TAG,
-                         m_PriorShape.toString());
-    inserter.insertValue(readableTags ? READABLE_PRIOR_RATE_TAG : PRIOR_RATE_TAG,
-                         m_PriorRate.toString());
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
-                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(LIKELIHOOD_SHAPE_TAG, m_LikelihoodShape,
+                         core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(LOG_SAMPLES_MEAN_TAG, m_LogSamplesMean.toDelimited());
+    inserter.insertValue(SAMPLE_MOMENTS_TAG, m_SampleMoments.toDelimited());
+    inserter.insertValue(PRIOR_SHAPE_TAG, m_PriorShape.toString());
+    inserter.insertValue(PRIOR_RATE_TAG, m_PriorRate.toString());
+    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 
-    if (readableTags == true) {
+    if (inserter.readableTags() == true) {
         std::string mean{"<unknown>"};
         std::string sd{"<unknown>"};
 
         this->restoreDescriptiveStatistics(mean, sd);
 
-        inserter.insertValue(READABLE_MEAN_TAG, mean);
-        inserter.insertValue(READABLE_STANDARD_DEVIATION_TAG, sd);
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
     }
 }
 

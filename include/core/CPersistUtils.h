@@ -31,15 +31,10 @@ namespace core {
 
 namespace persist_utils_detail {
 
-const std::string READABLE_FIRST_TAG("first");
-const std::string READABLE_SECOND_TAG("second");
-const std::string READABLE_MAP_TAG("map");
-const std::string READABLE_SIZE_TAG("size");
-
-const std::string FIRST_TAG("a");
-const std::string SECOND_TAG("b");
-const std::string MAP_TAG("c");
-const std::string SIZE_TAG("d");
+const ml::core::TPersistenceTag FIRST_TAG("a", "first");
+const ml::core::TPersistenceTag SECOND_TAG("b", "second");
+const ml::core::TPersistenceTag MAP_TAG("c", "map");
+const ml::core::TPersistenceTag SIZE_TAG("d", "size");
 
 template<typename T>
 struct remove_const {
@@ -350,6 +345,14 @@ public:
     static bool
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag, collection, inserter);
+    }
+
+    template<typename T>
+    static bool persist(const ml::core::TPersistenceTag& tag,
+                        const T& collection,
+                        CStatePersistInserter& inserter) {
+        return persist_utils_detail::persist(tag.name(inserter.readableTags()),
+                                             collection, inserter);
     }
 
     //! Wrapper for containers of built in types.
@@ -704,9 +707,8 @@ public:
 private:
     template<typename A, typename B>
     static void newLevel(const std::pair<A, B>& t, CStatePersistInserter& inserter) {
-        const bool readableTags{inserter.readableTags()};
-        persist(readableTags ? READABLE_FIRST_TAG : FIRST_TAG, t.first, inserter);
-        persist(readableTags ? READABLE_SECOND_TAG : SECOND_TAG, t.second, inserter);
+        persist(FIRST_TAG, t.first, inserter);
+        persist(SECOND_TAG, t.second, inserter);
     }
 };
 
@@ -830,10 +832,9 @@ private:
     //! pre-size the new container if appropriate
     template<typename ITR>
     static void newLevel(ITR begin, ITR end, std::size_t size, CStatePersistInserter& inserter) {
-        const bool readableTags{inserter.readableTags()};
-        inserter.insertValue(readableTags ? READABLE_SIZE_TAG : SIZE_TAG, size);
+        inserter.insertValue(SIZE_TAG, size);
         for (; begin != end; ++begin) {
-            persist(readableTags ? READABLE_FIRST_TAG : FIRST_TAG, *begin, inserter);
+            persist(FIRST_TAG, *begin, inserter);
         }
     }
 };
@@ -898,7 +899,8 @@ private:
     template<typename A, typename B>
     static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << FIRST_TAG);
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << FIRST_TAG.name(false));
             return false;
         }
         if (!restore(FIRST_TAG, t.first, traverser)) {
@@ -912,7 +914,8 @@ private:
             return false;
         }
         if (traverser.name() != SECOND_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << SECOND_TAG);
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << SECOND_TAG.name(false));
             return false;
         }
         if (!restore(SECOND_TAG, t.second, traverser)) {

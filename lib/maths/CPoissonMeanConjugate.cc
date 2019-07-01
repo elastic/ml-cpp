@@ -161,22 +161,15 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
 
 } // detail::
 
-const std::string READABLE_SHAPE_TAG("shape");
-const std::string READABLE_RATE_TAG("rate");
-const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
-const std::string READABLE_OFFSET_TAG("offset");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
-const std::string READABLE_MEAN_TAG("mean");
-const std::string READABLE_STANDARD_DEVIATION_TAG("standard_deviation");
-
-// We use short field names to reduce the state size
-const std::string SHAPE_TAG("a");
-const std::string RATE_TAG("b");
-const std::string NUMBER_SAMPLES_TAG("c");
-const std::string OFFSET_TAG("d");
+const ml::core::TPersistenceTag SHAPE_TAG("a", "shape");
+const ml::core::TPersistenceTag RATE_TAG("b", "rate");
+const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("c", "number_samples");
+const ml::core::TPersistenceTag OFFSET_TAG("d", "offset");
 //const std::string MINIMUM_TAG("e"); No longer used
 //const std::string MAXIMUM_TAG("f"); No longer used
-const std::string DECAY_RATE_TAG("g");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
 }
 
@@ -888,24 +881,21 @@ std::size_t CPoissonMeanConjugate::staticSize() const {
 }
 
 void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_OFFSET_TAG : OFFSET_TAG,
-                         m_Offset.toString());
-    inserter.insertValue(readableTags ? READABLE_SHAPE_TAG : SHAPE_TAG, m_Shape.toString());
-    inserter.insertValue(readableTags ? READABLE_RATE_TAG : RATE_TAG, m_Rate.toString());
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
-                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(OFFSET_TAG, m_Offset.toString());
+    inserter.insertValue(SHAPE_TAG, m_Shape.toString());
+    inserter.insertValue(RATE_TAG, m_Rate.toString());
+    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 
-    if (readableTags == true) {
+    if (inserter.readableTags() == true) {
         std::string mean{"<unknown>"};
         std::string sd{"<unknown>"};
 
         this->restoreDescriptiveStatistics(mean, sd);
 
-        inserter.insertValue(READABLE_MEAN_TAG, mean);
-        inserter.insertValue(READABLE_STANDARD_DEVIATION_TAG, sd);
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
     }
 }
 

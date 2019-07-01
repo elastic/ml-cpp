@@ -168,10 +168,8 @@ const std::string IS_FORECASTABLE_6_3_TAG{"c"};
 //const std::string RNG_6_3_TAG{"d"}; Removed in 6.5
 const std::string CONTROLLER_6_3_TAG{"e"};
 const std::string TREND_MODEL_6_3_TAG{"f"};
-const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
+const ml::core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
-
-const std::string READABLE_RESIDUAL_MODEL_6_3_TAG{"residual_model"};
 
 //const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5
 const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
@@ -1430,10 +1428,9 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
 
 void CUnivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
     if (m_ResidualModel != nullptr) {
-        const bool readableTags{inserter.readableTags()};
-        inserter.insertLevel(readableTags ? READABLE_RESIDUAL_MODEL_6_3_TAG : RESIDUAL_MODEL_6_3_TAG,
-                             std::bind<void>(CPriorStateSerialiser{},
-                                               std::cref(*m_ResidualModel), std::placeholders::_1));
+        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
+                             std::bind<void>(CPriorStateSerialiser{}, std::cref(*m_ResidualModel),
+                                             std::placeholders::_1));
     }
 }
 
@@ -2873,8 +2870,8 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     }
     if (m_ResidualModel != nullptr) {
         inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                             std::bind<void>(CPriorStateSerialiser(),
-                                               std::cref(*m_ResidualModel), std::placeholders::_1));
+                             std::bind<void>(CPriorStateSerialiser(), std::cref(*m_ResidualModel),
+                                             std::placeholders::_1));
     }
     if (m_MultibucketFeature != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,

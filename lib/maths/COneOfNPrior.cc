@@ -61,15 +61,10 @@ const double LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
 const std::string VERSION_7_1_TAG("7.1");
 
 // Version 7.1
-const std::string MODEL_7_1_TAG("a");
-const std::string SAMPLE_MOMENTS_7_1_TAG("b");
-const std::string NUMBER_SAMPLES_7_1_TAG("c");
-const std::string DECAY_RATE_7_1_TAG("d");
-
-const std::string READABLE_MODEL_7_1_TAG("model");
-const std::string READABLE_SAMPLE_MOMENTS_7_1_TAG("sample_moments");
-const std::string READABLE_NUMBER_SAMPLES_7_1_TAG("number_samples");
-const std::string READABLE_DECAY_RATE_7_1_TAG("decay_rate");
+const ml::core::TPersistenceTag MODEL_7_1_TAG("a", "model");
+const ml::core::TPersistenceTag SAMPLE_MOMENTS_7_1_TAG("b", "sample_moments");
+const ml::core::TPersistenceTag NUMBER_SAMPLES_7_1_TAG("c", "number_samples");
+const ml::core::TPersistenceTag DECAY_RATE_7_1_TAG("d", "decay_rate");
 
 // Version < 7.1
 const std::string MODEL_OLD_TAG("a");
@@ -77,11 +72,8 @@ const std::string NUMBER_SAMPLES_OLD_TAG("b");
 const std::string DECAY_RATE_OLD_TAG("e");
 
 // Nested tags
-const std::string READABLE_WEIGHT_TAG("weight");
-const std::string READABLE_PRIOR_TAG("prior");
-
-const std::string WEIGHT_TAG("a");
-const std::string PRIOR_TAG("b");
+const ml::core::TPersistenceTag WEIGHT_TAG("a", "weight");
+const ml::core::TPersistenceTag PRIOR_TAG("b", "prior");
 
 const std::string EMPTY_STRING;
 
@@ -89,11 +81,10 @@ const std::string EMPTY_STRING;
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CPrior& prior,
                                 core::CStatePersistInserter& inserter) {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertLevel(
-        readableTags ? READABLE_WEIGHT_TAG : WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter, &weight, std::placeholders::_1));
-    inserter.insertLevel(readableTags ? READABLE_PRIOR_TAG : PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                      std::cref(prior), std::placeholders::_1));
+    inserter.insertLevel(WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter,
+                                               &weight, std::placeholders::_1));
+    inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(), std::cref(prior),
+                                                    std::placeholders::_1));
 }
 }
 
@@ -1023,18 +1014,16 @@ std::size_t COneOfNPrior::staticSize() const {
 }
 
 void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
     inserter.insertValue(VERSION_7_1_TAG, "");
     for (const auto& model : m_Models) {
-        inserter.insertLevel(readableTags ? READABLE_MODEL_7_1_TAG : MODEL_7_1_TAG,
-                                                        std::bind(&modelAcceptPersistInserter,
-                                                        std::cref(model.first),
-                                                        std::cref(*model.second),
-                                                        std::placeholders::_1));
+        inserter.insertLevel(MODEL_7_1_TAG, std::bind(&modelAcceptPersistInserter,
+                                                      std::cref(model.first),
+                                                      std::cref(*model.second),
+                                                      std::placeholders::_1));
     }
-    inserter.insertValue(readableTags ? READABLE_SAMPLE_MOMENTS_7_1_TAG : SAMPLE_MOMENTS_7_1_TAG, m_SampleMoments.toDelimited());
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_7_1_TAG : DECAY_RATE_7_1_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_7_1_TAG : NUMBER_SAMPLES_7_1_TAG, this->numberSamples(),
+    inserter.insertValue(SAMPLE_MOMENTS_7_1_TAG, m_SampleMoments.toDelimited());
+    inserter.insertValue(DECAY_RATE_7_1_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_7_1_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }
 

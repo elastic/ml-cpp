@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
     ml::api::CAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport){});
+        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {});
 
     ml::core_t::TTime completeToTime{0};
     ml::core_t::TTime prevCompleteToTime{0};

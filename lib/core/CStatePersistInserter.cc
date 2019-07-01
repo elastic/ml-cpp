@@ -17,6 +17,14 @@ void CStatePersistInserter::insertValue(const std::string& name,
     this->insertValue(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
+bool operator==(const std::string& lhs, const TPersistenceTag& rhs) {
+    return lhs == rhs.m_ShortTag || lhs == rhs.m_LongTag;
+}
+
+bool operator!=(const std::string& lhs, const TPersistenceTag& rhs) {
+    return lhs != rhs.m_ShortTag && lhs != rhs.m_LongTag;
+}
+
 CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string& name,
                                               CStatePersistInserter& inserter)
     : m_Inserter(inserter) {

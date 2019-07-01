@@ -418,24 +418,17 @@ const double CLogMarginalLikelihood::LOG_2_PI =
 
 } // detail::
 
-const std::string READABLE_GAUSSIAN_MEAN_TAG("gaussian_mean");
-const std::string READABLE_GAUSSIAN_PRECISION_TAG("gaussian_precision");
-const std::string READABLE_GAMMA_SHAPE_TAG("gamma_shape");
-const std::string READABLE_GAMMA_RATE_TAG("gamma_rate");
-const std::string READABLE_NUMBER_SAMPLES_TAG("number_samples");
-const std::string READABLE_DECAY_RATE_TAG("decay_rate");
-const std::string READABLE_MEAN_TAG("mean");
-const std::string READABLE_STANDARD_DEVIATION_TAG("standard_deviation");
+const ml::core::TPersistenceTag GAUSSIAN_MEAN_TAG("a", "gaussian_mean");
+const ml::core::TPersistenceTag GAUSSIAN_PRECISION_TAG("b", "gaussian_precision");
+const ml::core::TPersistenceTag GAMMA_SHAPE_TAG("c", "gamma_shape");
+const ml::core::TPersistenceTag GAMMA_RATE_TAG("d", "gamma_rate");
+const ml::core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
+const ml::core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 
-// We use short field names to reduce the state size
-const std::string GAUSSIAN_MEAN_TAG("a");
-const std::string GAUSSIAN_PRECISION_TAG("b");
-const std::string GAMMA_SHAPE_TAG("c");
-const std::string GAMMA_RATE_TAG("d");
-const std::string NUMBER_SAMPLES_TAG("e");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const std::string DECAY_RATE_TAG("h");
 const std::string EMPTY_STRING;
 }
 
@@ -1264,28 +1257,22 @@ std::size_t CNormalMeanPrecConjugate::staticSize() const {
 }
 
 void CNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    const bool readableTags{inserter.readableTags()};
-    inserter.insertValue(readableTags ? READABLE_DECAY_RATE_TAG : DECAY_RATE_TAG,
-                         this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_MEAN_TAG : GAUSSIAN_MEAN_TAG,
-                         m_GaussianMean.toString());
-    inserter.insertValue(readableTags ? READABLE_GAUSSIAN_PRECISION_TAG : GAUSSIAN_PRECISION_TAG,
-                         m_GaussianPrecision.toString());
-    inserter.insertValue(readableTags ? READABLE_GAMMA_SHAPE_TAG : GAMMA_SHAPE_TAG,
-                         m_GammaShape.toString());
-    inserter.insertValue(readableTags ? READABLE_GAMMA_RATE_TAG : GAMMA_RATE_TAG,
-                         m_GammaRate, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(readableTags ? READABLE_NUMBER_SAMPLES_TAG : NUMBER_SAMPLES_TAG,
-                         this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean.toString());
+    inserter.insertValue(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toString());
+    inserter.insertValue(GAMMA_SHAPE_TAG, m_GammaShape.toString());
+    inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 
-    if (readableTags == true) {
+    if (inserter.readableTags() == true) {
         std::string mean{"<unknown>"};
         std::string sd{"<unknown>"};
 
         this->restoreDescriptiveStatistics(mean, sd);
 
-        inserter.insertValue(READABLE_MEAN_TAG, mean);
-        inserter.insertValue(READABLE_STANDARD_DEVIATION_TAG, sd);
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
     }
 }
 

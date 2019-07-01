@@ -105,15 +105,10 @@ protected:
     //! The maximum number of iterations to use for k-means in reduce.
     static const std::size_t MAX_ITERATIONS;
 
-    static const std::string K_TAG;
-    static const std::string CLUSTERS_TAG;
-    static const std::string POINTS_TAG;
-    static const std::string RNG_TAG;
-
-    static const std::string READABLE_K_TAG;
-    static const std::string READABLE_CLUSTERS_TAG;
-    static const std::string READABLE_POINTS_TAG;
-    static const std::string READABLE_RNG_TAG;
+    static const ml::core::TPersistenceTag K_TAG;
+    static const ml::core::TPersistenceTag CLUSTERS_TAG;
+    static const ml::core::TPersistenceTag POINTS_TAG;
+    static const ml::core::TPersistenceTag RNG_TAG;
 
 public:
     //! \param[in] k The maximum space in numbers of clusters.
@@ -165,13 +160,10 @@ public:
 
     //! Persist state by passing to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        const bool readableTags{inserter.readableTags()};
-        inserter.insertValue(readableTags ? READABLE_RNG_TAG : RNG_TAG, m_Rng.toString());
-        core::CPersistUtils::persist(readableTags ? READABLE_K_TAG : K_TAG, m_K, inserter);
-        core::CPersistUtils::persist(readableTags ? READABLE_CLUSTERS_TAG : CLUSTERS_TAG,
-                                     m_Clusters, inserter);
-        core::CPersistUtils::persist(readableTags ? READABLE_POINTS_TAG : POINTS_TAG,
-                                     m_PointsBuffer, inserter);
+        inserter.insertValue(RNG_TAG, m_Rng.toString());
+        core::CPersistUtils::persist(K_TAG, m_K, inserter);
+        core::CPersistUtils::persist(CLUSTERS_TAG, m_Clusters, inserter);
+        core::CPersistUtils::persist(POINTS_TAG, m_PointsBuffer, inserter);
     }
 
     //! Efficiently swap the contents of this and \p other.
@@ -616,23 +608,15 @@ template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
 template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
-template<typename POINT>
-const std::string CKMeansOnline<POINT>::K_TAG("a");
-template<typename POINT>
-const std::string CKMeansOnline<POINT>::CLUSTERS_TAG("b");
-template<typename POINT>
-const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
-template<typename POINT>
-const std::string CKMeansOnline<POINT>::RNG_TAG("d");
 
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::READABLE_K_TAG("k");
+const ml::core::TPersistenceTag CKMeansOnline<POINT>::K_TAG("a", "k");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::READABLE_CLUSTERS_TAG("clusters");
+const ml::core::TPersistenceTag CKMeansOnline<POINT>::CLUSTERS_TAG("b", "clusters");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::READABLE_POINTS_TAG("points");
+const ml::core::TPersistenceTag CKMeansOnline<POINT>::POINTS_TAG("c", "points");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::READABLE_RNG_TAG("rng");
+const ml::core::TPersistenceTag CKMeansOnline<POINT>::RNG_TAG("d", "rng");
 }
 }
 

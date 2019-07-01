@@ -1124,7 +1124,6 @@ bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrV
                 LOG_ERROR(<< "Failed to complete last persistence stream");
                 return false;
             }
-
         }
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());

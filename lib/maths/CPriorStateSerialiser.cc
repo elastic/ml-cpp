@@ -31,26 +31,16 @@
 namespace ml {
 namespace maths {
 namespace {
-// We use short field names to reduce the state size
 // There needs to be one constant here per sub-class of CPrior.
 // DO NOT change the existing tags if new sub-classes are added.
-const std::string GAMMA_TAG("a");
-const std::string LOG_NORMAL_TAG("b");
-const std::string MULTIMODAL_TAG("c");
-const std::string NORMAL_TAG("d");
-const std::string ONE_OF_N_TAG("e");
-const std::string POISSON_TAG("f");
-const std::string MULTINOMIAL_TAG("g");
-const std::string CONSTANT_TAG("h");
-
-const std::string READABLE_GAMMA_TAG("gamma");
-const std::string READABLE_LOG_NORMAL_TAG("log_normal");
-const std::string READABLE_MULTIMODAL_TAG("multimodal");
-const std::string READABLE_NORMAL_TAG("normal");
-const std::string READABLE_ONE_OF_N_TAG("one-of-n");
-const std::string READABLE_POISSON_TAG("poisson");
-const std::string READABLE_MULTINOMIAL_TAG("multimonial");
-const std::string READABLE_CONSTANT_TAG("constant");
+const ml::core::TPersistenceTag GAMMA_TAG("a", "gamma");
+const ml::core::TPersistenceTag LOG_NORMAL_TAG("b", "log_normal");
+const ml::core::TPersistenceTag MULTIMODAL_TAG("c", "multimodal");
+const ml::core::TPersistenceTag NORMAL_TAG("d", "normal");
+const ml::core::TPersistenceTag ONE_OF_N_TAG("e", "one-of-n");
+const ml::core::TPersistenceTag POISSON_TAG("f", "poisson");
+const ml::core::TPersistenceTag MULTINOMIAL_TAG("g", "multimonial");
+const ml::core::TPersistenceTag CONSTANT_TAG("h", "constant");
 
 const std::string EMPTY_STRING;
 
@@ -148,25 +138,24 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
 
 void CPriorStateSerialiser::operator()(const CPrior& prior,
                                        core::CStatePersistInserter& inserter) const {
-    std::string tagName;
+    ml::core::TPersistenceTag tagName;
 
-    const bool readableTags{inserter.readableTags()};
     if (dynamic_cast<const CConstantPrior*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_CONSTANT_TAG : CONSTANT_TAG;
+        tagName = CONSTANT_TAG;
     } else if (dynamic_cast<const CGammaRateConjugate*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_GAMMA_TAG : GAMMA_TAG;
+        tagName = GAMMA_TAG;
     } else if (dynamic_cast<const CLogNormalMeanPrecConjugate*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_LOG_NORMAL_TAG : LOG_NORMAL_TAG;
+        tagName = LOG_NORMAL_TAG;
     } else if (dynamic_cast<const CMultimodalPrior*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_MULTIMODAL_TAG : MULTIMODAL_TAG;
+        tagName = MULTIMODAL_TAG;
     } else if (dynamic_cast<const CMultinomialConjugate*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_MULTINOMIAL_TAG : MULTINOMIAL_TAG;
+        tagName = MULTINOMIAL_TAG;
     } else if (dynamic_cast<const CNormalMeanPrecConjugate*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_NORMAL_TAG : NORMAL_TAG;
+        tagName = NORMAL_TAG;
     } else if (dynamic_cast<const COneOfNPrior*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_ONE_OF_N_TAG : ONE_OF_N_TAG;
+        tagName = ONE_OF_N_TAG;
     } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != nullptr) {
-        tagName = readableTags ? READABLE_POISSON_TAG : POISSON_TAG;
+        tagName = POISSON_TAG;
     } else {
         LOG_ERROR(<< "Prior distribution with type '" << typeid(prior).name()
                   << "' has no defined field name");
