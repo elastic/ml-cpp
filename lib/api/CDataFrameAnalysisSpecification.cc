@@ -109,8 +109,9 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
-        if (m_DiskUsageAllowed and m_TemporaryDirectory.empty()) {
-            HANDLE_FATAL(<< "Temporary directory path should be explicitly set if disk usage is allowed!");
+        if (m_DiskUsageAllowed && m_TemporaryDirectory.empty()) {
+            HANDLE_FATAL(<< "Input error: temporary directory path should be explicitly set if disk"
+                            " usage is allowed! Please report this problem.");
         }
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
