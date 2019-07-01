@@ -13,8 +13,12 @@ class CDataFrameAnalysisSpecificationTest : public CppUnit::TestFixture {
 public:
     void testCreate();
     void testRunAnalysis();
+    void testTempDirDiskUsage();
 
     static CppUnit::Test* suite();
+
+private:
+    std::string createSpecJsonForTempDirDiskUsageTest(bool, bool);
 };
 
 #endif // INCLUDED_CDataFrameAnalysisSpecificationTest_h

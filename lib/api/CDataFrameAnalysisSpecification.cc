@@ -7,9 +7,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <core/CDataFrame.h>
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonLineWriter.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameOutliersRunner.h>
@@ -22,7 +20,6 @@
 #include <cstring>
 #include <iterator>
 #include <memory>
-#include <thread>
 
 namespace ml {
 namespace api {
@@ -100,10 +97,13 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_NumberColumns = parameters[COLS].as<std::size_t>();
         m_MemoryLimit = parameters[MEMORY_LIMIT].as<std::size_t>();
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
-        m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(
-            boost::filesystem::current_path().string());
+        m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(std::string{});
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
+
+        if (m_DiskUsageAllowed and m_TemporaryDirectory.empty()) {
+            HANDLE_FATAL(<< "Temporary directory path should be explicitly set if disk usage is allowed!");
+        }
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
