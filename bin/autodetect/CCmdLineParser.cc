@@ -128,8 +128,8 @@ bool CCmdLineParser::parse(int argc,
 
         auto checkConflictingOptions = [&vm](const std::string& opt1,
                                              const std::string& opt2) {
-            if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) &&
-                !vm[opt2].defaulted())
+            if (vm.count(opt1) && (vm[opt1].defaulted() == false) &&
+                vm.count(opt2) && (vm[opt2].defaulted() == false))
                 throw std::runtime_error("Conflicting options '" + opt1 +
                                          "' and '" + opt2 + "'.");
         };

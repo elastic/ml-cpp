@@ -44,7 +44,8 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
 }
 }
 
-const std::size_t ADJUST_OFFSET_TRIALS = 20;
+const std::size_t ADJUST_OFFSET_TRIALS{20};
+const std::string UNKNOWN_VALUE_STRING{"<unknown>"};
 }
 
 CPrior::CPrior()
@@ -304,6 +305,13 @@ std::string CPrior::debug() const {
     return std::string();
 }
 
+CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
+    if (this->isNonInformative()) {
+        return TStrStrPr{UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
+    }
+
+    return this->doPrintMarginalLikelihoodStatistics();
+}
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
 const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
 

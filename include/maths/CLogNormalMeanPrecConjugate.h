@@ -362,9 +362,8 @@ public:
 
 private:
     //! Generate statistics - mean and standard deviation - that are useful in providing a description of this prior
-    //! \param[out] meanStr Mean of this prior represented as a string
-    //! \param[out] sdStr Standard Deviation of this prior represented as a string
-    void restoreDescriptiveStatistics(std::string& meanStr, std::string& sdStr) const;
+    //! \return A pair of strings containing representations of the marginal likelihood mean and standard deviation
+    CPrior::TStrStrPr doPrintMarginalLikelihoodStatistics() const;
 
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

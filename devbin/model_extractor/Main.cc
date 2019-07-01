@@ -42,9 +42,9 @@ int main(int argc, char** argv) {
     // Read command line options
     std::string logProperties;
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     if (model_extractor::CCmdLineParser::parse(argc, argv, logProperties, inputFileName,
                                                isInputFileNamedPipe, outputFileName,
                                                isOutputFileNamedPipe) == false) {
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
                               outputFileName, isOutputFileNamedPipe);
 
-    const std::string logPipe{};
+    const std::string logPipe;
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
@@ -81,13 +81,13 @@ int main(int argc, char** argv) {
     }());
 
     // create a job with basic config sufficient enough to restore state.
-    static const ml::core_t::TTime BUCKET_SIZE(600);
-    static const std::string JOB_ID("job");
+    static const ml::core_t::TTime BUCKET_SIZE{600};
+    static const std::string JOB_ID{"job"};
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
 
-    if (!fieldConfig.initFromFile(ml::core::COsFileFuncs::NULL_FILENAME)) {
+    if (fieldConfig.initFromFile(ml::core::COsFileFuncs::NULL_FILENAME) == false) {
         std::cerr << "Failed to initialize field configuration." << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -99,25 +99,29 @@ int main(int argc, char** argv) {
 
     // dummy job output stream to satisfy CAnomalyJob ctor requirements
     std::ofstream jobOutputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    if (!jobOutputStrm.is_open()) {
+    if (jobOutputStrm.is_open() == false) {
         LOG_ERROR(<< "Failed to open output stream.");
     }
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(jobOutputStrm);
 
-    ml::api::CAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {});
+    ml::api::CAnomalyJob restoredJob{
+        JOB_ID,
+        limits,
+        fieldConfig,
+        modelConfig,
+        wrappedOutputStream,
+        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {}};
 
     ml::core_t::TTime completeToTime{0};
     ml::core_t::TTime prevCompleteToTime{0};
-    while (restoredJob.restoreState(restoreSearcher, completeToTime) == true) {
+    while (restoredJob.restoreState(restoreSearcher, completeToTime)) {
         assert(completeToTime > prevCompleteToTime);
         prevCompleteToTime = completeToTime;
         LOG_DEBUG(<< "Restore complete to time " << completeToTime << std::endl);
 
         core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(),
                                                        [](std::ostream*) {}};
-        ml::api::CSingleStreamDataAdder persister(persistStrm);
+        ml::api::CSingleStreamDataAdder persister{persistStrm};
 
         // Attempt to persist state in a plain JSON formatted file or stream
         if (restoredJob.persistResidualModelsState(persister, completeToTime) == false) {

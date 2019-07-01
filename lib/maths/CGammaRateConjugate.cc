@@ -1441,21 +1441,17 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
         return;
     }
 
-    std::string meanStr{UNKNOWN_VALUE_STRING};
-    std::string sdStr{UNKNOWN_VALUE_STRING};
+    std::string meanStr;
+    std::string sdStr;
 
-    this->restoreDescriptiveStatistics(meanStr, sdStr);
+    std::tie(meanStr, sdStr) = this->printMarginalLikelihoodStatistics();
 
     result += "mean = " + meanStr + " sd = " + sdStr;
 }
 
-void CGammaRateConjugate::restoreDescriptiveStatistics(std::string& meanStr,
-                                                       std::string& sdStr) const {
-
-    if (this->isNonInformative()) {
-        return;
-    }
-
+CPrior::TStrStrPr CGammaRateConjugate::doPrintMarginalLikelihoodStatistics() const {
+    std::string meanStr;
+    std::string sdStr;
     try {
         if (this->priorShape() > 2.0) {
             double shape = (this->priorShape() - 2.0) /
@@ -1468,7 +1464,7 @@ void CGammaRateConjugate::restoreDescriptiveStatistics(std::string& meanStr,
             meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
             sdStr = core::CStringUtils::typeToStringPretty(deviation);
 
-            return;
+            return TStrStrPr{meanStr, sdStr};
         }
     } catch (const std::exception&) {}
     double mean = CBasicStatistics::mean(m_SampleMoments);
@@ -1476,6 +1472,8 @@ void CGammaRateConjugate::restoreDescriptiveStatistics(std::string& meanStr,
 
     meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
     sdStr = core::CStringUtils::typeToStringPretty(deviation);
+
+    return TStrStrPr{meanStr, sdStr};
 }
 
 std::string CGammaRateConjugate::printJointDensityFunction() const {
@@ -1551,10 +1549,10 @@ void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& ins
                          core::CIEEE754::E_SinglePrecision);
 
     if (inserter.readableTags() == true) {
-        std::string mean{UNKNOWN_VALUE_STRING};
-        std::string sd{UNKNOWN_VALUE_STRING};
+        std::string mean;
+        std::string sd;
 
-        this->restoreDescriptiveStatistics(mean, sd);
+        std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
 
         inserter.insertValue(MEAN_TAG, mean);
         inserter.insertValue(STANDARD_DEVIATION_TAG, sd);

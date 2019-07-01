@@ -45,6 +45,7 @@ public:
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
     using TWeights = maths_t::CUnitWeights;
+    using TStrStrPr = std::pair<std::string, std::string>;
 
     //! \brief Data for plotting a series
     struct MATHS_EXPORT SPlot {
@@ -339,6 +340,8 @@ public:
     //! \param[in,out] result Filled in with the description.
     virtual void print(const std::string& indent, std::string& result) const = 0;
 
+    virtual TStrStrPr printMarginalLikelihoodStatistics() const;
+
     //! Print the marginal likelihood function.
     //!
     //! The format is as follows:\n
@@ -514,6 +517,12 @@ protected:
 
     //! Get a debug description of the prior parameters.
     virtual std::string debug() const;
+
+    //! Generate statistics - mean and standard deviation - that are useful in providing a description of this prior
+    //! \return A pair of strings containing representations of the marginal likelihood mean and standard deviation
+    virtual TStrStrPr doPrintMarginalLikelihoodStatistics() const {
+        return TStrStrPr{};
+    }
 
 private:
     //! If this is true then the prior is being used to model discrete

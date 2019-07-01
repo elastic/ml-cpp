@@ -898,6 +898,11 @@ private:
     template<typename A, typename B>
     static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
             LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
                       << FIRST_TAG.name(false));
             return false;
@@ -913,6 +918,11 @@ private:
             return false;
         }
         if (traverser.name() != SECOND_TAG) {
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
             LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
                       << SECOND_TAG.name(false));
             return false;

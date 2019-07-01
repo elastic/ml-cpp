@@ -84,7 +84,7 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! This should be updated every time there is a breaking change to the model state.
 const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
 
-// Persist state as JSON with meaningful tag names.
+//! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
 public:
     explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
