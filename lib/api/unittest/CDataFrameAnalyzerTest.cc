@@ -502,7 +502,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{outlierSpec(9), outputWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});
