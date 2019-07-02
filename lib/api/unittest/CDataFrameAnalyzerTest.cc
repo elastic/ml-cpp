@@ -55,7 +55,9 @@ outlierSpec(std::size_t rows = 110,
                      std::to_string(memoryLimit) +
                      ",\n"
                      "  \"threads\": 1,\n"
-                     "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
+                     "  \"temp_dir\": \"" +
+                     test::CTestTmpDir::tmpDir() +
+                     "\",\n"
                      "  \"disk_usage_allowed\": true,\n"
                      "  \"analysis\": {\n"
                      "    \"name\": \"outlier_detection\""};

@@ -259,7 +259,9 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
                          "  \"cols\": 10,\n"
                          "  \"memory_limit\": 1000,\n"
                          "  \"threads\": 1,\n"
-                         "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
+                         "  \"temp_dir\": \"" +
+                         test::CTestTmpDir::tmpDir() +
+                         "\",\n"
                          "  \"disk_usage_allowed\": true,\n"
                          "  \"analysis\": {\n"
                          "    \"name\": \"test\""

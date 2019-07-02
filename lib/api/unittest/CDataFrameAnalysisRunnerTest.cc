@@ -86,7 +86,9 @@ CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberR
                          std::to_string(numberCols) +
                          ",\n"
                          "  \"memory_limit\": 500000,\n"
-                         "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
+                         "  \"temp_dir\": \"" +
+                         test::CTestTmpDir::tmpDir() +
+                         "\",\n"
                          "  \"disk_usage_allowed\": " +
                          (diskUsageAllowed ? "true" : "false") +
                          ",\n"
