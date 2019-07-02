@@ -6,11 +6,12 @@
 
 #include "CDataFrameAnalysisRunnerTest.h"
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameOutliersRunner.h>
+
+#include <test/CTestTmpDir.h>
 
 #include <mutex>
 #include <string>
@@ -85,6 +86,7 @@ CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberR
                          std::to_string(numberCols) +
                          ",\n"
                          "  \"memory_limit\": 500000,\n"
+                         "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
                          "  \"disk_usage_allowed\": " +
                          (diskUsageAllowed ? "true" : "false") +
                          ",\n"

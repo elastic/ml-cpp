@@ -19,6 +19,7 @@
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
@@ -54,6 +55,7 @@ outlierSpec(std::size_t rows = 110,
                      std::to_string(memoryLimit) +
                      ",\n"
                      "  \"threads\": 1,\n"
+                     "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
                      "  \"disk_usage_allowed\": true,\n"
                      "  \"analysis\": {\n"
                      "    \"name\": \"outlier_detection\""};

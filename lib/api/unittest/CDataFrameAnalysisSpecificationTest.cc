@@ -9,13 +9,12 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CStopWatch.h>
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameOutliersRunner.h>
 
-#include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include "CDataFrameMockAnalysisRunner.h"
 
@@ -260,6 +259,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
                          "  \"cols\": 10,\n"
                          "  \"memory_limit\": 1000,\n"
                          "  \"threads\": 1,\n"
+                         "  \"temp_dir\": \"" + test::CTestTmpDir::tmpDir() + "\",\n"
                          "  \"disk_usage_allowed\": true,\n"
                          "  \"analysis\": {\n"
                          "    \"name\": \"test\""
