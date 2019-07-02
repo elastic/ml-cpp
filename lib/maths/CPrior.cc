@@ -306,11 +306,17 @@ std::string CPrior::debug() const {
 }
 
 CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
+    TStrStrPr unknownValuePr{UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
+
     if (this->isNonInformative()) {
-        return TStrStrPr{UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
+        return unknownValuePr;
     }
 
-    return this->doPrintMarginalLikelihoodStatistics();
+    try {
+        return this->doPrintMarginalLikelihoodStatistics();
+    } catch (...) {}
+
+    return unknownValuePr;
 }
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
 const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;

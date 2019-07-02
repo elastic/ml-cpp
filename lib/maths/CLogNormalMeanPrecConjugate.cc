@@ -607,7 +607,6 @@ const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
-const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType dataType,
@@ -1408,18 +1407,15 @@ void CLogNormalMeanPrecConjugate::print(const std::string& indent, std::string& 
 CPrior::TStrStrPr CLogNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatistics() const {
     double scale = std::sqrt((m_GaussianPrecision + 1.0) / m_GaussianPrecision *
                              m_GammaRate / m_GammaShape);
-    try {
-        boost::math::lognormal lognormal(m_GaussianMean, scale);
-        double mean = boost::math::mean(lognormal);
-        double deviation = boost::math::standard_deviation(lognormal);
 
-        const std::string meanStr{core::CStringUtils::typeToStringPretty(mean - m_Offset)};
-        const std::string sdStr{core::CStringUtils::typeToStringPretty(deviation)};
+    boost::math::lognormal lognormal(m_GaussianMean, scale);
+    double mean = boost::math::mean(lognormal);
+    double deviation = boost::math::standard_deviation(lognormal);
 
-        return TStrStrPr{meanStr, sdStr};
-    } catch (const std::exception&) {}
+    const std::string meanStr{core::CStringUtils::typeToStringPretty(mean - m_Offset)};
+    const std::string sdStr{core::CStringUtils::typeToStringPretty(deviation)};
 
-    return TStrStrPr{UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
+    return TStrStrPr{meanStr, sdStr};
 }
 
 std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
