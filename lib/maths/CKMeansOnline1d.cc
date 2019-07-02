@@ -98,7 +98,7 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     return true;
 }
 
-core::TPersistenceTag CKMeansOnline1d::persistenceTag() const {
+const core::TPersistenceTag& CKMeansOnline1d::persistenceTag() const {
     return K_MEANS_ONLINE_1D_TAG;
 }
 

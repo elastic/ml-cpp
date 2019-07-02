@@ -731,7 +731,7 @@ void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     m_Clusters.swap(other.m_Clusters);
 }
 
-core::TPersistenceTag CXMeansOnline1d::persistenceTag() const {
+const core::TPersistenceTag& CXMeansOnline1d::persistenceTag() const {
     return X_MEANS_ONLINE_1D_TAG;
 }
 

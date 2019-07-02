@@ -45,7 +45,6 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
 }
 
 const std::size_t ADJUST_OFFSET_TRIALS{20};
-const std::string UNKNOWN_VALUE_STRING{"<unknown>"};
 }
 
 CPrior::CPrior()
@@ -306,20 +305,15 @@ std::string CPrior::debug() const {
 }
 
 CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
-    TStrStrPr unknownValuePr{UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
-
     if (this->isNonInformative()) {
-        return unknownValuePr;
+        return {UNKNOWN_VALUE_STRING, UNKNOWN_VALUE_STRING};
     }
 
-    try {
-        return this->doPrintMarginalLikelihoodStatistics();
-    } catch (...) {}
-
-    return unknownValuePr;
+    return this->doPrintMarginalLikelihoodStatistics();
 }
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
 const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
+const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";
 
 ////////// CPrior::CModelFilter Implementation //////////
 

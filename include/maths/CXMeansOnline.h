@@ -660,7 +660,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual core::TPersistenceTag persistenceTag() const {
+    virtual const core::TPersistenceTag& persistenceTag() const {
         return CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 

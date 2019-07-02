@@ -11,6 +11,7 @@
 #include <core/ImportExport.h>
 
 #include <limits>
+#include <ostream>
 #include <string>
 
 namespace ml {
@@ -88,11 +89,14 @@ private:
 private:
     friend CORE_EXPORT bool operator==(const std::string& lhs, const CPersistenceTag& rhs);
     friend CORE_EXPORT bool operator!=(const std::string& lhs, const CPersistenceTag& rhs);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream& os, const CPersistenceTag& tag);
 };
-using TPersistenceTag = CPersistenceTag;
 
-CORE_EXPORT bool operator==(const std::string& lhs, const TPersistenceTag& rhs);
-CORE_EXPORT bool operator!=(const std::string& lhs, const TPersistenceTag& rhs);
+CORE_EXPORT bool operator==(const std::string& lhs, const CPersistenceTag& rhs);
+CORE_EXPORT bool operator!=(const std::string& lhs, const CPersistenceTag& rhs);
+CORE_EXPORT std::ostream& operator<<(std::ostream& os, const CPersistenceTag& tag);
+
+using TPersistenceTag = CPersistenceTag;
 
 //! \brief
 //! Abstract interface for persisting state.

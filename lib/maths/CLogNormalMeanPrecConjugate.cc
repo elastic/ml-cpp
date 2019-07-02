@@ -1408,14 +1408,18 @@ CPrior::TStrStrPr CLogNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatisti
     double scale = std::sqrt((m_GaussianPrecision + 1.0) / m_GaussianPrecision *
                              m_GammaRate / m_GammaShape);
 
-    boost::math::lognormal lognormal(m_GaussianMean, scale);
-    double mean = boost::math::mean(lognormal);
-    double deviation = boost::math::standard_deviation(lognormal);
+    try {
+        boost::math::lognormal lognormal(m_GaussianMean, scale);
+        double mean = boost::math::mean(lognormal);
+        double deviation = boost::math::standard_deviation(lognormal);
 
-    const std::string meanStr{core::CStringUtils::typeToStringPretty(mean - m_Offset)};
-    const std::string sdStr{core::CStringUtils::typeToStringPretty(deviation)};
+        const std::string meanStr{core::CStringUtils::typeToStringPretty(mean - m_Offset)};
+        const std::string sdStr{core::CStringUtils::typeToStringPretty(deviation)};
 
-    return TStrStrPr{meanStr, sdStr};
+        return TStrStrPr{meanStr, sdStr};
+    } catch (std::exception&) {}
+
+    return {CPrior::UNKNOWN_VALUE_STRING, CPrior::UNKNOWN_VALUE_STRING};
 }
 
 std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {

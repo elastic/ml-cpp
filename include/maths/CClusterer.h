@@ -147,7 +147,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual core::TPersistenceTag persistenceTag() const = 0;
+    virtual const core::TPersistenceTag& persistenceTag() const = 0;
 
     //! Creates a copy of the clusterer.
     //!

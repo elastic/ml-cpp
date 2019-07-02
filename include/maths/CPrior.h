@@ -501,6 +501,9 @@ protected:
     //! The number of times we sample the prior when adjusting the offset.
     static const std::size_t ADJUST_OFFSET_SAMPLE_SIZE;
 
+    //! The string to represent an unavailable statistical value
+    static const std::string UNKNOWN_VALUE_STRING;
+
 protected:
     //! For priors with non-negative support this adjusts the offset used
     //! to extend the support to handle negative samples by maximizing a
