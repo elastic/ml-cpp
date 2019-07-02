@@ -479,6 +479,20 @@ void CDataFrameAnalyzerTest::testErrors() {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
+
+    // Test inconsistent number of rows
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"10", "10", "10", "10", "10", "0", ""}));
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"", "", "", "", "", "", "$"}));
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+    }
 }
 
 void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
@@ -488,7 +502,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{outlierSpec(9), outputWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});
