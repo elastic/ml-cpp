@@ -330,7 +330,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
 
         // single error is registered that temp dir is empty
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
-        CPPUNIT_ASSERT(errors[0].find("Temporary directory path should be explicitly set") !=
+        CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should be explicitly set if disk usage is allowed!") !=
                        std::string::npos);
     }
 
