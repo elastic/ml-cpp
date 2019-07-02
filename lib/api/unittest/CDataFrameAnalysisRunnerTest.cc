@@ -38,6 +38,9 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
                                  "  \"cols\": " +
                                  std::to_string(numberCols) +
                                  ",\n"
+                                 "  \"temp_dir\": \"" +
+                                 test::CTestTmpDir::tmpDir() +
+                                 "\",\n"
                                  "  \"memory_limit\": 100000000,\n"
                                  "  \"disk_usage_allowed\": true,\n"
                                  "  \"threads\": 1,\n"
