@@ -158,8 +158,8 @@ CDataFrameAnalysisConfigReader::CParameter
     return {name};
 }
 
-CDataFrameAnalysisConfigReader::CParameter
-CDataFrameAnalysisConfigReader::CParameters::operator[](const std::string& name) const {
+CDataFrameAnalysisConfigReader::CParameter CDataFrameAnalysisConfigReader::CParameters::
+operator[](const std::string& name) const {
     return this->operator[](name.c_str());
 }
 

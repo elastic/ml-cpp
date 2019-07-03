@@ -80,8 +80,6 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }()};
 }
 
-
-
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
 }
