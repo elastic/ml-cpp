@@ -45,9 +45,10 @@ int main(int argc, char** argv) {
     bool isInputFileNamedPipe{false};
     std::string outputFileName;
     bool isOutputFileNamedPipe{false};
-    if (model_extractor::CCmdLineParser::parse(argc, argv, logProperties, inputFileName,
-                                               isInputFileNamedPipe, outputFileName,
-                                               isOutputFileNamedPipe) == false) {
+    std::string outputFormat;
+    if (model_extractor::CCmdLineParser::parse(
+            argc, argv, logProperties, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, outputFormat) == false) {
         return EXIT_FAILURE;
     }
 
@@ -124,7 +125,8 @@ int main(int argc, char** argv) {
         ml::api::CSingleStreamDataAdder persister{persistStrm};
 
         // Attempt to persist state in a plain JSON formatted file or stream
-        if (restoredJob.persistResidualModelsState(persister, completeToTime) == false) {
+        if (restoredJob.persistResidualModelsState(persister, completeToTime,
+                                                   outputFormat) == false) {
             LOG_FATAL(<< "Failed to persist state as JSON");
             exit(EXIT_FAILURE);
         }

@@ -13,6 +13,7 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
+#include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
@@ -46,6 +47,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -90,6 +92,23 @@ public:
     explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
         : core::CJsonStatePersistInserter(outputStream) {}
     virtual bool readableTags() const { return true; }
+};
+
+//! Persist state as XML (wrapped in a JSON object) with meaningful tag names.
+class CReadableRapidXmlStatePersistInserter : public core::CRapidXmlStatePersistInserter {
+public:
+    explicit CReadableRapidXmlStatePersistInserter(std::ostream& strm)
+        : core::CRapidXmlStatePersistInserter("root"), m_WriteStream(strm) {}
+
+    ~CReadableRapidXmlStatePersistInserter() {
+        std::string xml;
+        this->toXml(false, xml);
+        m_WriteStream << "{\"xml\":\"" << xml << "\"}\n";
+    }
+    virtual bool readableTags() const { return true; }
+
+private:
+    std::ostream& m_WriteStream;
 };
 }
 
@@ -981,7 +1000,8 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
 }
 
 bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
-                                             core_t::TTime timestamp) {
+                                             core_t::TTime timestamp,
+                                             const std::string& outputFormat) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -990,7 +1010,7 @@ bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
     // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
     core::CProgramCounters::cacheCounters();
 
-    return this->persistResidualModelsState(detectors, persister, timestamp);
+    return this->persistResidualModelsState(detectors, persister, timestamp, outputFormat);
 }
 
 bool CAnomalyJob::persistState(core::CDataAdder& persister) {
@@ -1097,15 +1117,23 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
 
 bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                              core::CDataAdder& persister,
-                                             core_t::TTime timestamp) {
+                                             core_t::TTime timestamp,
+                                             const std::string& outputFormat) {
     try {
-        const std::string snapShotId(core::CStringUtils::typeToString(timestamp));
+        const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
         core::CDataAdder::TOStreamP strm = persister.addStreamed(
             ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
         if (strm != nullptr) {
             {
                 // The JSON inserter must be destroyed before the stream is complete
-                CReadableJsonStatePersistInserter inserter(*strm);
+                using TStatePersistInserterUPtr = std::unique_ptr<core::CStatePersistInserter>;
+                TStatePersistInserterUPtr inserter{[&outputFormat, &strm]() -> TStatePersistInserterUPtr {
+                    if (outputFormat == "JSON") {
+                        return std::make_unique<CReadableJsonStatePersistInserter>(*strm);
+                    }
+                    return std::make_unique<CReadableRapidXmlStatePersistInserter>(*strm);
+                }()};
+
                 for (const auto& detector_ : detectors) {
                     const model::CAnomalyDetector* detector(detector_.second.get());
                     if (detector == nullptr) {
@@ -1114,7 +1142,7 @@ bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrV
                         continue;
                     }
 
-                    detector->persistResidualModelsState(inserter);
+                    detector->persistResidualModelsState(*inserter);
 
                     LOG_DEBUG(<< "Persisted state for '" << detector->description() << "'");
                 }
