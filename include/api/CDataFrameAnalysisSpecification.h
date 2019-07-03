@@ -50,6 +50,18 @@ public:
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
+    static const std::string ROWS;
+    static const std::string COLS;
+    static const std::string MEMORY_LIMIT;
+    static const std::string THREADS;
+    static const std::string TEMPORARY_DIRECTORY;
+    static const std::string RESULTS_FIELD;
+    static const std::string ANALYSIS;
+    static const std::string NAME;
+    static const std::string PARAMETERS;
+    static const std::string DISK_USAGE_ALLOWED;
+
+public:
     //! Initialize from a JSON object.
     //!
     //! The specification has the following expected form:
