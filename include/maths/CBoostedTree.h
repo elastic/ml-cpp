@@ -159,6 +159,8 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+
 private:
     class CImpl;
     using TImplUPtr = std::unique_ptr<CImpl>;

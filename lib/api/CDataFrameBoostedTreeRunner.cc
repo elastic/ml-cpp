@@ -18,6 +18,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
+#include "api/CDataFrameBoostedTreeRunner.h"
+
 namespace ml {
 namespace api {
 namespace {
@@ -122,14 +124,12 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
 void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     m_BoostedTree->train(frame, this->progressRecorder());
 }
-
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberPartitions,
     std::size_t totalNumberRows,
     std::size_t partitionNumberRows,
     std::size_t numberColumns) const {
-    // TODO
-    return 0;
+    return m_BoostedTree->estimateMemoryUsage(partitionNumberRows, numberColumns);
 }
 
 const char* CDataFrameBoostedTreeRunnerFactory::name() const {
