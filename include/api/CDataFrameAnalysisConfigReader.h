@@ -122,6 +122,9 @@ public:
         }
 
         //! Get the parameter called \p name.
+        CParameter operator[](const std::string& name) const;
+
+        //! Get the parameter called \p name.
         CParameter operator[](const char* name) const;
 
     private:
@@ -135,6 +138,15 @@ public:
     //! \param[in] requirement Is the parameter required or optional.
     //! \param[in] permittedValues The permitted values for an enumeration.
     void addParameter(const char* name,
+                      ERequirement requirement,
+                      TStrIntMap permittedValues = TStrIntMap{});
+
+    //! Register a parameter.
+    //!
+    //! \param[in] name The parameter name.
+    //! \param[in] requirement Is the parameter required or optional.
+    //! \param[in] permittedValues The permitted values for an enumeration.
+    void addParameter(const std::string& name,
                       ERequirement requirement,
                       TStrIntMap permittedValues = TStrIntMap{});
 
