@@ -27,12 +27,12 @@ namespace ml {
 namespace api {
 namespace {
 // Configuration
-const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
-const char* const N_NEIGHBORS{"n_neighbors"};
-const char* const METHOD{"method"};
-const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
-const char* const FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
-const char* const OUTLIER_FRACTION{"outlier_fraction"};
+const std::string STANDARDIZE_COLUMNS{"standardize_columns"};
+const std::string N_NEIGHBORS{"n_neighbors"};
+const std::string METHOD{"method"};
+const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
+const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
+const std::string OUTLIER_FRACTION{"outlier_fraction"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     const std::string lof{"lof"};
@@ -57,8 +57,8 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
 }()};
 
 // Output
-const char* const OUTLIER_SCORE{"outlier_score"};
-const char* const FEATURE_INFLUENCE_PREFIX{"feature_influence."};
+const std::string OUTLIER_SCORE{"outlier_score"};
+const std::string FEATURE_INFLUENCE_PREFIX{"feature_influence."};
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
