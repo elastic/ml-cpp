@@ -84,7 +84,7 @@ void CMicTest::testOptimizeXAxis() {
     mic.setup();
 
     std::size_t k{5};
-    std::size_t ck{static_cast<std::size_t>(k * mic.c())};
+    std::size_t ck{static_cast<std::size_t>(k * mic.maximumXAxisPartitionSizeToSearch())};
 
     TDoubleVec pi(mic.equipartitionAxis(0, ck));
     TDoubleVec q(mic.equipartitionAxis(1, k));

@@ -54,8 +54,8 @@ private:
 
 private:
     void setup();
-    std::size_t b() const;
-    double c() const;
+    std::size_t maximumGridSize() const;
+    double maximumXAxisPartitionSizeToSearch() const;
     TDoubleVec equipartitionAxis(std::size_t variable, std::size_t l) const;
     TDoubleVec optimizeXAxis(const TDoubleVec& q, std::size_t l, std::size_t k) const;
     static double entropy(const TVectorXd& dist);

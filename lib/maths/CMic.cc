@@ -51,7 +51,11 @@ double CMic::compute() {
 
     this->setup();
 
-    std::size_t b{this->b()};
+    // We follow the paper naming convention here denoting the maximum grid size B,
+    // the equipartition of the Y-axis Q and the maximum number of rows and columns
+    // in the grid by l and k, respectively.
+
+    std::size_t b{this->maximumGridSize()};
     std::size_t rootb{static_cast<std::size_t>(std::sqrt(static_cast<double>(b)))};
     LOG_TRACE(<< "B(n) = " << b << ", sqrt(B(n)) = " << rootb);
 
@@ -60,7 +64,13 @@ double CMic::compute() {
 
         for (std::size_t l = 2; l < rootb; ++l) {
             TDoubleVec q(this->equipartitionAxis(Y, l));
-            TDoubleVec mi{this->optimizeXAxis(q, q.size(), q.size())};
+            LOG_TRACE(<< "Q = " << core::CContainerPrinter::print(q));
+            // Note in the case of points with duplicate Y- values we still choose
+            // k equal to the target size for Q here (since overall we still have
+            // that kl < B(n) and we want to test additional grids).
+            std::size_t ldistinct{q.size()};
+            std::size_t k{l};
+            TDoubleVec mi{this->optimizeXAxis(q, ldistinct, k)};
             for (std::size_t p = 0; p < mi.size(); ++p) {
                 mic = std::max(mic, mi[p] / CTools::fastLog(static_cast<double>(p + 2)));
             }
@@ -68,7 +78,11 @@ double CMic::compute() {
 
         for (std::size_t l = rootb; l < b / 2; ++l) {
             TDoubleVec q(this->equipartitionAxis(Y, l));
-            TDoubleVec mi{this->optimizeXAxis(q, q.size(), b / q.size())};
+            LOG_TRACE(<< "Q = " << core::CContainerPrinter::print(q));
+            // The same rational for choice of k in the presence of duplicates.
+            std::size_t ldistinct{q.size()};
+            std::size_t k{b / l};
+            TDoubleVec mi{this->optimizeXAxis(q, ldistinct, k)};
             for (std::size_t p = 0; p < mi.size(); ++p) {
                 mic = std::max(mic, mi[p] / CTools::fastLog(static_cast<double>(p + 2)));
             }
@@ -94,71 +108,99 @@ void CMic::setup() {
     }
 }
 
-std::size_t CMic::b() const {
+std::size_t CMic::maximumGridSize() const {
 
     // We use the parameters for the maximum grid size given in "An Empirical Study
     // of Leading Measures of Dependence" Reshef et al. See table E-4.
 
-    double n{std::max(std::min(static_cast<double>(m_Samples.size()), 100000.0), 50.0)};
+    const double MINIMUM_SAMPLE_SIZE{50.0};
+    const double MAXIMUM_SAMPLE_SIZE{1000000.0};
+    const double knotSampleSizes[]{MINIMUM_SAMPLE_SIZE - 1.0,
+                                   MINIMUM_SAMPLE_SIZE,
+                                   100.0,
+                                   500.0,
+                                   1000.0,
+                                   5000.0,
+                                   10000.0,
+                                   50000.0,
+                                   MAXIMUM_SAMPLE_SIZE,
+                                   MAXIMUM_SAMPLE_SIZE + 1.0};
+    const double knotGridSizeExponents[]{0.85, 0.85, 0.8, 0.8,  0.75,
+                                         0.65, 0.6,  0.5, 0.45, 0.45};
 
-    double x[]{49.0,   50.0,    100.0,   500.0,    1000.0,
-               5000.0, 10000.0, 50000.0, 100000.0, 100001.0};
-    double f[]{0.85, 0.85, 0.8, 0.8, 0.75, 0.65, 0.6, 0.5, 0.45, 0.45};
+    double clampedSampleSize{std::max(
+        std::min(static_cast<double>(m_Samples.size()), MAXIMUM_SAMPLE_SIZE), MINIMUM_SAMPLE_SIZE)};
 
-    auto b = std::lower_bound(std::begin(x), std::end(x), n);
-    auto a = b - 1;
+    auto rightKnot = std::lower_bound(std::begin(knotSampleSizes),
+                                      std::end(knotSampleSizes), clampedSampleSize);
+    auto leftKnot = rightKnot - 1;
 
-    double fb{f[b - std::begin(x)]};
-    double fa{f[a - std::begin(x)]};
+    double exponentAtRightKnot{knotGridSizeExponents[rightKnot - std::begin(knotSampleSizes)]};
+    double exponentAtLeftKnot{knotGridSizeExponents[leftKnot - std::begin(knotSampleSizes)]};
 
     return static_cast<std::size_t>(
         std::pow(static_cast<double>(m_Samples.size()),
-                 CTools::linearlyInterpolate(*a, *b, fa, fb, n)) +
+                 CTools::linearlyInterpolate(*leftKnot, *rightKnot, exponentAtLeftKnot,
+                                             exponentAtRightKnot, clampedSampleSize)) +
         0.5);
 }
 
-double CMic::c() const {
+double CMic::maximumXAxisPartitionSizeToSearch() const {
 
     // We use the parameters for the partition to search for the maximum mutual
     // information given in "An Empirical Study of Leading Measures of Dependence"
     // Reshef et al. See table E-4.
 
-    double n{std::max(std::min(static_cast<double>(m_Samples.size()), 5000.0), 50.0)};
+    const double MINIMUM_SAMPLE_SIZE{50.0};
+    const double MAXIMUM_SAMPLE_SIZE{5000.0};
+    double knotSampleSizes[]{MINIMUM_SAMPLE_SIZE - 1.0,
+                             MINIMUM_SAMPLE_SIZE,
+                             100.0,
+                             500.0,
+                             1000.0,
+                             MAXIMUM_SAMPLE_SIZE,
+                             MAXIMUM_SAMPLE_SIZE + 1.0};
+    double knotPartitionSizes[]{5.0, 5.0, 5.0, 5.0, 4.0, 1.0, 1.0};
 
-    double x[]{49.0, 50.0, 100.0, 500.0, 1000.0, 5000.0, 5001.0};
-    double f[]{5.0, 5.0, 5.0, 5.0, 4.0, 1.0, 1.0};
+    double clampedSampleSize{std::max(
+        std::min(static_cast<double>(m_Samples.size()), MAXIMUM_SAMPLE_SIZE), MINIMUM_SAMPLE_SIZE)};
 
-    auto b = std::lower_bound(std::begin(x), std::end(x), n);
-    auto a = b - 1;
+    auto rightKnot = std::lower_bound(std::begin(knotSampleSizes),
+                                      std::end(knotSampleSizes), clampedSampleSize);
+    auto leftKnot = rightKnot - 1;
 
-    double fb{f[b - std::begin(x)]};
-    double fa{f[a - std::begin(x)]};
+    double sizeAtRightKnot{knotPartitionSizes[rightKnot - std::begin(knotSampleSizes)]};
+    double sizeAtLeftKnot{knotPartitionSizes[leftKnot - std::begin(knotSampleSizes)]};
 
-    return CTools::linearlyInterpolate(*a, *b, fa, fb, n);
+    return CTools::linearlyInterpolate(*leftKnot, *rightKnot, sizeAtLeftKnot,
+                                       sizeAtRightKnot, clampedSampleSize);
 }
 
 CMic::TDoubleVec CMic::equipartitionAxis(std::size_t variable, std::size_t l) const {
 
-    // We seek an l-partition of the y-axis into buckets of approximately equal
-    // numbers of points.
+    // We seek an l-partition of "variable"-axis into buckets of approximately
+    // equal numbers of points. This calculates the values of "variable" for
+    // the partition boundaries.
 
     LOG_TRACE(<< "Equipartition " << (variable == 0 ? "x" : "y") << "-axis");
 
-    TDoubleVec result;
-    result.reserve(l + 1);
+    TDoubleVec partitionBoundaries;
+    partitionBoundaries.reserve(l + 1);
 
     std::size_t desired{std::max((m_Samples.size() + l - 1) / l, std::size_t{1})};
     LOG_TRACE(<< "l = " << l << ", desired bucket size = " << desired);
 
     for (std::size_t i = desired; i < m_Order[variable].size(); i += desired) {
-        result.push_back(m_Samples[m_Order[variable][i]](variable));
+        std::size_t variableIthOrderStatisticIndex{m_Order[variable][i]};
+        partitionBoundaries.push_back(m_Samples[variableIthOrderStatisticIndex](variable));
     }
-    result.erase(std::unique(result.begin(), result.end()), result.end());
+    partitionBoundaries.erase(
+        std::unique(partitionBoundaries.begin(), partitionBoundaries.end()),
+        partitionBoundaries.end());
     double max{m_Samples[m_Order[variable].back()](variable)};
-    result.push_back((1.0 + std::copysign(EPS, max)) * max);
-    LOG_TRACE(<< "partition = " << core::CContainerPrinter::print(result));
+    partitionBoundaries.push_back((1.0 + std::copysign(EPS, max)) * max);
 
-    return result;
+    return partitionBoundaries;
 }
 
 CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::size_t k) const {
@@ -170,7 +212,7 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
 
     LOG_TRACE(<< "Optimize x-axis, k = " << k);
 
-    std::size_t ck{static_cast<std::size_t>(this->c() * k)};
+    std::size_t ck{static_cast<std::size_t>(this->maximumXAxisPartitionSizeToSearch() * k)};
     LOG_TRACE(<< "c * k = " << ck);
 
     TDoubleVec pi(this->equipartitionAxis(X, ck));
