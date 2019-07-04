@@ -26,6 +26,7 @@
 import json
 import sys
 import sh
+import argparse
 
 
 def jq_reformat(input):
@@ -68,7 +69,7 @@ def parse_model_state_json(json_string):
                         continue
                     mean = float(prior['mean'][0])
                     sd = float(prior['standard_deviation'][0])
-                    print("{name}: mean = {mean:f}, sd = {sd:f}".format(name=name, mean=mean, sd=sd))
+                    print("\t{name}: mean = {mean:f}, sd = {sd:f}".format(name=name, mean=mean, sd=sd))
         else:
             pass
     except:
@@ -79,20 +80,12 @@ def parse_model_state_json(json_string):
 if __name__ == '__main__':
 
     data=''
-    if len(sys.argv) < 2:
-        data = sys.stdin.read();
-    else:
-        fileName = sys.argv[1]
+    parser = argparse.ArgumentParser(description="Parse a sequence of model state documents in the model_extractor\
+            \"JSON\" output format, from file or stdin")
+    parser.add_argument("infile", nargs='?', type=argparse.FileType('r'), default=sys.stdin, help="input file")
 
-        try:
-            jsonFile = open(fileName, 'r')
-        except IOError:
-            sys.exit("Error: Cannot open file '" + fileName)
-
-        print ("Reading items from {}".format(fileName))
-
-        with open(fileName) as json_file:  
-            data=json_file.read()
+    args = parser.parse_args()
+    data=args.infile.read()
 
     reformatted_json = jq_reformat(data)
 
