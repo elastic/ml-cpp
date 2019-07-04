@@ -44,6 +44,12 @@ void CDataFrameAnalysisConfigReader::addParameter(const char* name,
     m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
 }
 
+void CDataFrameAnalysisConfigReader::addParameter(const std::string& name,
+                                                  ERequirement requirement,
+                                                  TStrIntMap permittedValues) {
+    addParameter(name.c_str(), requirement, std::move(permittedValues));
+}
+
 CDataFrameAnalysisConfigReader::CParameters
 CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
 
@@ -150,6 +156,11 @@ CDataFrameAnalysisConfigReader::CParameter
         }
     }
     return {name};
+}
+
+CDataFrameAnalysisConfigReader::CParameter CDataFrameAnalysisConfigReader::CParameters::
+operator[](const std::string& name) const {
+    return this->operator[](name.c_str());
 }
 
 CDataFrameAnalysisConfigReader::CParameterReader::CParameterReader(const char* name,
