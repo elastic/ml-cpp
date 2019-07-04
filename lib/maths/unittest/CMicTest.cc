@@ -135,7 +135,7 @@ void CMicTest::testOptimizeXAxis() {
 
 void CMicTest::testInvariants() {
 
-    // Test the MIC doesn't change for shifts, scales and reflections.
+    // Test the MICe doesn't change for shifts, scales and reflections.
 
     test::CRandomNumbers rng;
 
@@ -410,6 +410,9 @@ void CMicTest::testVsMutualInformation() {
 
     LOG_DEBUG(<< "Test circle");
 
+    // We know from independent implementation that MICe for following data should
+    // be around 0.6.
+
     TSizeVec counts{100, 500, 1000, 2000, 6000};
 
     TDoubleVec noise;
@@ -432,7 +435,7 @@ void CMicTest::testVsMutualInformation() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(std::fabs(mic_ - 0.6) < 0.05);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mic_, 0.05);
     }
 }
 
