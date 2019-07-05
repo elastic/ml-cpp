@@ -14,6 +14,9 @@ public:
     void testStandardizeColumns();
     void testColumnQuantiles();
     void testMicWithColumn();
+    void testCategoryFrequencies();
+    void testMeanValueOfTargetForCategories();
+    void testCategoryMicWithColumn();
 
     static CppUnit::Test* suite();
 };

@@ -11,6 +11,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CMic.h>
+#include <maths/COrderings.h>
 #include <maths/CQuantileSketch.h>
 
 #include <test/CRandomNumbers.h>
@@ -29,6 +30,9 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 
 void CDataFrameUtilsTest::testStandardizeColumns() {
 
@@ -132,8 +136,6 @@ void CDataFrameUtilsTest::testStandardizeColumns() {
 
 void CDataFrameUtilsTest::testColumnQuantiles() {
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
 
     test::CRandomNumbers rng;
@@ -334,10 +336,258 @@ void CDataFrameUtilsTest::testMicWithColumn() {
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
-
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
                              core::CContainerPrinter::print(actual));
     }
+}
+
+void CDataFrameUtilsTest::testCategoryFrequencies() {
+
+    std::size_t rows{5000};
+    std::size_t cols{4};
+    std::size_t capacity{500};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec expectedFrequencies;
+    rng.generateDirichletSamples({10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0},
+                                 cols, expectedFrequencies);
+
+    TDoubleVecVec values(cols);
+    for (std::size_t i = 0; i < expectedFrequencies.size(); ++i) {
+        for (std::size_t j = 0; j < expectedFrequencies[i].size(); ++j) {
+            std::size_t target{static_cast<std::size_t>(
+                static_cast<double>(rows) * expectedFrequencies[i][j] + 0.5)};
+            std::size_t count{std::min(values[i].size() + target, rows)};
+            values[i].resize(count, j);
+        }
+        rng.random_shuffle(values[i].begin(), values[i].end());
+    }
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    core::stopDefaultAsyncExecutor();
+
+    for (auto threads : {1, 4}) {
+
+        for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+            auto frame = factory();
+
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
+                                                   std::int32_t&) {
+                    for (std::size_t j = 0; j < cols; ++j, ++column) {
+                        *column = values[j][i];
+                    }
+                });
+            }
+            frame->finishWritingRows();
+            frame->writeCategoricalColumns({true, false, true, false});
+
+            TDoubleVecVec actualFrequencies{maths::CDataFrameUtils::categoryFrequencies(
+                threads, *frame, {0, 1, 2, 3})};
+
+            CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualFrequencies.size());
+            for (std::size_t i : {0, 2}) {
+                CPPUNIT_ASSERT_EQUAL(actualFrequencies.size(),
+                                     expectedFrequencies.size());
+                for (std::size_t j = 0; j < actualFrequencies[i].size(); ++j) {
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedFrequencies[i][j],
+                                                 actualFrequencies[i][j],
+                                                 1.0 / static_cast<double>(rows));
+                }
+            }
+            for (std::size_t i : {1, 3}) {
+                CPPUNIT_ASSERT(actualFrequencies[i].empty());
+            }
+        }
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
+}
+
+void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
+
+    std::size_t rows{2000};
+    std::size_t cols{4};
+    std::size_t capacity{500};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec frequencies;
+    rng.generateDirichletSamples({10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0},
+                                 cols - 1, frequencies);
+
+    TDoubleVecVec values(cols);
+    for (std::size_t i = 0; i < frequencies.size(); ++i) {
+        for (std::size_t j = 0; j < frequencies[i].size(); ++j) {
+            std::size_t target{static_cast<std::size_t>(
+                static_cast<double>(rows) * frequencies[i][j] + 0.5)};
+            std::size_t count{std::min(values[i].size() + target, rows)};
+            values[i].resize(count, j);
+        }
+        rng.random_shuffle(values[i].begin(), values[i].end());
+    }
+    values[cols - 1].resize(rows);
+
+    TMeanAccumulatorVecVec expectedMeans(cols, TMeanAccumulatorVec(8));
+    for (std::size_t i = 0; i < rows; ++i) {
+        for (std::size_t j = 0; j + 1 < cols; ++j) {
+            values[cols - 1][i] += values[j][i];
+        }
+        for (std::size_t j = 0; j + 1 < cols; ++j) {
+            expectedMeans[j][static_cast<std::size_t>(values[j][i])].add(
+                values[cols - 1][i]);
+        }
+    }
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    core::stopDefaultAsyncExecutor();
+
+    for (auto threads : {1, 4}) {
+
+        for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+            auto frame = factory();
+
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
+                                                   std::int32_t&) {
+                    for (std::size_t j = 0; j < cols; ++j, ++column) {
+                        *column = values[j][i];
+                    }
+                });
+            }
+            frame->finishWritingRows();
+            frame->writeCategoricalColumns({true, false, true, false});
+
+            TDoubleVecVec actualMeans{maths::CDataFrameUtils::meanValueOfTargetForCategories(
+                threads, *frame, {0, 1, 2}, 3)};
+
+            CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualMeans.size());
+            for (std::size_t i : {0, 2}) {
+                CPPUNIT_ASSERT_EQUAL(actualMeans.size(), expectedMeans.size());
+                for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                        maths::CBasicStatistics::mean(expectedMeans[i][j]),
+                        actualMeans[i][j], 1.0 / static_cast<double>(rows));
+                }
+            }
+            for (std::size_t i : {1, 3}) {
+                CPPUNIT_ASSERT(actualMeans[i].empty());
+            }
+        }
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
+}
+
+void CDataFrameUtilsTest::testCategoryMicWithColumn() {
+
+    std::size_t rows{5000};
+    std::size_t cols{4};
+    std::size_t capacity{2000};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec frequencies;
+    rng.generateDirichletSamples({20.0, 60.0, 5.0, 15.0, 1.0}, cols - 1, frequencies);
+
+    TDoubleVecVec values(cols);
+    for (std::size_t i = 0; i < frequencies.size(); ++i) {
+        for (std::size_t j = 0; j < frequencies[i].size(); ++j) {
+            std::size_t target{static_cast<std::size_t>(
+                static_cast<double>(rows) * frequencies[i][j] + 0.5)};
+            std::size_t count{std::min(values[i].size() + target, rows)};
+            values[i].resize(count, j);
+        }
+        rng.random_shuffle(values[i].begin(), values[i].end());
+    }
+
+    values[cols - 1].resize(rows);
+    rng.generateNormalSamples(0.0, 1.0, rows, values[cols - 1]);
+    for (std::size_t i = 0; i < rows; ++i) {
+        values[cols - 1][i] += 2.0 * values[2][i];
+    }
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    core::stopDefaultAsyncExecutor();
+
+    for (auto threads : {1, 4}) {
+
+        for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+            auto frame = factory();
+
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
+                                                   std::int32_t&) {
+                    for (std::size_t j = 0; j < cols; ++j, ++column) {
+                        *column = values[j][i];
+                    }
+                });
+            }
+            frame->finishWritingRows();
+            frame->writeCategoricalColumns({true, false, true, false});
+
+            auto mics = maths::CDataFrameUtils::categoryMicWithColumn(
+                threads, *frame, {0, 1, 2}, 3);
+
+            LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
+            LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
+
+            CPPUNIT_ASSERT_EQUAL(std::size_t{4}, mics.size());
+            for (const auto& mic : mics) {
+                CPPUNIT_ASSERT(std::is_sorted(
+                    mic.begin(), mic.end(), [](const auto& lhs, const auto& rhs) {
+                        return maths::COrderings::lexicographical_compare(
+                            -lhs.second, lhs.first, -rhs.second, rhs.first);
+                    }));
+            }
+            for (std::size_t i : {0, 2}) {
+                CPPUNIT_ASSERT_EQUAL(std::size_t{5}, mics[i].size());
+            }
+            for (std::size_t i : {1, 3}) {
+                CPPUNIT_ASSERT(mics[i].empty());
+            }
+
+            CPPUNIT_ASSERT(mics[0][0].second < 0.15);
+            CPPUNIT_ASSERT(mics[2][0].second > 0.45);
+
+            TSizeVec categoryOrder;
+            for (const auto& category : mics[2]) {
+                categoryOrder.push_back(category.first);
+            }
+            CPPUNIT_ASSERT_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
+                                 core::CContainerPrinter::print(categoryOrder));
+        }
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 CppUnit::Test* CDataFrameUtilsTest::suite() {
@@ -350,6 +600,15 @@ CppUnit::Test* CDataFrameUtilsTest::suite() {
         "CDataFrameUtilsTest::testColumnQuantiles", &CDataFrameUtilsTest::testColumnQuantiles));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testMicWithColumn", &CDataFrameUtilsTest::testMicWithColumn));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testCategoryFrequencies",
+        &CDataFrameUtilsTest::testCategoryFrequencies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testMeanValueOfTargetForCategories",
+        &CDataFrameUtilsTest::testMeanValueOfTargetForCategories));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testCategoryMicWithColumn",
+        &CDataFrameUtilsTest::testCategoryMicWithColumn));
 
     return suiteOfTests;
 }
