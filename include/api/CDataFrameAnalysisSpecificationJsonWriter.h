@@ -10,7 +10,7 @@
 #include <core/CNonInstantiatable.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <api/ImportExport.h
+#include <api/ImportExport.h>
 
 #include <string>
 
