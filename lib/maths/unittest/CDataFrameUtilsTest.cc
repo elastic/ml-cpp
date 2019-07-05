@@ -334,6 +334,9 @@ void CDataFrameUtilsTest::testMicWithColumn() {
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
+                             core::CContainerPrinter::print(actual));
     }
 }
 
