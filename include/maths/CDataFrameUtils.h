@@ -107,6 +107,14 @@ public:
     static bool isMissing(double value);
 
 private:
+    static TDoubleVec micWithColumnDataFrameInMainMemory(std::size_t numberSamples,
+                                                         const core::CDataFrame& frame,
+                                                         const TSizeVec& columnMask,
+                                                         std::size_t targetColumn);
+    static TDoubleVec micWithColumnDataFrameOnDisk(std::size_t numberSamples,
+                                                   const core::CDataFrame& frame,
+                                                   const TSizeVec& columnMask,
+                                                   std::size_t targetColumn);
     static double unitWeight(const TRowRef&);
 };
 }
