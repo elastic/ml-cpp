@@ -255,19 +255,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         return factories;
     };
 
-    std::size_t rows = 100;
-    std::size_t cols = 10;
-    std::size_t memoryLimit = 1000;
-    std::size_t numberThreads = 1;
-    std::string tempDir = test::CTestTmpDir::tmpDir();
-    std::string resultField = "";
-    bool diskUsageAllowed = true;
-    std::string analysis_name = "test";
-    std::string analysis_parameters = "";
-
     std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        rows, cols, memoryLimit, numberThreads, diskUsageAllowed, tempDir,
-        resultField, analysis_name, analysis_parameters);
+        100, 10, 1000, 1, true, test::CTestTmpDir::tmpDir(), "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
