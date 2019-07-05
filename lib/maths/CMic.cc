@@ -251,11 +251,16 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
     //   M(t,2) <- H_X(s,t) − H_XY(s,t)
     // end for
 
+    TDoubleVec normalisation(ck);
+    for (std::size_t t = 1; t < ck; ++t) {
+        normalisation[t] = cump[t].L1();
+    }
+
     for (std::size_t t = 2; t <= ck; ++t) {
 
         double Fmax{-INF};
 
-        double Z{cump[t - 1].L1()};
+        double Z{normalisation[t - 1]};
 
         TVectorXd p{2};
         for (std::size_t s = 1; s < t; ++s) {
@@ -292,9 +297,9 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
 
             double Fmax{-INF};
 
-            double Zt{cump[t - 1].L1()};
+            double Zt{normalisation[t - 1]};
             for (std::size_t s = x - 1; s < t; ++s) {
-                double Zs{cump[s - 1].L1()};
+                double Zs{normalisation[s - 1]};
                 TVectorXd pst{cump[t - 1] - cump[s - 1]};
                 pst /= Zt - Zs;
                 double F{Zs / Zt * M[s - 1][x - 3] - (Zt - Zs) / Zt * entropy(pst)};
