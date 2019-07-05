@@ -4,13 +4,15 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
+
+#include <api/CDataFrameAnalysisSpecification.h>
+
+#include <iostream>
 
 namespace ml {
 namespace api {
 
-// TODO (valeriy) analysis parameter is missing
 void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
                                                       std::size_t cols,
                                                       std::size_t memoryLimit,
@@ -18,9 +20,26 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
                                                       const std::string& temporaryDirectory,
                                                       const std::string& resultsField,
                                                       bool diskUsageAllowed,
-                                                      const std::string& analysis_name,
-                                                      const std::string& analysis_parameters,
+                                                      const std::string& analysisName,
+                                                      const std::string& analysisParameters,
                                                       TRapidJsonLineWriter& writer) {
+    rapidjson::Document analysisParametersDoc;
+    analysisParametersDoc.Parse(analysisParameters);
+    write(rows, cols, memoryLimit, numberThreads, temporaryDirectory, resultsField,
+          diskUsageAllowed, analysisName, analysisParametersDoc, writer);
+}
+
+void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
+                                                      std::size_t cols,
+                                                      std::size_t memoryLimit,
+                                                      std::size_t numberThreads,
+                                                      const std::string& temporaryDirectory,
+                                                      const std::string& resultsField,
+                                                      bool diskUsageAllowed,
+                                                      const std::string& analysisName,
+                                                      const rapidjson::Document& analysisParametersDocument,
+                                                      TRapidJsonLineWriter& writer) {
+
     writer.StartObject();
 
     writer.String(CDataFrameAnalysisSpecification::ROWS);
@@ -47,13 +66,13 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
     writer.String(CDataFrameAnalysisSpecification::ANALYSIS);
     writer.StartObject();
     writer.String(CDataFrameAnalysisSpecification::NAME);
-    writer.String(analysis_name);
-    if (analysis_parameters.empty() == false) {
+    writer.String(analysisName);
+    if (analysisParametersDocument.IsObject()) {
         writer.String(CDataFrameAnalysisSpecification::PARAMETERS);
-        writer.String(analysis_parameters);
+        writer.write(analysisParametersDocument);
     }
-    writer.EndObject();
 
+    writer.EndObject();
     writer.EndObject();
     writer.Flush();
 }

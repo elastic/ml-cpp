@@ -30,8 +30,19 @@ public:
                       const std::string& temporaryDirectory,
                       const std::string& resultsField,
                       bool diskUsageAllowed,
-                      const std::string& analysis_name,
-                      const std::string& analysis_parameters,
+                      const std::string& analysisName,
+                      const rapidjson::Document& analysisParametersDocument,
+                      TRapidJsonLineWriter& writer);
+
+    static void write(std::size_t rows,
+                      std::size_t cols,
+                      std::size_t memoryLimit,
+                      std::size_t numberThreads,
+                      const std::string& temporaryDirectory,
+                      const std::string& resultsField,
+                      bool diskUsageAllowed,
+                      const std::string& analysisName,
+                      const std::string& analysisParameters,
                       TRapidJsonLineWriter& writer);
 
     static std::string jsonString(size_t rows,
@@ -44,7 +55,6 @@ public:
                                   const std::string& analysis_name,
                                   const std::string& analysis_parameters);
 };
-
 }
 }
 #endif //INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
