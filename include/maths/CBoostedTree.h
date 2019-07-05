@@ -134,6 +134,8 @@ public:
     CBoostedTree& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the number of rows required per regressor feature.
+    CBoostedTree& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTree& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter

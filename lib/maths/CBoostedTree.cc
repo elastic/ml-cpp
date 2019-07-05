@@ -607,6 +607,10 @@ public:
         m_MaximumNumberTreesOverride = maximumNumberTrees;
     }
 
+    void rowsPerFeature(std::size_t rowsPerFeature) {
+        m_RowsPerFeature = rowsPerFeature;
+    }
+
     void featureBagFraction(double featureBagFraction) {
         if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
             LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
@@ -790,39 +794,35 @@ private:
         std::iota(regressors.begin(), regressors.end(), 0);
         regressors.erase(regressors.begin() + m_DependentVariable);
 
-        TDoubleVecVec distinct(n);
-        frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                for (std::size_t i = 0; i < regressors.size(); ++i) {
-                    double value{(*row)[regressors[i]]};
-                    if (distinct[i].size() == 2) {
-                        continue;
-                    }
-                    if (distinct[i].empty()) {
-                        distinct[i].push_back(value);
-                    }
-                    if (value != distinct[i][0]) {
-                        distinct[i].push_back(value);
-                    }
-                }
-            }
-        });
+        TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors, m_DependentVariable));
 
         regressors.erase(
             std::remove_if(regressors.begin(), regressors.end(),
-                           [&](std::size_t i) { return distinct[i].size() < 2; }),
+                           [&](std::size_t i) { return mics[i] == 0.0; }),
             regressors.end());
-        LOG_TRACE(<< "regressors = " << core::CContainerPrinter::print(regressors));
-
-        // TODO consider "correlation" with target variable.
+        LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
         m_FeatureSampleProbabilities.assign(n, 0.0);
         if (regressors.empty()) {
             HANDLE_FATAL(<< "Input error: all features constant.");
         } else {
-            double p{1.0 / static_cast<double>(regressors.size())};
-            for (auto feature : regressors) {
-                m_FeatureSampleProbabilities[feature] = p;
+            std::stable_sort(regressors.begin(), regressors.end(),
+                             [&mics](std::size_t lhs, std::size_t rhs) {
+                                 return mics[lhs] > mics[rhs];
+                             });
+
+            std::size_t maximumNumberFeatures{frame.numberRows() / m_RowsPerFeature};
+            LOG_TRACE(<< "Using up to " << maximumNumberFeatures << " out of "
+                      << regressors.size() << " features");
+
+            regressors.resize(std::min(maximumNumberFeatures, regressors.size()));
+
+            double Z{std::accumulate(
+                regressors.begin(), regressors.end(), 0.0,
+                [&mics](double z, std::size_t i) { return z + mics[i]; })};
+            LOG_TRACE(<< "Z = " << Z);
+            for (auto i : regressors) {
+                m_FeatureSampleProbabilities[i] = mics[i] / Z;
             }
         }
         LOG_TRACE(<< "P(sample) = "
@@ -1435,6 +1435,7 @@ private:
     TOptionalDouble m_GammaOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
+    TOptionalSize m_RowsPerFeatureOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     double m_Lambda = 0.0;
     double m_Gamma = 0.0;
@@ -1445,6 +1446,7 @@ private:
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 40;
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
+    std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
     TDoubleVec m_FeatureSampleProbabilities;
@@ -1488,6 +1490,11 @@ CBoostedTree& CBoostedTree::eta(double eta) {
 
 CBoostedTree& CBoostedTree::maximumNumberTrees(std::size_t maximumNumberTrees) {
     m_Impl->maximumNumberTrees(maximumNumberTrees);
+    return *this;
+}
+
+CBoostedTree& CBoostedTree::rowsPerFeature(std::size_t rowsPerFeature) {
+    m_Impl->rowsPerFeature(rowsPerFeature);
     return *this;
 }
 

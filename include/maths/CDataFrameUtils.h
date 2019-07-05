@@ -53,6 +53,7 @@ struct SRowTo<CDenseVector<T>> {
 //! \brief A collection of basic utilities for analyses on a data frame.
 class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
+    using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TWeightFunction = std::function<double(TRowRef)>;
@@ -90,10 +91,30 @@ public:
                                 TQuantileSketchVec& result,
                                 TWeightFunction weight = unitWeight);
 
+    //! Assess the strength of the relationship for each column with \p targetColumn
+    //! by computing the maximum information coefficient (MIC).
+    //!
+    //! \param[in] frame The data frame for which to compute the column MICs.
+    //! \param[in] columnMask A mask of the columns for which to compute MIC.
+    //! \param[in] targetColumn The column with which to compute MIC.
+    //! \return A collection containing the MIC of each column with \p targetColumn
+    //! indexed by column index.
+    static TDoubleVec micWithColumn(const core::CDataFrame& frame,
+                                    const TSizeVec& columnMask,
+                                    std::size_t targetColumn);
+
     //! Check if a data frame value is missing.
     static bool isMissing(double value);
 
 private:
+    static TDoubleVec micWithColumnDataFrameInMainMemory(std::size_t numberSamples,
+                                                         const core::CDataFrame& frame,
+                                                         const TSizeVec& columnMask,
+                                                         std::size_t targetColumn);
+    static TDoubleVec micWithColumnDataFrameOnDisk(std::size_t numberSamples,
+                                                   const core::CDataFrame& frame,
+                                                   const TSizeVec& columnMask,
+                                                   std::size_t targetColumn);
     static double unitWeight(const TRowRef&);
 };
 }

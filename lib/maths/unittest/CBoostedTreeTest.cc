@@ -164,15 +164,15 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
         // Unbiased...
         CPPUNIT_ASSERT(modelPredictionBias[i] <
-                       3.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
         CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 13.0);
 
         meanMseImprovement.add(modelPredictionMseImprovement[i]);
     }
-    LOG_TRACE(<< "mean MSE improvement = "
+    LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 15.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 20.0);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -217,7 +217,7 @@ void CBoostedTreeTest::testLinear() {
 
         // Unbiased...
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
-                       3.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
         CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 20.0);
 
@@ -225,7 +225,7 @@ void CBoostedTreeTest::testLinear() {
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 30.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 35.0);
 }
 
 void CBoostedTreeTest::testNonLinear() {
@@ -272,9 +272,9 @@ void CBoostedTreeTest::testNonLinear() {
 
         // Unbiased...
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
-                       3.0 * std::sqrt(noiseVariance / static_cast<double>(rows)));
+                       2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
-        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 40.0);
+        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 30.0);
 
         meanMseImprovement.add(modelPredictionMseImprovement[i]);
     }
@@ -429,7 +429,7 @@ void CBoostedTreeTest::testConstantFeatures() {
     TDoubleVec featureWeights(regression.featureWeights());
 
     LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
-    CPPUNIT_ASSERT_EQUAL(0.0, featureWeights[cols - 2]);
+    CPPUNIT_ASSERT(featureWeights[cols - 2] < 1e-4);
 }
 
 void CBoostedTreeTest::testConstantObjective() {

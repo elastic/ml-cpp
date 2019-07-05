@@ -4,18 +4,22 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CDataFrameUtilsTest_h
-#define INCLUDED_CDataFrameUtilsTest_h
+#ifndef INCLUDED_CMicTest_h
+#define INCLUDED_CMicTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataFrameUtilsTest : public CppUnit::TestFixture {
+class CMicTest : public CppUnit::TestFixture {
 public:
-    void testStandardizeColumns();
-    void testColumnQuantiles();
-    void testMicWithColumn();
+    void testOptimizeXAxis();
+    void testInvariants();
+    void testIndependent();
+    void testOneToOne();
+    void testCorrelated();
+    void testVsMutualInformation();
+    void testEdgeCases();
 
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CDataFrameUtilsTest_h
+#endif // INCLUDED_CMicTest_h

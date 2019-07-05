@@ -43,6 +43,7 @@
 #include "CLogTDistributionTest.h"
 #include "CMathsFuncsTest.h"
 #include "CMathsMemoryTest.h"
+#include "CMicTest.h"
 #include "CMixtureDistributionTest.h"
 #include "CModelTest.h"
 #include "CMultimodalPriorTest.h"
@@ -130,6 +131,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CLogTDistributionTest::suite());
     runner.addTest(CMathsFuncsTest::suite());
     runner.addTest(CMathsMemoryTest::suite());
+    runner.addTest(CMicTest::suite());
     runner.addTest(CMixtureDistributionTest::suite());
     runner.addTest(CModelTest::suite());
     runner.addTest(CMultimodalPriorTest::suite());
