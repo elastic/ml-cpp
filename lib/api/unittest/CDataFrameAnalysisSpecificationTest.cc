@@ -12,6 +12,7 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <test/CTestTmpDir.h>
@@ -254,19 +255,19 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         return factories;
     };
 
-    std::string jsonSpec{"{\n"
-                         "  \"rows\": 100,\n"
-                         "  \"cols\": 10,\n"
-                         "  \"memory_limit\": 1000,\n"
-                         "  \"threads\": 1,\n"
-                         "  \"temp_dir\": \"" +
-                         test::CTestTmpDir::tmpDir() +
-                         "\",\n"
-                         "  \"disk_usage_allowed\": true,\n"
-                         "  \"analysis\": {\n"
-                         "    \"name\": \"test\""
-                         "  }"
-                         "}"};
+    std::size_t rows = 100;
+    std::size_t cols = 10;
+    std::size_t memoryLimit = 1000;
+    std::size_t numberThreads = 1;
+    std::string tempDir = test::CTestTmpDir::tmpDir();
+    std::string resultField = "";
+    bool diskUsageAllowed = true;
+    std::string analysis_name = "test";
+    std::string analysis_parameters = "";
+
+    std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        rows, cols, memoryLimit, numberThreads, diskUsageAllowed, tempDir,
+        resultField, analysis_name, analysis_parameters);
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -295,20 +296,9 @@ std::string
 CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
                                                                            bool diskUsageAllowed) {
 
-    std::string tempDirParameter = tempDirPathSet ? "  \"temp_dir\": \"/tmp\",\n" : "";
-    std::string diskUsageParameter = diskUsageAllowed ? "true" : "false";
-    std::string jsonSpec{"{\n"
-                         "  \"rows\": 100,\n"
-                         "  \"cols\": 3,\n"
-                         "  \"memory_limit\": 500000,\n" +
-                         tempDirParameter + "  \"disk_usage_allowed\": " + diskUsageParameter +
-                         ",\n"
-                         "  \"threads\": 1,\n"
-                         "  \"analysis\": {\n"
-                         "    \"name\": \"outlier_detection\""
-                         "  }"
-                         "}"};
-    return jsonSpec;
+    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
+    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        100, 3, 500000, 1, diskUsageAllowed, tempDir, "", "outlier_detection", "");
 }
 
 void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
