@@ -79,7 +79,7 @@ double CMic::compute() {
         for (std::size_t l = rootb; l < b / 2; ++l) {
             TDoubleVec q(this->equipartitionAxis(Y, l));
             LOG_TRACE(<< "Q = " << core::CContainerPrinter::print(q));
-            // The same rational for choice of k in the presence of duplicates.
+            // The same rationale for choice of k in the presence of duplicates.
             std::size_t ldistinct{q.size()};
             std::size_t k{b / l};
             TDoubleVec mi{this->optimizeXAxis(q, ldistinct, k)};
