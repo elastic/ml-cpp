@@ -366,6 +366,7 @@ CDataFrameUtils::categoryMicWithColumnDataFrameInMemory(std::size_t numberThread
     TSizeDoublePrVecVec mics(frame.numberColumns());
 
     TDoubleVecVec frequencies(categoryFrequencies(numberThreads, frame, columnMask));
+    LOG_TRACE(<< "frequencies = " << core::CContainerPrinter::print(frequencies));
 
     TFloatFloatPrVec samples;
     TFloatUSet categories;
@@ -394,15 +395,16 @@ CDataFrameUtils::categoryMicWithColumnDataFrameInMemory(std::size_t numberThread
 
         categories.clear();
         for (const auto& sample : samples) {
-            categories.insert(sample.first);
+            categories.insert(std::floor(sample.first));
         }
+        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
 
         TSizeDoublePrVec categoryMics;
         categoryMics.reserve(categories.size());
         for (auto category : categories) {
             mic.clear();
             for (const auto& sample : samples) {
-                mic.add(sample.first != category ? 0.0 : 1.0, sample.second);
+                mic.add(std::floor(sample.first) != category ? 0.0 : 1.0, sample.second);
             }
             categoryMics.emplace_back(static_cast<std::size_t>(category), mic.compute());
         }
@@ -425,6 +427,7 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
     TSizeDoublePrVecVec mics(frame.numberColumns());
 
     TDoubleVecVec frequencies(categoryFrequencies(numberThreads, frame, columnMask));
+    LOG_TRACE(<< "frequencies = " << core::CContainerPrinter::print(frequencies));
 
     TFloatVecVec samples;
     TFloatUSet categories;
@@ -454,16 +457,17 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
         for (const auto& sample : samples) {
             std::size_t category{static_cast<std::size_t>(sample[i])};
             if (frequencies[i][category] >= minimumFrequency) {
-                categories.insert(sample[i]);
+                categories.insert(std::floor(sample[i]));
             }
         }
+        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
 
         TSizeDoublePrVec categoryMics;
         categoryMics.reserve(categories.size());
         for (auto category : categories) {
             mic.clear();
             for (const auto& sample : samples) {
-                mic.add(sample[i] != category ? 0.0 : 1.0, sample[targetColumn]);
+                mic.add(std::floor(sample[i]) != category ? 0.0 : 1.0, sample[targetColumn]);
             }
             categoryMics.emplace_back(static_cast<std::size_t>(category), mic.compute());
         }
@@ -479,7 +483,7 @@ CDataFrameUtils::micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
                                                 std::size_t targetColumn,
                                                 std::size_t numberSamples) {
 
-    TDoubleVec mics(frame.numberColumns());
+    TDoubleVec mics(frame.numberColumns(), 0.0);
 
     TFloatFloatPrVec samples;
     samples.reserve(numberSamples);
@@ -528,7 +532,7 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
                                               std::size_t targetColumn,
                                               std::size_t numberSamples) {
 
-    TDoubleVec mics(frame.numberColumns());
+    TDoubleVec mics(frame.numberColumns(), 0.0);
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
@@ -563,16 +567,14 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
     // Compute MICe
 
     for (auto i : columnMask) {
-        if (i != targetColumn) {
-            CMic mic;
-            mic.reserve(samples.size());
-            for (const auto& sample : samples) {
-                if (isMissing(sample[i]) == false) {
-                    mic.add(sample[i], sample[targetColumn]);
-                }
+        CMic mic;
+        mic.reserve(samples.size());
+        for (const auto& sample : samples) {
+            if (isMissing(sample[i]) == false) {
+                mic.add(sample[i], sample[targetColumn]);
             }
-            mics[i] = (1.0 - fractionMissing[i]) * mic.compute();
         }
+        mics[i] = (1.0 - fractionMissing[i]) * mic.compute();
     }
 
     return mics;

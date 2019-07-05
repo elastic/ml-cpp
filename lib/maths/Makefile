@@ -34,6 +34,7 @@ CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameCategoryEncoder.cc \
 CDataFrameRegressionModel.cc \
 CDataFrameUtils.cc \
 CDecayRateController.cc \

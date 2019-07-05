@@ -17,8 +17,6 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
-#include <boost/filesystem.hpp>
-
 #include <functional>
 #include <limits>
 #include <numeric>

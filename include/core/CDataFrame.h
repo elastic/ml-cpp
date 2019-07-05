@@ -88,7 +88,7 @@ private:
 };
 
 //! \brief Decorates CRowCRef to give it pointer semantics.
-class CORE_EXPORT CRowPtr : public CRowRef {
+class CORE_EXPORT CRowPtr final : public CRowRef {
 public:
     template<typename... ARGS>
     CRowPtr(ARGS&&... args) : CRowRef{std::forward<ARGS>(args)...} {}
@@ -102,7 +102,7 @@ public:
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object which
 //! dereferences to CRowRef objects.
-class CORE_EXPORT CRowIterator
+class CORE_EXPORT CRowIterator final
     : public std::iterator<std::forward_iterator_tag, CRowRef, std::ptrdiff_t, CRowPtr, CRowRef> {
 public:
     CRowIterator() = default;
