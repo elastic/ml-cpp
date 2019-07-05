@@ -56,8 +56,8 @@ public:
                                   bool diskUsageAllowed,
                                   const std::string& tempDir,
                                   const std::string& resultField,
-                                  const std::string& analysis_name,
-                                  const std::string& analysis_parameters);
+                                  const std::string& analysisName,
+                                  const std::string& analysisParameters);
 };
 }
 }

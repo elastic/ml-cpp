@@ -308,7 +308,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // single error is registered that temp dir is empty
-        CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), errors.size());
         CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should be explicitly set if disk usage is allowed!") !=
                        std::string::npos);
     }
@@ -320,7 +320,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
     }
 
     // Temp dir given and disk usage allowed
@@ -330,7 +330,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
     }
 }
 

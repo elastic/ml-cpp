@@ -24,7 +24,13 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
                                                       const std::string& analysisParameters,
                                                       TRapidJsonLineWriter& writer) {
     rapidjson::Document analysisParametersDoc;
-    analysisParametersDoc.Parse(analysisParameters);
+    if (analysisParameters.empty() == false) {
+        analysisParametersDoc.Parse(analysisParameters);
+        if (analysisParametersDoc.GetParseError()) {
+            HANDLE_FATAL(<< "Input error: analysis parameters " << analysisParameters
+                         << " cannot be parsed as json. Please report this problem.")
+        }
+    }
     write(rows, cols, memoryLimit, numberThreads, temporaryDirectory, resultsField,
           diskUsageAllowed, analysisName, analysisParametersDoc, writer);
 }
@@ -67,9 +73,16 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
     writer.StartObject();
     writer.String(CDataFrameAnalysisSpecification::NAME);
     writer.String(analysisName);
-    if (analysisParametersDocument.IsObject()) {
-        writer.String(CDataFrameAnalysisSpecification::PARAMETERS);
-        writer.write(analysisParametersDocument);
+
+    // if no parameters are specified, parameters document has Null as its root element
+    if (analysisParametersDocument.IsNull() == false) {
+        if (analysisParametersDocument.IsObject()) {
+            writer.String(CDataFrameAnalysisSpecification::PARAMETERS);
+            writer.write(analysisParametersDocument);
+        } else {
+            HANDLE_FATAL(<< "Input error: analysis parameters suppose to "
+                         << "contain an object as root node.")
+        }
     }
 
     writer.EndObject();
@@ -85,14 +98,14 @@ CDataFrameAnalysisSpecificationJsonWriter::jsonString(size_t rows,
                                                       bool diskUsageAllowed,
                                                       const std::string& tempDir,
                                                       const std::string& resultField,
-                                                      const std::string& analysis_name,
-                                                      const std::string& analysis_parameters) {
+                                                      const std::string& analysisName,
+                                                      const std::string& analysisParameters) {
     rapidjson::StringBuffer stringBuffer;
     api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
     writer.Reset(stringBuffer);
 
     write(rows, cols, memoryLimit, numberThreads, tempDir, resultField,
-          diskUsageAllowed, analysis_name, analysis_parameters, writer);
+          diskUsageAllowed, analysisName, analysisParameters, writer);
 
     return stringBuffer.GetString();
 }
