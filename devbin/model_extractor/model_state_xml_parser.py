@@ -25,17 +25,21 @@ import argparse
 import json
 import sys
 import xml.etree.ElementTree as ET
+from math import exp
 
 def parse_model_state_xml(xml_string):
     root = ET.fromstring(xml_string)
-    for priors in root.findall('./residual_model/one-of-n/model/prior'):
-        for prior in list(priors):
-            meanStr = prior.find('.//mean').text
-            sdStr = prior.find('.//standard_deviation').text
-            if meanStr != '<unknown>' and sdStr != '<unknown>':
-                mean = float(meanStr)
-                sd = float(sdStr)
-                print("\t{name}: mean = {mean:f}, sd = {sd:f}".format(name=prior.tag, mean=mean, sd=sd))
+    for model in root.findall('./residual_model/one-of-n/model'):
+        log_weight = float(model.find('.//log_weight').text)
+        prior = list(model.find('.//prior'))[0]
+        name = prior.tag
+        meanStr = model.find('.//mean').text
+        sdStr = model.find('.//standard_deviation').text
+        if meanStr != '<unknown>' and sdStr != '<unknown>':
+            mean = float(meanStr)
+            sd = float(sdStr)
+            print("\t{name}: weight = {weight:f}, mean = {mean:f}, sd = {sd:f}"
+                    .format(name=name, weight=exp(log_weight), mean=mean, sd=sd))
     return
 
 def parse_model_state_json(json_string):

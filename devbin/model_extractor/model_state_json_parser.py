@@ -27,6 +27,7 @@ import json
 import sys
 import sh
 import argparse
+from math import exp
 
 
 def jq_reformat(input):
@@ -62,14 +63,24 @@ def parse_model_state_json(json_string):
         if 'index'  in obj:
             print("Residual data for index id {}".format(obj['index']['_id'][0]))
         elif 'residual_model' in obj:
-            priors = obj['residual_model']['one-of-n']['model']['prior']
+            model = obj['residual_model']['one-of-n']['model']
+            log_weights = model['weight']['log_weight']
+            priors = model['prior']
+            prior_stats = []
             for name, prior in priors.items():
-                if name != 'multimodal':
-                    if prior['mean'][0] == '<unknown>' or prior['standard_deviation'][0] == '<unknown>':
-                        continue
-                    mean = float(prior['mean'][0])
-                    sd = float(prior['standard_deviation'][0])
-                    print("\t{name}: mean = {mean:f}, sd = {sd:f}".format(name=name, mean=mean, sd=sd))
+                if name == 'multimodal':
+                    continue
+                mean = prior['mean'][0]
+                sd = prior['standard_deviation'][0]
+                prior_stats.append((name, mean, sd))
+            stats = list(zip(log_weights, prior_stats))
+            for stat in stats:
+                name = stat[1][0]
+                weight = stat[0]
+                mean = stat[1][1]
+                sd = stat[1][2]
+                print("\t{name}: weight = {weight:f}, mean = {mean}, sd = {sd}"
+                        .format(name=name, weight=exp(float(weight)), mean=mean, sd=sd))
         else:
             pass
     except:
