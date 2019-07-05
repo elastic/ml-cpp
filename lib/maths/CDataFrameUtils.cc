@@ -154,6 +154,8 @@ CDataFrameUtils::micWithColumnDataFrameInMainMemory(std::size_t numberSamples,
 
     for (auto i : columnMask) {
 
+        // Do sampling
+
         auto onSample = [&](std::size_t slot, const TRowRef& row) {
             if (slot >= samples.size()) {
                 samples.resize(slot + 1);
@@ -181,6 +183,8 @@ CDataFrameUtils::micWithColumnDataFrameInMainMemory(std::size_t numberSamples,
                                static_cast<double>(frame.numberRows())};
         LOG_TRACE(<< "Fraction missing = " << fractionMissing);
 
+        // Compute MICe
+
         CMic mic;
         mic.reserve(samples.size());
         for (const auto& sample : samples) {
@@ -204,7 +208,7 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(std::size_t numberSamples,
     using TFloatVecVec = std::vector<TFloatVec>;
     using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
 
-    TDoubleVec mics(frame.numberColumns());
+    // Do sampling
 
     CPRNG::CXorOShiro128Plus rng;
     TFloatVecVec samples;
@@ -241,6 +245,10 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(std::size_t numberSamples,
         }
     }
     LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));
+
+    // Compute MICe
+
+    TDoubleVec mics(frame.numberColumns());
 
     for (auto i : columnMask) {
         if (i != targetColumn) {
