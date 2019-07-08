@@ -36,7 +36,10 @@ private:
 
 class CDataFrameMockAnalysisRunnerFactory final : public ml::api::CDataFrameAnalysisRunnerFactory {
 public:
-    const char* name() const override;
+    const std::string& name() const override;
+
+private:
+    static const std::string NAME;
 
 private:
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const override;

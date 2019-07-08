@@ -71,7 +71,10 @@ private:
 //! \brief Makes a core::CDataFrame outlier analysis runner.
 class API_EXPORT CDataFrameOutliersRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
 public:
-    const char* name() const override;
+    const std::string& name() const override;
+
+private:
+    static const std::string NAME;
 
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
