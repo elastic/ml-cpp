@@ -102,7 +102,7 @@ In the window **Edit Tool** specify:
 **Program:** `make`\
 **Arguments:** `-j`\
 **Working directory:** `$ProjectFileDir$`\
-**Advanced Options**\
+**Advanced Options**
 - [x] Synchronize files after execution\
 - [x] Open console for tool output
 
@@ -115,11 +115,11 @@ Similarly, for **Clean:** create a new external tool with the following entries 
 **Program:** `make`\
 **Arguments:** `clean`\
 **Working directory:** `$ProjectFileDir$`\
-**Advanced Options**\
+**Advanced Options**
 - [x] Synchronize files after execution\
 - [x] Open console for tool output
 
-Once you are done, your **Custom Build Targets** window should look as follows: 
+Once you are done, your **Custom Build Targets** window should look similar to this: 
 
 ![Custom Build Targets Window](./custom_build_targets_window.png)
 
