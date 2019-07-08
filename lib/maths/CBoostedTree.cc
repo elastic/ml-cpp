@@ -1549,6 +1549,5 @@ std::size_t CBoostedTree::estimateMemoryUsage(std::size_t numberRows,
                                               std::size_t numberColumns) const {
     return this->m_Impl->estimateMemoryUsage(numberRows, numberColumns);
 }
-
 }
 }
