@@ -104,7 +104,7 @@ In the window **Edit Tool** specify:
 - [x] Synchronize files after execution\
 - [x] Open console for tool output
 
-![Edit Tool Window][edit_tool_window.png]
+![Edit Tool Window][./edit_tool_window.png]
 
 
 Similarly, for **Clean:** create a new external tool with the following entries in the **Edit Tool** window:
