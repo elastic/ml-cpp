@@ -6,11 +6,13 @@
 
 #include "CDataFrameAnalysisRunnerTest.h"
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
+
+#include <test/CTestTmpDir.h>
 
 #include <mutex>
 #include <string>
@@ -29,21 +31,9 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
             LOG_DEBUG(<< "# rows = " << numberRows << ", # cols = " << numberCols);
 
             // Give the process approximately 100MB.
-
-            std::string jsonSpec{"{\n"
-                                 "  \"rows\": " +
-                                 std::to_string(numberRows) +
-                                 ",\n"
-                                 "  \"cols\": " +
-                                 std::to_string(numberCols) +
-                                 ",\n"
-                                 "  \"memory_limit\": 100000000,\n"
-                                 "  \"disk_usage_allowed\": true,\n"
-                                 "  \"threads\": 1,\n"
-                                 "  \"analysis\": {\n"
-                                 "    \"name\": \"outlier_detection\""
-                                 "  }"
-                                 "}"};
+            std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                numberRows, numberCols, 100000000, 1, true,
+                test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
 
             api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
@@ -77,23 +67,9 @@ std::string
 CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberRows,
                                                              std::size_t numberCols,
                                                              bool diskUsageAllowed) {
-    std::string jsonSpec{"{\n"
-                         "  \"rows\": " +
-                         std::to_string(numberRows) +
-                         ",\n"
-                         "  \"cols\": " +
-                         std::to_string(numberCols) +
-                         ",\n"
-                         "  \"memory_limit\": 500000,\n"
-                         "  \"disk_usage_allowed\": " +
-                         (diskUsageAllowed ? "true" : "false") +
-                         ",\n"
-                         "  \"threads\": 1,\n"
-                         "  \"analysis\": {\n"
-                         "    \"name\": \"outlier_detection\""
-                         "  }"
-                         "}"};
-    return jsonSpec;
+    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        numberRows, numberCols, 500000, 1, diskUsageAllowed,
+        test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
 }
 
 void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag() {
