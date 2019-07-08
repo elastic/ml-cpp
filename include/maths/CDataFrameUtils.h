@@ -100,8 +100,8 @@ public:
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute category frequencies.
     //! \param[in] columnMask A mask of the columns to include.
-    //! \return The frequencies of each category indexed by column and then stored
-    //! category identifier.
+    //! \return The frequency of each category. The collection is indexed by column
+    //! and then category identifier.
     static TDoubleVecVec categoryFrequencies(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              TSizeVec columnMask);
@@ -113,8 +113,8 @@ public:
     //! \param[in] frame The data frame for which to compute mean values.
     //! \param[in] columnMask A mask of the columns to include.
     //! \param[in] targetColumn The column whose mean values are computed.
-    //! \return The mean values of \p targetColumn indexed by column and then stored
-    //! category identifier.
+    //! \return The mean values of \p targetColumn for each category. The collection
+    //! is indexed by column and then category identifier.
     static TDoubleVecVec meanValueOfTargetForCategories(std::size_t numberThreads,
                                                         const core::CDataFrame& frame,
                                                         TSizeVec columnMask,
@@ -124,27 +124,28 @@ public:
     //! \p targetColumn by computing the maximum information coefficient (MIC).
     //!
     //! \param[in] numberThreads The number of threads available.
-    //! \param[in] frame The data frame for which to compute the column MICs.
+    //! \param[in] frame The data frame for which to compute the category MICs.
     //! \param[in] columnMask A mask of the columns to include.
     //! \param[in] targetColumn The column with which to compute MIC.
     //! \param[in] minimumFrequency The minimum frequency of the category in the
     //! data set for which to compute MIC.
-    //! \return A collection containing (category identifier, MIC with \p targetColumn)
-    //! pairs for the frequent categorical fields indexed by column index.
+    //! \return A collection containing (category, MIC with \p targetColumn) pairs
+    //! for each category whose frequency in \p frame is greater than \p minimumFrequency
+    //! and each categorical column. The collection is indexed by column.
     static TSizeDoublePrVecVec categoryMicWithColumn(std::size_t numberThreads,
                                                      const core::CDataFrame& frame,
                                                      TSizeVec columnMask,
                                                      std::size_t targetColumn,
                                                      double minimumFrequency = 0.01);
 
-    //! Assess the strength of the relationship for each column with \p targetColumn
-    //! by computing the maximum information coefficient (MIC).
+    //! Assess the strength of the relationship for each metric valued column with
+    //! \p targetColumn by computing the maximum information coefficient (MIC).
     //!
     //! \param[in] frame The data frame for which to compute the column MICs.
     //! \param[in] columnMask A mask of the columns to include.
     //! \param[in] targetColumn The column with which to compute MIC.
-    //! \return A collection containing the MIC of each column with \p targetColumn
-    //! indexed by column index.
+    //! \return A collection containing the MIC of each metric valued column with
+    //! \p targetColumn. The collectionis indexed by column.
     static TDoubleVec micWithColumn(const core::CDataFrame& frame,
                                     TSizeVec columnMask,
                                     std::size_t targetColumn);

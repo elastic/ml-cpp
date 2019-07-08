@@ -15,7 +15,6 @@
 #include <maths/CMathsFuncs.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
-#include <maths/CPRNG.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 
@@ -526,7 +525,6 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
 
     // Do sampling
 
-    CPRNG::CXorOShiro128Plus rng;
     TFloatVecVec samples;
     samples.reserve(numberSamples);
 
