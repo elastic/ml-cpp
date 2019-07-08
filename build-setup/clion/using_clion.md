@@ -136,42 +136,43 @@ Since we installed **Makefile support** plugin, we can add **Makefile** configur
 **Arguments:** `-j ML_DEBUG=1`
 - [x] Allow parallel run
 
-I assume that you whant to buld the project with dubug symbols activated, but obviously you need to remove the argument `ML_DUBUG=1` if you don't. Leave the field **Working Directory** empty, as it will be correctly set elsewhere. 
+I assume that you want to build the project with debug symbols activated, but, obviously, you need to remove the
+argument `ML_DUBUG=1` if you don't. Leave the field **Working Directory** empty, as it will be correctly set elsewhere.
 
-Another important note it that you have to specify the environment variable `CPP_SRC_HOME`. If you specified it on the
-system level, CLion can pick it up automatically, otherwise you have to specify it explicitly in the **Environment
-variables** field. Click on the document symbol :page_facing_up: on the right of the field and either make sure that the checkbox **Include system environment variables** is activated and your environment variables are listed in the list below, or add them to the list **User environment variables** manually.
+It is important that you specify the environment variable `CPP_SRC_HOME`. If you specified it on the system
+level, CLion can pick it up automatically, otherwise you have to specify it explicitly in the **Environment variables**
+field. Click on the document symbol :page_facing_up: on the right of the field and either make sure that the checkbox
+**Include system environment variables** is activated and your environment variables are listed in the list below, or
+add them to the list **User environment variables** manually.
 
-You can now build the project manually by selecting the configuration `Libraries` from the configuration drop-down menu
-and clicking the green play :arrow_forward:. Moreover, we will create configuration for running unit tests and use
-`Libraries` as a build dependency so we ensure that the project is up-to-date every time we run our tests.
+You can now build the project manually by selecting the configuration `Libraries` from the configurations drop-down menu
+and clicking the green play button. Moreover, we will create a configuration for running unit tests and use `Libraries`
+as a build dependency so we ensure that the project is up-to-date every time we run those tests.
 
 Let's create another **Run/Debug Configuration** for running uni tests for the `core` module. Again, go to **Run | Edit
-Configurations...*** and click on the **+** symbol to create a new **Custom Build Application**:
+Configurations...** and click on the **+** symbol to create a new **Custom Build Application**:
 
 **Name:** Test core\
-**Target:** *Select the custom build target `make build` that we created before*\
+**Target:** *Select the custom build target `make build` that we created before*
 
 **Executable:** *Navigate to `lib/core/unittest/` and select the `ml-test` binary*\
-If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing `make` in the `lib/core/unittest` directory once to create it.
+If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing 
+`make` in the `lib/core/unittest` directory once to create it.
 
 **Working directory:** `lib/core/unittest`
 
-In the area **Before launch: Another Configuration, Build, Activate tool window** click on **+** and select **Run another configuration** and then **Libraries**. Make sure it is run before **Build** by using arrows up and down.
+In the area **Before launch: Another Configuration, Build, Activate tool window** click on **+** and select **Run
+another configuration** and then **Libraries**. Make sure it is run before **Build** by using up- and down-arrows.
 
 ![Run/Debug Configuration.](./run_core_test_configuration.png)
 
-If you want to specify an individual test suite or test case to run, you can specify it in the field **Program
+If you want to run an individual test suite or a test case, you can specify those in the field **Program
 arguments**.
 
 Now, you can run and debug your code by selecting the appropriate configuration and using **play** or **debug** symbols.
 
-For more information and useful screenshots, pleas refer to the [Clion help
-page](https://www.jetbrains.com/help/clion/custom-build-targets.html). Here you can also find more information on
+For more information and useful screenshots, please refer to the [Clion help page on custom build
+targets](https://www.jetbrains.com/help/clion/custom-build-targets.html). Here you can also find more information on
 [Creating new Run/Debug Configurations](https://www.jetbrains.com/help/clion/run-debug-configuration.html) as well as
 [running](https://www.jetbrains.com/help/clion/running-applications.html) and
 [debugging](https://www.jetbrains.com/help/clion/debugging-code.html) your code.
-
-## Load settings for the repository
-
-https://www.jetbrains.com/help/phpstorm/sharing-your-ide-settings.html
