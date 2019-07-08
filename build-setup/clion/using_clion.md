@@ -50,8 +50,12 @@ The argument `-n` will avoid the complete build of the targets (which somewhat a
 all arguments after `make` will simply be passed to the `make` command. 
 
 To add unittests files to the compilation database, you need to go to the directories of the individual unit tests, e.g.
-`lib/core/unittst` and run `compiledb -o ../../../compile_commands.json -n make -j`. New files are usually **added** to
-`compile_commands.json` unless you additionally specify `-f` for override.
+`lib/core/unittest` and run 
+```
+compiledb -o ../../../compile_commands.json -n make -j
+``` 
+
+New files are usually **added** to `compile_commands.json` unless you additionally specify `-f` for override.
 
 If the command runs suspiciously quickly and the `compile_commands.json` file is empty, this means that your project is
 already built and `make` didn't do anything. Simply run `make clean` before running `compiledb`.
@@ -64,13 +68,13 @@ You can enable automatic reload of the project for every change in `compile_comm
 auto-import** checkbox in **Settings / Preferences | Build, Execution, Deployment | Compilation Database**.
 
 To follow up the changes in the Makefiles, we can create File Watchers (you should have installed File Watchers plugin).
-Navigate to **Settings / Preferences | Tools | File Watchers** and create a new File Watcher for all files of typ **GNU
+Navigate to **Settings / Preferences | Tools | File Watchers** and create a new File Watcher for all files of type **GNU
 Makefile** located in the project root and subdirectories:
  
 **File type:** GNU Makefile\
 **Scope:** Project Files\
 **Program:** `compiledb`\
-**Arguments:** `-n make`\
+**Arguments:** `-n -o $ProjectFileDir$/compile_commands.json make -j`\
 **Working directory:** `$ProjectFileDir$`
 - [x] Auto-save edited files to trigger the watcher
 - [x] Trigger the watcher on external changes
@@ -84,11 +88,9 @@ can set up the workflow by adding **custom build targets** for your compilation 
 
 ### Custom build targets
 
-Let's create a custom target to build the libraries first, which gives you the same behavior as running `make` in the
+Let's create a custom target to build the libraries, which gives you the same behavior as running `make` in the
 project root. Go to **Settings / Preference | Build, Execution, Deployment | Custom Build Targets** and click **+** to
 add a new target. Pick the name, in this tutorial we will use the name *make build*.
-
-![Custom Build Targets](https://www.jetbrains.com/help/img/idea/2019.1/cl_custombuildtargets_settings.png)
 
 In the area **Toolchain** we have to specify custom tools for building and cleaning the project. 
 
