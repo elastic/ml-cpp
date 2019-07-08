@@ -141,8 +141,8 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
         params, totalNumberRows, partitionNumberRows, numberColumns);
 }
 
-const char* CDataFrameOutliersRunnerFactory::name() const {
-    return "outlier_detection";
+const std::string& CDataFrameOutliersRunnerFactory::name() const {
+    return NAME;
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
@@ -155,5 +155,7 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
                                           const rapidjson::Value& params) const {
     return std::make_unique<CDataFrameOutliersRunner>(spec, params);
 }
+
+const std::string CDataFrameOutliersRunnerFactory::NAME{"outlier_detection"};
 }
 }
