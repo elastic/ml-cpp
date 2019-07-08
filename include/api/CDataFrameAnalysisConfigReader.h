@@ -61,11 +61,7 @@ public:
     //! \brief A single parameter which has been read.
     class API_EXPORT CParameter {
     public:
-        //! \warning The \p name string is stored by reference so must outlive use
-        //! of this object.
         explicit CParameter(const std::string& name) : m_Name{name} {}
-        //! \warning The \p name string is stored by reference so must outlive use
-        //! of this object.
         CParameter(const std::string& name,
                    const rapidjson::Value& value,
                    const TStrIntMap& permittedValues);
