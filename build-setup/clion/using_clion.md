@@ -88,7 +88,7 @@ Let's create a custom target to build the libraries first, which gives you the s
 project root. Go to **Settings / Preference | Build, Execution, Deployment | Custom Build Targets** and click **+** to
 add a new target. Pick the name, in this tutorial we will use the name *make build*.
 
-![Custom Build Targets][https://www.jetbrains.com/help/img/idea/2019.1/cl_custombuildtargets_settings.png]
+![Custom Build Targets](https://www.jetbrains.com/help/img/idea/2019.1/cl_custombuildtargets_settings.png)
 
 In the area **Toolchain** we have to specify custom tools for building and cleaning the project. 
 
@@ -104,7 +104,7 @@ In the window **Edit Tool** specify:
 - [x] Synchronize files after execution\
 - [x] Open console for tool output
 
-![Edit Tool Window][./edit_tool_window.png]
+![Edit Tool Window](./edit_tool_window.png)
 
 
 Similarly, for **Clean:** create a new external tool with the following entries in the **Edit Tool** window:
@@ -119,7 +119,7 @@ Similarly, for **Clean:** create a new external tool with the following entries 
 
 Once you are done, your **Custom Build Targets** window should look as follows: 
 
-![Custom Build Targets Window][custom_build_targets_window.png]
+![Custom Build Targets Window](./custom_build_targets_window.png)
 
 ### Run/Debug Configuration
 
@@ -157,7 +157,7 @@ If you cannot find the executable `ml-test`, then you don't have one yet. Simply
 
 In the area **Before launch: Another Configuration, Build, Activate tool window** click on **+** and select **Run another configuration** and then **Libraries**. Make sure it is run before **Build** by using arrows up and down.
 
-![Run/Debug Configuration.][run_core_test_configuration.png] 
+![Run/Debug Configuration.](./run_core_test_configuration.png)
 
 If you want to specify an individual test suite or test case to run, you can specify it in the field **Program
 arguments**.
@@ -172,5 +172,4 @@ page](https://www.jetbrains.com/help/clion/custom-build-targets.html). Here you 
 
 ## Load settings for the repository
 
-https://www.jetbrains.com/help/clion/custom-build-targets.html
 https://www.jetbrains.com/help/phpstorm/sharing-your-ide-settings.html
