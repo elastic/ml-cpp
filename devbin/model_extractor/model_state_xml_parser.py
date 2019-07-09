@@ -30,11 +30,13 @@ from math import exp
 def parse_model_state_xml(xml_string):
     root = ET.fromstring(xml_string)
     for model in root.findall('./residual_model/one-of-n/model'):
-        log_weight = float(model.find('.//log_weight').text)
-        prior = list(model.find('.//prior'))[0]
+        log_weight = float(model.find('./weight/log_weight').text)
+        prior = model.find('./prior/')
         name = prior.tag
-        meanStr = model.find('.//mean').text
-        sdStr = model.find('.//standard_deviation').text
+        if name == 'multimodal':
+            continue
+        meanStr = prior.find('./mean').text
+        sdStr = prior.find('./standard_deviation').text
         if meanStr != '<unknown>' and sdStr != '<unknown>':
             mean = float(meanStr)
             sd = float(sdStr)
@@ -68,8 +70,5 @@ if __name__ == '__main__':
     data=args.infile.read()
 
     # Input is expected to be in standard ES Ml format with each document separated by a newline followed by a zero byte
-    for buf in data.splitlines():
-        lines = buf.split('\x00')
-        for line in lines:
-            if line != '':
-                parse_model_state_json(line)
+    lines = [buf.split('\x00') for buf in data.splitlines()]
+    [parse_model_state_json(line[0]) for line in lines if line[0] != '']

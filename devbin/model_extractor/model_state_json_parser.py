@@ -101,8 +101,4 @@ if __name__ == '__main__':
     reformatted_json = jq_reformat(data)
 
     # Input is expected to be in standard ES Ml format with each document separated by a newline followed by a zero byte
-    for line in reformatted_json.splitlines():
-        if line != '0':
-            parse_model_state_json(line)
-
-
+    [parse_model_state_json(line) for line in reformatted_json.splitlines() if line != '0']
