@@ -327,10 +327,9 @@ public:
             static_cast<std::size_t>(ceil(featureBagFraction) * (numberCols - 1)) *
             sizeof(std::size_t)};
         std::size_t rowMaskSize{numberRows / 32};
-        std::size_t gradientsSize{(numberCols - 1) * numberSplitsPerFeature *
-                                  sizeof(CFloatStorage)};
+        std::size_t gradientsSize{(numberCols - 1) * numberSplitsPerFeature * sizeof(double)};
         std::size_t curvatureSize{gradientsSize};
-        std::size_t missingGradientsSize{(numberCols - 1) * sizeof(CFloatStorage)};
+        std::size_t missingGradientsSize{(numberCols - 1) * sizeof(double)};
         std::size_t missingCurvatureSize{missingGradientsSize};
         return featureBagSize + rowMaskSize + gradientsSize + curvatureSize +
                missingGradientsSize + missingCurvatureSize;
@@ -736,13 +735,16 @@ public:
         std::size_t maximumNumberNodes{this->maximumTreeSize(numberRows)};
         std::size_t forestMemoryUsage{this->m_MaximumNumberTrees *
                                       maximumNumberNodes * sizeof(CNode)};
-        std::size_t leafNodeStatistics{CLeafNodeStatistics::estimateMemoryUsage(
-            numberRows, numberColumns, m_FeatureBagFraction, m_NumberSplitsPerFeature)};
         std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
                                             numberRows * sizeof(CFloatStorage)};
-        std::size_t hyperparametersMemoryUsage{
-            sizeof(SHyperparameters) + numberColumns * sizeof(CFloatStorage)};
-        return forestMemoryUsage + extraColumnsMemoryUsage + hyperparametersMemoryUsage;
+        std::size_t hyperparametersMemoryUsage{sizeof(SHyperparameters) +
+                                               numberColumns * sizeof(double)};
+        std::size_t leafNodeStatisticsMemoryUsage{
+            maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
+                                     numberRows, numberColumns, m_FeatureBagFraction,
+                                     m_NumberSplitsPerFeature)};
+        return forestMemoryUsage + extraColumnsMemoryUsage +
+               hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
     }
 
 private:

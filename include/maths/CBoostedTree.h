@@ -159,7 +159,7 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
-    //! Estimated the maximum booking memory that training the boosted tree on a data
+    //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
