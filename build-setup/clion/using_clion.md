@@ -36,8 +36,8 @@ easier integrated into CLion.
 
 ##  Create compilation database and load it in CLion
 
-This section took a lot of information from CLion help page[**Managing Makefile
-projects**](https://www.jetbrains.com/help/clion/managing-makefile-projects.html). Please, refer this page for
+This section took a lot of information from CLion help page [Managing Makefile
+projects](https://www.jetbrains.com/help/clion/managing-makefile-projects.html). Please, refer this page for
 additional instruction and screenshots. For more information on using compilation database in CLion, see [JetBrains
 CLion Help page](https://www.jetbrains.com/help/clion/compilation-database.html)
 
