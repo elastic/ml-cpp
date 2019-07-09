@@ -316,6 +316,26 @@ public:
     //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask() { return m_RowMask; }
 
+    //! Estimate maximum leaf statistics bookkeeping memory for training
+    //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
+    //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
+    static size_t estimateMemoryUsage(std::size_t numberRows,
+                                      std::size_t numberCols,
+                                      double featureBagFraction,
+                                      std::size_t numberSplitsPerFeature) {
+        std::size_t featureBagSize{
+            static_cast<std::size_t>(ceil(featureBagFraction) * (numberCols - 1)) *
+            sizeof(std::size_t)};
+        std::size_t rowMaskSize{numberRows / 32};
+        std::size_t gradientsSize{(numberCols - 1) * numberSplitsPerFeature *
+                                  sizeof(CFloatStorage)};
+        std::size_t curvatureSize{gradientsSize};
+        std::size_t missingGradientsSize{(numberCols - 1) * sizeof(CFloatStorage)};
+        std::size_t missingCurvatureSize{missingGradientsSize};
+        return featureBagSize + rowMaskSize + gradientsSize + curvatureSize +
+               missingGradientsSize + missingCurvatureSize;
+    }
+
 private:
     //! \brief Statistics relating to a split of the node.
     struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
@@ -714,12 +734,14 @@ public:
 
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const {
         std::size_t maximumNumberNodes{this->maximumTreeSize(numberRows)};
-        std::size_t forestMemoryUsage{this->m_MaximumNumberTrees * maximumNumberNodes *
-                                      (sizeof(CNode) + sizeof(CLeafNodeStatistics))};
+        std::size_t forestMemoryUsage{this->m_MaximumNumberTrees *
+                                      maximumNumberNodes * sizeof(CNode)};
+        std::size_t leafNodeStatistics{CLeafNodeStatistics::estimateMemoryUsage(
+            numberRows, numberColumns, m_FeatureBagFraction, m_NumberSplitsPerFeature)};
         std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
-                                            numberRows * sizeof(double)};
-        std::size_t hyperparametersMemoryUsage{sizeof(SHyperparameters) +
-                                               numberColumns * sizeof(double)};
+                                            numberRows * sizeof(CFloatStorage)};
+        std::size_t hyperparametersMemoryUsage{
+            sizeof(SHyperparameters) + numberColumns * sizeof(CFloatStorage)};
         return forestMemoryUsage + extraColumnsMemoryUsage + hyperparametersMemoryUsage;
     }
 
