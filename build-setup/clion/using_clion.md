@@ -5,8 +5,9 @@ compilation database for the `ml-cpp` project and integrate it with CLion.
 
 ## Installing prerequisites
 
->Note: this tutorial assumes that you have installed the correct version of GCC in your system environment and it can be
->accessed by simply calling `g++`.
+Note: this tutorial assumes that you have installed the correct version of GCC ([Linux](../linux.md))
+or XCode command line tools ([macOS](../macos.md)) installed on your system and it can be accessed
+by simply calling `g++` or `clang++`.
 
 ### CLion
 
@@ -155,7 +156,7 @@ Configurations...** and click on the **+** symbol to create a new **Custom Build
 **Name:** Test core\
 **Target:** *Select the custom build target `make build` that we created before*
 
-**Executable:** *Navigate to `lib/core/unittest/` and select the `ml-test` binary*\
+**Executable:** *Navigate to `lib/core/unittest/` and select the `ml_test` binary*\
 If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing 
 `make` in the `lib/core/unittest` directory once to create it.
 
