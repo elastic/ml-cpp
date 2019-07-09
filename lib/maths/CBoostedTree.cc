@@ -316,6 +316,25 @@ public:
     //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask() { return m_RowMask; }
 
+    //! Estimate maximum leaf statistics bookkeeping memory for training
+    //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
+    //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
+    static size_t estimateMemoryUsage(std::size_t numberRows,
+                                      std::size_t numberCols,
+                                      double featureBagFraction,
+                                      std::size_t numberSplitsPerFeature) {
+        std::size_t featureBagSize{
+            static_cast<std::size_t>(ceil(featureBagFraction) * (numberCols - 1)) *
+            sizeof(std::size_t)};
+        std::size_t rowMaskSize{numberRows / 32};
+        std::size_t gradientsSize{(numberCols - 1) * numberSplitsPerFeature * sizeof(double)};
+        std::size_t curvatureSize{gradientsSize};
+        std::size_t missingGradientsSize{(numberCols - 1) * sizeof(double)};
+        std::size_t missingCurvatureSize{missingGradientsSize};
+        return featureBagSize + rowMaskSize + gradientsSize + curvatureSize +
+               missingGradientsSize + missingCurvatureSize;
+    }
+
 private:
     //! \brief Statistics relating to a split of the node.
     struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
@@ -710,8 +729,27 @@ public:
         // TODO
     }
 
+    //! Get the number of columns training the model will add to the data frame.
+    std::size_t numberExtraColumnsForTrain() const { return 3; }
+
     //! Get the feature sample probabilities.
     TDoubleVec featureWeights() const { return m_FeatureSampleProbabilities; }
+
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const {
+        std::size_t maximumNumberNodes{this->maximumTreeSize(numberRows)};
+        std::size_t forestMemoryUsage{this->m_MaximumNumberTrees *
+                                      maximumNumberNodes * sizeof(CNode)};
+        std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
+                                            numberRows * sizeof(CFloatStorage)};
+        std::size_t hyperparametersMemoryUsage{sizeof(SHyperparameters) +
+                                               numberColumns * sizeof(double)};
+        std::size_t leafNodeStatisticsMemoryUsage{
+            maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
+                                     numberRows, numberColumns, m_FeatureBagFraction,
+                                     m_NumberSplitsPerFeature)};
+        return forestMemoryUsage + extraColumnsMemoryUsage +
+               hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
+    }
 
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
@@ -1057,16 +1095,6 @@ private:
         }
 
         return result;
-    }
-
-    //! Get the maximum number of nodes to use in a tree.
-    //!
-    //! \note This number will only be used if the regularised loss says its
-    //! a good idea.
-    std::size_t maximumTreeSize(const core::CDataFrame& frame) const {
-        return static_cast<std::size_t>(
-            std::ceil(m_MaximumTreeSizeFraction *
-                      std::sqrt(static_cast<double>(frame.numberRows()))));
     }
 
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
@@ -1426,6 +1454,23 @@ private:
                (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
     }
 
+    //! Get the maximum number of nodes to use in a tree.
+    //!
+    //! \note This number will only be used if the regularised loss says its
+    //! a good idea.
+    std::size_t maximumTreeSize(const core::CDataFrame& frame) const {
+        return maximumTreeSize(frame.numberRows());
+    }
+
+    //! Get the maximum number of nodes to use in a tree.
+    //!
+    //! \note This number will only be used if the regularised loss says its
+    //! a good idea.
+    std::size_t maximumTreeSize(std::size_t numberRows) const {
+        return static_cast<std::size_t>(std::ceil(
+            m_MaximumTreeSizeFraction * std::sqrt(static_cast<double>(numberRows))));
+    }
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
@@ -1525,11 +1570,15 @@ CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
 }
 
 std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
-    return 3;
+    return m_Impl->numberExtraColumnsForTrain();
 }
 
 std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
     return predictionColumn(numberColumns);
+}
+std::size_t CBoostedTree::estimateMemoryUsage(std::size_t numberRows,
+                                              std::size_t numberColumns) const {
+    return this->m_Impl->estimateMemoryUsage(numberRows, numberColumns);
 }
 }
 }
