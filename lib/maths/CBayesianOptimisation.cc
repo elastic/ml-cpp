@@ -6,20 +6,49 @@
 
 #include <maths/CBayesianOptimisation.h>
 
+#include <core/CIEEE754.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CStateCompressor.h>
+#include <core/CTimeUtils.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/CSampling.h>
-#include <maths/CTools.h>
 
 #include <boost/math/distributions/normal.hpp>
+#include <core/CJsonStateRestoreTraverser.h>
+#include <core/CStateDecompressor.h>
+#include <maths/CTools.h>
 
 namespace ml {
 namespace maths {
 
+namespace {
+const std::string MIN_BOUNDARY_TAG{"a"};
+const std::string MAX_BOUNDARY_TAG{"b"};
+const std::string BOUNDARY_TAG{"c"};
+const std::string ERROR_VARIANCES_TAG{"d"};
+const std::string ERROR_VARIANCE_TAG{"e"};
+const std::string KERNEL_PARAMETERS_TAG{"f"};
+const std::string KERNEL_PARAMETER_TAG{"g"};
+const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"h"};
+const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG{"i"};
+const std::string NUMBER_EVALUATIONS{"j"};
+const std::string NUMBER_PARAMETERS{"k"};
+const std::string FUNCTION_MEAN_VALUES_TAG{"l"};
+const std::string FUNCTION_PARAMETER_VALUE_PAIR_TAG{"m"};
+const std::string FUNCTION_PARAMETERS_TAG{"n"};
+const std::string FUNCTION_PARAMETER_TAG{"o"};
+const std::string FUNCTION_VALUE_TAG{"p"};
+}
+
+const std::string CBayesianOptimisation::ML_STATE_INDEX(".ml-state");
+const std::string CBayesianOptimisation::STATE_TYPE("bayesian_optimization_state");
+
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
-    : m_A(parameterBounds.size()), m_B(parameterBounds.size()),
+    : m_MinBoundary(parameterBounds.size()), m_MaxBoundary(parameterBounds.size()),
       m_KernelParameters(parameterBounds.size() + 1),
       m_MinimumKernelCoordinateDistanceScale(parameterBounds.size()) {
 
@@ -28,13 +57,14 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
         parameterBounds.size(), MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE);
 
     for (std::size_t i = 0; i < parameterBounds.size(); ++i) {
-        m_A(i) = parameterBounds[i].first;
-        m_B(i) = parameterBounds[i].second;
+        m_MinBoundary(i) = parameterBounds[i].first;
+        m_MaxBoundary(i) = parameterBounds[i].second;
     }
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
-    m_Function.emplace_back(x.cwiseQuotient(m_B - m_A), m_RangeScale * (fx - m_RangeShift));
+    m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+                                      m_RangeScale * (fx - m_RangeShift));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
@@ -55,12 +85,12 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
     std::tie(minusEI, minusEIGradient) = this->minusExpectedImprovementAndGradient();
 
     // Use random restarts inside the constraint bounding box.
-    TVector interpolate(m_A.size());
+    TVector interpolate(m_MinBoundary.size());
     TDoubleVec interpolates;
     CSampling::uniformSample(m_Rng, 0.0, 1.0, 3 * m_Restarts * interpolate.size(), interpolates);
 
-    TVector a{m_A.cwiseQuotient(m_B - m_A)};
-    TVector b{m_B.cwiseQuotient(m_B - m_A)};
+    TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TMeanAccumulator rho_;
     TMinAccumulator seeds{m_Restarts};
 
@@ -102,10 +132,10 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
         }
     }
 
-    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_B - m_A).transpose()
+    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
               << " EI(best) = " << fmax);
 
-    return xmax.cwiseProduct(m_B - m_A);
+    return xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
 }
 
 std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
@@ -121,7 +151,6 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     };
 
     auto likelihoodGradient = [f, v, this](const TVector& a) {
-
         TMatrix K{this->kernel(a, v)};
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
@@ -165,14 +194,14 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     double vx{this->meanErrorVariance()};
 
-    double fmin{std::min_element(m_Function.begin(), m_Function.end(),
-                                 [](const TVectorDoublePr& lhs, const TVectorDoublePr& rhs) {
-                                     return lhs.second < rhs.second;
-                                 })
-                    ->second};
+    double fmin{
+        std::min_element(m_FunctionMeanValues.begin(), m_FunctionMeanValues.end(),
+                         [](const TVectorDoublePr& lhs, const TVectorDoublePr& rhs) {
+                             return lhs.second < rhs.second;
+                         })
+            ->second};
 
     auto EI = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
-
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
@@ -192,7 +221,6 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
     };
 
     auto EIGradient = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
-
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
@@ -217,7 +245,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         for (int i = 0; i < x.size(); ++i) {
             TVector dKxndx{Kxn.size()};
             for (int j = 0; j < Kxn.size(); ++j) {
-                const TVector& xj{m_Function[j].first};
+                const TVector& xj{m_FunctionMeanValues[j].first};
                 dKxndx(j) = 2.0 *
                             (m_MinimumKernelCoordinateDistanceScale(0) +
                              CTools::pow2(m_KernelParameters(i + 1))) *
@@ -287,7 +315,7 @@ void CBayesianOptimisation::precondition() {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    for (auto& value : m_Function) {
+    for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeShift + value.second / m_RangeScale;
     }
     for (auto& variance : m_ErrorVariances) {
@@ -295,7 +323,7 @@ void CBayesianOptimisation::precondition() {
     }
 
     TMeanVarAccumulator rangeMoments;
-    for (const auto& value : m_Function) {
+    for (const auto& value : m_FunctionMeanValues) {
         rangeMoments.add(value.second);
     }
 
@@ -303,7 +331,7 @@ void CBayesianOptimisation::precondition() {
     m_RangeShift = CBasicStatistics::mean(rangeMoments);
     m_RangeScale = 1.0 / std::sqrt(CBasicStatistics::variance(rangeMoments) + eps);
 
-    for (auto& value : m_Function) {
+    for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeScale * (value.second - m_RangeShift);
     }
     for (auto& variance : m_ErrorVariances) {
@@ -312,9 +340,9 @@ void CBayesianOptimisation::precondition() {
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
-    TVector result(m_Function.size());
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        result(i) = m_Function[i].second;
+    TVector result(m_FunctionMeanValues.size());
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        result(i) = m_FunctionMeanValues[i].second;
     }
     return result;
 }
@@ -327,12 +355,12 @@ double CBayesianOptimisation::meanErrorVariance() const {
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a, int k) const {
-    TMatrix result{m_Function.size(), m_Function.size()};
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
+    TMatrix result{m_FunctionMeanValues.size(), m_FunctionMeanValues.size()};
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         result(i, i) = 0.0;
-        const TVector& xi{m_Function[i].first};
+        const TVector& xi{m_FunctionMeanValues[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            const TVector& xj{m_Function[j].first};
+            const TVector& xj{m_FunctionMeanValues[j].first};
             result(i, j) = result(j, i) = 2.0 * a(k) *
                                           CTools::pow2(xi(k - 1) - xj(k - 1)) *
                                           this->kernel(a, xi, xj);
@@ -342,12 +370,12 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a,
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, double v) const {
-    TMatrix result{m_Function.size(), m_Function.size()};
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
+    TMatrix result{m_FunctionMeanValues.size(), m_FunctionMeanValues.size()};
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         result(i, i) = CTools::pow2(a(0)) + v;
-        const TVector& xi{m_Function[i].first};
+        const TVector& xi{m_FunctionMeanValues[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            const TVector& xj{m_Function[j].first};
+            const TVector& xj{m_FunctionMeanValues[j].first};
             result(i, j) = result(j, i) = this->kernel(a, xi, xj);
         }
     }
@@ -357,9 +385,9 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, d
 CBayesianOptimisation::TVectorDoublePr
 CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, double vx) const {
     double Kxx{CTools::pow2(a(0)) + vx};
-    TVector Kxn(m_Function.size());
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        Kxn(i) = this->kernel(a, x, m_Function[i].first);
+    TVector Kxn(m_FunctionMeanValues.size());
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        Kxn(i) = this->kernel(a, x, m_FunctionMeanValues[i].first);
     }
     return {Kxn, Kxx};
 }
@@ -372,6 +400,296 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
                                          (x - y));
 }
 
+std::function<bool(core::CStateRestoreTraverser&)>
+CBayesianOptimisation::restoreVector(const std::string& tag,
+                                     CBayesianOptimisation::TDoubleVec& vector) {
+    auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
+        double newValue{0.0};
+        CBayesianOptimisation::TDoubleVec newVector;
+        do {
+            if (traverser.name() == tag) {
+                if (core::CStringUtils::stringToType(traverser.value(), newValue) == false) {
+                    LOG_ERROR(<< "Error restoring vector: " << traverser.value());
+                    return false;
+                }
+                newVector.emplace_back(newValue);
+            }
+        } while (traverser.next());
+        vector = std::move(newVector);
+        return true;
+    };
+    return restorationFunction;
+}
+
+std::function<bool(core::CStateRestoreTraverser&)>
+CBayesianOptimisation::restoreVector(const std::string& tag,
+                                     CBayesianOptimisation::TVector& vector) {
+    auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
+        double newValue{0.0};
+        CBayesianOptimisation::TVector newVector;
+        do {
+            if (traverser.name() == tag) {
+                if (core::CStringUtils::stringToType(traverser.value(), newValue) == false) {
+                    LOG_ERROR(<< "Error restoring vector: " << traverser.value());
+                    return false;
+                }
+                newVector << newValue;
+            }
+        } while (traverser.next());
+        vector = std::move(newVector);
+        return true;
+    };
+    return restorationFunction;
+}
+
+std::function<bool(core::CStateRestoreTraverser&)>
+CBayesianOptimisation::restoreParameterValuePair(TVector& parameters, double& functionValue) {
+    auto restoreParameterValuePair = [&parameters, &functionValue,
+                                      this](core::CStateRestoreTraverser& traverser) {
+        do {
+            if (traverser.name() == FUNCTION_PARAMETERS_TAG) {
+                if (traverser.traverseSubLevel(this->restoreVector(
+                        FUNCTION_PARAMETER_TAG, parameters)) == false) {
+                    return false;
+                }
+            } else if (traverser.name() == FUNCTION_VALUE_TAG) {
+                if (core::CStringUtils::stringToType(traverser.value(), functionValue) == false) {
+                    LOG_ERROR(<< "Error restoring function value: " << traverser.value());
+                    return false;
+                }
+            } else {
+                LOG_ERROR(<< "Error restoring function mean values. Unexpected tag: "
+                          << traverser.name());
+                return false;
+            }
+        } while (traverser.next());
+        return true;
+    };
+    return restoreParameterValuePair;
+}
+
+bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
+                                                      core::CStateRestoreTraverser& traverser) {
+    if (traverser.hasSubLevel()) {
+        TVectorDoublePrVec newVector;
+        do {
+            if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
+                if (traverser.hasSubLevel()) {
+                    TVector parameters;
+                    double functionValue;
+                    if (traverser.traverseSubLevel(restoreParameterValuePair(
+                            parameters, functionValue)) == false) {
+                        return false;
+                    }
+                    newVector.emplace_back(parameters, functionValue);
+                } else {
+                    LOG_ERROR("Error restoring function parameter value paris: "
+                              << traverser.value() << ". Expected to have a sublevel");
+                    return false;
+                }
+            } else {
+                LOG_ERROR(<< "Unexpected name for function parameter value pair: "
+                          << traverser.name()
+                          << ". Expected name: " << FUNCTION_PARAMETER_VALUE_PAIR_TAG);
+                return false;
+            }
+
+        } while (traverser.next());
+        functionMeanValues = std::move(newVector);
+    } else {
+        LOG_ERROR("Error restoring function mean values: "
+                  << traverser.value() << ". Expected to have a sublevel");
+        return false;
+    }
+    return true;
+}
+
+bool CBayesianOptimisation::restoreState(core::CDataSearcher& restoreSearcher,
+                                         core_t::TTime& completeToTime) {
+    try {
+        core::CStateDecompressor decompressor(restoreSearcher);
+        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
+
+        core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
+        if (strm == nullptr) {
+            LOG_ERROR(<< "Unable to connect to data store");
+            return false;
+        }
+
+        if (strm->bad()) {
+            LOG_ERROR(<< "State restoration search returned bad stream");
+            return false;
+        }
+
+        if (strm->fail()) {
+            // This is fatal. If the stream exists and has failed then state is missing
+            LOG_ERROR(<< "State restoration search returned failed stream");
+            return false;
+        }
+
+        // We're dealing with streaming JSON state
+        core::CJsonStateRestoreTraverser traverser(*strm);
+
+        // Call name() to prime the traverser if it hasn't started
+        traverser.name();
+        if (traverser.isEof()) {
+            //            m_RestoredStateDetail.s_RestoredStateStatus = E_NoDetectorsRecovered;
+            LOG_ERROR(<< "Expected persisted state but no state exists");
+            return false;
+        }
+
+        do {
+            const std::string& name = traverser.name();
+            if (name == MIN_BOUNDARY_TAG) {
+                if (restoreSubLevelVector(BOUNDARY_TAG, "minimum boundary",
+                                          m_MinBoundary, traverser) == false) {
+                    return false;
+                }
+            } else if (name == MAX_BOUNDARY_TAG) {
+                if (restoreSubLevelVector(BOUNDARY_TAG, "maximum boundary",
+                                          m_MaxBoundary, traverser) == false) {
+                    return false;
+                }
+            } else if (name == ERROR_VARIANCES_TAG) {
+                if (restoreSubLevelVector(ERROR_VARIANCE_TAG, "error variance",
+                                          m_ErrorVariances, traverser) == false) {
+                    return false;
+                }
+            } else if (name == KERNEL_PARAMETERS_TAG) {
+                if (restoreSubLevelVector(KERNEL_PARAMETER_TAG, "kernel parameters",
+                                          m_KernelParameters, traverser) == false) {
+                    return false;
+                }
+            } else if (name == MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG) {
+                if (restoreSubLevelVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                                          "minimum kernel coordinate distance scale",
+                                          m_ErrorVariances, traverser) == false) {
+                    return false;
+                }
+            } else if (name == FUNCTION_MEAN_VALUES_TAG) {
+                if (restoreFunctionMeanValues(m_FunctionMeanValues, traverser) == false) {
+                    return false;
+                }
+            } else {
+                LOG_ERROR(<< "Unexpected name for restoring bayesian optimization parameters: "
+                          << traverser.name());
+                return false;
+            }
+        } while (traverser.next());
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
+                                                  const std::string& name,
+                                                  TVector& vector,
+                                                  core::CStateRestoreTraverser& traverser) {
+    if (traverser.hasSubLevel()) {
+        if (traverser.traverseSubLevel(restoreVector(tag, vector)) == false) {
+            return false;
+        }
+    } else {
+        LOG_ERROR(<< "Error restoring " << name << ": " << traverser.value()
+                  << ". Expected to have a sublevel");
+        return false;
+    }
+    return true;
+}
+
+bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
+                                                  const std::string& name,
+                                                  TDoubleVec& vector,
+                                                  core::CStateRestoreTraverser& traverser) {
+    if (traverser.hasSubLevel()) {
+        if (traverser.traverseSubLevel(restoreVector(tag, vector)) == false) {
+            return false;
+        }
+    } else {
+        LOG_ERROR(<< "Error restoring " << name << ": " << traverser.value()
+                  << ". Expected to have a sublevel");
+        return false;
+    }
+    return true;
+}
+
+bool CBayesianOptimisation::persistState(core::CDataAdder& persister) {
+    try {
+        core::CStateCompressor compressor(persister);
+
+        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
+        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
+        core::CDataAdder::TOStreamP strm =
+            compressor.addStreamed(ML_STATE_INDEX, STATE_TYPE + '_' + snapShotId);
+        if (strm != nullptr) {
+            core::CJsonStatePersistInserter inserter(*strm);
+            //            inserter.insertInteger(NUMBER_PARAMETERS, m_MinBoundary.size());
+            //            inserter.insertInteger(NUMBER_EVALUATIONS, m_FunctionMeanValues.size());
+            inserter.insertLevel(MIN_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MinBoundary));
+            inserter.insertLevel(MAX_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MaxBoundary));
+            inserter.insertLevel(ERROR_VARIANCES_TAG,
+                                 persistVector(ERROR_VARIANCE_TAG, m_ErrorVariances));
+            inserter.insertLevel(KERNEL_PARAMETERS_TAG,
+                                 persistVector(KERNEL_PARAMETER_TAG, m_KernelParameters));
+            inserter.insertLevel(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                                 persistVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
+                                               m_MinimumKernelCoordinateDistanceScale));
+            inserter.insertLevel(FUNCTION_MEAN_VALUES_TAG,
+                                 persistFunctionMeanValues(m_FunctionMeanValues));
+        }
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to persist state! " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+std::function<void(core::CStatePersistInserter&)>
+CBayesianOptimisation::persistVector(const std::string& tag,
+                                     const CBayesianOptimisation::TVector& vector) const {
+    auto persistenceFunction = [&tag, &vector](core::CStatePersistInserter& inserter) {
+        for (int i = 0; i < vector.size(); ++i) {
+            inserter.insertValue(tag, vector[i], core::CIEEE754::E_DoublePrecision);
+        }
+    };
+    return persistenceFunction;
+}
+
+std::function<void(core::CStatePersistInserter&)>
+CBayesianOptimisation::persistVector(const std::string& tag,
+                                     const CBayesianOptimisation::TDoubleVec& vector) const {
+    auto persistenceFunction = [&tag, &vector](core::CStatePersistInserter& inserter) {
+        for (std::size_t i = 0u; i < vector.size(); ++i) {
+            inserter.insertValue(tag, vector[i], core::CIEEE754::E_DoublePrecision);
+        }
+    };
+    return persistenceFunction;
+}
+
+std::function<void(core::CStatePersistInserter&)> CBayesianOptimisation::persistFunctionMeanValues(
+    const CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues) const {
+    auto persistenceFunction = [&functionMeanValues,
+                                this](core::CStatePersistInserter& inserter) {
+        for (const auto& functionPoint : functionMeanValues) {
+            auto persistParameterValuePair =
+                [&functionPoint, this](core::CStatePersistInserter& inserter_) {
+                    inserter_.insertLevel(FUNCTION_PARAMETERS_TAG,
+                                          persistVector(FUNCTION_PARAMETER_TAG,
+                                                        functionPoint.first));
+                    inserter_.insertValue(FUNCTION_VALUE_TAG, functionPoint.second,
+                                          core::CIEEE754::E_DoublePrecision);
+                };
+            inserter.insertLevel(FUNCTION_PARAMETER_VALUE_PAIR_TAG, persistParameterValuePair);
+        }
+    };
+    return persistenceFunction;
+}
+
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
+
 }
 }

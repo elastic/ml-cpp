@@ -8,6 +8,10 @@
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
+#include <core/CDataSearcher.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
+#include <core/CoreTypes.h>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -51,6 +55,13 @@ public:
     using TEIGradientFunc = std::function<TVector(const TVector&)>;
 
 public:
+    //! Elasticsearch index for state
+    static const std::string ML_STATE_INDEX;
+
+    //! Discriminant for Elasticsearch IDs
+    static const std::string STATE_TYPE;
+
+public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
@@ -60,6 +71,12 @@ public:
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
     TVector maximumExpectedImprovement();
+
+    //! Restore previously saved state
+    bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+
+    //! Persist current state
+    bool persistState(core::CDataAdder& persister);
 
     //! \name Test Interface
     //@{
@@ -101,14 +118,44 @@ private:
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
 
+    std::function<void(core::CStatePersistInserter&)>
+    persistFunctionMeanValues(const CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues) const;
+    std::function<void(core::CStatePersistInserter&)>
+    persistVector(const std::string& tag, const CBayesianOptimisation::TVector& vector) const;
+
+    std::function<void(core::CStatePersistInserter&)>
+    persistVector(const std::string& tag, const CBayesianOptimisation::TDoubleVec& vector) const;
+
+    std::function<bool(core::CStateRestoreTraverser&)>
+    restoreVector(const std::string& tag, TDoubleVec& vector);
+
+    std::function<bool(core::CStateRestoreTraverser&)>
+    restoreVector(const std::string& tag, TVector& vector);
+
+    bool restoreSubLevelVector(const std::string& tag,
+                               const std::string& name,
+                               TVector& vector,
+                               core::CStateRestoreTraverser& traverser);
+
+    bool restoreSubLevelVector(const std::string& tag,
+                               const std::string& name,
+                               TDoubleVec& vector,
+                               core::CStateRestoreTraverser& traverser);
+
+    bool restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
+                              core::CStateRestoreTraverser& traverser);
+
+    std::function<bool(core::CStateRestoreTraverser&)>
+    restoreParameterValuePair(TVector& parameters, double& functionValue);
+
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts = 10;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
-    TVector m_A;
-    TVector m_B;
-    TVectorDoublePrVec m_Function;
+    TVector m_MinBoundary;
+    TVector m_MaxBoundary;
+    TVectorDoublePrVec m_FunctionMeanValues;
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;
     TVector m_MinimumKernelCoordinateDistanceScale;
