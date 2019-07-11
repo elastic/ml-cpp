@@ -263,23 +263,45 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
 }
 
 void CBayesianOptimisationTest::testPersistRestore() {
+    // 1d
+    {
+        std::vector<double> minBoundary{0.};
+        std::vector<double> maxBoundary{10.};
+        // empty
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{};
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+        // with data
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{
+                {5., 1., 0.2},
+                {7., 1., 0.2},
+            };
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+    }
 
     // 2d
-    std::vector<double> minBoundary{0., -1.};
-    std::vector<double> maxBoundary{10., 1.};
     {
-        std::vector<std::vector<double>> parameterFunctionValues{
-        };
-        testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
-    }
-    {
-        std::vector<std::vector<double>> parameterFunctionValues{
-            {5., 0., 1., 0.2},
-            {7., 0., 1., 0.2},
-        };
-        testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        std::vector<double> minBoundary{0., -1.};
+        std::vector<double> maxBoundary{10., 1.};
+        // empty
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{};
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+        // with data
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{
+                {5., 0., 1., 0.2},
+                {7., 0., 1., 0.2},
+            };
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
     }
 }
+
 void CBayesianOptimisationTest::testPersistRestoreSubroutine(
     const std::vector<double>& minBoundary,
     const std::vector<double>& maxBoundary,
