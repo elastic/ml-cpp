@@ -134,11 +134,12 @@ Since we installed **Makefile support** plugin, we can add **Makefile** configur
 
 **Name:** `Libraries`\
 **Makefile:** Makefile\
+**Working Directory:** *<Absolute path to your project>*\
 **Arguments:** `-j ML_DEBUG=1`
 - [x] Allow parallel run
 
 I assume that you want to build the project with debug symbols activated, but, obviously, you need to remove the
-argument `ML_DUBUG=1` if you don't. Leave the field **Working Directory** empty, as it will be correctly set elsewhere.
+argument `ML_DUBUG=1` if you don't. 
 
 It is important that you specify the environment variable `CPP_SRC_HOME`. If you specified it on the system
 level, CLion can pick it up automatically, otherwise you have to specify it explicitly in the **Environment variables**
