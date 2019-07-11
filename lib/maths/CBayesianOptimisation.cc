@@ -35,13 +35,11 @@ const std::string KERNEL_PARAMETERS_TAG{"f"};
 const std::string KERNEL_PARAMETER_TAG{"g"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"h"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG{"i"};
-const std::string NUMBER_EVALUATIONS{"j"};
-const std::string NUMBER_PARAMETERS{"k"};
-const std::string FUNCTION_MEAN_VALUES_TAG{"l"};
-const std::string FUNCTION_PARAMETER_VALUE_PAIR_TAG{"m"};
-const std::string FUNCTION_PARAMETERS_TAG{"n"};
-const std::string FUNCTION_PARAMETER_TAG{"o"};
-const std::string FUNCTION_VALUE_TAG{"p"};
+const std::string FUNCTION_MEAN_VALUES_TAG{"j"};
+const std::string FUNCTION_PARAMETER_VALUE_PAIR_TAG{"k"};
+const std::string FUNCTION_PARAMETERS_TAG{"l"};
+const std::string FUNCTION_PARAMETER_TAG{"m"};
+const std::string FUNCTION_VALUE_TAG{"n"};
 }
 
 const std::string CBayesianOptimisation::ML_STATE_INDEX(".ml-state");
@@ -426,17 +424,21 @@ CBayesianOptimisation::restoreVector(const std::string& tag,
                                      CBayesianOptimisation::TVector& vector) {
     auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
         double newValue{0.0};
-        CBayesianOptimisation::TVector newVector;
+        CBayesianOptimisation::TDoubleVec newVector;
         do {
             if (traverser.name() == tag) {
                 if (core::CStringUtils::stringToType(traverser.value(), newValue) == false) {
                     LOG_ERROR(<< "Error restoring vector: " << traverser.value());
                     return false;
                 }
-                newVector << newValue;
+                newVector.emplace_back(newValue);
             }
         } while (traverser.next());
-        vector = std::move(newVector);
+        CBayesianOptimisation::TVector newTVector(newVector.size());
+        for (std::size_t i = 0u; i < newVector.size(); ++i) {
+            newTVector(i) = newVector[i];
+        }
+        vector = std::move(newTVector);
         return true;
     };
     return restorationFunction;
@@ -471,31 +473,36 @@ CBayesianOptimisation::restoreParameterValuePair(TVector& parameters, double& fu
 bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
                                                       core::CStateRestoreTraverser& traverser) {
     if (traverser.hasSubLevel()) {
-        TVectorDoublePrVec newVector;
-        do {
-            if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
-                if (traverser.hasSubLevel()) {
-                    TVector parameters;
-                    double functionValue;
-                    if (traverser.traverseSubLevel(restoreParameterValuePair(
-                            parameters, functionValue)) == false) {
+        auto restoreParameterValuePairs = [&functionMeanValues,
+                                           this](core::CStateRestoreTraverser& traverser) {
+            TVectorDoublePrVec newVector;
+            do {
+                if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
+                    if (traverser.hasSubLevel()) {
+                        TVector parameters;
+                        double functionValue;
+                        if (traverser.traverseSubLevel(this->restoreParameterValuePair(
+                                parameters, functionValue)) == false) {
+                            return false;
+                        }
+                        newVector.emplace_back(parameters, functionValue);
+                    } else {
+                        LOG_ERROR("Error restoring function parameter value paris: "
+                                  << traverser.value() << ". Expected to have a sublevel");
                         return false;
                     }
-                    newVector.emplace_back(parameters, functionValue);
                 } else {
-                    LOG_ERROR("Error restoring function parameter value paris: "
-                              << traverser.value() << ". Expected to have a sublevel");
+                    LOG_ERROR(<< "Unexpected name for function parameter value pair: "
+                              << traverser.name() << ". Expected name: "
+                              << FUNCTION_PARAMETER_VALUE_PAIR_TAG);
                     return false;
                 }
-            } else {
-                LOG_ERROR(<< "Unexpected name for function parameter value pair: "
-                          << traverser.name()
-                          << ". Expected name: " << FUNCTION_PARAMETER_VALUE_PAIR_TAG);
-                return false;
-            }
 
-        } while (traverser.next());
-        functionMeanValues = std::move(newVector);
+            } while (traverser.next());
+            functionMeanValues = std::move(newVector);
+        };
+        traverser.traverseSubLevel(restoreParameterValuePairs);
+
     } else {
         LOG_ERROR("Error restoring function mean values: "
                   << traverser.value() << ". Expected to have a sublevel");
@@ -504,31 +511,8 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
     return true;
 }
 
-bool CBayesianOptimisation::restoreState(core::CDataSearcher& restoreSearcher,
-                                         core_t::TTime& completeToTime) {
+bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
-        core::CStateDecompressor decompressor(restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
-
-        core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
-        if (strm == nullptr) {
-            LOG_ERROR(<< "Unable to connect to data store");
-            return false;
-        }
-
-        if (strm->bad()) {
-            LOG_ERROR(<< "State restoration search returned bad stream");
-            return false;
-        }
-
-        if (strm->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
-            LOG_ERROR(<< "State restoration search returned failed stream");
-            return false;
-        }
-
-        // We're dealing with streaming JSON state
-        core::CJsonStateRestoreTraverser traverser(*strm);
 
         // Call name() to prime the traverser if it hasn't started
         traverser.name();
@@ -561,9 +545,9 @@ bool CBayesianOptimisation::restoreState(core::CDataSearcher& restoreSearcher,
                     return false;
                 }
             } else if (name == MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG) {
-                if (restoreSubLevelVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                if (restoreSubLevelVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
                                           "minimum kernel coordinate distance scale",
-                                          m_ErrorVariances, traverser) == false) {
+                                          m_MinimumKernelCoordinateDistanceScale, traverser) == false) {
                     return false;
                 }
             } else if (name == FUNCTION_MEAN_VALUES_TAG) {
@@ -616,36 +600,22 @@ bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
     return true;
 }
 
-bool CBayesianOptimisation::persistState(core::CDataAdder& persister) {
+void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
-        core::CStateCompressor compressor(persister);
-
-        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
-        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
-        core::CDataAdder::TOStreamP strm =
-            compressor.addStreamed(ML_STATE_INDEX, STATE_TYPE + '_' + snapShotId);
-        if (strm != nullptr) {
-            core::CJsonStatePersistInserter inserter(*strm);
-            //            inserter.insertInteger(NUMBER_PARAMETERS, m_MinBoundary.size());
-            //            inserter.insertInteger(NUMBER_EVALUATIONS, m_FunctionMeanValues.size());
-            inserter.insertLevel(MIN_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MinBoundary));
-            inserter.insertLevel(MAX_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MaxBoundary));
-            inserter.insertLevel(ERROR_VARIANCES_TAG,
-                                 persistVector(ERROR_VARIANCE_TAG, m_ErrorVariances));
-            inserter.insertLevel(KERNEL_PARAMETERS_TAG,
-                                 persistVector(KERNEL_PARAMETER_TAG, m_KernelParameters));
-            inserter.insertLevel(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                                 persistVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
-                                               m_MinimumKernelCoordinateDistanceScale));
-            inserter.insertLevel(FUNCTION_MEAN_VALUES_TAG,
-                                 persistFunctionMeanValues(m_FunctionMeanValues));
-        }
+        inserter.insertLevel(MIN_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MinBoundary));
+        inserter.insertLevel(MAX_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MaxBoundary));
+        inserter.insertLevel(ERROR_VARIANCES_TAG,
+                             persistVector(ERROR_VARIANCE_TAG, m_ErrorVariances));
+        inserter.insertLevel(KERNEL_PARAMETERS_TAG,
+                             persistVector(KERNEL_PARAMETER_TAG, m_KernelParameters));
+        inserter.insertLevel(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                             persistVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
+                                           m_MinimumKernelCoordinateDistanceScale));
+        inserter.insertLevel(FUNCTION_MEAN_VALUES_TAG,
+                             persistFunctionMeanValues(m_FunctionMeanValues));
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());
-        return false;
     }
-
-    return true;
 }
 
 std::function<void(core::CStatePersistInserter&)>

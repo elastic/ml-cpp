@@ -75,8 +75,9 @@ public:
     //! Restore previously saved state
     bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
-    //! Persist current state
-    bool persistState(core::CDataAdder& persister);
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! \name Test Interface
     //@{
