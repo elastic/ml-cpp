@@ -547,7 +547,8 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
             } else if (name == MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG) {
                 if (restoreSubLevelVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
                                           "minimum kernel coordinate distance scale",
-                                          m_MinimumKernelCoordinateDistanceScale, traverser) == false) {
+                                          m_MinimumKernelCoordinateDistanceScale,
+                                          traverser) == false) {
                     return false;
                 }
             } else if (name == FUNCTION_MEAN_VALUES_TAG) {
@@ -660,6 +661,5 @@ std::function<void(core::CStatePersistInserter&)> CBayesianOptimisation::persist
 }
 
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
-
 }
 }

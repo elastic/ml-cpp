@@ -144,7 +144,7 @@ private:
                                core::CStateRestoreTraverser& traverser);
 
     bool restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
-                              core::CStateRestoreTraverser& traverser);
+                                   core::CStateRestoreTraverser& traverser);
 
     std::function<bool(core::CStateRestoreTraverser&)>
     restoreParameterValuePair(TVector& parameters, double& functionValue);
