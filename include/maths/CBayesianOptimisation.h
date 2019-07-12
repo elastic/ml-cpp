@@ -12,6 +12,7 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
+
 #include <functional>
 #include <utility>
 #include <vector>
@@ -75,8 +76,10 @@ public:
     //! Restore previously saved state
     bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
+    //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! \name Test Interface
@@ -136,11 +139,6 @@ private:
     bool restoreSubLevelVector(const std::string& tag,
                                const std::string& name,
                                TVector& vector,
-                               core::CStateRestoreTraverser& traverser);
-
-    bool restoreSubLevelVector(const std::string& tag,
-                               const std::string& name,
-                               TDoubleVec& vector,
                                core::CStateRestoreTraverser& traverser);
 
     bool restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,

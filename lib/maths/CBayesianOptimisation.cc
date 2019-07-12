@@ -8,7 +8,10 @@
 
 #include <core/CIEEE754.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
+#include <core/CPersistUtils.h>
 #include <core/CStateCompressor.h>
+#include <core/CStateDecompressor.h>
 #include <core/CTimeUtils.h>
 
 #include <maths/CBasicStatistics.h>
@@ -16,11 +19,9 @@
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/CSampling.h>
+#include <maths/CTools.h>
 
 #include <boost/math/distributions/normal.hpp>
-#include <core/CJsonStateRestoreTraverser.h>
-#include <core/CStateDecompressor.h>
-#include <maths/CTools.h>
 
 namespace ml {
 namespace maths {
@@ -500,6 +501,7 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
 
             } while (traverser.next());
             functionMeanValues = std::move(newVector);
+            return true;
         };
         traverser.traverseSubLevel(restoreParameterValuePairs);
 
@@ -535,8 +537,8 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
                     return false;
                 }
             } else if (name == ERROR_VARIANCES_TAG) {
-                if (restoreSubLevelVector(ERROR_VARIANCE_TAG, "error variance",
-                                          m_ErrorVariances, traverser) == false) {
+                if (core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances,
+                                                 traverser) == false) {
                     return false;
                 }
             } else if (name == KERNEL_PARAMETERS_TAG) {
@@ -585,28 +587,12 @@ bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
     return true;
 }
 
-bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
-                                                  const std::string& name,
-                                                  TDoubleVec& vector,
-                                                  core::CStateRestoreTraverser& traverser) {
-    if (traverser.hasSubLevel()) {
-        if (traverser.traverseSubLevel(restoreVector(tag, vector)) == false) {
-            return false;
-        }
-    } else {
-        LOG_ERROR(<< "Error restoring " << name << ": " << traverser.value()
-                  << ". Expected to have a sublevel");
-        return false;
-    }
-    return true;
-}
-
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
         inserter.insertLevel(MIN_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MinBoundary));
         inserter.insertLevel(MAX_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MaxBoundary));
-        inserter.insertLevel(ERROR_VARIANCES_TAG,
-                             persistVector(ERROR_VARIANCE_TAG, m_ErrorVariances));
+        inserter.insertValue(ERROR_VARIANCES_TAG,
+                             core::CPersistUtils::toString(m_ErrorVariances));
         inserter.insertLevel(KERNEL_PARAMETERS_TAG,
                              persistVector(KERNEL_PARAMETER_TAG, m_KernelParameters));
         inserter.insertLevel(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
