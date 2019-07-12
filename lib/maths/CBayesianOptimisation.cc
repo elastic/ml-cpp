@@ -31,7 +31,6 @@ const std::string MIN_BOUNDARY_TAG{"a"};
 const std::string MAX_BOUNDARY_TAG{"b"};
 const std::string BOUNDARY_TAG{"c"};
 const std::string ERROR_VARIANCES_TAG{"d"};
-const std::string ERROR_VARIANCE_TAG{"e"};
 const std::string KERNEL_PARAMETERS_TAG{"f"};
 const std::string KERNEL_PARAMETER_TAG{"g"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"h"};
@@ -42,9 +41,6 @@ const std::string FUNCTION_PARAMETERS_TAG{"l"};
 const std::string FUNCTION_PARAMETER_TAG{"m"};
 const std::string FUNCTION_VALUE_TAG{"n"};
 }
-
-const std::string CBayesianOptimisation::ML_STATE_INDEX(".ml-state");
-const std::string CBayesianOptimisation::STATE_TYPE("bayesian_optimization_state");
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
     : m_MinBoundary(parameterBounds.size()), m_MaxBoundary(parameterBounds.size()),

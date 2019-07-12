@@ -123,12 +123,12 @@ private:
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
 
     std::function<void(core::CStatePersistInserter&)>
-    persistFunctionMeanValues(const CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues) const;
+    persistFunctionMeanValues(const TVectorDoublePrVec& functionMeanValues) const;
     std::function<void(core::CStatePersistInserter&)>
-    persistVector(const std::string& tag, const CBayesianOptimisation::TVector& vector) const;
+    persistVector(const std::string& tag, const TVector& vector) const;
 
     std::function<void(core::CStatePersistInserter&)>
-    persistVector(const std::string& tag, const CBayesianOptimisation::TDoubleVec& vector) const;
+    persistVector(const std::string& tag, const TDoubleVec& vector) const;
 
     std::function<bool(core::CStateRestoreTraverser&)>
     restoreVector(const std::string& tag, TDoubleVec& vector);
@@ -141,7 +141,7 @@ private:
                                TVector& vector,
                                core::CStateRestoreTraverser& traverser);
 
-    bool restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
+    bool restoreFunctionMeanValues(TVectorDoublePrVec& functionMeanValues,
                                    core::CStateRestoreTraverser& traverser);
 
     std::function<bool(core::CStateRestoreTraverser&)>
