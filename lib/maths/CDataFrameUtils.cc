@@ -145,7 +145,6 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     }
 
     result = std::move(quantiles.first[0].s_FunctionState);
-
     for (std::size_t i = 1; i < quantiles.first.size(); ++i) {
         for (std::size_t j = 0; j < columnMask.size(); ++j) {
             result[j] += quantiles.first[i].s_FunctionState[j];
@@ -189,11 +188,7 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     for (const auto& counts_ : categoryCounts.first) {
         for (std::size_t i = 0; i < counts_.s_FunctionState.size(); ++i) {
-            result[i].resize(counts_.s_FunctionState[i].size());
-        }
-    }
-    for (const auto& counts_ : categoryCounts.first) {
-        for (std::size_t i = 0; i < counts_.s_FunctionState.size(); ++i) {
+            result[i].resize(counts_.s_FunctionState[i].size(), 0.0);
             for (std::size_t j = 0; j < counts_.s_FunctionState[i].size(); ++j) {
                 result[i][j] += counts_.s_FunctionState[i][j] /
                                 static_cast<double>(frame.numberRows());
@@ -251,10 +246,6 @@ CDataFrameUtils::meanValueOfTargetForCategories(std::size_t numberThreads,
     for (const auto& means_ : categoryMeanValues.first) {
         for (std::size_t i = 0; i < means_.s_FunctionState.size(); ++i) {
             means[i].resize(means_.s_FunctionState[i].size());
-        }
-    }
-    for (const auto& means_ : categoryMeanValues.first) {
-        for (std::size_t i = 0; i < means_.s_FunctionState.size(); ++i) {
             for (std::size_t j = 0; j < means_.s_FunctionState[i].size(); ++j) {
                 means[i][j] += means_.s_FunctionState[i][j];
             }
